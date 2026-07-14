@@ -2972,12 +2972,22 @@ async fn spawn_external_player_with_args(
 // Window State Persistence
 // =============================================================================
 
+#[derive(Default)]
+struct WindowStateTracker {
+    last_unmaximized: std::sync::Mutex<Option<WindowState>>,
+    last_non_fullscreen_maximized: std::sync::Mutex<bool>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct WindowState {
     width: u32,
     height: u32,
     x: i32,
     y: i32,
+    #[serde(default)]
+    maximized: bool,
+    #[serde(default)]
+    fullscreen: bool,
 }
 
 fn window_state_path(app: &tauri::AppHandle) -> Option<std::path::PathBuf> {
@@ -2989,67 +2999,105 @@ fn window_state_path(app: &tauri::AppHandle) -> Option<std::path::PathBuf> {
 
 fn save_window_state(app: &tauri::AppHandle) {
     if let Some(window) = app.get_webview_window("main") {
-        // Don't save fullscreen state — restore to last windowed geometry instead
-        if window.is_fullscreen().unwrap_or(false) {
-            return;
-        }
-        // Get inner_size (physical pixels) and convert to logical pixels
-        // This ensures the size is DPI-independent and won't double-scale on restore
-        let physical_size = match window.inner_size() {
-            Ok(s) => s,
-            Err(_) => return,
+        let is_fullscreen = window.is_fullscreen().unwrap_or(false);
+        let is_maximized = if is_fullscreen {
+            let tracker = app.state::<WindowStateTracker>();
+            tracker.last_non_fullscreen_maximized.lock().map(|g| *g).unwrap_or(false)
+        } else {
+            window.is_maximized().unwrap_or(false)
         };
-        let scale_factor = window.scale_factor().unwrap_or(1.0);
-        let logical_size: tauri::LogicalSize<f64> = physical_size.to_logical(scale_factor);
-
-        let pos = match window.outer_position() {
-            Ok(p) => p,
-            Err(_) => return,
-        };
-        // Sanity-check: ignore absurd values (minimised, off-screen, etc.)
-        if physical_size.width < 400 || physical_size.height < 300 {
-            return;
-        }
-
-        // Check if user has disabled saving window size on close
+        
         let dont_save_size = should_skip_saving_window_size(app);
 
-        // Save logical size (DPI-independent) to prevent double-scaling issues
+        let mut saved_width = 0;
+        let mut saved_height = 0;
+        let mut saved_x = 0;
+        let mut saved_y = 0;
+
+        if is_maximized || is_fullscreen {
+            // Find the unmaximized dimensions to save
+            let mut unmaximized_state = None;
+            let tracker = app.state::<WindowStateTracker>();
+            if let Ok(guard) = tracker.last_unmaximized.lock() {
+                unmaximized_state = guard.clone();
+            }
+            if unmaximized_state.is_none() {
+                if let Some(path) = window_state_path(app) {
+                    if let Ok(json) = std::fs::read_to_string(&path) {
+                        if let Ok(state) = serde_json::from_str::<WindowState>(&json) {
+                            unmaximized_state = Some(state);
+                        }
+                    }
+                }
+            }
+
+            if let Some(state) = unmaximized_state {
+                saved_width = if dont_save_size { 0 } else { state.width };
+                saved_height = if dont_save_size { 0 } else { state.height };
+                saved_x = state.x;
+                saved_y = state.y;
+            } else {
+                // Fallback to current size/pos
+                if let (Ok(physical_size), Ok(pos)) = (window.inner_size(), window.outer_position()) {
+                    let scale_factor = window.scale_factor().unwrap_or(1.0);
+                    let logical_size = physical_size.to_logical::<f64>(scale_factor);
+                    saved_width = if dont_save_size { 0 } else { logical_size.width.round() as u32 };
+                    saved_height = if dont_save_size { 0 } else { logical_size.height.round() as u32 };
+                    saved_x = pos.x;
+                    saved_y = pos.y;
+                }
+            }
+        } else {
+            // Normal (unmaximized) state
+            if let (Ok(physical_size), Ok(pos)) = (window.inner_size(), window.outer_position()) {
+                let scale_factor = window.scale_factor().unwrap_or(1.0);
+                let logical_size = physical_size.to_logical::<f64>(scale_factor);
+                
+                // Sanity-check: ignore absurd values (minimised, off-screen, etc.)
+                if physical_size.width < 400 || physical_size.height < 300 {
+                    return;
+                }
+
+                saved_width = if dont_save_size { 0 } else { logical_size.width.round() as u32 };
+                saved_height = if dont_save_size { 0 } else { logical_size.height.round() as u32 };
+                saved_x = pos.x;
+                saved_y = pos.y;
+            } else {
+                return;
+            }
+        }
+
         let state = WindowState {
-            width: logical_size.width.round() as u32,
-            height: logical_size.height.round() as u32,
-            x: pos.x,
-            y: pos.y,
+            width: saved_width,
+            height: saved_height,
+            x: saved_x,
+            y: saved_y,
+            maximized: is_maximized,
+            fullscreen: is_fullscreen,
         };
-        // Save to window_state.json for position restoration
-        // Only save size if user hasn't disabled it
+
         if let Some(path) = window_state_path(app) {
             if let Some(parent) = path.parent() {
                 let _ = std::fs::create_dir_all(parent);
             }
-            if dont_save_size {
-                // Only save position, not size
-                let state_pos_only = WindowState {
-                    width: 0, // 0 means "use settings value"
-                    height: 0,
-                    x: pos.x,
-                    y: pos.y,
-                };
-                if let Ok(json) = serde_json::to_string(&state_pos_only) {
-                    let _ = std::fs::write(&path, json);
-                }
-            } else {
-                if let Ok(json) = serde_json::to_string(&state) {
-                    let _ = std::fs::write(&path, json);
-                }
+            if let Ok(json) = serde_json::to_string(&state) {
+                let _ = std::fs::write(&path, json);
             }
         }
+
         // Also update the startupWidth/startupHeight in tauri-plugin-store
-        // so Settings -> UI shows the last closed size as the default
-        // Use logical size to prevent DPI scaling issues
-        // Skip this if user has disabled saving window size
         if !dont_save_size {
-            update_startup_size_in_store(app, logical_size.width.round() as u32, logical_size.height.round() as u32);
+            let store_width = if is_maximized || is_fullscreen {
+                if saved_width > 0 { saved_width } else { 1920 }
+            } else {
+                saved_width
+            };
+            let store_height = if is_maximized || is_fullscreen {
+                if saved_height > 0 { saved_height } else { 1080 }
+            } else {
+                saved_height
+            };
+            update_startup_size_in_store(app, store_width, store_height);
         }
     }
 }
@@ -3160,8 +3208,14 @@ fn restore_window_state(app: &tauri::AppHandle) {
                             tauri::PhysicalPosition { x: state.x, y: state.y }
                         ));
                     }
-                    debug!("[WindowState] Restored: {}x{} logical at ({}, {})",
-                        state.width, state.height, state.x, state.y);
+                    if state.maximized {
+                        let _ = window.maximize();
+                    }
+                    if state.fullscreen {
+                        let _ = window.set_fullscreen(true);
+                    }
+                    debug!("[WindowState] Restored: {}x{} logical at ({}, {}) (maximized: {}, fullscreen: {})",
+                        state.width, state.height, state.x, state.y, state.maximized, state.fullscreen);
                 }
             }
         }
@@ -3174,12 +3228,27 @@ fn restore_window_position(app: &tauri::AppHandle) {
         if let Ok(json) = std::fs::read_to_string(&path) {
             if let Ok(state) = serde_json::from_str::<WindowState>(&json) {
                 if let Some(window) = app.get_webview_window("main") {
+                    // Apply size first if available and if we are going to maximize or go fullscreen,
+                    // so that the OS knows the correct restored (unmaximized) geometry.
+                    if (state.maximized || state.fullscreen) && state.width != 0 && state.height != 0 {
+                        let _ = window.set_size(tauri::Size::Logical(
+                            tauri::LogicalSize { width: state.width as f64, height: state.height as f64 }
+                        ));
+                    }
                     // Apply position only (only if non-zero — avoids placing off-screen on first run)
                     if state.x != 0 || state.y != 0 {
                         let _ = window.set_position(tauri::Position::Physical(
                             tauri::PhysicalPosition { x: state.x, y: state.y }
                         ));
                         debug!("[WindowState] Restored position: ({}, {})", state.x, state.y);
+                    }
+                    if state.maximized {
+                        let _ = window.maximize();
+                        debug!("[WindowState] Restored maximized state");
+                    }
+                    if state.fullscreen {
+                        let _ = window.set_fullscreen(true);
+                        debug!("[WindowState] Restored fullscreen state");
                     }
                 }
             }
@@ -3238,6 +3307,8 @@ pub fn run() {
         .manage(MpvState::new())
         .manage(std::sync::Arc::new(cast::CastManager::new()))
         .setup(|app| {
+            app.manage(WindowStateTracker::default());
+
             // Apply SOCKS5 proxy settings if configured
             apply_proxy_settings(app.handle());
 
@@ -3364,10 +3435,44 @@ pub fn run() {
 
             Ok(())
         })
-        // Save window size/position when the window is about to close
+        // Save window size/position when the window is about to close,
+        // and track the last unmaximized size/position.
         .on_window_event(|window, event| {
-            if let tauri::WindowEvent::CloseRequested { .. } = event {
-                save_window_state(&window.app_handle());
+            match event {
+                tauri::WindowEvent::CloseRequested { .. } => {
+                    save_window_state(&window.app_handle());
+                }
+                tauri::WindowEvent::Resized(_) | tauri::WindowEvent::Moved(_) => {
+                    if !window.is_fullscreen().unwrap_or(false) {
+                        let maximized = window.is_maximized().unwrap_or(false);
+                        let tracker = window.state::<WindowStateTracker>();
+                        if let Ok(mut guard) = tracker.last_non_fullscreen_maximized.lock() {
+                            *guard = maximized;
+                        }
+
+                        if !maximized {
+                            if let (Ok(physical_size), Ok(pos)) = (window.inner_size(), window.outer_position()) {
+                                let scale_factor = window.scale_factor().unwrap_or(1.0);
+                                let logical_size = physical_size.to_logical::<f64>(scale_factor);
+                                if physical_size.width >= 400 && physical_size.height >= 300 {
+                                    let tracker = window.state::<WindowStateTracker>();
+                                    let guard = tracker.last_unmaximized.lock();
+                                    if let Ok(mut g) = guard {
+                                        *g = Some(WindowState {
+                                            width: logical_size.width.round() as u32,
+                                            height: logical_size.height.round() as u32,
+                                            x: pos.x,
+                                            y: pos.y,
+                                            maximized: false,
+                                            fullscreen: false,
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                _ => {}
             }
         })
         .invoke_handler(tauri::generate_handler![

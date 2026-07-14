@@ -1,5 +1,5 @@
 .playback-tab-content {
-  max-width: 800px;
+  max-width: 100%;
 }
 
 /* ─── Themed Scrollbar ─────────────────────────────────────── */
@@ -95,16 +95,16 @@
 }
 
 .help-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
 .help-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
+  gap: 16px;
+  padding: 8px 16px;
   background: rgba(0, 0, 0, 0.2);
   border-radius: 6px;
 }
@@ -114,9 +114,12 @@
   font-size: 0.8rem;
   color: #00d4ff;
   background: rgba(0, 212, 255, 0.1);
-  padding: 2px 8px;
+  padding: 4px 10px;
   border-radius: 4px;
   white-space: nowrap;
+  min-width: 280px;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .help-item span {

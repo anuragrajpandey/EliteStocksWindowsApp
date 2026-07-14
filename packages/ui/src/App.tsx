@@ -3126,8 +3126,9 @@ function App() {
         const requestedHeight = settings.startupHeight || 1080;
 
         const appWindow = getCurrentWindow();
-        const [isMaximized, monitor, scaleFactor] = await Promise.all([
+        const [isMaximized, isFullscreen, monitor, scaleFactor] = await Promise.all([
           appWindow.isMaximized(),
+          appWindow.isFullscreen(),
           currentMonitor(),
           appWindow.scaleFactor(),
         ]);
@@ -3143,8 +3144,9 @@ function App() {
           height = Math.min(maxHeight, Math.max(600, Math.floor(requestedHeight * fitScale)));
         }
 
-        if (isMaximized) {
-          await appWindow.unmaximize();
+        if (isMaximized || isFullscreen) {
+          // If the window starts up maximized or fullscreen, keep the state and bypass size/unmaximize updates.
+          return;
         }
         await appWindow.setSize(new LogicalSize(width, height));
       } catch (err) {

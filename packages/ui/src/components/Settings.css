@@ -24,10 +24,10 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   width: 90%;
-  max-width: 600px;
-  height: 70vh;
-  min-height: 400px;
-  max-height: 650px;
+  max-width: 900px;
+  height: 80vh;
+  min-height: 500px;
+  max-height: 950px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -36,7 +36,7 @@
 
 /* Sidebar layout variant */
 .settings-panel--sidebar {
-  max-width: 750px;
+  max-width: 1400px;
 }
 
 .settings-body {
