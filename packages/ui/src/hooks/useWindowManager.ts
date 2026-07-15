@@ -7,27 +7,35 @@ export interface WindowManagerState {
   handleMaximize: () => void;
   handleClose: () => void;
   isMaximized: boolean;
+  isFullscreen: boolean;
 }
 
 export function useWindowManager(): WindowManagerState {
   const [isMaximized, setIsMaximized] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const appWindow = getCurrentWindow();
     let disposed = false;
     let updateTimer: ReturnType<typeof setTimeout> | null = null;
 
-    const updateMaximizedState = async () => {
-      const maximized = await appWindow.isMaximized();
-      if (!disposed) setIsMaximized(maximized);
+    const updateWindowState = async () => {
+      const [maximized, fullscreen] = await Promise.all([
+        appWindow.isMaximized(),
+        appWindow.isFullscreen(),
+      ]);
+      if (!disposed) {
+        setIsMaximized(maximized);
+        setIsFullscreen(fullscreen);
+      }
     };
 
-    updateMaximizedState().catch(() => {});
+    updateWindowState().catch(() => {});
     const unlistenPromise = appWindow.onResized(() => {
       if (updateTimer) clearTimeout(updateTimer);
       updateTimer = setTimeout(() => {
         updateTimer = null;
-        updateMaximizedState().catch(() => {});
+        updateWindowState().catch(() => {});
       }, 50);
     });
 
@@ -45,12 +53,10 @@ export function useWindowManager(): WindowManagerState {
   const handleMaximize = useCallback(async () => {
     try {
       if (await Bridge.isFullscreen()) {
-        await Bridge.setFullscreen(false, { restoreMaximized: false });
-        setIsMaximized(false);
+        await Bridge.setFullscreen(false);
         return;
       }
       await Bridge.toggleMaximize();
-      setIsMaximized(await Bridge.isMaximized());
     } catch (err) {
       console.error('[WindowManager] maximize failed:', err);
     }
@@ -65,5 +71,6 @@ export function useWindowManager(): WindowManagerState {
     handleMaximize,
     handleClose,
     isMaximized,
+    isFullscreen,
   };
 }

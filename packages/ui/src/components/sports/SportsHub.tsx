@@ -185,6 +185,8 @@ export function SportsHub({
     let rafId: number | null = null;
     let lastGeometry = '';
     let forceNextUpdate = false;
+    let isDragging = false;
+    let dragSettleTimer: ReturnType<typeof setTimeout> | null = null;
     const isReady = visible === undefined ? true : (visible && transitionCompleted);
 
     const updateVideoPosition = async () => {
@@ -236,7 +238,9 @@ export function SportsHub({
       const sh = Math.round(rect.height * d);
       const nextGeometry = `${sx}:${sy}:${sw}:${sh}`;
 
-      if (force || nextGeometry === lastGeometry) {
+      // Suppress geometry updates while the window is being dragged to avoid choppy
+      // mid-drag resizing. The drag-settle handler fires one forced update when movement stops.
+      if (isDragging || (!force && nextGeometry === lastGeometry)) {
         isSyncing = false;
         return;
       }
@@ -290,8 +294,19 @@ export function SportsHub({
     import('@tauri-apps/api/window').then(({ getCurrentWindow }) => {
       const appWindow = getCurrentWindow();
       appWindow.onMoved(() => {
-        forceNextUpdate = true;
-        scheduleVideoPositionUpdate();
+        // Mark drag in progress — suppresses mpv_set_geometry during movement
+        isDragging = true;
+        // Debounce: once onMoved stops firing for 100ms the window has settled.
+        // Clear any pending settle timer and restart it.
+        if (dragSettleTimer !== null) clearTimeout(dragSettleTimer);
+        dragSettleTimer = setTimeout(() => {
+          dragSettleTimer = null;
+          isDragging = false;
+          // Bypass geometry cache and reposition MPV exactly once after the drag ends.
+          forceNextUpdate = true;
+          lastGeometry = ''; // reset cache so the geometry call is never skipped
+          scheduleVideoPositionUpdate();
+        }, 100);
       }).then((unlisten) => {
         if (disposed) unlisten();
         else unlistenMove = unlisten;
@@ -318,6 +333,7 @@ export function SportsHub({
       observer.disconnect();
       window.removeEventListener('resize', handleWindowResize);
       if (unlistenMove) unlistenMove();
+      if (dragSettleTimer !== null) clearTimeout(dragSettleTimer);
       if (rafId !== null) cancelAnimationFrame(rafId);
       cancelAnimationFrame(animationFrameId);
       onPreviewVideoRectChange?.(null);

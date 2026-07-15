@@ -1628,7 +1628,7 @@ function App() {
   // ==========================================================================
   // Window Manager (from useWindowManager)
   // ==========================================================================
-  const { handleMinimize, handleMaximize, handleClose, isMaximized } = useWindowManager();
+  const { handleMinimize, handleMaximize, handleClose, isMaximized, isFullscreen } = useWindowManager();
 
   // ==========================================================================
   // Update Modal State
@@ -3590,10 +3590,10 @@ function App() {
           </button>
           <button
             onClick={handleMaximize}
-            title={isMaximized ? 'Restore Down' : 'Maximize'}
-            aria-label={isMaximized ? 'Restore Down' : 'Maximize'}
+            title={isMaximized || isFullscreen ? 'Restore Down' : 'Maximize'}
+            aria-label={isMaximized || isFullscreen ? 'Restore Down' : 'Maximize'}
           >
-            {isMaximized ? (
+            {isMaximized || isFullscreen ? (
               <svg className="window-control-icon" viewBox="0 0 12 12" aria-hidden="true">
                 <path d="M3.5 3.5h7v7h-7zM1.5 8.5v-7h7" />
               </svg>
