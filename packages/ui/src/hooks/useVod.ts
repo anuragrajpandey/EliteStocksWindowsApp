@@ -898,6 +898,9 @@ export function useLazyStalkerLoader(type: 'movies' | 'series', categoryId: stri
   // Cache TTL: 5 minutes for Stalker VOD (can be adjusted)
   const CACHE_TTL_MS = 5 * 60 * 1000;
 
+  // Storage key for last-sync timestamp (keyed per category + type)
+  const syncTimestampKey = categoryId ? `stalker_sync_ts_${type}_${categoryId}` : null;
+
   useEffect(() => {
     if (!categoryId) {
       setCompleted(false);
@@ -931,29 +934,37 @@ export function useLazyStalkerLoader(type: 'movies' | 'series', categoryId: stri
 
       const count = existingItems.length;
 
-      // Check cache freshness (if items exist, check the newest one's 'added' timestamp)
+      // Check cache freshness using a localStorage timestamp keyed per category+type.
+      // NOTE: We intentionally do NOT use item.added for this check — that field reflects
+      // the content's original publish date (e.g. "2019-01-01"), not when WE last synced it.
       let cacheIsFresh = false;
       if (count > 0) {
-        const newestItem = await table
-          .where('category_ids')
-          .equals(categoryId)
-          .reverse()
-          .sortBy('added')
-          .then(items => items[0]);
-
-        if (newestItem?.added) {
-          const addedTime = new Date(newestItem.added).getTime();
-          const now = Date.now();
-          cacheIsFresh = (now - addedTime) < CACHE_TTL_MS;
-        }
-
         // We have cached data - show it immediately
         setHasCache(true);
+
+        if (syncTimestampKey) {
+          const lastSyncStr = localStorage.getItem(syncTimestampKey);
+          if (lastSyncStr) {
+            const lastSyncTime = parseInt(lastSyncStr, 10);
+            if (!isNaN(lastSyncTime)) {
+              cacheIsFresh = (Date.now() - lastSyncTime) < CACHE_TTL_MS;
+            }
+          }
+        }
         console.log(`[useLazyStalkerLoader] ${type} cache found for ${categoryId}: ${count} items, fresh: ${cacheIsFresh}`);
       }
 
       // Only sync if no cache or cache is stale
       if (count === 0 || !cacheIsFresh) {
+        // Don't start a background sync while a stream URL is being resolved
+        // (e.g. during playback or download initiation) to avoid racing token refresh
+        // with the get_ordered_list batch fetches.
+        if ((window as any).isPlaybackResolving) {
+          console.log(`[useLazyStalkerLoader] Deferring ${type} sync for ${categoryId} - stream resolution in progress`);
+          setCompleted(true);
+          return;
+        }
+
         setSyncing(true);
         setMessage(count === 0 ? 'Loading...' : 'Updating...');
         try {
@@ -962,6 +973,10 @@ export function useLazyStalkerLoader(type: 'movies' | 'series', categoryId: stri
             setProgress(pct);
             setMessage(msg);
           });
+          // Record successful sync timestamp so cache check works next time
+          if (syncTimestampKey) {
+            localStorage.setItem(syncTimestampKey, String(Date.now()));
+          }
           console.log(`[useLazyStalkerLoader] ${type} sync completed for ${categoryId}`);
         } catch (e) {
           console.error('[useLazyStalkerLoader] Sync failed:', e);
@@ -984,6 +999,7 @@ export function useLazyStalkerLoader(type: 'movies' | 'series', categoryId: stri
 
   return { syncing, progress, message, completed, hasCache };
 }
+
 
 // ============================================================================
 // Recently Watched Hooks

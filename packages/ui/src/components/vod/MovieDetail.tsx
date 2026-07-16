@@ -54,13 +54,22 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick }: Mov
   }, [movie, onPlay, lazyPlot, backdropUrl, logoUrl]);
 
   const [copied, setCopied] = useState(false);
-  const handleCopy = useCallback(() => {
-    if (movie.direct_url) {
-      navigator.clipboard.writeText(movie.direct_url);
+  const [copying, setCopying] = useState(false);
+  const handleCopy = useCallback(async () => {
+    if (!movie.direct_url) return;
+    setCopying(true);
+    try {
+      const resolved = await resolvePlayUrl(movie.source_id, movie.direct_url);
+      await navigator.clipboard.writeText(resolved.url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('[MovieDetail] Failed to copy stream URL:', error);
+      alert('Failed to resolve and copy stream URL');
+    } finally {
+      setCopying(false);
     }
-  }, [movie.direct_url]);
+  }, [movie]);
 
   // Load RPDB settings for poster
   const { apiKey: rpdbApiKey } = useRpdbSettings();
@@ -105,7 +114,9 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick }: Mov
         resolved.userAgent,
         movie.duration ? movie.duration * 60 : undefined,
         undefined,
-        posterUrl || undefined
+        posterUrl || undefined,
+        movie.source_id,
+        movie.direct_url
       );
     } catch (error) {
       console.error('[MovieDetail] Download failed:', error);
@@ -267,6 +278,7 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick }: Mov
                 <button
                   className={`movie-detail__btn movie-detail__btn--secondary ${copied ? 'copied' : ''}`}
                   onClick={handleCopy}
+                  disabled={copying}
                   title="Copy Stream URL"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -276,7 +288,7 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick }: Mov
                       <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" />
                     )}
                   </svg>
-                  {copied ? 'Copied URL!' : 'Copy Stream URL'}
+                  {copying ? 'Resolving...' : copied ? 'Copied URL!' : 'Copy Stream URL'}
                 </button>
               )}
             </div>

@@ -20,6 +20,8 @@ export interface DownloadItem {
   durationSecs?: number;
   poster?: string;
   watchProgressSeconds?: number;
+  sourceId?: string;
+  directUrl?: string;
 }
 
 interface DownloadState {
@@ -30,7 +32,9 @@ interface DownloadState {
     userAgent?: string,
     durationSecs?: number,
     preResolvedSavePath?: string,
-    poster?: string
+    poster?: string,
+    sourceId?: string,
+    directUrl?: string
   ) => Promise<void>;
   cancelDownload: (id: string) => Promise<void>;
   removeDownload: (id: string) => void;
@@ -59,7 +63,7 @@ export const useDownloadStore = create<DownloadState>()(
     (set, get) => ({
       downloads: [],
 
-      startDownload: async (title, url, userAgent, durationSecs, preResolvedSavePath, poster) => {
+      startDownload: async (title, url, userAgent, durationSecs, preResolvedSavePath, poster, sourceId, directUrl) => {
         try {
           // 1. Resolve save path
           let savePath = '';
@@ -113,6 +117,8 @@ export const useDownloadStore = create<DownloadState>()(
             userAgent,
             durationSecs,
             poster,
+            sourceId,
+            directUrl,
           };
 
           set((state) => ({ downloads: [newItem, ...(state.downloads || [])] }));
@@ -184,9 +190,27 @@ export const useDownloadStore = create<DownloadState>()(
           .find((d) => d.status === 'queued');
 
         if (nextItem) {
+          let downloadUrl = nextItem.url;
+          let userAgent = nextItem.userAgent;
+
+          // Re-resolve stream URL before downloading if sourceId/directUrl are present
+          if (nextItem.sourceId && nextItem.directUrl) {
+            try {
+              const { resolvePlayUrl } = await import('../services/stream-resolver');
+              const resolved = await resolvePlayUrl(nextItem.sourceId, nextItem.directUrl);
+              downloadUrl = resolved.url;
+              if (resolved.userAgent) {
+                userAgent = resolved.userAgent;
+              }
+              console.log('[DownloadStore] Re-resolved URL for queued download:', nextItem.title, '->', downloadUrl);
+            } catch (err) {
+              console.warn('[DownloadStore] Failed to re-resolve URL before downloading, using original URL:', err);
+            }
+          }
+
           set((state) => ({
             downloads: (state.downloads || []).map((d) =>
-              d.id === nextItem.id ? { ...d, status: 'downloading' as const } : d
+              d.id === nextItem.id ? { ...d, status: 'downloading' as const, url: downloadUrl, userAgent } : d
             ),
           }));
 
@@ -195,9 +219,9 @@ export const useDownloadStore = create<DownloadState>()(
               request: {
                 id: nextItem.id,
                 title: nextItem.title,
-                url: nextItem.url,
+                url: downloadUrl,
                 save_path: nextItem.savePath,
-                user_agent: nextItem.userAgent || null,
+                user_agent: userAgent || null,
                 duration_secs: nextItem.durationSecs || null,
               }
             });

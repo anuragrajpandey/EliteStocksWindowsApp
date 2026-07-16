@@ -89,6 +89,7 @@ export interface StoredSeries extends Series {
   _stalker_category?: string; // Stalker: store parent category for episode fetching
   _stalker_raw_id?: string; // Stalker: store raw ID for episode/season fetching
   category_id?: string; // Singular category ID
+  direct_url?: string;
 }
 
 // VOD Episode

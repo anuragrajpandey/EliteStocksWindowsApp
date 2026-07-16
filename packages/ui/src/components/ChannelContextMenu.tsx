@@ -163,6 +163,17 @@ export function ChannelContextMenu({
         try {
             let streamUrl = channel.direct_url || '';
 
+            // Resolve the stream URL (crucial for Stalker channels, etc.)
+            if (channel.source_id) {
+                try {
+                    const { resolvePlayUrl } = await import('../services/stream-resolver');
+                    const resolved = await resolvePlayUrl(channel.source_id, streamUrl);
+                    streamUrl = resolved.url;
+                } catch (e) {
+                    console.error('[ChannelContextMenu] Failed to resolve stream URL:', e);
+                }
+            }
+
             // If it's an Xtream source and direct_url isn't already a full URL, we need to build it
             if (channel.source_id && window.storage && !streamUrl.startsWith('http')) {
                 const sourceRes = await window.storage.getSource(channel.source_id);

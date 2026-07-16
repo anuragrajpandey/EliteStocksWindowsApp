@@ -94,7 +94,9 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
           resolved.userAgent,
           episodeDuration ? episodeDuration * 60 : undefined,
           undefined,
-          posterUrl || undefined
+          posterUrl || undefined,
+          series.source_id,
+          episode.direct_url
         );
       } catch (error) {
         console.error('[SeriesDetail] Episode download failed:', error);
@@ -166,7 +168,9 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
             resolved.userAgent,
             episodeDuration ? episodeDuration * 60 : undefined,
             episodeSavePath,
-            posterUrl || undefined
+            posterUrl || undefined,
+            series.source_id,
+            episode.direct_url
           );
         } catch (err) {
           console.error(`[SeriesDetail] Failed to queue episode S${episode.season_num}E${episode.episode_num}:`, err);
@@ -324,14 +328,26 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
   }, [series, episodeProgress]);
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const handleCopy = useCallback((episode: StoredEpisode, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (episode.direct_url) {
-      navigator.clipboard.writeText(episode.direct_url);
-      setCopiedId(episode.id);
-      setTimeout(() => setCopiedId(null), 2000);
-    }
-  }, []);
+  const [copyingId, setCopyingId] = useState<string | null>(null);
+  const handleCopy = useCallback(
+    async (episode: StoredEpisode, e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!episode.direct_url) return;
+      setCopyingId(episode.id);
+      try {
+        const resolved = await resolvePlayUrl(series.source_id, episode.direct_url);
+        await navigator.clipboard.writeText(resolved.url);
+        setCopiedId(episode.id);
+        setTimeout(() => setCopiedId(null), 2000);
+      } catch (error) {
+        console.error('[SeriesDetail] Copy stream URL failed:', error);
+        alert('Failed to resolve and copy stream URL');
+      } finally {
+        setCopyingId(null);
+      }
+    },
+    [series.source_id]
+  );
 
   // Use clean title if available, otherwise fall back to name
   const displayTitle = series.title || series.name;
@@ -612,9 +628,14 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                         <button
                           className={`series-detail__episode-card-copy ${copiedId === episode.id ? 'copied' : ''}`}
                           onClick={(e) => handleCopy(episode, e)}
+                          disabled={copyingId === episode.id}
                           title="Copy Stream URL"
                         >
-                          {copiedId === episode.id ? (
+                          {copyingId === episode.id ? (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <circle cx="12" cy="12" r="10" strokeDasharray="31.4" strokeDashoffset="10" style={{ transformOrigin: 'center', animation: 'spin 1.5s linear infinite' }} />
+                            </svg>
+                          ) : copiedId === episode.id ? (
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>

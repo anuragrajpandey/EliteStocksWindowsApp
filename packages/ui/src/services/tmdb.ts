@@ -30,7 +30,15 @@ export function getTmdbImageUrl(
   size: string = TMDB_POSTER_SIZES.medium
 ): string | null {
   if (!path) return null;
-  return `${TMDB_IMAGE_BASE}/${size}${path}`;
+  const cleanPath = typeof path === 'string' ? path.trim() : String(path);
+  if (!cleanPath || cleanPath === '[]' || cleanPath === 'null' || cleanPath === 'undefined') {
+    return null;
+  }
+  if (cleanPath.startsWith('http://') || cleanPath.startsWith('https://')) {
+    return cleanPath;
+  }
+  const finalPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+  return `${TMDB_IMAGE_BASE}/${size}${finalPath}`;
 }
 
 // Singleton instance

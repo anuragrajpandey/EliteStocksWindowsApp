@@ -738,7 +738,7 @@ export class StalkerClient {
 
     async getVodCategories(): Promise<Category[]> {
         await this.ensureToken();
-        const rawData = await this.fetchStalker<any>('get_categories', 'vod');
+        const rawData = await this.fetchStalker<any>('get_categories', 'vod', { sortby: 'number' });
         const categories = this.safeJsonList<StalkerGenre>(rawData);
 
         console.log(`[Stalker] Fetched ${categories.length} raw VOD categories`);
@@ -782,6 +782,7 @@ export class StalkerClient {
                 batchPromises.push(
                     this.fetchStalker<any>('get_ordered_list', 'vod', {
                         category: catId,
+                        sortby: 'number',
                         p: (page + i).toString(),
                         include_censored: '1',
                         censored: '1'
@@ -806,10 +807,12 @@ export class StalkerClient {
                     // If any page has less than 14 items, we've reached the end
                     if (vodData.length < 14) {
                         hasMore = false;
+                        break;
                     }
                 } else {
                     // Empty response means no more pages
                     hasMore = false;
+                    break;
                 }
             }
 
@@ -857,22 +860,54 @@ export class StalkerClient {
 
     async getSeriesCategories(): Promise<Category[]> {
         await this.ensureToken();
-        // Try type='series' first for series categories
-        let rawData = await this.fetchStalker<any>('get_categories', 'series');
-        let categories = this.safeJsonList<StalkerGenre>(rawData);
+        let categories: StalkerGenre[] = [];
+        let isFallback = false;
 
-        console.log(`[Stalker] Fetched ${categories.length} raw series categories`);
+        // Try type='series' first for series categories
+        try {
+            const rawData = await this.fetchStalker<any>('get_categories', 'series', { sortby: 'number' });
+            categories = this.safeJsonList<StalkerGenre>(rawData);
+            console.log(`[Stalker] Fetched ${categories.length} raw series categories`);
+        } catch (err) {
+            console.warn('[Stalker] Failed to fetch series categories (type=series), will try falling back to VOD categories:', err);
+        }
 
         // If no series categories returned, fall back to VOD categories
         // Many portals share categories between movies and series
         if (categories.length === 0) {
-            console.log('[Stalker] No series categories found, falling back to VOD categories');
-            rawData = await this.fetchStalker<any>('get_categories', 'vod');
-            categories = this.safeJsonList<StalkerGenre>(rawData);
-            console.log(`[Stalker] Fetched ${categories.length} VOD categories as fallback for series`);
+            console.log('[Stalker] No series categories found or fetch failed, falling back to VOD categories');
+            try {
+                isFallback = true;
+                const rawData = await this.fetchStalker<any>('get_categories', 'vod', { sortby: 'number' });
+                categories = this.safeJsonList<StalkerGenre>(rawData);
+                console.log(`[Stalker] Fetched ${categories.length} VOD categories as fallback for series`);
+            } catch (err) {
+                console.error('[Stalker] Failed to fetch VOD categories as fallback for series:', err);
+            }
         }
 
-        return categories.map((cat, index) => ({
+        let filteredCategories = categories;
+        if (isFallback) {
+            // Only keep series-related categories or general categories, filter out explicitly movie-related categories
+            const seriesKeywords = ['series', 'serie', 'show', 'shows', 'tv', 'season', 'seasons', 'drama', 'dramas', 'k-drama', 'k-dramas', 'anime', 'cartoon', 'cartoons'];
+            const movieKeywords = ['movie', 'movies', 'film', 'films', 'cinema', 'cinemas', 'short movie', 'short movies', 'pre-dvd', 'predvd', 'latest', 'collection', '4k'];
+            
+            filteredCategories = categories.filter(cat => {
+                const title = (cat.title || '').toLowerCase();
+                const alias = (cat.alias || '').toLowerCase();
+                
+                if (seriesKeywords.some(kw => title.includes(kw) || alias.includes(kw))) {
+                    return true;
+                }
+                if (movieKeywords.some(kw => title.includes(kw) || alias.includes(kw))) {
+                    return false;
+                }
+                return true;
+            });
+            console.log(`[Stalker] Filtered fallback VOD categories to ${filteredCategories.length} series categories`);
+        }
+
+        return filteredCategories.map((cat, index) => ({
             category_id: `${this.sourceId}_series_${cat.id}`,
             category_name: cat.title,
             parent_id: 0,
@@ -890,68 +925,146 @@ export class StalkerClient {
 
         const catId = categoryId ? categoryId.replace(`${this.sourceId}_series_`, '').replace(`${this.sourceId}_`, '') : '*';
 
-        // Fetch pages in parallel batches of 4 for faster loading
-        // Note: Stalker uses 0-indexed pages (p=0 is first page)
-        const allItems: any[] = [];
-        let page = 0;
-        let hasMore = true;
-        const BATCH_SIZE = 4;
+        // Helper: fetch all pages from a given endpoint+type+category combo
+        const fetchAllPages = async (type: 'series' | 'vod', cat: string): Promise<any[]> => {
+            const items: any[] = [];
+            let page = 0;
+            let hasMore = true;
+            const BATCH_SIZE = 4;
 
-        while (hasMore) {
-            // Fetch BATCH_SIZE pages in parallel
-            const batchPromises = [];
-            for (let i = 0; i < BATCH_SIZE; i++) {
-                batchPromises.push(
-                    this.fetchStalker<any>('get_ordered_list', 'series', {
-                        category: catId,
+            while (hasMore) {
+                const batchPromises = [];
+                for (let i = 0; i < BATCH_SIZE; i++) {
+                    const extraParams: Record<string, string> = {
+                        category: cat,
+                        sortby: 'number',
                         p: (page + i).toString(),
                         include_censored: '1',
                         censored: '1'
-                    })
-                );
-            }
+                    };
 
-            const responses = await Promise.all(batchPromises);
-            let itemsInBatch = 0;
-
-            for (let i = 0; i < responses.length; i++) {
-                const response = responses[i];
-                let seriesData = response?.data || response;
-                if (seriesData && seriesData.js && seriesData.js.data) {
-                    seriesData = seriesData.js.data;
-                }
-
-                if (Array.isArray(seriesData) && seriesData.length > 0) {
-                    allItems.push(...seriesData);
-                    itemsInBatch += seriesData.length;
-
-                    // If any page has less than 14 items, we've reached the end
-                    if (seriesData.length < 14) {
-                        hasMore = false;
+                    if (type === 'series') {
+                        extraParams.movie_id = '0';
+                        extraParams.season_id = '0';
+                        extraParams.episode_id = '0';
                     }
-                } else {
-                    // Empty response means no more pages
+
+                    batchPromises.push(
+                        this.fetchStalker<any>('get_ordered_list', type, extraParams)
+                    );
+                }
+
+                const responses = await Promise.all(batchPromises);
+                let itemsInBatch = 0;
+
+                for (let i = 0; i < responses.length; i++) {
+                    const response = responses[i];
+                    let data = response?.data || response;
+                    if (data && data.js && data.js.data) {
+                        data = data.js.data;
+                    }
+
+                    if (Array.isArray(data) && data.length > 0) {
+                        items.push(...data);
+                        itemsInBatch += data.length;
+
+                        if (data.length < 14) {
+                            hasMore = false;
+                            break;
+                        }
+                    } else {
+                        hasMore = false;
+                        break;
+                    }
+                }
+
+                if (itemsInBatch === 0) {
                     hasMore = false;
+                } else {
+                    page += BATCH_SIZE;
                 }
             }
 
-            // If we got no items in this batch, stop
-            if (itemsInBatch === 0) {
-                hasMore = false;
-            } else {
-                page += BATCH_SIZE;
+            return items;
+        };
+
+        // --- Attempt 1: type=series, specific category ---
+        let activeType: 'series' | 'vod' = 'series';
+        let allItems = await fetchAllPages('series', catId);
+        console.log(`[Stalker] Fetched ${allItems.length} total series items via type=series, category=${catId}`);
+
+        // --- Attempt 2: type=vod, specific category (is_series=1 portals) ---
+        if (allItems.length === 0 && catId !== '*') {
+            console.log('[Stalker] getSeriesStreams: No results via type=series, falling back to type=vod...');
+            allItems = await fetchAllPages('vod', catId);
+            console.log(`[Stalker] Fetched ${allItems.length} items via type=vod, category=${catId}`);
+            if (allItems.length > 0) {
+                activeType = 'vod';
             }
         }
 
-        console.log(`[Stalker] Fetched ${allItems.length} total series items from ${page} page(s)`);
+        // --- Attempt 3: type=series, category=* then filter client-side ---
+        // Some portals have valid series categories but don't support per-category filtering;
+        // get_ordered_list ignores the category param and only works with '*'.
+        if (allItems.length === 0 && catId !== '*') {
+            console.log('[Stalker] getSeriesStreams: No results for specific category. Trying category=* with type=series and filtering client-side...');
+            const allSeries = await fetchAllPages('series', '*');
+            console.log(`[Stalker] Fetched ${allSeries.length} items via type=series, category=*`);
+            if (allSeries.length > 0) {
+                // Filter by matching the raw category ID on each item's category/genre_id field
+                const filtered = allSeries.filter((item: any) => {
+                    const itemCat = String(item.category_id ?? item.genre_id ?? item.cat_id ?? '');
+                    return itemCat === catId;
+                });
+                console.log(`[Stalker] Client-side filtered to ${filtered.length} items for category ${catId} from ${allSeries.length} total`);
+                // If filtering by catId yields nothing but we know this category exists,
+                // return the unfiltered set so all series are visible in any category
+                allItems = filtered.length > 0 ? filtered : allSeries;
+                if (allItems.length > 0) {
+                    activeType = 'series';
+                }
+            }
+        }
 
-        // Filter for series only (is_series="1" or is_series=1 or is_series=true)
+        // --- Attempt 4: type=vod, category=* then filter client-side (is_series=1 portals) ---
+        if (allItems.length === 0 && catId !== '*') {
+            console.log('[Stalker] getSeriesStreams: Trying category=* with type=vod and filtering client-side...');
+            const allVod = await fetchAllPages('vod', '*');
+            console.log(`[Stalker] Fetched ${allVod.length} items via type=vod, category=*`);
+            if (allVod.length > 0) {
+                const filtered = allVod.filter((item: any) => {
+                    const itemCat = String(item.category_id ?? item.genre_id ?? item.cat_id ?? '');
+                    return itemCat === catId;
+                });
+                console.log(`[Stalker] Client-side filtered to ${filtered.length} items for category ${catId} from ${allVod.length} total VOD`);
+                allItems = filtered.length > 0 ? filtered : allVod;
+                if (allItems.length > 0) {
+                    activeType = 'vod';
+                }
+            }
+        }
+
+        console.log(`[Stalker] Fetched ${allItems.length} total items (before series filter, activeType=${activeType})`);
+
+        // Filter for series: discard items explicitly marked as movies or not series (only applied if we fell back to VOD endpoints)
         const filteredSeries = allItems.filter((item: any) => {
+            if (activeType === 'series') {
+                return true;
+            }
+            
+            // If we are looking for items in a specific category (not '*'),
+            // keep all items returned for that category (since it has already been filtered as a Series category)
+            if (catId !== '*') {
+                return true;
+            }
+            
+            // If we are querying globally (category='*'), only keep items that are explicitly series
             const isSeries = item.is_series;
             return isSeries === "1" || isSeries === 1 || isSeries === true;
         });
 
-        console.log(`[Stalker] Filtered to ${filteredSeries.length} series (excluding movies)`);
+        const uniqueIds = new Set(filteredSeries.map(item => item.id));
+        console.log(`[Stalker] Returning ${filteredSeries.length} series items. Unique IDs count: ${uniqueIds.size}`);
 
         return filteredSeries.map(item => ({
             stream_id: `${this.sourceId}_series_${item.id}`, // Required for Channel type
@@ -972,7 +1085,7 @@ export class StalkerClient {
             category_ids: categoryId ? [categoryId] : [],
             added: item.added || item.time_added || item.added_time || '',
             // Store movie_id for series navigation
-            direct_url: `stalker_series:${item.id}`,
+            direct_url: `stalker_series:${item.id}:${item.cmd || `/media/${item.id}.mpg`}`,
             source_id: this.sourceId,
             epg_channel_id: '', // Required for Channel type
         }));
@@ -1007,18 +1120,48 @@ export class StalkerClient {
 
         console.log(`[Stalker] getSeasons: fetching for series ${seriesId} (raw: ${rawMovieId})...`);
 
-        // Use type='series' for series content (not 'vod')
-        const response = await this.fetchStalker<any>('get_ordered_list', 'series', {
-            movie_id: rawMovieId,
-            season_id: '0',
-            episode_id: '0',
-            p: '0',
-            include_censored: '1',
-            censored: '1'
-        });
+        let response: any = null;
+        let typeUsed: 'series' | 'vod' = 'series';
+        try {
+            response = await this.fetchStalker<any>('get_ordered_list', 'series', {
+                movie_id: rawMovieId,
+                season_id: '0',
+                episode_id: '0',
+                p: '0',
+                include_censored: '1',
+                censored: '1'
+            });
+        } catch (err) {
+            console.warn('[Stalker] getSeasons: fetch with type=series failed, will try fallback to type=vod:', err);
+        }
 
         let seasonsData = response?.data || response;
         console.log('[Stalker] Raw response:', JSON.stringify(response).substring(0, 500));
+        
+        // Check if the response is falsy or indicates failure (js === false)
+        let isResponseEmpty = !seasonsData || 
+                                (seasonsData.js === false) || 
+                                (response && response.js === false);
+
+        if (isResponseEmpty) {
+            console.log('[Stalker] getSeasons: No seasons found via type=series, falling back to type=vod...');
+            try {
+                typeUsed = 'vod';
+                response = await this.fetchStalker<any>('get_ordered_list', 'vod', {
+                    movie_id: rawMovieId,
+                    season_id: '0',
+                    episode_id: '0',
+                    p: '0',
+                    include_censored: '1',
+                    censored: '1'
+                });
+                seasonsData = response?.data || response;
+                console.log('[Stalker] Raw fallback response:', JSON.stringify(response).substring(0, 500));
+            } catch (err) {
+                console.error('[Stalker] getSeasons: fallback to type=vod failed:', err);
+            }
+        }
+
         if (seasonsData && seasonsData.js && seasonsData.js.data) {
             seasonsData = seasonsData.js.data;
         }
@@ -1037,38 +1180,84 @@ export class StalkerClient {
             return [];
         }
 
-        // Filter for seasons only - in Stalker API, seasons have is_series=1 and series array contains episode numbers
-        // Looking at packet capture: items have "is_series":1 and "series":[1,2,3...] for episodes
-        const seasons = seasonsData.filter((item: any) => item.is_series === 1 && item.series && Array.isArray(item.series));
+        // Filter for seasons only
+        // 1. Standard Ministra: is_series=1 and series array of episode numbers
+        // 2. Custom/Fallback: is_season=true or season_number present
+        const seasons = seasonsData.filter((item: any) => 
+            (item.is_series === 1 && item.series && Array.isArray(item.series)) ||
+            (item.is_season === true || item.is_season === 'true' || item.season_number !== undefined)
+        );
 
         console.log(`[Stalker] Total items: ${seasonsData.length}, Seasons found: ${seasons.length}`);
 
-        // Map seasons - episodes are just numbers in the 'series' array
-        return seasons.map(season => {
-            // Season ID format is like "17105:1" - extract season number from name or id
-            const seasonName = season.name || '';
+        const seasonsList: Season[] = [];
+
+        for (const season of seasons) {
+            const seasonName = season.name || season.season_name || '';
             const seasonNumMatch = seasonName.match(/Season\s*(\d+)/i);
-            const seasonNum = seasonNumMatch ? parseInt(seasonNumMatch[1]) : 1;
+            const seasonNum = seasonNumMatch ? parseInt(seasonNumMatch[1]) : (parseInt(season.season_number) || 1);
 
-            // Episodes are just numbers in the 'series' array (e.g., [1,2,3,4,5,6,7,8,9])
-            const episodeNumbers: number[] = season.series || [];
-            console.log(`[Stalker] Season ${seasonNum} (${seasonName}) has ${episodeNumbers.length} episodes`);
+            let episodes: Episode[] = [];
 
-            const episodes: Episode[] = episodeNumbers.map((epNum: number) => ({
-                id: `${this.sourceId}_episode_${season.id}_${epNum}`,
-                title: `Episode ${epNum}`,
-                episode_num: epNum,
-                season_num: seasonNum,
-                // Use the cmd from the season for create_link - it contains series_id and season_num
-                direct_url: `stalker_episode:${rawMovieId}:${seasonNum}:${epNum}:${season.cmd || ''}`,
-                info: { season_name: seasonName }
-            }));
+            if (season.series && Array.isArray(season.series)) {
+                // Scenario A: Episodes are embedded in the 'series' array of the season
+                const episodeNumbers: number[] = season.series;
+                episodes = episodeNumbers.map((epNum: number) => ({
+                    id: `${this.sourceId}_episode_${season.id}_${epNum}`,
+                    title: `Episode ${epNum}`,
+                    episode_num: epNum,
+                    season_num: seasonNum,
+                    direct_url: `stalker_episode:${rawMovieId}:${seasonNum}:${epNum}:${season.cmd || ''}`,
+                    info: { season_name: seasonName }
+                }));
+            } else {
+                // Scenario B: Episodes need to be fetched from the server using the season ID (e.g. "22753")
+                console.log(`[Stalker] getSeasons: Fetching episodes from server for season ${season.id} (number ${seasonNum})...`);
+                try {
+                    const epResponse = await this.fetchStalker<any>('get_ordered_list', typeUsed, {
+                        movie_id: rawMovieId,
+                        season_id: season.id,
+                        episode_id: '0',
+                        p: '0',
+                        include_censored: '1',
+                        censored: '1'
+                    });
+                    
+                    let epData = epResponse?.data || epResponse;
+                    if (epData && epData.js && epData.js.data) {
+                        epData = epData.js.data;
+                    }
+                    
+                    if (Array.isArray(epData)) {
+                        console.log(`[Stalker] getSeasons: Fetched ${epData.length} episodes for season ${seasonNum}`);
+                        episodes = epData.map((ep: any, index: number) => {
+                            const epNum = parseInt(ep.series_number || ep.episode_num) || (index + 1);
+                            const epCmd = ep.cmd || season.cmd || `/media/${rawMovieId}.mpg`;
+                            return {
+                                id: `${this.sourceId}_episode_${ep.id}`,
+                                title: ep.name || `Episode ${epNum}`,
+                                episode_num: epNum,
+                                season_num: seasonNum,
+                                // Embed the episode ID and play command in direct_url so resolveStreamUrl can extract and play it directly
+                                direct_url: `stalker_episode:${rawMovieId}:${seasonNum}:${ep.id}:${epCmd}`,
+                                info: { season_name: seasonName }
+                            };
+                        });
+                    } else {
+                        console.warn(`[Stalker] getSeasons: Episodes response for season ${seasonNum} is not an array`);
+                    }
+                } catch (err) {
+                    console.error(`[Stalker] getSeasons: Failed to fetch episodes for season ${seasonNum}:`, err);
+                }
+            }
 
-            return {
+            seasonsList.push({
                 season_number: seasonNum,
                 episodes: episodes
-            };
-        });
+            });
+        }
+
+        return seasonsList;
     }
 
     async getEpisodes(seriesId: string, seasonId: string): Promise<Episode[]> {
@@ -1093,17 +1282,44 @@ export class StalkerClient {
 
         console.log(`[Stalker] getEpisodes: fetching for series ${seriesId}, season ${seasonId} (raw: ${rawMovieId})...`);
 
-        // Use type='series' for series content
-        const response = await this.fetchStalker<any>('get_ordered_list', 'series', {
-            movie_id: rawMovieId,
-            season_id: seasonId,
-            episode_id: '0',
-            p: '0',
-            include_censored: '1',
-            censored: '1'
-        });
+        let response: any = null;
+        try {
+            response = await this.fetchStalker<any>('get_ordered_list', 'series', {
+                movie_id: rawMovieId,
+                season_id: seasonId,
+                episode_id: '0',
+                p: '0',
+                include_censored: '1',
+                censored: '1'
+            });
+        } catch (err) {
+            console.warn('[Stalker] getEpisodes: fetch with type=series failed, will try fallback to type=vod:', err);
+        }
 
         let episodesData = response?.data || response;
+        
+        // Check if the response is falsy or indicates failure (js === false)
+        const isResponseEmpty = !episodesData || 
+                                (episodesData.js === false) || 
+                                (response && response.js === false);
+
+        if (isResponseEmpty) {
+            console.log('[Stalker] getEpisodes: No episodes found via type=series, falling back to type=vod...');
+            try {
+                response = await this.fetchStalker<any>('get_ordered_list', 'vod', {
+                    movie_id: rawMovieId,
+                    season_id: seasonId,
+                    episode_id: '0',
+                    p: '0',
+                    include_censored: '1',
+                    censored: '1'
+                });
+                episodesData = response?.data || response;
+            } catch (err) {
+                console.error('[Stalker] getEpisodes: fallback to type=vod failed:', err);
+            }
+        }
+
         if (episodesData && episodesData.js && episodesData.js.data) {
             episodesData = episodesData.js.data;
         }
@@ -1147,7 +1363,7 @@ export class StalkerClient {
             const movieId = parts[1];
             const seasonId = parts[2];
             const episodeNum = parts[3];
-            const seasonCmd = parts[4]; // Base64 encoded cmd from season
+            const seasonCmd = parts.slice(4).join(':'); // Reconstruct cmd in case it has colons
             seriesEpisodeNum = episodeNum;
 
             console.log(`[Stalker] Resolving episode: Movie=${movieId}, Season=${seasonId}, Episode=${episodeNum}`);
@@ -1186,7 +1402,7 @@ export class StalkerClient {
                     // The response may contain multiple items or cached results
                     const item = listData.find((i: any) => String(i.id) === String(movieId)) || listData[0];
                     console.log(`[Stalker] VOD item for movie_id ${movieId}:`, JSON.stringify(item).substring(0, 200));
-                    forcedCmd = item.cmd || `/media/file_${item.id}.mpg`;
+                    forcedCmd = item.cmd || `/media/${item.id}.mpg`;
                 } else {
                     throw new Error('VOD movie not found');
                 }

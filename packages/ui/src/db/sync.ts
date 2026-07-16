@@ -2814,7 +2814,7 @@ export async function syncStalkerCategory(
             last_modified: item.last_modified || '',
             rating: item.rating || '',
             rating_5based: item.rating_5based || 0,
-            backdrop_path: item.backdrop_path || [],
+            backdrop_path: item.backdrop_path || undefined,
             youtube_trailer: item.youtube_trailer || '',
             episode_run_time: item.episode_run_time || '',
             // category_ids is already set by Stalker client as an array, just need to stringify it
@@ -3435,6 +3435,28 @@ export async function syncSeriesEpisodes(source: Source, seriesId: string): Prom
       // Use raw Stalker ID if available, otherwise fall back to seriesId
       const stalkerSeriesId = series?._stalker_raw_id || seriesId;
       seasons = await client.getSeriesInfo(stalkerSeriesId);
+
+      // Fallback for single-video series: if no seasons are found but we have a direct play command
+      if (seasons.length === 0 && series && series.direct_url) {
+        const parts = series.direct_url.split(':');
+        const cmd = parts.slice(2).join(':');
+        if (cmd) {
+          console.log(`[Sync episodes] Creating dummy single-video season for series ${seriesId} with cmd: ${cmd}`);
+          seasons = [{
+            id: '1',
+            name: 'Season 1',
+            season_number: 1,
+            episodes: [{
+              id: `${seriesId}_ep_1`,
+              title: series.title || series.name || 'Play',
+              episode_num: 1,
+              season_num: 1,
+              direct_url: `stalker_episode:${parts[1]}:1:1:${cmd}`,
+              info: { season_name: 'Season 1' }
+            }]
+          }];
+        }
+      }
     }
   } catch (err) {
     console.warn(`[Sync episodes] Failed to fetch episodes for ${seriesId}:`, err);
