@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../hooks/useSqliteLiveQuery';
-import { useCategoriesBySource, type CategoryWithCount, type SourceWithCategories } from '../hooks/useChannels';
+import { useCategoriesBySource, useEnabledSources, type CategoryWithCount, type SourceWithCategories } from '../hooks/useChannels';
 import { db, getWatchlistCount, type CustomGroup, updateCategoryEnabled, updateCategoryAlias, type CustomPlaylist, type PlaylistCategoryLink } from '../db';
 import { PlaylistEditorModal } from './PlaylistEditorModal';
 import type { Source } from '@ynotv/core';
@@ -122,10 +122,21 @@ const ChevronIcon = ({ expanded }: { expanded: boolean }) => (
 
 // Favorites button component
 function FavoritesButton({ selectedCategoryId, onSelectCategory, onContextMenu }: { selectedCategoryId: string | null; onSelectCategory: (categoryId: string | null) => void; onContextMenu?: (e: React.MouseEvent) => void }) {
+  const enabledSourceIds = useEnabledSources();
   const favoriteCount = useLiveQuery(
     async () => {
+      if (enabledSourceIds) {
+        const idsList = Array.from(enabledSourceIds);
+        if (idsList.length === 0) return 0;
+        const placeholders = idsList.map(() => '?').join(',');
+        return await db.channels.countWhere(
+          `(is_favorite = 1 OR is_favorite = true) AND source_id IN (${placeholders})`,
+          idsList
+        );
+      }
       return await db.channels.countWhere('(is_favorite = 1 OR is_favorite = true)');
-    }
+    },
+    [enabledSourceIds]
   );
 
   return (
@@ -149,10 +160,12 @@ function FavoritesButton({ selectedCategoryId, onSelectCategory, onContextMenu }
 
 // Watchlist button component
 function WatchlistButton({ selectedCategoryId, onSelectCategory, onContextMenu }: { selectedCategoryId: string | null; onSelectCategory: (categoryId: string | null) => void; onContextMenu?: (e: React.MouseEvent) => void }) {
+  const enabledSourceIds = useEnabledSources();
   const watchlistCount = useLiveQuery(
     async () => {
-      return await getWatchlistCount();
-    }
+      return await getWatchlistCount(enabledSourceIds || undefined);
+    },
+    [enabledSourceIds]
   );
 
   return (

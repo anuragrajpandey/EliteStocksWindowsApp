@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useLiveQuery } from '../hooks/useSqliteLiveQuery';
-import { useCurrentProgram } from '../hooks/useChannels';
+import { useCurrentProgram, useEnabledSources } from '../hooks/useChannels';
 import { db } from '../db';
 import type { StoredChannel } from '../db';
 import './CustomGroupWidget.css';
@@ -60,6 +60,7 @@ export function CustomGroupWidget({
   onMoveLeft,
   onMoveRight,
 }: CustomGroupWidgetProps) {
+  const enabledSourceIds = useEnabledSources();
   // Single query: load group metadata + ordered channels in one shot
   const data = useLiveQuery(
     async () => {
@@ -74,13 +75,17 @@ export function CustomGroupWidget({
       mappings.sort((a, b) => a.display_order - b.display_order);
 
       // Resolve stream IDs → channel objects (preserving order)
-      const channels = (
+      let channels = (
         await Promise.all(mappings.map((m) => db.channels.get(m.stream_id)))
       ).filter(Boolean) as StoredChannel[];
 
+      if (enabledSourceIds) {
+        channels = channels.filter(ch => enabledSourceIds.has(ch.source_id));
+      }
+
       return { group, channels };
     },
-    [groupId],
+    [groupId, enabledSourceIds],
     undefined,
     0,
     'custom_group_channels'

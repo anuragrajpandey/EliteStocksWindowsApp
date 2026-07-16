@@ -18,6 +18,7 @@ import type { StremioMeta } from '../types/stremio';
 import { StremioHoverProvider } from '../contexts/StremioHoverContext';
 import { StremioHoverCard } from './stremio/StremioHoverCard';
 import './stremio/StremioHome.css';
+import { useEnabledSources } from '../hooks/useChannels';
 import { useVodFavoritesStore } from '../stores/vodFavoritesStore';
 import {
   useCinemetaPopular,
@@ -267,6 +268,7 @@ export function VodPage({ type, onPlay, onClose }: VodPageProps) {
     : undefined;
 
   // Favorites - from Zustand persist store
+  const enabledSourceIds = useEnabledSources();
   const allFavorites = useVodFavoritesStore((s) => s.favorites);
   const favoritesList = useMemo(
     () => allFavorites.filter(f => f.type === type),
@@ -298,9 +300,12 @@ export function VodPage({ type, onPlay, onClose }: VodPageProps) {
             ids
           );
           if (!cancelled) {
+            const filteredItems = enabledSourceIds
+              ? items.filter(item => enabledSourceIds.has(item.source_id))
+              : items;
             const orderMap = new Map(ids.map((id, i) => [id, i]));
-            items.sort((a, b) => (orderMap.get(a.stream_id) ?? 0) - (orderMap.get(b.stream_id) ?? 0));
-            setFavoriteItems(items);
+            filteredItems.sort((a, b) => (orderMap.get(a.stream_id) ?? 0) - (orderMap.get(b.stream_id) ?? 0));
+            setFavoriteItems(filteredItems);
           }
         } else {
           const items: StoredSeries[] = await dbInstance.select(
@@ -308,9 +313,12 @@ export function VodPage({ type, onPlay, onClose }: VodPageProps) {
             ids
           );
           if (!cancelled) {
+            const filteredItems = enabledSourceIds
+              ? items.filter(item => enabledSourceIds.has(item.source_id))
+              : items;
             const orderMap = new Map(ids.map((id, i) => [id, i]));
-            items.sort((a, b) => (orderMap.get(a.series_id) ?? 0) - (orderMap.get(b.series_id) ?? 0));
-            setFavoriteItems(items);
+            filteredItems.sort((a, b) => (orderMap.get(a.series_id) ?? 0) - (orderMap.get(b.series_id) ?? 0));
+            setFavoriteItems(filteredItems);
           }
         }
       } catch (error) {
@@ -323,7 +331,7 @@ export function VodPage({ type, onPlay, onClose }: VodPageProps) {
 
     loadItems();
     return () => { cancelled = true; };
-  }, [selectedCategoryId, favoritesList, type]);
+  }, [selectedCategoryId, favoritesList, type, enabledSourceIds]);
 
   // VOD categories
   const { categories } = useVodCategories(type);

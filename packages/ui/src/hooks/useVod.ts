@@ -996,6 +996,7 @@ export interface RecentlyWatchedItem<T> {
  * Joins watch history with movie data to get complete movie objects
  */
 export function useRecentlyWatchedMovies(limit = 20) {
+  const enabledSourceIds = useEnabledSources();
   const [movies, setMovies] = useState<RecentlyWatchedItem<StoredMovie>[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -1036,6 +1037,7 @@ export function useRecentlyWatchedMovies(limit = 20) {
         .map(h => {
           const movie = movieMap.get(h.media_id);
           if (!movie) return null;
+          if (enabledSourceIds && !enabledSourceIds.has(movie.source_id)) return null;
           const progressSeconds = h.progress_seconds ?? 0;
           const totalDuration = h.total_duration ?? 0;
           return {
@@ -1057,7 +1059,7 @@ export function useRecentlyWatchedMovies(limit = 20) {
     } finally {
       setLoading(false);
     }
-  }, [limit]);
+  }, [limit, enabledSourceIds]);
 
   // Initial load and reactive updates
   const historySignature = useLiveQuery(async () => {
@@ -1087,6 +1089,7 @@ export function useRecentlyWatchedMovies(limit = 20) {
  * Joins watch history with series data to get complete series objects
  */
 export function useRecentlyWatchedSeries(limit = 20) {
+  const enabledSourceIds = useEnabledSources();
   const [series, setSeries] = useState<RecentlyWatchedItem<StoredSeries>[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -1127,6 +1130,7 @@ export function useRecentlyWatchedSeries(limit = 20) {
         .map(h => {
           const seriesItem = seriesMap.get(h.media_id);
           if (!seriesItem) return null;
+          if (enabledSourceIds && !enabledSourceIds.has(seriesItem.source_id)) return null;
           const progressSeconds = h.progress_seconds ?? 0;
           const totalDuration = h.total_duration ?? 0;
           return {
@@ -1151,7 +1155,7 @@ export function useRecentlyWatchedSeries(limit = 20) {
     } finally {
       setLoading(false);
     }
-  }, [limit]);
+  }, [limit, enabledSourceIds]);
 
   // Initial load and reactive updates
   const historySignature = useLiveQuery(async () => {

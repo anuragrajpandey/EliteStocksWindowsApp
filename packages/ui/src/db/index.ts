@@ -2587,8 +2587,14 @@ export async function isInWatchlist(programId: string): Promise<boolean> {
 }
 
 /** Get watchlist count */
-export async function getWatchlistCount(): Promise<number> {
+export async function getWatchlistCount(enabledSourceIds?: Set<string>): Promise<number> {
   try {
+    if (enabledSourceIds) {
+      const idsList = Array.from(enabledSourceIds);
+      if (idsList.length === 0) return 0;
+      const placeholders = idsList.map(() => '?').join(',');
+      return await db.watchlist.countWhere(`source_id IN (${placeholders})`, idsList);
+    }
     return await db.watchlist.count();
   } catch (error) {
     console.error('[Watchlist] Failed to get count:', error);

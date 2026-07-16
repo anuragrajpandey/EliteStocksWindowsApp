@@ -22,10 +22,11 @@ export function useEnabledSources(): Set<string> | null {
     return result.data.filter(s => s.enabled !== false);
   }, [version]); // Re-run when version changes
 
-  // Return null if still loading sources
-  if (sources === undefined || sources === null) return null;
-
-  return new Set(sources.map(s => s.id));
+  // Memoize the Set creation based on sources array
+  return useMemo(() => {
+    if (sources === undefined || sources === null) return null;
+    return new Set(sources.map(s => s.id));
+  }, [sources]);
 }
 
 // Cached source names map to avoid repeated Tauri calls
@@ -134,7 +135,16 @@ export function useCategories() {
           return [];
         }),
         // Count favorites
-        db.channels.countWhere('(is_favorite = 1 OR is_favorite = true)').catch(err => {
+        (async () => {
+          if (!enabledSourceIds) return 0;
+          const idsList = Array.from(enabledSourceIds);
+          if (idsList.length === 0) return 0;
+          const placeholders = idsList.map(() => '?').join(',');
+          return await db.channels.countWhere(
+            `(is_favorite = 1 OR is_favorite = true) AND source_id IN (${placeholders})`,
+            idsList
+          );
+        })().catch(err => {
           console.error('[useCategories] Failed to count favorites:', err);
           return 0;
         }),
@@ -152,12 +162,29 @@ export function useCategories() {
 
       const virtualCategories: StoredCategory[] = [];
 
+      // Count how many recent channels are active
+      let activeRecentCount = 0;
+      if (recentChannels.length > 0) {
+        try {
+          const streamIds = recentChannels.map(e => e.streamId);
+          const activeChannels = await db.channels.where('stream_id').anyOf(streamIds).toArray();
+          const activeStreamIds = new Set(
+            activeChannels
+              .filter(c => enabledSourceIds.has(c.source_id))
+              .map(c => c.stream_id)
+          );
+          activeRecentCount = streamIds.filter(id => activeStreamIds.has(id)).length;
+        } catch (err) {
+          console.error('[useCategories] Failed to count active recent channels:', err);
+        }
+      }
+
       // Always show Recently Viewed category
       const recentCategory: StoredCategory = {
         category_id: '__recent__',
         category_name: '🕐 Recently Viewed',
         source_id: '__virtual__',
-        channel_count: recentChannels.length,
+        channel_count: activeRecentCount,
         enabled: true,
       };
       virtualCategories.push(recentCategory);
@@ -168,14 +195,20 @@ export function useCategories() {
           const dbInstance = await (db as any).dbPromise;
           const groupIds = customGroups.map(g => g.group_id);
           const placeholders = groupIds.map(() => '?').join(',');
+          const enabledSourceIdsList = Array.from(enabledSourceIds || []);
           
-          // Single query to get all counts
-          const countRows = await dbInstance.select(
-            `SELECT group_id, COUNT(*) as cnt FROM custom_group_channels 
-             WHERE group_id IN (${placeholders}) 
-             GROUP BY group_id`,
-            groupIds
-          );
+          let countRows = [];
+          if (enabledSourceIdsList.length > 0) {
+            const enabledPlaceholders = enabledSourceIdsList.map(() => '?').join(',');
+            countRows = await dbInstance.select(
+              `SELECT cgc.group_id, COUNT(*) as cnt 
+               FROM custom_group_channels cgc
+               JOIN channels c ON cgc.stream_id = c.stream_id
+               WHERE cgc.group_id IN (${placeholders}) AND c.source_id IN (${enabledPlaceholders})
+               GROUP BY cgc.group_id`,
+              [...groupIds, ...enabledSourceIdsList]
+            );
+          }
           
           // Build count map
           const countMap = new Map<string, number>();
@@ -290,11 +323,27 @@ export function useChannels(categoryId: string | null, sortOrder: 'alphabetical'
           results = recentEntries
             .map(entry => channelMap.get(entry.streamId))
             .filter((ch): ch is StoredChannel => ch !== undefined);
+          if (enabledSourceIds) {
+            results = results.filter(ch => enabledSourceIds.has(ch.source_id));
+          }
           orderingIsFixed = true;
         }
       } else if (categoryId === '__favorites__') {
         // Use SQL WHERE for better performance
-        results = await db.channels.whereRaw('(is_favorite = 1 OR is_favorite = true)').toArray();
+        if (enabledSourceIds) {
+          const idsList = Array.from(enabledSourceIds);
+          if (idsList.length === 0) {
+            results = [];
+          } else {
+            const placeholders = idsList.map(() => '?').join(',');
+            results = await db.channels.whereRaw(
+              `(is_favorite = 1 OR is_favorite = true) AND source_id IN (${placeholders})`,
+              idsList
+            ).toArray();
+          }
+        } else {
+          results = await db.channels.whereRaw('(is_favorite = 1 OR is_favorite = true)').toArray();
+        }
         // Sort by fav_order (nulls last, then by name for items without order)
         results.sort((a, b) => {
           if (a.fav_order != null && b.fav_order != null) return a.fav_order - b.fav_order;
@@ -438,6 +487,9 @@ export function useChannels(categoryId: string | null, sortOrder: 'alphabetical'
             results = mappings
               .map(m => channelMap.get(m.stream_id))
               .filter((ch): ch is StoredChannel => ch !== undefined);
+            if (enabledSourceIds) {
+              results = results.filter(ch => enabledSourceIds.has(ch.source_id));
+            }
           }
           orderingIsFixed = true; // order comes from customGroupChannels.display_order
         } else {

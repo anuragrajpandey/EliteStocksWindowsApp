@@ -3,6 +3,7 @@ import type { WatchlistItem } from '../db';
 import { db, getWatchlist } from '../db';
 import type { WatchlistNotificationItem } from '../components/WatchlistNotification';
 import type { StoredChannel } from '../db';
+import { useEnabledSources } from './useChannels';
 
 export interface WatchlistState {
   // Watchlist state
@@ -25,6 +26,7 @@ interface UseWatchlistOptions {
 
 export function useWatchlist(options: UseWatchlistOptions = {}): WatchlistState {
   const { onAutoswitch } = options;
+  const enabledSourceIds = useEnabledSources();
   const [watchlistItems, setWatchlistItems] = useState<WatchlistItem[]>([]);
   const [watchlistRefreshTrigger, setWatchlistRefreshTrigger] = useState(0);
   const [watchlistNotifications, setWatchlistNotifications] = useState<WatchlistNotificationItem[]>([]);
@@ -33,10 +35,13 @@ export function useWatchlist(options: UseWatchlistOptions = {}): WatchlistState 
   useEffect(() => {
     const loadWatchlist = async () => {
       const items = await getWatchlist();
-      setWatchlistItems(items);
+      const filtered = enabledSourceIds
+        ? items.filter(item => enabledSourceIds.has(item.source_id))
+        : items;
+      setWatchlistItems(filtered);
     };
     loadWatchlist();
-  }, [watchlistRefreshTrigger]);
+  }, [watchlistRefreshTrigger, enabledSourceIds]);
 
   // Listen for watchlist updates from other components (EPG context menu, etc.)
   useEffect(() => {
@@ -56,8 +61,11 @@ export function useWatchlist(options: UseWatchlistOptions = {}): WatchlistState 
 
       const now = Date.now();
       const items = await getWatchlist();
+      const filtered = enabledSourceIds
+        ? items.filter(item => enabledSourceIds.has(item.source_id))
+        : items;
 
-      for (const item of items) {
+      for (const item of filtered) {
         const startTime = item.start_time;
         const reminderTime = startTime - (item.reminder_minutes * 60 * 1000);
 
@@ -121,7 +129,7 @@ export function useWatchlist(options: UseWatchlistOptions = {}): WatchlistState 
     checkWatchlist();
     const interval = setInterval(checkWatchlist, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [enabledSourceIds]);
 
   const refreshWatchlist = useCallback(() => {
     setWatchlistRefreshTrigger(v => v + 1);

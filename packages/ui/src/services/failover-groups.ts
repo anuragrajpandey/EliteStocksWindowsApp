@@ -12,11 +12,16 @@ export async function getFailoverGroupMembers(
   if (!members.length) return [];
   const streamIds = members.map(m => m.stream_id);
   const channels = await db.channels.where('stream_id').anyOf(streamIds).toArray();
+
+  // Load enabled sources to filter
+  const sourcesResult = window.storage ? await window.storage.getSources() : { data: [] };
+  const enabledSourceIds = new Set(sourcesResult.data?.filter((s: any) => s.enabled !== false).map((s: any) => s.id) || []);
+
   const channelMap = new Map(channels.map(c => [c.stream_id, c]));
   const result: Array<{ stream_id: string; priority: number; name: string; stream_icon?: string; source_id?: string; category_ids?: string | string[] }> = [];
   for (const m of members) {
     const ch = channelMap.get(m.stream_id);
-    if (ch && ch.name) {
+    if (ch && ch.name && enabledSourceIds.has(ch.source_id)) {
       result.push({
         stream_id: m.stream_id,
         priority: m.priority,
@@ -50,13 +55,17 @@ export async function getNextFailoverChannel(
   const currentIndex = allMembers.findIndex(m => m.stream_id === currentStreamId);
   if (currentIndex === -1) return null;
 
+  // Load enabled sources to filter
+  const sourcesResult = window.storage ? await window.storage.getSources() : { data: [] };
+  const enabledSourceIds = new Set(sourcesResult.data?.filter((s: any) => s.enabled !== false).map((s: any) => s.id) || []);
+
   // Try each subsequent member in priority order
   for (let i = currentIndex + 1; i < allMembers.length; i++) {
     const candidate = await db.channels
       .where('stream_id')
       .equals(allMembers[i].stream_id)
       .first();
-    if (candidate && candidate.enabled !== false) {
+    if (candidate && candidate.enabled !== false && enabledSourceIds.has(candidate.source_id)) {
       return candidate;
     }
   }
@@ -93,9 +102,13 @@ export async function getFailoverCandidatesAfter(
   const channels = await db.channels.where('stream_id').anyOf(streamIds).toArray();
   const channelMap = new Map(channels.map(c => [c.stream_id, c]));
 
+  // Load enabled sources to filter
+  const sourcesResult = window.storage ? await window.storage.getSources() : { data: [] };
+  const enabledSourceIds = new Set(sourcesResult.data?.filter((s: any) => s.enabled !== false).map((s: any) => s.id) || []);
+
   return candidateMembers
     .map(m => channelMap.get(m.stream_id))
-    .filter((channel): channel is StoredChannel => !!channel && channel.enabled !== false);
+    .filter((channel): channel is StoredChannel => !!channel && channel.enabled !== false && enabledSourceIds.has(channel.source_id));
 }
 
 /** Given a stream_id, return the primary (priority=0) channel of its group, or null */
@@ -116,7 +129,15 @@ export async function getPrimaryChannelForGroup(
   if (!primary) return null;
 
   const channel = await db.channels.where('stream_id').equals(primary.stream_id).first();
-  return channel || null;
+  if (channel) {
+    // Load enabled sources to filter
+    const sourcesResult = window.storage ? await window.storage.getSources() : { data: [] };
+    const enabledSourceIds = new Set(sourcesResult.data?.filter((s: any) => s.enabled !== false).map((s: any) => s.id) || []);
+    if (enabledSourceIds.has(channel.source_id)) {
+      return channel;
+    }
+  }
+  return null;
 }
 
 /** Create a new failover group and return its ID */
@@ -263,13 +284,29 @@ export async function listFailoverGroups(): Promise<
   Array<FailoverGroup & { memberCount: number }>
 > {
   const groups = await db.failoverGroups.toArray();
+
+  // Load enabled sources to filter count
+  const sourcesResult = window.storage ? await window.storage.getSources() : { data: [] };
+  const enabledSourceIds = new Set(sourcesResult.data?.filter((s: any) => s.enabled !== false).map((s: any) => s.id) || []);
+
   const result = [];
   for (const g of groups) {
-    const count = await db.failoverGroupMembers
+    const members = await db.failoverGroupMembers
       .where('group_id')
       .equals(g.group_id)
-      .count();
-    result.push({ ...g, memberCount: count });
+      .toArray();
+
+    // Join with channels to check source_id
+    const streamIds = members.map(m => m.stream_id);
+    const channels = await db.channels.where('stream_id').anyOf(streamIds).toArray();
+    const activeStreamIds = new Set(
+      channels
+        .filter(c => enabledSourceIds.has(c.source_id))
+        .map(c => c.stream_id)
+    );
+
+    const activeCount = members.filter(m => activeStreamIds.has(m.stream_id)).length;
+    result.push({ ...g, memberCount: activeCount });
   }
   return result;
 }
