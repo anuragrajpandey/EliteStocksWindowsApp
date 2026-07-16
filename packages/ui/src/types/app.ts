@@ -182,6 +182,7 @@ export interface AppSettings {
     catchupStartPadding?: number;
     catchupEndPadding?: number;
     catchupContinuePlaying?: boolean;
+    vodAutoPlayNextEpisode?: boolean;
     [key: string]: any;
 }
 

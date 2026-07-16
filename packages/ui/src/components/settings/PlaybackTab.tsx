@@ -6,8 +6,9 @@ import './PlaybackTab.css';
 import { PopoutTab } from './PopoutTab';
 import { SkipIntroTab } from './SkipIntroTab';
 import { CatchupTab } from './CatchupTab';
+import { VodTab } from './VodTab';
 
-export type PlaybackSubTabId = 'mpv' | 'reconnect' | 'cast' | 'popout' | 'skipintro' | 'catchup';
+export type PlaybackSubTabId = 'mpv' | 'reconnect' | 'cast' | 'popout' | 'skipintro' | 'catchup' | 'vod';
 
 interface PlaybackTabProps {
   initialSubTab?: PlaybackSubTabId;
@@ -55,6 +56,8 @@ interface PlaybackTabProps {
   onCatchupEndPaddingChange: (padding: number) => void;
   catchupContinuePlaying: boolean;
   onCatchupContinuePlayingChange: (enabled: boolean) => void;
+  vodAutoPlayNextEpisode: boolean;
+  onVodAutoPlayNextEpisodeChange: (enabled: boolean) => void;
 }
 
 const DEFAULT_MPV_PARAMS = `--hwdec=auto
@@ -110,6 +113,8 @@ export function PlaybackTab({
   onCatchupEndPaddingChange,
   catchupContinuePlaying,
   onCatchupContinuePlayingChange,
+  vodAutoPlayNextEpisode,
+  onVodAutoPlayNextEpisodeChange,
 }: PlaybackTabProps) {
   const [activeSubTab, setActiveSubTab] = useState<PlaybackSubTabId>('mpv');
 
@@ -229,6 +234,12 @@ export function PlaybackTab({
           onClick={() => setActiveSubTab('catchup')}
         >
           Catch-up
+        </button>
+        <button
+          className={`settings-tab ${activeSubTab === 'vod' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('vod')}
+        >
+          VOD
         </button>
       </div>
 
@@ -586,6 +597,12 @@ export function PlaybackTab({
             onCatchupEndPaddingChange={onCatchupEndPaddingChange}
             catchupContinuePlaying={catchupContinuePlaying}
             onCatchupContinuePlayingChange={onCatchupContinuePlayingChange}
+          />
+        )}
+        {activeSubTab === 'vod' && (
+          <VodTab
+            vodAutoPlayNextEpisode={vodAutoPlayNextEpisode}
+            onVodAutoPlayNextEpisodeChange={onVodAutoPlayNextEpisodeChange}
           />
         )}
       </div>

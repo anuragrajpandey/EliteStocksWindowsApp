@@ -129,6 +129,7 @@ const SETTINGS_SEARCH_INDEX: SettingsSearchResult[] = [
   { id: 'catchup-end-padding', label: 'End Padding', description: 'Padding added to the end of catch-up playback.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'catchup', section: 'Catch-up' },
   { id: 'catchup-continue-playing', label: 'Continue playing after end time', description: 'Keep playing past the scheduled end time on catch-up channels.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'catchup', section: 'Catch-up' },
   { id: 'catchup-settings', label: 'Catch-up', tabId: 'playback', tabLabel: 'Playback', subTabId: 'catchup', section: 'Catch-up' },
+  { id: 'vod-autoplay-next-episode', label: 'VOD Auto-Play Next Episode', description: 'Automatically play the next episode of a VOD Series when the current episode ends.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'vod', section: 'VOD Settings' },
 
   // --- Subtitles & Audio ---
   { id: 'subtitles-tab', label: 'Subtitles & Audio', tabId: 'subtitles', tabLabel: 'Subtitles & Audio', subTabId: 'subtitles', section: 'Subtitles & Audio' },

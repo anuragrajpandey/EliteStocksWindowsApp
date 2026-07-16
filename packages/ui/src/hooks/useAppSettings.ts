@@ -153,6 +153,8 @@ export interface AppSettings {
     setCatchupEndPadding: (padding: number) => void;
     catchupContinuePlaying: boolean;
     setCatchupContinuePlaying: (continuePlaying: boolean) => void;
+    vodAutoPlayNextEpisode: boolean;
+    setVodAutoPlayNextEpisode: (enabled: boolean) => void;
 }
 
 /**
@@ -213,6 +215,9 @@ export function useAppSettings(): AppSettings {
   const [catchupStartPadding, setCatchupStartPaddingState] = useState(0);
   const [catchupEndPadding, setCatchupEndPaddingState] = useState(0);
   const [catchupContinuePlaying, setCatchupContinuePlayingState] = useState(false);
+
+  // VOD settings state
+  const [vodAutoPlayNextEpisode, setVodAutoPlayNextEpisodeState] = useState(false);
 
   // Theme state
   const [theme, setThemeState] = useState<ThemeId>('dark-cyan');
@@ -490,6 +495,7 @@ export function useAppSettings(): AppSettings {
           setCatchupStartPaddingState(result.data.catchupStartPadding ?? 0);
           setCatchupEndPaddingState(result.data.catchupEndPadding ?? 0);
           setCatchupContinuePlayingState(result.data.catchupContinuePlaying ?? false);
+          setVodAutoPlayNextEpisodeState(result.data.vodAutoPlayNextEpisode ?? false);
 
           // Load widget scale and apply CSS variable
           const savedScale = result.data.widgetScale ?? 1;
@@ -1053,6 +1059,22 @@ export function useAppSettings(): AppSettings {
     );
   }, []);
 
+  const setVodAutoPlayNextEpisode = useCallback(async (enabled: boolean) => {
+    setVodAutoPlayNextEpisodeState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ vodAutoPlayNextEpisode: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save vodAutoPlayNextEpisode:', e);
+      }
+    }
+    window.dispatchEvent(
+      new CustomEvent('ynotv:vod-settings-changed', {
+        detail: { vodAutoPlayNextEpisode: enabled },
+      })
+    );
+  }, []);
+
   const setCastEnabled = useCallback(async (enabled: boolean) => {
     setCastEnabledState(enabled);
     if (window.storage) {
@@ -1322,5 +1344,7 @@ export function useAppSettings(): AppSettings {
     setCatchupEndPadding,
     catchupContinuePlaying,
     setCatchupContinuePlaying,
+    vodAutoPlayNextEpisode,
+    setVodAutoPlayNextEpisode,
   };
 }

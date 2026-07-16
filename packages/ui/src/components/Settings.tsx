@@ -98,6 +98,8 @@ interface SettingsProps {
   onNuvioCacheFetchTimeoutChange?: (timeout: number) => void;
   liveTvDesign?: 'v1' | 'v2' | 'v3';
   onLiveTvDesignChange?: (design: 'v1' | 'v2' | 'v3') => void;
+  vodAutoPlayNextEpisode?: boolean;
+  onVodAutoPlayNextEpisodeChange?: (enabled: boolean) => void;
 }
 
 export function Settings({
@@ -169,6 +171,8 @@ export function Settings({
   onNuvioCacheFetchTimeoutChange,
   liveTvDesign,
   onLiveTvDesignChange,
+  vodAutoPlayNextEpisode: vodAutoPlayNextEpisodeProp,
+  onVodAutoPlayNextEpisodeChange,
 }: SettingsProps) {
   const [activeTab, setActiveTab] = useState<SettingsTabId>(initialTab);
   const { showConfirm, ModalComponent } = useModal();
@@ -342,6 +346,7 @@ export function Settings({
   const [catchupStartPadding, setCatchupStartPadding] = useState(0);
   const [catchupEndPadding, setCatchupEndPadding] = useState(0);
   const [catchupContinuePlaying, setCatchupContinuePlaying] = useState(false);
+  const [vodAutoPlayNextEpisode, setVodAutoPlayNextEpisode] = useState(false);
   // Stremio settings
   const [stremioStreamPickerMode, setStremioStreamPickerMode] = useState<StremioStreamPickerMode>('modal');
   const [showStremioStreamBadges, setShowStremioStreamBadges] = useState(true);
@@ -765,6 +770,7 @@ export function Settings({
         nuvioCacheFetchResults?: boolean;
         nuvioCacheFetchTimeout?: number;
         includeAllChannelsToPlaylist?: boolean;
+        vodAutoPlayNextEpisode?: boolean;
       };
 
       setShowAllChannels(settings.showAllChannels ?? true);
@@ -901,6 +907,7 @@ export function Settings({
       setCatchupStartPadding(settings.catchupStartPadding ?? 0);
       setCatchupEndPadding(settings.catchupEndPadding ?? 0);
       setCatchupContinuePlaying(settings.catchupContinuePlaying ?? false);
+      setVodAutoPlayNextEpisode(settings.vodAutoPlayNextEpisode ?? false);
       setStremioStreamPickerMode(settings.stremioStreamPickerMode ?? 'modal');
       setShowStremioStreamBadges(settings.showStremioStreamBadges ?? true);
       setBadgeSources(mergeDefaultBadgeSources(settings.badgeSources as BadgeSource[] | undefined));
@@ -1266,6 +1273,19 @@ export function Settings({
     window.dispatchEvent(new CustomEvent('ynotv:catchup-settings-changed', {
       detail: { catchupContinuePlaying: enabled }
     }));
+  };
+
+  const handleVodAutoPlayNextEpisodeChange = async (enabled: boolean) => {
+    setVodAutoPlayNextEpisode(enabled);
+    if (window.storage) {
+      await window.storage.updateSettings({ vodAutoPlayNextEpisode: enabled });
+    }
+    window.dispatchEvent(new CustomEvent('ynotv:vod-settings-changed', {
+      detail: { vodAutoPlayNextEpisode: enabled }
+    }));
+    if (onVodAutoPlayNextEpisodeChange) {
+      onVodAutoPlayNextEpisodeChange(enabled);
+    }
   };
 
   const handleStremioStreamPickerModeChange = async (mode: StremioStreamPickerMode) => {
@@ -2250,6 +2270,8 @@ export function Settings({
             onCatchupStartPaddingChange={handleCatchupStartPaddingChange}
             onCatchupEndPaddingChange={handleCatchupEndPaddingChange}
             onCatchupContinuePlayingChange={handleCatchupContinuePlayingChange}
+            vodAutoPlayNextEpisode={vodAutoPlayNextEpisode}
+            onVodAutoPlayNextEpisodeChange={handleVodAutoPlayNextEpisodeChange}
           />
         );
       case 'metadata':

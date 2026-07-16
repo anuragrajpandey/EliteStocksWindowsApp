@@ -221,6 +221,8 @@ function App() {
     setCastEnabled,
     castRewriteTs,
     setCastRewriteTs,
+    vodAutoPlayNextEpisode,
+    setVodAutoPlayNextEpisode,
   } = useAppSettings();
   const navHiddenTabs = useUIStore((s) => s.navHiddenTabs);
   const setNavHiddenStore = useUIStore((s) => s.setNavHiddenTabs);
@@ -2463,6 +2465,86 @@ function App() {
     return () => clearInterval(interval);
   }, [vodInfo, playing, duration]);
 
+  // ==========================================================================
+  // VOD Series Auto-Play Next Episode
+  // ==========================================================================
+  const prevPlayingRef = useRef(playing);
+  useEffect(() => {
+    const prevPlaying = prevPlayingRef.current;
+    prevPlayingRef.current = playing;
+
+    if (prevPlaying && !playing && vodInfo?.type === 'series' && duration > 0 && position >= duration - 2) {
+      const { seriesId, seasonNum, episodeNum, title, source_id, year, plot, backdropUrl, logoUrl } = vodInfo;
+      if (vodAutoPlayNextEpisode && seriesId && seasonNum !== undefined && episodeNum !== undefined && title) {
+        console.log('[AutoPlay] VOD Series ended naturally, triggering auto-play next episode');
+        
+        (async () => {
+          try {
+            const nextEpisode = await getAdjacentEpisode(
+              seriesId,
+              seasonNum,
+              episodeNum,
+              'next'
+            );
+
+            if (nextEpisode && nextEpisode.direct_url) {
+              console.log(`[AutoPlay] Found next episode: S${nextEpisode.season_num}E${nextEpisode.episode_num}`);
+              
+              const progress = await getEpisodeProgress(nextEpisode.id);
+              const resumePosition = progress?.progress_seconds && progress.progress_seconds > 10 ? progress.progress_seconds : 0;
+              
+              const series = await db.vodSeries.get(seriesId);
+              const coverUrl = series ? (series.cover || (series as any).stream_icon) : undefined;
+
+              void recordVodWatch(
+                seriesId,
+                'series',
+                source_id || '',
+                title,
+                coverUrl,
+                nextEpisode.season_num,
+                nextEpisode.episode_num,
+                nextEpisode.title || `Episode ${nextEpisode.episode_num}`
+              );
+              
+              void recordEpisodeWatch(
+                nextEpisode.id,
+                seriesId,
+                source_id || '',
+                nextEpisode.season_num,
+                nextEpisode.episode_num,
+                nextEpisode.title || `Episode ${nextEpisode.episode_num}`,
+                resumePosition,
+                nextEpisode.duration ?? Number(nextEpisode.info?.duration) ?? 0
+              );
+              
+              await handlePlayVod({
+                url: nextEpisode.direct_url,
+                title,
+                year,
+                plot: nextEpisode.plot || plot,
+                type: 'series',
+                episodeInfo: `S${nextEpisode.season_num} E${nextEpisode.episode_num}${nextEpisode.title ? ` · ${nextEpisode.title}` : ''}`,
+                source_id,
+                mediaId: `${seriesId}_ep_${nextEpisode.id}`,
+                seriesId,
+                seasonNum: nextEpisode.season_num,
+                episodeNum: nextEpisode.episode_num,
+                episodeId: nextEpisode.id,
+                backdropUrl,
+                logoUrl,
+              });
+            } else {
+              console.log('[AutoPlay] No next episode found (reached end of series)');
+            }
+          } catch (err) {
+            console.error('[AutoPlay] Error playing next episode:', err);
+          }
+        })();
+      }
+    }
+  }, [playing, vodInfo, duration, position, vodAutoPlayNextEpisode, handlePlayVod]);
+
   const lastKnownProgressPercentRef = useRef(0);
   const scrobblingMediaRef = useRef<any>(null);
   const scrobbleTimerRef = useRef<any>(null);
@@ -4260,6 +4342,8 @@ function App() {
           onCastEnabledChange={setCastEnabled}
           castRewriteTs={castRewriteTs}
           onCastRewriteTsChange={setCastRewriteTs}
+          vodAutoPlayNextEpisode={vodAutoPlayNextEpisode}
+          onVodAutoPlayNextEpisodeChange={setVodAutoPlayNextEpisode}
           stremioStreamPickerMode={stremioStreamPickerMode}
           onStremioStreamPickerModeChange={handleStremioStreamPickerModeChange}
           showStremioStreamBadges={showStremioStreamBadges}
