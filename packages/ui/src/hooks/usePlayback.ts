@@ -1881,11 +1881,6 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
 
     if (pendingCatchupSeekRef.current === null) {
       clearPendingSeeks();
-      const startPaddingSecs = catchupStartPaddingRef.current * 60;
-      if (startPaddingSecs > 0) {
-        pendingCatchupSeekRef.current = startPaddingSecs;
-        isInitialSeekPendingRef.current = true;
-      }
     }
     // Save VOD progress before switching to catchup
     if (vodInfo && position > 0 && duration > 0) {
