@@ -5,8 +5,9 @@ import '../Modal.css';
 import './PlaybackTab.css';
 import { PopoutTab } from './PopoutTab';
 import { SkipIntroTab } from './SkipIntroTab';
+import { CatchupTab } from './CatchupTab';
 
-export type PlaybackSubTabId = 'mpv' | 'reconnect' | 'cast' | 'popout' | 'skipintro';
+export type PlaybackSubTabId = 'mpv' | 'reconnect' | 'cast' | 'popout' | 'skipintro' | 'catchup';
 
 interface PlaybackTabProps {
   initialSubTab?: PlaybackSubTabId;
@@ -47,6 +48,13 @@ interface PlaybackTabProps {
   onSkipIntroTimerSecondsChange: (seconds: number) => void;
   skipIntroAutoSkip: boolean;
   onSkipIntroAutoSkipChange: (auto: boolean) => void;
+  // Catch-up props
+  catchupStartPadding: number;
+  onCatchupStartPaddingChange: (padding: number) => void;
+  catchupEndPadding: number;
+  onCatchupEndPaddingChange: (padding: number) => void;
+  catchupContinuePlaying: boolean;
+  onCatchupContinuePlayingChange: (enabled: boolean) => void;
 }
 
 const DEFAULT_MPV_PARAMS = `--hwdec=auto
@@ -96,8 +104,14 @@ export function PlaybackTab({
   onSkipIntroTimerSecondsChange,
   skipIntroAutoSkip,
   onSkipIntroAutoSkipChange,
+  catchupStartPadding,
+  onCatchupStartPaddingChange,
+  catchupEndPadding,
+  onCatchupEndPaddingChange,
+  catchupContinuePlaying,
+  onCatchupContinuePlayingChange,
 }: PlaybackTabProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'mpv' | 'reconnect' | 'cast' | 'popout' | 'skipintro'>('mpv');
+  const [activeSubTab, setActiveSubTab] = useState<PlaybackSubTabId>('mpv');
 
   useEffect(() => {
     if (initialSubTab) {
@@ -209,6 +223,12 @@ export function PlaybackTab({
           onClick={() => setActiveSubTab('skipintro')}
         >
           Skip Intro
+        </button>
+        <button
+          className={`settings-tab ${activeSubTab === 'catchup' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('catchup')}
+        >
+          Catch-up
         </button>
       </div>
 
@@ -555,6 +575,17 @@ export function PlaybackTab({
             onSkipIntroTimerSecondsChange={onSkipIntroTimerSecondsChange}
             skipIntroAutoSkip={skipIntroAutoSkip}
             onSkipIntroAutoSkipChange={onSkipIntroAutoSkipChange}
+          />
+        )}
+
+        {activeSubTab === 'catchup' && (
+          <CatchupTab
+            catchupStartPadding={catchupStartPadding}
+            onCatchupStartPaddingChange={onCatchupStartPaddingChange}
+            catchupEndPadding={catchupEndPadding}
+            onCatchupEndPaddingChange={onCatchupEndPaddingChange}
+            catchupContinuePlaying={catchupContinuePlaying}
+            onCatchupContinuePlayingChange={onCatchupContinuePlayingChange}
           />
         )}
       </div>

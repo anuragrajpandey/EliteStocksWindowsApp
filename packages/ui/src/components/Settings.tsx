@@ -338,6 +338,10 @@ export function Settings({
   const [useEventBasedReconnect, setUseEventBasedReconnect] = useState(false);
   const [stallDetectionEnabled, setStallDetectionEnabled] = useState(true);
   const [showLoadingScreen, setShowLoadingScreen] = useState(false);
+  // Catch-up settings state
+  const [catchupStartPadding, setCatchupStartPadding] = useState(0);
+  const [catchupEndPadding, setCatchupEndPadding] = useState(0);
+  const [catchupContinuePlaying, setCatchupContinuePlaying] = useState(false);
   // Stremio settings
   const [stremioStreamPickerMode, setStremioStreamPickerMode] = useState<StremioStreamPickerMode>('modal');
   const [showStremioStreamBadges, setShowStremioStreamBadges] = useState(true);
@@ -684,6 +688,9 @@ export function Settings({
         useEventBasedReconnect?: boolean;
         stallDetectionEnabled?: boolean;
         showLoadingScreen?: boolean;
+        catchupStartPadding?: number;
+        catchupEndPadding?: number;
+        catchupContinuePlaying?: boolean;
         epgDarkenCurrent?: boolean;
         epgBoldChannelNames?: boolean;
         epgBoldTopCategories?: boolean;
@@ -891,6 +898,9 @@ export function Settings({
       setUseEventBasedReconnect(settings.useEventBasedReconnect ?? false);
       setStallDetectionEnabled(settings.stallDetectionEnabled ?? true);
       setShowLoadingScreen(settings.showLoadingScreen ?? false);
+      setCatchupStartPadding(settings.catchupStartPadding ?? 0);
+      setCatchupEndPadding(settings.catchupEndPadding ?? 0);
+      setCatchupContinuePlaying(settings.catchupContinuePlaying ?? false);
       setStremioStreamPickerMode(settings.stremioStreamPickerMode ?? 'modal');
       setShowStremioStreamBadges(settings.showStremioStreamBadges ?? true);
       setBadgeSources(mergeDefaultBadgeSources(settings.badgeSources as BadgeSource[] | undefined));
@@ -1225,6 +1235,36 @@ export function Settings({
     }
     window.dispatchEvent(new CustomEvent('ynotv:retry-settings-changed', {
       detail: { showLoadingScreen: enabled }
+    }));
+  };
+
+  const handleCatchupStartPaddingChange = async (padding: number) => {
+    setCatchupStartPadding(padding);
+    if (window.storage) {
+      window.storage.debouncedUpdateSettings({ catchupStartPadding: padding });
+    }
+    window.dispatchEvent(new CustomEvent('ynotv:catchup-settings-changed', {
+      detail: { catchupStartPadding: padding }
+    }));
+  };
+
+  const handleCatchupEndPaddingChange = async (padding: number) => {
+    setCatchupEndPadding(padding);
+    if (window.storage) {
+      window.storage.debouncedUpdateSettings({ catchupEndPadding: padding });
+    }
+    window.dispatchEvent(new CustomEvent('ynotv:catchup-settings-changed', {
+      detail: { catchupEndPadding: padding }
+    }));
+  };
+
+  const handleCatchupContinuePlayingChange = async (enabled: boolean) => {
+    setCatchupContinuePlaying(enabled);
+    if (window.storage) {
+      await window.storage.updateSettings({ catchupContinuePlaying: enabled });
+    }
+    window.dispatchEvent(new CustomEvent('ynotv:catchup-settings-changed', {
+      detail: { catchupContinuePlaying: enabled }
     }));
   };
 
@@ -2169,7 +2209,7 @@ export function Settings({
       case 'playback':
         return (
           <PlaybackTab
-            initialSubTab={(pendingSubTabFromParent || pendingSubTab) as 'mpv' | 'reconnect' | 'cast' | 'popout' | 'skipintro' | undefined}
+            initialSubTab={(pendingSubTabFromParent || pendingSubTab) as 'mpv' | 'reconnect' | 'cast' | 'popout' | 'skipintro' | 'catchup' | undefined}
             mpvParams={mpvParams}
             mpvDisableWhitelist={mpvDisableWhitelist}
             onMpvParamsChange={handleMpvParamsChange}
@@ -2204,6 +2244,12 @@ export function Settings({
             onSkipIntroTimerSecondsChange={handleSkipIntroTimerSecondsChange}
             skipIntroAutoSkip={skipIntroAutoSkip}
             onSkipIntroAutoSkipChange={handleSkipIntroAutoSkipChange}
+            catchupStartPadding={catchupStartPadding}
+            catchupEndPadding={catchupEndPadding}
+            catchupContinuePlaying={catchupContinuePlaying}
+            onCatchupStartPaddingChange={handleCatchupStartPaddingChange}
+            onCatchupEndPaddingChange={handleCatchupEndPaddingChange}
+            onCatchupContinuePlayingChange={handleCatchupContinuePlayingChange}
           />
         );
       case 'metadata':

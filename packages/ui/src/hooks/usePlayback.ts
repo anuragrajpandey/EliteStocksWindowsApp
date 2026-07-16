@@ -469,7 +469,12 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
   const useEventBasedReconnectRef = useRef(false);
   const stallDetectionEnabledRef = useRef(true);
 
-  // Load retry settings from storage once on mount
+  // Catch-up settings refs
+  const catchupStartPaddingRef = useRef(0);
+  const catchupEndPaddingRef = useRef(0);
+  const catchupContinuePlayingRef = useRef(false);
+
+  // Load retry & catchup settings from storage once on mount
   useEffect(() => {
     if (!window.storage) return;
     window.storage.getSettings().then((result: any) => {
@@ -489,6 +494,15 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
         }
         if (typeof s.showLoadingScreen === 'boolean') {
           showLoadingScreenRef.current = s.showLoadingScreen;
+        }
+        if (typeof s.catchupStartPadding === 'number') {
+          catchupStartPaddingRef.current = s.catchupStartPadding;
+        }
+        if (typeof s.catchupEndPadding === 'number') {
+          catchupEndPaddingRef.current = s.catchupEndPadding;
+        }
+        if (typeof s.catchupContinuePlaying === 'boolean') {
+          catchupContinuePlayingRef.current = s.catchupContinuePlaying;
         }
       }
     }).catch(() => {});
@@ -521,6 +535,26 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
     };
     window.addEventListener('ynotv:retry-settings-changed', handler);
     return () => window.removeEventListener('ynotv:retry-settings-changed', handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ catchupStartPadding?: number; catchupEndPadding?: number; catchupContinuePlaying?: boolean }>).detail;
+      if (typeof detail.catchupStartPadding === 'number') {
+        catchupStartPaddingRef.current = detail.catchupStartPadding;
+        logInfo(`[Catchup] Start padding updated to ${detail.catchupStartPadding}m`);
+      }
+      if (typeof detail.catchupEndPadding === 'number') {
+        catchupEndPaddingRef.current = detail.catchupEndPadding;
+        logInfo(`[Catchup] End padding updated to ${detail.catchupEndPadding}m`);
+      }
+      if (typeof detail.catchupContinuePlaying === 'boolean') {
+        catchupContinuePlayingRef.current = detail.catchupContinuePlaying;
+        logInfo(`[Catchup] Continue playing updated to ${detail.catchupContinuePlaying}`);
+      }
+    };
+    window.addEventListener('ynotv:catchup-settings-changed', handler);
+    return () => window.removeEventListener('ynotv:catchup-settings-changed', handler);
   }, []);
 
 
@@ -1833,8 +1867,25 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
   }, [playing, duration, !!vodInfo, startAutoSelectPolling]);
 
   const handlePlayCatchup = useCallback(async (channel: StoredChannel, programTitle: string, startTimeMs: number, durationMinutes: number, programDesc?: string) => {
+    const startPaddingMs = catchupStartPaddingRef.current * 60_000;
+    const endPaddingMs = catchupEndPaddingRef.current * 60_000;
+    const adjustedStartTimeMs = startTimeMs - startPaddingMs;
+
+    let adjustedDurationMinutes = durationMinutes;
+    if (catchupContinuePlayingRef.current) {
+      const maxPossibleMins = Math.ceil((Date.now() - adjustedStartTimeMs) / 60_000);
+      adjustedDurationMinutes = Math.max(durationMinutes + catchupStartPaddingRef.current, Math.min(720, maxPossibleMins));
+    } else {
+      adjustedDurationMinutes = durationMinutes + catchupStartPaddingRef.current + catchupEndPaddingRef.current;
+    }
+
     if (pendingCatchupSeekRef.current === null) {
       clearPendingSeeks();
+      const startPaddingSecs = catchupStartPaddingRef.current * 60;
+      if (startPaddingSecs > 0) {
+        pendingCatchupSeekRef.current = startPaddingSecs;
+        isInitialSeekPendingRef.current = true;
+      }
     }
     // Save VOD progress before switching to catchup
     if (vodInfo && position > 0 && duration > 0) {
@@ -1900,14 +1951,14 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
       direct_url: channel.direct_url,
       tv_archive: channel.tv_archive,
     });
-    console.log(`[Catchup] Program:`, { programTitle, startTimeMs: new Date(startTimeMs).toISOString(), durationMinutes });
+    console.log(`[Catchup] Program:`, { programTitle, startTimeMs: new Date(adjustedStartTimeMs).toISOString(), durationMinutes: adjustedDurationMinutes });
 
     let resolved;
     try {
       resolved = await resolvePlayUrl(channel.source_id, channel.direct_url, {
         rawStreamId,
-        startTimeMs,
-        durationMinutes,
+        startTimeMs: adjustedStartTimeMs,
+        durationMinutes: adjustedDurationMinutes,
       });
     } catch (e) {
       console.error('Failed to resolve catchup source:', e);
@@ -1926,7 +1977,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
       setError(result.error ?? 'Failed to load catchup stream');
     } else {
       setCurrentChannel(channel);
-      setCatchupInfo({ channelId: channel.stream_id, programTitle, startTime: startTimeMs, duration: durationMinutes, programDesc });
+      setCatchupInfo({ channelId: channel.stream_id, programTitle, startTime: adjustedStartTimeMs, duration: adjustedDurationMinutes, programDesc });
       setPlaying(true);
     }
   }, [vodInfo, position, duration, clearPendingSeeks]);
@@ -1934,7 +1985,8 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
   const handleCatchupSeek = useCallback(async (channel: StoredChannel, programTitle: string, startTimeMs: number, durationMinutes: number, seekSeconds: number, programDesc?: string) => {
     seekingRef.current = true;
     clearPendingSeeks();
-    pendingCatchupSeekRef.current = seekSeconds;
+    const startPaddingSecs = catchupStartPaddingRef.current * 60;
+    pendingCatchupSeekRef.current = seekSeconds + startPaddingSecs;
     isInitialSeekPendingRef.current = true;
     await handlePlayCatchup(channel, programTitle, startTimeMs, durationMinutes, programDesc);
     setTimeout(() => { seekingRef.current = false; }, 200);

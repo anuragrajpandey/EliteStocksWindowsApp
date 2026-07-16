@@ -179,6 +179,9 @@ export interface AppSettings {
     simklScrobbleEnabled?: boolean;
     simklSyncEnabled?: boolean;
     globalLiveTvUserAgent?: string;
+    catchupStartPadding?: number;
+    catchupEndPadding?: number;
+    catchupContinuePlaying?: boolean;
     [key: string]: any;
 }
 

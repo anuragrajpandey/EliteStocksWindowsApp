@@ -147,6 +147,12 @@ export interface AppSettings {
     setEpgPreferEpgLogos: (enabled: boolean) => void;
     globalLiveTvUserAgent: string;
     setGlobalLiveTvUserAgent: (ua: string) => void;
+    catchupStartPadding: number;
+    setCatchupStartPadding: (padding: number) => void;
+    catchupEndPadding: number;
+    setCatchupEndPadding: (padding: number) => void;
+    catchupContinuePlaying: boolean;
+    setCatchupContinuePlaying: (continuePlaying: boolean) => void;
 }
 
 /**
@@ -202,6 +208,11 @@ export function useAppSettings(): AppSettings {
   const [externalPlayerPath, setExternalPlayerPathState] = useState('');
   const [externalPlayerArgs, setExternalPlayerArgsState] = useState('');
   const [externalPlayerReuse, setExternalPlayerReuseState] = useState(false);
+
+  // Catch-up settings state
+  const [catchupStartPadding, setCatchupStartPaddingState] = useState(0);
+  const [catchupEndPadding, setCatchupEndPaddingState] = useState(0);
+  const [catchupContinuePlaying, setCatchupContinuePlayingState] = useState(false);
 
   // Theme state
   const [theme, setThemeState] = useState<ThemeId>('dark-cyan');
@@ -476,6 +487,9 @@ export function useAppSettings(): AppSettings {
           setExternalPlayerPathState(result.data.externalPlayerPath ?? '');
           setExternalPlayerArgsState(result.data.externalPlayerArgs ?? '');
           setExternalPlayerReuseState(result.data.externalPlayerReuse ?? false);
+          setCatchupStartPaddingState(result.data.catchupStartPadding ?? 0);
+          setCatchupEndPaddingState(result.data.catchupEndPadding ?? 0);
+          setCatchupContinuePlayingState(result.data.catchupContinuePlaying ?? false);
 
           // Load widget scale and apply CSS variable
           const savedScale = result.data.widgetScale ?? 1;
@@ -991,6 +1005,54 @@ export function useAppSettings(): AppSettings {
     }
   }, []);
 
+  const setCatchupStartPadding = useCallback(async (padding: number) => {
+    setCatchupStartPaddingState(padding);
+    if (window.storage) {
+      try {
+        window.storage.debouncedUpdateSettings({ catchupStartPadding: padding });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save catchupStartPadding:', e);
+      }
+    }
+    window.dispatchEvent(
+      new CustomEvent('ynotv:catchup-settings-changed', {
+        detail: { catchupStartPadding: padding },
+      })
+    );
+  }, []);
+
+  const setCatchupEndPadding = useCallback(async (padding: number) => {
+    setCatchupEndPaddingState(padding);
+    if (window.storage) {
+      try {
+        window.storage.debouncedUpdateSettings({ catchupEndPadding: padding });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save catchupEndPadding:', e);
+      }
+    }
+    window.dispatchEvent(
+      new CustomEvent('ynotv:catchup-settings-changed', {
+        detail: { catchupEndPadding: padding },
+      })
+    );
+  }, []);
+
+  const setCatchupContinuePlaying = useCallback(async (continuePlaying: boolean) => {
+    setCatchupContinuePlayingState(continuePlaying);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ catchupContinuePlaying: continuePlaying });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save catchupContinuePlaying:', e);
+      }
+    }
+    window.dispatchEvent(
+      new CustomEvent('ynotv:catchup-settings-changed', {
+        detail: { catchupContinuePlaying: continuePlaying },
+      })
+    );
+  }, []);
+
   const setCastEnabled = useCallback(async (enabled: boolean) => {
     setCastEnabledState(enabled);
     if (window.storage) {
@@ -1254,5 +1316,11 @@ export function useAppSettings(): AppSettings {
     setEpgPreferEpgLogos,
     globalLiveTvUserAgent,
     setGlobalLiveTvUserAgent,
+    catchupStartPadding,
+    setCatchupStartPadding,
+    catchupEndPadding,
+    setCatchupEndPadding,
+    catchupContinuePlaying,
+    setCatchupContinuePlaying,
   };
 }

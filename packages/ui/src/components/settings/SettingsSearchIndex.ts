@@ -124,6 +124,12 @@ const SETTINGS_SEARCH_INDEX: SettingsSearchResult[] = [
   { id: 'skip-intro-duration', label: 'Skip Button Duration', description: 'How many seconds the skip button stays visible.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'skipintro', section: 'Skip Intro' },
   { id: 'skip-intro', label: 'Skip Intro', tabId: 'playback', tabLabel: 'Playback', subTabId: 'skipintro', section: 'Skip Intro' },
 
+  // --- Catch-up ---
+  { id: 'catchup-start-padding', label: 'Start Padding', description: 'Padding added to the beginning of catch-up playback.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'catchup', section: 'Catch-up' },
+  { id: 'catchup-end-padding', label: 'End Padding', description: 'Padding added to the end of catch-up playback.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'catchup', section: 'Catch-up' },
+  { id: 'catchup-continue-playing', label: 'Continue playing after end time', description: 'Keep playing past the scheduled end time on catch-up channels.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'catchup', section: 'Catch-up' },
+  { id: 'catchup-settings', label: 'Catch-up', tabId: 'playback', tabLabel: 'Playback', subTabId: 'catchup', section: 'Catch-up' },
+
   // --- Subtitles & Audio ---
   { id: 'subtitles-tab', label: 'Subtitles & Audio', tabId: 'subtitles', tabLabel: 'Subtitles & Audio', subTabId: 'subtitles', section: 'Subtitles & Audio' },
   { id: 'subsource-api-key', label: 'SubSource API Key', description: 'API key for SubSource subtitle integration.', tabId: 'subtitles', tabLabel: 'Subtitles & Audio', subTabId: 'subtitles', section: 'SubSource Integration' },
