@@ -148,7 +148,7 @@ impl Default for DvrSettings {
         Self {
             storage_path: String::new(),
             max_disk_usage_percent: 80,
-            auto_cleanup_enabled: true,
+            auto_cleanup_enabled: false,
             default_start_padding_sec: 60,
             default_end_padding_sec: 300,
             keep_recordings_days: Some(30),

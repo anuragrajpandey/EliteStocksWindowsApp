@@ -2019,7 +2019,8 @@ export async function getDvrSettings(): Promise<Record<string, any>> {
   const settingsMap: Record<string, any> = {
     storage_path: '',
     max_disk_usage_percent: 80,
-    auto_cleanup_enabled: true,
+    auto_cleanup_enabled: false,
+    keep_recordings_days: 30,
     default_start_padding_sec: 60,
     default_end_padding_sec: 300,
   };
@@ -2050,11 +2051,22 @@ export async function scheduleRecording(schedule: Omit<DvrSchedule, 'id' | 'crea
 
   const settings = await getDvrSettings();
 
+  // Try to get latest channel name/alias from the local DB
+  let resolvedChannelName = schedule.channel_name;
+  try {
+    const channel = await db.channels.get(schedule.channel_id);
+    if (channel?.alias) {
+      resolvedChannelName = channel.alias;
+    }
+  } catch (err) {
+    console.warn('[DVR] Failed to resolve channel alias:', err);
+  }
+
   // Call Rust backend to schedule recording
   const request = {
     source_id: schedule.source_id,
     channel_id: schedule.channel_id,
-    channel_name: schedule.channel_name,
+    channel_name: resolvedChannelName,
     program_title: schedule.program_title,
     scheduled_start: schedule.scheduled_start,
     scheduled_end: schedule.scheduled_end,

@@ -10,6 +10,9 @@ export function DvrTab() {
     const [endPadding, setEndPadding] = useState(300);
     const [customEndPaddingInput, setCustomEndPaddingInput] = useState('');
     const [autoConvertFormat, setAutoConvertFormat] = useState('none');
+    const [autoCleanup, setAutoCleanup] = useState(false);
+    const [maxDiskUsage, setMaxDiskUsage] = useState(80);
+    const [keepDays, setKeepDays] = useState<number | null>(30);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -27,6 +30,9 @@ export function DvrTab() {
             const mins = endSec / 60;
             setCustomEndPaddingInput(Number(mins.toFixed(2)).toString());
             setAutoConvertFormat(settings.auto_convert_format || 'none');
+            setAutoCleanup(settings.auto_cleanup_enabled !== false);
+            setMaxDiskUsage(settings.max_disk_usage_percent || 80);
+            setKeepDays(settings.keep_recordings_days !== undefined ? settings.keep_recordings_days : 30);
 
             if (window.storage) {
                 const settingsRes = await window.storage.getSettings();
@@ -102,6 +108,21 @@ export function DvrTab() {
     async function handleAutoConvertChange(value: string) {
         setAutoConvertFormat(value);
         await saveDvrSetting('auto_convert_format', value);
+    }
+
+    async function handleAutoCleanupChange(value: boolean) {
+        setAutoCleanup(value);
+        await saveDvrSetting('auto_cleanup_enabled', value);
+    }
+
+    async function handleMaxDiskUsageChange(value: number) {
+        setMaxDiskUsage(value);
+        await saveDvrSetting('max_disk_usage_percent', value);
+    }
+
+    async function handleKeepDaysChange(value: number | null) {
+        setKeepDays(value);
+        await saveDvrSetting('keep_recordings_days', value);
     }
 
     const formatDuration = (seconds: number): string => {
@@ -331,6 +352,132 @@ export function DvrTab() {
                         </button>
                     </div>
                 </div>
+            </div>
+
+            {/* Storage Management & Auto-Cleanup */}
+            <div className="settings-section" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
+                <div className="section-header">
+                    <h3>Storage Management</h3>
+                </div>
+                <p className="section-description" style={{ marginBottom: '12px' }}>
+                    Control how recordings are pruned automatically to prevent running out of disk space.
+                </p>
+
+                {/* Enable Auto-Cleanup Toggle */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                    <div>
+                        <label style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)', display: 'block', fontWeight: 500 }}>
+                            Auto-Cleanup
+                        </label>
+                        <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
+                            Automatically delete oldest recordings to enforce disk space quotas.
+                        </span>
+                    </div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+                        <input
+                            type="checkbox"
+                            id="autoCleanup"
+                            checked={autoCleanup}
+                            onChange={(e) => handleAutoCleanupChange(e.target.checked)}
+                            style={{ display: 'none' }}
+                        />
+                        <label
+                            htmlFor="autoCleanup"
+                            style={{
+                                width: '46px',
+                                height: '24px',
+                                background: autoCleanup ? 'linear-gradient(135deg, #00d4ff, #0072ff)' : 'rgba(255,255,255,0.1)',
+                                display: 'block',
+                                borderRadius: '12px',
+                                position: 'relative',
+                                cursor: 'pointer',
+                                transition: 'background 0.3s ease',
+                                border: '1px solid rgba(255,255,255,0.1)'
+                            }}
+                        >
+                            <span
+                                style={{
+                                    position: 'absolute',
+                                    top: '2px',
+                                    left: autoCleanup ? '24px' : '2px',
+                                    width: '18px',
+                                    height: '18px',
+                                    background: '#fff',
+                                    borderRadius: '50%',
+                                    transition: 'left 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                }}
+                            />
+                        </label>
+                    </div>
+                </div>
+
+                {autoCleanup && (
+                    <>
+                        {/* Max Disk Usage Slider */}
+                        <div style={{ marginBottom: '20px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                <label style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>Max Disk Usage Threshold</label>
+                                <span style={{ 
+                                    fontSize: '0.8rem', 
+                                    color: '#00d4ff',
+                                    background: 'rgba(0, 212, 255, 0.1)',
+                                    padding: '2px 8px',
+                                    borderRadius: '4px'
+                                }}>
+                                    {maxDiskUsage}%
+                                </span>
+                            </div>
+                            <input
+                                type="range"
+                                min="50"
+                                max="95"
+                                step="5"
+                                value={maxDiskUsage}
+                                onChange={(e) => handleMaxDiskUsageChange(parseInt(e.target.value))}
+                                style={{
+                                    width: '100%',
+                                    height: '4px',
+                                    background: 'rgba(255,255,255,0.1)',
+                                    borderRadius: '2px',
+                                    outline: 'none',
+                                    cursor: 'pointer'
+                                }}
+                            />
+                            <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginTop: '6px' }}>
+                                Cleanup starts when the recording drive's total usage exceeds this limit.
+                            </p>
+                        </div>
+
+                        {/* Keep Recordings Days Dropdown */}
+                        <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                <label style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>Keep Recordings For</label>
+                            </div>
+                            <select
+                                value={keepDays === null || keepDays === undefined || (keepDays as any) === 'none' ? 'none' : keepDays.toString()}
+                                onChange={(e) => handleKeepDaysChange(e.target.value === 'none' ? null : parseInt(e.target.value))}
+                                style={{
+                                    width: '100%',
+                                    padding: '10px 14px',
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    borderRadius: '6px',
+                                    color: 'rgba(255,255,255,0.9)',
+                                    fontSize: '0.85rem',
+                                    cursor: 'pointer',
+                                    outline: 'none',
+                                }}
+                            >
+                                <option value="none" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>Indefinitely (Until space is needed)</option>
+                                <option value="7" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>7 Days</option>
+                                <option value="14" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>14 Days</option>
+                                <option value="30" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>30 Days</option>
+                                <option value="90" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>90 Days</option>
+                            </select>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Auto-Convert Settings */}

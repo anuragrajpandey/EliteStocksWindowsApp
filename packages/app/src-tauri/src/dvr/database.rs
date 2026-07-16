@@ -1363,12 +1363,15 @@ impl DvrDatabase {
         let conn = self.get_conn()?;
         let channel = conn
             .query_row(
-                "SELECT stream_id, name FROM channels WHERE stream_id = ?1",
+                "SELECT stream_id, name, alias FROM channels WHERE stream_id = ?1",
                 params![stream_id],
                 |row| {
+                    let stream_id: String = row.get(0)?;
+                    let name: String = row.get(1)?;
+                    let alias: Option<String> = row.get(2)?;
                     Ok(Channel {
-                        stream_id: row.get(0)?,
-                        name: row.get(1)?,
+                        stream_id,
+                        name: alias.filter(|s| !s.is_empty()).unwrap_or(name),
                     })
                 },
             )

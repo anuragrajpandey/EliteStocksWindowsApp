@@ -188,8 +188,14 @@ impl RecordingManager {
         // Get storage path from settings or use default
         let storage_path = self.get_storage_path().await?;
 
+        // Look up latest channel name/alias from the channels table
+        let channel_name = match self.db.get_channel_by_id(&schedule.channel_id) {
+            Ok(Some(ch)) => ch.name,
+            _ => schedule.channel_name.clone(),
+        };
+
         // Generate filename
-        let filename = generate_filename(&schedule);
+        let filename = generate_filename(&schedule, &channel_name);
         let output_path = storage_path.join(&filename);
 
         // Calculate recording duration
@@ -200,7 +206,7 @@ impl RecordingManager {
             schedule.id,
             output_path.to_str().unwrap(),
             &filename,
-            &schedule.channel_name,
+            &channel_name,
             &schedule.program_title,
             schedule.scheduled_start,
             schedule.scheduled_end,
@@ -768,7 +774,7 @@ fn get_default_storage_path() -> Result<PathBuf> {
 }
 
 /// Generate filename for recording
-fn generate_filename(schedule: &Schedule) -> String {
+fn generate_filename(schedule: &Schedule, channel_name: &str) -> String {
     let timestamp = chrono::DateTime::from_timestamp(schedule.scheduled_start, 0)
         .map(|dt| dt.format("%Y-%m-%dT%H-%M-%S").to_string())
         .unwrap_or_else(|| "unknown".to_string());
@@ -784,8 +790,7 @@ fn generate_filename(schedule: &Schedule) -> String {
         .take(50)
         .collect();
 
-    let sanitized_channel: String = schedule
-        .channel_name
+    let sanitized_channel: String = channel_name
         .chars()
         .map(|c| match c {
             '<' | '>' | ':' | '"' | '/' | '\\' | '|' | '?' | '*' => '_',

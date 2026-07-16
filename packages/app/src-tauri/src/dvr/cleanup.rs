@@ -217,7 +217,8 @@ async fn enforce_quota(
     let mut bytes_freed: u64 = 0;
 
     // Get recordings ordered by age (oldest first)
-    let recordings = db.get_completed_recordings()?;
+    let mut recordings = db.get_completed_recordings()?;
+    recordings.sort_by_key(|r| r.actual_end.unwrap_or(r.created_at));
     let mut deleted_count = 0;
 
     for recording in recordings {
@@ -227,6 +228,12 @@ async fn enforce_quota(
 
         // Skip if policy is "never"
         if recording.auto_delete_policy == "never" {
+            continue;
+        }
+
+        // Avoid deleting very recent recordings (e.g. within last 24 hours) in normal auto-cleanup
+        let actual_end = recording.actual_end.unwrap_or(recording.created_at);
+        if chrono::Utc::now().timestamp() - actual_end < 24 * 3600 {
             continue;
         }
 
@@ -263,10 +270,11 @@ async fn emergency_cleanup(
     _storage_path: &Path
 ) -> Result<usize> {
     // Get ALL completed recordings, ignore policy
-    let recordings = db.get_completed_recordings()?;
+    let mut recordings = db.get_completed_recordings()?;
     let mut deleted_count = 0;
 
     // Delete half of them (oldest first)
+    recordings.sort_by_key(|r| r.actual_end.unwrap_or(r.created_at));
     let to_delete = recordings.len() / 2;
 
     for recording in recordings.iter().take(to_delete) {
