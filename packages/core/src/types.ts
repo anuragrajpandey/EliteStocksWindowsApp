@@ -136,6 +136,7 @@ export interface Movie {
 
   // External IDs (if provider includes them)
   tmdb_id?: number;
+  added?: Date | string;
 }
 
 export interface Series {
@@ -156,6 +157,8 @@ export interface Series {
 
   // External IDs (if provider includes them)
   tmdb_id?: number;
+  added?: Date | string;
+  last_modified?: Date | string;
 }
 
 export interface Season {

@@ -198,6 +198,24 @@ export function VodBrowse({
   // Poster size preference
   const [posterSize, setPosterSize] = usePosterSizePreference();
 
+  // Sort preference
+  const [sortBy, setSortBy] = useState<'name' | 'added'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('vodSortBy');
+      if (saved === 'added' || saved === 'name') {
+        return saved;
+      }
+    }
+    return 'name';
+  });
+
+  const setSortByAndSave = useCallback((val: 'name' | 'added') => {
+    setSortBy(val);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('vodSortBy', val);
+    }
+  }, []);
+
   const { includeSourceInVodSearch } = useAppSettings();
   const sourceNameMap = useSourceNameMap();
 
@@ -221,8 +239,8 @@ export function VodBrowse({
 
   // Get paginated data (using debounced search)
   // Pass 'completed' as refreshTrigger so data reloads when lazy loading finishes
-  const moviesData = usePaginatedMovies(type === 'movies' ? categoryId : null, debouncedSearch, completed);
-  const seriesData = usePaginatedSeries(type === 'series' ? categoryId : null, debouncedSearch, completed);
+  const moviesData = usePaginatedMovies(type === 'movies' ? categoryId : null, debouncedSearch, sortBy, completed);
+  const seriesData = usePaginatedSeries(type === 'series' ? categoryId : null, debouncedSearch, sortBy, completed);
 
   const { items, loading: dataLoading, hasMore, loadMore } = type === 'movies' ? moviesData : seriesData;
 
@@ -411,13 +429,26 @@ export function VodBrowse({
 
   return (
     <div className="vod-browse" style={gridStyle}>
-      {/* Header with poster size slider */}
+      {/* Header with poster size slider and sort */}
       <div className="vod-browse__toolbar">
         <div className="vod-browse__toolbar-left">
           <span className="vod-browse__category-name">{categoryName}</span>
           <span className="vod-browse__item-count">{items.length.toLocaleString()} items</span>
         </div>
-        <PosterSizeSlider value={posterSize} onChange={setPosterSize} />
+        <div className="vod-browse__toolbar-right">
+          <div className="vod-browse__sort-container">
+            <span className="vod-browse__sort-label">Sort:</span>
+            <select
+              className="vod-browse__sort-select"
+              value={sortBy}
+              onChange={(e) => setSortByAndSave(e.target.value as 'name' | 'added')}
+            >
+              <option value="name">A-Z</option>
+              <option value="added">Recently Added</option>
+            </select>
+          </div>
+          <PosterSizeSlider value={posterSize} onChange={setPosterSize} />
+        </div>
       </div>
 
       <VirtuosoGrid

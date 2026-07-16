@@ -847,7 +847,7 @@ export class StalkerClient {
             release_date: item.year ? `${item.year}-01-01` : '',
 
             category_ids: categoryId ? [categoryId] : [],
-            added: item.added || '',
+            added: item.added || item.time_added || item.added_time || '',
             container_extension: item.container_extension || 'mp4',
             direct_url: `stalker_vod:${item.id}:${item.cmd || ''}`,
             source_id: this.sourceId,
@@ -970,7 +970,7 @@ export class StalkerClient {
             releaseDate: item.year ? `${item.year}-01-01` : '',
 
             category_ids: categoryId ? [categoryId] : [],
-            added: item.added || '',
+            added: item.added || item.time_added || item.added_time || '',
             // Store movie_id for series navigation
             direct_url: `stalker_series:${item.id}`,
             source_id: this.sourceId,

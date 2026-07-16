@@ -836,7 +836,8 @@ pub async fn sync_xtream_vod_series(
         let rating_str = stream.rating.map(|v| v.to_string());
         let year_str = stream.year.map(|v| v.to_string());
         
-        let added_str = match stream.added {
+        let added_val = stream.added.clone().or_else(|| stream.last_modified.clone());
+        let added_str = match added_val {
             Some(serde_json::Value::Number(n)) => Some(n.to_string()),
             Some(serde_json::Value::String(s)) => Some(s),
             _ => Some(chrono::Utc::now().to_rfc3339()),

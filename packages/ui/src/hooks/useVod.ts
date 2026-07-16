@@ -815,9 +815,14 @@ export function useWindowedSeries(
  * 
  * @param refreshTrigger - Optional trigger to force re-query (e.g., when lazy loading completes)
  */
-export function usePaginatedMovies(categoryId: string | null, search?: string, refreshTrigger?: boolean) {
+export function usePaginatedMovies(
+  categoryId: string | null,
+  search?: string,
+  sortBy: 'name' | 'added' = 'name',
+  refreshTrigger?: boolean
+) {
   // Use windowed query for proper infinite scroll
-  return useWindowedMovies(categoryId, search, 'name', refreshTrigger);
+  return useWindowedMovies(categoryId, search, sortBy, refreshTrigger);
 }
 
 /**
@@ -828,9 +833,14 @@ export function usePaginatedMovies(categoryId: string | null, search?: string, r
  * 
  * @param refreshTrigger - Optional trigger to force re-query (e.g., when lazy loading completes)
  */
-export function usePaginatedSeries(categoryId: string | null, search?: string, refreshTrigger?: boolean) {
+export function usePaginatedSeries(
+  categoryId: string | null,
+  search?: string,
+  sortBy: 'name' | 'added' = 'name',
+  refreshTrigger?: boolean
+) {
   // Use windowed query for proper infinite scroll
-  return useWindowedSeries(categoryId, search, 'name', refreshTrigger);
+  return useWindowedSeries(categoryId, search, sortBy, refreshTrigger);
 }
 
 /**

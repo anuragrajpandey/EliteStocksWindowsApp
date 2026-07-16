@@ -154,7 +154,23 @@ function sanitizeMovie(movie: any, existingMovie?: any): any {
   const clean: any = {};
 
   // 1. Map known aliases/mismatches and apply defaults
-  clean.added = existingMovie?.added ? (existingMovie.added instanceof Date ? existingMovie.added.toISOString() : existingMovie.added) : new Date().toISOString();
+  let addedVal = movie.added || movie.last_modified || existingMovie?.added;
+  if (addedVal) {
+    if (typeof addedVal === 'number') {
+      clean.added = new Date(addedVal * 1000).toISOString();
+    } else if (typeof addedVal === 'string' && /^\d+$/.test(addedVal.trim())) {
+      clean.added = new Date(parseInt(addedVal.trim(), 10) * 1000).toISOString();
+    } else {
+      const parsedDate = new Date(addedVal);
+      if (!isNaN(parsedDate.getTime())) {
+        clean.added = parsedDate.toISOString();
+      } else {
+        clean.added = existingMovie?.added ? (existingMovie.added instanceof Date ? existingMovie.added.toISOString() : existingMovie.added) : new Date().toISOString();
+      }
+    }
+  } else {
+    clean.added = new Date().toISOString();
+  }
   if (movie.title && !movie.name) clean.name = movie.title;
 
   // 2. Copy whitelist fields, prioritizing mapped values if already set
@@ -193,7 +209,23 @@ function sanitizeSeries(series: any, existingSeries?: any): any {
   const clean: any = {};
 
   // 1. Map known aliases/mismatches and apply defaults
-  clean.added = existingSeries?.added ? (existingSeries.added instanceof Date ? existingSeries.added.toISOString() : existingSeries.added) : new Date().toISOString();
+  let addedVal = series.added || series.last_modified || existingSeries?.added;
+  if (addedVal) {
+    if (typeof addedVal === 'number') {
+      clean.added = new Date(addedVal * 1000).toISOString();
+    } else if (typeof addedVal === 'string' && /^\d+$/.test(addedVal.trim())) {
+      clean.added = new Date(parseInt(addedVal.trim(), 10) * 1000).toISOString();
+    } else {
+      const parsedDate = new Date(addedVal);
+      if (!isNaN(parsedDate.getTime())) {
+        clean.added = parsedDate.toISOString();
+      } else {
+        clean.added = existingSeries?.added ? (existingSeries.added instanceof Date ? existingSeries.added.toISOString() : existingSeries.added) : new Date().toISOString();
+      }
+    }
+  } else {
+    clean.added = new Date().toISOString();
+  }
   if (series.release_date && !series.releaseDate) clean.releaseDate = series.release_date;
   if (series.first_air_date && !series.releaseDate) clean.releaseDate = series.first_air_date; // Common alias for series
   if (series.name && !series.title) clean.title = series.name; // Ensure title is present for matching
@@ -3065,7 +3097,7 @@ export async function syncVodMovies(
       imdb_id: existing?.imdb_id,
       backdrop_path: existing?.backdrop_path,
       popularity: existing?.popularity,
-      added: existing?.added ? (existing.added instanceof Date ? existing.added.toISOString() : existing.added) : new Date().toISOString(),
+      added: movie.added || movie.last_modified || existing?.added,
     };
 
     return sanitizeMovie(item, existing);
@@ -3286,7 +3318,7 @@ export async function syncVodSeries(
       imdb_id: existing?.imdb_id,
       backdrop_path: existing?.backdrop_path,
       popularity: existing?.popularity,
-      added: existing?.added ? (existing.added instanceof Date ? existing.added.toISOString() : existing.added) : new Date().toISOString(),
+      added: s.added || s.last_modified || existing?.added,
     };
 
     const sanitized = sanitizeSeries(item, existing);

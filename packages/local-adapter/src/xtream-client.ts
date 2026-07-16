@@ -352,6 +352,7 @@ export class XtreamClient {
       genre: vod.genre,
       release_date: vod.releasedate,
       rating: vod.rating,
+      added: vod.added ? String(vod.added) : undefined,
     }));
   }
 
@@ -395,6 +396,8 @@ export class XtreamClient {
       genre: series.genre,
       release_date: series.releaseDate,
       rating: series.rating,
+      added: series.added ? String(series.added) : undefined,
+      last_modified: series.last_modified ? String(series.last_modified) : undefined,
     }));
   }
 
@@ -512,6 +515,7 @@ interface XtreamVodStream {
   genre?: string;
   releasedate?: string;
   rating?: string;
+  added?: string | number;
 }
 
 interface XtreamSeries {
@@ -526,6 +530,8 @@ interface XtreamSeries {
   genre?: string;
   releaseDate?: string;
   rating?: string;
+  added?: string | number;
+  last_modified?: string | number;
 }
 
 interface XtreamSeriesInfo {
