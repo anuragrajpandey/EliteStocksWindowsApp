@@ -34,6 +34,19 @@ function formatTimeForInput(date: Date): string {
     return date.toTimeString().slice(0, 5);
 }
 
+function formatDuration(minutes: number): string {
+    if (minutes <= 0) return '0 min';
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hrs === 0) {
+        return `${mins} min`;
+    }
+    if (mins === 0) {
+        return `${hrs} hr${hrs > 1 ? 's' : ''}`;
+    }
+    return `${hrs}h ${mins}m`;
+}
+
 export function ChannelContextMenu({
     channel,
     position,
@@ -46,6 +59,9 @@ export function ChannelContextMenu({
     const menuRef = useRef<HTMLDivElement>(null);
     const [currentView, setCurrentView] = useState<MenuView>('main');
     const [durationMinutes, setDurationMinutes] = useState(30);
+    const [customHours, setCustomHours] = useState<string>('');
+    const [customMinutes, setCustomMinutes] = useState<string>('');
+    const [isCustomActive, setIsCustomActive] = useState(false);
     const [scheduling, setScheduling] = useState(false);
     const [adjustedPosition, setAdjustedPosition] = useState(position);
     const [showEpgEditor, setShowEpgEditor] = useState(false);
@@ -323,12 +339,31 @@ export function ChannelContextMenu({
         });
     }
 
+    const handleCustomHoursChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        if (val === '' || /^\d+$/.test(val)) {
+            setCustomHours(val);
+            setIsCustomActive(true);
+        }
+    };
+
+    const handleCustomMinutesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        if (val === '' || /^\d+$/.test(val)) {
+            setCustomMinutes(val);
+            setIsCustomActive(true);
+        }
+    };
+
     async function handleConfirmQuickRecord() {
         setScheduling(true);
         try {
             const now = new Date();
             const startTimestamp = Math.floor(now.getTime() / 1000);
-            const endTimestamp = startTimestamp + (durationMinutes * 60);
+            const finalDuration = isCustomActive
+                ? (parseInt(customHours) || 0) * 60 + (parseInt(customMinutes) || 0)
+                : durationMinutes;
+            const endTimestamp = startTimestamp + (finalDuration * 60);
             await createRecording(startTimestamp, endTimestamp, `${channel.name} - Quick Record`);
         } catch (error: any) {
             console.error('Failed to schedule recording:', error);
@@ -718,11 +753,16 @@ export function ChannelContextMenu({
 
     // ── QUICK RECORD VIEW ──
     if (currentView === 'quick') {
+        const finalDuration = isCustomActive
+            ? (parseInt(customHours) || 0) * 60 + (parseInt(customMinutes) || 0)
+            : durationMinutes;
+        const isRecordDisabled = scheduling || (isCustomActive && finalDuration <= 0);
+
         return createPortal(
             <div
                 ref={menuRef}
                 className="program-context-menu"
-                style={getMenuStyle({ minWidth: '200px' })}
+                style={getMenuStyle({ minWidth: '220px' })}
             >
                 <div className="context-menu-header">
                     Quick Record {channel.name}
@@ -732,21 +772,55 @@ export function ChannelContextMenu({
                     {durationOptions.map((mins) => (
                         <button
                             key={mins}
-                            className={`duration-option ${durationMinutes === mins ? 'selected' : ''}`}
-                            onClick={() => setDurationMinutes(mins)}
+                            className={`duration-option ${(!isCustomActive && durationMinutes === mins) ? 'selected' : ''}`}
+                            onClick={() => {
+                                setDurationMinutes(mins);
+                                setIsCustomActive(false);
+                                setCustomHours('');
+                                setCustomMinutes('');
+                            }}
                         >
                             {mins < 60 ? `${mins} min` : `${mins / 60} hour${mins > 60 ? 's' : ''}`}
                         </button>
                     ))}
                 </div>
                 <div className="context-menu-separator" />
+                <div className="custom-duration-section">
+                    <div className="custom-duration-label">Custom Duration</div>
+                    <div className="custom-duration-inputs">
+                        <div className="custom-input-group">
+                            <input
+                                type="number"
+                                min="0"
+                                placeholder="0"
+                                value={customHours}
+                                onChange={handleCustomHoursChange}
+                                className="custom-duration-input"
+                            />
+                            <span>hr</span>
+                        </div>
+                        <div className="custom-input-group">
+                            <input
+                                type="number"
+                                min="0"
+                                max="59"
+                                placeholder="0"
+                                value={customMinutes}
+                                onChange={handleCustomMinutesChange}
+                                className="custom-duration-input"
+                            />
+                            <span>min</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="context-menu-separator" />
                 <div className="context-menu-actions">
                     <button
                         className="context-menu-btn context-menu-btn-primary"
                         onClick={handleConfirmQuickRecord}
-                        disabled={scheduling}
+                        disabled={isRecordDisabled}
                     >
-                        {scheduling ? 'Starting...' : `Record ${durationMinutes} min`}
+                        {scheduling ? 'Starting...' : `Record ${formatDuration(finalDuration)}`}
                     </button>
                     <button className="context-menu-btn context-menu-btn-secondary" onClick={onClose} disabled={scheduling}>
                         Cancel
