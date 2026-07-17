@@ -1207,7 +1207,12 @@ export class StalkerClient {
                     title: `Episode ${epNum}`,
                     episode_num: epNum,
                     season_num: seasonNum,
-                    direct_url: `stalker_episode:${rawMovieId}:${seasonNum}:${epNum}:${season.cmd || ''}`,
+                    direct_url: `stalker_episode:${JSON.stringify({
+                        movieId: rawMovieId,
+                        seasonId: season.id,
+                        episodeId: String(epNum),
+                        cmd: season.cmd || `/media/file_${season.id}.mpg`
+                    })}`,
                     info: { season_name: seasonName }
                 }));
             } else {
@@ -1232,14 +1237,19 @@ export class StalkerClient {
                         console.log(`[Stalker] getSeasons: Fetched ${epData.length} episodes for season ${seasonNum}`);
                         episodes = epData.map((ep: any, index: number) => {
                             const epNum = parseInt(ep.series_number || ep.episode_num) || (index + 1);
-                            const epCmd = ep.cmd || season.cmd || `/media/${rawMovieId}.mpg`;
+                            const epCmd = ep.cmd || `/media/file_${ep.id}.mpg`;
                             return {
                                 id: `${this.sourceId}_episode_${ep.id}`,
                                 title: ep.name || `Episode ${epNum}`,
                                 episode_num: epNum,
                                 season_num: seasonNum,
                                 // Embed the episode ID and play command in direct_url so resolveStreamUrl can extract and play it directly
-                                direct_url: `stalker_episode:${rawMovieId}:${seasonNum}:${ep.id}:${epCmd}`,
+                                direct_url: `stalker_episode:${JSON.stringify({
+                                    movieId: rawMovieId,
+                                    seasonId: season.id,
+                                    episodeId: ep.id,
+                                    cmd: epCmd
+                                })}`,
                                 info: { season_name: seasonName }
                             };
                         });
@@ -1356,18 +1366,67 @@ export class StalkerClient {
 
         // Handle different command formats
         if (cmd.startsWith('stalker_episode:')) {
-            const parts = cmd.split(':');
-            if (parts.length < 5) {
-                throw new Error('Invalid stalker_episode format');
+            let config: { movieId: string; seasonId: string; episodeId: string; cmd: string };
+            const jsonStr = cmd.substring('stalker_episode:'.length);
+            try {
+                config = JSON.parse(jsonStr);
+            } catch (e) {
+                // Backwards compatibility for old format: stalker_episode:movie_id:season_id:episode_id:cmd
+                const parts = cmd.split(':');
+                if (parts.length < 5) {
+                    throw new Error('Invalid stalker_episode format');
+                }
+                config = {
+                    movieId: parts[1],
+                    seasonId: parts[2],
+                    episodeId: parts[3],
+                    cmd: parts.slice(4).join(':')
+                };
             }
-            const movieId = parts[1];
-            const seasonId = parts[2];
-            const episodeNum = parts[3];
-            const seasonCmd = parts.slice(4).join(':'); // Reconstruct cmd in case it has colons
+
+            const movieId = config.movieId;
+            let seasonId = config.seasonId;
+            const episodeNum = config.episodeId;
+            let seasonCmd = config.cmd;
             seriesEpisodeNum = episodeNum;
 
             console.log(`[Stalker] Resolving episode: Movie=${movieId}, Season=${seasonId}, Episode=${episodeNum}`);
             console.log(`[Stalker] Using season cmd: ${seasonCmd}`);
+
+            // If seasonId is a small sequential number (like 1, 2, 3) or not present,
+            // resolve it on-the-fly for backwards compatibility.
+            // Avoid resolving if the ID has colons, underscores or hyphens since those are database IDs.
+            if (seasonId && parseInt(seasonId) < 100 && !seasonId.includes(':') && !seasonId.includes('_') && !seasonId.includes('-')) {
+                console.log(`[Stalker] resolveStreamUrl: Detected season number ${seasonId} instead of database ID. Resolving season ID on-the-fly...`);
+                try {
+                    const seasons = await this.getSeasons(movieId);
+                    const matchedSeason = seasons.find(s => String(s.season_number) === String(seasonId)) || seasons[0];
+                    if (matchedSeason && matchedSeason.episodes.length > 0) {
+                        const ep = matchedSeason.episodes[0];
+                        if (ep.direct_url.startsWith('stalker_episode:')) {
+                            const epJsonStr = ep.direct_url.substring('stalker_episode:'.length);
+                            try {
+                                const epConfig = JSON.parse(epJsonStr);
+                                if (epConfig.seasonId && (parseInt(epConfig.seasonId) >= 100 || epConfig.seasonId.includes(':') || epConfig.seasonId.includes('_') || epConfig.seasonId.includes('-'))) {
+                                    seasonId = epConfig.seasonId;
+                                    seasonCmd = epConfig.cmd;
+                                    console.log(`[Stalker] resolveStreamUrl: Resolved season number ${config.seasonId} to season ID ${seasonId} with command ${seasonCmd}`);
+                                }
+                            } catch (err) {
+                                // Fallback if first ep direct_url is also old format
+                                const epParts = ep.direct_url.split(':');
+                                if (epParts.length >= 5 && epParts[2] && (parseInt(epParts[2]) >= 100 || epParts[2].includes(':') || epParts[2].includes('_') || epParts[2].includes('-'))) {
+                                    seasonId = epParts[2];
+                                    seasonCmd = epParts.slice(4).join(':');
+                                    console.log(`[Stalker] resolveStreamUrl: Resolved season number ${config.seasonId} to season ID ${seasonId} with command ${seasonCmd}`);
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error('[Stalker] resolveStreamUrl: Failed to resolve season ID on-the-fly:', e);
+                }
+            }
 
             // Use the cmd from the season directly - no need to fetch episode list
             // The create_link API uses the season cmd + series parameter for episode number
@@ -1418,50 +1477,79 @@ export class StalkerClient {
             return cmd;
         }
 
+        // Helper to request create_link, cleanup and resolve relative URLs
+        const requestLink = async (command: string): Promise<string | undefined> => {
+            try {
+                const params: Record<string, string> = {
+                    cmd: command,
+                    type: type,
+                };
+                if (seriesEpisodeNum) {
+                    params['series'] = seriesEpisodeNum;
+                }
+
+                const response = await this.fetchStalker<any>('create_link', type, params);
+                let resultUrl = response?.url || response?.cmd || response;
+
+                if (resultUrl && typeof resultUrl === 'string') {
+                    // 1. Remove ffmpeg prefix
+                    resultUrl = resultUrl.replace(/^(ffmpeg|ffrt)\s*/i, '').trim();
+
+                    // 2. Resolve relative URL
+                    if (!resultUrl.match(/^https?:\/\//i)) {
+                        if (resultUrl.startsWith('/')) {
+                            const baseUrl = new URL(this.config.baseUrl);
+                            resultUrl = `${baseUrl.origin}${resultUrl}`;
+                        } else if (resultUrl.startsWith('?token=')) {
+                            // This is a relative token login link, return it as-is so we can detect it
+                            return resultUrl;
+                        } else {
+                            const baseUrl = new URL(this.config.baseUrl);
+                            resultUrl = new URL(resultUrl, baseUrl.href).toString();
+                        }
+                    }
+                    return resultUrl;
+                }
+            } catch (err) {
+                console.error('[Stalker] requestLink failed for cmd:', command, err);
+            }
+            return undefined;
+        };
+
         try {
             console.log(`[Stalker] Calling create_link. Type=${type}, Cmd=${forcedCmd}`);
+            let resultUrl = await requestLink(forcedCmd);
 
-            const params: Record<string, string> = {
-                cmd: forcedCmd,
-                type: type,
-            };
+            // If the resolved URL starts with '?token=' or matches the portal load.php page,
+            // it means the command format was incorrect and the portal fell back to a login token.
+            // We attempt to toggle the cmd format (between /media/file_id.mpg and /media/id.mpg) and retry.
+            if (!resultUrl || resultUrl.startsWith('?token=') || resultUrl.includes('load.php?token=')) {
+                console.log(`[Stalker] resolveStreamUrl: Initial command ${forcedCmd} returned invalid token link: ${resultUrl}. Attempting fallback format...`);
+                
+                // Extract the numerical ID from forcedCmd
+                const idMatch = forcedCmd.match(/(\d+)/);
+                if (idMatch) {
+                    const entityId = idMatch[1];
+                    let alternativeCmd = '';
+                    if (forcedCmd.includes('/media/file_')) {
+                        alternativeCmd = `/media/${entityId}.mpg`;
+                    } else if (forcedCmd.includes('/media/')) {
+                        alternativeCmd = `/media/file_${entityId}.mpg`;
+                    }
 
-            if (seriesEpisodeNum) {
-                params['series'] = seriesEpisodeNum;
-            }
-
-            const response = await this.fetchStalker<any>('create_link', type, params);
-            // fetchStalker returns unwrapped JS/Data
-
-            let resultUrl = response.url;
-            if (!resultUrl && response.cmd) {
-                resultUrl = response.cmd;
+                    if (alternativeCmd && alternativeCmd !== forcedCmd) {
+                        console.log(`[Stalker] resolveStreamUrl: Retrying create_link with alternative cmd: ${alternativeCmd}`);
+                        const retryUrl = await requestLink(alternativeCmd);
+                        if (retryUrl && !retryUrl.startsWith('?token=') && !retryUrl.includes('load.php?token=')) {
+                            resultUrl = retryUrl;
+                            console.log(`[Stalker] resolveStreamUrl: Fallback command succeeded! Stream URL: ${resultUrl}`);
+                        }
+                    }
+                }
             }
 
             if (!resultUrl) {
-                throw new Error(`create_link returned no URL. Resp: ${JSON.stringify(response)}`);
-            }
-
-            // Cleanup URL
-            if (typeof resultUrl === 'string') {
-                // 1. Remove ffmpeg prefix
-                resultUrl = resultUrl.replace(/^(ffmpeg|ffrt)\s*/i, '').trim();
-
-                // 2. Resolve relative URL
-                if (!resultUrl.match(/^https?:\/\//i)) {
-                    // Check if it starts with /
-                    if (resultUrl.startsWith('/')) {
-                        const baseUrl = new URL(this.config.baseUrl);
-                        resultUrl = `${baseUrl.origin}${resultUrl}`;
-                    } else {
-                        // Relative to vod path?
-                        // Guide says: stream_base_url = portal_url + ...
-                        // Let's assume absolute from base
-                        const baseUrl = new URL(this.config.baseUrl);
-                        // If safe, join
-                        resultUrl = new URL(resultUrl, baseUrl.href).toString();
-                    }
-                }
+                throw new Error(`create_link returned no URL for cmd ${forcedCmd}`);
             }
 
             console.log(`[Stalker] Stream URL: ${resultUrl}`);

@@ -105,8 +105,12 @@ export async function resolvePlayUrl(
                 console.error('[stream-resolver] Failed to load global user agent settings:', e);
             }
         }
-        if (!userAgent && (sourceData.type === 'xtream' || sourceData.type === 'm3u')) {
-            userAgent = 'ynoTVPlayer';
+        if (!userAgent) {
+            if (sourceData.type === 'stalker') {
+                userAgent = 'Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 250 Safari/533.3';
+            } else if (sourceData.type === 'xtream' || sourceData.type === 'm3u') {
+                userAgent = 'ynoTVPlayer';
+            }
         }
         const sourceName: string | null = sourceData.name ?? null;
         let resolvedUrl = rawUrl;

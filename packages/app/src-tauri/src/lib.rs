@@ -2648,9 +2648,9 @@ async fn do_download(
 
         let mut cmd = tokio::process::Command::new(ffmpeg_path);
         
-        if let Some(ref ua) = user_agent {
-            cmd.arg("-user_agent").arg(ua);
-        }
+        let ua = user_agent.as_deref().unwrap_or("");
+        let effective_ua = if ua.trim().is_empty() { "ynoTVPlayer" } else { ua };
+        cmd.arg("-user_agent").arg(effective_ua);
 
         cmd.arg("-i").arg(&url)
            .arg("-c").arg("copy")

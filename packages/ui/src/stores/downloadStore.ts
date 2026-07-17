@@ -157,7 +157,18 @@ export const useDownloadStore = create<DownloadState>()(
             }));
             get().processQueue();
           } else {
-            await invoke('cancel_download', { id });
+            try {
+              await invoke('cancel_download', { id });
+            } catch (invokeError) {
+              console.warn('[DownloadStore] Backend cancel failed, forcing local cancel:', invokeError);
+              // Force update frontend state to canceled since the backend has no record of it
+              set((state) => ({
+                downloads: (state.downloads || []).map((d) =>
+                  d.id === id ? { ...d, status: 'canceled' as const } : d
+                ),
+              }));
+              get().processQueue();
+            }
           }
         } catch (error) {
           console.error('[DownloadStore] Failed to cancel download:', error);
