@@ -2625,6 +2625,95 @@ async fn download_media(
     Ok(())
 }
 
+fn parse_ytdlp_line(line: &str) -> (Option<f64>, Option<u64>, Option<u64>) {
+    let mut progress = None;
+    let mut speed_bytes = None;
+    let mut total_bytes = None;
+
+    if let Some(pos) = line.rfind("[download]") {
+        let download_part = &line[pos + 10..];
+        
+        // 1. Parse progress percentage
+        if let Some(pct_pos) = download_part.find('%') {
+            let pct_part = &download_part[..pct_pos].trim();
+            if let Some(num_str) = pct_part.split_whitespace().last() {
+                if let Ok(pct) = num_str.parse::<f64>() {
+                    progress = Some(pct);
+                }
+            }
+        }
+
+        // 2. Parse total bytes estimate if present (e.g. "of ~ 793.78MiB" or "of 150.00MiB")
+        if let Some(of_pos) = download_part.find("of ") {
+            let of_part = &download_part[of_pos + 3..];
+            let words: Vec<&str> = of_part.split_whitespace().collect();
+            let mut val_str = "";
+            if !words.is_empty() {
+                if words[0] == "~" && words.len() > 1 {
+                    val_str = words[1];
+                } else {
+                    val_str = words[0];
+                }
+            }
+            let clean_val = val_str.trim_start_matches('~').trim();
+            
+            let multiplier = if clean_val.ends_with("GiB") {
+                Some(1024.0 * 1024.0 * 1024.0)
+            } else if clean_val.ends_with("MiB") {
+                Some(1024.0 * 1024.0)
+            } else if clean_val.ends_with("KiB") {
+                Some(1024.0)
+            } else if clean_val.ends_with("B") {
+                Some(1.0)
+            } else {
+                None
+            };
+
+            if let Some(m) = multiplier {
+                let num_part = clean_val.trim_end_matches("GiB")
+                                         .trim_end_matches("MiB")
+                                         .trim_end_matches("KiB")
+                                         .trim_end_matches("B")
+                                         .trim();
+                if let Ok(val) = num_part.parse::<f64>() {
+                    total_bytes = Some((val * m) as u64);
+                }
+            }
+        }
+
+        // 3. Parse speed (e.g. "at 4.14MiB/s" or "at 350.00KiB/s")
+        if let Some(at_pos) = download_part.find("at ") {
+            let at_part = &download_part[at_pos + 3..];
+            let val_str = at_part.split_whitespace().next().unwrap_or("").trim();
+            
+            let multiplier = if val_str.ends_with("GiB/s") {
+                Some(1024.0 * 1024.0 * 1024.0)
+            } else if val_str.ends_with("MiB/s") {
+                Some(1024.0 * 1024.0)
+            } else if val_str.ends_with("KiB/s") {
+                Some(1024.0)
+            } else if val_str.ends_with("B/s") {
+                Some(1.0)
+            } else {
+                None
+            };
+
+            if let Some(m) = multiplier {
+                let num_part = val_str.trim_end_matches("GiB/s")
+                                      .trim_end_matches("MiB/s")
+                                      .trim_end_matches("KiB/s")
+                                      .trim_end_matches("B/s")
+                                      .trim();
+                if let Ok(val) = num_part.parse::<f64>() {
+                    speed_bytes = Some((val * m) as u64);
+                }
+            }
+        }
+    }
+
+    (progress, speed_bytes, total_bytes)
+}
+
 async fn do_download(
     app_handle: tauri::AppHandle,
     id: String,
@@ -2641,6 +2730,83 @@ async fn do_download(
     let is_hls = url.contains(".m3u8") || url.contains("/mono.m3u8");
 
     if is_hls {
+        if let Some(ytdl_path) = find_ytdl_path() {
+            debug!("[Downloader] Using yt-dlp sidecar for HLS download: {}", ytdl_path);
+            let mut cmd = tokio::process::Command::new(ytdl_path);
+            
+            let ua = user_agent.as_deref().unwrap_or("");
+            let effective_ua = if ua.trim().is_empty() { "ynoTVPlayer" } else { ua };
+            cmd.arg("--user-agent").arg(effective_ua);
+            cmd.arg("--newline");
+            cmd.arg("--progress");
+
+            cmd.arg("-o").arg(&save_path)
+               .arg(&url)
+               .stdout(std::process::Stdio::piped())
+               .stderr(std::process::Stdio::piped());
+
+            #[cfg(windows)]
+            cmd.creation_flags(0x08000000);
+
+            let mut child = cmd.spawn().map_err(|e| format!("Failed to spawn yt-dlp: {}", e))?;
+            let stdout = child.stdout.take().ok_or("Failed to open yt-dlp stdout")?;
+            let mut reader = tokio::io::BufReader::new(stdout).lines();
+
+            let mut last_emit = std::time::Instant::now();
+
+            loop {
+                tokio::select! {
+                    line_res = reader.next_line() => {
+                        match line_res {
+                            Ok(Some(line)) => {
+                                if last_emit.elapsed() >= std::time::Duration::from_millis(500) {
+                                    let (progress_pct, speed, total) = parse_ytdlp_line(&line);
+                                    
+                                    if let Some(progress) = progress_pct {
+                                        let written = if let Some(tot) = total {
+                                            ((progress / 100.0) * tot as f64) as u64
+                                        } else {
+                                            0
+                                        };
+
+                                        let event = DownloadProgressEvent {
+                                            id: id.clone(),
+                                            title: title.clone(),
+                                            status: "downloading".to_string(),
+                                            progress,
+                                            bytes_written: written,
+                                            total_bytes: total,
+                                            speed_bytes: speed.unwrap_or(0),
+                                            file_path: save_path.clone(),
+                                            error: None,
+                                        };
+                                        let _ = app_handle.emit("download:event", event);
+                                        last_emit = std::time::Instant::now();
+                                    }
+                                }
+                            }
+                            Ok(None) => break,
+                            Err(_) => break,
+                        }
+                    }
+                    _ = cancel_rx.changed() => {
+                        if *cancel_rx.borrow() {
+                            let _ = child.kill().await;
+                            return Err("Canceled".to_string());
+                        }
+                    }
+                }
+            }
+
+            let status = child.wait().await.map_err(|e| format!("yt-dlp wait error: {}", e))?;
+            if status.success() {
+                return Ok(());
+            } else {
+                return Err("yt-dlp process failed".to_string());
+            }
+        }
+
+        // Fallback to FFmpeg if yt-dlp is not available
         let ffmpeg_path = match crate::dvr::recorder::find_ffmpeg(&app_handle) {
             Ok(p) => p,
             Err(e) => return Err(format!("FFmpeg not found: {}", e)),
@@ -2651,6 +2817,7 @@ async fn do_download(
         let ua = user_agent.as_deref().unwrap_or("");
         let effective_ua = if ua.trim().is_empty() { "ynoTVPlayer" } else { ua };
         cmd.arg("-user_agent").arg(effective_ua);
+        cmd.arg("-stats");
 
         cmd.arg("-i").arg(&url)
            .arg("-c").arg("copy")
@@ -2668,16 +2835,39 @@ async fn do_download(
 
         let start_time = std::time::Instant::now();
         let mut last_emit = std::time::Instant::now();
+        let mut resolved_duration_secs = duration_secs;
 
         loop {
             tokio::select! {
                 line_res = reader.next_line() => {
                     match line_res {
                         Ok(Some(line)) => {
+                            // Try to parse "Duration: hh:mm:ss" if we don't have a duration yet
+                            if resolved_duration_secs.is_none() || resolved_duration_secs == Some(0) {
+                                if let Some(pos) = line.find("Duration: ") {
+                                    let dur_part = &line[pos + 10..];
+                                    let val_str = dur_part.split(',').next().unwrap_or("").trim();
+                                    let parts: Vec<&str> = val_str.split(':').collect();
+                                    if parts.len() == 3 {
+                                        if let (Ok(h), Ok(m), Ok(s)) = (
+                                            parts[0].parse::<f64>(),
+                                            parts[1].parse::<f64>(),
+                                            parts[2].parse::<f64>(),
+                                        ) {
+                                            let total_secs = h * 3600.0 + m * 60.0 + s;
+                                            if total_secs > 0.0 {
+                                                resolved_duration_secs = Some(total_secs as u64);
+                                                debug!("[Downloader] Parsed duration from FFmpeg: {}s", total_secs);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             if last_emit.elapsed() >= std::time::Duration::from_millis(500) {
                                 let (secs, size_bytes) = parse_ffmpeg_line(&line);
                                 
-                                let progress = if let (Some(s), Some(dur)) = (secs, duration_secs) {
+                                let progress = if let (Some(s), Some(dur)) = (secs, resolved_duration_secs) {
                                     if dur > 0 {
                                         ((s / dur as f64) * 100.0).min(100.0).max(0.0)
                                     } else {
@@ -2699,7 +2889,7 @@ async fn do_download(
                                     status: "downloading".to_string(),
                                     progress,
                                     bytes_written: size_bytes.unwrap_or(0),
-                                    total_bytes: duration_secs.map(|d| d * 1024 * 1024),
+                                    total_bytes: None,
                                     speed_bytes,
                                     file_path: save_path.clone(),
                                     error: None,
@@ -2816,7 +3006,7 @@ fn parse_ffmpeg_line(line: &str) -> (Option<f64>, Option<u64>) {
     let mut secs = None;
     let mut size_bytes = None;
     
-    if let Some(pos) = line.find("time=") {
+    if let Some(pos) = line.rfind("time=") {
         let time_part = &line[pos + 5..];
         let val_str = time_part.split_whitespace().next().unwrap_or("");
         let parts: Vec<&str> = val_str.split(':').collect();
@@ -2831,7 +3021,7 @@ fn parse_ffmpeg_line(line: &str) -> (Option<f64>, Option<u64>) {
         }
     }
     
-    if let Some(pos) = line.find("size=") {
+    if let Some(pos) = line.rfind("size=") {
         let size_part = &line[pos + 5..];
         let val_str = size_part.split_whitespace().next().unwrap_or("");
         let clean_val = val_str.replace("kB", "").trim().to_string();
