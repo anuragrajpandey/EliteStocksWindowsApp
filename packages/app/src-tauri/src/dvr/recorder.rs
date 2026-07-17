@@ -11,7 +11,7 @@ use std::time::{Duration, Instant};
 
 use anyhow::{Context, Result};
 use parking_lot::Mutex;
-use tokio::io::{AsyncBufReadExt, BufReader};
+use tokio::io::{AsyncBufReadExt, AsyncReadExt, BufReader};
 use tokio::process::{Child, Command};
 use tokio::sync::mpsc;
 use tracing::{debug, error, info, warn};
@@ -39,6 +39,12 @@ struct RecordingHandle {
     cancel_tx: watch::Sender<bool>,
     /// Output file path for playback while recording
     file_path: PathBuf,
+    /// Progress in seconds parsed from FFmpeg output
+    progress_seconds: Arc<parking_lot::Mutex<f64>>,
+    /// Progress in bytes parsed from FFmpeg output
+    progress_bytes: Arc<parking_lot::Mutex<u64>>,
+    /// Instant/rolling download speed in bytes/sec
+    speed_bytes_instant: Arc<parking_lot::Mutex<u64>>,
 }
 
 /// Manages active recordings
@@ -227,6 +233,7 @@ impl RecordingManager {
         
         // Build FFmpeg command
         let mut cmd = Command::new(&self.ffmpeg_path);
+        cmd.arg("-stats");
         
         // HTTP reconnection flags (must be specified before the input -i)
         if stream_url.starts_with("http://") || stream_url.starts_with("https://") {
@@ -266,6 +273,10 @@ impl RecordingManager {
         // Create cancellation channel
         let (cancel_tx, cancel_rx) = watch::channel(false);
 
+        let progress_seconds = Arc::new(parking_lot::Mutex::new(0.0));
+        let progress_bytes = Arc::new(parking_lot::Mutex::new(0));
+        let speed_bytes_instant = Arc::new(parking_lot::Mutex::new(0u64));
+
         // Track active recording
         let handle = RecordingHandle {
             process: Some(child),
@@ -274,12 +285,23 @@ impl RecordingManager {
             start_time: Instant::now(),
             cancel_tx,
             file_path: output_path.clone(),
+            progress_seconds: progress_seconds.clone(),
+            progress_bytes: progress_bytes.clone(),
+            speed_bytes_instant: speed_bytes_instant.clone(),
         };
 
         self.active_recordings.lock().insert(schedule.id, handle);
 
         // Wait for completion
-        let result = self.wait_for_recording(schedule.id, recording_id, duration_secs, cancel_rx).await;
+        let result = self.wait_for_recording(
+            schedule.id,
+            recording_id,
+            duration_secs,
+            cancel_rx,
+            progress_seconds,
+            progress_bytes,
+            speed_bytes_instant,
+        ).await;
 
         // Remove from active recordings
         self.active_recordings.lock().remove(&schedule.id);
@@ -421,6 +443,9 @@ impl RecordingManager {
         recording_id: i64,
         expected_duration: i64,
         mut cancel_rx: watch::Receiver<bool>,
+        progress_seconds: Arc<parking_lot::Mutex<f64>>,
+        progress_bytes: Arc<parking_lot::Mutex<u64>>,
+        speed_bytes_instant: Arc<parking_lot::Mutex<u64>>,
     ) -> Result<()> {
         // Take ownership of the process from the handle
         let mut child = {
@@ -431,19 +456,67 @@ impl RecordingManager {
                 .context("Recording process already taken")?
         };
 
-        // Start a task to capture stderr
+        // Start a task to capture stderr.
+        // IMPORTANT: FFmpeg writes progress stats with \r (carriage return) not \n.
+        // We must read raw bytes and split on both \r and \n to capture real-time progress.
         let stderr = child.stderr.take()
             .context("Failed to take stderr")?;
 
+        let progress_seconds_clone = progress_seconds.clone();
+        let progress_bytes_clone = progress_bytes.clone();
+        let speed_bytes_instant_clone = speed_bytes_instant.clone();
         let stderr_task = tokio::spawn(async move {
-            let reader = BufReader::new(stderr);
-            let mut lines = reader.lines();
+            let mut reader = BufReader::new(stderr);
+            let mut buf = Vec::<u8>::new();
             let mut output = String::new();
+            let mut raw_byte = [0u8; 1];
+            // Track previous bytes + timestamp for rolling speed
+            let mut last_bytes: u64 = 0;
+            let mut last_speed_time = Instant::now();
 
-            while let Ok(Some(line)) = lines.next_line().await {
-                println!("[FFmpeg #{}] {}", recording_id, line);
-                output.push_str(&line);
-                output.push('\n');
+            loop {
+                match reader.read(&mut raw_byte).await {
+                    Ok(0) => break, // EOF
+                    Err(_) => break,
+                    Ok(_) => {
+                        let byte = raw_byte[0];
+                        if byte == b'\r' || byte == b'\n' {
+                            if !buf.is_empty() {
+                                let line = String::from_utf8_lossy(&buf).to_string();
+                                buf.clear();
+
+                                let (secs, size_bytes) = parse_ffmpeg_line(&line);
+                                if let Some(s) = secs {
+                                    *progress_seconds_clone.lock() = s;
+                                }
+                                if let Some(b) = size_bytes {
+                                    *progress_bytes_clone.lock() = b;
+                                    // Compute rolling speed over the last interval
+                                    let elapsed = last_speed_time.elapsed().as_secs_f64();
+                                    if elapsed >= 0.5 && b > last_bytes {
+                                        let speed = ((b - last_bytes) as f64 / elapsed) as u64;
+                                        *speed_bytes_instant_clone.lock() = speed;
+                                        last_bytes = b;
+                                        last_speed_time = Instant::now();
+                                    } else if elapsed >= 5.0 {
+                                        // No new data for 5s — reset speed to 0
+                                        *speed_bytes_instant_clone.lock() = 0;
+                                        last_speed_time = Instant::now();
+                                    }
+                                }
+
+                                // Only log lines that end with \n (actual log messages, not progress overwrite lines)
+                                if byte == b'\n' {
+                                    println!("[FFmpeg #{}] {}", recording_id, line);
+                                    output.push_str(&line);
+                                    output.push('\n');
+                                }
+                            }
+                        } else {
+                            buf.push(byte);
+                        }
+                    }
+                }
             }
 
             output
@@ -522,6 +595,12 @@ impl RecordingManager {
 
             // Target duration / end time reached
             _ = async {
+                let now = chrono::Utc::now().timestamp();
+                if actual_end_time <= now {
+                    // Past recording (catch-up download). Let FFmpeg run to completion naturally.
+                    tokio::time::sleep(Duration::from_secs(3600 * 24 * 365 * 10)).await;
+                }
+
                 loop {
                     let now = chrono::Utc::now().timestamp();
                     if now >= actual_end_time {
@@ -674,6 +753,18 @@ impl RecordingManager {
             .map(|handle| {
                 let elapsed = handle.start_time.elapsed().as_secs() as i64;
                 let file_path = handle.file_path.to_string_lossy().to_string();
+                let secs = *handle.progress_seconds.lock();
+                let bytes = *handle.progress_bytes.lock();
+                // Use the rolling instant speed if available (updated by the stderr reader),
+                // falling back to the average speed over the whole session.
+                let instant_speed = *handle.speed_bytes_instant.lock();
+                let speed = if instant_speed > 0 {
+                    instant_speed
+                } else if handle.start_time.elapsed().as_secs_f64() > 0.0 && bytes > 0 {
+                    (bytes as f64 / handle.start_time.elapsed().as_secs_f64()) as u64
+                } else {
+                    0
+                };
                 RecordingProgress {
                     schedule_id: handle.schedule.id,
                     recording_id: handle.recording_id,
@@ -682,6 +773,9 @@ impl RecordingManager {
                     elapsed_seconds: elapsed,
                     scheduled_duration: handle.schedule.scheduled_end - handle.schedule.scheduled_start,
                     file_path,
+                    progress_seconds: Some(secs),
+                    progress_bytes: Some(bytes),
+                    speed_bytes: Some(speed),
                 }
             })
             .collect()
@@ -698,6 +792,9 @@ pub struct RecordingProgress {
     pub elapsed_seconds: i64,
     pub scheduled_duration: i64,
     pub file_path: String,
+    pub progress_seconds: Option<f64>,
+    pub progress_bytes: Option<u64>,
+    pub speed_bytes: Option<u64>,
 }
 
 /// Find FFmpeg binary
@@ -908,4 +1005,35 @@ pub async fn convert_recording_to_format(
 
     info!("[DVR Converter] Recording #{} successfully converted to .{}", recording_id, format);
     Ok(())
+}
+
+fn parse_ffmpeg_line(line: &str) -> (Option<f64>, Option<u64>) {
+    let mut secs = None;
+    let mut size_bytes = None;
+    
+    if let Some(pos) = line.rfind("time=") {
+        let time_part = &line[pos + 5..];
+        let val_str = time_part.split_whitespace().next().unwrap_or("");
+        let parts: Vec<&str> = val_str.split(':').collect();
+        if parts.len() == 3 {
+            if let (Ok(h), Ok(m), Ok(s)) = (
+                parts[0].parse::<f64>(),
+                parts[1].parse::<f64>(),
+                parts[2].parse::<f64>(),
+            ) {
+                secs = Some(h * 3600.0 + m * 60.0 + s);
+            }
+        }
+    }
+    
+    if let Some(pos) = line.rfind("size=") {
+        let size_part = &line[pos + 5..];
+        let val_str = size_part.split_whitespace().next().unwrap_or("");
+        let clean_val: String = val_str.chars().filter(|c| c.is_ascii_digit()).collect();
+        if let Ok(kb) = clean_val.parse::<u64>() {
+            size_bytes = Some(kb * 1024);
+        }
+    }
+    
+    (secs, size_bytes)
 }

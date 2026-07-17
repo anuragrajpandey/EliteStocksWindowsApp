@@ -3024,7 +3024,7 @@ fn parse_ffmpeg_line(line: &str) -> (Option<f64>, Option<u64>) {
     if let Some(pos) = line.rfind("size=") {
         let size_part = &line[pos + 5..];
         let val_str = size_part.split_whitespace().next().unwrap_or("");
-        let clean_val = val_str.replace("kB", "").trim().to_string();
+        let clean_val: String = val_str.chars().filter(|c| c.is_ascii_digit()).collect();
         if let Ok(kb) = clean_val.parse::<u64>() {
             size_bytes = Some(kb * 1024);
         }

@@ -316,6 +316,7 @@ export const ChannelRow = memo(function ChannelRow({
           channelName={channel.name}
           position={{ x: contextMenu.x, y: contextMenu.y }}
           onClose={() => setContextMenu(null)}
+          isCatchupAvailable={Boolean(channel.tv_archive) || channel.tv_archive === 1}
         />
       )}
 

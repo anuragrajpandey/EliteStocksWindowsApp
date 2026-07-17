@@ -338,6 +338,7 @@ export const SearchResultRow = memo(function SearchResultRow({
           channelName={channel.name}
           position={{ x: programContextMenu.x, y: programContextMenu.y }}
           onClose={() => setProgramContextMenu(null)}
+          isCatchupAvailable={Boolean(channel.tv_archive) || channel.tv_archive === 1}
         />
       )}
     </div>

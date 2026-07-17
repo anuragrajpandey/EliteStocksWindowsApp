@@ -2186,6 +2186,9 @@ export interface RecordingProgress {
   elapsed_seconds: number;
   scheduled_duration: number;
   file_path: string;
+  progress_seconds?: number;
+  progress_bytes?: number;
+  speed_bytes?: number;
 }
 
 export async function getActiveRecordings(): Promise<RecordingProgress[]> {

@@ -385,6 +385,12 @@
     border: 1px solid rgba(231, 76, 60, 0.3);
 }
 
+.dvr-card-status-badge.downloading {
+    background: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
 .dvr-card-status-badge.scheduled {
     background: rgba(0, 212, 255, 0.15);
     color: var(--accent-primary, #00d4ff);

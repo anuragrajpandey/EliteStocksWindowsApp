@@ -18,6 +18,24 @@ import { DvrTab } from './settings/DvrTab';
 import { useDownloadStore } from '../stores/downloadStore';
 import './DvrDashboard.css';
 
+const formatBytes = (bytes: number): string => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+const formatSpeed = (bytesPerSec: number): string => {
+    if (!bytesPerSec || bytesPerSec === 0) return '0 KB/s';
+    const kb = bytesPerSec / 1024;
+    if (kb < 1024) {
+        return `${kb.toFixed(1)} KB/s`;
+    }
+    const mb = kb / 1024;
+    return `${mb.toFixed(2)} MB/s`;
+};
+
 interface DvrDashboardProps {
     onPlay?: (recording: DvrRecording) => void;
     onClose: () => void;
@@ -855,14 +873,20 @@ interface RecordingCardProps {
 }
 
 function RecordingCard({ item, progress, onEdit, onCancel, onPlay, formatDateTime, formatDuration, formatElapsed }: RecordingCardProps) {
+    const isCatchup = !!(item.stream_url && (item.stream_url.includes('timeshift') || item.stream_url.includes('catchup')));
+
     const percent = progress
-        ? Math.min(100, (progress.elapsed_seconds / progress.scheduled_duration) * 100)
+        ? isCatchup && progress.progress_seconds !== undefined
+            ? Math.min(100, (progress.progress_seconds / progress.scheduled_duration) * 100)
+            : Math.min(100, (progress.elapsed_seconds / progress.scheduled_duration) * 100)
         : 0;
 
     return (
         <div className="dvr-card recording">
             <div className="dvr-card-header">
-                <span className="dvr-card-status-badge recording">REC</span>
+                <span className={`dvr-card-status-badge ${isCatchup ? 'downloading' : 'recording'}`}>
+                    {isCatchup ? 'DL' : 'REC'}
+                </span>
                 <div className="dvr-card-actions">
                     {onPlay && progress?.file_path && (
                         <button className="dvr-btn-icon play" onClick={onPlay} title="Play while recording">
@@ -877,7 +901,7 @@ function RecordingCard({ item, progress, onEdit, onCancel, onPlay, formatDateTim
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                         </svg>
                     </button>
-                    <button className="dvr-btn-icon danger" onClick={onCancel} title="Stop recording">
+                    <button className="dvr-btn-icon danger" onClick={onCancel} title={isCatchup ? 'Cancel download' : 'Stop recording'}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                         </svg>
@@ -912,9 +936,20 @@ function RecordingCard({ item, progress, onEdit, onCancel, onPlay, formatDateTim
                 </div>
                 {progress && (
                     <div className="dvr-card-progress">
-                        <div className="dvr-progress-header">
-                            <span className="dvr-progress-label">Recording in progress</span>
-                            <span className="dvr-progress-time">{formatElapsed(progress.elapsed_seconds)}</span>
+                        <div className="dvr-progress-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span className="dvr-progress-label">
+                                {isCatchup ? 'Download in progress' : 'Recording in progress'}
+                            </span>
+                            {isCatchup && progress.speed_bytes !== undefined && (
+                                <span className="dvr-progress-speed" style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)' }}>
+                                    {formatSpeed(progress.speed_bytes)}
+                                </span>
+                            )}
+                            <span className="dvr-progress-time">
+                                {isCatchup
+                                    ? `${formatBytes(progress.progress_bytes || 0)} (${Math.round(percent)}%)`
+                                    : formatElapsed(progress.elapsed_seconds)}
+                            </span>
                         </div>
                         <div className="dvr-progress-bar">
                             <div className="dvr-progress-fill" style={{ width: `${percent}%` }} />
@@ -1165,23 +1200,6 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
     const removeDownload = useDownloadStore((s) => s.removeDownload);
     const clearCompleted = useDownloadStore((s) => s.clearCompleted);
 
-    const formatBytes = (bytes: number): string => {
-        if (bytes === 0) return '0 B';
-        const k = 1024;
-        const sizes = ['B', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    };
-
-    const formatSpeed = (bytesPerSec: number): string => {
-        if (!bytesPerSec || bytesPerSec === 0) return '0 KB/s';
-        const kb = bytesPerSec / 1024;
-        if (kb < 1024) {
-            return `${kb.toFixed(1)} KB/s`;
-        }
-        const mb = kb / 1024;
-        return `${mb.toFixed(2)} MB/s`;
-    };
 
     const activeDownloads = downloads.filter((d) => d.status === 'downloading');
     const queuedDownloads = downloads.filter((d) => d.status === 'queued');

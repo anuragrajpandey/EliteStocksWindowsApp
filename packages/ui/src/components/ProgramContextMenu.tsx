@@ -7,6 +7,7 @@ import { useModal } from './Modal';
 import { WatchlistOptionsModal } from './WatchlistOptionsModal';
 import { TVMazeSearchModal } from './TVMazeSearchModal';
 import { DvrScheduleOptionsModal } from './DvrScheduleOptionsModal';
+import { CatchupDownloadModal } from './CatchupDownloadModal';
 import './ProgramContextMenu.css';
 
 interface ProgramContextMenuProps {
@@ -16,6 +17,7 @@ interface ProgramContextMenuProps {
     channelName: string;
     position: { x: number; y: number };
     onClose: () => void;
+    isCatchupAvailable?: boolean;
 }
 
 export function ProgramContextMenu({
@@ -25,6 +27,7 @@ export function ProgramContextMenu({
     channelName,
     position,
     onClose,
+    isCatchupAvailable = false,
 }: ProgramContextMenuProps) {
     const menuRef = useRef<HTMLDivElement>(null);
     const [scheduling, setScheduling] = useState(false);
@@ -38,6 +41,10 @@ export function ProgramContextMenu({
     const [menuHidden, setMenuHidden] = useState(false);
     const [defaultStartPadding, setDefaultStartPadding] = useState(60);
     const [defaultEndPadding, setDefaultEndPadding] = useState(300);
+    const [catchupStartPadding, setCatchupStartPadding] = useState(0);
+    const [catchupEndPadding, setCatchupEndPadding] = useState(0);
+    const [showDownloadModal, setShowDownloadModal] = useState(false);
+    const [downloadingCatchup, setDownloadingCatchup] = useState(false);
     const { showSuccess, showError, showInfo, showConfirm, showModal, ModalComponent } = useModal();
 
     useEffect(() => {
@@ -46,8 +53,16 @@ export function ProgramContextMenu({
                 const settings = await getDvrSettings();
                 setDefaultStartPadding(settings.default_start_padding_sec);
                 setDefaultEndPadding(settings.default_end_padding_sec);
+
+                if (window.storage) {
+                    const storageSettings = await window.storage.getSettings();
+                    if (storageSettings.data) {
+                        setCatchupStartPadding(storageSettings.data.catchupStartPadding ?? 0);
+                        setCatchupEndPadding(storageSettings.data.catchupEndPadding ?? 0);
+                    }
+                }
             } catch (e) {
-                console.error('Failed to load DVR settings:', e);
+                console.error('Failed to load settings:', e);
             }
         }
         loadDefaults();
@@ -94,6 +109,7 @@ export function ProgramContextMenu({
             if (showWatchlistModal) return; // Don't close if watchlist modal is open
             if (showTVMazeModal) return; // Don't close if TVMaze modal is open
             if (showOptionsModal) return; // Don't close if options modal is open
+            if (showDownloadModal) return; // Don't close if download modal is open
             if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
                 onClose();
             }
@@ -101,7 +117,7 @@ export function ProgramContextMenu({
 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [onClose, showWatchlistModal, showTVMazeModal, showOptionsModal]);
+    }, [onClose, showWatchlistModal, showTVMazeModal, showOptionsModal, showDownloadModal]);
 
     // Close on escape (but not when modal is open)
     useEffect(() => {
@@ -109,6 +125,7 @@ export function ProgramContextMenu({
             if (showWatchlistModal) return; // Don't close if watchlist modal is open
             if (showTVMazeModal) return; // Don't close if TVMaze modal is open
             if (showOptionsModal) return; // Don't close if options modal is open
+            if (showDownloadModal) return; // Don't close if download modal is open
             if (e.key === 'Escape') {
                 onClose();
             }
@@ -116,7 +133,7 @@ export function ProgramContextMenu({
 
         document.addEventListener('keydown', handleEscape);
         return () => document.removeEventListener('keydown', handleEscape);
-    }, [onClose, showWatchlistModal, showTVMazeModal, showOptionsModal]);
+    }, [onClose, showWatchlistModal, showTVMazeModal, showOptionsModal, showDownloadModal]);
 
     async function handleAddToWatchlistClick() {
         const channel = await db.channels.get(channelId);
@@ -339,6 +356,79 @@ export function ProgramContextMenu({
         }
     }
 
+    async function handleConfirmDownload(options: {
+        startPadding: number;
+        endPadding: number;
+    }) {
+        setShowDownloadModal(false);
+        setDownloadingCatchup(true);
+        try {
+            const channel = await db.channels.get(channelId);
+            if (!channel) {
+                throw new Error('Channel not found');
+            }
+
+            let rawStreamId = (channel as any).xtream_stream_id;
+            if (!rawStreamId) {
+                const { extractXtreamStreamId } = await import('@ynotv/local-adapter');
+                rawStreamId = extractXtreamStreamId(channel.direct_url) || channel.stream_id.replace(`${channel.source_id}_`, '');
+            }
+
+            const startTimeMs = program.raw_start 
+                ? new Date(program.raw_start).getTime() 
+                : (program.start instanceof Date ? program.start.getTime() : new Date(program.start).getTime());
+            const durationMinutes = Math.round(((program.end instanceof Date ? program.end.getTime() : new Date(program.end).getTime()) - startTimeMs) / 60000);
+
+            const startPaddingMs = options.startPadding * 60_000;
+            const adjustedStartTimeMs = startTimeMs - startPaddingMs;
+            const adjustedDurationMinutes = durationMinutes + options.startPadding + options.endPadding;
+
+            const { resolvePlayUrl } = await import('../services/stream-resolver');
+            const resolved = await resolvePlayUrl(channel.source_id, channel.direct_url, {
+                rawStreamId,
+                startTimeMs: adjustedStartTimeMs,
+                durationMinutes: adjustedDurationMinutes,
+            });
+
+            const schedule: Omit<DvrSchedule, 'id' | 'created_at' | 'status'> = {
+                source_id: channel.source_id,
+                channel_id: channelId,
+                channel_name: channelName,
+                program_title: program.title,
+                scheduled_start: Math.floor(startTimeMs / 1000),
+                scheduled_end: Math.floor((startTimeMs + durationMinutes * 60_000) / 1000),
+                start_padding_sec: options.startPadding * 60,
+                end_padding_sec: options.endPadding * 60,
+                series_match_title: undefined,
+                recurrence: undefined,
+                stream_url: resolved.url,
+            };
+
+            await scheduleRecording(schedule);
+
+            showModal({
+                title: 'Recording Started',
+                message: `Started recording catch-up for ${program.title}`,
+                type: 'success',
+                confirmText: 'OK',
+                onConfirm: () => onClose(),
+                onCancel: () => onClose(),
+            });
+        } catch (error: any) {
+            console.error('Failed to start catchup download:', error);
+            showModal({
+                title: 'Download Failed',
+                message: error?.message || 'Failed to start catchup download',
+                type: 'error',
+                confirmText: 'OK',
+                onConfirm: () => onClose(),
+                onCancel: () => onClose(),
+            });
+        } finally {
+            setDownloadingCatchup(false);
+        }
+    }
+
     return createPortal(
         <>
             <div
@@ -353,6 +443,14 @@ export function ProgramContextMenu({
                 <div className="context-menu-item" onClick={handleScheduleRecording}>
                     {scheduling ? '⏳ Scheduling...' : '📹 Schedule Recording'}
                 </div>
+                {isCatchupAvailable && (program.start instanceof Date ? program.start.getTime() : new Date(program.start).getTime()) < Date.now() && (
+                    <div className="context-menu-item" onClick={() => {
+                        setShowDownloadModal(true);
+                        setMenuHidden(true);
+                    }}>
+                        {downloadingCatchup ? '⏳ Preparing Download...' : '📥 Download Catchup'}
+                    </div>
+                )}
                 <div className="context-menu-item" onClick={handleAddToWatchlistClick}>
                     {addingToWatchlist ? '⏳ Adding...' : '⭐ Add to Watchlist'}
                 </div>
@@ -394,6 +492,19 @@ export function ProgramContextMenu({
                 onConfirm={handleConfirmSchedule}
                 onCancel={() => {
                     setShowOptionsModal(false);
+                    onClose();
+                }}
+            />
+            <CatchupDownloadModal
+                isOpen={showDownloadModal}
+                programTitle={program.title}
+                channelName={channelName}
+                timeString={`${new Date(program.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(program.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                defaultStartPadding={catchupStartPadding}
+                defaultEndPadding={catchupEndPadding}
+                onConfirm={handleConfirmDownload}
+                onCancel={() => {
+                    setShowDownloadModal(false);
                     onClose();
                 }}
             />
