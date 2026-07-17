@@ -1,5 +1,24 @@
 # Changelog
 
+## v2.2.2
+
+### Added
+
+- **Catch-up download** — Catch-up programs can now be downloaded directly from the EPG by right-clicking a program and selecting `Download Catch-up`.
+- **Catch-up padding** — Padding can be added to catch-up playback to start slightly before or end slightly after the scheduled program time. Configure under `Settings → Playback → Catch-up`.
+- **DVR recording retry on stream stall or drop** — If the stream being recorded stalls or disconnects, the DVR will now automatically attempt to reconnect and resume the recording to avoid partial captures.
+- **DVR auto-cleanup** — DVR recordings can be configured to automatically clean up when a maximum disk usage threshold is reached, or after a set number of days. Configure under `DVR → Settings`.
+- **Dynamic Settings sizing** — The Settings panel now scales dynamically to match the current app window size.
+- **VOD Recently Added sort** — VOD Movies and Series can now be sorted by Recently Added, based on the order added by the source.
+- **Quick Record custom duration** — When using Quick Record via the channel right-click menu, a custom recording duration can now be specified.
+
+### Fixed
+
+- **App not reopening in fullscreen after closing in fullscreen** — The app will now correctly reopen in fullscreen if it was closed while in fullscreen mode.
+- **Disabled source channels appearing in Favourites and Watchlist** — Channels from disabled sources will no longer appear in the Favourites or Watchlist views.
+- **Stalker/MAC VOD downloads not working** — Resolved an issue preventing VOD downloads from Stalker and MAC sources from completing correctly.
+- **Ministra Portal VOD series compatibility** — Ministra Portal VOD series handling has been reworked for improved compatibility.
+
 ## v2.2.1
 
 ### Added
