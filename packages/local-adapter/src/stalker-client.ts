@@ -743,8 +743,8 @@ export class StalkerClient {
 
         console.log(`[Stalker] Fetched ${categories.length} raw VOD categories`);
 
-        // Python logic: Exclude categories with keywords 'tv', 'series', 'show'
-        const excludeKeywords = ['tv', 'series', 'show'];
+        // Exclude categories that are series-related so they don't appear in the Movies tab
+        const excludeKeywords = ['tv', 'series', 'serie', 'show', 'shows', 'season', 'seasons', 'drama', 'dramas', 'k-drama', 'k-dramas', 'anime', 'cartoon', 'cartoons'];
 
         const filteredData = categories.filter(cat => {
             const name = (cat.title || '').toLowerCase();
