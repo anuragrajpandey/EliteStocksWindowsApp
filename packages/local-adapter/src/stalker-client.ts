@@ -1339,15 +1339,29 @@ export class StalkerClient {
             return [];
         }
 
-        // Use rawMovieId in direct_url so resolveStreamUrl gets the correct ID
-        return episodesData.map(episode => ({
-            id: `${this.sourceId}_episode_${episode.id}`,
-            title: episode.name || `Episode ${episode.series_number || episode.episode_num}`,
-            episode_num: parseInt(episode.series_number || episode.episode_num) || 0,
-            season_num: parseInt(seasonId) || 0,
-            direct_url: `stalker_episode:${rawMovieId}:${seasonId}:${episode.series_number || episode.episode_num}`,
-            info: episode
-        }));
+        // Use rawMovieId in direct_url so resolveStreamUrl gets the correct ID.
+        // IMPORTANT: Each episode has its own cmd which must be used when calling create_link.
+        // Using the season cmd + series number results in the wrong video playing because
+        // create_link returns results based on the cmd, not the episode number.
+        return episodesData.map((episode, index) => {
+            const epNum = parseInt(episode.series_number || episode.episode_num) || 0;
+            const epCmd = episode.cmd || `/media/file_${episode.id}.mpg`;
+            const directUrl = `stalker_episode:${JSON.stringify({
+                movieId: rawMovieId,
+                seasonId: seasonId,
+                episodeId: String(episode.id),
+                cmd: epCmd
+            })}`;
+            return {
+                id: `${this.sourceId}_episode_${episode.id}`,
+                title: episode.name || `Episode ${epNum}`,
+                episode_num: epNum,
+                season_num: parseInt(seasonId) || 0,
+                // Store the episode's own cmd so resolveStreamUrl passes it directly to create_link
+                direct_url: directUrl,
+                info: episode
+            };
+        });
     }
 
     async resolveStreamUrl(cmd: string): Promise<string> {
@@ -1387,11 +1401,22 @@ export class StalkerClient {
             const movieId = config.movieId;
             let seasonId = config.seasonId;
             const episodeNum = config.episodeId;
-            let seasonCmd = config.cmd;
-            seriesEpisodeNum = episodeNum;
+            let episodeCmd = config.cmd;
 
-            console.log(`[Stalker] Resolving episode: Movie=${movieId}, Season=${seasonId}, Episode=${episodeNum}`);
-            console.log(`[Stalker] Using season cmd: ${seasonCmd}`);
+            console.log(`[Stalker] Resolving episode: Movie=${movieId}, Season=${seasonId}, EpisodeId=${episodeNum}`);
+
+            // Determine if the episodeId is a sequential episode number (1, 2, 3...) or a
+            // database episode ID (large integer like 931146). This affects how we call create_link:
+            //  - Sequential number: use season cmd + series param (old approach)
+            //  - Database ID: use the episode's own cmd directly (no series param needed)
+            const episodeNumInt = parseInt(episodeNum);
+            const isSequentialEpisodeNum = !isNaN(episodeNumInt) && episodeNumInt < 1000 && episodeNumInt > 0;
+
+            if (isSequentialEpisodeNum) {
+                // Old-style: season cmd + series episode number
+                seriesEpisodeNum = episodeNum;
+            }
+            // If it's a database ID, we use episodeCmd directly without series param
 
             // If seasonId is a small sequential number (like 1, 2, 3) or not present,
             // resolve it on-the-fly for backwards compatibility.
@@ -1409,16 +1434,16 @@ export class StalkerClient {
                                 const epConfig = JSON.parse(epJsonStr);
                                 if (epConfig.seasonId && (parseInt(epConfig.seasonId) >= 100 || epConfig.seasonId.includes(':') || epConfig.seasonId.includes('_') || epConfig.seasonId.includes('-'))) {
                                     seasonId = epConfig.seasonId;
-                                    seasonCmd = epConfig.cmd;
-                                    console.log(`[Stalker] resolveStreamUrl: Resolved season number ${config.seasonId} to season ID ${seasonId} with command ${seasonCmd}`);
+                                    episodeCmd = epConfig.cmd;
+                                    console.log(`[Stalker] resolveStreamUrl: Resolved season number ${config.seasonId} to season ID ${seasonId} with command ${episodeCmd}`);
                                 }
                             } catch (err) {
                                 // Fallback if first ep direct_url is also old format
                                 const epParts = ep.direct_url.split(':');
                                 if (epParts.length >= 5 && epParts[2] && (parseInt(epParts[2]) >= 100 || epParts[2].includes(':') || epParts[2].includes('_') || epParts[2].includes('-'))) {
                                     seasonId = epParts[2];
-                                    seasonCmd = epParts.slice(4).join(':');
-                                    console.log(`[Stalker] resolveStreamUrl: Resolved season number ${config.seasonId} to season ID ${seasonId} with command ${seasonCmd}`);
+                                    episodeCmd = epParts.slice(4).join(':');
+                                    console.log(`[Stalker] resolveStreamUrl: Resolved season number ${config.seasonId} to season ID ${seasonId} with command ${episodeCmd}`);
                                 }
                             }
                         }
@@ -1428,10 +1453,51 @@ export class StalkerClient {
                 }
             }
 
-            // Use the cmd from the season directly - no need to fetch episode list
-            // The create_link API uses the season cmd + series parameter for episode number
-            if (seasonCmd) {
-                forcedCmd = seasonCmd;
+            // For database episode IDs, we MUST fetch get_ordered_list with the specific episode_id
+            // to get the real cmd before calling create_link. This is because:
+            //  1. The episode list fetch (episode_id=0) may not return the correct per-episode cmd
+            //  2. The fallback /media/file_{episodeId}.mpg uses the episode's DB ID which often
+            //     does NOT match the actual media file ID on the server
+            // This matches the correct flow: get_ordered_list(episode_id=X) → cmd → create_link(cmd)
+            if (!isSequentialEpisodeNum && episodeNum && seasonId) {
+                console.log(`[Stalker] resolveStreamUrl: Fetching real cmd via get_ordered_list for episode_id=${episodeNum} (movie=${movieId}, season=${seasonId})...`);
+                try {
+                    // Try series type first, then vod
+                    let epListResp: any = null;
+                    for (const epType of ['vod', 'series'] as const) {
+                        try {
+                            epListResp = await this.fetchStalker<any>('get_ordered_list', epType, {
+                                movie_id: movieId,
+                                season_id: seasonId,
+                                episode_id: episodeNum,
+                                p: '0',
+                                include_censored: '1',
+                                censored: '1'
+                            });
+                            let epData = epListResp?.data || epListResp;
+                            if (epData?.js?.data) epData = epData.js.data;
+                            if (Array.isArray(epData) && epData.length > 0) {
+                                const matched = epData.find((e: any) => String(e.id) === String(episodeNum)) || epData[0];
+                                if (matched.cmd) {
+                                    episodeCmd = matched.cmd;
+                                    console.log(`[Stalker] resolveStreamUrl: Using real cmd from episode fetch: ${episodeCmd}`);
+                                    break;
+                                }
+                            }
+                        } catch (epErr) {
+                            console.warn(`[Stalker] resolveStreamUrl: get_ordered_list(type=${epType}) for episode_id failed:`, epErr);
+                        }
+                    }
+                } catch (e) {
+                    console.error('[Stalker] resolveStreamUrl: Failed to fetch real episode cmd:', e);
+                    // Fall through and use whatever cmd we have
+                }
+            }
+
+            // Use the episode's cmd directly. For per-episode cmds this is the episode-specific
+            // stream path. For season-level cmds the series param (set above) selects the episode.
+            if (episodeCmd) {
+                forcedCmd = episodeCmd;
             } else {
                 throw new Error('No cmd available for episode resolution');
             }
