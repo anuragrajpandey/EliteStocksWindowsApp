@@ -329,6 +329,16 @@ function PlaylistCategoryLinkItem({
 
 
 export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, onEditSource, onClose, onShow, isLiveTV }: CategoryStripProps) {
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const shouldScrollRef = useRef(false);
+
+  // Track scroll triggers to avoid unnecessary scrolls during manual usage
+  useEffect(() => {
+    if (visible && selectedCategoryId !== undefined) {
+      shouldScrollRef.current = true;
+    }
+  }, [visible, selectedCategoryId]);
+
   const groupedCategories = useCategoriesBySource();
   const categorySortOrder = useCategorySortOrder();
   const includeAllChannelsToPlaylist = useIncludeAllChannelsToPlaylist();
@@ -627,6 +637,121 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
     }
     return map;
   }, [allCategoriesList]);
+
+  // Auto-expand the parent of the currently selected category on load or selection change
+  useEffect(() => {
+    if (!visible || !selectedCategoryId) return;
+
+    let parentSourceId: string | null = null;
+    let parentPlaylistId: string | null = null;
+
+    if (selectedCategoryId.startsWith('__allsrc_pl_')) {
+      parentPlaylistId = selectedCategoryId.replace('__allsrc_pl_', '');
+    } else if (selectedCategoryId.startsWith('__allsrc_')) {
+      parentSourceId = selectedCategoryId.replace('__allsrc_', '');
+    } else if (selectedCategoryId.startsWith('__plindiv_')) {
+      const id = selectedCategoryId.replace('__plindiv_', '');
+      const isPlaylist = customPlaylists?.some(p => p.playlist_id === id);
+      if (isPlaylist) {
+        parentPlaylistId = id;
+      } else {
+        parentSourceId = id;
+      }
+    } else if (selectedCategoryId.startsWith('__plcat_')) {
+      const linkId = parseInt(selectedCategoryId.replace('__plcat_', ''), 10);
+      if (!isNaN(linkId) && allPlaylistCategoryLinks) {
+        const link = allPlaylistCategoryLinks.find(l => l.id === linkId);
+        if (link) {
+          const isPlaylist = customPlaylists?.some(p => p.playlist_id === link.playlist_id);
+          if (isPlaylist) {
+            parentPlaylistId = link.playlist_id;
+          } else {
+            parentSourceId = link.playlist_id;
+          }
+        }
+      }
+    } else {
+      // Normal native category ID
+      if (groupedCategories) {
+        const foundGroup = groupedCategories.find(g =>
+          g.categories.some(cat => cat.category_id === selectedCategoryId)
+        );
+        if (foundGroup) {
+          parentSourceId = foundGroup.sourceId;
+        }
+      }
+    }
+
+    if (parentSourceId) {
+      setExpandedSources(prev => {
+        if (prev[parentSourceId!] === true) return prev;
+        return { ...prev, [parentSourceId!]: true };
+      });
+    }
+    if (parentPlaylistId) {
+      setExpandedPlaylists(prev => {
+        if (prev[parentPlaylistId!] === true) return prev;
+        return { ...prev, [parentPlaylistId!]: true };
+      });
+    }
+  }, [
+    visible,
+    selectedCategoryId,
+    groupedCategories,
+    customPlaylists,
+    allPlaylistCategoryLinks
+  ]);
+
+  // Scroll the selected category item into view when sidebar is visible and state allows
+  useEffect(() => {
+    if (!visible || !selectedCategoryId || !shouldScrollRef.current) return;
+
+    let timeoutId: any;
+    const animationFrameId = requestAnimationFrame(() => {
+      timeoutId = setTimeout(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+        const selectedEl = container.querySelector('.category-item.selected') as HTMLElement | null;
+        if (selectedEl) {
+          const containerRect = container.getBoundingClientRect();
+          const elementRect = selectedEl.getBoundingClientRect();
+          
+          const groupEl = selectedEl.closest('.category-source-group');
+          const headerEl = groupEl?.querySelector('.category-source-header') as HTMLElement | null;
+          const headerHeight = headerEl ? headerEl.offsetHeight : 0;
+          
+          let stickyOffset = headerHeight;
+          if (groupEl) {
+            const siblings = Array.from(groupEl.querySelectorAll('.category-item.nested'));
+            const selectedIdx = siblings.indexOf(selectedEl);
+            if (selectedIdx > 0) {
+              const pinnedAbove = siblings.slice(0, selectedIdx).filter(el => el.classList.contains('is-pinned'));
+              stickyOffset += pinnedAbove.length * 38;
+            }
+          }
+          
+          const viewTop = containerRect.top + stickyOffset;
+          const viewBottom = containerRect.bottom;
+          
+          const elementTop = elementRect.top;
+          const elementBottom = elementRect.bottom;
+          
+          if (elementTop < viewTop) {
+            container.scrollTop -= (viewTop - elementTop);
+          } else if (elementBottom > viewBottom) {
+            container.scrollTop += (elementBottom - viewBottom);
+          }
+          
+          shouldScrollRef.current = false;
+        }
+      }, 50); // Small delay to let React commit rendering and browser perform layout pass
+    });
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      clearTimeout(timeoutId);
+    };
+  }, [visible, selectedCategoryId, expandedSources, expandedPlaylists]);
 
   // Load flat playlist individual channel counts (where parent_category_id is NULL)
   const flatPlaylistIndividualCounts = useLiveQuery(
@@ -1131,7 +1256,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
 
       </div>
 
-      <div className="category-strip-scrollable">
+      <div className="category-strip-scrollable" ref={scrollContainerRef}>
         {combinedSources.map((item, index) => {
           if (item.type === 'real' && item.realGroup) {
             const group = item.realGroup;
