@@ -639,6 +639,9 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
   // When true, the next stream death event should be ignored because the
   // main player was intentionally stopped (e.g. popout opened with "stop main").
   const intentionallyStoppedRef = useRef(false);
+  // Tracks whether we're currently playing a stalker_portal VOD over HLS (.m3u8).
+  // Used to apply seek-time subtitle cleanup exclusive to that context.
+  const isStalkerVodRef = useRef(false);
 
   // Cleanup autoSelectTimer on unmount
   useEffect(() => {
@@ -1630,6 +1633,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
     hasAutoSelectedAudioRef.current = false;
     lastSubTracksCountRef.current = 0;
     lastAudioTracksCountRef.current = 0;
+    isStalkerVodRef.current = false;
 
     clearRetryTimers();
     clearWatchdog();
@@ -1767,6 +1771,49 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
       hasAutoSelectedSubRef.current = true;
     }
   }, []);
+
+  // ── Stalker VOD seek subtitle cleanup ──────────────────────────────────────
+  // On stalker portal HLS VODs, seeking can cause mpv to re-activate both the
+  // embedded CEA-608 CC track and the soft WebVTT track simultaneously, producing
+  // duplicate/triple subtitle rendering. We suppress subs on seek-start and
+  // re-trigger autoSelectSubtitle when playback restarts after the seek.
+  useEffect(() => {
+    if (!Bridge.isTauri) return;
+
+    let unlistenSeek: (() => void) | null = null;
+    let unlistenRestart: (() => void) | null = null;
+    let disposed = false;
+
+    import('@tauri-apps/api/event').then(({ listen }) => {
+      listen('mpv-seek', () => {
+        if (!isStalkerVodRef.current) return;
+        logInfo('[Subtitle] Stalker VOD seek detected — disabling subs during seek');
+        Bridge.setSubtitleTrack(0).catch(() => {});
+      }).then((fn) => {
+        if (disposed) fn();
+        else unlistenSeek = fn;
+      });
+
+      listen('mpv-playback-restart', () => {
+        if (!isStalkerVodRef.current) return;
+        logInfo('[Subtitle] Stalker VOD playback-restart — re-running subtitle auto-select');
+        // Reset the auto-select flag so the polling loop immediately re-selects
+        // the correct single subtitle track.
+        hasAutoSelectedSubRef.current = false;
+        lastSubTracksCountRef.current = 0;
+        autoSelectSubtitle().catch(() => {});
+      }).then((fn) => {
+        if (disposed) fn();
+        else unlistenRestart = fn;
+      });
+    });
+
+    return () => {
+      disposed = true;
+      unlistenSeek?.();
+      unlistenRestart?.();
+    };
+  }, [autoSelectSubtitle]);
 
   const autoSelectAudio = useCallback(async (providedAudioTracks?: any[]) => {
     if (!window.storage) return;
@@ -2026,6 +2073,10 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
     const isStalker = sourceData?.type === 'stalker';
     const isLocal = isLocalUrl(resolved.url);
     setIgnoreHttpErrors(isStalker || isLocal);
+    // Track whether this is a stalker portal VOD playing an HLS stream (m3u8).
+    // CEA-608 CC + WebVTT tracks in these streams can duplicate on seek.
+    const resolvedUrlLower = resolved.url.toLowerCase();
+    isStalkerVodRef.current = isStalker && (resolvedUrlLower.includes('.m3u8') || resolvedUrlLower.includes('/hls/') || resolvedUrlLower.includes('type=m3u8'));
 
     if (Bridge.getIsCasting?.()) {
       Bridge.setCastMetadata(info.title, info.type || 'VOD');

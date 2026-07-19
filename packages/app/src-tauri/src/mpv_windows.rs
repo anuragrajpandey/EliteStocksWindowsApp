@@ -401,6 +401,8 @@ async fn connect_ipc<R: Runtime>(
 
     // Channel for sending commands
     let (tx, mut rx) = tokio::sync::mpsc::channel::<String>(32);
+    // Clone sender so the reader task can fire fire-and-forget commands back into mpv
+    let tx_for_reader = tx.clone();
     *state.ipc_tx.lock().unwrap() = Some(tx);
     *state.socket_connected.lock().unwrap() = true;
 
@@ -418,6 +420,7 @@ async fn connect_ipc<R: Runtime>(
     let pending_requests = state.pending_requests.clone();
 
     tauri::async_runtime::spawn(async move {
+        // tx_for_reader is used to send fire-and-forget IPC commands from within the reader task
         let mut line = String::new();
         let mut status = MpvStatus {
             playing: false,
@@ -437,7 +440,25 @@ async fn connect_ipc<R: Runtime>(
                     if let Ok(msg) = serde_json::from_str::<MpvResponse>(&line) {
                         match msg {
                             MpvResponse::Event { event, name, data } => {
-                                if event == "property-change" {
+                                if event == "file-loaded" {
+                                    // mpv has just finished loading a new file and auto-selected
+                                    // subtitle tracks (potentially activating both embedded CEA-608
+                                    // closed-captions AND a soft WebVTT track simultaneously, which
+                                    // causes duplicate/triple subtitle rendering).
+                                    // Immediately disable all subtitle display here so the frontend's
+                                    // autoSelectSubtitle logic can cleanly re-enable the right track.
+                                    let disable_sid = json!({"command": ["set_property", "sid", "no"]});
+                                    let _ = tx_for_reader.try_send(disable_sid.to_string());
+                                    let _ = app_handle.emit("mpv-file-loaded", true);
+                                } else if event == "seek" {
+                                    // mpv started a seek — emit so the frontend can suppress
+                                    // subtitle display during the seek on stalker portal VODs.
+                                    let _ = app_handle.emit("mpv-seek", true);
+                                } else if event == "playback-restart" {
+                                    // mpv finished a seek and resumed playback — emit so the
+                                    // frontend can re-run subtitle auto-selection.
+                                    let _ = app_handle.emit("mpv-playback-restart", true);
+                                } else if event == "property-change" {
                                     if let (Some(name), Some(data)) = (name, data) {
                                         match name.as_str() {
                                             "pause" => status.playing = !data.as_bool().unwrap_or(false),
