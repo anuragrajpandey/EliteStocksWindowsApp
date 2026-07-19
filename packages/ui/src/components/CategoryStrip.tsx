@@ -639,7 +639,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
   }, [allCategoriesList]);
 
   // Auto-expand the parent of the currently selected category on load or selection change
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!visible || !selectedCategoryId) return;
 
     let parentSourceId: string | null = null;
@@ -702,55 +702,45 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
     allPlaylistCategoryLinks
   ]);
 
-  // Scroll the selected category item into view when sidebar is visible and state allows
-  useEffect(() => {
+  // Scroll the selected category item into view instantly when sidebar is visible and state allows
+  useLayoutEffect(() => {
     if (!visible || !selectedCategoryId || !shouldScrollRef.current) return;
 
-    let timeoutId: any;
-    const animationFrameId = requestAnimationFrame(() => {
-      timeoutId = setTimeout(() => {
-        const container = scrollContainerRef.current;
-        if (!container) return;
-        const selectedEl = container.querySelector('.category-item.selected') as HTMLElement | null;
-        if (selectedEl) {
-          const containerRect = container.getBoundingClientRect();
-          const elementRect = selectedEl.getBoundingClientRect();
-          
-          const groupEl = selectedEl.closest('.category-source-group');
-          const headerEl = groupEl?.querySelector('.category-source-header') as HTMLElement | null;
-          const headerHeight = headerEl ? headerEl.offsetHeight : 0;
-          
-          let stickyOffset = headerHeight;
-          if (groupEl) {
-            const siblings = Array.from(groupEl.querySelectorAll('.category-item.nested'));
-            const selectedIdx = siblings.indexOf(selectedEl);
-            if (selectedIdx > 0) {
-              const pinnedAbove = siblings.slice(0, selectedIdx).filter(el => el.classList.contains('is-pinned'));
-              stickyOffset += pinnedAbove.length * 38;
-            }
-          }
-          
-          const viewTop = containerRect.top + stickyOffset;
-          const viewBottom = containerRect.bottom;
-          
-          const elementTop = elementRect.top;
-          const elementBottom = elementRect.bottom;
-          
-          if (elementTop < viewTop) {
-            container.scrollTop -= (viewTop - elementTop);
-          } else if (elementBottom > viewBottom) {
-            container.scrollTop += (elementBottom - viewBottom);
-          }
-          
-          shouldScrollRef.current = false;
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const selectedEl = container.querySelector('.category-item.selected') as HTMLElement | null;
+    if (selectedEl) {
+      const containerRect = container.getBoundingClientRect();
+      const elementRect = selectedEl.getBoundingClientRect();
+      
+      const groupEl = selectedEl.closest('.category-source-group');
+      const headerEl = groupEl?.querySelector('.category-source-header') as HTMLElement | null;
+      const headerHeight = headerEl ? headerEl.offsetHeight : 0;
+      
+      let stickyOffset = headerHeight;
+      if (groupEl) {
+        const siblings = Array.from(groupEl.querySelectorAll('.category-item.nested'));
+        const selectedIdx = siblings.indexOf(selectedEl);
+        if (selectedIdx > 0) {
+          const pinnedAbove = siblings.slice(0, selectedIdx).filter(el => el.classList.contains('is-pinned'));
+          stickyOffset += pinnedAbove.length * 38;
         }
-      }, 50); // Small delay to let React commit rendering and browser perform layout pass
-    });
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      clearTimeout(timeoutId);
-    };
+      }
+      
+      const viewTop = containerRect.top + stickyOffset;
+      const viewBottom = containerRect.bottom;
+      
+      const elementTop = elementRect.top;
+      const elementBottom = elementRect.bottom;
+      
+      if (elementTop < viewTop) {
+        container.scrollTop -= (viewTop - elementTop);
+      } else if (elementBottom > viewBottom) {
+        container.scrollTop += (elementBottom - viewBottom);
+      }
+      
+      shouldScrollRef.current = false;
+    }
   }, [visible, selectedCategoryId, expandedSources, expandedPlaylists]);
 
   // Load flat playlist individual channel counts (where parent_category_id is NULL)

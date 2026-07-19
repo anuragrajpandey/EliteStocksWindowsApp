@@ -40,7 +40,6 @@
   
   /* iOS-style smooth scrolling */
   -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
   overscroll-behavior: contain;
 }
 
