@@ -2581,6 +2581,370 @@ async fn delete_download_file(path: String) -> Result<(), String> {
     debug!("[Downloader] delete_download_file called for path={}", path);
     let _ = tokio::fs::remove_file(&path).await;
     let _ = tokio::fs::remove_file(format!("{}.ytdl", path)).await;
+
+    // Also clean up HLS temp paths
+    let temp_ts = format!("{}.temp.ts", path);
+    let _ = tokio::fs::remove_file(&temp_ts).await;
+    let _ = tokio::fs::remove_file(format!("{}.ytdl", temp_ts)).await;
+    Ok(())
+}
+
+/// Probe a transport stream file and return the "start:" time reported by FFmpeg.
+/// For HLS-sourced streams downloaded with `--downloader ffmpeg`, this is the absolute
+/// HLS programme clock time of the first video frame - the correct value to use as
+/// the subtitle timestamp shift so that SRT timecodes line up with normalised video.
+///
+/// Returns 0.0 when the value cannot be determined.
+async fn probe_ts_video_start_secs(ffmpeg_path: &std::path::Path, ts_path: &std::path::Path) -> f64 {
+    use tokio::process::Command;
+
+    // Run `ffmpeg -i <file>`; it exits with error but prints stream metadata to stderr.
+    let output = Command::new(ffmpeg_path)
+        .arg("-i").arg(ts_path)
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::piped())
+        .output()
+        .await;
+    let output = match output {
+        Ok(o) => o,
+        Err(e) => {
+            debug!("[PostProcessor] probe_ts_video_start_secs: failed to run ffmpeg: {}", e);
+            return 0.0;
+        }
+    };
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    for line in stderr.lines() {
+        if line.contains("Duration:") && line.contains("start:") {
+            if let Some(pos) = line.find("start:") {
+                let after = line[pos + 6..].trim_start();
+                let val_str = after.split(',').next().unwrap_or("").trim();
+                if let Ok(secs) = val_str.parse::<f64>() {
+                    debug!("[PostProcessor] probe_ts_video_start_secs: start = {:.3}s", secs);
+                    return secs;
+                }
+            }
+        }
+    }
+    debug!("[PostProcessor] probe_ts_video_start_secs: could not parse start time");
+    0.0
+}
+
+fn ffmpeg_hls_input_args(cmd: &mut tokio::process::Command, user_agent: Option<&str>) {
+    let ua = user_agent.unwrap_or("").trim();
+    if !ua.is_empty() {
+        cmd.arg("-user_agent").arg(ua);
+    }
+}
+
+fn count_subtitle_streams_from_ffmpeg_stderr(stderr: &str) -> usize {
+    stderr
+        .lines()
+        .filter(|line| line.contains("Stream #") && line.contains("Subtitle:"))
+        .count()
+}
+
+async fn probe_hls_subtitle_stream_count(
+    ffmpeg_path: &std::path::Path,
+    source_url: &str,
+    user_agent: Option<&str>,
+) -> usize {
+    use tokio::process::Command;
+
+    let mut cmd = Command::new(ffmpeg_path);
+    cmd.arg("-hide_banner");
+    ffmpeg_hls_input_args(&mut cmd, user_agent);
+    cmd.arg("-i").arg(source_url)
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::piped());
+
+    #[cfg(windows)]
+    cmd.creation_flags(0x08000000);
+
+    match cmd.output().await {
+        Ok(output) => {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            let count = count_subtitle_streams_from_ffmpeg_stderr(&stderr);
+            debug!("[PostProcessor] HLS probe found {} subtitle stream(s)", count);
+            count
+        }
+        Err(e) => {
+            debug!("[PostProcessor] HLS subtitle probe failed: {}", e);
+            0
+        }
+    }
+}
+
+async fn probe_file_subtitle_stream_count(
+    ffmpeg_path: &std::path::Path,
+    path: &std::path::Path,
+) -> usize {
+    use tokio::process::Command;
+
+    let mut cmd = Command::new(ffmpeg_path);
+    cmd.arg("-hide_banner")
+        .arg("-i").arg(path)
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::piped());
+
+    #[cfg(windows)]
+    cmd.creation_flags(0x08000000);
+
+    match cmd.output().await {
+        Ok(output) => {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            count_subtitle_streams_from_ffmpeg_stderr(&stderr)
+        }
+        Err(_) => 0,
+    }
+}
+
+async fn extract_hls_subtitle_container(
+    ffmpeg_path: &std::path::Path,
+    source_url: &str,
+    user_agent: Option<&str>,
+    dest_path: &std::path::Path,
+) -> usize {
+    use tokio::process::Command;
+
+    let mut cmd = Command::new(ffmpeg_path);
+    cmd.arg("-hide_banner").arg("-nostdin");
+    ffmpeg_hls_input_args(&mut cmd, user_agent);
+    cmd.arg("-i").arg(source_url)
+        .arg("-map").arg("0:s?")
+        .arg("-c:s").arg("srt")
+        .arg("-f").arg("matroska")
+        .arg("-y").arg(dest_path)
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::piped());
+
+    #[cfg(windows)]
+    cmd.creation_flags(0x08000000);
+
+    let output = match cmd.output().await {
+        Ok(output) => output,
+        Err(e) => {
+            debug!("[PostProcessor] HLS subtitle extraction failed to start: {}", e);
+            return 0;
+        }
+    };
+
+    if !output.status.success() {
+        let err_msg = String::from_utf8_lossy(&output.stderr);
+        warn!("[PostProcessor] HLS subtitle extraction failed: {}", err_msg);
+        let _ = tokio::fs::remove_file(dest_path).await;
+        return 0;
+    }
+
+    let count = probe_file_subtitle_stream_count(ffmpeg_path, dest_path).await;
+    if count == 0 {
+        let _ = tokio::fs::remove_file(dest_path).await;
+    }
+    debug!("[PostProcessor] Extracted {} HLS subtitle stream(s)", count);
+    count
+}
+
+async fn post_process_mkv(
+    app_handle: tauri::AppHandle,
+    temp_ts_path: std::path::PathBuf,
+    final_mkv_path: std::path::PathBuf,
+    source_url: Option<String>,
+    user_agent: Option<String>,
+) -> Result<(), String> {
+    use tokio::process::Command;
+
+    let ffmpeg_path = crate::dvr::recorder::find_ffmpeg(&app_handle)
+        .map_err(|e| format!("FFmpeg not found: {}", e))?;
+
+    let parent_dir = temp_ts_path.parent().ok_or("Invalid temp file path")?;
+    let ts_filename_str = temp_ts_path
+        .file_name()
+        .ok_or("Invalid temp filename")?
+        .to_string_lossy()
+        .to_string();
+
+    let mut subtitle_paths = Vec::new();
+    if let Ok(mut entries) = tokio::fs::read_dir(parent_dir).await {
+        while let Ok(Some(entry)) = entries.next_entry().await {
+            let path = entry.path();
+            if path.is_file() && path != temp_ts_path {
+                let filename = path.file_name().unwrap_or_default().to_string_lossy();
+                if filename.starts_with(&*ts_filename_str)
+                    && filename[ts_filename_str.len()..].starts_with('.')
+                {
+                    let ext = path.extension().unwrap_or_default().to_string_lossy().to_lowercase();
+                    if ext == "vtt" || ext == "srt" || ext == "ass" {
+                        let file_size = tokio::fs::metadata(&path).await
+                            .map(|m| m.len())
+                            .unwrap_or(0);
+                        if file_size > 0 {
+                            subtitle_paths.push(path);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    subtitle_paths.sort();
+
+    debug!(
+        "[PostProcessor] Found {} subtitle sidecar file(s) for remux into MKV",
+        subtitle_paths.len()
+    );
+
+    let mut hls_subtitle_container: Option<(std::path::PathBuf, usize)> = None;
+    if let Some(source_url) = source_url.as_deref() {
+        let hls_subtitle_count = probe_hls_subtitle_stream_count(
+            &ffmpeg_path,
+            source_url,
+            user_agent.as_deref(),
+        ).await;
+
+        if hls_subtitle_count > subtitle_paths.len() {
+            let hls_subs_path = temp_ts_path.with_extension("hls-subs.mkv");
+            let extracted_count = extract_hls_subtitle_container(
+                &ffmpeg_path,
+                source_url,
+                user_agent.as_deref(),
+                &hls_subs_path,
+            ).await;
+
+            if extracted_count > subtitle_paths.len() {
+                debug!(
+                    "[PostProcessor] Using FFmpeg-extracted HLS subtitle container with {} stream(s)",
+                    extracted_count
+                );
+                hls_subtitle_container = Some((hls_subs_path, extracted_count));
+            }
+        }
+    }
+
+    let using_hls_subtitle_container = hls_subtitle_container.is_some();
+    let ts_video_start_secs = if !subtitle_paths.is_empty() && !using_hls_subtitle_container {
+        probe_ts_video_start_secs(&ffmpeg_path, &temp_ts_path).await
+    } else {
+        0.0
+    };
+    let subtitle_offset_secs = if ts_video_start_secs > 2.0 {
+        debug!(
+            "[PostProcessor] Using .ts probe start ({:.3}s) for subtitle offset",
+            ts_video_start_secs
+        );
+        ts_video_start_secs
+    } else {
+        if !subtitle_paths.is_empty() && !using_hls_subtitle_container {
+            debug!(
+                "[PostProcessor] .ts start = {:.3}s; leaving subtitle timestamps unchanged",
+                ts_video_start_secs
+            );
+        }
+        0.0
+    };
+    let apply_offset = subtitle_offset_secs > 2.0;
+    if apply_offset {
+        debug!(
+            "[PostProcessor] HLS subtitle offset: {:.3}s - applying -itsoffset correction",
+            subtitle_offset_secs
+        );
+    }
+
+    let mut cmd = Command::new(&ffmpeg_path);
+    cmd.arg("-i").arg(&temp_ts_path);
+
+    for sub in &subtitle_paths {
+        if apply_offset {
+            cmd.arg("-itsoffset").arg(format!("-{:.3}", subtitle_offset_secs));
+        }
+        cmd.arg("-i").arg(sub);
+    }
+
+    let hls_subtitle_input_index = if let Some((path, _)) = hls_subtitle_container.as_ref() {
+        let input_index = subtitle_paths.len() + 1;
+        cmd.arg("-i").arg(path);
+        Some(input_index)
+    } else {
+        None
+    };
+
+    let map_media_subtitles = subtitle_paths.is_empty() && !using_hls_subtitle_container;
+    cmd.arg("-map").arg("0:v?");
+    cmd.arg("-map").arg("0:a?");
+    if map_media_subtitles {
+        cmd.arg("-map").arg("0:s?");
+    }
+
+    for (i, sub) in subtitle_paths.iter().enumerate() {
+        cmd.arg("-map").arg(format!("{}", i + 1));
+
+        if let Some(filename) = sub.file_name() {
+            let name_str = filename.to_string_lossy();
+            let remainder = &name_str[ts_filename_str.len() + 1..];
+            let lang_part = remainder.split('.').next().unwrap_or("");
+            let lang = lang_part.split('-').next().unwrap_or(lang_part);
+            if lang.len() == 2 || lang.len() == 3 {
+                cmd.arg(format!("-metadata:s:s:{}", i))
+                   .arg(format!("language={}", lang));
+            }
+        }
+    }
+
+    if let Some(input_index) = hls_subtitle_input_index {
+        cmd.arg("-map").arg(format!("{}:s?", input_index));
+    }
+
+    cmd.arg("-c:v").arg("copy");
+    cmd.arg("-c:a").arg("copy");
+    if !subtitle_paths.is_empty() || using_hls_subtitle_container || map_media_subtitles {
+        cmd.arg("-c:s").arg("srt");
+    }
+    cmd.arg("-y").arg(&final_mkv_path);
+
+    #[cfg(windows)]
+    cmd.creation_flags(0x08000000);
+
+    debug!("[PostProcessor] Running FFmpeg remux command: {:?}", cmd);
+    let output = cmd.output().await
+        .map_err(|e| format!("Failed to run FFmpeg post-processor: {}", e))?;
+    if !output.status.success() {
+        let err_msg = String::from_utf8_lossy(&output.stderr);
+        error!("[PostProcessor] FFmpeg conversion failed: {}", err_msg);
+        return Err(format!("FFmpeg remux failed: {}", err_msg));
+    }
+
+    let mkv_stem = final_mkv_path
+        .file_stem()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .to_string();
+    let raw_ts_dest = final_mkv_path.with_extension("ts");
+    match tokio::fs::rename(&temp_ts_path, &raw_ts_dest).await {
+        Ok(_) => debug!("[PostProcessor] Raw TS kept at: {:?}", raw_ts_dest),
+        Err(e) => {
+            warn!("[PostProcessor] Could not keep raw TS ({}); deleting", e);
+            let _ = tokio::fs::remove_file(&temp_ts_path).await;
+        }
+    }
+    for sub in subtitle_paths {
+        let dest = if let Some(sub_name) = sub.file_name() {
+            let sub_str = sub_name.to_string_lossy();
+            let suffix = &sub_str[ts_filename_str.len() + 1..];
+            let dest_name = format!("{}.{}", mkv_stem, suffix);
+            final_mkv_path.with_file_name(dest_name)
+        } else {
+            sub.clone()
+        };
+        match tokio::fs::rename(&sub, &dest).await {
+            Ok(_) => debug!("[PostProcessor] Raw subtitle kept at: {:?}", dest),
+            Err(_) => { let _ = tokio::fs::remove_file(&sub).await; }
+        }
+    }
+
+    if let Some((path, _)) = hls_subtitle_container {
+        let _ = tokio::fs::remove_file(path).await;
+    }
+
     Ok(())
 }
 
@@ -2604,13 +2968,22 @@ async fn download_media(
     let app_handle_clone = app_handle.clone();
     
     tokio::spawn(async move {
+        // Use a temporary TS path for HLS-to-MKV so subtitles can be remuxed cleanly.
+        let is_hls = url.contains(".m3u8") || url.contains("/mono.m3u8");
+        let use_temp_ts = is_hls && save_path.ends_with(".mkv");
+        let active_save_path = if use_temp_ts {
+            format!("{}.temp.ts", save_path)
+        } else {
+            save_path.clone()
+        };
+
         let res = do_download(
             app_handle_clone.clone(),
             id.clone(),
             title.clone(),
-            url,
-            save_path.clone(),
-            user_agent,
+            url.clone(),
+            active_save_path.clone(),
+            user_agent.clone(),
             duration_secs,
             resume,
             &mut cancel_rx,
@@ -2620,22 +2993,55 @@ async fn download_media(
 
         let final_event = match res {
             Ok(()) => {
-                DownloadProgressEvent {
-                    id,
-                    title,
-                    status: "completed".to_string(),
-                    progress: 100.0,
-                    bytes_written: 0,
-                    total_bytes: None,
-                    speed_bytes: 0,
-                    file_path: save_path,
-                    error: None,
+                let post_res = if use_temp_ts {
+                    post_process_mkv(
+                        app_handle_clone.clone(),
+                        std::path::PathBuf::from(&active_save_path),
+                        std::path::PathBuf::from(&save_path),
+                        Some(url.clone()),
+                        user_agent.clone(),
+                    ).await
+                } else {
+                    Ok(())
+                };
+
+                match post_res {
+                    Ok(()) => {
+                        DownloadProgressEvent {
+                            id,
+                            title,
+                            status: "completed".to_string(),
+                            progress: 100.0,
+                            bytes_written: 0,
+                            total_bytes: None,
+                            speed_bytes: 0,
+                            file_path: save_path,
+                            error: None,
+                        }
+                    }
+                    Err(post_err) => {
+                        let _ = tokio::fs::remove_file(&save_path).await;
+                        let _ = tokio::fs::remove_file(&active_save_path).await;
+                        let _ = tokio::fs::remove_file(format!("{}.ytdl", active_save_path)).await;
+
+                        DownloadProgressEvent {
+                            id,
+                            title,
+                            status: "failed".to_string(),
+                            progress: 0.0,
+                            bytes_written: 0,
+                            total_bytes: None,
+                            speed_bytes: 0,
+                            file_path: save_path,
+                            error: Some(format!("Post-processing failed: {}", post_err)),
+                        }
+                    }
                 }
             }
             Err(DownloadError::Canceled { bytes_written, total_bytes, progress }) => {
                 // Try to clean up partial file and sidecar
-                let _ = tokio::fs::remove_file(&save_path).await;
-                let _ = tokio::fs::remove_file(format!("{}.ytdl", save_path)).await;
+                let _ = tokio::fs::remove_file(&active_save_path).await;
+                let _ = tokio::fs::remove_file(format!("{}.ytdl", active_save_path)).await;
 
                 DownloadProgressEvent {
                     id,
@@ -2664,8 +3070,8 @@ async fn download_media(
             }
             Err(DownloadError::Failed(e)) => {
                 // Clean up partial file on failure to avoid corruption
-                let _ = tokio::fs::remove_file(&save_path).await;
-                let _ = tokio::fs::remove_file(format!("{}.ytdl", save_path)).await;
+                let _ = tokio::fs::remove_file(&active_save_path).await;
+                let _ = tokio::fs::remove_file(format!("{}.ytdl", active_save_path)).await;
 
                 DownloadProgressEvent {
                     id,
@@ -2803,6 +3209,24 @@ async fn do_download(
             cmd.arg("--newline");
             cmd.arg("--progress");
 
+            // Ask yt-dlp for every HLS subtitle sidecar it can see. Duplicate
+            // same-language CC services may still collapse inside yt-dlp; the
+            // post-processor probes the HLS manifest with FFmpeg to recover those.
+            cmd.arg("--write-subs");
+            cmd.arg("--all-subs");
+            cmd.arg("--sub-langs").arg("all");
+            cmd.arg("--convert-subs").arg("srt");
+            cmd.arg("--hls-use-mpegts");
+            cmd.arg("--no-check-formats");
+            cmd.arg("--ignore-errors");
+            if let Ok(ffmpeg_path) = crate::dvr::recorder::find_ffmpeg(&app_handle) {
+                if let Some(parent) = ffmpeg_path.parent() {
+                    cmd.arg("--ffmpeg-location").arg(parent);
+                } else {
+                    cmd.arg("--ffmpeg-location").arg(&ffmpeg_path);
+                }
+            }
+
             cmd.arg("-o").arg(&save_path)
                .arg(&url)
                .stdout(std::process::Stdio::piped())
@@ -2814,6 +3238,15 @@ async fn do_download(
             let mut child = cmd.spawn().map_err(|e| DownloadError::Failed(format!("Failed to spawn yt-dlp: {}", e)))?;
             let stdout = child.stdout.take().ok_or_else(|| DownloadError::Failed("Failed to open yt-dlp stdout".to_string()))?;
             let mut reader = tokio::io::BufReader::new(stdout).lines();
+
+            if let Some(stderr) = child.stderr.take() {
+                tokio::spawn(async move {
+                    let mut err_reader = tokio::io::BufReader::new(stderr).lines();
+                    while let Ok(Some(line)) = err_reader.next_line().await {
+                        warn!("[yt-dlp stderr] {}", line);
+                    }
+                });
+            }
 
             let mut last_emit = std::time::Instant::now();
             let mut last_progress = 0.0;

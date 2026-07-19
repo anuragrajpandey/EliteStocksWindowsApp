@@ -81,7 +81,7 @@ export const useDownloadStore = create<DownloadState>()(
             }
 
             const isHls = url.includes('.m3u8') || url.includes('/mono.m3u8');
-            const ext = isHls ? 'ts' : 'mp4';
+            const ext = isHls ? 'mkv' : 'mp4';
             const sanitizedTitle = title.replace(/[<>:"/\\|?*]/g, '_').substring(0, 50);
 
             if (downloadsPath) {
