@@ -1385,7 +1385,7 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                                             style={item.status === 'paused' ? { background: 'rgba(230, 126, 34, 0.15)', color: '#e67e22' } : undefined}
                                         >
                                             {item.status === 'downloading'
-                                                ? 'DOWNLOADING'
+                                                ? (item.statusText ? item.statusText.toUpperCase() : 'DOWNLOADING')
                                                 : item.status === 'queued'
                                                 ? 'QUEUED'
                                                 : item.status === 'paused'
@@ -1399,9 +1399,23 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                                         {isDownloadingOrQueued && (
                                             <button
                                                 className="dvr-btn-icon"
-                                                style={{ background: 'rgba(230, 126, 34, 0.15)', color: '#e67e22', border: 'none', borderRadius: '4px', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', width: '28px', height: '28px' }}
+                                                style={{
+                                                    background: item.statusText ? 'rgba(255, 255, 255, 0.05)' : 'rgba(230, 126, 34, 0.15)',
+                                                    color: item.statusText ? 'rgba(255, 255, 255, 0.3)' : '#e67e22',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    padding: '4px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    cursor: item.statusText ? 'not-allowed' : 'pointer',
+                                                    width: '28px',
+                                                    height: '28px',
+                                                    opacity: item.statusText ? 0.5 : 1
+                                                }}
+                                                disabled={!!item.statusText}
                                                 onClick={() => pauseDownload(item.id)}
-                                                title="Pause Download"
+                                                title={item.statusText ? "Cannot pause during post-processing" : "Pause Download"}
                                             >
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                                     <rect x="6" y="4" width="4" height="16" />
@@ -1448,7 +1462,9 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                                             <button
                                                 className="dvr-btn-icon danger"
                                                 onClick={() => cancelDownload(item.id)}
-                                                title="Cancel Download (Deletes partial files)"
+                                                disabled={!!item.statusText}
+                                                style={item.statusText ? { opacity: 0.3, cursor: 'not-allowed' } : undefined}
+                                                title={item.statusText ? "Cannot cancel during post-processing" : "Cancel Download (Deletes partial files)"}
                                             >
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                     <line x1="18" y1="6" x2="6" y2="18" />
@@ -1532,14 +1548,22 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                                         {(isDownloading || isPaused) && (
                                             <div className="dvr-download-progress-section" style={isPaused ? { opacity: 0.7 } : undefined}>
                                                 <div className="dvr-download-progress-header">
-                                                    <span className="dvr-download-progress-bytes">
-                                                        {formatBytes(item.bytesWritten)}
-                                                        {item.totalBytes ? ` / ${formatBytes(item.totalBytes)}` : ''}
-                                                    </span>
-                                                    {!isPaused && (
-                                                        <span className="dvr-download-progress-speed">
-                                                            {formatSpeed(item.speedBytes)}
+                                                    {item.statusText ? (
+                                                        <span className="dvr-download-progress-status-text" style={{ fontStyle: 'italic', color: 'rgba(255,255,255,0.7)' }}>
+                                                            {item.statusText}
                                                         </span>
+                                                    ) : (
+                                                        <>
+                                                            <span className="dvr-download-progress-bytes">
+                                                                {formatBytes(item.bytesWritten)}
+                                                                {item.totalBytes ? ` / ${formatBytes(item.totalBytes)}` : ''}
+                                                            </span>
+                                                            {!isPaused && (
+                                                                <span className="dvr-download-progress-speed">
+                                                                    {formatSpeed(item.speedBytes)}
+                                                                </span>
+                                                            )}
+                                                        </>
                                                     )}
                                                     {isPaused && (
                                                         <span className="dvr-download-progress-speed" style={{ color: '#e67e22' }}>

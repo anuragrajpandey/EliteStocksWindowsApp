@@ -15,6 +15,7 @@ export interface DownloadItem {
   totalBytes: number | null;
   speedBytes: number;
   error?: string;
+  statusText?: string;
   addedAt: number;
   userAgent?: string;
   durationSecs?: number;
@@ -52,6 +53,7 @@ interface DownloadState {
     speed_bytes: number;
     file_path: string;
     error: string | null;
+    status_text?: string | null;
   }) => void;
   saveDownloadProgress: (
     savePath: string,
@@ -342,6 +344,7 @@ export const useDownloadStore = create<DownloadState>()(
             totalBytes: payload.total_bytes,
             speedBytes: payload.speed_bytes,
             error: payload.error || undefined,
+            statusText: payload.status_text || undefined,
           };
 
           return { downloads: updated };
@@ -397,6 +400,7 @@ listen<{
   speed_bytes: number;
   file_path: string;
   error: string | null;
+  status_text?: string | null;
 }>('download:event', (event) => {
   useDownloadStore.getState().updateDownloadProgress(event.payload);
 }).catch((err) => {

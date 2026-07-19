@@ -2537,6 +2537,7 @@ struct DownloadProgressEvent {
     speed_bytes: u64,
     file_path: String,
     error: Option<String>,
+    status_text: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -2748,6 +2749,8 @@ async fn extract_hls_subtitle_container(
 
 async fn post_process_mkv(
     app_handle: tauri::AppHandle,
+    id: String,
+    title: String,
     temp_ts_path: std::path::PathBuf,
     final_mkv_path: std::path::PathBuf,
     source_url: Option<String>,
@@ -2803,6 +2806,20 @@ async fn post_process_mkv(
         ).await;
 
         if hls_subtitle_count > 0 {
+            let event = DownloadProgressEvent {
+                id: id.clone(),
+                title: title.clone(),
+                status: "downloading".to_string(),
+                progress: 98.5,
+                bytes_written: 0,
+                total_bytes: None,
+                speed_bytes: 0,
+                file_path: final_mkv_path.to_string_lossy().to_string(),
+                error: None,
+                status_text: Some("Extracting subtitles...".to_string()),
+            };
+            let _ = app_handle.emit("download:event", &event);
+
             let hls_subs_path = temp_ts_path.with_extension("hls-subs.mkv");
             let extracted_count = extract_hls_subtitle_container(
                 &ffmpeg_path,
@@ -2849,6 +2866,20 @@ async fn post_process_mkv(
             subtitle_offset_secs
         );
     }
+
+    let event = DownloadProgressEvent {
+        id: id.clone(),
+        title: title.clone(),
+        status: "downloading".to_string(),
+        progress: 99.0,
+        bytes_written: 0,
+        total_bytes: None,
+        speed_bytes: 0,
+        file_path: final_mkv_path.to_string_lossy().to_string(),
+        error: None,
+        status_text: Some("Remuxing into MKV...".to_string()),
+    };
+    let _ = app_handle.emit("download:event", &event);
 
     let mut cmd = Command::new(&ffmpeg_path);
     cmd.arg("-i").arg(&temp_ts_path);
@@ -2981,6 +3012,8 @@ async fn download_media(
                 let post_res = if use_temp_ts {
                     post_process_mkv(
                         app_handle_clone.clone(),
+                        id.clone(),
+                        title.clone(),
                         std::path::PathBuf::from(&active_save_path),
                         std::path::PathBuf::from(&save_path),
                         Some(url.clone()),
@@ -3002,6 +3035,7 @@ async fn download_media(
                             speed_bytes: 0,
                             file_path: save_path,
                             error: None,
+                            status_text: None,
                         }
                     }
                     Err(post_err) => {
@@ -3019,6 +3053,7 @@ async fn download_media(
                             speed_bytes: 0,
                             file_path: save_path,
                             error: Some(format!("Post-processing failed: {}", post_err)),
+                            status_text: None,
                         }
                     }
                 }
@@ -3038,6 +3073,7 @@ async fn download_media(
                     speed_bytes: 0,
                     file_path: save_path,
                     error: None,
+                    status_text: None,
                 }
             }
             Err(DownloadError::Paused { bytes_written, total_bytes, progress }) => {
@@ -3051,6 +3087,7 @@ async fn download_media(
                     speed_bytes: 0,
                     file_path: save_path,
                     error: None,
+                    status_text: None,
                 }
             }
             Err(DownloadError::Failed(e)) => {
@@ -3068,6 +3105,7 @@ async fn download_media(
                     speed_bytes: 0,
                     file_path: save_path,
                     error: Some(e),
+                    status_text: None,
                 }
             }
         };
@@ -3247,6 +3285,11 @@ async fn do_download(
                                         } else {
                                             0
                                         };
+                                        let display_progress = if save_path.ends_with(".temp.ts") {
+                                            progress * 0.98
+                                        } else {
+                                            progress
+                                        };
                                         last_progress = progress;
                                         last_bytes = written;
                                         last_total = total;
@@ -3255,12 +3298,13 @@ async fn do_download(
                                             id: id.clone(),
                                             title: title.clone(),
                                             status: "downloading".to_string(),
-                                            progress,
+                                            progress: display_progress,
                                             bytes_written: written,
                                             total_bytes: total,
                                             speed_bytes: speed.unwrap_or(0),
                                             file_path: save_path.clone(),
                                             error: None,
+                                            status_text: None,
                                         };
                                         let _ = app_handle.emit("download:event", event);
                                         last_emit = std::time::Instant::now();
@@ -3383,6 +3427,11 @@ async fn do_download(
                                     0
                                 };
 
+                                 let display_progress = if save_path.ends_with(".temp.ts") {
+                                    progress * 0.98
+                                } else {
+                                    progress
+                                };
                                 last_progress = progress;
                                 last_bytes = size_bytes.unwrap_or(0);
 
@@ -3390,12 +3439,13 @@ async fn do_download(
                                     id: id.clone(),
                                     title: title.clone(),
                                     status: "downloading".to_string(),
-                                    progress,
+                                    progress: display_progress,
                                     bytes_written: size_bytes.unwrap_or(0),
                                     total_bytes: None,
                                     speed_bytes,
                                     file_path: save_path.clone(),
                                     error: None,
+                                    status_text: None,
                                 };
                                 let _ = app_handle.emit("download:event", event);
                                 last_emit = std::time::Instant::now();
@@ -3534,18 +3584,24 @@ async fn do_download(
                                 } else {
                                     0.0
                                 };
+                                let display_progress = if save_path.ends_with(".temp.ts") {
+                                    progress * 0.98
+                                } else {
+                                    progress
+                                };
                                 last_progress = progress;
 
                                 let event = DownloadProgressEvent {
                                     id: id.clone(),
                                     title: title.clone(),
                                     status: "downloading".to_string(),
-                                    progress,
+                                    progress: display_progress,
                                     bytes_written,
                                     total_bytes,
                                     speed_bytes: speed,
                                     file_path: save_path.clone(),
                                     error: None,
+                                    status_text: None,
                                 };
                                 let _ = app_handle.emit("download:event", event);
                             }
