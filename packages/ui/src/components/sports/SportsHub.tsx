@@ -7,6 +7,7 @@ import {
   getAvailableSports,
 } from '../../services/sports';
 import { useSportsSelectedTab, useSetSportsSelectedTab } from '../../stores/uiStore';
+import { useSportsSettingsStore } from '../../stores/sportsSettingsStore';
 import { SportsErrorBoundary } from './shared/SportsErrorBoundary';
 import { LiveScoresTab } from './LiveScoresTab';
 import { UpcomingTab } from './UpcomingTab';
@@ -81,6 +82,20 @@ export function SportsHub({
   const fillerBottomRef = useRef<HTMLDivElement>(null);
   const activeTab = useSportsSelectedTab();
   const setActiveTab = useSetSportsSelectedTab();
+
+  const { loaded, loadSettings, showWorldCupTab } = useSportsSettingsStore();
+
+  useEffect(() => {
+    if (!loaded) {
+      loadSettings();
+    }
+  }, [loaded, loadSettings]);
+
+  useEffect(() => {
+    if (loaded && !showWorldCupTab && activeTab === 'worldcup') {
+      setActiveTab('live');
+    }
+  }, [loaded, showWorldCupTab, activeTab, setActiveTab]);
 
   // Set scaling properties once when visible or aspectRatio changes
   useEffect(() => {
@@ -564,16 +579,18 @@ export function SportsHub({
         </div>
 
         <div className="sports-topbar-center">
-          {((['live', 'upcoming', 'worldcup', 'leagues', 'favorites', 'news', 'leaders', 'settings'] as SportsTabId[])).map((tab) => (
-            <button
-              key={tab}
-              className={`sports-topbar-item ${activeTab === tab ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab)}
-            >
-              <span className="sports-topbar-icon">{getTabIcon(tab)}</span>
-              <span>{getTabLabel(tab)}</span>
-            </button>
-          ))}
+          {((['live', 'upcoming', 'worldcup', 'leagues', 'favorites', 'news', 'leaders', 'settings'] as SportsTabId[]))
+            .filter((tab) => tab !== 'worldcup' || showWorldCupTab)
+            .map((tab) => (
+              <button
+                key={tab}
+                className={`sports-topbar-item ${activeTab === tab ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab)}
+              >
+                <span className="sports-topbar-icon">{getTabIcon(tab)}</span>
+                <span>{getTabLabel(tab)}</span>
+              </button>
+            ))}
         </div>
 
         <div className="sports-topbar-right">

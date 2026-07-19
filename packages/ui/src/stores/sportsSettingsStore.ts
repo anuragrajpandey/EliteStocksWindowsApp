@@ -74,11 +74,13 @@ interface SportsSettingsState {
   upcomingLeagues: string[];
   newsLeagues: string[];
   enabledLeagues: string[];
+  showWorldCupTab: boolean;
   loaded: boolean;
   loadSettings: () => Promise<void>;
   setLiveLeagues: (leagues: string[]) => Promise<void>;
   setUpcomingLeagues: (leagues: string[]) => Promise<void>;
   setNewsLeagues: (leagues: string[]) => Promise<void>;
+  setShowWorldCupTab: (show: boolean) => Promise<void>;
   toggleLeague: (section: 'live' | 'upcoming' | 'news', leagueId: string) => Promise<void>;
   toggleLeagueAll: (leagueId: string) => Promise<void>;
   setCategorySection: (section: 'live' | 'upcoming' | 'news', category: string, checked: boolean) => Promise<void>;
@@ -91,6 +93,7 @@ export const useSportsSettingsStore = create<SportsSettingsState>()((set, get) =
   upcomingLeagues: DEFAULT_ENABLED_LEAGUES,
   newsLeagues: DEFAULT_ENABLED_LEAGUES,
   enabledLeagues: DEFAULT_ENABLED_LEAGUES,
+  showWorldCupTab: false,
   loaded: false,
 
   loadSettings: async () => {
@@ -120,11 +123,18 @@ export const useSportsSettingsStore = create<SportsSettingsState>()((set, get) =
         await db.prefs.put({ key: 'sports_enabled_leagues', value: JSON.stringify(enabledList) });
       }
 
+      let showWorldCup = false;
+      const showWorldCupPref = await db.prefs.get('sports_show_worldcup');
+      if (showWorldCupPref?.value) {
+        showWorldCup = JSON.parse(showWorldCupPref.value);
+      }
+
       set({
         enabledLeagues: enabledList,
         liveLeagues: enabledList,
         upcomingLeagues: enabledList,
         newsLeagues: enabledList,
+        showWorldCupTab: showWorldCup,
         loaded: true,
       });
     } catch (err) {
@@ -146,6 +156,11 @@ export const useSportsSettingsStore = create<SportsSettingsState>()((set, get) =
   setNewsLeagues: async (leagues: string[]) => {
     set({ enabledLeagues: leagues, liveLeagues: leagues, upcomingLeagues: leagues, newsLeagues: leagues });
     await db.prefs.put({ key: 'sports_enabled_leagues', value: JSON.stringify(leagues) });
+  },
+
+  setShowWorldCupTab: async (show: boolean) => {
+    set({ showWorldCupTab: show });
+    await db.prefs.put({ key: 'sports_show_worldcup', value: JSON.stringify(show) });
   },
 
   toggleLeague: async (section: 'live' | 'upcoming' | 'news', leagueId: string) => {
@@ -200,9 +215,11 @@ export const useSportsSettingsStore = create<SportsSettingsState>()((set, get) =
       liveLeagues: DEFAULT_ENABLED_LEAGUES,
       upcomingLeagues: DEFAULT_ENABLED_LEAGUES,
       newsLeagues: DEFAULT_ENABLED_LEAGUES,
+      showWorldCupTab: false,
     });
 
     await db.prefs.put({ key: 'sports_enabled_leagues', value: JSON.stringify(DEFAULT_ENABLED_LEAGUES) });
+    await db.prefs.put({ key: 'sports_show_worldcup', value: JSON.stringify(false) });
   },
 }));
 

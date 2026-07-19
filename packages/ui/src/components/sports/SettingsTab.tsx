@@ -4,7 +4,16 @@ import { useSportsSettingsStore, getLeaguesByCategory } from '../../stores/sport
 interface SettingsTabProps {}
 
 export function SettingsTab({}: SettingsTabProps) {
-  const { enabledLeagues, toggleLeagueAll, setCategoryAll, resetToDefaults, loaded, loadSettings } = useSportsSettingsStore();
+  const {
+    enabledLeagues,
+    toggleLeagueAll,
+    setCategoryAll,
+    resetToDefaults,
+    loaded,
+    loadSettings,
+    showWorldCupTab,
+    setShowWorldCupTab,
+  } = useSportsSettingsStore();
   const leaguesByCategory = getLeaguesByCategory();
 
   useEffect(() => {
@@ -49,6 +58,25 @@ export function SettingsTab({}: SettingsTabProps) {
       </div>
 
       <div className="sports-settings-grid">
+        <div className="sports-settings-card">
+          <div className="sports-settings-card-header">
+            <span className="sports-settings-category-title">General Settings</span>
+          </div>
+          <div className="sports-settings-leagues-list">
+            <div className="sports-settings-league-item">
+              <span className="sports-settings-league-name">Show World Cup 2026 Tab</span>
+              <label className="sports-settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={showWorldCupTab}
+                  onChange={(e) => setShowWorldCupTab(e.target.checked)}
+                />
+                <span className="sports-settings-toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
         {categoryOrder.map(category => {
           const leagues = leaguesByCategory[category];
           if (!leagues || leagues.length === 0) return null;
