@@ -1872,21 +1872,47 @@ function isGlobalEpgFresh(epgLink: GlobalEpgLink): boolean {
 // Check if EPG needs refresh
 // refreshHours: 0 = manual only (never auto-stale), default 6 hours
 export async function isEpgStale(sourceId: string, refreshHours: number = DEFAULT_EPG_STALE_HOURS): Promise<boolean> {
+  let resolvedRefreshHours = refreshHours;
+  if (window.storage) {
+    try {
+      const result = await window.storage.getSources();
+      const source = result.data?.find((s: any) => s.id === sourceId);
+      if (source && source.custom_refresh_interval !== undefined && source.custom_refresh_interval !== null) {
+        resolvedRefreshHours = source.custom_refresh_interval;
+      }
+    } catch (e) {
+      console.error('[Sync] Failed to fetch source for EPG stale check:', e);
+    }
+  }
+
   // 0 means manual-only, never consider stale for auto-refresh
-  if (refreshHours === 0) return false;
+  if (resolvedRefreshHours === 0) return false;
 
   const meta = await db.sourcesMeta.get(sourceId);
   if (!meta?.last_synced) return true;
 
-  const staleMs = refreshHours * 60 * 60 * 1000;
+  const staleMs = resolvedRefreshHours * 60 * 60 * 1000;
   return Date.now() - new Date(meta.last_synced).getTime() > staleMs;
 }
 
 // Check if VOD needs refresh
 // refreshHours: 0 = manual only (never auto-stale), default 24 hours
 export async function isVodStale(sourceId: string, refreshHours: number = DEFAULT_VOD_STALE_HOURS): Promise<boolean> {
+  let resolvedRefreshHours = refreshHours;
+  if (window.storage) {
+    try {
+      const result = await window.storage.getSources();
+      const source = result.data?.find((s: any) => s.id === sourceId);
+      if (source && source.custom_vod_refresh_interval !== undefined && source.custom_vod_refresh_interval !== null) {
+        resolvedRefreshHours = source.custom_vod_refresh_interval;
+      }
+    } catch (e) {
+      console.error('[Sync] Failed to fetch source for VOD stale check:', e);
+    }
+  }
+
   // 0 means manual-only, never consider stale for auto-refresh
-  if (refreshHours === 0) return false;
+  if (resolvedRefreshHours === 0) return false;
 
   const meta = await db.sourcesMeta.get(sourceId);
   if (!meta?.vod_last_synced) return true;
@@ -1897,7 +1923,7 @@ export async function isVodStale(sourceId: string, refreshHours: number = DEFAUL
     return true;
   }
 
-  const staleMs = refreshHours * 60 * 60 * 1000;
+  const staleMs = resolvedRefreshHours * 60 * 60 * 1000;
   return Date.now() - new Date(meta.vod_last_synced).getTime() > staleMs;
 }
 

@@ -87,8 +87,17 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                 const epgRefreshHours = settingsResult.data?.epgRefreshHours ?? 6;
                 const vodRefreshHours = settingsResult.data?.vodRefreshHours ?? 24;
 
-                // Skip if both are manual-only (0 = manual only)
-                if (epgRefreshHours === 0 && vodRefreshHours === 0) {
+                const enabledSources = result.data.filter((s: any) => s.enabled && !s.vod_only);
+                const xtreamSources = result.data.filter((s: any) => s.type === 'xtream' && s.enabled && !s.live_tv_only);
+
+                const hasCustomEpgRefresh = enabledSources.some((s: any) => s.custom_refresh_interval !== undefined && s.custom_refresh_interval !== null && s.custom_refresh_interval > 0);
+                const hasCustomVodRefresh = xtreamSources.some((s: any) => s.custom_vod_refresh_interval !== undefined && s.custom_vod_refresh_interval !== null && s.custom_vod_refresh_interval > 0);
+
+                const epgActive = epgRefreshHours > 0 || hasCustomEpgRefresh;
+                const vodActive = vodRefreshHours > 0 || hasCustomVodRefresh;
+
+                // Skip periodic check if no auto-refresh is active
+                if (!epgActive && !vodActive) {
                     return;
                 }
 
@@ -96,8 +105,7 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                 const syncedSourceIds: string[] = [];
 
                 // ── Channel / EPG sync ──────────────────────────────────────────────
-                if (epgRefreshHours > 0) {
-                    const enabledSources = result.data.filter((s: any) => s.enabled && !s.vod_only);
+                if (epgActive) {
                     const staleSources: any[] = [];
                     for (const source of enabledSources) {
                         if (await isEpgStale(source.id, epgRefreshHours)) staleSources.push(source);
@@ -132,8 +140,7 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                 }
 
                 // ── VOD sync (Xtream only) ──────────────────────────────────────────
-                if (vodRefreshHours > 0) {
-                    const xtreamSources = result.data.filter((s: any) => s.type === 'xtream' && s.enabled && !s.live_tv_only);
+                if (vodActive) {
                     if (xtreamSources.length > 0) {
                         const staleVod: any[] = [];
                         for (const source of xtreamSources) {
@@ -224,58 +231,69 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                     );
                 }
 
-                // ── Channel / EPG sync ──────────────────────────────────────────────
                 // Filter out VOD-only sources from channel sync
                 const enabledSources = result.data.filter((s: any) => s.enabled && !s.vod_only);
-                const staleSources: any[] = [];
-                for (const source of enabledSources) {
-                    if (await isEpgStale(source.id, epgRefreshHours)) staleSources.push(source);
-                }
+                const xtreamSources = result.data.filter((s: any) => s.type === 'xtream' && s.enabled && !s.live_tv_only);
 
-                if (staleSources.length > 0) {
-                    setSyncingState(true);
-                    // Concurrency must be 1 to prevent SQLite locks during native bulk inserts
-                    const CONCURRENCY = 1;
-                    const total = staleSources.length;
-                    for (let i = 0; i < total; i += CONCURRENCY) {
-                        const batch = staleSources.slice(i, i + CONCURRENCY);
-                        const batchNum = Math.floor(i / CONCURRENCY) + 1;
-                        const totalBatches = Math.ceil(total / CONCURRENCY);
-                        settersRef.current.setSyncStatusMessage(`Syncing batch ${batchNum}/${totalBatches}: ${batch.map((s: any) => s.name).join(', ')}`);
-                        await Promise.all(
-                            batch.map(async (source: any, idx: number) => {
-                                const prefix = `[${i + idx + 1}/${total}] ${source.name}`;
-                                const syncResult = await syncSource(source, (msg) => settersRef.current.setSyncStatusMessage(`${prefix}: ${msg}`));
-                                if (syncResult.success) {
-                                    syncedSourceIds.push(source.id);
-                                } else {
-                                    useToastStore.getState().addToast(`Auto-sync failed: ${source.name} - ${syncResult.error}`, 'error');
-                                }
-                            })
-                        );
+                const hasCustomEpgRefresh = enabledSources.some((s: any) => s.custom_refresh_interval !== undefined && s.custom_refresh_interval !== null && s.custom_refresh_interval > 0);
+                const hasCustomVodRefresh = xtreamSources.some((s: any) => s.custom_vod_refresh_interval !== undefined && s.custom_vod_refresh_interval !== null && s.custom_vod_refresh_interval > 0);
+
+                const epgActive = epgRefreshHours > 0 || hasCustomEpgRefresh;
+                const vodActive = vodRefreshHours > 0 || hasCustomVodRefresh;
+
+                // ── Channel / EPG sync ──────────────────────────────────────────────
+                if (epgActive) {
+                    const staleSources: any[] = [];
+                    for (const source of enabledSources) {
+                        if (await isEpgStale(source.id, epgRefreshHours)) staleSources.push(source);
                     }
-                    settersRef.current.setSyncStatusMessage(null);
+
+                    if (staleSources.length > 0) {
+                        setSyncingState(true);
+                        // Concurrency must be 1 to prevent SQLite locks during native bulk inserts
+                        const CONCURRENCY = 1;
+                        const total = staleSources.length;
+                        for (let i = 0; i < total; i += CONCURRENCY) {
+                            const batch = staleSources.slice(i, i + CONCURRENCY);
+                            const batchNum = Math.floor(i / CONCURRENCY) + 1;
+                            const totalBatches = Math.ceil(total / CONCURRENCY);
+                            settersRef.current.setSyncStatusMessage(`Syncing batch ${batchNum}/${totalBatches}: ${batch.map((s: any) => s.name).join(', ')}`);
+                            await Promise.all(
+                                batch.map(async (source: any, idx: number) => {
+                                    const prefix = `[${i + idx + 1}/${total}] ${source.name}`;
+                                    const syncResult = await syncSource(source, (msg) => settersRef.current.setSyncStatusMessage(`${prefix}: ${msg}`));
+                                    if (syncResult.success) {
+                                        syncedSourceIds.push(source.id);
+                                    } else {
+                                        useToastStore.getState().addToast(`Auto-sync failed: ${source.name} - ${syncResult.error}`, 'error');
+                                    }
+                                })
+                            );
+                        }
+                        settersRef.current.setSyncStatusMessage(null);
+                    }
                 }
 
                 // ── VOD sync (Xtream only) ──────────────────────────────────────────
-                const xtreamSources = result.data.filter((s: any) => s.type === 'xtream' && s.enabled && !s.live_tv_only);
-                if (xtreamSources.length > 0) {
-                    const staleVod: any[] = [];
-                    for (const source of xtreamSources) {
-                        if (await isVodStale(source.id, vodRefreshHours)) staleVod.push(source);
-                    }
-                    if (staleVod.length > 0) {
-                        settersRef.current.setVodSyncing(true);
-                        const CONCURRENCY = 10;
-                        const total = staleVod.length;
-                        for (let i = 0; i < total; i += CONCURRENCY) {
-                            const batch = staleVod.slice(i, i + CONCURRENCY);
-                            const batchNum = Math.floor(i / CONCURRENCY) + 1;
-                            const totalBatches = Math.ceil(total / CONCURRENCY);
-                            settersRef.current.setSyncStatusMessage(`Syncing VOD batch ${batchNum}/${totalBatches}: ${batch.map((s: any) => s.name).join(', ')}`);
-                            await Promise.all(batch.map((source: any) => syncVodForSource(source)));
+                if (vodActive) {
+                    if (xtreamSources.length > 0) {
+                        const staleVod: any[] = [];
+                        for (const source of xtreamSources) {
+                            if (await isVodStale(source.id, vodRefreshHours)) staleVod.push(source);
                         }
-                        settersRef.current.setSyncStatusMessage(null);
+                        if (staleVod.length > 0) {
+                            settersRef.current.setVodSyncing(true);
+                            const CONCURRENCY = 10;
+                            const total = staleVod.length;
+                            for (let i = 0; i < total; i += CONCURRENCY) {
+                                const batch = staleVod.slice(i, i + CONCURRENCY);
+                                const batchNum = Math.floor(i / CONCURRENCY) + 1;
+                                const totalBatches = Math.ceil(total / CONCURRENCY);
+                                settersRef.current.setSyncStatusMessage(`Syncing VOD batch ${batchNum}/${totalBatches}: ${batch.map((s: any) => s.name).join(', ')}`);
+                                await Promise.all(batch.map((source: any) => syncVodForSource(source)));
+                            }
+                            settersRef.current.setSyncStatusMessage(null);
+                        }
                     }
                 }
 
@@ -290,8 +308,8 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                 }
 
                 // ── Start periodic checking ─────────────────────────────────────────
-                // Only start interval if at least one refresh setting is not manual-only
-                if (epgRefreshHours > 0 || vodRefreshHours > 0) {
+                // Only start interval if at least one refresh setting is active
+                if (epgActive || vodActive) {
                     console.log(`[AutoSync] Starting periodic check every ${CHECK_INTERVAL_MS / 60000} minutes`);
                     intervalRef.current = setInterval(() => {
                         checkAndSyncStaleSources();

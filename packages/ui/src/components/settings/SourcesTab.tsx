@@ -56,6 +56,8 @@ interface SourceFormData {
   additionalEpgUrls: string[];
   userAgent: string;
   epgTimeshiftHours: number;
+  customRefreshInterval: number;
+  customVodRefreshInterval: number;
   backupMacs: string[];
   backupCredentials: Array<{ username: string; password: string }>;
   backupUrls: string[];
@@ -82,6 +84,8 @@ const emptyForm: SourceFormData = {
   additionalEpgUrls: [],
   userAgent: '',
   epgTimeshiftHours: 0,
+  customRefreshInterval: 0,
+  customVodRefreshInterval: 0,
   backupMacs: [],
   backupCredentials: [],
   backupUrls: [],
@@ -442,6 +446,8 @@ export function SourcesTab({
       additionalEpgUrls: source.additional_epg_urls || [],
       userAgent: source.user_agent || '',
       epgTimeshiftHours: source.epg_timeshift_hours || 0,
+      customRefreshInterval: source.custom_refresh_interval || 0,
+      customVodRefreshInterval: source.custom_vod_refresh_interval || 0,
       backupMacs: source.backup_macs || [],
       backupCredentials: source.backup_credentials || [],
       backupUrls: source.backup_urls || [],
@@ -594,6 +600,8 @@ export function SourcesTab({
         additional_epg_urls: formData.additionalEpgUrls.length > 0 ? formData.additionalEpgUrls : undefined,
         user_agent: formData.userAgent.trim() || undefined,
         epg_timeshift_hours: formData.epgTimeshiftHours || undefined,
+        custom_refresh_interval: formData.customRefreshInterval || undefined,
+        custom_vod_refresh_interval: formData.customVodRefreshInterval || undefined,
         backup_macs: formData.type === 'stalker' && formData.backupMacs.length > 0 ? formData.backupMacs : undefined,
         backup_credentials: formData.type === 'xtream' && formData.backupCredentials.length > 0 ? formData.backupCredentials : undefined,
         backup_urls: formData.backupUrls.length > 0 ? formData.backupUrls : undefined,
@@ -2240,6 +2248,34 @@ export function SourcesTab({
               />
               <span className="hint">Adjust if EPG times are incorrect (e.g., -1 for 1 hour earlier)</span>
             </div>
+
+            <div className="form-group">
+              <label>Custom Refresh Interval (hours)</label>
+              <input
+                type="number"
+                value={formData.customRefreshInterval || ''}
+                onChange={(e) => setFormData({ ...formData, customRefreshInterval: parseFloat(e.target.value) || 0 })}
+                placeholder="Use global setting"
+                min="0"
+                step="any"
+              />
+              <span className="hint">Override the global TV Guide refresh interval for this source. Leave empty or 0 to use global settings.</span>
+            </div>
+
+            {formData.type === 'xtream' && !formData.liveTvOnly && (
+              <div className="form-group">
+                <label>Custom VOD Refresh Interval (hours)</label>
+                <input
+                  type="number"
+                  value={formData.customVodRefreshInterval || ''}
+                  onChange={(e) => setFormData({ ...formData, customVodRefreshInterval: parseFloat(e.target.value) || 0 })}
+                  placeholder="Use global setting"
+                  min="0"
+                  step="any"
+                />
+                <span className="hint">Override the global VOD refresh interval for this source. Leave empty or 0 to use global settings.</span>
+              </div>
+            )}
 
             <div className="form-group">
               <label>User Agent (Optional)</label>

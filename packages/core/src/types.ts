@@ -34,6 +34,8 @@ export interface Source {
   display_order?: number;
   enabled: boolean;
   advanced_epg_matching?: boolean; // Enable display name-based EPG matching for external EPGs (default: false)
+  custom_refresh_interval?: number; // Custom EPG/channel refresh interval in hours
+  custom_vod_refresh_interval?: number; // Custom VOD refresh interval in hours
 }
 
 export interface XtreamSource extends Source {

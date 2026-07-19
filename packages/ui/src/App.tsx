@@ -3088,21 +3088,29 @@ function App() {
         // 0 = all at once (default), positive int = max parallel syncs
         const epgSyncConcurrency: number = settingsResult.data?.epgSyncConcurrency ?? 0;
 
-        // Skip periodic check if both are manual-only (0 = manual only)
-        if (isPeriodic && epgRefreshHours === 0 && vodRefreshHours === 0) {
-          return;
-        }
-
         // Use sources from parallel load
         if (!sourcesResult.data || sourcesResult.data.length === 0) return;
+
+        // Filter out VOD-only sources from channel sync
+        const enabledSources = sourcesResult.data.filter((s: any) => s.enabled && !s.vod_only);
+        const xtreamSources = sourcesResult.data.filter((s: any) => s.type === 'xtream' && s.enabled && !s.live_tv_only);
+
+        const hasCustomEpgRefresh = enabledSources.some((s: any) => s.custom_refresh_interval !== undefined && s.custom_refresh_interval !== null && s.custom_refresh_interval > 0);
+        const hasCustomVodRefresh = xtreamSources.some((s: any) => s.custom_vod_refresh_interval !== undefined && s.custom_vod_refresh_interval !== null && s.custom_vod_refresh_interval > 0);
+
+        const epgActive = epgRefreshHours > 0 || hasCustomEpgRefresh;
+        const vodActive = vodRefreshHours > 0 || hasCustomVodRefresh;
+
+        // Skip periodic check if no auto-refresh is active
+        if (isPeriodic && !epgActive && !vodActive) {
+          return;
+        }
 
         let didSync = false;
         const syncedSourceIds: string[] = [];
 
         // ── Channel / EPG sync ──────────────────────────────────────────────
-        if (epgRefreshHours > 0) {
-          // Filter out VOD-only sources from channel sync
-          const enabledSources = sourcesResult.data.filter((s: any) => s.enabled && !s.vod_only);
+        if (epgActive) {
           const staleSources: any[] = [];
           for (const source of enabledSources) {
             if (await isEpgStale(source.id, epgRefreshHours)) staleSources.push(source);
@@ -3142,8 +3150,7 @@ function App() {
         }
 
         // ── VOD sync (Xtream only) ──────────────────────────────────────────
-        if (vodRefreshHours > 0) {
-          const xtreamSources = sourcesResult.data.filter((s: any) => s.type === 'xtream' && s.enabled && !s.live_tv_only);
+        if (vodActive) {
           if (xtreamSources.length > 0) {
             const staleVod: any[] = [];
             for (const source of xtreamSources) {
