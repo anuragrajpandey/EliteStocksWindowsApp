@@ -2802,7 +2802,7 @@ async fn post_process_mkv(
             user_agent.as_deref(),
         ).await;
 
-        if hls_subtitle_count > subtitle_paths.len() {
+        if hls_subtitle_count > 0 {
             let hls_subs_path = temp_ts_path.with_extension("hls-subs.mkv");
             let extracted_count = extract_hls_subtitle_container(
                 &ffmpeg_path,
@@ -2811,9 +2811,9 @@ async fn post_process_mkv(
                 &hls_subs_path,
             ).await;
 
-            if extracted_count > subtitle_paths.len() {
+            if extracted_count > 0 {
                 debug!(
-                    "[PostProcessor] Using FFmpeg-extracted HLS subtitle container with {} stream(s)",
+                    "[PostProcessor] Using FFmpeg-extracted HLS subtitle container with {} stream(s); ignoring yt-dlp subtitle sidecars",
                     extracted_count
                 );
                 hls_subtitle_container = Some((hls_subs_path, extracted_count));
@@ -2853,15 +2853,21 @@ async fn post_process_mkv(
     let mut cmd = Command::new(&ffmpeg_path);
     cmd.arg("-i").arg(&temp_ts_path);
 
-    for sub in &subtitle_paths {
-        if apply_offset {
-            cmd.arg("-itsoffset").arg(format!("-{:.3}", subtitle_offset_secs));
+    if !using_hls_subtitle_container {
+        for sub in &subtitle_paths {
+            if apply_offset {
+                cmd.arg("-itsoffset").arg(format!("-{:.3}", subtitle_offset_secs));
+            }
+            cmd.arg("-i").arg(sub);
         }
-        cmd.arg("-i").arg(sub);
     }
 
     let hls_subtitle_input_index = if let Some((path, _)) = hls_subtitle_container.as_ref() {
-        let input_index = subtitle_paths.len() + 1;
+        let input_index = if using_hls_subtitle_container && !subtitle_paths.is_empty() {
+            1
+        } else {
+            subtitle_paths.len() + 1
+        };
         cmd.arg("-i").arg(path);
         Some(input_index)
     } else {
@@ -2875,17 +2881,19 @@ async fn post_process_mkv(
         cmd.arg("-map").arg("0:s?");
     }
 
-    for (i, sub) in subtitle_paths.iter().enumerate() {
-        cmd.arg("-map").arg(format!("{}", i + 1));
+    if !using_hls_subtitle_container {
+        for (i, sub) in subtitle_paths.iter().enumerate() {
+            cmd.arg("-map").arg(format!("{}", i + 1));
 
-        if let Some(filename) = sub.file_name() {
-            let name_str = filename.to_string_lossy();
-            let remainder = &name_str[ts_filename_str.len() + 1..];
-            let lang_part = remainder.split('.').next().unwrap_or("");
-            let lang = lang_part.split('-').next().unwrap_or(lang_part);
-            if lang.len() == 2 || lang.len() == 3 {
-                cmd.arg(format!("-metadata:s:s:{}", i))
-                   .arg(format!("language={}", lang));
+            if let Some(filename) = sub.file_name() {
+                let name_str = filename.to_string_lossy();
+                let remainder = &name_str[ts_filename_str.len() + 1..];
+                let lang_part = remainder.split('.').next().unwrap_or("");
+                let lang = lang_part.split('-').next().unwrap_or(lang_part);
+                if lang.len() == 2 || lang.len() == 3 {
+                    cmd.arg(format!("-metadata:s:s:{}", i))
+                       .arg(format!("language={}", lang));
+                }
             }
         }
     }
@@ -2913,32 +2921,9 @@ async fn post_process_mkv(
         return Err(format!("FFmpeg remux failed: {}", err_msg));
     }
 
-    let mkv_stem = final_mkv_path
-        .file_stem()
-        .unwrap_or_default()
-        .to_string_lossy()
-        .to_string();
-    let raw_ts_dest = final_mkv_path.with_extension("ts");
-    match tokio::fs::rename(&temp_ts_path, &raw_ts_dest).await {
-        Ok(_) => debug!("[PostProcessor] Raw TS kept at: {:?}", raw_ts_dest),
-        Err(e) => {
-            warn!("[PostProcessor] Could not keep raw TS ({}); deleting", e);
-            let _ = tokio::fs::remove_file(&temp_ts_path).await;
-        }
-    }
+    let _ = tokio::fs::remove_file(&temp_ts_path).await;
     for sub in subtitle_paths {
-        let dest = if let Some(sub_name) = sub.file_name() {
-            let sub_str = sub_name.to_string_lossy();
-            let suffix = &sub_str[ts_filename_str.len() + 1..];
-            let dest_name = format!("{}.{}", mkv_stem, suffix);
-            final_mkv_path.with_file_name(dest_name)
-        } else {
-            sub.clone()
-        };
-        match tokio::fs::rename(&sub, &dest).await {
-            Ok(_) => debug!("[PostProcessor] Raw subtitle kept at: {:?}", dest),
-            Err(_) => { let _ = tokio::fs::remove_file(&sub).await; }
-        }
+        let _ = tokio::fs::remove_file(&sub).await;
     }
 
     if let Some((path, _)) = hls_subtitle_container {
@@ -3209,13 +3194,8 @@ async fn do_download(
             cmd.arg("--newline");
             cmd.arg("--progress");
 
-            // Ask yt-dlp for every HLS subtitle sidecar it can see. Duplicate
-            // same-language CC services may still collapse inside yt-dlp; the
-            // post-processor probes the HLS manifest with FFmpeg to recover those.
-            cmd.arg("--write-subs");
-            cmd.arg("--all-subs");
-            cmd.arg("--sub-langs").arg("all");
-            cmd.arg("--convert-subs").arg("srt");
+            // Preserve HLS timestamps/container details; subtitles are extracted
+            // from the manifest by the FFmpeg post-processor.
             cmd.arg("--hls-use-mpegts");
             cmd.arg("--no-check-formats");
             cmd.arg("--ignore-errors");
