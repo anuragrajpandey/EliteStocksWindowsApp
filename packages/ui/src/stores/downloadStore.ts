@@ -9,7 +9,7 @@ export interface DownloadItem {
   title: string;
   url: string;
   savePath: string;
-  status: 'downloading' | 'queued' | 'completed' | 'failed' | 'canceled';
+  status: 'downloading' | 'queued' | 'completed' | 'failed' | 'canceled' | 'paused';
   progress: number;
   bytesWritten: number;
   totalBytes: number | null;
@@ -37,13 +37,15 @@ interface DownloadState {
     directUrl?: string
   ) => Promise<void>;
   cancelDownload: (id: string) => Promise<void>;
+  pauseDownload: (id: string) => Promise<void>;
+  resumeDownload: (id: string) => Promise<void>;
   removeDownload: (id: string) => void;
   clearCompleted: () => void;
   processQueue: () => Promise<void>;
   updateDownloadProgress: (payload: {
     id: string;
     title: string;
-    status: 'downloading' | 'completed' | 'failed' | 'canceled';
+    status: 'downloading' | 'completed' | 'failed' | 'canceled' | 'paused';
     progress: number;
     bytes_written: number;
     total_bytes: number | null;
@@ -133,6 +135,7 @@ export const useDownloadStore = create<DownloadState>()(
                 save_path: savePath,
                 user_agent: userAgent || null,
                 duration_secs: durationSecs || null,
+                resume: false,
               }
             });
           }
@@ -156,6 +159,19 @@ export const useDownloadStore = create<DownloadState>()(
               ),
             }));
             get().processQueue();
+          } else if (item.status === 'paused') {
+            // Call delete_download_file to clean up the partial files
+            try {
+              await invoke('delete_download_file', { path: item.savePath });
+            } catch (err) {
+              console.warn('[DownloadStore] Failed to delete file for paused download:', err);
+            }
+            set((state) => ({
+              downloads: (state.downloads || []).map((d) =>
+                d.id === id ? { ...d, status: 'canceled' as const } : d
+              ),
+            }));
+            get().processQueue();
           } else {
             try {
               await invoke('cancel_download', { id });
@@ -172,6 +188,59 @@ export const useDownloadStore = create<DownloadState>()(
           }
         } catch (error) {
           console.error('[DownloadStore] Failed to cancel download:', error);
+        }
+      },
+
+      pauseDownload: async (id) => {
+        try {
+          const list = get().downloads || [];
+          const item = list.find((d) => d.id === id);
+          if (!item) return;
+
+          if (item.status === 'queued') {
+            // Queue state can be paused directly in frontend
+            set((state) => ({
+              downloads: (state.downloads || []).map((d) =>
+                d.id === id ? { ...d, status: 'paused' as const } : d
+              ),
+            }));
+            get().processQueue();
+          } else if (item.status === 'downloading') {
+            try {
+              await invoke('pause_download', { id });
+            } catch (invokeError) {
+              console.warn('[DownloadStore] Backend pause failed, forcing local pause:', invokeError);
+              set((state) => ({
+                downloads: (state.downloads || []).map((d) =>
+                  d.id === id ? { ...d, status: 'paused' as const } : d
+                ),
+              }));
+              get().processQueue();
+            }
+          }
+        } catch (error) {
+          console.error('[DownloadStore] Failed to pause download:', error);
+        }
+      },
+
+      resumeDownload: async (id) => {
+        try {
+          const list = get().downloads || [];
+          const item = list.find((d) => d.id === id);
+          if (!item) return;
+
+          if (item.status === 'paused') {
+            set((state) => ({
+              downloads: (state.downloads || []).map((d) =>
+                d.id === id ? { ...d, status: 'queued' as const } : d
+              ),
+            }));
+            setTimeout(() => {
+              get().processQueue();
+            }, 50);
+          }
+        } catch (error) {
+          console.error('[DownloadStore] Failed to resume download:', error);
         }
       },
 
@@ -234,6 +303,7 @@ export const useDownloadStore = create<DownloadState>()(
                 save_path: nextItem.savePath,
                 user_agent: userAgent || null,
                 duration_secs: nextItem.durationSecs || null,
+                resume: nextItem.progress > 0,
               }
             });
           } catch (error: any) {
@@ -277,11 +347,12 @@ export const useDownloadStore = create<DownloadState>()(
           return { downloads: updated };
         });
 
-        // Trigger queue processing if the current item completed/failed/canceled
+        // Trigger queue processing if the current item completed/failed/canceled/paused
         if (
           payload.status === 'completed' ||
           payload.status === 'failed' ||
-          payload.status === 'canceled'
+          payload.status === 'canceled' ||
+          payload.status === 'paused'
         ) {
           get().processQueue();
         }
@@ -319,7 +390,7 @@ export const useDownloadStore = create<DownloadState>()(
 listen<{
   id: string;
   title: string;
-  status: 'downloading' | 'completed' | 'failed' | 'canceled';
+  status: 'downloading' | 'completed' | 'failed' | 'canceled' | 'paused';
   progress: number;
   bytes_written: number;
   total_bytes: number | null;

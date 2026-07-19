@@ -2523,13 +2523,14 @@ struct DownloadRequest {
     save_path: String,
     user_agent: Option<String>,
     duration_secs: Option<u64>,
+    resume: Option<bool>,
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
 struct DownloadProgressEvent {
     id: String,
     title: String,
-    status: String, // "downloading" | "completed" | "failed" | "canceled"
+    status: String, // "downloading" | "completed" | "failed" | "canceled" | "paused"
     progress: f64,
     bytes_written: u64,
     total_bytes: Option<u64>,
@@ -2538,14 +2539,26 @@ struct DownloadProgressEvent {
     error: Option<String>,
 }
 
-static ACTIVE_DOWNLOADS: once_cell::sync::Lazy<Arc<parking_lot::Mutex<HashMap<String, tokio::sync::watch::Sender<bool>>>>> =
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum DownloadControl {
+    Cancel,
+    Pause,
+}
+
+enum DownloadError {
+    Canceled { bytes_written: u64, total_bytes: Option<u64>, progress: f64 },
+    Paused { bytes_written: u64, total_bytes: Option<u64>, progress: f64 },
+    Failed(String),
+}
+
+static ACTIVE_DOWNLOADS: once_cell::sync::Lazy<Arc<parking_lot::Mutex<HashMap<String, tokio::sync::watch::Sender<Option<DownloadControl>>>>>> =
     once_cell::sync::Lazy::new(|| Arc::new(parking_lot::Mutex::new(HashMap::new())));
 
 #[tauri::command]
 async fn cancel_download(id: String) -> Result<(), String> {
     debug!("[Downloader] cancel_download called for id={}", id);
     if let Some(cancel_tx) = ACTIVE_DOWNLOADS.lock().get(&id) {
-        let _ = cancel_tx.send(true);
+        let _ = cancel_tx.send(Some(DownloadControl::Cancel));
         Ok(())
     } else {
         Err("Download not found or already finished".to_string())
@@ -2553,19 +2566,39 @@ async fn cancel_download(id: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn pause_download(id: String) -> Result<(), String> {
+    debug!("[Downloader] pause_download called for id={}", id);
+    if let Some(cancel_tx) = ACTIVE_DOWNLOADS.lock().get(&id) {
+        let _ = cancel_tx.send(Some(DownloadControl::Pause));
+        Ok(())
+    } else {
+        Err("Download not found or already finished".to_string())
+    }
+}
+
+#[tauri::command]
+async fn delete_download_file(path: String) -> Result<(), String> {
+    debug!("[Downloader] delete_download_file called for path={}", path);
+    let _ = tokio::fs::remove_file(&path).await;
+    let _ = tokio::fs::remove_file(format!("{}.ytdl", path)).await;
+    Ok(())
+}
+
+#[tauri::command]
 async fn download_media(
     app_handle: tauri::AppHandle,
     request: DownloadRequest,
 ) -> Result<(), String> {
-    debug!("[Downloader] download_media called for title={} to={}", request.title, request.save_path);
+    debug!("[Downloader] download_media called for title={} to={} resume={:?}", request.title, request.save_path, request.resume);
     let id = request.id.clone();
     let title = request.title.clone();
     let url = request.url.clone();
     let save_path = request.save_path.clone();
     let user_agent = request.user_agent.clone();
     let duration_secs = request.duration_secs;
+    let resume = request.resume;
 
-    let (cancel_tx, mut cancel_rx) = tokio::sync::watch::channel(false);
+    let (cancel_tx, mut cancel_rx) = tokio::sync::watch::channel(None);
     ACTIVE_DOWNLOADS.lock().insert(id.clone(), cancel_tx);
 
     let app_handle_clone = app_handle.clone();
@@ -2579,6 +2612,7 @@ async fn download_media(
             save_path.clone(),
             user_agent,
             duration_secs,
+            resume,
             &mut cancel_rx,
         ).await;
 
@@ -2598,17 +2632,45 @@ async fn download_media(
                     error: None,
                 }
             }
-            Err(e) => {
-                let status = if e == "Canceled" { "canceled" } else { "failed" };
-                if status == "canceled" || status == "failed" {
-                    // Try to clean up partial file
-                    let _ = tokio::fs::remove_file(&save_path).await;
-                }
+            Err(DownloadError::Canceled { bytes_written, total_bytes, progress }) => {
+                // Try to clean up partial file and sidecar
+                let _ = tokio::fs::remove_file(&save_path).await;
+                let _ = tokio::fs::remove_file(format!("{}.ytdl", save_path)).await;
 
                 DownloadProgressEvent {
                     id,
                     title,
-                    status: status.to_string(),
+                    status: "canceled".to_string(),
+                    progress,
+                    bytes_written,
+                    total_bytes,
+                    speed_bytes: 0,
+                    file_path: save_path,
+                    error: None,
+                }
+            }
+            Err(DownloadError::Paused { bytes_written, total_bytes, progress }) => {
+                DownloadProgressEvent {
+                    id,
+                    title,
+                    status: "paused".to_string(),
+                    progress,
+                    bytes_written,
+                    total_bytes,
+                    speed_bytes: 0,
+                    file_path: save_path,
+                    error: None,
+                }
+            }
+            Err(DownloadError::Failed(e)) => {
+                // Clean up partial file on failure to avoid corruption
+                let _ = tokio::fs::remove_file(&save_path).await;
+                let _ = tokio::fs::remove_file(format!("{}.ytdl", save_path)).await;
+
+                DownloadProgressEvent {
+                    id,
+                    title,
+                    status: "failed".to_string(),
                     progress: 0.0,
                     bytes_written: 0,
                     total_bytes: None,
@@ -2722,8 +2784,9 @@ async fn do_download(
     save_path: String,
     user_agent: Option<String>,
     duration_secs: Option<u64>,
-    cancel_rx: &mut tokio::sync::watch::Receiver<bool>,
-) -> Result<(), String> {
+    resume: Option<bool>,
+    cancel_rx: &mut tokio::sync::watch::Receiver<Option<DownloadControl>>,
+) -> Result<(), DownloadError> {
     use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
     use futures_util::StreamExt;
 
@@ -2748,11 +2811,14 @@ async fn do_download(
             #[cfg(windows)]
             cmd.creation_flags(0x08000000);
 
-            let mut child = cmd.spawn().map_err(|e| format!("Failed to spawn yt-dlp: {}", e))?;
-            let stdout = child.stdout.take().ok_or("Failed to open yt-dlp stdout")?;
+            let mut child = cmd.spawn().map_err(|e| DownloadError::Failed(format!("Failed to spawn yt-dlp: {}", e)))?;
+            let stdout = child.stdout.take().ok_or_else(|| DownloadError::Failed("Failed to open yt-dlp stdout".to_string()))?;
             let mut reader = tokio::io::BufReader::new(stdout).lines();
 
             let mut last_emit = std::time::Instant::now();
+            let mut last_progress = 0.0;
+            let mut last_bytes = 0u64;
+            let mut last_total = None;
 
             loop {
                 tokio::select! {
@@ -2768,6 +2834,9 @@ async fn do_download(
                                         } else {
                                             0
                                         };
+                                        last_progress = progress;
+                                        last_bytes = written;
+                                        last_total = total;
 
                                         let event = DownloadProgressEvent {
                                             id: id.clone(),
@@ -2790,26 +2859,42 @@ async fn do_download(
                         }
                     }
                     _ = cancel_rx.changed() => {
-                        if *cancel_rx.borrow() {
+                        let ctrl = { *cancel_rx.borrow() };
+                        if let Some(c) = ctrl {
                             let _ = child.kill().await;
-                            return Err("Canceled".to_string());
+                            match c {
+                                DownloadControl::Cancel => {
+                                    return Err(DownloadError::Canceled {
+                                        bytes_written: last_bytes,
+                                        total_bytes: last_total,
+                                        progress: last_progress,
+                                    });
+                                }
+                                DownloadControl::Pause => {
+                                    return Err(DownloadError::Paused {
+                                        bytes_written: last_bytes,
+                                        total_bytes: last_total,
+                                        progress: last_progress,
+                                    });
+                                }
+                            }
                         }
                     }
                 }
             }
 
-            let status = child.wait().await.map_err(|e| format!("yt-dlp wait error: {}", e))?;
+            let status = child.wait().await.map_err(|e| DownloadError::Failed(format!("yt-dlp wait error: {}", e)))?;
             if status.success() {
                 return Ok(());
             } else {
-                return Err("yt-dlp process failed".to_string());
+                return Err(DownloadError::Failed("yt-dlp process failed".to_string()));
             }
         }
 
         // Fallback to FFmpeg if yt-dlp is not available
         let ffmpeg_path = match crate::dvr::recorder::find_ffmpeg(&app_handle) {
             Ok(p) => p,
-            Err(e) => return Err(format!("FFmpeg not found: {}", e)),
+            Err(e) => return Err(DownloadError::Failed(format!("FFmpeg not found: {}", e))),
         };
 
         let mut cmd = tokio::process::Command::new(ffmpeg_path);
@@ -2829,13 +2914,15 @@ async fn do_download(
         #[cfg(windows)]
         cmd.creation_flags(0x08000000);
 
-        let mut child = cmd.spawn().map_err(|e| format!("Failed to spawn FFmpeg: {}", e))?;
-        let stderr = child.stderr.take().ok_or("Failed to open FFmpeg stderr")?;
+        let mut child = cmd.spawn().map_err(|e| DownloadError::Failed(format!("Failed to spawn FFmpeg: {}", e)))?;
+        let stderr = child.stderr.take().ok_or_else(|| DownloadError::Failed("Failed to open FFmpeg stderr".to_string()))?;
         let mut reader = tokio::io::BufReader::new(stderr).lines();
 
         let start_time = std::time::Instant::now();
         let mut last_emit = std::time::Instant::now();
         let mut resolved_duration_secs = duration_secs;
+        let mut last_progress = 0.0;
+        let mut last_bytes = 0u64;
 
         loop {
             tokio::select! {
@@ -2883,6 +2970,9 @@ async fn do_download(
                                     0
                                 };
 
+                                last_progress = progress;
+                                last_bytes = size_bytes.unwrap_or(0);
+
                                 let event = DownloadProgressEvent {
                                     id: id.clone(),
                                     title: title.clone(),
@@ -2903,53 +2993,113 @@ async fn do_download(
                     }
                 }
                 _ = cancel_rx.changed() => {
-                    if *cancel_rx.borrow() {
+                    let ctrl = { *cancel_rx.borrow() };
+                    if let Some(c) = ctrl {
                         let _ = child.kill().await;
-                        return Err("Canceled".to_string());
+                        match c {
+                            DownloadControl::Cancel => {
+                                return Err(DownloadError::Canceled {
+                                    bytes_written: last_bytes,
+                                    total_bytes: None,
+                                    progress: last_progress,
+                                });
+                            }
+                            DownloadControl::Pause => {
+                                return Err(DownloadError::Paused {
+                                    bytes_written: last_bytes,
+                                    total_bytes: None,
+                                    progress: last_progress,
+                                });
+                            }
+                        }
                     }
                 }
             }
         }
 
-        let status = child.wait().await.map_err(|e| format!("FFmpeg wait error: {}", e))?;
+        let status = child.wait().await.map_err(|e| DownloadError::Failed(format!("FFmpeg wait error: {}", e)))?;
         if status.success() {
             Ok(())
         } else {
-            Err("FFmpeg process failed".to_string())
+            Err(DownloadError::Failed("FFmpeg process failed".to_string()))
         }
     } else {
         let ua = user_agent.unwrap_or_else(|| "ynoTV".to_string());
         let client = reqwest::Client::builder()
             .user_agent(ua)
             .build()
-            .map_err(|e| format!("Failed to build client: {}", e))?;
+            .map_err(|e| DownloadError::Failed(format!("Failed to build client: {}", e)))?;
 
-        let res = client.get(&url).send().await.map_err(|e| format!("HTTP request failed: {}", e))?;
-        if !res.status().is_success() {
-            return Err(format!("Server returned HTTP status {}", res.status()));
+        let mut req = client.get(&url);
+
+        let mut file_exists = false;
+        let mut bytes_written = 0u64;
+        let mut open_options = tokio::fs::OpenOptions::new();
+
+        if resume == Some(true) {
+            if let Ok(metadata) = tokio::fs::metadata(&save_path).await {
+                if metadata.is_file() {
+                    let file_len = metadata.len();
+                    if file_len > 0 {
+                        bytes_written = file_len;
+                        file_exists = true;
+                    }
+                }
+            }
         }
 
-        let total_bytes = res.content_length();
+        if file_exists {
+            req = req.header(reqwest::header::RANGE, format!("bytes={}-", bytes_written));
+            open_options.write(true).append(true);
+        } else {
+            if let Some(parent) = std::path::Path::new(&save_path).parent() {
+                let _ = tokio::fs::create_dir_all(parent).await;
+            }
+            open_options.write(true).create(true).truncate(true);
+        }
+
+        let res = req.send().await.map_err(|e| DownloadError::Failed(format!("HTTP request failed: {}", e)))?;
+        if !res.status().is_success() {
+            return Err(DownloadError::Failed(format!("Server returned HTTP status {}", res.status())));
+        }
+
+        let is_partial = res.status() == reqwest::StatusCode::PARTIAL_CONTENT;
+        if !is_partial && file_exists {
+            // Server did not support range or returned full content, reset to start
+            bytes_written = 0;
+            open_options = tokio::fs::OpenOptions::new();
+            open_options.write(true).create(true).truncate(true);
+        }
+
+        let mut file = open_options.open(&save_path).await.map_err(|e| DownloadError::Failed(format!("Failed to open output file: {}", e)))?;
+
+        let total_bytes = if is_partial {
+            res.content_length().map(|len| len + bytes_written)
+        } else {
+            res.content_length()
+        };
+
         let mut stream = res.bytes_stream();
 
-        if let Some(parent) = std::path::Path::new(&save_path).parent() {
-            let _ = tokio::fs::create_dir_all(parent).await;
-        }
-
-        let mut file = tokio::fs::File::create(&save_path).await.map_err(|e| format!("Failed to create output file: {}", e))?;
-
-        let mut bytes_written = 0u64;
-        let start_time = std::time::Instant::now();
         let mut last_emit = std::time::Instant::now();
-        let mut last_bytes = 0u64;
+        let mut last_bytes = bytes_written;
+        let mut last_progress = if let Some(total) = total_bytes {
+            if total > 0 {
+                ((bytes_written as f64 / total as f64) * 100.0).min(100.0).max(0.0)
+            } else {
+                0.0
+            }
+        } else {
+            0.0
+        };
 
         loop {
             tokio::select! {
                 item_opt = stream.next() => {
                     match item_opt {
                         Some(item) => {
-                            let chunk = item.map_err(|e| format!("Network error: {}", e))?;
-                            file.write_all(&chunk).await.map_err(|e| format!("Write failed: {}", e))?;
+                            let chunk = item.map_err(|e| DownloadError::Failed(format!("Network error: {}", e)))?;
+                            file.write_all(&chunk).await.map_err(|e| DownloadError::Failed(format!("Write failed: {}", e)))?;
                             bytes_written += chunk.len() as u64;
 
                             if last_emit.elapsed() >= std::time::Duration::from_millis(500) {
@@ -2971,6 +3121,7 @@ async fn do_download(
                                 } else {
                                     0.0
                                 };
+                                last_progress = progress;
 
                                 let event = DownloadProgressEvent {
                                     id: id.clone(),
@@ -2990,14 +3141,30 @@ async fn do_download(
                     }
                 }
                 _ = cancel_rx.changed() => {
-                    if *cancel_rx.borrow() {
-                        return Err("Canceled".to_string());
+                    let ctrl = { *cancel_rx.borrow() };
+                    if let Some(c) = ctrl {
+                        match c {
+                            DownloadControl::Cancel => {
+                                return Err(DownloadError::Canceled {
+                                    bytes_written,
+                                    total_bytes,
+                                    progress: last_progress,
+                                });
+                            }
+                            DownloadControl::Pause => {
+                                return Err(DownloadError::Paused {
+                                    bytes_written,
+                                    total_bytes,
+                                    progress: last_progress,
+                                });
+                            }
+                        }
                     }
                 }
             }
         }
 
-        file.flush().await.map_err(|e| e.to_string())?;
+        file.flush().await.map_err(|e| DownloadError::Failed(e.to_string()))?;
         Ok(())
     }
 }
@@ -3729,6 +3896,8 @@ pub fn run() {
             health_check,
             download_media,
             cancel_download,
+            pause_download,
+            delete_download_file,
             // Streaming EPG commands
             stream_parse_epg,
             stream_parse_epg_multi,
