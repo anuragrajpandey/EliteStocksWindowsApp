@@ -330,12 +330,20 @@ function PlaylistCategoryLinkItem({
 
 export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, onEditSource, onClose, onShow, isLiveTV }: CategoryStripProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-  const shouldScrollRef = useRef(false);
+  const prevVisibleRef = useRef(visible);
+  const prevSelectedCatRef = useRef(selectedCategoryId);
+  const pendingScrollRef = useRef(false);
 
-  // Track scroll triggers to avoid unnecessary scrolls during manual usage
-  useEffect(() => {
-    if (visible && selectedCategoryId !== undefined) {
-      shouldScrollRef.current = true;
+  // Track scroll triggers: only flag pending scroll on opening LiveTV or changing categories
+  useLayoutEffect(() => {
+    const justOpened = visible && !prevVisibleRef.current;
+    const catChanged = selectedCategoryId !== prevSelectedCatRef.current;
+
+    prevVisibleRef.current = visible;
+    prevSelectedCatRef.current = selectedCategoryId;
+
+    if (justOpened || (visible && catChanged)) {
+      pendingScrollRef.current = true;
     }
   }, [visible, selectedCategoryId]);
 
@@ -702,9 +710,9 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
     allPlaylistCategoryLinks
   ]);
 
-  // Scroll the selected category item into view instantly when sidebar is visible and state allows
+  // Scroll the selected category item into view instantly when sidebar is opened
   useLayoutEffect(() => {
-    if (!visible || !selectedCategoryId || !shouldScrollRef.current) return;
+    if (!visible || !selectedCategoryId || !pendingScrollRef.current) return;
 
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -739,7 +747,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
         container.scrollTop += (elementBottom - viewBottom);
       }
       
-      shouldScrollRef.current = false;
+      pendingScrollRef.current = false;
     }
   }, [visible, selectedCategoryId, expandedSources, expandedPlaylists]);
 
