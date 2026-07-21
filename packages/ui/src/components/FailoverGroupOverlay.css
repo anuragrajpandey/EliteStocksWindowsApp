@@ -129,11 +129,32 @@
   text-align: center;
 }
 
-.fgo-name {
+.fgo-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fgo-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.fgo-source-name {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 1px;
+}
+
+.fgo-item.fgo-active .fgo-source-name {
+  color: rgba(0, 212, 255, 0.7);
 }
 
 .fgo-badge {

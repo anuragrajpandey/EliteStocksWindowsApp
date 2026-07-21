@@ -425,7 +425,20 @@ export function ChannelPanel({
       const allCategories = await db.categories.toArray();
       const catMap = new Map<string, string>();
       for (const cat of allCategories) {
-        catMap.set(cat.category_id, cat.category_name);
+        catMap.set(cat.category_id, cat.alias || cat.category_name);
+      }
+      try {
+        const allLinks = await db.playlistCategoryLinks.toArray();
+        for (const link of allLinks) {
+          const cat = allCategories.find(c => c.category_id === link.category_id);
+          const displayName = link.custom_name || cat?.alias || cat?.category_name || link.category_id;
+          catMap.set(`link:${link.id}`, displayName);
+          if (link.custom_name && link.category_id) {
+            catMap.set(link.category_id, link.custom_name);
+          }
+        }
+      } catch (e) {
+        console.warn('[ChannelPanel] Failed to fetch playlist category links:', e);
       }
       categoryNameMapRef.current = catMap;
     }

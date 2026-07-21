@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import type { StoredChannel } from '../db';
 import { db } from '../db';
 import { getFailoverGroupMembers } from '../services/failover-groups';
+import { useSourceNameMap } from '../hooks/useChannels';
+import { useAppSettings } from '../hooks/useAppSettings';
 import './FailoverGroupOverlay.css';
 
 interface FailoverGroupOverlayProps {
   currentChannel: StoredChannel | null;
   visible: boolean;
   onChannelClick: (channel: StoredChannel) => void;
+  showSource?: boolean;
 }
 
 interface GroupMember {
@@ -15,16 +18,44 @@ interface GroupMember {
   priority: number;
   name: string;
   stream_icon?: string;
+  source_id?: string;
 }
 
 export function FailoverGroupOverlay({
   currentChannel,
   visible,
   onChannelClick,
+  showSource: showSourceProp,
 }: FailoverGroupOverlayProps) {
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [groupName, setGroupName] = useState<string>('');
   const [loading, setLoading] = useState(false);
+
+  const { failoverGroupShowSource: appSettingShowSource } = useAppSettings();
+  const [localShowSource, setLocalShowSource] = useState(appSettingShowSource);
+  const sourceNameMap = useSourceNameMap();
+
+  useEffect(() => {
+    setLocalShowSource(appSettingShowSource);
+  }, [appSettingShowSource]);
+
+  useEffect(() => {
+    const handleSettingsChanged = (e: Event) => {
+      const customEv = e as CustomEvent;
+      if (customEv.detail && typeof customEv.detail.failoverGroupShowSource === 'boolean') {
+        setLocalShowSource(customEv.detail.failoverGroupShowSource);
+      }
+    };
+
+    window.addEventListener('ynotv:livetv-settings-changed', handleSettingsChanged);
+    window.addEventListener('ynotv:settings-changed', handleSettingsChanged);
+    return () => {
+      window.removeEventListener('ynotv:livetv-settings-changed', handleSettingsChanged);
+      window.removeEventListener('ynotv:settings-changed', handleSettingsChanged);
+    };
+  }, []);
+
+  const showSource = showSourceProp ?? localShowSource;
 
   useEffect(() => {
     if (!currentChannel) {
@@ -91,6 +122,10 @@ export function FailoverGroupOverlay({
       <div className="fgo-list">
         {members.map((member) => {
           const isActive = member.stream_id === currentStreamId;
+          const sourceName = (showSource && sourceNameMap && member.source_id)
+            ? sourceNameMap.get(member.source_id)
+            : undefined;
+
           return (
             <button
               key={member.stream_id}
@@ -115,7 +150,12 @@ export function FailoverGroupOverlay({
               ) : (
                 <span className="fgo-logo-placeholder">📺</span>
               )}
-              <span className="fgo-name">{member.name}</span>
+              <div className="fgo-info">
+                <span className="fgo-name" title={member.name}>{member.name}</span>
+                {sourceName && (
+                  <span className="fgo-source-name" title={sourceName}>{sourceName}</span>
+                )}
+              </div>
               {isActive && <span className="fgo-badge">●</span>}
             </button>
           );

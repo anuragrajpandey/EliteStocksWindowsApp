@@ -216,7 +216,7 @@ export function VodBrowse({
     }
   }, []);
 
-  const { includeSourceInVodSearch } = useAppSettings();
+  const { includeSourceInVodSearch, vodShowSourceBadge } = useAppSettings();
   const sourceNameMap = useSourceNameMap();
 
   // Debounce search to avoid expensive filtering on every keystroke
@@ -345,7 +345,8 @@ export function VodBrowse({
         '--marquee-visible-width': `${cardDimensions.cardWidth}px`,
       } as React.CSSProperties;
 
-      const sourceName = (includeSourceInVodSearch && search && search.trim() && sourceNameMap)
+      const showBadge = vodShowSourceBadge || (includeSourceInVodSearch && search && search.trim());
+      const sourceName = (showBadge && sourceNameMap)
         ? sourceNameMap.get(item.source_id)
         : undefined;
 
@@ -379,7 +380,7 @@ export function VodBrowse({
         />
       );
     },
-    [type, onItemClick, posterSize, cardDimensions, favoritedIds, addFavorite, removeFavorite, includeSourceInVodSearch, search, sourceNameMap]
+    [type, onItemClick, posterSize, cardDimensions, favoritedIds, addFavorite, removeFavorite, includeSourceInVodSearch, vodShowSourceBadge, search, sourceNameMap]
   );
 
   // CSS custom properties for dynamic sizing - MUST be before any early returns

@@ -32,6 +32,7 @@ export interface AppSettings {
   advancedSearchSourceIds: string[];
   advancedSearchCategoryIds: string[];
   useAdvancedSearchForRegular: boolean;
+  searchCustomPlaylists: boolean;
 
   // LiveTV
   epgView: 'traditional' | 'alternate';
@@ -109,6 +110,7 @@ export interface AppSettings {
   setAdvancedSearchSourceIds: (ids: string[]) => void;
   setAdvancedSearchCategoryIds: (ids: string[]) => void;
   setUseAdvancedSearchForRegular: (use: boolean) => void;
+  setSearchCustomPlaylists: (enabled: boolean) => void;
   setCategorySortOrder: (order: 'default' | 'alphabetical') => void;
   setChannelInfoOverlayEnabled: (enabled: boolean) => void;
   setChannelInfoOverlayFontSize: (size: number) => void;
@@ -155,6 +157,10 @@ export interface AppSettings {
     setCatchupContinuePlaying: (continuePlaying: boolean) => void;
     vodAutoPlayNextEpisode: boolean;
     setVodAutoPlayNextEpisode: (enabled: boolean) => void;
+    vodShowSourceBadge: boolean;
+    setVodShowSourceBadge: (enabled: boolean) => void;
+    failoverGroupShowSource: boolean;
+    setFailoverGroupShowSource: (enabled: boolean) => void;
 }
 
 /**
@@ -189,6 +195,7 @@ export function useAppSettings(): AppSettings {
   const [advancedSearchSourceIds, setAdvancedSearchSourceIds] = useState<string[]>([]);
   const [advancedSearchCategoryIds, setAdvancedSearchCategoryIds] = useState<string[]>([]);
   const [useAdvancedSearchForRegular, setUseAdvancedSearchForRegular] = useState(false);
+  const [searchCustomPlaylists, setSearchCustomPlaylists] = useState(false);
 
   // LiveTV settings
   const [epgView, setEpgView] = useState<'traditional' | 'alternate'>('traditional');
@@ -218,6 +225,8 @@ export function useAppSettings(): AppSettings {
 
   // VOD settings state
   const [vodAutoPlayNextEpisode, setVodAutoPlayNextEpisodeState] = useState(false);
+  const [vodShowSourceBadge, setVodShowSourceBadgeState] = useState(false);
+  const [failoverGroupShowSource, setFailoverGroupShowSourceState] = useState(false);
 
   // Theme state
   const [theme, setThemeState] = useState<ThemeId>('dark-cyan');
@@ -473,6 +482,7 @@ export function useAppSettings(): AppSettings {
           setAdvancedSearchSourceIds(result.data.advancedSearchSourceIds ?? []);
           setAdvancedSearchCategoryIds(result.data.advancedSearchCategoryIds ?? []);
           setUseAdvancedSearchForRegular(result.data.useAdvancedSearchForRegular ?? false);
+          setSearchCustomPlaylists(result.data.searchCustomPlaylists ?? false);
           setEpgView(result.data.epgView ?? 'traditional');
           setChannelInfoOverlayEnabled(result.data.channelInfoOverlayEnabled ?? false);
           setChannelInfoOverlayFontSizeState(result.data.channelInfoOverlayFontSize ?? 16);
@@ -496,6 +506,8 @@ export function useAppSettings(): AppSettings {
           setCatchupEndPaddingState(result.data.catchupEndPadding ?? 0);
           setCatchupContinuePlayingState(result.data.catchupContinuePlaying ?? false);
           setVodAutoPlayNextEpisodeState(result.data.vodAutoPlayNextEpisode ?? false);
+          setVodShowSourceBadgeState(result.data.vodShowSourceBadge ?? false);
+          setFailoverGroupShowSourceState(result.data.failoverGroupShowSource ?? false);
 
           // Load widget scale and apply CSS variable
           const savedScale = result.data.widgetScale ?? 1;
@@ -1075,6 +1087,38 @@ export function useAppSettings(): AppSettings {
     );
   }, []);
 
+  const setVodShowSourceBadge = useCallback(async (enabled: boolean) => {
+    setVodShowSourceBadgeState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ vodShowSourceBadge: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save vodShowSourceBadge:', e);
+      }
+    }
+    window.dispatchEvent(
+      new CustomEvent('ynotv:vod-settings-changed', {
+        detail: { vodShowSourceBadge: enabled },
+      })
+    );
+  }, []);
+
+  const setFailoverGroupShowSource = useCallback(async (enabled: boolean) => {
+    setFailoverGroupShowSourceState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ failoverGroupShowSource: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save failoverGroupShowSource:', e);
+      }
+    }
+    window.dispatchEvent(
+      new CustomEvent('ynotv:livetv-settings-changed', {
+        detail: { failoverGroupShowSource: enabled },
+      })
+    );
+  }, []);
+
   const setCastEnabled = useCallback(async (enabled: boolean) => {
     setCastEnabledState(enabled);
     if (window.storage) {
@@ -1255,6 +1299,7 @@ export function useAppSettings(): AppSettings {
     advancedSearchSourceIds,
     advancedSearchCategoryIds,
     useAdvancedSearchForRegular,
+    searchCustomPlaylists,
     epgView,
     channelInfoOverlayEnabled,
     channelInfoOverlayFontSize,
@@ -1293,6 +1338,7 @@ export function useAppSettings(): AppSettings {
     setAdvancedSearchSourceIds,
     setAdvancedSearchCategoryIds,
     setUseAdvancedSearchForRegular,
+    setSearchCustomPlaylists,
     setChannelInfoOverlayEnabled,
     setChannelInfoOverlayFontSize,
     setChannelInfoOverlayLogoSize,
@@ -1346,5 +1392,9 @@ export function useAppSettings(): AppSettings {
     setCatchupContinuePlaying,
     vodAutoPlayNextEpisode,
     setVodAutoPlayNextEpisode,
+    vodShowSourceBadge,
+    setVodShowSourceBadge,
+    failoverGroupShowSource,
+    setFailoverGroupShowSource,
   };
 }

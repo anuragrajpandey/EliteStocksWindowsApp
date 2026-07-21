@@ -93,6 +93,7 @@ export function VodHome({ type, onItemClick, onPlay }: VodHomeProps) {
               loading={recentlyWatchedMoviesLoading}
               maxItems={20}
               progressData={movieProgressMap}
+              isRecentlyWatched={true}
             />
           )}
 
@@ -150,6 +151,7 @@ export function VodHome({ type, onItemClick, onPlay }: VodHomeProps) {
             loading={recentlyWatchedSeriesLoading}
             maxItems={20}
             progressData={seriesProgressMap}
+            isRecentlyWatched={true}
           />
         )}
 

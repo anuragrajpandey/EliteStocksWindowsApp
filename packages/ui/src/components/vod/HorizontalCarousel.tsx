@@ -1,6 +1,8 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import type { StoredMovie, StoredSeries } from '../../db';
 import { MediaCard } from './MediaCard';
+import { useSourceNameMap } from '../../hooks/useChannels';
+import { useAppSettings } from '../../hooks/useAppSettings';
 import './HorizontalCarousel.css';
 
 export interface HorizontalCarouselProps {
@@ -35,6 +37,9 @@ export function HorizontalCarousel({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const { vodShowSourceBadge } = useAppSettings();
+  const sourceNameMap = useSourceNameMap();
 
   // Limit items for performance
   const displayItems = maxItems ? items.slice(0, maxItems) : items;
@@ -129,6 +134,9 @@ export function HorizontalCarousel({
               const itemId = type === 'movie' ? (item as StoredMovie).stream_id : (item as StoredSeries).series_id;
               const progress = progressData?.get(itemId);
               const episodeInfo = episodeData?.get(itemId);
+              const sourceName = (isRecentlyWatched && vodShowSourceBadge && sourceNameMap && item.source_id)
+                ? sourceNameMap.get(item.source_id)
+                : undefined;
               return (
                 <MediaCard
                   key={itemId}
@@ -142,6 +150,7 @@ export function HorizontalCarousel({
                   seasonNum={episodeInfo?.seasonNum}
                   episodeNum={episodeInfo?.episodeNum}
                   episodeTitle={episodeInfo?.episodeTitle}
+                  sourceName={sourceName}
                 />
               );
             })

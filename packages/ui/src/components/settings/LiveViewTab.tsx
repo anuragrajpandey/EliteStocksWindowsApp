@@ -13,6 +13,8 @@ interface LiveViewTabProps {
   onChannelInfoOverlayOpacityChange: (opacity: number) => void;
   channelInfoOverlayHideDescription: boolean;
   onChannelInfoOverlayHideDescriptionChange: (hide: boolean) => void;
+  failoverGroupShowSource: boolean;
+  onFailoverGroupShowSourceChange: (enabled: boolean) => void;
 }
 
 export function LiveViewTab({
@@ -28,6 +30,8 @@ export function LiveViewTab({
   onChannelInfoOverlayOpacityChange,
   channelInfoOverlayHideDescription,
   onChannelInfoOverlayHideDescriptionChange,
+  failoverGroupShowSource,
+  onFailoverGroupShowSourceChange,
 }: LiveViewTabProps) {
   return (
     <div className="settings-tab-content playback-tab-content">
@@ -71,6 +75,24 @@ export function LiveViewTab({
                 type="checkbox"
                 checked={channelInfoOverlayHideDescription}
                 onChange={(e) => onChannelInfoOverlayHideDescriptionChange(e.target.checked)}
+              />
+              <span className="toggle-slider" />
+            </label>
+          </div>
+
+          {/* Show Source for Failover Group */}
+          <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
+            <div className="timeshift-toggle-info">
+              <span className="timeshift-toggle-label">Show Source for Failover Group</span>
+              <span className="timeshift-toggle-sub">
+                When enabled, the failover group overlay (which displays channels that are part of the channel's failover group) will also display the source name for each channel.
+              </span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={failoverGroupShowSource}
+                onChange={(e) => onFailoverGroupShowSourceChange(e.target.checked)}
               />
               <span className="toggle-slider" />
             </label>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { db, type StoredCategory } from '../db';
+import { isCategorySortCustomized } from '../utils/categorySortOverrides';
 import './AdvancedSearchModal.css';
 
 export type SearchScope = 'channels' | 'epg' | 'both';
@@ -46,24 +47,202 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
 
     async function loadData() {
       try {
+        const dbInstance = await (db as any).dbPromise;
+
         // Load sources from storage
         const sourcesResult = window.storage ? await window.storage.getSources() : { data: [] };
-        const enabledSources = (sourcesResult.data || [])
+        const enabledSources: SourceInfo[] = (sourcesResult.data || [])
           .filter((s: any) => s.enabled !== false)
           .map((s: any) => ({ id: s.id, name: s.name, enabled: true }));
 
-        // Load categories from DB
+        // Also load custom playlists from db.customPlaylists
+        const customPlaylists = await db.customPlaylists.toArray();
+        for (const pl of customPlaylists) {
+          enabledSources.push({ id: `playlist:${pl.playlist_id}`, name: pl.name, enabled: true });
+        }
+
+        // Sort sources according to sidebar_sources_order if it exists (matching LiveTV Sidebar)
+        try {
+          const sidebarOrderPref = await db.prefs.get('sidebar_sources_order');
+          if (sidebarOrderPref?.value) {
+            const sidebarSourcesOrder = JSON.parse(sidebarOrderPref.value) as string[];
+            const orderMap = new Map(sidebarSourcesOrder.map((id, index) => [id, index]));
+            enabledSources.sort((a, b) => {
+              const orderA = orderMap.has(a.id) ? orderMap.get(a.id)! : Number.MAX_SAFE_INTEGER;
+              const orderB = orderMap.has(b.id) ? orderMap.get(b.id)! : Number.MAX_SAFE_INTEGER;
+              if (orderA !== orderB) return orderA - orderB;
+              return a.name.localeCompare(b.name);
+            });
+          }
+        } catch (e) {
+          console.warn('[AdvancedSearchModal] Failed to parse sidebar sources order:', e);
+        }
+
+        // Load raw category channel counts
+        const nativeCounts: Record<string, number> = {};
+        const manualCounts: Record<string, number> = {};
+
+        try {
+          const nativeRows = await dbInstance.select(
+            `SELECT c.source_id, cat.value as cat_id, COUNT(*) as cnt
+             FROM channels c, json_each(c.category_ids) AS cat
+             WHERE (c.enabled IS NULL OR c.enabled NOT IN (0, '0', 'false'))
+             GROUP BY c.source_id, cat.value`
+          );
+          for (const row of nativeRows) {
+            nativeCounts[`${row.source_id}:${row.cat_id}`] = row.cnt;
+          }
+        } catch (e) {
+          console.warn('[AdvancedSearchModal] Failed to fetch native channel counts:', e);
+        }
+
+        try {
+          const manualRows = await dbInstance.select(
+            `SELECT playlist_id, parent_category_id, COUNT(*) as cnt
+             FROM playlist_individual_channels
+             WHERE parent_category_id IS NOT NULL
+             GROUP BY playlist_id, parent_category_id`
+          );
+          for (const row of manualRows) {
+            manualCounts[`${row.playlist_id}:${row.parent_category_id}`] = row.cnt;
+          }
+        } catch (e) {
+          console.warn('[AdvancedSearchModal] Failed to fetch manual channel counts:', e);
+        }
+
+        // Load DB categories and playlist category links
         const allCategories = await db.categories.toArray();
-        const enabledCategories = allCategories.filter(c => c.enabled !== false);
+        const nativeCategoryMap = new Map<string, StoredCategory>();
+        for (const cat of allCategories) {
+          nativeCategoryMap.set(cat.category_id, cat);
+        }
+
+        const allCategoryLinks = await db.playlistCategoryLinks.toArray();
+
+        // Load categorySortOrder setting
+        let categorySortOrder: 'default' | 'alphabetical' = 'default';
+        try {
+          const settingsResult = window.storage ? await window.storage.getSettings() : { data: {} };
+          categorySortOrder = ((settingsResult.data as any)?.categorySortOrder as 'default' | 'alphabetical') || 'default';
+        } catch (e) {
+          console.warn('[AdvancedSearchModal] Failed to load categorySortOrder setting:', e);
+        }
+
+        // Load pinned categories
+        let pinnedCategories: string[] = [];
+        try {
+          const savedPinned = localStorage.getItem('ynotv:pinnedCategories');
+          if (savedPinned) {
+            pinnedCategories = JSON.parse(savedPinned);
+          }
+        } catch (e) {
+          console.warn('[AdvancedSearchModal] Failed to load pinnedCategories:', e);
+        }
+
+        // Build active category list for each source / playlist
+        const activeCategories: StoredCategory[] = [];
+
+        for (const source of enabledSources) {
+          const isCustomPlaylist = source.id.startsWith('playlist:');
+          const targetPlaylistId = isCustomPlaylist
+            ? source.id.replace('playlist:', '')
+            : source.id;
+
+          const links = allCategoryLinks
+            .filter(l => l.playlist_id === targetPlaylistId);
+
+          const sourceCats: (StoredCategory & { display_order?: number })[] = [];
+
+          if (!isCustomPlaylist) {
+            // Native categories for real source
+            const nativeCats = allCategories
+              .filter(c => c.source_id === source.id && c.enabled !== false);
+
+            for (const cat of nativeCats) {
+              const displayName = cat.alias || cat.category_name;
+              const nativeCnt = nativeCounts[`${source.id}:${cat.category_id}`] || 0;
+              const manualCatCnt = manualCounts[`${source.id}:${cat.category_id}`] || 0;
+
+              sourceCats.push({
+                category_id: cat.category_id,
+                category_name: displayName,
+                source_id: source.id,
+                channel_count: nativeCnt + manualCatCnt,
+                enabled: cat.enabled !== false,
+                display_order: cat.display_order ?? 0
+              });
+            }
+          }
+
+          // Category links (for custom playlists, or custom category links added to real sources)
+          for (const link of links) {
+            const cat = nativeCategoryMap.get(link.category_id);
+            const displayName = link.custom_name || cat?.alias || cat?.category_name || link.category_id;
+            const isCustomLink = link.source_id === 'custom' || link.category_id.startsWith('custom:');
+
+            const catId = `link:${link.id}`;
+
+            let count = 0;
+            if (!isCustomLink) {
+              const nativeCnt = nativeCounts[`${link.source_id}:${link.category_id}`] || 0;
+              const manualLinkCnt = manualCounts[`${targetPlaylistId}:link:${link.id}`] || 0;
+              const manualCatCnt = manualCounts[`${targetPlaylistId}:${link.category_id}`] || 0;
+              count = nativeCnt + manualLinkCnt + manualCatCnt;
+            } else {
+              const manualLinkCnt = manualCounts[`${targetPlaylistId}:link:${link.id}`] || 0;
+              const manualCatCnt = manualCounts[`${targetPlaylistId}:${link.category_id}`] || 0;
+              count = manualLinkCnt + manualCatCnt;
+            }
+
+            sourceCats.push({
+              category_id: catId,
+              category_name: displayName,
+              source_id: source.id,
+              channel_count: count,
+              enabled: true,
+              display_order: link.display_order ?? 0
+            });
+          }
+
+          // Sort sourceCats matching CategoryStrip.tsx sorting logic
+          const isAlphabetical = categorySortOrder === 'alphabetical' && !isCategorySortCustomized(targetPlaylistId);
+
+          if (isAlphabetical) {
+            sourceCats.sort((a, b) => {
+              const aKey = `${source.id}:${a.category_id}`;
+              const bKey = `${source.id}:${b.category_id}`;
+              const aPinned = pinnedCategories.includes(aKey);
+              const bPinned = pinnedCategories.includes(bKey);
+              if (aPinned && !bPinned) return -1;
+              if (!aPinned && bPinned) return 1;
+              return a.category_name.localeCompare(b.category_name);
+            });
+          } else {
+            sourceCats.sort((a, b) => {
+              const aKey = `${source.id}:${a.category_id}`;
+              const bKey = `${source.id}:${b.category_id}`;
+              const aPinned = pinnedCategories.includes(aKey);
+              const bPinned = pinnedCategories.includes(bKey);
+              if (aPinned && !bPinned) return -1;
+              if (!aPinned && bPinned) return 1;
+              const orderA = a.display_order ?? 0;
+              const orderB = b.display_order ?? 0;
+              if (orderA !== orderB) return orderA - orderB;
+              return a.category_name.localeCompare(b.category_name);
+            });
+          }
+
+          activeCategories.push(...sourceCats);
+        }
 
         if (!isMounted) return;
 
         setSources(enabledSources);
-        setCategories(enabledCategories);
+        setCategories(activeCategories);
 
         // Auto-expand sources that have selected categories
         const sourceIdsWithSelection = new Set<string>();
-        for (const cat of enabledCategories) {
+        for (const cat of activeCategories) {
           if (selectedCategoryIds.has(cat.category_id)) {
             sourceIdsWithSelection.add(cat.source_id);
           }
@@ -101,17 +280,13 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
-  // Group categories by source
+  // Group categories by source preserving exact display_order
   const categoriesBySource = useMemo(() => {
     const grouped = new Map<string, StoredCategory[]>();
     for (const cat of categories) {
       const list = grouped.get(cat.source_id) || [];
       list.push(cat);
       grouped.set(cat.source_id, list);
-    }
-    // Sort categories within each source
-    for (const [, list] of grouped) {
-      list.sort((a, b) => a.category_name.localeCompare(b.category_name));
     }
     return grouped;
   }, [categories]);

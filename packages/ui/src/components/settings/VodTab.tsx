@@ -3,11 +3,15 @@ import './PlaybackTab.css';
 interface VodTabProps {
   vodAutoPlayNextEpisode: boolean;
   onVodAutoPlayNextEpisodeChange: (enabled: boolean) => void;
+  vodShowSourceBadge: boolean;
+  onVodShowSourceBadgeChange: (enabled: boolean) => void;
 }
 
 export function VodTab({
   vodAutoPlayNextEpisode,
   onVodAutoPlayNextEpisodeChange,
+  vodShowSourceBadge,
+  onVodShowSourceBadgeChange,
 }: VodTabProps) {
   return (
     <div className="settings-tab-content">
@@ -33,6 +37,23 @@ export function VodTab({
                 type="checkbox"
                 checked={vodAutoPlayNextEpisode}
                 onChange={(e) => onVodAutoPlayNextEpisodeChange(e.target.checked)}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
+            <div className="timeshift-toggle-info">
+              <span className="timeshift-toggle-label">Show Source Badge</span>
+              <span className="timeshift-toggle-sub">
+                Display the provider source badge for VOD Movies and Series cards in Recently Watched on the home page, All Movies/Series page, and Recent page.
+              </span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={vodShowSourceBadge}
+                onChange={(e) => onVodShowSourceBadgeChange(e.target.checked)}
               />
               <span className="toggle-slider"></span>
             </label>

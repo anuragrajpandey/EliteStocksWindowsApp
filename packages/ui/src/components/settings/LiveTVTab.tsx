@@ -62,6 +62,8 @@ interface LiveTVTabProps {
   onChannelInfoOverlayOpacityChange: (opacity: number) => void;
   channelInfoOverlayHideDescription: boolean;
   onChannelInfoOverlayHideDescriptionChange: (hide: boolean) => void;
+  failoverGroupShowSource: boolean;
+  onFailoverGroupShowSourceChange: (enabled: boolean) => void;
   // Widgets props
   widgetScale: number;
   onWidgetScaleChange: (scale: number) => void;
@@ -137,6 +139,8 @@ export function LiveTVTab({
   onChannelInfoOverlayOpacityChange,
   channelInfoOverlayHideDescription,
   onChannelInfoOverlayHideDescriptionChange,
+  failoverGroupShowSource,
+  onFailoverGroupShowSourceChange,
   widgetScale,
   onWidgetScaleChange,
   widgetBgOpacity,
@@ -745,6 +749,8 @@ export function LiveTVTab({
             onChannelInfoOverlayOpacityChange={onChannelInfoOverlayOpacityChange}
             channelInfoOverlayHideDescription={channelInfoOverlayHideDescription}
             onChannelInfoOverlayHideDescriptionChange={onChannelInfoOverlayHideDescriptionChange}
+            failoverGroupShowSource={failoverGroupShowSource}
+            onFailoverGroupShowSourceChange={onFailoverGroupShowSourceChange}
           />
         )}
 

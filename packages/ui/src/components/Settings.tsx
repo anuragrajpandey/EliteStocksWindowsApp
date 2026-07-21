@@ -100,6 +100,10 @@ interface SettingsProps {
   onLiveTvDesignChange?: (design: 'v1' | 'v2' | 'v3') => void;
   vodAutoPlayNextEpisode?: boolean;
   onVodAutoPlayNextEpisodeChange?: (enabled: boolean) => void;
+  vodShowSourceBadge?: boolean;
+  onVodShowSourceBadgeChange?: (enabled: boolean) => void;
+  failoverGroupShowSource?: boolean;
+  onFailoverGroupShowSourceChange?: (enabled: boolean) => void;
 }
 
 export function Settings({
@@ -173,6 +177,10 @@ export function Settings({
   onLiveTvDesignChange,
   vodAutoPlayNextEpisode: vodAutoPlayNextEpisodeProp,
   onVodAutoPlayNextEpisodeChange,
+  vodShowSourceBadge: vodShowSourceBadgeProp,
+  onVodShowSourceBadgeChange,
+  failoverGroupShowSource: failoverGroupShowSourceProp,
+  onFailoverGroupShowSourceChange,
 }: SettingsProps) {
   const [activeTab, setActiveTab] = useState<SettingsTabId>(initialTab);
   const { showConfirm, ModalComponent } = useModal();
@@ -347,6 +355,8 @@ export function Settings({
   const [catchupEndPadding, setCatchupEndPadding] = useState(0);
   const [catchupContinuePlaying, setCatchupContinuePlaying] = useState(false);
   const [vodAutoPlayNextEpisode, setVodAutoPlayNextEpisode] = useState(false);
+  const [vodShowSourceBadge, setVodShowSourceBadge] = useState(false);
+  const [failoverGroupShowSource, setFailoverGroupShowSource] = useState(false);
   // Stremio settings
   const [stremioStreamPickerMode, setStremioStreamPickerMode] = useState<StremioStreamPickerMode>('modal');
   const [showStremioStreamBadges, setShowStremioStreamBadges] = useState(true);
@@ -771,6 +781,8 @@ export function Settings({
         nuvioCacheFetchTimeout?: number;
         includeAllChannelsToPlaylist?: boolean;
         vodAutoPlayNextEpisode?: boolean;
+        vodShowSourceBadge?: boolean;
+        failoverGroupShowSource?: boolean;
       };
 
       setShowAllChannels(settings.showAllChannels ?? true);
@@ -908,6 +920,8 @@ export function Settings({
       setCatchupEndPadding(settings.catchupEndPadding ?? 0);
       setCatchupContinuePlaying(settings.catchupContinuePlaying ?? false);
       setVodAutoPlayNextEpisode(settings.vodAutoPlayNextEpisode ?? false);
+      setVodShowSourceBadge(settings.vodShowSourceBadge ?? false);
+      setFailoverGroupShowSource(settings.failoverGroupShowSource ?? false);
       setStremioStreamPickerMode(settings.stremioStreamPickerMode ?? 'modal');
       setShowStremioStreamBadges(settings.showStremioStreamBadges ?? true);
       setBadgeSources(mergeDefaultBadgeSources(settings.badgeSources as BadgeSource[] | undefined));
@@ -1285,6 +1299,32 @@ export function Settings({
     }));
     if (onVodAutoPlayNextEpisodeChange) {
       onVodAutoPlayNextEpisodeChange(enabled);
+    }
+  };
+
+  const handleVodShowSourceBadgeChange = async (enabled: boolean) => {
+    setVodShowSourceBadge(enabled);
+    if (window.storage) {
+      await window.storage.updateSettings({ vodShowSourceBadge: enabled });
+    }
+    window.dispatchEvent(new CustomEvent('ynotv:vod-settings-changed', {
+      detail: { vodShowSourceBadge: enabled }
+    }));
+    if (onVodShowSourceBadgeChange) {
+      onVodShowSourceBadgeChange(enabled);
+    }
+  };
+
+  const handleFailoverGroupShowSourceChange = async (enabled: boolean) => {
+    setFailoverGroupShowSource(enabled);
+    if (window.storage) {
+      await window.storage.updateSettings({ failoverGroupShowSource: enabled });
+    }
+    window.dispatchEvent(new CustomEvent('ynotv:livetv-settings-changed', {
+      detail: { failoverGroupShowSource: enabled }
+    }));
+    if (onFailoverGroupShowSourceChange) {
+      onFailoverGroupShowSourceChange(enabled);
     }
   };
 
@@ -2272,6 +2312,8 @@ export function Settings({
             onCatchupContinuePlayingChange={handleCatchupContinuePlayingChange}
             vodAutoPlayNextEpisode={vodAutoPlayNextEpisode}
             onVodAutoPlayNextEpisodeChange={handleVodAutoPlayNextEpisodeChange}
+            vodShowSourceBadge={vodShowSourceBadge}
+            onVodShowSourceBadgeChange={handleVodShowSourceBadgeChange}
           />
         );
       case 'metadata':
@@ -2369,6 +2411,8 @@ export function Settings({
             onChannelInfoOverlayOpacityChange={handleChannelInfoOverlayOpacityChange}
             channelInfoOverlayHideDescription={channelInfoOverlayHideDescription}
             onChannelInfoOverlayHideDescriptionChange={handleChannelInfoOverlayHideDescriptionChange}
+            failoverGroupShowSource={failoverGroupShowSource}
+            onFailoverGroupShowSourceChange={handleFailoverGroupShowSourceChange}
             widgetScale={widgetScale}
             onWidgetScaleChange={handleWidgetScaleChange}
             widgetBgOpacity={widgetBgOpacity}

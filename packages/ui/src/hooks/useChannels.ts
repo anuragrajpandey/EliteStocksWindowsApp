@@ -51,7 +51,9 @@ export function useSourceNameMap(): Map<string, string> | null {
       if (result.data) {
         const map = new Map<string, string>();
         for (const source of result.data) {
-          map.set(source.id, source.name);
+          if (source.enabled !== false) {
+            map.set(source.id, source.name);
+          }
         }
         cachedSourceNameMap = map;
         cachedSourceVersion = version;
@@ -85,7 +87,20 @@ function useCategoryNameMap(): Map<string, string> | null {
       const allCategories = await db.categories.toArray();
       const map = new Map<string, string>();
       for (const cat of allCategories) {
-        map.set(cat.category_id, cat.category_name);
+        map.set(cat.category_id, cat.alias || cat.category_name);
+      }
+      try {
+        const allLinks = await db.playlistCategoryLinks.toArray();
+        for (const link of allLinks) {
+          const cat = allCategories.find(c => c.category_id === link.category_id);
+          const displayName = link.custom_name || cat?.alias || cat?.category_name || link.category_id;
+          map.set(`link:${link.id}`, displayName);
+          if (link.custom_name && link.category_id) {
+            map.set(link.category_id, link.custom_name);
+          }
+        }
+      } catch (e) {
+        console.warn('[useCategoryNameMap] Failed to fetch playlist category links:', e);
       }
       cachedCategoryNameMap = map;
       cachedCategoryVersion = version;
@@ -763,6 +778,117 @@ export function parseCategoryIds(categoryIdsJson: string | string[] | number[] |
   return [];
 }
 
+// Helper to resolve category IDs (native, category links, or custom categories) into native category IDs and explicit stream IDs
+async function resolveSearchCategoryFilters(
+  filterCategoryIds?: string[],
+  filterSourceIds?: string[]
+): Promise<{
+  isCategoryFiltered: boolean;
+  nativeCategoryIds: string[];
+  explicitStreamIds: string[];
+  extraRealSourceIds: string[];
+}> {
+  const nativeCategorySet = new Set<string>();
+  const explicitStreamSet = new Set<string>();
+  const extraRealSourceSet = new Set<string>();
+
+  const linkIds: number[] = [];
+  const customCatIds: string[] = [];
+  const playlistIds: string[] = [];
+
+  if (filterSourceIds && filterSourceIds.length > 0) {
+    for (const srcId of filterSourceIds) {
+      if (srcId.startsWith('playlist:')) {
+        playlistIds.push(srcId.replace('playlist:', ''));
+      }
+    }
+  }
+
+  if (filterCategoryIds && filterCategoryIds.length > 0) {
+    for (const catId of filterCategoryIds) {
+      if (catId.startsWith('link:')) {
+        const parsedId = parseInt(catId.replace('link:', ''), 10);
+        if (!isNaN(parsedId)) linkIds.push(parsedId);
+      } else if (catId.startsWith('custom:')) {
+        customCatIds.push(catId);
+      } else {
+        nativeCategorySet.add(catId);
+      }
+    }
+  }
+
+  // Fetch playlistCategoryLinks for linkIds
+  if (linkIds.length > 0) {
+    const links = await db.playlistCategoryLinks.where('id').anyOf(linkIds).toArray();
+    for (const link of links) {
+      if (link.source_id !== 'custom' && !link.category_id.startsWith('custom:')) {
+        nativeCategorySet.add(link.category_id);
+        extraRealSourceSet.add(link.source_id);
+      }
+      const linkParentIds = [`link:${link.id}`, link.category_id];
+      const mappings = await db.playlistIndividualChannels
+        .where('parent_category_id')
+        .anyOf(linkParentIds)
+        .toArray();
+      for (const m of mappings) {
+        explicitStreamSet.add(m.stream_id);
+      }
+    }
+  }
+
+  // Fetch for custom playlist IDs
+  if (playlistIds.length > 0) {
+    for (const plId of playlistIds) {
+      const links = await db.playlistCategoryLinks.where('playlist_id').equals(plId).toArray();
+      for (const link of links) {
+        if (link.source_id !== 'custom' && !link.category_id.startsWith('custom:')) {
+          nativeCategorySet.add(link.category_id);
+          extraRealSourceSet.add(link.source_id);
+        }
+      }
+      const indivMappings = await db.playlistIndividualChannels.where('playlist_id').equals(plId).toArray();
+      for (const m of indivMappings) {
+        explicitStreamSet.add(m.stream_id);
+      }
+    }
+  }
+
+  // Fetch playlistIndividualChannels for customCatIds
+  if (customCatIds.length > 0) {
+    const mappings = await db.playlistIndividualChannels
+      .where('parent_category_id')
+      .anyOf(customCatIds)
+      .toArray();
+    for (const m of mappings) {
+      explicitStreamSet.add(m.stream_id);
+    }
+  }
+
+  // Fetch playlistIndividualChannels for nativeCategorySet
+  if (nativeCategorySet.size > 0) {
+    const nativeIds = Array.from(nativeCategorySet);
+    const mappings = await db.playlistIndividualChannels
+      .where('parent_category_id')
+      .anyOf(nativeIds)
+      .toArray();
+    for (const m of mappings) {
+      explicitStreamSet.add(m.stream_id);
+    }
+  }
+
+  const isCategoryFiltered = Boolean(
+    (filterCategoryIds && filterCategoryIds.length > 0) ||
+    (filterSourceIds && filterSourceIds.some(id => id.startsWith('playlist:')))
+  );
+
+  return {
+    isCategoryFiltered,
+    nativeCategoryIds: Array.from(nativeCategorySet),
+    explicitStreamIds: Array.from(explicitStreamSet),
+    extraRealSourceIds: Array.from(extraRealSourceSet)
+  };
+}
+
 // Hook to search channels by name - only searches enabled categories
 // Optionally filter by specific sourceIds and categoryIds
 export function useChannelSearch(
@@ -805,38 +931,70 @@ export function useChannelSearch(
       const dbInstance = await (db as any).dbPromise;
 
       // Determine which source IDs to use: intersection of enabled and filtered
-      const effectiveSourceIds = filterSourceIds && filterSourceIds.length > 0
-        ? filterSourceIds.filter(id => enabledSourceIds.has(id))
-        : Array.from(enabledSourceIds);
-
-      if (effectiveSourceIds.length === 0) return [];
-
-      const sourcePlaceholders = effectiveSourceIds.map(() => '?').join(',');
-
-      // Determine which category IDs to use
-      let effectiveCategoryIds: string[];
-      if (filterCategoryIds && filterCategoryIds.length > 0) {
-        // Verify categories belong to enabled sources
-        const categoryRows = await dbInstance.select(
-          `SELECT category_id FROM categories
-           WHERE category_id IN (${filterCategoryIds.map(() => '?').join(',')})
-           AND source_id IN (${sourcePlaceholders})
-           AND (enabled IS NULL OR enabled NOT IN (0, '0', 'false'))`,
-          [...filterCategoryIds, ...effectiveSourceIds]
-        );
-        effectiveCategoryIds = categoryRows.map((r: any) => r.category_id);
+      let effectiveSourceIds: string[];
+      if (filterSourceIds && filterSourceIds.length > 0) {
+        const realFilters = filterSourceIds.filter(id => !id.startsWith('playlist:'));
+        if (realFilters.length > 0) {
+          effectiveSourceIds = realFilters.filter(id => enabledSourceIds.has(id));
+        } else {
+          effectiveSourceIds = Array.from(enabledSourceIds);
+        }
       } else {
-        // Get enabled category IDs via SQL (avoids full table scan to JS)
-        const enabledCategoryRows = await dbInstance.select(
-          `SELECT category_id FROM categories
-           WHERE source_id IN (${sourcePlaceholders})
-           AND (enabled IS NULL OR enabled NOT IN (0, '0', 'false'))`,
-          effectiveSourceIds
-        );
-        effectiveCategoryIds = enabledCategoryRows.map((r: any) => r.category_id);
+        effectiveSourceIds = Array.from(enabledSourceIds);
       }
 
-      if (effectiveCategoryIds.length === 0) return [];
+      // Resolve category filters (including custom categories & category links)
+      const { nativeCategoryIds, explicitStreamIds, extraRealSourceIds } =
+        await resolveSearchCategoryFilters(filterCategoryIds, filterSourceIds);
+
+      for (const extraId of extraRealSourceIds) {
+        if (enabledSourceIds.has(extraId) && !effectiveSourceIds.includes(extraId)) {
+          effectiveSourceIds.push(extraId);
+        }
+      }
+
+      const sourcePlaceholders = effectiveSourceIds.length > 0
+        ? effectiveSourceIds.map(() => '?').join(',')
+        : null;
+
+      const isFilteredBySourceOrCategory = Boolean(
+        (filterSourceIds && filterSourceIds.length > 0) ||
+        (filterCategoryIds && filterCategoryIds.length > 0)
+      );
+
+      let activeNativeCategoryIds = nativeCategoryIds;
+      let activeExplicitStreamIds = explicitStreamIds;
+      let hasNativeJoin = false;
+
+      if (isFilteredBySourceOrCategory) {
+        hasNativeJoin = activeNativeCategoryIds.length > 0;
+      } else {
+        // General search across enabled categories + custom mapped streams
+        if (sourcePlaceholders) {
+          const enabledCatRows = await dbInstance.select(
+            `SELECT category_id FROM categories 
+             WHERE source_id IN (${sourcePlaceholders}) 
+             AND (enabled IS NULL OR enabled NOT IN (0, '0', 'false'))`,
+            effectiveSourceIds
+          );
+          const enabledCatIds = enabledCatRows.map((r: any) => r.category_id);
+
+          const linkedCatRows = await dbInstance.select(
+            `SELECT category_id FROM playlist_category_links WHERE source_id != 'custom'`
+          );
+          const linkedCatIds = linkedCatRows.map((r: any) => r.category_id);
+
+          activeNativeCategoryIds = Array.from(new Set([...enabledCatIds, ...linkedCatIds]));
+        }
+
+        const mappedStreamRows = await dbInstance.select(
+          `SELECT DISTINCT stream_id FROM playlist_individual_channels`
+        );
+        const mappedStreamIds = mappedStreamRows.map((r: any) => r.stream_id);
+        activeExplicitStreamIds = Array.from(new Set([...explicitStreamIds, ...mappedStreamIds]));
+
+        hasNativeJoin = activeNativeCategoryIds.length > 0;
+      }
 
       // Get source name matches for search (using cached map)
       let sourceNameMatches: string[] = [];
@@ -849,69 +1007,159 @@ export function useChannelSearch(
       }
 
       // Split query into individual words for AND matching
-      // e.g. "Manchester Bournemouth" → must contain BOTH words anywhere in the name
       const queryWords = query.trim().toLowerCase().split(/\s+/).filter(w => w.length > 0);
       const wordLikeClauses = queryWords.map(() => `c.name LIKE ?`).join(' AND ');
       const wordLikeParams = queryWords.map(w => `%${w}%`);
-      const categoryPlaceholders = effectiveCategoryIds.map(() => '?').join(',');
+
+      let catMatchSql = '';
+      let catMatchParams: any[] = [];
+
+      const hasNative = activeNativeCategoryIds.length > 0;
+      const hasExplicit = activeExplicitStreamIds.length > 0;
+
+      if (hasNative && hasExplicit) {
+        const nativePlaceholders = activeNativeCategoryIds.map(() => '?').join(',');
+        const explicitPlaceholders = activeExplicitStreamIds.map(() => '?').join(',');
+        catMatchSql = `AND (cat.value IN (${nativePlaceholders}) OR c.stream_id IN (${explicitPlaceholders}))`;
+        catMatchParams = [...activeNativeCategoryIds, ...activeExplicitStreamIds];
+      } else if (hasNative) {
+        const nativePlaceholders = activeNativeCategoryIds.map(() => '?').join(',');
+        catMatchSql = `AND cat.value IN (${nativePlaceholders})`;
+        catMatchParams = [...activeNativeCategoryIds];
+      } else if (hasExplicit) {
+        const explicitPlaceholders = activeExplicitStreamIds.map(() => '?').join(',');
+        catMatchSql = `AND c.stream_id IN (${explicitPlaceholders})`;
+        catMatchParams = [...activeExplicitStreamIds];
+      }
+
+      // Ensure we always filter by enabled real sources
+      const allEnabledSourceIds = Array.from(enabledSourceIds);
+      const enabledSourcePlaceholders = allEnabledSourceIds.length > 0 ? allEnabledSourceIds.map(() => '?').join(',') : null;
+
+      let sourceMatchSql = '';
+      let sourceMatchParams: any[] = [];
+
+      if (enabledSourcePlaceholders) {
+        if (sourcePlaceholders && hasExplicit) {
+          const explicitPlaceholders = activeExplicitStreamIds.map(() => '?').join(',');
+          sourceMatchSql = `AND c.source_id IN (${enabledSourcePlaceholders}) AND (c.source_id IN (${sourcePlaceholders}) OR c.stream_id IN (${explicitPlaceholders})) ${catMatchSql}`;
+          sourceMatchParams = [...allEnabledSourceIds, ...effectiveSourceIds, ...activeExplicitStreamIds, ...catMatchParams];
+        } else if (sourcePlaceholders) {
+          sourceMatchSql = `AND c.source_id IN (${enabledSourcePlaceholders}) AND c.source_id IN (${sourcePlaceholders}) ${catMatchSql}`;
+          sourceMatchParams = [...allEnabledSourceIds, ...effectiveSourceIds, ...catMatchParams];
+        } else if (hasExplicit) {
+          const explicitPlaceholders = activeExplicitStreamIds.map(() => '?').join(',');
+          sourceMatchSql = `AND c.source_id IN (${enabledSourcePlaceholders}) AND c.stream_id IN (${explicitPlaceholders})`;
+          sourceMatchParams = [...allEnabledSourceIds, ...activeExplicitStreamIds];
+        } else {
+          sourceMatchSql = `AND c.source_id IN (${enabledSourcePlaceholders}) ${catMatchSql}`;
+          sourceMatchParams = [...allEnabledSourceIds, ...catMatchParams];
+        }
+      }
 
       let filteredChannels: any[];
+      const orderByClause = order === 'alphabetical' ? 'ORDER BY c.name COLLATE NOCASE ASC' : '';
 
       if (includeSourceInSearch && sourceNameMatches.length > 0) {
-        // Include channels where name matches all words OR source_id matches the source name search
         const sourceMatchPlaceholders = sourceNameMatches.map(() => '?').join(',');
-        const orderByClause = order === 'alphabetical' ? 'ORDER BY c.name COLLATE NOCASE ASC' : '';
         console.log('[useChannelSearch] Building query with orderByClause:', orderByClause);
         const queryStr = `SELECT DISTINCT c.*
-           FROM channels c
-           CROSS JOIN json_each(c.category_ids) AS cat
+           FROM channels c ${hasNativeJoin ? 'CROSS JOIN json_each(c.category_ids) AS cat' : ''}
            WHERE ((${wordLikeClauses}) OR c.source_id IN (${sourceMatchPlaceholders}))
-           AND c.source_id IN (${sourcePlaceholders})
+           ${sourceMatchSql}
            AND (c.enabled IS NULL OR c.enabled NOT IN (0, '0', 'false'))
-           AND cat.value IN (${categoryPlaceholders})
            ${orderByClause}
            LIMIT ?`;
         console.log('[useChannelSearch] Full query:', queryStr);
         filteredChannels = await dbInstance.select(
           queryStr,
-          [...wordLikeParams, ...sourceNameMatches, ...effectiveSourceIds, ...effectiveCategoryIds, limit]
+          [...wordLikeParams, ...sourceNameMatches, ...sourceMatchParams, limit]
         );
       } else {
-        // Multi-word AND search — each word must appear somewhere in the channel name
-        const orderByClause = order === 'alphabetical' ? 'ORDER BY c.name COLLATE NOCASE ASC' : '';
         console.log('[useChannelSearch] Building query with orderByClause:', orderByClause);
         const queryStr = `SELECT DISTINCT c.*
-           FROM channels c
-           CROSS JOIN json_each(c.category_ids) AS cat
+           FROM channels c ${hasNativeJoin ? 'CROSS JOIN json_each(c.category_ids) AS cat' : ''}
            WHERE (${wordLikeClauses})
-           AND c.source_id IN (${sourcePlaceholders})
+           ${sourceMatchSql}
            AND (c.enabled IS NULL OR c.enabled NOT IN (0, '0', 'false'))
-           AND cat.value IN (${categoryPlaceholders})
            ${orderByClause}
            LIMIT ?`;
         console.log('[useChannelSearch] Full query:', queryStr);
         filteredChannels = await dbInstance.select(
           queryStr,
-          [...wordLikeParams, ...effectiveSourceIds, ...effectiveCategoryIds, limit]
+          [...wordLikeParams, ...sourceMatchParams, limit]
         );
       }
 
       // Add source_name and source_category_display to channels if includeSourceInSearch is enabled
       if (includeSourceInSearch && sourceNameMap) {
-        filteredChannels = filteredChannels.map(ch => {
-          const sourceName = sourceNameMap.get(ch.source_id);
-          let sourceCategoryDisplay: string | undefined;
-          if (sourceName && categoryNameMap) {
-            const catIds = parseCategoryIds(ch.category_ids);
-            const catName = catIds.length > 0 ? (categoryNameMap.get(catIds[0]) || catIds[0]) : '—';
-            sourceCategoryDisplay = `${sourceName} → ${catName}`;
-          }
-          return {
-            ...ch,
-            source_name: sourceName || undefined,
-            source_category_display: sourceCategoryDisplay
-          };
-        });
+        try {
+          const allCategories = await db.categories.toArray();
+          const enabledCatSet = new Set(
+            allCategories.filter(c => c.enabled !== false).map(c => c.category_id)
+          );
+          const customPlaylists = await db.customPlaylists.toArray();
+          const customPlaylistMap = new Map(customPlaylists.map(p => [p.playlist_id, p.name]));
+          const individualMappings = await db.playlistIndividualChannels.toArray();
+          const categoryLinks = await db.playlistCategoryLinks.toArray();
+
+          filteredChannels = filteredChannels.map(ch => {
+            const sourceName = sourceNameMap.get(ch.source_id);
+            let sourceCategoryDisplay: string | undefined;
+
+            if (categoryNameMap) {
+              const catIds = parseCategoryIds(ch.category_ids);
+              // Find first ENABLED native category
+              const enabledCatId = catIds.find(id => enabledCatSet.has(id));
+
+              if (enabledCatId) {
+                const catName = categoryNameMap.get(enabledCatId) || enabledCatId;
+                sourceCategoryDisplay = sourceName ? `${sourceName} → ${catName}` : catName;
+              } else {
+                // No enabled native category found for this channel.
+                // Check if mapped via playlistIndividualChannels
+                const indiv = individualMappings.find(m => m.stream_id === ch.stream_id);
+                if (indiv) {
+                  const plName = customPlaylistMap.get(indiv.playlist_id) || sourceNameMap.get(indiv.playlist_id) || indiv.playlist_id;
+                  let catName: string | undefined;
+                  if (indiv.parent_category_id) {
+                    if (indiv.parent_category_id.startsWith('link:')) {
+                      const linkId = parseInt(indiv.parent_category_id.replace('link:', ''), 10);
+                      const link = categoryLinks.find(l => l.id === linkId);
+                      if (link) {
+                        const nativeCat = allCategories.find(c => c.category_id === link.category_id);
+                        catName = link.custom_name || nativeCat?.alias || nativeCat?.category_name || link.category_id;
+                      }
+                    } else {
+                      catName = categoryNameMap.get(indiv.parent_category_id) || indiv.parent_category_id;
+                    }
+                  }
+                  sourceCategoryDisplay = catName ? `${plName} → ${catName}` : plName;
+                } else {
+                  // Check if mapped via playlistCategoryLinks
+                  const link = categoryLinks.find(l => catIds.includes(l.category_id));
+                  if (link) {
+                    const plName = customPlaylistMap.get(link.playlist_id) || sourceNameMap.get(link.playlist_id) || link.playlist_id;
+                    const nativeCat = allCategories.find(c => c.category_id === link.category_id);
+                    const catName = link.custom_name || nativeCat?.alias || nativeCat?.category_name || link.category_id;
+                    sourceCategoryDisplay = `${plName} → ${catName}`;
+                  } else if (catIds.length > 0) {
+                    const catName = categoryNameMap.get(catIds[0]) || catIds[0];
+                    sourceCategoryDisplay = sourceName ? `${sourceName} → ${catName}` : catName;
+                  }
+                }
+              }
+            }
+
+            return {
+              ...ch,
+              source_name: sourceName || undefined,
+              source_category_display: sourceCategoryDisplay
+            };
+          });
+        } catch (e) {
+          console.warn('[useChannelSearch] Failed to resolve custom playlist display names:', e);
+        }
       }
 
       // Apply logo overrides from epg_channel_overrides and epgPreferEpgLogos setting
@@ -1042,103 +1290,155 @@ export function useProgramSearch(
       const dbInstance = await (db as any).dbPromise;
 
       // Determine which source IDs to use: intersection of enabled and filtered
-      const effectiveSourceIds = filterSourceIds && filterSourceIds.length > 0
-        ? filterSourceIds.filter(id => enabledSourceIds.has(id))
-        : Array.from(enabledSourceIds);
-
-      if (effectiveSourceIds.length === 0) return [];
-
-      const sourcePlaceholders = effectiveSourceIds.map(() => '?').join(',');
-
-      // Step 1: Get enabled category IDs (single query)
-      let effectiveCategoryIds: string[];
-      if (filterCategoryIds && filterCategoryIds.length > 0) {
-        // Verify categories belong to enabled sources
-        const categoryRows = await dbInstance.select(
-          `SELECT category_id FROM categories
-           WHERE category_id IN (${filterCategoryIds.map(() => '?').join(',')})
-           AND source_id IN (${sourcePlaceholders})
-           AND (enabled IS NULL OR enabled NOT IN (0, '0', 'false'))`,
-          [...filterCategoryIds, ...effectiveSourceIds]
-        );
-        effectiveCategoryIds = categoryRows.map((r: any) => r.category_id);
+      let effectiveSourceIds: string[];
+      if (filterSourceIds && filterSourceIds.length > 0) {
+        const realFilters = filterSourceIds.filter(id => !id.startsWith('playlist:'));
+        if (realFilters.length > 0) {
+          effectiveSourceIds = realFilters.filter(id => enabledSourceIds.has(id));
+        } else {
+          effectiveSourceIds = Array.from(enabledSourceIds);
+        }
       } else {
-        const enabledCategoriesQuery = `
-          SELECT category_id FROM categories 
-          WHERE source_id IN (${sourcePlaceholders})
-          AND (enabled IS NULL OR enabled NOT IN (0, '0', 'false'))
-        `;
-        const enabledCategoryRows = await dbInstance.select(enabledCategoriesQuery, effectiveSourceIds);
-        effectiveCategoryIds = enabledCategoryRows.map((row: any) => row.category_id);
+        effectiveSourceIds = Array.from(enabledSourceIds);
       }
 
-      if (effectiveCategoryIds.length === 0) {
-        return [];
+      // Resolve category filters (including custom categories & category links)
+      const { nativeCategoryIds, explicitStreamIds, extraRealSourceIds } =
+        await resolveSearchCategoryFilters(filterCategoryIds, filterSourceIds);
+
+      for (const extraId of extraRealSourceIds) {
+        if (enabledSourceIds.has(extraId) && !effectiveSourceIds.includes(extraId)) {
+          effectiveSourceIds.push(extraId);
+        }
       }
 
-      // Step 2: Get enabled channel IDs using json_each for efficient category matching
-      // This filters channels that belong to at least one enabled category
-      const categoryPlaceholders = effectiveCategoryIds.map(() => '?').join(',');
-      const enabledChannelsQuery = `
-        SELECT DISTINCT c.stream_id 
-        FROM channels c, json_each(c.category_ids) AS cat
-        WHERE c.source_id IN (${sourcePlaceholders})
-        AND (c.enabled IS NULL OR c.enabled NOT IN (0, '0', 'false'))
-        AND cat.value IN (${categoryPlaceholders})
-      `;
-      const enabledChannelRows = await dbInstance.select(
-        enabledChannelsQuery,
-        [...effectiveSourceIds, ...effectiveCategoryIds]
+      const sourcePlaceholders = effectiveSourceIds.length > 0
+        ? effectiveSourceIds.map(() => '?').join(',')
+        : null;
+
+      const isFilteredBySourceOrCategory = Boolean(
+        (filterSourceIds && filterSourceIds.length > 0) ||
+        (filterCategoryIds && filterCategoryIds.length > 0)
       );
-      const enabledChannelIds = new Set(enabledChannelRows.map((row: any) => row.stream_id));
 
-      if (enabledChannelIds.size === 0) {
-        return [];
+      let activeNativeCategoryIds = nativeCategoryIds;
+      let activeExplicitStreamIds = explicitStreamIds;
+
+      if (isFilteredBySourceOrCategory) {
+        activeNativeCategoryIds = nativeCategoryIds;
+        activeExplicitStreamIds = explicitStreamIds;
+      } else {
+        // General search across enabled categories + custom mapped streams
+        if (sourcePlaceholders) {
+          const enabledCatRows = await dbInstance.select(
+            `SELECT category_id FROM categories 
+             WHERE source_id IN (${sourcePlaceholders}) 
+             AND (enabled IS NULL OR enabled NOT IN (0, '0', 'false'))`,
+            effectiveSourceIds
+          );
+          const enabledCatIds = enabledCatRows.map((r: any) => r.category_id);
+
+          const linkedCatRows = await dbInstance.select(
+            `SELECT category_id FROM playlist_category_links WHERE source_id != 'custom'`
+          );
+          const linkedCatIds = linkedCatRows.map((r: any) => r.category_id);
+
+          activeNativeCategoryIds = Array.from(new Set([...enabledCatIds, ...linkedCatIds]));
+        }
+
+        const mappedStreamRows = await dbInstance.select(
+          `SELECT DISTINCT stream_id FROM playlist_individual_channels`
+        );
+        const mappedStreamIds = mappedStreamRows.map((r: any) => r.stream_id);
+        activeExplicitStreamIds = Array.from(new Set([...explicitStreamIds, ...mappedStreamIds]));
       }
+
+      const hasNative = activeNativeCategoryIds.length > 0;
+      const hasExplicit = activeExplicitStreamIds.length > 0;
+
+      let channelSubquery: string;
+
+      let catMatchSql = '';
+      let catMatchParams: any[] = [];
+
+      if (hasNative && hasExplicit) {
+        const nativePlaceholders = activeNativeCategoryIds.map(() => '?').join(',');
+        const explicitPlaceholders = activeExplicitStreamIds.map(() => '?').join(',');
+        catMatchSql = `AND (cat.value IN (${nativePlaceholders}) OR c.stream_id IN (${explicitPlaceholders}))`;
+        catMatchParams = [...activeNativeCategoryIds, ...activeExplicitStreamIds];
+      } else if (hasNative) {
+        const nativePlaceholders = activeNativeCategoryIds.map(() => '?').join(',');
+        catMatchSql = `AND cat.value IN (${nativePlaceholders})`;
+        catMatchParams = [...activeNativeCategoryIds];
+      } else if (hasExplicit) {
+        const explicitPlaceholders = activeExplicitStreamIds.map(() => '?').join(',');
+        catMatchSql = `AND c.stream_id IN (${explicitPlaceholders})`;
+        catMatchParams = [...activeExplicitStreamIds];
+      }
+
+      const allEnabledSourceIds = Array.from(enabledSourceIds);
+      const enabledSourcePlaceholders = allEnabledSourceIds.length > 0 ? allEnabledSourceIds.map(() => '?').join(',') : null;
+
+      let sourceMatchSql = '';
+      let sourceMatchParams: any[] = [];
+
+      if (enabledSourcePlaceholders) {
+        if (sourcePlaceholders && hasExplicit) {
+          const explicitPlaceholders = activeExplicitStreamIds.map(() => '?').join(',');
+          sourceMatchSql = `WHERE c.source_id IN (${enabledSourcePlaceholders}) AND (c.source_id IN (${sourcePlaceholders}) OR c.stream_id IN (${explicitPlaceholders})) ${catMatchSql}`;
+          sourceMatchParams = [...allEnabledSourceIds, ...effectiveSourceIds, ...activeExplicitStreamIds, ...catMatchParams];
+        } else if (sourcePlaceholders) {
+          sourceMatchSql = `WHERE c.source_id IN (${enabledSourcePlaceholders}) AND c.source_id IN (${sourcePlaceholders}) ${catMatchSql}`;
+          sourceMatchParams = [...allEnabledSourceIds, ...effectiveSourceIds, ...catMatchParams];
+        } else if (hasExplicit) {
+          const explicitPlaceholders = activeExplicitStreamIds.map(() => '?').join(',');
+          sourceMatchSql = `WHERE c.source_id IN (${enabledSourcePlaceholders}) AND c.stream_id IN (${explicitPlaceholders})`;
+          sourceMatchParams = [...allEnabledSourceIds, ...activeExplicitStreamIds];
+        } else {
+          sourceMatchSql = `WHERE c.source_id IN (${enabledSourcePlaceholders}) ${catMatchSql}`;
+          sourceMatchParams = [...allEnabledSourceIds, ...catMatchParams];
+        }
+      }
+
+      channelSubquery = `
+        SELECT DISTINCT c.stream_id${order === 'alphabetical' ? ', c.name' : ''}
+        FROM channels c ${hasNative ? ', json_each(c.category_ids) AS cat' : ''}
+        ${sourceMatchSql}
+        ${sourceMatchSql ? 'AND' : 'WHERE'} (c.enabled IS NULL OR c.enabled NOT IN (0, '0', 'false'))
+      `;
 
       // Split query into individual words for AND matching across all words
-      // Match against both title and subtitle
       const queryWords = query.trim().toLowerCase().split(/\s+/).filter(w => w.length > 0);
       const wordLikeClauses = queryWords.map(() => `(p.title LIKE ? OR p.subtitle LIKE ?)`).join(' AND ');
       const wordLikeParams = queryWords.flatMap(w => [`%${w}%`, `%${w}%`]);
 
       const nowIso = new Date().toISOString();
-      // For alphabetical order, join with channels to sort by channel name
       const orderByClause = order === 'alphabetical' 
         ? 'ORDER BY c.name COLLATE NOCASE ASC, p.start ASC' 
         : '';
       console.log('[useProgramSearch] Building query with orderByClause:', orderByClause);
       
-      // When ordering alphabetically, we need to join with channels table to get channel names
       const programResults = order === 'alphabetical'
         ? await dbInstance.select(
             `SELECT p.*, c.name as channel_name
              FROM programs_effective p
              INNER JOIN (
-               SELECT DISTINCT c.stream_id, c.name
-               FROM channels c, json_each(c.category_ids) AS cat
-               WHERE c.source_id IN (${sourcePlaceholders})
-               AND (c.enabled IS NULL OR c.enabled NOT IN (0, '0', 'false'))
-               AND cat.value IN (${categoryPlaceholders})
+               ${channelSubquery}
              ) c ON p.stream_id = c.stream_id
              WHERE (${wordLikeClauses}) AND p.end > ?
              ${orderByClause}
              LIMIT ?`,
-            [...effectiveSourceIds, ...effectiveCategoryIds, ...wordLikeParams, nowIso, limit * 2]
+            [...sourceMatchParams, ...wordLikeParams, nowIso, limit * 2]
           )
         : await dbInstance.select(
             `SELECT p.* 
              FROM programs_effective p
              INNER JOIN (
-               SELECT DISTINCT c.stream_id 
-               FROM channels c, json_each(c.category_ids) AS cat
-               WHERE c.source_id IN (${sourcePlaceholders})
-               AND (c.enabled IS NULL OR c.enabled NOT IN (0, '0', 'false'))
-               AND cat.value IN (${categoryPlaceholders})
+               ${channelSubquery}
              ) ec ON p.stream_id = ec.stream_id
              WHERE (${wordLikeClauses}) AND p.end > ?
              LIMIT ?`,
-            [...effectiveSourceIds, ...effectiveCategoryIds, ...wordLikeParams, nowIso, limit * 2]
+            [...sourceMatchParams, ...wordLikeParams, nowIso, limit * 2]
           );
       console.log('[useProgramSearch] Query returned', programResults.length, 'results');
 

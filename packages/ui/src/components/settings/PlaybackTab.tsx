@@ -58,6 +58,8 @@ interface PlaybackTabProps {
   onCatchupContinuePlayingChange: (enabled: boolean) => void;
   vodAutoPlayNextEpisode: boolean;
   onVodAutoPlayNextEpisodeChange: (enabled: boolean) => void;
+  vodShowSourceBadge: boolean;
+  onVodShowSourceBadgeChange: (enabled: boolean) => void;
 }
 
 const DEFAULT_MPV_PARAMS = `--hwdec=auto
@@ -115,6 +117,8 @@ export function PlaybackTab({
   onCatchupContinuePlayingChange,
   vodAutoPlayNextEpisode,
   onVodAutoPlayNextEpisodeChange,
+  vodShowSourceBadge,
+  onVodShowSourceBadgeChange,
 }: PlaybackTabProps) {
   const [activeSubTab, setActiveSubTab] = useState<PlaybackSubTabId>('mpv');
 
@@ -603,6 +607,8 @@ export function PlaybackTab({
           <VodTab
             vodAutoPlayNextEpisode={vodAutoPlayNextEpisode}
             onVodAutoPlayNextEpisodeChange={onVodAutoPlayNextEpisodeChange}
+            vodShowSourceBadge={vodShowSourceBadge}
+            onVodShowSourceBadgeChange={onVodShowSourceBadgeChange}
           />
         )}
       </div>

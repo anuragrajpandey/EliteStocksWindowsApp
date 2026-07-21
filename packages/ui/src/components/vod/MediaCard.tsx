@@ -131,7 +131,10 @@ export const MediaCard = memo(function MediaCard({ item, type, onClick, onRemove
 
         {/* Source name badge */}
         {sourceName && (
-          <div className="media-card__source-badge" title={sourceName}>
+          <div
+            className={`media-card__source-badge${type === 'series' && seasonNum !== undefined && episodeNum !== undefined ? ' media-card__source-badge--right' : ''}`}
+            title={sourceName}
+          >
             {sourceName}
           </div>
         )}

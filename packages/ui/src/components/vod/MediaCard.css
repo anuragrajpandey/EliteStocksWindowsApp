@@ -364,11 +364,23 @@
   z-index: 15;
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  max-width: 90%;
+  max-width: 55%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   pointer-events: none;
   backdrop-filter: blur(2px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: right 0.2s ease, left 0.2s ease;
+}
+
+.media-card__source-badge--right {
+  left: auto;
+  right: 4px;
+}
+
+/* Move source badge left when hover buttons (remove/fav) appear */
+.media-card:hover .media-card__source-badge--right,
+.media-card:focus-visible .media-card__source-badge--right {
+  right: 34px;
 }

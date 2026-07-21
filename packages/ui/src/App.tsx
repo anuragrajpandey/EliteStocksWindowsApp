@@ -179,6 +179,7 @@ function App() {
     advancedSearchSourceIds,
     advancedSearchCategoryIds,
     useAdvancedSearchForRegular,
+    searchCustomPlaylists: searchCustomPlaylistsSetting,
     channelInfoOverlayEnabled,
     channelInfoOverlayFontSize,
     channelInfoOverlayLogoSize,
@@ -198,6 +199,7 @@ function App() {
     setAdvancedSearchSourceIds,
     setAdvancedSearchCategoryIds,
     setUseAdvancedSearchForRegular,
+    setSearchCustomPlaylists: setSearchCustomPlaylistsSetting,
     setChannelInfoOverlayEnabled,
     setChannelInfoOverlayFontSize,
     setChannelInfoOverlayLogoSize,
@@ -223,6 +225,10 @@ function App() {
     setCastRewriteTs,
     vodAutoPlayNextEpisode,
     setVodAutoPlayNextEpisode,
+    vodShowSourceBadge,
+    setVodShowSourceBadge,
+    failoverGroupShowSource,
+    setFailoverGroupShowSource,
   } = useAppSettings();
   const navHiddenTabs = useUIStore((s) => s.navHiddenTabs);
   const setNavHiddenStore = useUIStore((s) => s.setNavHiddenTabs);
@@ -4010,6 +4016,7 @@ function App() {
             currentChannel={currentChannel}
             visible={isFailoverGroupOverlayVisible}
             onChannelClick={handlePlayChannelWrapper}
+            showSource={failoverGroupShowSource}
           />
         }
       />
@@ -4351,6 +4358,10 @@ function App() {
           onCastRewriteTsChange={setCastRewriteTs}
           vodAutoPlayNextEpisode={vodAutoPlayNextEpisode}
           onVodAutoPlayNextEpisodeChange={setVodAutoPlayNextEpisode}
+          vodShowSourceBadge={vodShowSourceBadge}
+          onVodShowSourceBadgeChange={setVodShowSourceBadge}
+          failoverGroupShowSource={failoverGroupShowSource}
+          onFailoverGroupShowSourceChange={setFailoverGroupShowSource}
           stremioStreamPickerMode={stremioStreamPickerMode}
           onStremioStreamPickerModeChange={handleStremioStreamPickerModeChange}
           showStremioStreamBadges={showStremioStreamBadges}

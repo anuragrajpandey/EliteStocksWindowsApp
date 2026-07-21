@@ -9,6 +9,8 @@ import { VirtuosoGrid, VirtuosoGridHandle } from 'react-virtuoso';
 import { MediaCard } from './MediaCard';
 import type { StoredMovie, StoredSeries } from '../../db';
 import type { RecentlyWatchedItem } from '../../hooks/useVod';
+import { useSourceNameMap } from '../../hooks/useChannels';
+import { useAppSettings } from '../../hooks/useAppSettings';
 import './VodBrowse.css'; // Reuse VodBrowse styles for consistent grid
 
 // Custom Scroller - force scrollbar always visible
@@ -39,6 +41,9 @@ export function RecentView({
 }: RecentViewProps) {
   const virtuosoRef = useRef<VirtuosoGridHandle>(null);
   const [visibleRange, setVisibleRange] = useState({ startIndex: 0, endIndex: 0 });
+
+  const { vodShowSourceBadge } = useAppSettings();
+  const sourceNameMap = useSourceNameMap();
 
   // Debug logging
   console.log('[RecentView] Props:', { type, itemsCount: items.length, loading, items });
@@ -91,6 +96,9 @@ export function RecentView({
     
     const progress = progressMap.get(itemId);
     const episodeData = episodeDataMap?.get(itemId);
+    const sourceName = (vodShowSourceBadge && sourceNameMap && item.source_id)
+      ? sourceNameMap.get(item.source_id)
+      : undefined;
 
     return (
       <MediaCard
@@ -110,9 +118,10 @@ export function RecentView({
         seasonNum={episodeData?.seasonNum}
         episodeNum={episodeData?.episodeNum}
         episodeTitle={episodeData?.episodeTitle}
+        sourceName={sourceName}
       />
     );
-  }, [rawItems, type, progressMap, episodeDataMap, onItemClick, onRemove]);
+  }, [rawItems, type, progressMap, episodeDataMap, vodShowSourceBadge, sourceNameMap, onItemClick, onRemove]);
 
   console.log('[RecentView] Render check:', { loading, itemsLength: items.length, rawItemsLength: rawItems.length });
 

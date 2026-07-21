@@ -153,6 +153,7 @@ export interface AppSettings {
     advancedSearchSourceIds?: string[];
     advancedSearchCategoryIds?: string[];
     useAdvancedSearchForRegular?: boolean;
+    searchCustomPlaylists?: boolean;
     // Global EPG links that can be shared across multiple sources
     globalEpgLinks?: GlobalEpgLink[];
     // Navigation tab visibility — tabs hidden from titlebar
@@ -183,6 +184,8 @@ export interface AppSettings {
     catchupEndPadding?: number;
     catchupContinuePlaying?: boolean;
     vodAutoPlayNextEpisode?: boolean;
+    vodShowSourceBadge?: boolean;
+    failoverGroupShowSource?: boolean;
     [key: string]: any;
 }
 
