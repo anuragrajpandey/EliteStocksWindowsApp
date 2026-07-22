@@ -2467,10 +2467,10 @@ export function ChannelPanel({
                 onClick={onTogglePopoutMode}
                 title={
                   popoutMode === 'off'
-                    ? 'Embedded mode'
+                    ? 'Embedded mode (click to swap to Popout, External)'
                     : popoutMode === 'popout'
-                      ? 'Popout mode — clicks go to popout player'
-                      : 'External mode — clicks open in external player'
+                      ? 'Popout mode (click to swap to External, Embedded)'
+                      : 'External mode (click to swap to Embedded, Popout)'
                 }
                 style={{
                   padding: '0 6px',
