@@ -529,7 +529,7 @@ async fn get_mpv_params_from_store<R: Runtime>(app: &AppHandle<R>) -> Vec<String
 
 const ALLOWED_MPV_KEYS: &[&str] = &[
     "hwdec", "hwdec-codecs", "vo", "ao", "profile", "audio-device",
-    "audio-spdif", "audio-channels", "volume-max", "audio-exclusive",
+    "audio-spdif", "audio-channels", "volume", "volume-max", "audio-exclusive",
     "cache", "cache-secs", "cache-pause", "demuxer-max-bytes", "demuxer-max-back-bytes",
     "demuxer-readahead-secs", "force-seekable",
     "gpu-api", "gpu-context", "opengl-glfinish",

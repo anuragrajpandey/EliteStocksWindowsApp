@@ -37,7 +37,21 @@ interface UseMpvListenersOptions {
 export function useMpvListeners(options: UseMpvListenersOptions = {}) {
     const [mpvReady, setMpvReady] = useState(false);
     const [playing, setPlaying] = useState(false);
-    const [volume, setVolume] = useState(100);
+
+    const getInitialVolume = () => {
+        try {
+            const saved = localStorage.getItem('ynotv_volume');
+            if (saved !== null) {
+                const parsed = parseInt(saved, 10);
+                if (!isNaN(parsed) && parsed >= 0 && parsed <= 100) {
+                    return parsed;
+                }
+            }
+        } catch {}
+        return 100;
+    };
+
+    const [volume, setVolumeState] = useState<number>(getInitialVolume);
     const [muted, setMuted] = useState(false);
     const [position, setPosition] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -45,9 +59,28 @@ export function useMpvListeners(options: UseMpvListenersOptions = {}) {
     const [pausedForCache, setPausedForCache] = useState(false);
     const [coreIdle, setCoreIdle] = useState(true);
 
+    const volumeRef = useRef(volume);
+    useEffect(() => {
+        volumeRef.current = volume;
+    }, [volume]);
+
+    const setVolume = useCallback((action: React.SetStateAction<number>) => {
+        setVolumeState(prev => {
+            const nextVol = typeof action === 'function' ? action(prev) : action;
+            try {
+                localStorage.setItem('ynotv_volume', String(nextVol));
+                if ((window as any).storage?.updateSettings) {
+                    (window as any).storage.updateSettings({ savedVolume: nextVol }).catch(() => {});
+                }
+            } catch (e) {}
+            return nextVol;
+        });
+    }, []);
+
     const volumeDraggingRef = useRef(false);
     const seekingRef = useRef(false);
     const initializedRef = useRef(false);
+    const hasSyncedInitialVolumeRef = useRef(false);
     const suppressStatusUntilRef = useRef<number>(0);
     
     const suppressStatusUpdates = useCallback((durationMs: number) => {
@@ -93,7 +126,11 @@ export function useMpvListeners(options: UseMpvListenersOptions = {}) {
         import('@tauri-apps/api/event').then(async ({ listen }) => {
             const unlistenReady = await listen('mpv-ready', (e: any) => {
                 setMpvReady(e.payload);
-                if (e.payload) onReadyRef.current?.();
+                if (e.payload) {
+                    Bridge.setVolume(volumeRef.current).catch(console.error);
+                    hasSyncedInitialVolumeRef.current = true;
+                    onReadyRef.current?.();
+                }
             });
 
             const unlistenStatus = await listen('mpv-status', (e: any) => {
@@ -110,7 +147,14 @@ export function useMpvListeners(options: UseMpvListenersOptions = {}) {
                 }
 
                 if (status.playing !== undefined) setPlaying(status.playing);
-                if (status.volume !== undefined && !volumeDraggingRef.current) setVolume(status.volume);
+                if (status.volume !== undefined && !volumeDraggingRef.current) {
+                    if (!hasSyncedInitialVolumeRef.current && status.volume === 100 && volumeRef.current !== 100) {
+                        // MPV default volume status before initial sync — preserve user saved volume
+                    } else {
+                        hasSyncedInitialVolumeRef.current = true;
+                        setVolumeState(status.volume);
+                    }
+                }
                 if (status.muted !== undefined) setMuted(status.muted);
                 if (status.position !== undefined && !seekingRef.current) setPosition(status.position);
                 if (status.pausedForCache !== undefined) setPausedForCache(status.pausedForCache);

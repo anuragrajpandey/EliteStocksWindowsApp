@@ -466,6 +466,13 @@ export function useAppSettings(): AppSettings {
 
         // Use the most recent state (prefer localStorage for layout state since it's saved on close)
         if (result.data) {
+          if (result.data.savedVolume !== undefined) {
+            try {
+              if (localStorage.getItem('ynotv_volume') === null) {
+                localStorage.setItem('ynotv_volume', String(result.data.savedVolume));
+              }
+            } catch {}
+          }
           setRememberLastChannels(result.data.rememberLastChannels ?? false);
           setReopenLastOnStartup(result.data.reopenLastOnStartup ?? false);
           setTimeshiftEnabled(result.data.timeshiftEnabled ?? true);

@@ -266,6 +266,15 @@ export const Bridge = {
             args.push('--cache=yes');
             args.push(`--demuxer-max-back-bytes=${timeshiftCacheBytes}`);
         }
+        try {
+            const savedVol = localStorage.getItem('ynotv_volume');
+            if (savedVol !== null) {
+                const parsed = parseInt(savedVol, 10);
+                if (!isNaN(parsed) && parsed >= 0 && parsed <= 100) {
+                    args.push(`--volume=${parsed}`);
+                }
+            }
+        } catch (e) {}
         console.log('[Bridge.initMpv] Invoking init_mpv with args:', args);
         const result = await invoke('init_mpv', { args });
         // On macOS, also start window sync for hole punch mode
@@ -422,6 +431,13 @@ export const Bridge = {
     },
 
     async setVolume(volume: number) {
+        try {
+            localStorage.setItem('ynotv_volume', String(volume));
+            if ((window as any).storage?.updateSettings) {
+                (window as any).storage.updateSettings({ savedVolume: volume }).catch(() => {});
+            }
+        } catch (e) {}
+
         if (REDIRECT_CONTROLS_TO_CAST && isCasting) {
             try {
                 return await invoke('cast_set_volume', { level: parseFloat(String(volume)) / 100.0 });
@@ -587,6 +603,14 @@ export const Bridge = {
     },
 
     async setProperty(name: string, value: any) {
+        if (name === 'volume' && typeof value === 'number') {
+            try {
+                localStorage.setItem('ynotv_volume', String(value));
+                if ((window as any).storage?.updateSettings) {
+                    (window as any).storage.updateSettings({ savedVolume: value }).catch(() => {});
+                }
+            } catch (e) {}
+        }
         return invoke('mpv_set_property', { name, value });
     },
 
