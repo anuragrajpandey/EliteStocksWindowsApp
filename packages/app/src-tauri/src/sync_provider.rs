@@ -290,6 +290,52 @@ fn generate_stable_stream_id(source_id: &str, tvg_id: &str, url: &str, seen_ids:
     }
 }
 
+fn create_m3u_category_id(source_id: &str, category_name: &str) -> String {
+    let slug = category_name
+        .to_lowercase()
+        .replace(|c: char| !c.is_alphanumeric(), "-")
+        .trim_matches('-')
+        .to_string();
+    let slug = if slug.is_empty() {
+        format!("category-{}", stable_hash(category_name))
+    } else {
+        slug
+    };
+
+    format!("{}_{}", source_id, slug)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::create_m3u_category_id;
+
+    #[test]
+    fn creates_distinct_ids_for_cyrillic_m3u_groups() {
+        let first = create_m3u_category_id("source", "Федеральные");
+        let second = create_m3u_category_id("source", "Кинозалы");
+
+        assert_eq!(first, "source_федеральные");
+        assert_eq!(second, "source_кинозалы");
+        assert_ne!(first, second);
+    }
+
+    #[test]
+    fn keeps_ascii_m3u_category_ids_stable() {
+        assert_eq!(
+            create_m3u_category_id("source", "News HD"),
+            "source_news-hd"
+        );
+    }
+
+    #[test]
+    fn falls_back_when_group_name_has_no_alphanumeric_chars() {
+        let category_id = create_m3u_category_id("source", "★★★");
+
+        assert!(category_id.starts_with("source_category-"));
+        assert_ne!(category_id, "source_");
+    }
+}
+
 #[derive(Serialize)]
 pub struct M3uSyncResult {
     pub categories: BulkResult,
@@ -460,9 +506,7 @@ pub async fn sync_m3u_source(
 
                 let mut category_ids = Vec::new();
                 let category_name = if group_title.is_empty() { "Uncategorized".to_string() } else { group_title.clone() };
-                
-                let cat_slug = category_name.to_lowercase().replace(|c: char| !c.is_ascii_alphanumeric(), "-").trim_matches('-').to_string();
-                let category_id = format!("{}_{}", source_id, cat_slug);
+                let category_id = create_m3u_category_id(&source_id, &category_name);
                 category_ids.push(category_id.clone());
 
                 if !categories_map.contains_key(&category_id) {
