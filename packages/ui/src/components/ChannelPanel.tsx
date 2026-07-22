@@ -2467,12 +2467,14 @@ export function ChannelPanel({
                 onClick={onTogglePopoutMode}
                 title={
                   popoutMode === 'off'
-                    ? 'Normal mode'
+                    ? 'Embedded mode'
                     : popoutMode === 'popout'
                       ? 'Popout mode — clicks go to popout player'
                       : 'External mode — clicks open in external player'
                 }
                 style={{
+                  padding: '0 6px',
+                  width: 'auto',
                   color: popoutMode === 'off' ? 'inherit' : 'var(--accent)',
                   marginRight: '8px',
                 }}
@@ -2488,11 +2490,9 @@ export function ChannelPanel({
                     <line x1="12" y1="17" x2="12" y2="21"/>
                   </svg>
                 )}
-                {popoutMode !== 'off' && (
-                  <span style={{ marginLeft: '4px', fontSize: '11px' }}>
-                    {popoutMode === 'popout' ? 'Popout' : 'External'}
-                  </span>
-                )}
+                <span style={{ marginLeft: '4px', fontSize: '11px' }}>
+                  {popoutMode === 'off' ? 'Embedded' : popoutMode === 'popout' ? 'Popout' : 'External'}
+                </span>
               </button>
             )}
             {!isSearchMode && (
