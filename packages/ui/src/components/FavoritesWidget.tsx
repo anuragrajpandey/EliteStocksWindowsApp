@@ -31,12 +31,9 @@ function FavoriteChannelItem({ channel, onChannelClick }: FavoriteChannelItemPro
       }}
       title={`${channel.name}${currentProgram ? ` - ${currentProgram.title}` : ''}`}
     >
-      <span className="favorite-channel-name">{channel.alias || channel.name}</span>
+      <div className="favorite-channel-name">{channel.alias || channel.name}</div>
       {currentProgram && (
-        <>
-          <span className="favorite-channel-separator"> - </span>
-          <span className="favorite-channel-program">{currentProgram.title}</span>
-        </>
+        <div className="favorite-channel-program">{currentProgram.title}</div>
       )}
     </div>
   );

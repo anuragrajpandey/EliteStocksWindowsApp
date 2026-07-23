@@ -282,12 +282,14 @@ export function ThemeTab({
     };
     setSavedCustomThemes([...savedCustomThemes, newTheme]);
     setNewThemeName('');
+    handleThemeChange('custom');
   };
 
   const handleLoadCustomTheme = (themeConfig: CustomThemeConfig) => {
     if (onCustomThemeConfigChange) {
       onCustomThemeConfigChange(themeConfig);
     }
+    handleThemeChange('custom');
   };
 
   const handleDeleteCustomTheme = (id: string) => {
@@ -332,6 +334,7 @@ export function ThemeTab({
       if (onCustomThemeConfigChange) {
         onCustomThemeConfigChange(importedTheme);
       }
+      handleThemeChange('custom');
       setImportText('');
       setImportError('');
       setImportSuccess('Theme imported successfully!');
@@ -364,6 +367,7 @@ export function ThemeTab({
         if (onCustomThemeConfigChange) {
           onCustomThemeConfigChange(importedTheme);
         }
+        handleThemeChange('custom');
         setImportSuccess('Theme file imported successfully!');
         setTimeout(() => setImportSuccess(''), 3000);
       } catch (err: any) {

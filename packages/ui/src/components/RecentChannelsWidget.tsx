@@ -34,12 +34,9 @@ function RecentChannelItem({ entry, onChannelClick }: RecentChannelItemProps) {
       }}
       title={`${entry.channelName}${currentProgram ? ` - ${currentProgram.title}` : ''}`}
     >
-      <span className="recent-channel-name">{entry.channelName}</span>
+      <div className="recent-channel-name">{entry.channelName}</div>
       {currentProgram && (
-        <>
-          <span className="recent-channel-separator"> - </span>
-          <span className="recent-channel-program">{currentProgram.title}</span>
-        </>
+        <div className="recent-channel-program">{currentProgram.title}</div>
       )}
     </div>
   );

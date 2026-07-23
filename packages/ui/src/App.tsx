@@ -1599,13 +1599,13 @@ function App() {
   }, [transparentGuideOnZap, overlayAutohideTimer]);
 
   const isChannelInfoOverlayVisible = useMemo(() => {
-    if (!channelInfoOverlayEnabled || !currentChannel) return false;
+    if (!channelInfoOverlayEnabled || !currentChannel || pipMode) return false;
     const isVod = currentChannel.stream_id === 'vod' || currentChannel.stream_id?.startsWith('recording_');
     if (isVod) return false;
     // Don't show when in LiveTV guide (unless transparent guide is active and triggered by zapping) or Sports views
     if ((activeView === 'guide' && (!guideTransparent || !isTransparentGuideZapActive)) || activeView === 'sports') return false;
     return showControls || channelChangeFlash;
-  }, [channelInfoOverlayEnabled, currentChannel, showControls, channelChangeFlash, activeView, guideTransparent, isTransparentGuideZapActive]);
+  }, [channelInfoOverlayEnabled, currentChannel, pipMode, showControls, channelChangeFlash, activeView, guideTransparent, isTransparentGuideZapActive]);
 
   // Failover group overlay visibility: same conditions as NowPlayingBar
   const isFailoverGroupOverlayVisible = useMemo(() => {

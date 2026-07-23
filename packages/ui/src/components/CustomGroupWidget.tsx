@@ -29,12 +29,9 @@ function GroupChannelItem({ channel, onChannelClick }: GroupChannelItemProps) {
       }}
       title={`${channel.alias || channel.name}${currentProgram ? ` - ${currentProgram.title}` : ''}`}
     >
-      <span className="group-channel-name">{channel.alias || channel.name}</span>
+      <div className="group-channel-name">{channel.alias || channel.name}</div>
       {currentProgram && (
-        <>
-          <span className="group-channel-separator"> - </span>
-          <span className="group-channel-program">{currentProgram.title}</span>
-        </>
+        <div className="group-channel-program">{currentProgram.title}</div>
       )}
     </div>
   );

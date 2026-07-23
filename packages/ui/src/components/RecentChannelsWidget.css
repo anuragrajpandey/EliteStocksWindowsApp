@@ -40,7 +40,7 @@
 }
 
 .recent-channel-item {
-  padding: 6px 10px;
+  padding: 5px 8px;
   cursor: pointer;
   color: rgba(255, 255, 255, 0.85);
   transition: all 0.15s ease;
@@ -48,11 +48,12 @@
   pointer-events: auto;
   border-radius: 6px;
   display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.82rem;
-  white-space: nowrap;
-  overflow: hidden;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  width: 100%;
+  box-sizing: border-box;
   flex-shrink: 0;
 }
 
@@ -66,23 +67,22 @@
 }
 
 .recent-channel-name {
+  font-size: 0.75rem;
   font-weight: 600;
-  flex-shrink: 0;
-}
-
-.recent-channel-separator {
-  color: rgba(255, 255, 255, 0.35);
-  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .recent-channel-program {
-  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.recent-channel-item:hover .recent-channel-program {
-  color: inherit;
+  width: 100%;
 }
 
 /* Scrollbar styling for the list */

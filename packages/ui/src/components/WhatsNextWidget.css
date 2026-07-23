@@ -74,10 +74,14 @@
 }
 
 .whats-next-desc {
-  font-size: 0.86rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.72rem;
+  line-height: 1.4;
   color: rgba(255, 255, 255, 0.55);
-  line-height: 1.45;
-  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .whats-next-empty {
