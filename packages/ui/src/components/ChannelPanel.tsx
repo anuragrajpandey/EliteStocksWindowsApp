@@ -238,6 +238,7 @@ interface ChannelPanelProps {
   popoutIsOpen?: boolean;
   // Transparent guide mode (Z key) — hides preview pane, shows EPG grid over full video
   guideTransparent?: boolean;
+  playerControlDesign?: 'default' | 'clean';
 }
 
 export function ChannelPanel({
@@ -308,6 +309,7 @@ export function ChannelPanel({
   onPreviewVideoRectChange,
   pipMode = false,
   onTogglePip,
+  playerControlDesign = 'default',
 }: ChannelPanelProps) {
   const epgView = useEpgView();
   const epgVisibleHours = useEpgVisibleHours();
@@ -1180,8 +1182,8 @@ export function ChannelPanel({
   // Track if we have a channel to show
   const hasSelectedChannel = selectedChannel !== null;
 
-  // Compute mini bar visibility based on hover state
-  const isMiniBarVisible = selectedChannel && (previewHovered || miniBarHovered);
+  // Compute mini bar visibility based on hover state (disabled in alternate EPG view which uses NowPlayingBar)
+  const isMiniBarVisible = selectedChannel && (previewHovered || miniBarHovered) && epgView !== 'alternate';
 
   // Handle Channel Click: Preview vs Fullscreen
   const handleChannelClick = useCallback((channel: StoredChannel) => {
@@ -2188,6 +2190,7 @@ export function ChannelPanel({
           onReplayStream={selectedChannel ? () => onPlayChannel(selectedChannel) : undefined}
           pipMode={pipMode}
           onTogglePip={onTogglePip}
+          playerControlDesign={playerControlDesign}
         />
       )}
     </div>

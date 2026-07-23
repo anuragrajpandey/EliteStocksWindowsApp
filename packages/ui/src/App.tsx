@@ -4350,6 +4350,7 @@ function App() {
         onTimeshiftCatchUp={timeshiftState ? () => handleSeek(timeshiftState.cacheEnd - 1) : undefined}
         pipMode={pipMode}
         onTogglePip={handlePipFromPreview}
+        playerControlDesign={playerControlDesign}
       />
 
       {/* Settings Panel - as popup overlay in main layout, or full view in multiview */}

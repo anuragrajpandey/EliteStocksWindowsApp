@@ -375,11 +375,13 @@
   cursor: not-allowed;
 }
 
-.npb-btn.has-badge {
+.npb-btn.has-badge,
+.npb-clean-btn.has-badge {
   position: relative;
 }
 
-.npb-btn.has-badge::after {
+.npb-btn.has-badge::after,
+.npb-clean-btn.has-badge::after {
   content: '';
   position: absolute;
   top: -2px;

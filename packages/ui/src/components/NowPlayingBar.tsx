@@ -602,32 +602,34 @@ export function NowPlayingBar({
                 </span>
               </div>
 
-              {/* Sub-row underneath seekbar: Live button & behind live indicator */}
-              <div className="npb-clean-seekbar-sub">
-                {timeshiftState && timeshiftState.behindLive >= 5 ? (
-                  <div className="npb-clean-behind-live-group">
-                    {onTimeshiftCatchUp ? (
-                      <button className="npb-clean-live-btn active" onClick={onTimeshiftCatchUp} title="Catch up to live">
-                        <span className="npb-clean-live-dot red" />
-                        LIVE
-                      </button>
-                    ) : (
-                      <span className="npb-clean-live-badge">
-                        <span className="npb-clean-live-dot red" />
-                        LIVE
+              {/* Sub-row underneath seekbar: Live button & behind live indicator (Live TV only) */}
+              {!isVod && !isCatchup && (
+                <div className="npb-clean-seekbar-sub">
+                  {timeshiftState && timeshiftState.behindLive >= 5 ? (
+                    <div className="npb-clean-behind-live-group">
+                      {onTimeshiftCatchUp ? (
+                        <button className="npb-clean-live-btn active" onClick={onTimeshiftCatchUp} title="Catch up to live">
+                          <span className="npb-clean-live-dot red" />
+                          LIVE
+                        </button>
+                      ) : (
+                        <span className="npb-clean-live-badge">
+                          <span className="npb-clean-live-dot red" />
+                          LIVE
+                        </span>
+                      )}
+                      <span className="npb-clean-behind-text">
+                        −{formatTime(timeshiftState.behindLive)} behind live
                       </span>
-                    )}
-                    <span className="npb-clean-behind-text">
-                      −{formatTime(timeshiftState.behindLive)} behind live
+                    </div>
+                  ) : (
+                    <span className="npb-clean-live-badge">
+                      <span className="npb-clean-live-dot red" />
+                      LIVE
                     </span>
-                  </div>
-                ) : (
-                  <span className="npb-clean-live-badge">
-                    <span className="npb-clean-live-dot red" />
-                    LIVE
-                  </span>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Bottom Row: Controls (Left, Center, Right) */}
@@ -665,9 +667,18 @@ export function NowPlayingBar({
                     <span className="npb-clean-dvr-dash">-</span> DVR
                   </button>
                 )}
+                {isCatchup && onGoToLive && (
+                  <button
+                    className="npb-clean-live-btn active"
+                    onClick={onGoToLive}
+                    title="Go to Live"
+                  >
+                    Go Live
+                  </button>
+                )}
               </div>
 
-              {/* Center Group: Channel Up, Channel Down, Circular Play/Pause, Stop */}
+              {/* Center Group: Channel Up, Channel Down, Circular Play/Pause, Stop, Reload */}
               <div className="npb-clean-center">
                 {onChannelUp && (!isVod || vodInfo?.type === 'series') && (
                   <button
@@ -708,6 +719,17 @@ export function NowPlayingBar({
                   {playing ? <PauseIcon /> : <PlayIcon />}
                 </button>
 
+                {!isVod && !isCatchup && onReplayStream && (
+                  <button
+                    className="npb-clean-sm-btn"
+                    onClick={onReplayStream}
+                    disabled={!canControl}
+                    title="Reload Channel (Q)"
+                  >
+                    <ReloadIcon />
+                  </button>
+                )}
+
                 {onStop && (
                   <button
                     className="npb-clean-sm-btn"
@@ -720,8 +742,20 @@ export function NowPlayingBar({
                 )}
               </div>
 
-              {/* Right Group: Toggle Stats, Aspect Ratio, Audio, Subtitles, PiP, Fullscreen */}
+              {/* Right Group: Toggle Stats, Aspect Ratio, Speed, Audio, Subtitles, Source Picker, PiP, Fullscreen */}
               <div className="npb-clean-right">
+                {isVod && (
+                  <button
+                    className="npb-clean-btn npb-speed-btn"
+                    onClick={handleToggleSpeed}
+                    disabled={!canControl}
+                    title={`Playback Speed: ${speed}x`}
+                    style={{ fontWeight: 700, fontSize: '0.8rem', minWidth: '28px' }}
+                  >
+                    {speed === 1 ? '1x' : speed === 1.5 ? '1.5x' : '2x'}
+                  </button>
+                )}
+
                 {onToggleStats && (
                   <button
                     className="npb-clean-btn"
@@ -763,7 +797,7 @@ export function NowPlayingBar({
                 )}
 
                 <button
-                  className="npb-clean-btn"
+                  className={`npb-clean-btn${hasAudioDelay ? ' has-badge' : ''}`}
                   onClick={onShowAudioModal}
                   disabled={!canControl}
                   title="Audio / Language (A)"
@@ -779,6 +813,17 @@ export function NowPlayingBar({
                 >
                   <SubtitleIcon />
                 </button>
+
+                {isStremioNuvio && onSwitchStream && stremioSourceId && stremioSourceType && (
+                  <button
+                    className="npb-clean-btn npb-source-picker-btn"
+                    onClick={() => setShowSourcePicker(true)}
+                    disabled={!canControl}
+                    title="Switch Source"
+                  >
+                    <SourcePickerIcon />
+                  </button>
+                )}
 
                 {onTogglePip && (
                   <button
@@ -1094,6 +1139,14 @@ export function NowPlayingBar({
                     {isVod && vodInfo?.type === 'series' ? <NextIcon /> : <ChannelDownIcon />}
                   </button>
                 )}
+                <button
+                  className="npb-btn"
+                  onClick={onTogglePlay}
+                  disabled={!canControl}
+                  title={playing ? 'Pause (Space)' : 'Play (Space)'}
+                >
+                  {playing ? <PauseIcon /> : <PlayIcon />}
+                </button>
                 {!isVod && !isCatchup && onReplayStream && (
                   <button
                     className="npb-btn npb-reload-btn"
@@ -1104,14 +1157,6 @@ export function NowPlayingBar({
                     <ReloadIcon />
                   </button>
                 )}
-                <button
-                  className="npb-btn"
-                  onClick={onTogglePlay}
-                  disabled={!canControl}
-                  title={playing ? 'Pause (Space)' : 'Play (Space)'}
-                >
-                  {playing ? <PauseIcon /> : <PlayIcon />}
-                </button>
                 <button
                   className="npb-btn"
                   onClick={onStop}

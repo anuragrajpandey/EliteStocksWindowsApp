@@ -540,7 +540,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                     Control Design
                   </span>
                   <span className="timeshift-toggle-sub">
-                    Default uses the classic bottom control bar cards. Clean / Borderless offers an edge-to-edge layout with floating controls and a top seek bar.
+                    Legacy uses the classic bottom control bar cards. Clean / Borderless offers an edge-to-edge layout with floating controls and a top seek bar.
                   </span>
                 </div>
                 <select
@@ -558,7 +558,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                     outline: 'none'
                   }}
                 >
-                  <option value="default" style={{ backgroundColor: '#1f1f2e' }}>Default</option>
+                  <option value="default" style={{ backgroundColor: '#1f1f2e' }}>Legacy</option>
                   <option value="clean" style={{ backgroundColor: '#1f1f2e' }}>Clean / Borderless</option>
                 </select>
               </div>
