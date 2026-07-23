@@ -377,7 +377,9 @@ export function ProgramContextMenu({
             const startTimeMs = program.raw_start 
                 ? new Date(program.raw_start).getTime() 
                 : (program.start instanceof Date ? program.start.getTime() : new Date(program.start).getTime());
-            const durationMinutes = Math.round(((program.end instanceof Date ? program.end.getTime() : new Date(program.end).getTime()) - startTimeMs) / 60000);
+            const progStartMs = program.start instanceof Date ? program.start.getTime() : new Date(program.start).getTime();
+            const progEndMs = program.end instanceof Date ? program.end.getTime() : new Date(program.end).getTime();
+            const durationMinutes = Math.round((progEndMs - progStartMs) / 60000);
 
             const startPaddingMs = options.startPadding * 60_000;
             const adjustedStartTimeMs = startTimeMs - startPaddingMs;

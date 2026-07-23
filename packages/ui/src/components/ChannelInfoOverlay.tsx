@@ -86,7 +86,7 @@ export function ChannelInfoOverlay({
 
     const updateProgress = () => {
       const now = new Date().getTime();
-      const start = new Date(currentProgram.raw_start ?? currentProgram.start).getTime();
+      const start = new Date(currentProgram.start).getTime();
       const end = new Date(currentProgram.end).getTime();
       const durationMs = end - start;
       const elapsed = now - start;

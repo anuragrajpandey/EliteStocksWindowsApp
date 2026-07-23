@@ -361,7 +361,7 @@ export function NowPlayingBar({
 
     const updateProgress = () => {
       const now = new Date().getTime();
-      const start = new Date(currentProgram.raw_start ?? currentProgram.start).getTime();
+      const start = new Date(currentProgram.start).getTime();
       const end = new Date(currentProgram.end).getTime();
       const duration = end - start;
       const elapsed = now - start;
@@ -407,11 +407,14 @@ export function NowPlayingBar({
       const rect = progressBarRef.current.getBoundingClientRect();
       const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
 
-      const startMs = new Date(currentProgram.raw_start ?? currentProgram.start).getTime();
-      const elapsedMins = Math.max(1, Math.ceil((Date.now() - startMs) / 60000));
+      const rawStartMs = currentProgram.raw_start
+        ? new Date(currentProgram.raw_start).getTime()
+        : new Date(currentProgram.start).getTime();
+      const progStartMs = new Date(currentProgram.start).getTime();
+      const elapsedMins = Math.max(1, Math.ceil((Date.now() - progStartMs) / 60000));
       const seekSeconds = ratio * (elapsedMins * 60);
 
-      onCatchupSeek(channel, currentProgram.title, startMs, elapsedMins, seekSeconds, currentProgram.description);
+      onCatchupSeek(channel, currentProgram.title, rawStartMs, elapsedMins, seekSeconds, currentProgram.description);
     }
   }, [isVod, isCatchup, currentProgram, channel, onSeek, onCatchupSeek, getSeekPosition]);
 
@@ -424,8 +427,8 @@ export function NowPlayingBar({
       if (!progressBarRef.current) return;
       const rect = progressBarRef.current.getBoundingClientRect();
       const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-      const startMs = new Date(currentProgram.raw_start ?? currentProgram.start).getTime();
-      const durationSecs = Math.max(1, (Date.now() - startMs) / 1000);
+      const progStartMs = new Date(currentProgram.start).getTime();
+      const durationSecs = Math.max(1, (Date.now() - progStartMs) / 1000);
       setHoverPosition(ratio * durationSecs);
     } else {
       if (!progressBarRef.current || duration <= 0) return;
@@ -761,7 +764,7 @@ export function NowPlayingBar({
                             ⏮ TimeShift
                           </button>
                         )}
-                        <span className="npb-time-elapsed">{formatTime(Math.max(0, (Date.now() - new Date(currentProgram.raw_start ?? currentProgram.start).getTime()) / 1000))}</span>
+                        <span className="npb-time-elapsed">{formatTime(Math.max(0, (Date.now() - new Date(currentProgram.start).getTime()) / 1000))}</span>
                         <div
                           ref={progressBarRef}
                           className={`npb-progress-bar npb-progress-interactive ${isHovering || isDragging ? 'active' : ''}`}
@@ -777,7 +780,7 @@ export function NowPlayingBar({
                           {isHovering && !isDragging && (
                             <div
                               className="npb-time-tooltip"
-                              style={{ left: `${(hoverPosition / Math.max(1, (Date.now() - new Date(currentProgram.raw_start ?? currentProgram.start).getTime()) / 1000)) * 100}%` }}
+                              style={{ left: `${(hoverPosition / Math.max(1, (Date.now() - new Date(currentProgram.start).getTime()) / 1000)) * 100}%` }}
                             >
                               {formatTime(hoverPosition)}
                             </div>
