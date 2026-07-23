@@ -229,6 +229,8 @@ function App() {
     setVodShowSourceBadge,
     failoverGroupShowSource,
     setFailoverGroupShowSource,
+    playerControlDesign,
+    setPlayerControlDesign,
   } = useAppSettings();
   const navHiddenTabs = useUIStore((s) => s.navHiddenTabs);
   const setNavHiddenStore = useUIStore((s) => s.setNavHiddenTabs);
@@ -3804,7 +3806,7 @@ function App() {
         multiviewLayout !== 'sbs' &&
         multiviewLayout !== 'bigbottom' &&
         multiviewLayout !== '2x2' && (
-        <WidgetBar cioEnabled={channelInfoOverlayEnabled}>
+        <WidgetBar cioEnabled={channelInfoOverlayEnabled} playerControlDesign={playerControlDesign}>
           {(() => {
             const activeWidgets: string[] = [];
             if (recentOverlayWidget) activeWidgets.push('recent');
@@ -3976,6 +3978,7 @@ function App() {
         isCatchup={isCatchup}
         catchupInfo={catchupInfo}
         channelInfoOverlayEnabled={channelInfoOverlayEnabled}
+        playerControlDesign={playerControlDesign}
         onTogglePlay={handleTogglePlay}
         onStop={handleStop}
         onToggleMute={handleToggleMute}
@@ -4362,6 +4365,8 @@ function App() {
           onVodShowSourceBadgeChange={setVodShowSourceBadge}
           failoverGroupShowSource={failoverGroupShowSource}
           onFailoverGroupShowSourceChange={setFailoverGroupShowSource}
+          playerControlDesign={playerControlDesign}
+          onPlayerControlDesignChange={setPlayerControlDesign}
           stremioStreamPickerMode={stremioStreamPickerMode}
           onStremioStreamPickerModeChange={handleStremioStreamPickerModeChange}
           showStremioStreamBadges={showStremioStreamBadges}

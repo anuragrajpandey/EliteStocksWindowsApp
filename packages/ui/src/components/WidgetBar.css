@@ -28,6 +28,12 @@
   bottom: 76px;
 }
 
+/* When Clean / Borderless player controls are active, float above the taller clean control bar */
+.widget-bar.clean-design,
+.widget-bar.clean-design.cio-enabled {
+  bottom: 145px !important;
+}
+
 /* ── Responsive ─────────────────────────────────────── */
 @media (max-width: 600px) {
   .widget-bar {
@@ -38,6 +44,11 @@
 
   .widget-bar.cio-enabled {
     bottom: 68px;
+  }
+
+  .widget-bar.clean-design,
+  .widget-bar.clean-design.cio-enabled {
+    bottom: 135px !important;
   }
 }
 

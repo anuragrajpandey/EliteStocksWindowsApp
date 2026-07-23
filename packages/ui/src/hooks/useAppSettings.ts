@@ -75,6 +75,7 @@ export interface AppSettings {
   categoriesHiddenTransparent: boolean;
   overlayAutohideTimer: number;
   overlayOnClickOnly: boolean;
+  playerControlDesign: 'default' | 'clean';
 
   // Widget scale
   widgetScale: number;
@@ -106,6 +107,7 @@ export interface AppSettings {
   setCategoriesHiddenTransparent: (hidden: boolean) => void;
   setOverlayAutohideTimer: (seconds: number) => void;
   setOverlayOnClickOnly: (enabled: boolean) => void;
+  setPlayerControlDesign: (design: 'default' | 'clean') => void;
   setAdvancedSearchScope: (scope: 'channels' | 'epg' | 'both') => void;
   setAdvancedSearchSourceIds: (ids: string[]) => void;
   setAdvancedSearchCategoryIds: (ids: string[]) => void;
@@ -196,6 +198,9 @@ export function useAppSettings(): AppSettings {
   const [advancedSearchCategoryIds, setAdvancedSearchCategoryIds] = useState<string[]>([]);
   const [useAdvancedSearchForRegular, setUseAdvancedSearchForRegular] = useState(false);
   const [searchCustomPlaylists, setSearchCustomPlaylists] = useState(false);
+
+  // UI visibility
+  const [playerControlDesign, setPlayerControlDesignState] = useState<'default' | 'clean'>('default');
 
   // LiveTV settings
   const [epgView, setEpgView] = useState<'traditional' | 'alternate'>('traditional');
@@ -502,6 +507,7 @@ export function useAppSettings(): AppSettings {
           setCategoriesHiddenTransparentState(result.data.categoriesHiddenTransparent ?? false);
           setOverlayAutohideTimerState(result.data.overlayAutohideTimer ?? 3);
           setOverlayOnClickOnlyState(result.data.overlayOnClickOnly ?? false);
+          setPlayerControlDesignState(result.data.playerControlDesign ?? 'default');
           setPopoutStopMainState(result.data.popoutStopMain ?? true);
           setPopoutAlwaysOnTopState(result.data.popoutAlwaysOnTop ?? false);
           setPopoutMpvParamsEnabledState(result.data.popoutMpvParamsEnabled ?? false);
@@ -840,6 +846,27 @@ export function useAppSettings(): AppSettings {
         await window.storage.updateSettings({ transparentGuideOnZap: enabled });
       } catch (e) {
         console.error('[useAppSettings] Failed to save transparentGuideOnZap:', e);
+      }
+    }
+  }, []);
+
+  const setPlayerControlDesign = useCallback(async (design: 'default' | 'clean') => {
+    setPlayerControlDesignState(design);
+    if (design === 'clean') {
+      setChannelInfoOverlayEnabledState(true);
+      if (window.storage) {
+        try {
+          await window.storage.updateSettings({ channelInfoOverlayEnabled: true });
+        } catch (e) {
+          console.error('[useAppSettings] Failed to save channelInfoOverlayEnabled:', e);
+        }
+      }
+    }
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ playerControlDesign: design });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save playerControlDesign:', e);
       }
     }
   }, []);
@@ -1333,6 +1360,8 @@ export function useAppSettings(): AppSettings {
     epgHiddenButtons,
     overlayAutohideTimer,
     overlayOnClickOnly,
+    playerControlDesign,
+    setPlayerControlDesign,
     widgetScale,
     widgetBgOpacity,
     sportsScale,

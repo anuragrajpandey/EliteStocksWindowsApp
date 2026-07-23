@@ -52,6 +52,8 @@ interface SettingsProps {
   onChannelInfoOverlayOpacityChange?: (opacity: number) => void;
   channelInfoOverlayHideDescription?: boolean;
   onChannelInfoOverlayHideDescriptionChange?: (hide: boolean) => void;
+  playerControlDesign?: 'default' | 'clean';
+  onPlayerControlDesignChange?: (design: 'default' | 'clean') => void;
   overlayAutohideTimer?: number;
   onOverlayAutohideTimerChange?: (seconds: number) => void;
   overlayOnClickOnly?: boolean;
@@ -129,6 +131,8 @@ export function Settings({
   onChannelInfoOverlayOpacityChange,
   channelInfoOverlayHideDescription: channelInfoOverlayHideDescriptionProp,
   onChannelInfoOverlayHideDescriptionChange,
+  playerControlDesign: playerControlDesignProp,
+  onPlayerControlDesignChange,
   overlayAutohideTimer: overlayAutohideTimerProp,
   onOverlayAutohideTimerChange,
   overlayOnClickOnly: overlayOnClickOnlyProp,
@@ -315,12 +319,14 @@ export function Settings({
     overlayAutohideTimer?: number;
     overlayOnClickOnly?: boolean;
     uiScale?: number;
+    playerControlDesign?: 'default' | 'clean';
   }>({
     modernUiEnabled: 'v3',
     collapseSourceCategoriesOnStartup: false,
     overlayAutohideTimer: 3,
     overlayOnClickOnly: false,
     uiScale: 100,
+    playerControlDesign: 'default',
   });
 
   // Font size state (moved to LiveTV tab)
@@ -1942,9 +1948,44 @@ export function Settings({
     overlayAutohideTimer?: number;
     overlayOnClickOnly?: boolean;
     uiScale?: number;
+    playerControlDesign?: 'default' | 'clean';
+    channelInfoOverlayEnabled?: boolean;
+    channelInfoOverlayFontSize?: number;
+    channelInfoOverlayLogoSize?: number;
+    channelInfoOverlayBoxWidth?: number;
+    channelInfoOverlayOpacity?: number;
+    channelInfoOverlayHideDescription?: boolean;
   }) => {
     const updated = { ...uiSettings, ...newSettings };
     setUiSettings(updated);
+
+    if (newSettings.channelInfoOverlayEnabled !== undefined) {
+      setChannelInfoOverlayEnabled(newSettings.channelInfoOverlayEnabled);
+      onChannelInfoOverlayChange?.(newSettings.channelInfoOverlayEnabled);
+    }
+    if (newSettings.channelInfoOverlayFontSize !== undefined) {
+      setChannelInfoOverlayFontSize(newSettings.channelInfoOverlayFontSize);
+      onChannelInfoOverlayFontSizeChange?.(newSettings.channelInfoOverlayFontSize);
+    }
+    if (newSettings.channelInfoOverlayLogoSize !== undefined) {
+      setChannelInfoOverlayLogoSize(newSettings.channelInfoOverlayLogoSize);
+      onChannelInfoOverlayLogoSizeChange?.(newSettings.channelInfoOverlayLogoSize);
+    }
+    if (newSettings.channelInfoOverlayBoxWidth !== undefined) {
+      setChannelInfoOverlayBoxWidth(newSettings.channelInfoOverlayBoxWidth);
+      onChannelInfoOverlayBoxWidthChange?.(newSettings.channelInfoOverlayBoxWidth);
+    }
+    if (newSettings.channelInfoOverlayOpacity !== undefined) {
+      setChannelInfoOverlayOpacity(newSettings.channelInfoOverlayOpacity);
+      onChannelInfoOverlayOpacityChange?.(newSettings.channelInfoOverlayOpacity);
+    }
+    if (newSettings.channelInfoOverlayHideDescription !== undefined) {
+      setChannelInfoOverlayHideDescription(newSettings.channelInfoOverlayHideDescription);
+      onChannelInfoOverlayHideDescriptionChange?.(newSettings.channelInfoOverlayHideDescription);
+    }
+    if (newSettings.playerControlDesign !== undefined) {
+      onPlayerControlDesignChange?.(newSettings.playerControlDesign);
+    }
 
     // Apply/remove the modern-ui class when modernUiEnabled changes
     if (newSettings.modernUiEnabled !== undefined) {
@@ -2242,7 +2283,16 @@ export function Settings({
       case 'ui':
         return (
           <UITab
-            settings={uiSettings}
+            settings={{
+              ...uiSettings,
+              playerControlDesign: playerControlDesignProp ?? uiSettings.playerControlDesign,
+              channelInfoOverlayEnabled,
+              channelInfoOverlayFontSize,
+              channelInfoOverlayLogoSize,
+              channelInfoOverlayBoxWidth,
+              channelInfoOverlayOpacity,
+              channelInfoOverlayHideDescription,
+            }}
             onSettingsChange={handleUiSettingsChange}
           />
         );

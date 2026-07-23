@@ -4,6 +4,7 @@ import './WidgetBar.css';
 interface WidgetBarProps {
   /** Apply the tighter bottom offset when the Channel Info Overlay is enabled */
   cioEnabled: boolean;
+  playerControlDesign?: 'default' | 'clean';
   children: ReactNode;
 }
 
@@ -13,9 +14,10 @@ interface WidgetBarProps {
  * side-by-side with a gap, and scale/positioning is handled here once,
  * so adding more widgets never requires hardcoded left-offset math.
  */
-export function WidgetBar({ cioEnabled, children }: WidgetBarProps) {
+export function WidgetBar({ cioEnabled, playerControlDesign, children }: WidgetBarProps) {
+  const isClean = playerControlDesign === 'clean';
   return (
-    <div className={`widget-bar${cioEnabled ? ' cio-enabled' : ''}`}>
+    <div className={`widget-bar${cioEnabled ? ' cio-enabled' : ''}${isClean ? ' clean-design' : ''}`}>
       {children}
     </div>
   );

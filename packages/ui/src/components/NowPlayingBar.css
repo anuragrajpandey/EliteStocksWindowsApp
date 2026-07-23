@@ -836,3 +836,317 @@
   width: auto;
   padding: 0 8px;
 }
+
+/* ==========================================================================
+   CLEAN / BORDERLESS MEDIA CONTROL DESIGN
+   ========================================================================== */
+/* Overrides for v3 UI, modern UI, and default UI themes to apply smooth fading darkening gradient without borders or card boxes */
+html.modern-ui-v3 .now-playing-bar.clean-design,
+.modern-ui .now-playing-bar.clean-design,
+.now-playing-bar.clean-design {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  border-radius: 0 !important;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.55) 55%, rgba(0, 0, 0, 0) 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  border-top: none !important;
+  box-shadow: none !important;
+  padding: 16px 24px 20px 24px !important;
+  box-sizing: border-box;
+}
+
+html.modern-ui-v3 .now-playing-bar.clean-design::before,
+html.modern-ui-v3 .now-playing-bar.clean-design::after,
+.modern-ui .now-playing-bar.clean-design::before,
+.modern-ui .now-playing-bar.clean-design::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Ensure failover group overlay slot floats cleanly above top edge of clean bar */
+.now-playing-bar.clean-design .npb-overlay-slot {
+  position: absolute;
+  bottom: 100%;
+  right: 24px;
+  margin-bottom: 14px;
+  z-index: 1000;
+}
+
+.npb-clean-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* Top full-width seekbar row */
+.npb-clean-seekbar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.npb-clean-seekbar-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.npb-clean-time-elapsed,
+.npb-clean-time-remaining {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  min-width: 42px;
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.npb-clean-time-elapsed {
+  text-align: left;
+}
+
+.npb-clean-time-remaining {
+  text-align: right;
+}
+
+.npb-clean-seekbar-sub {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 54px;
+}
+
+.npb-clean-behind-live-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.npb-clean-live-btn {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.npb-clean-live-btn:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.npb-clean-behind-text {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #ff9800;
+}
+
+.npb-clean-live-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.npb-clean-live-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #ff4444;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #ff4444;
+}
+
+.npb-clean-progressbar {
+  position: relative;
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+  cursor: pointer;
+  border: none;
+}
+
+.npb-clean-progress-fill {
+  height: 100%;
+  background: #ff9800;
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+.npb-clean-scrubber-handle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background: #ff9800;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Bottom controls row */
+.npb-clean-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  position: relative;
+}
+
+.npb-clean-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.npb-clean-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.npb-clean-sm-btn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: rgba(255, 255, 255, 0.75);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.15s ease;
+  outline: none;
+}
+
+.npb-clean-sm-btn:hover {
+  color: #ffffff;
+  background: transparent !important;
+  border: none !important;
+  transform: scale(1.18);
+}
+
+.npb-clean-sm-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.npb-clean-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Clean buttons - NO background, NO border, pure SVGs */
+.npb-clean-btn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.15s ease;
+  outline: none;
+}
+
+.npb-clean-btn:hover {
+  color: #ffffff;
+  background: transparent !important;
+  border: none !important;
+  transform: scale(1.12);
+}
+
+/* Center circular play/pause button */
+.npb-clean-play-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
+  background: rgba(0, 0, 0, 0.25) !important;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  box-shadow: none !important;
+}
+
+.npb-clean-play-btn:hover {
+  border-color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  transform: scale(1.08);
+}
+
+/* Clean DVR button */
+.npb-clean-dvr-btn {
+  background: transparent !important;
+  border: none !important;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: color 0.15s ease;
+}
+
+.npb-clean-dvr-btn:hover {
+  color: #ffffff;
+}
+
+.npb-clean-dvr-dash {
+  font-weight: 400;
+}
+
+/* Volume range slider in clean mode */
+.npb-clean-volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 70px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.npb-clean-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+}
+

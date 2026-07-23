@@ -72,6 +72,7 @@ interface NowPlayingBarProps {
   onTogglePip?: () => void;
   pipMode?: boolean;
   hasAudioDelay?: boolean;
+  playerControlDesign?: 'default' | 'clean';
 }
 
 // Format seconds to "H:MM:SS" or "M:SS"
@@ -133,6 +134,7 @@ export function NowPlayingBar({
   onTogglePip,
   pipMode,
   hasAudioDelay,
+  playerControlDesign = 'default',
 }: NowPlayingBarProps) {
   // scrubMode: 'timeshift' | 'epgcatchup' — local toggle when channel supports both
   const [scrubMode, setScrubMode] = useState<'timeshift' | 'epgcatchup'>('timeshift');
@@ -193,8 +195,9 @@ export function NowPlayingBar({
     return () => document.removeEventListener('mousedown', handleClick);
   }, [showAspectMenu]);
 
-  // When channel info overlay is enabled, hide channel details from the bar for live TV
-  const hideChannelInfo = channelInfoOverlayEnabled && !isVod;
+  const isClean = playerControlDesign === 'clean';
+  // When channel info overlay is enabled or clean design is active, hide channel details from the bar for live TV
+  const hideChannelInfo = isClean || (channelInfoOverlayEnabled && !isVod && !isCatchup);
 
   // Update DVR with currently playing stream info
   useEffect(() => {
@@ -537,7 +540,7 @@ export function NowPlayingBar({
 
   return (
     <div
-      className={`now-playing-bar ${visible ? 'visible' : 'hidden'}`}
+      className={`now-playing-bar ${isClean ? 'clean-design' : ''} ${visible ? 'visible' : 'hidden'}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -549,91 +552,22 @@ export function NowPlayingBar({
       )}
       {channel ? (
         <>
-          {/* Row 1: Channel/VOD info with description */}
-          {!hideChannelInfo && (
-            <div className="npb-row npb-info-row">
-              {/* Left: Logo + Channel/Program or VOD info */}
-              <div className="npb-channel-section">
-              {channel.stream_icon && (
-                <img
-                  key={channel.stream_icon}
-                  src={channel.stream_icon}
-                  alt=""
-                  className="npb-channel-logo"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
-              )}
-              <div className="npb-channel-text">
-                {isVod && vodInfo ? (
-                  <>
-                    <span className="npb-channel-name" title={vodInfo.title}>
-                      {vodInfo.title}
-                      {vodInfo.year && <span className="npb-vod-year"> ({vodInfo.year})</span>}
-                    </span>
-                    {vodInfo.episodeInfo && (
-                      <span className="npb-program-title" title={vodInfo.episodeInfo}>
-                        {vodInfo.episodeInfo}
-                      </span>
-                    )}
-                  </>
-                ) : isCatchup && catchupInfo ? (
-                  <>
-                    <span className="npb-channel-name" title={channel.alias || channel.name}>
-                      {channel.alias || channel.name} <span className="npb-catchup-badge" style={{ fontSize: '0.7em', backgroundColor: '#e5a00d', padding: '2px 6px', borderRadius: '4px', verticalAlign: 'middle', marginLeft: '6px' }}>CATCHUP</span>
-                    </span>
-                    <MetadataBadge streamId={channel.stream_id} variant="detailed" />
-                    <span className="npb-program-title" title={catchupInfo.programTitle}>
-                      {catchupInfo.programTitle}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span className="npb-channel-name" title={channel.alias || channel.name}>
-                      {channel.alias || channel.name}
-                    </span>
-                    <MetadataBadge streamId={channel.stream_id} variant="detailed" />
-                    {currentProgram ? (
-                      <>
-                        <span className="npb-program-title" title={currentProgram.title}>
-                          {currentProgram.title}
-                        </span>
-                        {(currentProgram as any).subtitle && (
-                          <span className="npb-program-subtitle" title={(currentProgram as any).subtitle}>
-                            {(currentProgram as any).subtitle}
-                          </span>
-                        )}
-                      </>
-                    ) : (
-                      <span className="npb-no-program">No program info</span>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
+          {isClean ? (
+            <div className="npb-clean-layout">
+            {/* Top Row: Full-width Seekbar with left & right timestamps and sub-row */}
+            <div className="npb-clean-seekbar-row">
+              <div className="npb-clean-seekbar-container">
+                <span className="npb-clean-time-elapsed">
+                  {isVod || isCatchup
+                    ? formatTime(position)
+                    : timeshiftState
+                    ? formatTime(timeshiftState.timePos - timeshiftState.cacheStart)
+                    : (position > 0 ? formatTime(position) : '0:00')}
+                </span>
 
-              {/* Divider + Description (VOD plot or TV program description) */}
-              {(isVod ? vodInfo?.plot : (isCatchup ? catchupInfo?.programDesc : currentProgram?.description)) && (
-                <>
-                  <div className="npb-divider" />
-                  <div className="npb-description-section">
-                    <span className="npb-program-desc" title={isVod ? vodInfo?.plot : (isCatchup ? catchupInfo?.programDesc : currentProgram?.description)}>
-                      {isVod ? vodInfo?.plot : (isCatchup ? catchupInfo?.programDesc : currentProgram?.description)}
-                    </span>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-
-          {/* Row 2: Progress and controls */}
-          <div className="npb-row npb-controls-row">
-            {/* Progress section - VOD/Catchup vs Live TV */}
-            {isVod || isCatchup ? (
-              <div className="npb-progress-section npb-progress-vod">
-                <span className="npb-time-elapsed">{formatTime(position)}</span>
                 <div
                   ref={progressBarRef}
-                  className={`npb-progress-bar npb-progress-interactive ${isHovering || isDragging ? 'active' : ''}`}
+                  className={`npb-clean-progressbar ${isHovering || isDragging ? 'active' : ''}`}
                   onClick={handleProgressClick}
                   onMouseEnter={() => setIsHovering(true)}
                   onMouseLeave={() => setIsHovering(false)}
@@ -642,431 +576,751 @@ export function NowPlayingBar({
                   onTouchStart={handleDragStart}
                 >
                   <div
-                    className="npb-progress-fill"
-                    style={{ width: `${vodProgress}%` }}
+                    className="npb-clean-progress-fill"
+                    style={{ width: `${isVod || isCatchup ? vodProgress : (timeshiftState ? Math.max(0, Math.min(100, ((timeshiftState.timePos - timeshiftState.cacheStart) / timeshiftState.cachedDuration) * 100)) : progress)}%` }}
                   />
                   <div
-                    className={`npb-scrubber-handle ${isDragging ? 'dragging' : ''}`}
-                    style={{ left: `${vodProgress}%` }}
+                    className="npb-clean-scrubber-handle"
+                    style={{ left: `${isVod || isCatchup ? vodProgress : (timeshiftState ? Math.max(0, Math.min(100, ((timeshiftState.timePos - timeshiftState.cacheStart) / timeshiftState.cachedDuration) * 100)) : progress)}%` }}
                   />
                   {isHovering && !isDragging && (
                     <div
                       className="npb-time-tooltip"
-                      style={{ left: `${(hoverPosition / duration) * 100}%` }}
+                      style={{ left: `${(hoverPosition / (duration || 1)) * 100}%` }}
                     >
                       {formatTime(hoverPosition)}
                     </div>
                   )}
                 </div>
-                <span className="npb-time-remaining">-{formatTime(vodRemaining)}</span>
 
-                {isCatchup && onGoToLive && (
+                <span className="npb-clean-time-remaining">
+                  {isVod || isCatchup
+                    ? `-${formatTime(vodRemaining)}`
+                    : timeshiftState
+                    ? (timeshiftState.behindLive < 5 ? 'LIVE' : `-${formatTime(timeshiftState.behindLive)}`)
+                    : (timeRemaining ? `-${timeRemaining}` : 'LIVE')}
+                </span>
+              </div>
+
+              {/* Sub-row underneath seekbar: Live button & behind live indicator */}
+              <div className="npb-clean-seekbar-sub">
+                {timeshiftState && timeshiftState.behindLive >= 5 ? (
+                  <div className="npb-clean-behind-live-group">
+                    {onTimeshiftCatchUp ? (
+                      <button className="npb-clean-live-btn active" onClick={onTimeshiftCatchUp} title="Catch up to live">
+                        <span className="npb-clean-live-dot red" />
+                        LIVE
+                      </button>
+                    ) : (
+                      <span className="npb-clean-live-badge">
+                        <span className="npb-clean-live-dot red" />
+                        LIVE
+                      </span>
+                    )}
+                    <span className="npb-clean-behind-text">
+                      −{formatTime(timeshiftState.behindLive)} behind live
+                    </span>
+                  </div>
+                ) : (
+                  <span className="npb-clean-live-badge">
+                    <span className="npb-clean-live-dot red" />
+                    LIVE
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Bottom Row: Controls (Left, Center, Right) */}
+            <div className="npb-clean-controls-row">
+              {/* Left Group: Volume & DVR */}
+              <div className="npb-clean-left">
+                <button
+                  className="npb-clean-btn"
+                  onClick={onToggleMute}
+                  disabled={!mpvReady}
+                  title={muted ? 'Unmute (M)' : 'Mute (M)'}
+                >
+                  <VolumeIcon muted={muted} volume={volume} />
+                </button>
+                <input
+                  type="range"
+                  className="npb-clean-volume-slider"
+                  min="0"
+                  max="100"
+                  value={volume}
+                  onChange={onVolumeChange}
+                  onMouseDown={onVolumeDragStart}
+                  onMouseUp={onVolumeDragEnd}
+                  onTouchStart={onVolumeDragStart}
+                  onTouchEnd={onVolumeDragEnd}
+                  disabled={!mpvReady}
+                />
+                {!isVod && (
                   <button
-                    className="npb-btn npb-live-btn"
-                    onClick={() => {
-                      onGoToLive();
-                    }}
-                    title="Go to Live"
+                    className="npb-clean-dvr-btn"
+                    onClick={handleQuickRecord}
+                    disabled={!canControl || recording}
+                    title="Quick Record / DVR"
                   >
-                    Go Live
+                    <span className="npb-clean-dvr-dash">-</span> DVR
                   </button>
                 )}
               </div>
-            ) : (
-              <div className="npb-progress-section">
-                {(() => {
-                  const hasTimeshiftData = timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1;
-                  const hasEpgCatchup = (Boolean(channel?.tv_archive) || channel?.tv_archive === 1) && currentProgram;
-                  const showTimeshiftScrubber = hasTimeshiftData && (!hasEpgCatchup || scrubMode === 'timeshift');
-                  const showEpgCatchupScrubber = hasEpgCatchup && (!hasTimeshiftData || scrubMode === 'epgcatchup');
 
-                  if (showTimeshiftScrubber && timeshiftState) {
-                    const { cacheStart, cacheEnd, timePos, behindLive, cachedDuration } = timeshiftState;
-                    const playheadPct = Math.max(0, Math.min(100, ((timePos - cacheStart) / cachedDuration) * 100));
-                    const isLive = behindLive < 5;
+              {/* Center Group: Channel Up, Channel Down, Circular Play/Pause, Stop */}
+              <div className="npb-clean-center">
+                {onChannelUp && (!isVod || vodInfo?.type === 'series') && (
+                  <button
+                    className="npb-clean-sm-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      onChannelUp();
+                    }}
+                    disabled={!canControl}
+                    title={isVod && vodInfo?.type === 'series' ? 'Previous Episode' : 'Previous Channel'}
+                  >
+                    {isVod && vodInfo?.type === 'series' ? <PrevIcon /> : <ChannelUpIcon />}
+                  </button>
+                )}
 
-                    const handleTimeshiftClick = (e: React.MouseEvent<HTMLDivElement>) => {
-                      if (!progressBarRef.current || !onSeek) return;
-                      const rect = progressBarRef.current.getBoundingClientRect();
-                      const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-                      const targetPos = cacheStart + ratio * cachedDuration;
-                      onSeek(Math.min(Math.max(targetPos, cacheStart), cacheEnd - 1));
-                    };
+                {onChannelDown && (!isVod || vodInfo?.type === 'series') && (
+                  <button
+                    className="npb-clean-sm-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      onChannelDown();
+                    }}
+                    disabled={!canControl}
+                    title={isVod && vodInfo?.type === 'series' ? 'Next Episode' : 'Next Channel'}
+                  >
+                    {isVod && vodInfo?.type === 'series' ? <NextIcon /> : <ChannelDownIcon />}
+                  </button>
+                )}
 
-                    const handleTimeshiftMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-                      if (!progressBarRef.current) return;
-                      const rect = progressBarRef.current.getBoundingClientRect();
-                      const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-                      setHoverPosition(cacheStart + ratio * cachedDuration);
-                    };
+                <button
+                  className="npb-clean-play-btn"
+                  onClick={onTogglePlay}
+                  disabled={!canControl}
+                  title={playing ? 'Pause (Space)' : 'Play (Space)'}
+                >
+                  {playing ? <PauseIcon /> : <PlayIcon />}
+                </button>
 
-                    return (
-                      <>
-                        <span className="npb-time-elapsed">{formatTime(timePos - cacheStart)}</span>
-                        <div className="npb-ts-container">
+                {onStop && (
+                  <button
+                    className="npb-clean-sm-btn"
+                    onClick={onStop}
+                    disabled={!canControl}
+                    title="Stop"
+                  >
+                    <StopIcon />
+                  </button>
+                )}
+              </div>
+
+              {/* Right Group: Toggle Stats, Aspect Ratio, Audio, Subtitles, PiP, Fullscreen */}
+              <div className="npb-clean-right">
+                {onToggleStats && (
+                  <button
+                    className="npb-clean-btn"
+                    onClick={onToggleStats}
+                    disabled={!canControl}
+                    title="Toggle Stats (I)"
+                  >
+                    <StatsIcon />
+                  </button>
+                )}
+
+                {onSetAspectRatio && (
+                  <div style={{ position: 'relative' }} ref={aspectMenuRef}>
+                    <button
+                      className="npb-clean-btn"
+                      onClick={() => setShowAspectMenu(v => !v)}
+                      disabled={!canControl}
+                      title="Aspect Ratio"
+                    >
+                      <AspectRatioIcon />
+                    </button>
+                    {showAspectMenu && (
+                      <div className="npb-aspect-menu">
+                        {(['fit', 'fill', 'stretch', '4:3', '16:9'] as AspectRatioMode[]).map((mode) => (
+                          <button
+                            key={mode}
+                            className={`npb-aspect-item ${aspectRatio === mode ? 'active' : ''}`}
+                            onClick={() => {
+                              onSetAspectRatio(mode);
+                              setShowAspectMenu(false);
+                            }}
+                          >
+                            {getAspectRatioLabel(mode)}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  className="npb-clean-btn"
+                  onClick={onShowAudioModal}
+                  disabled={!canControl}
+                  title="Audio / Language (A)"
+                >
+                  <TranslateIcon />
+                </button>
+
+                <button
+                  className="npb-clean-btn"
+                  onClick={onShowSubtitleModal}
+                  disabled={!canControl}
+                  title="Subtitles / Tracks (J)"
+                >
+                  <SubtitleIcon />
+                </button>
+
+                {onTogglePip && (
+                  <button
+                    className="npb-clean-btn"
+                    onClick={onTogglePip}
+                    disabled={!canControl}
+                    title={pipMode ? 'Exit Picture-in-Picture' : 'Picture-in-Picture (P)'}
+                  >
+                    <PiPIcon active={!!pipMode} />
+                  </button>
+                )}
+
+                <button
+                  className="npb-clean-btn"
+                  onClick={onToggleFullscreen}
+                  disabled={!canControl}
+                  title="Toggle Fullscreen (F)"
+                >
+                  <FullscreenIcon />
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Row 1: Channel/VOD info with description */}
+            {!hideChannelInfo && (
+              <div className="npb-row npb-info-row">
+                {/* Left: Logo + Channel/Program or VOD info */}
+                <div className="npb-channel-section">
+                {channel.stream_icon && (
+                  <img
+                    key={channel.stream_icon}
+                    src={channel.stream_icon}
+                    alt=""
+                    className="npb-channel-logo"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                )}
+                <div className="npb-channel-text">
+                  {isVod && vodInfo ? (
+                    <>
+                      <span className="npb-channel-name" title={vodInfo.title}>
+                        {vodInfo.title}
+                        {vodInfo.year && <span className="npb-vod-year"> ({vodInfo.year})</span>}
+                      </span>
+                      {vodInfo.episodeInfo && (
+                        <span className="npb-program-title" title={vodInfo.episodeInfo}>
+                          {vodInfo.episodeInfo}
+                        </span>
+                      )}
+                    </>
+                  ) : isCatchup && catchupInfo ? (
+                    <>
+                      <span className="npb-channel-name" title={channel.alias || channel.name}>
+                        {channel.alias || channel.name} <span className="npb-catchup-badge" style={{ fontSize: '0.7em', backgroundColor: '#e5a00d', padding: '2px 6px', borderRadius: '4px', verticalAlign: 'middle', marginLeft: '6px' }}>CATCHUP</span>
+                      </span>
+                      <MetadataBadge streamId={channel.stream_id} variant="detailed" />
+                      <span className="npb-program-title" title={catchupInfo.programTitle}>
+                        {catchupInfo.programTitle}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="npb-channel-name" title={channel.alias || channel.name}>
+                        {channel.alias || channel.name}
+                      </span>
+                      <MetadataBadge streamId={channel.stream_id} variant="detailed" />
+                      {currentProgram ? (
+                        <>
+                          <span className="npb-program-title" title={currentProgram.title}>
+                            {currentProgram.title}
+                          </span>
+                          {(currentProgram as any).subtitle && (
+                            <span className="npb-program-subtitle" title={(currentProgram as any).subtitle}>
+                              {(currentProgram as any).subtitle}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="npb-no-program">No program info</span>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+
+                {/* Divider + Description (VOD plot or TV program description) */}
+                {(isVod ? vodInfo?.plot : (isCatchup ? catchupInfo?.programDesc : currentProgram?.description)) && (
+                  <>
+                    <div className="npb-divider" />
+                    <div className="npb-description-section">
+                      <span className="npb-program-desc" title={isVod ? vodInfo?.plot : (isCatchup ? catchupInfo?.programDesc : currentProgram?.description)}>
+                        {isVod ? vodInfo?.plot : (isCatchup ? catchupInfo?.programDesc : currentProgram?.description)}
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Row 2: Progress and controls */}
+            <div className="npb-row npb-controls-row">
+              {/* Progress section - VOD/Catchup vs Live TV */}
+              {isVod || isCatchup ? (
+                <div className="npb-progress-section npb-progress-vod">
+                  <span className="npb-time-elapsed">{formatTime(position)}</span>
+                  <div
+                    ref={progressBarRef}
+                    className={`npb-progress-bar npb-progress-interactive ${isHovering || isDragging ? 'active' : ''}`}
+                    onClick={handleProgressClick}
+                    onMouseEnter={() => setIsHovering(true)}
+                    onMouseLeave={() => setIsHovering(false)}
+                    onMouseMove={handleProgressMouseMove}
+                    onMouseDown={handleDragStart}
+                    onTouchStart={handleDragStart}
+                  >
+                    <div
+                      className="npb-progress-fill"
+                      style={{ width: `${vodProgress}%` }}
+                    />
+                    <div
+                      className={`npb-scrubber-handle ${isDragging ? 'dragging' : ''}`}
+                      style={{ left: `${vodProgress}%` }}
+                    />
+                    {isHovering && !isDragging && (
+                      <div
+                        className="npb-time-tooltip"
+                        style={{ left: `${(hoverPosition / duration) * 100}%` }}
+                      >
+                        {formatTime(hoverPosition)}
+                      </div>
+                    )}
+                  </div>
+                  <span className="npb-time-remaining">-{formatTime(vodRemaining)}</span>
+
+                  {isCatchup && onGoToLive && (
+                    <button
+                      className="npb-btn npb-live-btn"
+                      onClick={() => {
+                        onGoToLive();
+                      }}
+                      title="Go to Live"
+                    >
+                      Go Live
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="npb-progress-section">
+                  {(() => {
+                    const hasTimeshiftData = timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1;
+                    const hasEpgCatchup = (Boolean(channel?.tv_archive) || channel?.tv_archive === 1) && currentProgram;
+                    const showTimeshiftScrubber = hasTimeshiftData && (!hasEpgCatchup || scrubMode === 'timeshift');
+                    const showEpgCatchupScrubber = hasEpgCatchup && (!hasTimeshiftData || scrubMode === 'epgcatchup');
+
+                    if (showTimeshiftScrubber && timeshiftState) {
+                      const { cacheStart, cacheEnd, timePos, behindLive, cachedDuration } = timeshiftState;
+                      const playheadPct = Math.max(0, Math.min(100, ((timePos - cacheStart) / cachedDuration) * 100));
+                      const isLive = behindLive < 5;
+
+                      const handleTimeshiftClick = (e: React.MouseEvent<HTMLDivElement>) => {
+                        if (!progressBarRef.current || !onSeek) return;
+                        const rect = progressBarRef.current.getBoundingClientRect();
+                        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                        const targetPos = cacheStart + ratio * cachedDuration;
+                        onSeek(Math.min(Math.max(targetPos, cacheStart), cacheEnd - 1));
+                      };
+
+                      const handleTimeshiftMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+                        if (!progressBarRef.current) return;
+                        const rect = progressBarRef.current.getBoundingClientRect();
+                        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                        setHoverPosition(cacheStart + ratio * cachedDuration);
+                      };
+
+                      return (
+                        <>
+                          <span className="npb-time-elapsed">{formatTime(timePos - cacheStart)}</span>
+                          <div className="npb-ts-container">
+                            <div
+                              ref={progressBarRef}
+                              className="npb-ts-scrubber"
+                              onClick={handleTimeshiftClick}
+                              onMouseEnter={() => setIsHovering(true)}
+                              onMouseLeave={() => setIsHovering(false)}
+                              onMouseMove={handleTimeshiftMouseMove}
+                            >
+                              <div className="npb-ts-fill" style={{ width: `${playheadPct}%` }} />
+                              <div className="npb-ts-handle" style={{ left: `${playheadPct}%` }} />
+                              {isHovering && (
+                                <div
+                                  className="npb-time-tooltip"
+                                  style={{ left: `${((hoverPosition - cacheStart) / cachedDuration) * 100}%` }}
+                                >
+                                  {formatTime(hoverPosition - cacheStart)}
+                                </div>
+                              )}
+                              {/* Live edge marker */}
+                              <div className="npb-live-edge-marker" />
+                            </div>
+                            {/* Below-bar row: cached duration + mode toggle + live state */}
+                            <div className="npb-timeshift-meta">
+                              <span className="npb-timeshift-window">↩ {formatTime(cachedDuration)} buffered</span>
+                              {hasEpgCatchup && (
+                                <button
+                                  className="npb-scrub-mode-btn"
+                                  onClick={() => setScrubMode('epgcatchup')}
+                                  title="Switch to EPG Catchup mode"
+                                >
+                                  ⏱ EPG Catchup
+                                </button>
+                              )}
+                              {isLive ? (
+                                <span className="npb-live-badge">● LIVE</span>
+                              ) : (
+                                <span className="npb-behind-live">−{formatTime(behindLive)} behind live</span>
+                              )}
+                            </div>
+                          </div>
+                          <span className="npb-time-remaining">−{formatTime(behindLive)}</span>
+                          {!isLive && onTimeshiftCatchUp && (
+                            <button className="npb-btn npb-live-btn" onClick={onTimeshiftCatchUp} title="Catch up to live">
+                              ⏭ Live
+                            </button>
+                          )}
+                        </>
+                      );
+                    } else if (showEpgCatchupScrubber && currentProgram) {
+                      return (
+                        <>
+                          {hasTimeshiftData && (
+                            <button
+                              className="npb-scrub-mode-btn npb-scrub-mode-btn--back"
+                              onClick={() => setScrubMode('timeshift')}
+                              title="Switch back to TimeShift mode"
+                            >
+                              ⏮ TimeShift
+                            </button>
+                          )}
+                          <span className="npb-time-elapsed">{formatTime(Math.max(0, (Date.now() - new Date(currentProgram.start).getTime()) / 1000))}</span>
                           <div
                             ref={progressBarRef}
-                            className="npb-ts-scrubber"
-                            onClick={handleTimeshiftClick}
+                            className={`npb-progress-bar npb-progress-interactive ${isHovering || isDragging ? 'active' : ''}`}
+                            onClick={handleProgressClick}
                             onMouseEnter={() => setIsHovering(true)}
                             onMouseLeave={() => setIsHovering(false)}
-                            onMouseMove={handleTimeshiftMouseMove}
+                            onMouseMove={handleProgressMouseMove}
+                            onMouseDown={handleDragStart}
+                            onTouchStart={handleDragStart}
                           >
-                            <div className="npb-ts-fill" style={{ width: `${playheadPct}%` }} />
-                            <div className="npb-ts-handle" style={{ left: `${playheadPct}%` }} />
-                            {isHovering && (
+                            <div className="npb-progress-fill" style={{ width: `100%` }} />
+                            <div className={`npb-scrubber-handle ${isDragging ? 'dragging' : ''}`} style={{ left: `100%` }} />
+                            {isHovering && !isDragging && (
                               <div
                                 className="npb-time-tooltip"
-                                style={{ left: `${((hoverPosition - cacheStart) / cachedDuration) * 100}%` }}
+                                style={{ left: `${(hoverPosition / Math.max(1, (Date.now() - new Date(currentProgram.start).getTime()) / 1000)) * 100}%` }}
                               >
-                                {formatTime(hoverPosition - cacheStart)}
+                                {formatTime(hoverPosition)}
                               </div>
                             )}
-                            {/* Live edge marker */}
-                            <div className="npb-live-edge-marker" />
                           </div>
-                          {/* Below-bar row: cached duration + mode toggle + live state */}
-                          <div className="npb-timeshift-meta">
-                            <span className="npb-timeshift-window">↩ {formatTime(cachedDuration)} buffered</span>
-                            {hasEpgCatchup && (
-                              <button
-                                className="npb-scrub-mode-btn"
-                                onClick={() => setScrubMode('epgcatchup')}
-                                title="Switch to EPG Catchup mode"
-                              >
-                                ⏱ EPG Catchup
-                              </button>
-                            )}
-                            {isLive ? (
-                              <span className="npb-live-badge">● LIVE</span>
-                            ) : (
-                              <span className="npb-behind-live">−{formatTime(behindLive)} behind live</span>
-                            )}
-                          </div>
-                        </div>
-                        <span className="npb-time-remaining">−{formatTime(behindLive)}</span>
-                        {!isLive && onTimeshiftCatchUp && (
-                          <button className="npb-btn npb-live-btn" onClick={onTimeshiftCatchUp} title="Catch up to live">
-                            ⏭ Live
-                          </button>
-                        )}
-                      </>
-                    );
-                  } else if (showEpgCatchupScrubber && currentProgram) {
-                    return (
-                      <>
-                        {hasTimeshiftData && (
-                          <button
-                            className="npb-scrub-mode-btn npb-scrub-mode-btn--back"
-                            onClick={() => setScrubMode('timeshift')}
-                            title="Switch back to TimeShift mode"
-                          >
-                            ⏮ TimeShift
-                          </button>
-                        )}
-                        <span className="npb-time-elapsed">{formatTime(Math.max(0, (Date.now() - new Date(currentProgram.start).getTime()) / 1000))}</span>
-                        <div
-                          ref={progressBarRef}
-                          className={`npb-progress-bar npb-progress-interactive ${isHovering || isDragging ? 'active' : ''}`}
-                          onClick={handleProgressClick}
-                          onMouseEnter={() => setIsHovering(true)}
-                          onMouseLeave={() => setIsHovering(false)}
-                          onMouseMove={handleProgressMouseMove}
-                          onMouseDown={handleDragStart}
-                          onTouchStart={handleDragStart}
-                        >
-                          <div className="npb-progress-fill" style={{ width: `100%` }} />
-                          <div className={`npb-scrubber-handle ${isDragging ? 'dragging' : ''}`} style={{ left: `100%` }} />
-                          {isHovering && !isDragging && (
+                          <span className="npb-time-remaining">-0:00</span>
+                        </>
+                      );
+                    } else {
+                      // Regular live (no timeshift, no epg catchup)
+                      return (
+                        <>
+                          <div className="npb-progress-bar">
                             <div
-                              className="npb-time-tooltip"
-                              style={{ left: `${(hoverPosition / Math.max(1, (Date.now() - new Date(currentProgram.start).getTime()) / 1000)) * 100}%` }}
-                            >
-                              {formatTime(hoverPosition)}
-                            </div>
-                          )}
-                        </div>
-                        <span className="npb-time-remaining">-0:00</span>
-                      </>
-                    );
-                  } else {
-                    // Regular live (no timeshift, no epg catchup)
-                    return (
-                      <>
-                        <div className="npb-progress-bar">
-                          <div
-                            className="npb-progress-fill"
-                            style={{ width: currentProgram ? `${progress}%` : '0%' }}
-                          />
-                        </div>
-                        <span className="npb-time-remaining">
-                          {timeRemaining || '--'}
-                        </span>
-                      </>
-                    );
-                  }
-                })()}
-              </div>
-            )}
+                              className="npb-progress-fill"
+                              style={{ width: currentProgram ? `${progress}%` : '0%' }}
+                            />
+                          </div>
+                          <span className="npb-time-remaining">
+                            {timeRemaining || '--'}
+                          </span>
+                        </>
+                      );
+                    }
+                  })()}
+                </div>
+              )}
 
-            {/* Playback controls */}
-            <div className="npb-controls">
-              {onChannelUp && (!isVod || vodInfo?.type === 'series') && (
-                <button
-                  className="npb-btn npb-channel-up-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    onChannelUp();
-                  }}
-                  disabled={!canControl}
-                  title={isVod && vodInfo?.type === 'series' ? 'Previous Episode' : 'Previous Channel (Up)'}
-                >
-                  {isVod && vodInfo?.type === 'series' ? <PrevIcon /> : <ChannelUpIcon />}
-                </button>
-              )}
-              {onChannelDown && (!isVod || vodInfo?.type === 'series') && (
-                <button
-                  className="npb-btn npb-channel-down-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    onChannelDown();
-                  }}
-                  disabled={!canControl}
-                  title={isVod && vodInfo?.type === 'series' ? 'Next Episode' : 'Next Channel (Down)'}
-                >
-                  {isVod && vodInfo?.type === 'series' ? <NextIcon /> : <ChannelDownIcon />}
-                </button>
-              )}
-              {!isVod && !isCatchup && onReplayStream && (
-                <button
-                  className="npb-btn npb-reload-btn"
-                  onClick={onReplayStream}
-                  disabled={!canControl}
-                  title="Reload Channel (Q)"
-                >
-                  <ReloadIcon />
-                </button>
-              )}
-              <button
-                className="npb-btn"
-                onClick={onTogglePlay}
-                disabled={!canControl}
-                title={playing ? 'Pause (Space)' : 'Play (Space)'}
-              >
-                {playing ? <PauseIcon /> : <PlayIcon />}
-              </button>
-              <button
-                className="npb-btn"
-                onClick={onStop}
-                disabled={!canControl}
-                title="Stop"
-              >
-                <StopIcon />
-              </button>
-            </div>
-
-            {/* Extra Controls (Subtitle, Audio, Stats, Record) */}
-            <div className="npb-controls npb-extra-controls">
-              <button
-                className="npb-btn"
-                onClick={onShowSubtitleModal}
-                disabled={!canControl}
-                title="Select Subtitle (J)"
-              >
-                <SubtitleIcon />
-              </button>
-              <button
-                className={`npb-btn${hasAudioDelay ? ' has-badge' : ''}`}
-                onClick={onShowAudioModal}
-                disabled={!canControl}
-                title="Select Audio Track (A)"
-              >
-                <AudioIcon />
-              </button>
-              <button
-                className="npb-btn"
-                onClick={onToggleStats}
-                disabled={!canControl}
-                title="Toggle Stats (I)"
-              >
-                <StatsIcon />
-              </button>
-              {isStremioNuvio && onSwitchStream && stremioSourceId && stremioSourceType && (
-                <button
-                  className="npb-btn npb-source-picker-btn"
-                  onClick={() => setShowSourcePicker(true)}
-                  disabled={!canControl}
-                  title="Switch Source"
-                >
-                  <SourcePickerIcon />
-                </button>
-              )}
-              {!isVod && (
-                <button
-                  className="npb-btn npb-record-btn"
-                  onClick={handleQuickRecord}
-                  disabled={!canControl || recording}
-                  title="Quick Record"
-                  style={{ color: recording ? '#ff4444' : undefined }}
-                >
-                  <RecordIcon recording={recording} />
-                </button>
-              )}
-            </div>
-
-            {/* Aspect Ratio controls */}
-            {onSetAspectRatio && (
-              <div className="npb-controls npb-aspect-controls" ref={aspectMenuRef}>
+              {/* Playback controls */}
+              <div className="npb-controls">
+                {onChannelUp && (!isVod || vodInfo?.type === 'series') && (
+                  <button
+                    className="npb-btn npb-channel-up-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      onChannelUp();
+                    }}
+                    disabled={!canControl}
+                    title={isVod && vodInfo?.type === 'series' ? 'Previous Episode' : 'Previous Channel (Up)'}
+                  >
+                    {isVod && vodInfo?.type === 'series' ? <PrevIcon /> : <ChannelUpIcon />}
+                  </button>
+                )}
+                {onChannelDown && (!isVod || vodInfo?.type === 'series') && (
+                  <button
+                    className="npb-btn npb-channel-down-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      onChannelDown();
+                    }}
+                    disabled={!canControl}
+                    title={isVod && vodInfo?.type === 'series' ? 'Next Episode' : 'Next Channel (Down)'}
+                  >
+                    {isVod && vodInfo?.type === 'series' ? <NextIcon /> : <ChannelDownIcon />}
+                  </button>
+                )}
+                {!isVod && !isCatchup && onReplayStream && (
+                  <button
+                    className="npb-btn npb-reload-btn"
+                    onClick={onReplayStream}
+                    disabled={!canControl}
+                    title="Reload Channel (Q)"
+                  >
+                    <ReloadIcon />
+                  </button>
+                )}
                 <button
                   className="npb-btn"
-                  onClick={() => setShowAspectMenu(v => !v)}
+                  onClick={onTogglePlay}
                   disabled={!canControl}
-                  title="Aspect Ratio"
+                  title={playing ? 'Pause (Space)' : 'Play (Space)'}
                 >
-                  <AspectRatioIcon />
+                  {playing ? <PauseIcon /> : <PlayIcon />}
                 </button>
-                {showAspectMenu && (
-                  <div className="npb-aspect-menu">
-                    {(['fit', 'fill', 'stretch', '4:3', '16:9'] as AspectRatioMode[]).map((mode) => (
-                      <button
-                        key={mode}
-                        className={`npb-aspect-item ${aspectRatio === mode ? 'active' : ''}`}
-                        onClick={() => {
-                          onSetAspectRatio(mode);
-                          setShowAspectMenu(false);
-                        }}
-                      >
-                        {getAspectRatioLabel(mode)}
-                      </button>
-                    ))}
-                  </div>
+                <button
+                  className="npb-btn"
+                  onClick={onStop}
+                  disabled={!canControl}
+                  title="Stop"
+                >
+                  <StopIcon />
+                </button>
+              </div>
+
+              {/* Extra Controls (Subtitle, Audio, Stats, Record) */}
+              <div className="npb-controls npb-extra-controls">
+                <button
+                  className="npb-btn"
+                  onClick={onShowSubtitleModal}
+                  disabled={!canControl}
+                  title="Select Subtitle (J)"
+                >
+                  <SubtitleIcon />
+                </button>
+                <button
+                  className={`npb-btn${hasAudioDelay ? ' has-badge' : ''}`}
+                  onClick={onShowAudioModal}
+                  disabled={!canControl}
+                  title="Select Audio Track (A)"
+                >
+                  <AudioIcon />
+                </button>
+                <button
+                  className="npb-btn"
+                  onClick={onToggleStats}
+                  disabled={!canControl}
+                  title="Toggle Stats (I)"
+                >
+                  <StatsIcon />
+                </button>
+                {isStremioNuvio && onSwitchStream && stremioSourceId && stremioSourceType && (
+                  <button
+                    className="npb-btn npb-source-picker-btn"
+                    onClick={() => setShowSourcePicker(true)}
+                    disabled={!canControl}
+                    title="Switch Source"
+                  >
+                    <SourcePickerIcon />
+                  </button>
+                )}
+                {!isVod && (
+                  <button
+                    className="npb-btn npb-record-btn"
+                    onClick={handleQuickRecord}
+                    disabled={!canControl || recording}
+                    title="Quick Record"
+                    style={{ color: recording ? '#ff4444' : undefined }}
+                  >
+                    <RecordIcon recording={recording} />
+                  </button>
                 )}
               </div>
-            )}
 
-            {/* Playback speed controls (VOD only) */}
-            {isVod && (
-              <div className="npb-controls npb-speed-controls">
-                <button
-                  className="npb-btn npb-speed-btn"
-                  onClick={handleToggleSpeed}
-                  disabled={!canControl}
-                  title={`Playback Speed: ${speed}x`}
-                >
-                  {speed === 1 ? '1x' : speed === 1.5 ? '1.5x' : '2x'}
-                </button>
-              </div>
-            )}
+              {/* Aspect Ratio controls */}
+              {onSetAspectRatio && (
+                <div className="npb-controls npb-aspect-controls" ref={aspectMenuRef}>
+                  <button
+                    className="npb-btn"
+                    onClick={() => setShowAspectMenu(v => !v)}
+                    disabled={!canControl}
+                    title="Aspect Ratio"
+                  >
+                    <AspectRatioIcon />
+                  </button>
+                  {showAspectMenu && (
+                    <div className="npb-aspect-menu">
+                      {(['fit', 'fill', 'stretch', '4:3', '16:9'] as AspectRatioMode[]).map((mode) => (
+                        <button
+                          key={mode}
+                          className={`npb-aspect-item ${aspectRatio === mode ? 'active' : ''}`}
+                          onClick={() => {
+                            onSetAspectRatio(mode);
+                            setShowAspectMenu(false);
+                          }}
+                        >
+                          {getAspectRatioLabel(mode)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
-            {/* Volume controls */}
-            <div className="npb-volume">
-              <button
-                className="npb-btn npb-volume-btn"
-                onClick={onToggleMute}
-                disabled={!mpvReady}
-                title={muted ? 'Unmute (M)' : 'Mute (M)'}
-              >
-                <VolumeIcon muted={muted} volume={volume} />
-              </button>
-              <input
-                type="range"
-                className="npb-volume-slider"
-                min="0"
-                max="100"
-                value={volume}
-                onChange={onVolumeChange}
-                onMouseDown={onVolumeDragStart}
-                onMouseUp={onVolumeDragEnd}
-                onTouchStart={onVolumeDragStart}
-                onTouchEnd={onVolumeDragEnd}
-                disabled={!mpvReady}
-              />
-              <span className="npb-volume-value">{volume}</span>
-            </div>
-
-            {/* PiP button */}
-            {onTogglePip && (
-              <button
-                className="npb-btn"
-                onClick={onTogglePip}
-                disabled={!canControl}
-                title={pipMode ? 'Exit Picture-in-Picture' : 'Picture-in-Picture (P)'}
-              >
-                <PiPIcon active={!!pipMode} />
-              </button>
-            )}
-
-            {/* Fullscreen button */}
-            <button
-              className="npb-btn npb-fullscreen-btn"
-              onClick={onToggleFullscreen}
-              disabled={!canControl}
-              title="Toggle Fullscreen (F)"
-            >
-              <FullscreenIcon />
-            </button>
-          </div>
-
-
-
-          {/* Quick Record Modal - rendered via portal to center in viewport */}
-          {showRecordModal && createPortal(
-            <div className="npb-modal-overlay" onClick={() => setShowRecordModal(false)}>
-              <div className="npb-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="npb-modal-header">
-                  <h3>Quick Record</h3>
-                  <button className="npb-modal-close" onClick={() => setShowRecordModal(false)}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
+              {/* Playback speed controls (VOD only) */}
+              {isVod && (
+                <div className="npb-controls npb-speed-controls">
+                  <button
+                    className="npb-btn npb-speed-btn"
+                    onClick={handleToggleSpeed}
+                    disabled={!canControl}
+                    title={`Playback Speed: ${speed}x`}
+                  >
+                    {speed === 1 ? '1x' : speed === 1.5 ? '1.5x' : '2x'}
                   </button>
                 </div>
-                <div className="npb-modal-body">
-                  <p>Record <strong>{channel?.name}</strong></p>
-                  {currentProgram?.title && <p>Program: {currentProgram.title}</p>}
-                  <div className="npb-form-group">
-                    <label>Duration (minutes)</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="180"
-                      value={recordDuration}
-                      onChange={(e) => setRecordDuration(Math.max(1, Math.min(180, parseInt(e.target.value) || 1)))}
-                      autoFocus
-                    />
-                  </div>
-                </div>
-                <div className="npb-modal-footer">
-                  <button className="npb-btn secondary" onClick={() => setShowRecordModal(false)}>Cancel</button>
-                  <button className="npb-btn primary" onClick={handleStartRecording}>Start Recording</button>
+              )}
+
+              {/* Volume controls */}
+              <div className="npb-volume">
+                <button
+                  className="npb-btn npb-volume-btn"
+                  onClick={onToggleMute}
+                  disabled={!mpvReady}
+                  title={muted ? 'Unmute (M)' : 'Mute (M)'}
+                >
+                  <VolumeIcon muted={muted} volume={volume} />
+                </button>
+                <input
+                  type="range"
+                  className="npb-volume-slider"
+                  min="0"
+                  max="100"
+                  value={volume}
+                  onChange={onVolumeChange}
+                  onMouseDown={onVolumeDragStart}
+                  onMouseUp={onVolumeDragEnd}
+                  onTouchStart={onVolumeDragStart}
+                  onTouchEnd={onVolumeDragEnd}
+                  disabled={!mpvReady}
+                />
+                <span className="npb-volume-value">{volume}</span>
+              </div>
+
+              {/* PiP button */}
+              {onTogglePip && (
+                <button
+                  className="npb-btn"
+                  onClick={onTogglePip}
+                  disabled={!canControl}
+                  title={pipMode ? 'Exit Picture-in-Picture' : 'Picture-in-Picture (P)'}
+                >
+                  <PiPIcon active={!!pipMode} />
+                </button>
+              )}
+
+              {/* Fullscreen button */}
+              <button
+                className="npb-btn npb-fullscreen-btn"
+                onClick={onToggleFullscreen}
+                disabled={!canControl}
+                title="Toggle Fullscreen (F)"
+              >
+                <FullscreenIcon />
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Quick Record Modal - rendered via portal to center in viewport */}
+        {showRecordModal && createPortal(
+          <div className="npb-modal-overlay" onClick={() => setShowRecordModal(false)}>
+            <div className="npb-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="npb-modal-header">
+                <h3>Quick Record</h3>
+                <button className="npb-modal-close" onClick={() => setShowRecordModal(false)}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+              <div className="npb-modal-body">
+                <p>Record <strong>{channel?.name}</strong></p>
+                {currentProgram?.title && <p>Program: {currentProgram.title}</p>}
+                <div className="npb-form-group">
+                  <label>Duration (minutes)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="180"
+                    value={recordDuration}
+                    onChange={(e) => setRecordDuration(Math.max(1, Math.min(180, parseInt(e.target.value) || 1)))}
+                    autoFocus
+                  />
                 </div>
               </div>
-            </div>,
-            document.body
-          )}
+              <div className="npb-modal-footer">
+                <button className="npb-btn secondary" onClick={() => setShowRecordModal(false)}>Cancel</button>
+                <button className="npb-btn primary" onClick={handleStartRecording}>Start Recording</button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
 
-          {/* Source Picker Modal */}
-          {isStremioNuvio && showSourcePicker && stremioSourceId && stremioSourceType && onSwitchStream && (
-            <SourcePickerModal
-              source={vodInfo?.source_id === 'nuvio' ? 'nuvio' : 'stremio'}
-              type={stremioSourceType}
-              id={stremioSourceId}
-              currentAddonName={vodInfo?.addonName}
-              currentUrl={vodInfo?.url}
-              compiledBadgeRules={vodInfo?.source_id === 'nuvio' ? (compiledNuvioBadgeRules || compiledBadgeRules) : compiledBadgeRules}
-              onSelect={(stream) => {
-                setShowSourcePicker(false);
-                onSwitchStream(stream);
-              }}
-              onClose={() => setShowSourcePicker(false)}
-            />
-          )}
-
-        </>
-      ) : (
+        {/* Source Picker Modal */}
+        {isStremioNuvio && showSourcePicker && stremioSourceId && stremioSourceType && onSwitchStream && (
+          <SourcePickerModal
+            source={vodInfo?.source_id === 'nuvio' ? 'nuvio' : 'stremio'}
+            type={stremioSourceType}
+            id={stremioSourceId}
+            currentAddonName={vodInfo?.addonName}
+            currentUrl={vodInfo?.url}
+            compiledBadgeRules={vodInfo?.source_id === 'nuvio' ? (compiledNuvioBadgeRules || compiledBadgeRules) : compiledBadgeRules}
+            onSelect={(stream) => {
+              setShowSourcePicker(false);
+              onSwitchStream(stream);
+            }}
+            onClose={() => setShowSourcePicker(false)}
+          />
+        )}
+      </>
+    ) : (
         /* Empty state - show minimal controls (volume, fullscreen) */
         <div className="npb-row npb-controls-row" style={{ justifyContent: 'flex-end', gap: '16px' }}>
           {/* Volume controls - always available */}
@@ -1167,6 +1421,20 @@ function StopIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
       <rect x="6" y="6" width="12" height="12" rx="1" />
+    </svg>
+  );
+}
+
+function TranslateIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m5 8 6 6" />
+      <path d="m4 14 6-6 2-3" />
+      <path d="M2 5h12" />
+      <path d="M7 2v3" />
+      <path d="M11 19h7" />
+      <path d="m13 22 4-8 4 8" />
+      <path d="m15 18 3.5-1.5" />
     </svg>
   );
 }
