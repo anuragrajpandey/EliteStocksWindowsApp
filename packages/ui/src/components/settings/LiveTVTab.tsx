@@ -11,6 +11,8 @@ interface LiveTVTabProps {
   // EPG props
   epgDarkenCurrent: boolean;
   onEpgDarkenCurrentChange: (enabled: boolean) => void;
+  epgHighlightBorderCurrent: boolean;
+  onEpgHighlightBorderCurrentChange: (enabled: boolean) => void;
   epgVisibleHours: 'auto' | number;
   onEpgVisibleHoursChange: (hours: 'auto' | number) => void;
   epgBoldChannelNames: boolean;
@@ -91,6 +93,8 @@ export function LiveTVTab({
   initialSubTab,
   epgDarkenCurrent,
   onEpgDarkenCurrentChange,
+  epgHighlightBorderCurrent,
+  onEpgHighlightBorderCurrentChange,
   epgVisibleHours,
   onEpgVisibleHoursChange,
   epgBoldChannelNames,
@@ -248,6 +252,22 @@ export function LiveTVTab({
                       type="checkbox"
                       checked={epgDarkenCurrent}
                       onChange={(e) => onEpgDarkenCurrentChange(e.target.checked)}
+                    />
+                    <span className="toggle-slider" />
+                  </label>
+                </div>
+
+                {/* Highlight border around current playing */}
+                <div className="timeshift-toggle-row">
+                  <div className="timeshift-toggle-info">
+                    <span className="timeshift-toggle-label">Highlight border around current playing</span>
+                    <span className="timeshift-toggle-sub">When enabled, a border with the accent color will outline the currently playing channel row in the EPG.</span>
+                  </div>
+                  <label className="toggle-switch">
+                    <input
+                      type="checkbox"
+                      checked={epgHighlightBorderCurrent}
+                      onChange={(e) => onEpgHighlightBorderCurrentChange(e.target.checked)}
                     />
                     <span className="toggle-slider" />
                   </label>

@@ -561,6 +561,11 @@ export function useAppSettings(): AppSettings {
             document.documentElement.classList.add('epg-darken-current');
           }
 
+          // Apply EPG highlight border current setting on load
+          if (result.data.epgHighlightBorderCurrent) {
+            document.documentElement.classList.add('epg-highlight-border-current');
+          }
+
           // Apply EPG bold channel names setting on load
           if (result.data.epgBoldChannelNames) {
             document.documentElement.classList.add('epg-bold-channel-names');

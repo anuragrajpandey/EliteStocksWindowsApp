@@ -492,6 +492,7 @@ export function Settings({
 
   // LiveTV settings state
   const [epgDarkenCurrent, setEpgDarkenCurrent] = useState(false);
+  const [epgHighlightBorderCurrent, setEpgHighlightBorderCurrent] = useState(false);
   const [epgBoldChannelNames, setEpgBoldChannelNames] = useState(false);
   const [epgBoldTopCategories, setEpgBoldTopCategories] = useState(false);
   const [epgBoldSourceCategories, setEpgBoldSourceCategories] = useState(false);
@@ -707,6 +708,7 @@ export function Settings({
         catchupEndPadding?: number;
         catchupContinuePlaying?: boolean;
         epgDarkenCurrent?: boolean;
+        epgHighlightBorderCurrent?: boolean;
         epgBoldChannelNames?: boolean;
         epgBoldTopCategories?: boolean;
         epgBoldSourceCategories?: boolean;
@@ -985,6 +987,12 @@ export function Settings({
       // Apply CSS class on load
       if (darkenCurrent) {
         document.documentElement.classList.add('epg-darken-current');
+      }
+
+      const highlightBorderCurrent = settings.epgHighlightBorderCurrent ?? false;
+      setEpgHighlightBorderCurrent(highlightBorderCurrent);
+      if (highlightBorderCurrent) {
+        document.documentElement.classList.add('epg-highlight-border-current');
       }
 
       const boldChannels = settings.epgBoldChannelNames ?? false;
@@ -1611,6 +1619,18 @@ export function Settings({
     }
     if (window.storage) {
       await window.storage.updateSettings({ epgDarkenCurrent: enabled });
+    }
+  };
+
+  const handleEpgHighlightBorderCurrentChange = async (enabled: boolean) => {
+    setEpgHighlightBorderCurrent(enabled);
+    if (enabled) {
+      document.documentElement.classList.add('epg-highlight-border-current');
+    } else {
+      document.documentElement.classList.remove('epg-highlight-border-current');
+    }
+    if (window.storage) {
+      await window.storage.updateSettings({ epgHighlightBorderCurrent: enabled });
     }
   };
 
@@ -2353,6 +2373,8 @@ export function Settings({
             initialSubTab={pendingSubTab as 'epg' | 'font-size' | 'sort-order' | 'search' | 'live-view' | 'widgets' | undefined}
             epgDarkenCurrent={epgDarkenCurrent}
             onEpgDarkenCurrentChange={handleEpgDarkenCurrentChange}
+            epgHighlightBorderCurrent={epgHighlightBorderCurrent}
+            onEpgHighlightBorderCurrentChange={handleEpgHighlightBorderCurrentChange}
             epgVisibleHours={epgVisibleHours}
             onEpgVisibleHoursChange={handleEpgVisibleHoursChange}
             epgBoldChannelNames={epgBoldChannelNames}

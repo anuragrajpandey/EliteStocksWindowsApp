@@ -56,6 +56,7 @@ const SETTINGS_SEARCH_INDEX: SettingsSearchResult[] = [
 
   // LiveTV > EPG
   { id: 'epg-darken-current', label: 'Make EPG Current airing program blocks darker', description: 'When enabled, the currently airing program in the EPG will have a deeper/darker highlight.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'EPG' },
+  { id: 'epg-highlight-border-current', label: 'Highlight border around current playing', description: 'When enabled, a border with the accent color will outline the currently playing channel row in the EPG.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'EPG' },
   { id: 'epg-bold-channels', label: 'Bold Channel Names', description: 'When enabled, it bolds the channel names in the EPG.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'EPG' },
   { id: 'epg-bold-top-categories', label: 'Bold Top Categories', description: 'When enabled, it bolds the top categories in the sidebar (All Channels, Favorites, Watchlist, Recently Viewed, custom groups).', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'EPG' },
   { id: 'epg-bold-source-categories', label: 'Bold Source Categories', description: 'When enabled, it bolds the nested categories listed under their media sources in the sidebar.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'EPG' },
