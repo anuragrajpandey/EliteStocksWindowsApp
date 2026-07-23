@@ -82,6 +82,7 @@ export interface Channel {
 
   // Optional metadata
   tv_archive?: boolean | number;   // Has catchup/timeshift
+  tv_archive_duration?: number;    // Hours of catch-up archive available (Stalker)
   is_adult?: boolean;
   channel_num?: number;   // Channel order (Xtream num / M3U tvg-chno)
   provider_order?: number; // Position in provider response / M3U file (0-based)

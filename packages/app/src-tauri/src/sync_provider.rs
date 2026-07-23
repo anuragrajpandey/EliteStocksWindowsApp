@@ -192,6 +192,7 @@ pub async fn sync_xtream_source(
             live: Some(1),
             is_adult: None,
             xtream_stream_id: Some(stream_id_str.clone()),
+            tv_archive_duration: None,
         });
     }
 
@@ -503,6 +504,7 @@ pub async fn sync_m3u_source(
                     live: Some(1),
                     is_adult: None,
                     xtream_stream_id,
+                    tv_archive_duration: None,
                 });
             }
         }

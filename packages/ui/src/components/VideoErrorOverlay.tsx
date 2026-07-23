@@ -7,7 +7,6 @@ interface VideoErrorOverlayProps {
 }
 
 export function VideoErrorOverlay({ error, onDismiss, isSmall = false }: VideoErrorOverlayProps) {
-    console.log('[VideoErrorOverlay] Rendering with error:', error, 'isSmall:', isSmall);
     // Parse error for common HTTP codes
     let title = 'Playback Error';
     let message = error;

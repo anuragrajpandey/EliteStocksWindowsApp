@@ -44,6 +44,7 @@ export interface BulkChannel {
   added?: string;
   custom_sid?: string;
   tv_archive?: number;
+  tv_archive_duration?: number;
   direct_source?: string;
   direct_url?: string;
   xmltv_id?: string;

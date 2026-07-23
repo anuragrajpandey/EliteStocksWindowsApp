@@ -462,10 +462,26 @@ async function syncEpgForStalker(source: Source, channels: Channel[]): Promise<n
   );
 
   try {
-    // Fetch EPG data (72 hours by default)
-    console.log(`[EPG] Fetching EPG data from Stalker portal (72 hours)...`);
+    // Determine how many hours back to fetch EPG.
+    // Each Stalker channel reports tv_archive_duration (hours of archive available).
+    // We take the maximum across all channels for this source so we cover the full
+    // catchup window, clamped to a sensible range of [1, 168] (1h – 7 days).
+    const dbInstance = await (db as any).dbPromise;
+    const durationRows = await dbInstance.select(
+      `SELECT MAX(tv_archive_duration) AS max_duration FROM channels WHERE source_id = ? AND tv_archive = 1`,
+      [source.id]
+    ) as Array<{ max_duration: number | null }>;
+    const archiveDurationHours = Math.min(
+      168,
+      Math.max(1, durationRows[0]?.max_duration ?? 24)
+    );
+
+    console.log(`[EPG] Using ${archiveDurationHours}h lookback based on portal's tv_archive_duration`);
+
+    // Fetch EPG data (future window ≥ 48h; past window = archive duration)
+    console.log(`[EPG] Fetching EPG data from Stalker portal (window: -${archiveDurationHours}h to +48h)...`);
     debugLog('Fetching EPG data from Stalker portal...', 'epg');
-    const epgMap = await client.getEpg(72);
+    const epgMap = await client.getEpg(72, archiveDurationHours);
 
     console.log(`[EPG] Received EPG for ${epgMap.size} channels from Stalker`);
     debugLog(`Received EPG for ${epgMap.size} channels`, 'epg');
@@ -749,8 +765,10 @@ export async function syncStalkerShortEpg(
         task.attempts++;
 
         try {
+          // Use the channel's own archive duration for the lookback window, defaulting to 24h
+          const archiveDurationHours = Math.min(168, Math.max(1, channel.tv_archive_duration ?? 24));
           // getShortEpg will now throw exceptions on network/token failures
-          const programList = await client.getShortEpg(rawChId, 10);
+          const programList = await client.getShortEpg(rawChId, 10, archiveDurationHours);
           
           if (Array.isArray(programList)) {
             for (const prog of programList) {
@@ -2459,6 +2477,8 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
           existing.channel_num !== channel.channel_num ||
           existing.provider_order !== channel.provider_order ||
           existing.epg_channel_id !== channel.epg_channel_id ||
+          existing.tv_archive !== channel.tv_archive ||
+          existing.tv_archive_duration !== channel.tv_archive_duration ||
           categoriesChanged;
 
         if (hasChanged) {
@@ -2530,6 +2550,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       added: ch.added ?? null,
       custom_sid: ch.custom_sid ?? null,
       tv_archive: ch.tv_archive ?? 0,
+      tv_archive_duration: ch.tv_archive_duration ?? null,
       direct_source: ch.direct_source ?? null,
       direct_url: ch.direct_url ?? null,
       xmltv_id: ch.xmltv_id ?? null,

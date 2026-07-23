@@ -12,7 +12,7 @@
 use std::collections::HashMap;
 use std::error::Error;
 use anyhow::{Context, Result};
-use chrono::{DateTime, Duration};
+use chrono::DateTime;
 use quick_xml::events::Event;
 use quick_xml::reader::Reader;
 use serde::{Deserialize, Serialize};

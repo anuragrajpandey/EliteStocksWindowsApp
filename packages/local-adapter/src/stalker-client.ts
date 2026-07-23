@@ -33,6 +33,12 @@ interface StalkerGenre {
     censored?: string | number;
 }
 
+export interface StalkerCatchupOptions {
+    startTimeMs: number;
+    durationMinutes: number;
+    programId?: string;
+}
+
 export class StalkerClient {
     // Shared tokens and refresh promises across all client instances of a source
     private static globalTokens = new Map<string, { token: string; timestamp: number }>();
@@ -396,78 +402,74 @@ export class StalkerClient {
             ...extraParams,
         });
 
-        const url = `${this.config.baseUrl}?${params.toString()}`;
-        const headers = customHeaders || this.getHeaders(true, true);
+        // Try current config.baseUrl first, then all remaining fallback URLs
+        const candidateBaseUrls = [
+            this.config.baseUrl,
+            ...this.fallbackUrls.filter(u => u !== this.config.baseUrl)
+        ];
 
-        // Debug logging
-        console.log(`[Stalker] Request: ${action}, URL: ${url}`);
-        console.log(`[Stalker] Headers:`, {
-            Authorization: headers['Authorization'] || 'none',
-            Cookie: headers['Cookie'] || 'none'
-        });
-
-        // Retry logic with exponential backoff
         let lastError: any;
-        for (let attempt = 1; attempt <= STALKER_MAX_RETRIES; attempt++) {
-            try {
-                const response = await universalFetch(url, {
-                    headers,
-                    timeout: STALKER_TIMEOUT_MS,
-                });
 
-                if (!response.ok) {
-                    if (response.status === 401 || response.status === 403) {
-                        console.warn(`[Stalker] Auth/Token error (${response.status}). Clearing cached token for source ${this.sourceId}.`);
-                        StalkerClient.globalTokens.delete(this.sourceId);
-                        this.token = null;
-                        this.tokenTimestamp = 0;
-                    }
-                    if (response.status === 404) {
-                        throw new Error('404 Not Found');
-                    }
-                    throw new Error(`Stalker API error: ${response.status} ${response.statusText}`);
-                }
+        for (const baseUrl of candidateBaseUrls) {
+            const url = `${baseUrl}?${params.toString()}`;
+            const headers = customHeaders || this.getHeaders(true, true);
 
-                // Handle empty response
-                if (!response.text || response.text.trim() === '') {
-                    console.warn('[Stalker] Empty response body received');
-                    return {} as T;
-                }
+            console.log(`[Stalker] Request: ${action}, URL: ${url}`);
 
-                // Parse JSON
-                let parsed: any;
+            for (let attempt = 1; attempt <= STALKER_MAX_RETRIES; attempt++) {
                 try {
-                    parsed = JSON.parse(response.text);
-                } catch (e) {
-                    console.error('[Stalker] Failed to parse JSON:', response.text.substring(0, 500));
-                    console.warn(`[Stalker] Invalid JSON. Clearing cached token for source ${this.sourceId} as a precaution.`);
-                    StalkerClient.globalTokens.delete(this.sourceId);
-                    this.token = null;
-                    this.tokenTimestamp = 0;
-                    throw new Error('Invalid JSON response from Stalker portal');
-                }
+                    const response = await universalFetch(url, {
+                        headers,
+                        timeout: STALKER_TIMEOUT_MS,
+                    });
 
-                return this.processResponse<T>(parsed, action);
+                    if (!response.ok) {
+                        if (response.status === 401 || response.status === 403) {
+                            console.warn(`[Stalker] Auth/Token error (${response.status}). Clearing cached token for source ${this.sourceId}.`);
+                            StalkerClient.globalTokens.delete(this.sourceId);
+                            this.token = null;
+                            this.tokenTimestamp = 0;
+                        }
+                        if (response.status === 404) {
+                            console.warn(`[Stalker] 404 Not Found from ${baseUrl}`);
+                            break; // Try next fallback URL
+                        }
+                        throw new Error(`Stalker API error: ${response.status} ${response.statusText}`);
+                    }
 
-            } catch (error: any) {
-                lastError = error;
+                    // Handle empty response — try next fallback URL if available
+                    if (!response.text || response.text.trim() === '') {
+                        console.warn(`[Stalker] Empty response body received from ${baseUrl} for ${action}`);
+                        break; // Try next fallback URL
+                    }
 
-                // Don't retry 404 errors (let handshake handle URL fallback)
-                if (error.message === '404 Not Found') {
-                    throw error;
-                }
+                    // Parse JSON
+                    let parsed: any;
+                    try {
+                        parsed = JSON.parse(response.text);
+                    } catch (e) {
+                        console.warn(`[Stalker] Invalid JSON from ${baseUrl} for ${action}.`);
+                        break; // Try next fallback URL
+                    }
 
-                console.warn(`[Stalker] Request failed (attempt ${attempt}/${STALKER_MAX_RETRIES}): ${error.message}`);
+                    // Successfully received valid response from fallback URL — remember it as primary
+                    if (baseUrl !== this.config.baseUrl) {
+                        console.log(`[Stalker] Switched working baseUrl to: ${baseUrl}`);
+                        this.config.baseUrl = baseUrl;
+                    }
 
-                // Exponential backoff before retry
-                if (attempt < STALKER_MAX_RETRIES) {
-                    const backoff = STALKER_RETRY_BACKOFF_BASE_MS * Math.pow(2, attempt - 1);
-                    await new Promise(resolve => setTimeout(resolve, backoff));
+                    return this.processResponse<T>(parsed, action);
+
+                } catch (error: any) {
+                    lastError = error;
+                    if (attempt < STALKER_MAX_RETRIES) {
+                        await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt - 1)));
+                    }
                 }
             }
         }
 
-        throw lastError;
+        throw lastError || new Error(`Stalker request failed for ${action}`);
     }
 
 
@@ -710,6 +712,16 @@ export class StalkerClient {
                     catIds.add(genreMap.get(ch.genre_id)!);
                 }
 
+                // Only enable catch-up (tv_archive) indicator for MAC portals that use direct stream URLs (e.g. /play/live.php)
+                // Standard Stalker/Ministra STB portals (ffrt http://localhost/ch/...) use unsupported/broken TvArchive.php middleware
+                const isMacDirectUrl = rawCmd.includes('/play/') || (rawCmd.startsWith('http') && !rawCmd.includes('/ch/'));
+                const rawHasArchive = ch.tv_archive === 1 || ch.tv_archive === '1' || ch.tv_archive === true
+                    || (ch.tv_archive_duration != null && Number(ch.tv_archive_duration) > 0);
+                const hasArchive = isMacDirectUrl && rawHasArchive;
+                const archiveDurationHours = hasArchive && ch.tv_archive_duration != null
+                    ? Number(ch.tv_archive_duration) || 0
+                    : undefined;
+
                 const channel: Channel = {
                     stream_id: `${this.sourceId}_${ch.id}`,
                     channel_num: parseInt(ch.number || '0'),
@@ -722,6 +734,8 @@ export class StalkerClient {
                     epg_channel_id: ch.xmltv_id,
                     provider_order: providerOrder,
                     is_adult: this.isCensored(ch.censored, ch.lock) || ch._forced_adult === true,
+                    tv_archive: hasArchive,
+                    tv_archive_duration: archiveDurationHours,
                 };
                 providerOrder++;
 
@@ -1364,8 +1378,8 @@ export class StalkerClient {
         });
     }
 
-    async resolveStreamUrl(cmd: string): Promise<string> {
-        console.log('[Stalker] resolveStreamUrl called with:', cmd);
+    async resolveStreamUrl(cmd: string, catchup?: StalkerCatchupOptions): Promise<string> {
+        console.log('[Stalker] resolveStreamUrl called with:', cmd, 'catchup:', catchup);
 
         // Ensure we have a valid token before resolving stream URLs
         await this.ensureToken();
@@ -1539,8 +1553,114 @@ export class StalkerClient {
             forcedCmd = cmd;
             type = 'vod';
         } else {
-            console.warn('[Stalker] Unknown cmd format, passing through:', cmd);
-            return cmd;
+            // Default to live ITV stream for direct URLs (e.g. /play/live.php?stream=12345)
+            type = 'itv';
+            forcedCmd = cmd;
+        }
+
+        // If catchup options are provided for a live TV channel:
+        if (catchup && type === 'itv') {
+            // Fast-path for Dino / MAC / Xtream portals that use direct stream URLs (e.g. /play/live.php)
+            if (forcedCmd.includes('/play/') || forcedCmd.startsWith('http://') || forcedCmd.startsWith('https://')) {
+                const startDate = new Date(catchup.startTimeMs);
+                const year = startDate.getUTCFullYear();
+                const month = String(startDate.getUTCMonth() + 1).padStart(2, '0');
+                const day = String(startDate.getUTCDate()).padStart(2, '0');
+                const hour = String(startDate.getUTCHours()).padStart(2, '0');
+                const minute = String(startDate.getUTCMinutes()).padStart(2, '0');
+                const formattedStart = `${year}-${month}-${day}:${hour}-${minute}`;
+                const durationMinutes = catchup.durationMinutes;
+
+                let cleanBase = forcedCmd.replace('/play/live.php', '/play/timeshift.php');
+                cleanBase = cleanBase.replace(/([?&])(start|duration|utc|lutc)=[^&]*/gi, '');
+                cleanBase = cleanBase.replace(/[?&]+$/, '').replace(/&+/g, '&');
+                const sep = cleanBase.includes('?') ? '&' : '?';
+
+                const timeshiftUrl = `${cleanBase}${sep}start=${formattedStart}&duration=${durationMinutes}`;
+                console.log(`[Stalker] Resolved MAC portal timeshift URL directly: ${timeshiftUrl}`);
+                return timeshiftUrl;
+            }
+
+            const startSec = Math.floor(catchup.startTimeMs / 1000);
+            const endSec = startSec + Math.floor(catchup.durationMinutes * 60);
+
+            // Extract numeric stream ID from forcedCmd if present (e.g., from stream=45619 or /ch/45619 or 45619)
+            let streamId: string | null = null;
+            const streamParamMatch = forcedCmd.match(/[?&]stream=(\d+)/i);
+            const chMatch = forcedCmd.match(/\/ch\/(\d+)/i);
+            const numOnlyMatch = forcedCmd.match(/^\d+$/);
+
+            if (streamParamMatch) {
+                streamId = streamParamMatch[1];
+            } else if (chMatch) {
+                streamId = chMatch[1];
+            } else if (numOnlyMatch) {
+                streamId = numOnlyMatch[0];
+            }
+
+            // Build candidate archive commands to handle all Stalker/Ministra server DB schema variants
+            const archiveCmdCandidates: string[] = [];
+
+            // Candidate 1: exact original forcedCmd if present (e.g. ffrt http://localhost/ch/97)
+            if (forcedCmd) {
+                archiveCmdCandidates.push(forcedCmd);
+                if (!forcedCmd.endsWith('_')) {
+                    archiveCmdCandidates.push(`${forcedCmd}_`);
+                }
+            }
+
+            // Candidate 2: standard Stalker/Ministra formats with streamId
+            if (streamId) {
+                archiveCmdCandidates.push(`ffmpeg http://localhost/ch/${streamId}_`);
+                archiveCmdCandidates.push(`ffrt http://localhost/ch/${streamId}`);
+                archiveCmdCandidates.push(`ffrt http://localhost/ch/${streamId}_`);
+                archiveCmdCandidates.push(`http://localhost/ch/${streamId}_`);
+                archiveCmdCandidates.push(`http://localhost/ch/${streamId}`);
+                archiveCmdCandidates.push(`/ch/${streamId}_`);
+                archiveCmdCandidates.push(`/ch/${streamId}`);
+            }
+
+            const uniqueCandidates = [...new Set(archiveCmdCandidates)];
+
+            console.log(`[Stalker] Requesting TV Archive link (streamId=${streamId || 'unknown'}), start=${startSec}, end=${endSec}, candidates=${uniqueCandidates.length}`);
+
+            for (const archiveCmd of uniqueCandidates) {
+                const archiveParams: Record<string, string> = {
+                    cmd: archiveCmd,
+                    type: 'tv_archive',
+                    utc: startSec.toString(),
+                    lutc: endSec.toString(),
+                    start: startSec.toString(),
+                    end: endSec.toString(),
+                };
+                if (streamId) {
+                    archiveParams['ch_id'] = streamId;
+                }
+                if (catchup.programId) {
+                    archiveParams['series'] = catchup.programId;
+                }
+
+                try {
+                    const response = await this.fetchStalker<any>('create_link', 'tv_archive', archiveParams);
+                    let resultUrl = response?.url || response?.cmd || response;
+
+                    if (resultUrl && typeof resultUrl === 'string') {
+                        resultUrl = this.sanitizeStreamUrl(resultUrl);
+
+                        if (
+                            resultUrl &&
+                            !resultUrl.startsWith('?token=') &&
+                            !resultUrl.includes('load.php?token=') &&
+                            !resultUrl.includes('19691231')
+                        ) {
+                            console.log(`[Stalker] Resolved TV Archive stream URL (cmd: ${archiveCmd}): ${resultUrl}`);
+                            return resultUrl;
+                        }
+                    }
+                } catch (err) {
+                    console.warn(`[Stalker] TV Archive create_link failed for cmd (${archiveCmd}):`, err);
+                }
+            }
         }
 
         // Helper to request create_link, cleanup and resolve relative URLs
@@ -1558,22 +1678,7 @@ export class StalkerClient {
                 let resultUrl = response?.url || response?.cmd || response;
 
                 if (resultUrl && typeof resultUrl === 'string') {
-                    // 1. Remove ffmpeg prefix
-                    resultUrl = resultUrl.replace(/^(ffmpeg|ffrt)\s*/i, '').trim();
-
-                    // 2. Resolve relative URL
-                    if (!resultUrl.match(/^https?:\/\//i)) {
-                        if (resultUrl.startsWith('/')) {
-                            const baseUrl = new URL(this.config.baseUrl);
-                            resultUrl = `${baseUrl.origin}${resultUrl}`;
-                        } else if (resultUrl.startsWith('?token=')) {
-                            // This is a relative token login link, return it as-is so we can detect it
-                            return resultUrl;
-                        } else {
-                            const baseUrl = new URL(this.config.baseUrl);
-                            resultUrl = new URL(resultUrl, baseUrl.href).toString();
-                        }
-                    }
+                    resultUrl = this.sanitizeStreamUrl(resultUrl);
                     return resultUrl;
                 }
             } catch (err) {
@@ -1629,22 +1734,29 @@ export class StalkerClient {
     private sanitizeStreamUrl(url: string): string {
         try {
             // Remove ffmpeg prefixes
-            let cleanUrl = url.replace(/^(ffmpeg|ffrt) /i, '').trim();
+            let cleanUrl = url.replace(/^(ffmpeg|ffrt)\s*/i, '').trim();
+
+            const baseUrlObj = new URL(this.config.baseUrl);
+
+            // Fix http://:/ or https://:/ or http://:8080/ (missing hostname from Stalker storage)
+            if (cleanUrl.match(/^https?:\/\/:/i)) {
+                cleanUrl = cleanUrl.replace(/^https?:\/\/:(\d+)?/i, `${baseUrlObj.protocol}//${baseUrlObj.host}`);
+            }
 
             // If it's a relative path, prepend base URL
             if (cleanUrl.startsWith('/')) {
-                const baseUrlObj = new URL(this.config.baseUrl);
                 cleanUrl = `${baseUrlObj.protocol}//${baseUrlObj.host}${cleanUrl}`;
             }
 
             // Fix localhost/127.0.0.1
-            const urlObj = new URL(cleanUrl);
-            if (urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1') {
-                const baseUrlObj = new URL(this.config.baseUrl);
-                urlObj.hostname = baseUrlObj.hostname;
-                urlObj.port = baseUrlObj.port;
-                console.log(`[Stalker] Rewrote localhost URL to: ${urlObj.toString()}`);
-                cleanUrl = urlObj.toString();
+            if (cleanUrl.startsWith('http')) {
+                const urlObj = new URL(cleanUrl);
+                if (urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1') {
+                    urlObj.hostname = baseUrlObj.hostname;
+                    urlObj.port = baseUrlObj.port;
+                    console.log(`[Stalker] Rewrote localhost URL to: ${urlObj.toString()}`);
+                    cleanUrl = urlObj.toString();
+                }
             }
 
             return cleanUrl;
@@ -1668,12 +1780,32 @@ export class StalkerClient {
     /**
      * Get EPG data for all channels
      */
-    async getEpg(periodHours: number = 72): Promise<Map<string, any[]>> {
+    async getEpg(periodHours: number = 72, pastHours: number = 24): Promise<Map<string, any[]>> {
         await this.ensureToken();
         try {
-            const response = await this.fetchStalker<any>('get_epg_info', 'itv', {
-                period: periodHours.toString()
-            });
+            // The Stalker `period` parameter covers only FUTURE hours from now.
+            // To also retrieve past programs (needed for catch-up display), we attempt
+            // to request with explicit `from`/`to` unix timestamps covering:
+            //   from = now - pastHours  →  to = now + futureHours
+            // Many Stalker portals honour `from`/`to`; others fall back to `period`.
+            const nowSec = Math.floor(Date.now() / 1000);
+            const futureHours = Math.max(periodHours, 48);
+            const fromSec = nowSec - pastHours * 3600;
+            const toSec = nowSec + futureHours * 3600;
+
+            // Try with from/to first, fall back to period-only
+            let response: any;
+            try {
+                response = await this.fetchStalker<any>('get_epg_info', 'itv', {
+                    period: futureHours.toString(),
+                    from: fromSec.toString(),
+                    to: toSec.toString(),
+                });
+            } catch (_e) {
+                response = await this.fetchStalker<any>('get_epg_info', 'itv', {
+                    period: futureHours.toString(),
+                });
+            }
 
             const epgData = response?.data || response;
             const epgMap = new Map<string, any[]>();
@@ -1689,7 +1821,7 @@ export class StalkerClient {
                 }
             }
 
-            console.log(`[Stalker] Retrieved EPG for ${epgMap.size} channels`);
+            console.log(`[Stalker] Retrieved EPG for ${epgMap.size} channels (window: -${pastHours}h to +${futureHours}h)`);
             return epgMap;
         } catch (err) {
             console.error('[Stalker] Failed to fetch EPG:', err);
@@ -1700,11 +1832,16 @@ export class StalkerClient {
     /**
      * Get short EPG for a specific channel
      */
-    async getShortEpg(channelId: string, size: number = 10): Promise<any[]> {
+    async getShortEpg(channelId: string, size: number = 10, archiveDurationHours: number = 24): Promise<any[]> {
         await this.ensureToken();
+        // Request a larger window so the list includes recently-aired programmes.
+        // Some Stalker portals also accept `from` as a unix timestamp; include it
+        // as a hint for portals that support it (ignored by those that don't).
+        const fromSec = Math.floor(Date.now() / 1000) - archiveDurationHours * 3600;
         const response = await this.fetchStalker<any>('get_short_epg', 'itv', {
             ch_id: channelId,
-            size: size.toString()
+            size: Math.max(size, 20).toString(),
+            from: fromSec.toString(),
         });
 
         return this.safeJsonList<any>(response);

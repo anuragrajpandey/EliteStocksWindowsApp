@@ -120,7 +120,7 @@ export async function resolvePlayUrl(
         // and must be resolved to a real HTTP URL via the Stalker portal API.
         if (
             sourceData.type === 'stalker' &&
-            (rawUrl.startsWith('stalker_') || rawUrl.startsWith('/media/'))
+            (rawUrl.startsWith('stalker_') || rawUrl.startsWith('/media/') || catchup != null)
         ) {
             const client = new StalkerClient(
                 {
@@ -132,76 +132,97 @@ export async function resolvePlayUrl(
             );
 
             // resolveStreamUrl() throws on network / auth failure — caller handles it
-            resolvedUrl = await client.resolveStreamUrl(rawUrl);
+            const stalkerCatchup = catchup
+                ? {
+                      startTimeMs: catchup.startTimeMs,
+                      durationMinutes: catchup.durationMinutes,
+                  }
+                : undefined;
+            resolvedUrl = await client.resolveStreamUrl(rawUrl, stalkerCatchup);
             return { url: resolvedUrl, userAgent, sourceName };
         }
 
         // ── Xtream catchup / timeshift ───────────────────────────────────────────
-        // For catchup playback on Xtream sources, we must build a special timeshift
-        // URL. This only applies when the caller provides `catchup` options.
-        if (catchup && (sourceData.type === 'xtream' || (sourceData.type === 'm3u' && (sourceData as any).xtream_catchup))) {
+        // For catchup playback on non-Stalker sources, build a timeshift URL when catchup options are provided.
+        if (catchup && sourceData.type !== 'stalker') {
             const { XtreamClient } = await import('@ynotv/local-adapter');
             const { rawStreamId, startTimeMs, durationMinutes } = catchup;
 
-            // Determine XC credentials: from xtream_catchup (M3U) or source (Xtream)
+            // Determine XC credentials:
+            // 1. From xtream_catchup config on M3U source
+            // 2. From source properties (Xtream source)
+            // 3. Fallback: extract credentials & stream_id from rawUrl (e.g. http://server:port/live/user/pass/stream_id.ts or /user/pass/stream_id)
             const xtreamCatchup = (sourceData as any).xtream_catchup;
-            const xcUrl = xtreamCatchup?.url || sourceData.url;
-            const xcUsername = xtreamCatchup?.username || sourceData.username || '';
-            const xcPassword = xtreamCatchup?.password || sourceData.password || '';
+            let xcUrl = xtreamCatchup?.url || sourceData.url || '';
+            let xcUsername = xtreamCatchup?.username || sourceData.username || '';
+            let xcPassword = xtreamCatchup?.password || sourceData.password || '';
+            let streamId = rawStreamId;
 
-            // Re-calculate the maximum allowed duration (EPG start → now, capped)
-            const endMs = startTimeMs + durationMinutes * 60_000;
-            const actualDurationMinutes = Math.ceil(
-                (Math.min(endMs, Date.now()) - startTimeMs) / 60_000,
-            );
-
-            // Fetch server_info to calculate the precise timezone offset of the server
-            let offsetMs = 0;
-            try {
-                const client = new XtreamClient({
-                    baseUrl: xcUrl,
-                    username: xcUsername,
-                    password: xcPassword,
-                    userAgent: sourceData.user_agent,
-                }, sourceData.id);
-
-                const auth = await client.authenticate();
-                if (auth?.server_info?.time_now && auth?.server_info?.timestamp_now) {
-                    // Parse time_now ("YYYY-MM-DD HH:MM:SS") assuming it's UTC to find the exact drift
-                    const timeNowUtcStr = auth.server_info.time_now.replace(' ', 'T') + 'Z';
-                    const timeNowUtcMs = new Date(timeNowUtcStr).getTime();
-                    const actualUtcMs = auth.server_info.timestamp_now * 1000;
-
-                    if (!isNaN(timeNowUtcMs) && !isNaN(actualUtcMs)) {
-                        offsetMs = timeNowUtcMs - actualUtcMs;
-                        console.log(`[stream-resolver] Calculated Xtream server timezone offset: ${offsetMs / 3600000} hours`);
-                    }
+            if ((!xcUsername || !xcPassword || !xcUrl) && rawUrl.includes('://')) {
+                const match = rawUrl.match(/^(https?:\/\/[^/]+)(?:\/live)?\/([^/]+)\/([^/]+)\/(\d+)(?:\.(?:ts|m3u8|m3u))?/i);
+                if (match) {
+                    xcUrl = xcUrl || match[1];
+                    xcUsername = xcUsername || match[2];
+                    xcPassword = xcPassword || match[3];
+                    streamId = streamId || match[4];
                 }
-            } catch (e) {
-                console.warn('[stream-resolver] Failed to fetch server info for timezone offset:', e);
             }
 
-            const serverTimeMs = startTimeMs + offsetMs;
+            if (xcUrl && xcUsername && xcPassword && streamId) {
+                // Re-calculate the maximum allowed duration (EPG start → now, capped)
+                const endMs = startTimeMs + durationMinutes * 60_000;
+                const actualDurationMinutes = Math.ceil(
+                    (Math.min(endMs, Date.now()) - startTimeMs) / 60_000,
+                );
 
-            resolvedUrl = XtreamClient.buildTimeshiftUrl(
-                rawStreamId,
-                xcUrl,
-                xcUsername,
-                xcPassword,
-                actualDurationMinutes,
-                new Date(serverTimeMs),
-            );
-            console.log(`[stream-resolver] Catchup URL: ${resolvedUrl}`);
-            console.log(`[stream-resolver] Catchup details:`, {
-                sourceType: sourceData.type,
-                xcUrl,
-                rawStreamId,
-                actualDurationMinutes,
-                serverTimeMs: new Date(serverTimeMs).toISOString(),
-                originalStartMs: new Date(startTimeMs).toISOString(),
-                offsetMs,
-            });
-            return { url: resolvedUrl, userAgent, sourceName };
+                // Fetch server_info to calculate the precise timezone offset of the server
+                let offsetMs = 0;
+                try {
+                    const client = new XtreamClient({
+                        baseUrl: xcUrl,
+                        username: xcUsername,
+                        password: xcPassword,
+                        userAgent: sourceData.user_agent,
+                    }, sourceData.id);
+
+                    const auth = await client.authenticate();
+                    if (auth?.server_info?.time_now && auth?.server_info?.timestamp_now) {
+                        // Parse time_now ("YYYY-MM-DD HH:MM:SS") assuming it's UTC to find the exact drift
+                        const timeNowUtcStr = auth.server_info.time_now.replace(' ', 'T') + 'Z';
+                        const timeNowUtcMs = new Date(timeNowUtcStr).getTime();
+                        const actualUtcMs = auth.server_info.timestamp_now * 1000;
+
+                        if (!isNaN(timeNowUtcMs) && !isNaN(actualUtcMs)) {
+                            offsetMs = timeNowUtcMs - actualUtcMs;
+                            console.log(`[stream-resolver] Calculated Xtream server timezone offset: ${offsetMs / 3600000} hours`);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('[stream-resolver] Failed to fetch server info for timezone offset:', e);
+                }
+
+                const serverTimeMs = startTimeMs + offsetMs;
+
+                resolvedUrl = XtreamClient.buildTimeshiftUrl(
+                    streamId,
+                    xcUrl,
+                    xcUsername,
+                    xcPassword,
+                    actualDurationMinutes,
+                    new Date(serverTimeMs),
+                );
+                console.log(`[stream-resolver] Catchup URL: ${resolvedUrl}`);
+                console.log(`[stream-resolver] Catchup details:`, {
+                    sourceType: sourceData.type,
+                    xcUrl,
+                    streamId,
+                    actualDurationMinutes,
+                    serverTimeMs: new Date(serverTimeMs).toISOString(),
+                    originalStartMs: new Date(startTimeMs).toISOString(),
+                    offsetMs,
+                });
+                return { url: resolvedUrl, userAgent, sourceName };
+            }
         }
 
         // ── All other source types (M3U, plain Xtream live) ─────────────────────

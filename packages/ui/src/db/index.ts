@@ -25,6 +25,7 @@ export interface StoredChannel extends Omit<Channel, 'stream_icon' | 'epg_channe
   epg_channel_id?: string;
   custom_sid?: string;
   tv_archive?: number;
+  tv_archive_duration?: number;    // Hours of catch-up archive (Stalker)
   direct_source?: string;
   xmltv_id?: string;
   series_no?: number;
@@ -472,6 +473,7 @@ class YnotvDatabase extends SqliteDatabase {
         added TEXT,
         custom_sid TEXT,
         tv_archive INTEGER,
+        tv_archive_duration INTEGER,
         direct_source TEXT,
         direct_url TEXT,
         xmltv_id TEXT,
@@ -486,7 +488,7 @@ class YnotvDatabase extends SqliteDatabase {
     // Each version block runs exactly ONCE. To add new columns in the future,
     // increment DB_VERSION and add a new case (do NOT modify existing cases).
     // ─────────────────────────────────────────────────────────────────────────
-    const DB_VERSION = 19;
+    const DB_VERSION = 21;
     const versionResult = await db.select('PRAGMA user_version') as Array<{ user_version: number }>;
     const currentVersion = versionResult[0]?.user_version ?? 0;
 
@@ -842,6 +844,22 @@ class YnotvDatabase extends SqliteDatabase {
         };
         await addColumn('programs', 'subtitle', 'TEXT');
         await addColumn('epg_program_overrides', 'subtitle', 'TEXT');
+      }
+
+      // v20: Add tv_archive_duration to channels (hours of Stalker catch-up archive)
+      if (currentVersion < 20) {
+        console.log('[DB] v20 migration: Adding tv_archive_duration column to channels');
+        try { await db.execute('ALTER TABLE channels ADD COLUMN tv_archive_duration INTEGER'); } catch { /* already exists */ }
+      }
+
+      // v21: Reset tv_archive to 0 for standard Stalker channels (direct_url LIKE 'stalker_ch:%')
+      if (currentVersion < 21) {
+        console.log('[DB] v21 migration: Clearing tv_archive flag for standard Stalker STB channels');
+        try {
+          await db.execute(`UPDATE channels SET tv_archive = 0, tv_archive_duration = NULL WHERE direct_url LIKE 'stalker_ch:%'`);
+        } catch (e) {
+          console.warn('[DB] v21 migration failed:', e);
+        }
       }
 
       // Bump the stored version so these migrations never run again
@@ -1363,6 +1381,7 @@ class YnotvDatabase extends SqliteDatabase {
         c.enabled,
         c.category_ids,
         c.tv_archive,
+        c.tv_archive_duration,
         c.direct_source,
         c.direct_url,
         c.added,
