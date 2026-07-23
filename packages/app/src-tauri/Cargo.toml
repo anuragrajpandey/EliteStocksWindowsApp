@@ -80,6 +80,9 @@ windows = { version = "0.58", features = [
     "Win32_Graphics_Gdi",
 ] }
 
+[dev-dependencies]
+tempfile = "3"
+
 [patch.crates-io]
 # Local patch adds: set_read_timeout(), receive_nonblocking(), connect_with_timeout()
 rust_cast = { path = "vendor/rust_cast" }

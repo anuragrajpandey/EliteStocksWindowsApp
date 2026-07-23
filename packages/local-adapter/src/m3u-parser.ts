@@ -338,10 +338,10 @@ function createCategoryId(sourceId: string, groupTitle: string): string {
   // Slugify the group title
   const slug = groupTitle
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/[^\p{L}\p{N}]+/gu, '-')
     .replace(/^-|-$/g, '');
 
-  return `${sourceId}_${slug}`;
+  return `${sourceId}_${slug || `category-${stableHash(groupTitle)}`}`;
 }
 
 /**
