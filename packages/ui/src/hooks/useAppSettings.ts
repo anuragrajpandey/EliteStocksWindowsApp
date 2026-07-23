@@ -42,6 +42,9 @@ export interface AppSettings {
   channelInfoOverlayBoxWidth: number;
   channelInfoOverlayOpacity: number;
   channelInfoOverlayHideDescription: boolean;
+  channelInfoOverlayHideMetaBadge: boolean;
+  channelInfoOverlayHideLogo: boolean;
+  channelInfoOverlayPosition: 'left' | 'right';
   transparentGuideOnZap: boolean;
 
   // Popout
@@ -120,6 +123,9 @@ export interface AppSettings {
     setChannelInfoOverlayBoxWidth: (width: number) => void;
     setChannelInfoOverlayOpacity: (opacity: number) => void;
     setChannelInfoOverlayHideDescription: (hide: boolean) => void;
+    setChannelInfoOverlayHideMetaBadge: (hide: boolean) => void;
+    setChannelInfoOverlayHideLogo: (hide: boolean) => void;
+    setChannelInfoOverlayPosition: (pos: 'left' | 'right') => void;
     setTransparentGuideOnZap: (enabled: boolean) => void;
     setPopoutStopMain: (stop: boolean) => void;
     setPopoutAlwaysOnTop: (onTop: boolean) => void;
@@ -200,7 +206,7 @@ export function useAppSettings(): AppSettings {
   const [searchCustomPlaylists, setSearchCustomPlaylists] = useState(false);
 
   // UI visibility
-  const [playerControlDesign, setPlayerControlDesignState] = useState<'default' | 'clean'>('default');
+  const [playerControlDesign, setPlayerControlDesignState] = useState<'default' | 'clean'>('clean');
 
   // LiveTV settings
   const [epgView, setEpgView] = useState<'traditional' | 'alternate'>('traditional');
@@ -210,6 +216,9 @@ export function useAppSettings(): AppSettings {
   const [channelInfoOverlayBoxWidth, setChannelInfoOverlayBoxWidthState] = useState(380);
   const [channelInfoOverlayOpacity, setChannelInfoOverlayOpacityState] = useState(55);
   const [channelInfoOverlayHideDescription, setChannelInfoOverlayHideDescriptionState] = useState(false);
+  const [channelInfoOverlayHideMetaBadge, setChannelInfoOverlayHideMetaBadgeState] = useState(false);
+  const [channelInfoOverlayHideLogo, setChannelInfoOverlayHideLogoState] = useState(false);
+  const [channelInfoOverlayPosition, setChannelInfoOverlayPositionState] = useState<'left' | 'right'>('left');
   const [transparentGuideOnZap, setTransparentGuideOnZapState] = useState(false);
 
   // Popout settings
@@ -502,12 +511,15 @@ export function useAppSettings(): AppSettings {
           setChannelInfoOverlayBoxWidthState(result.data.channelInfoOverlayBoxWidth ?? 380);
           setChannelInfoOverlayOpacityState(result.data.channelInfoOverlayOpacity ?? 55);
           setChannelInfoOverlayHideDescriptionState(result.data.channelInfoOverlayHideDescription ?? false);
+          setChannelInfoOverlayHideMetaBadgeState(result.data.channelInfoOverlayHideMetaBadge ?? false);
+          setChannelInfoOverlayHideLogoState(result.data.channelInfoOverlayHideLogo ?? false);
+          setChannelInfoOverlayPositionState(result.data.channelInfoOverlayPosition ?? 'left');
           setTransparentGuideOnZapState(result.data.transparentGuideOnZap ?? false);
           setCategoriesHiddenState(result.data.categoriesHidden ?? false);
           setCategoriesHiddenTransparentState(result.data.categoriesHiddenTransparent ?? false);
           setOverlayAutohideTimerState(result.data.overlayAutohideTimer ?? 3);
           setOverlayOnClickOnlyState(result.data.overlayOnClickOnly ?? false);
-          setPlayerControlDesignState(result.data.playerControlDesign ?? 'default');
+          setPlayerControlDesignState(result.data.playerControlDesign ?? 'clean');
           setPopoutStopMainState(result.data.popoutStopMain ?? true);
           setPopoutAlwaysOnTopState(result.data.popoutAlwaysOnTop ?? false);
           setPopoutMpvParamsEnabledState(result.data.popoutMpvParamsEnabled ?? false);
@@ -852,16 +864,6 @@ export function useAppSettings(): AppSettings {
 
   const setPlayerControlDesign = useCallback(async (design: 'default' | 'clean') => {
     setPlayerControlDesignState(design);
-    if (design === 'clean') {
-      setChannelInfoOverlayEnabledState(true);
-      if (window.storage) {
-        try {
-          await window.storage.updateSettings({ channelInfoOverlayEnabled: true });
-        } catch (e) {
-          console.error('[useAppSettings] Failed to save channelInfoOverlayEnabled:', e);
-        }
-      }
-    }
     if (window.storage) {
       try {
         await window.storage.updateSettings({ playerControlDesign: design });
@@ -900,6 +902,39 @@ export function useAppSettings(): AppSettings {
         await window.storage.updateSettings({ includeAllChannelsToPlaylist: enabled });
       } catch (e) {
         console.error('[useAppSettings] Failed to save includeAllChannelsToPlaylist:', e);
+      }
+    }
+  }, []);
+
+  const setChannelInfoOverlayHideMetaBadge = useCallback(async (hide: boolean) => {
+    setChannelInfoOverlayHideMetaBadgeState(hide);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ channelInfoOverlayHideMetaBadge: hide });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save channelInfoOverlayHideMetaBadge:', e);
+      }
+    }
+  }, []);
+
+  const setChannelInfoOverlayHideLogo = useCallback(async (hide: boolean) => {
+    setChannelInfoOverlayHideLogoState(hide);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ channelInfoOverlayHideLogo: hide });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save channelInfoOverlayHideLogo:', e);
+      }
+    }
+  }, []);
+
+  const setChannelInfoOverlayPosition = useCallback(async (pos: 'left' | 'right') => {
+    setChannelInfoOverlayPositionState(pos);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ channelInfoOverlayPosition: pos });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save channelInfoOverlayPosition:', e);
       }
     }
   }, []);
@@ -1346,6 +1381,9 @@ export function useAppSettings(): AppSettings {
     channelInfoOverlayBoxWidth,
     channelInfoOverlayOpacity,
     channelInfoOverlayHideDescription,
+    channelInfoOverlayHideMetaBadge,
+    channelInfoOverlayHideLogo,
+    channelInfoOverlayPosition,
     transparentGuideOnZap,
     popoutStopMain,
     popoutAlwaysOnTop,
@@ -1386,6 +1424,9 @@ export function useAppSettings(): AppSettings {
     setChannelInfoOverlayBoxWidth,
     setChannelInfoOverlayOpacity,
     setChannelInfoOverlayHideDescription,
+    setChannelInfoOverlayHideMetaBadge,
+    setChannelInfoOverlayHideLogo,
+    setChannelInfoOverlayPosition,
     setTransparentGuideOnZap,
     setCategorySortOrder: setCategorySortOrderSetting,
     setIncludeAllChannelsToPlaylist: setIncludeAllChannelsToPlaylistSetting,

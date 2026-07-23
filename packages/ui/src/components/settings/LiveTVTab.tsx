@@ -64,6 +64,12 @@ interface LiveTVTabProps {
   onChannelInfoOverlayOpacityChange: (opacity: number) => void;
   channelInfoOverlayHideDescription: boolean;
   onChannelInfoOverlayHideDescriptionChange: (hide: boolean) => void;
+  channelInfoOverlayHideMetaBadge: boolean;
+  onChannelInfoOverlayHideMetaBadgeChange: (hide: boolean) => void;
+  channelInfoOverlayHideLogo: boolean;
+  onChannelInfoOverlayHideLogoChange: (hide: boolean) => void;
+  channelInfoOverlayPosition: 'left' | 'right';
+  onChannelInfoOverlayPositionChange: (pos: 'left' | 'right') => void;
   failoverGroupShowSource: boolean;
   onFailoverGroupShowSourceChange: (enabled: boolean) => void;
   // Widgets props
@@ -143,6 +149,12 @@ export function LiveTVTab({
   onChannelInfoOverlayOpacityChange,
   channelInfoOverlayHideDescription,
   onChannelInfoOverlayHideDescriptionChange,
+  channelInfoOverlayHideMetaBadge,
+  onChannelInfoOverlayHideMetaBadgeChange,
+  channelInfoOverlayHideLogo,
+  onChannelInfoOverlayHideLogoChange,
+  channelInfoOverlayPosition,
+  onChannelInfoOverlayPositionChange,
   failoverGroupShowSource,
   onFailoverGroupShowSourceChange,
   widgetScale,
@@ -769,6 +781,12 @@ export function LiveTVTab({
             onChannelInfoOverlayOpacityChange={onChannelInfoOverlayOpacityChange}
             channelInfoOverlayHideDescription={channelInfoOverlayHideDescription}
             onChannelInfoOverlayHideDescriptionChange={onChannelInfoOverlayHideDescriptionChange}
+            channelInfoOverlayHideMetaBadge={channelInfoOverlayHideMetaBadge}
+            onChannelInfoOverlayHideMetaBadgeChange={onChannelInfoOverlayHideMetaBadgeChange}
+            channelInfoOverlayHideLogo={channelInfoOverlayHideLogo}
+            onChannelInfoOverlayHideLogoChange={onChannelInfoOverlayHideLogoChange}
+            channelInfoOverlayPosition={channelInfoOverlayPosition}
+            onChannelInfoOverlayPositionChange={onChannelInfoOverlayPositionChange}
             failoverGroupShowSource={failoverGroupShowSource}
             onFailoverGroupShowSourceChange={onFailoverGroupShowSourceChange}
           />

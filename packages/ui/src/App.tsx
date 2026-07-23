@@ -206,6 +206,12 @@ function App() {
     setChannelInfoOverlayBoxWidth,
     setChannelInfoOverlayOpacity,
     channelInfoOverlayHideDescription,
+    channelInfoOverlayHideMetaBadge,
+    channelInfoOverlayHideLogo,
+    channelInfoOverlayPosition,
+    setChannelInfoOverlayHideMetaBadge,
+    setChannelInfoOverlayHideLogo,
+    setChannelInfoOverlayPosition,
     setChannelInfoOverlayHideDescription,
     transparentGuideOnZap,
     setTransparentGuideOnZap,
@@ -4059,6 +4065,9 @@ function App() {
         channel={currentChannel}
         visible={isChannelInfoOverlayVisible}
         hideDescription={channelInfoOverlayHideDescription}
+        hideMetaBadge={channelInfoOverlayHideMetaBadge}
+        hideLogo={channelInfoOverlayHideLogo}
+        overlayPosition={channelInfoOverlayPosition}
         isCatchup={isCatchup}
         catchupInfo={catchupInfo}
         position={position}
@@ -4429,6 +4438,12 @@ function App() {
           onChannelInfoOverlayOpacityChange={setChannelInfoOverlayOpacity}
           channelInfoOverlayHideDescription={channelInfoOverlayHideDescription}
           onChannelInfoOverlayHideDescriptionChange={setChannelInfoOverlayHideDescription}
+          channelInfoOverlayHideMetaBadge={channelInfoOverlayHideMetaBadge}
+          onChannelInfoOverlayHideMetaBadgeChange={setChannelInfoOverlayHideMetaBadge}
+          channelInfoOverlayHideLogo={channelInfoOverlayHideLogo}
+          onChannelInfoOverlayHideLogoChange={setChannelInfoOverlayHideLogo}
+          channelInfoOverlayPosition={channelInfoOverlayPosition}
+          onChannelInfoOverlayPositionChange={setChannelInfoOverlayPosition}
           transparentGuideOnZap={transparentGuideOnZap}
           onTransparentGuideOnZapChange={setTransparentGuideOnZap}
           overlayAutohideTimer={overlayAutohideTimer}

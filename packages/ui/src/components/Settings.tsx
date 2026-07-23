@@ -52,6 +52,12 @@ interface SettingsProps {
   onChannelInfoOverlayOpacityChange?: (opacity: number) => void;
   channelInfoOverlayHideDescription?: boolean;
   onChannelInfoOverlayHideDescriptionChange?: (hide: boolean) => void;
+  channelInfoOverlayHideMetaBadge?: boolean;
+  onChannelInfoOverlayHideMetaBadgeChange?: (hide: boolean) => void;
+  channelInfoOverlayHideLogo?: boolean;
+  onChannelInfoOverlayHideLogoChange?: (hide: boolean) => void;
+  channelInfoOverlayPosition?: 'left' | 'right';
+  onChannelInfoOverlayPositionChange?: (pos: 'left' | 'right') => void;
   playerControlDesign?: 'default' | 'clean';
   onPlayerControlDesignChange?: (design: 'default' | 'clean') => void;
   overlayAutohideTimer?: number;
@@ -131,6 +137,12 @@ export function Settings({
   onChannelInfoOverlayOpacityChange,
   channelInfoOverlayHideDescription: channelInfoOverlayHideDescriptionProp,
   onChannelInfoOverlayHideDescriptionChange,
+  channelInfoOverlayHideMetaBadge: channelInfoOverlayHideMetaBadgeProp,
+  onChannelInfoOverlayHideMetaBadgeChange,
+  channelInfoOverlayHideLogo: channelInfoOverlayHideLogoProp,
+  onChannelInfoOverlayHideLogoChange,
+  channelInfoOverlayPosition: channelInfoOverlayPositionProp,
+  onChannelInfoOverlayPositionChange,
   playerControlDesign: playerControlDesignProp,
   onPlayerControlDesignChange,
   overlayAutohideTimer: overlayAutohideTimerProp,
@@ -326,7 +338,7 @@ export function Settings({
     overlayAutohideTimer: 3,
     overlayOnClickOnly: false,
     uiScale: 100,
-    playerControlDesign: 'default',
+    playerControlDesign: 'clean',
   });
 
   // Font size state (moved to LiveTV tab)
@@ -523,6 +535,9 @@ export function Settings({
   const [channelInfoOverlayBoxWidth, setChannelInfoOverlayBoxWidth] = useState(channelInfoOverlayBoxWidthProp ?? 380);
   const [channelInfoOverlayOpacity, setChannelInfoOverlayOpacity] = useState(channelInfoOverlayOpacityProp ?? 55);
   const [channelInfoOverlayHideDescription, setChannelInfoOverlayHideDescription] = useState(channelInfoOverlayHideDescriptionProp ?? false);
+  const [channelInfoOverlayHideMetaBadge, setChannelInfoOverlayHideMetaBadge] = useState(channelInfoOverlayHideMetaBadgeProp ?? false);
+  const [channelInfoOverlayHideLogo, setChannelInfoOverlayHideLogo] = useState(channelInfoOverlayHideLogoProp ?? false);
+  const [channelInfoOverlayPosition, setChannelInfoOverlayPosition] = useState(channelInfoOverlayPositionProp ?? 'left');
 
   // Popout settings state
   const [popoutStopMain, setPopoutStopMain] = useState(true);
@@ -553,6 +568,9 @@ export function Settings({
   useEffect(() => { setChannelInfoOverlayBoxWidth(channelInfoOverlayBoxWidthProp ?? 380); }, [channelInfoOverlayBoxWidthProp]);
   useEffect(() => { setChannelInfoOverlayOpacity(channelInfoOverlayOpacityProp ?? 55); }, [channelInfoOverlayOpacityProp]);
   useEffect(() => { setChannelInfoOverlayHideDescription(channelInfoOverlayHideDescriptionProp ?? false); }, [channelInfoOverlayHideDescriptionProp]);
+  useEffect(() => { setChannelInfoOverlayHideMetaBadge(channelInfoOverlayHideMetaBadgeProp ?? false); }, [channelInfoOverlayHideMetaBadgeProp]);
+  useEffect(() => { setChannelInfoOverlayHideLogo(channelInfoOverlayHideLogoProp ?? false); }, [channelInfoOverlayHideLogoProp]);
+  useEffect(() => { setChannelInfoOverlayPosition(channelInfoOverlayPositionProp ?? 'left'); }, [channelInfoOverlayPositionProp]);
   useEffect(() => { setCastEnabled(castEnabledProp ?? false); }, [castEnabledProp]);
   useEffect(() => { setCastRewriteTs(castRewriteTsProp ?? true); }, [castRewriteTsProp]);
   
@@ -1817,6 +1835,36 @@ export function Settings({
     }
   };
 
+  const handleChannelInfoOverlayHideMetaBadgeChange = async (hide: boolean) => {
+    setChannelInfoOverlayHideMetaBadge(hide);
+    if (onChannelInfoOverlayHideMetaBadgeChange) {
+      onChannelInfoOverlayHideMetaBadgeChange(hide);
+    }
+    if (window.storage) {
+      await window.storage.updateSettings({ channelInfoOverlayHideMetaBadge: hide });
+    }
+  };
+
+  const handleChannelInfoOverlayHideLogoChange = async (hide: boolean) => {
+    setChannelInfoOverlayHideLogo(hide);
+    if (onChannelInfoOverlayHideLogoChange) {
+      onChannelInfoOverlayHideLogoChange(hide);
+    }
+    if (window.storage) {
+      await window.storage.updateSettings({ channelInfoOverlayHideLogo: hide });
+    }
+  };
+
+  const handleChannelInfoOverlayPositionChange = async (pos: 'left' | 'right') => {
+    setChannelInfoOverlayPosition(pos);
+    if (onChannelInfoOverlayPositionChange) {
+      onChannelInfoOverlayPositionChange(pos);
+    }
+    if (window.storage) {
+      await window.storage.updateSettings({ channelInfoOverlayPosition: pos });
+    }
+  };
+
   const handlePopoutStopMainChange = async (stop: boolean) => {
     setPopoutStopMain(stop);
     if (window.storage) {
@@ -1955,6 +2003,9 @@ export function Settings({
     channelInfoOverlayBoxWidth?: number;
     channelInfoOverlayOpacity?: number;
     channelInfoOverlayHideDescription?: boolean;
+    channelInfoOverlayHideMetaBadge?: boolean;
+    channelInfoOverlayHideLogo?: boolean;
+    channelInfoOverlayPosition?: 'left' | 'right';
   }) => {
     const updated = { ...uiSettings, ...newSettings };
     setUiSettings(updated);
@@ -1982,6 +2033,18 @@ export function Settings({
     if (newSettings.channelInfoOverlayHideDescription !== undefined) {
       setChannelInfoOverlayHideDescription(newSettings.channelInfoOverlayHideDescription);
       onChannelInfoOverlayHideDescriptionChange?.(newSettings.channelInfoOverlayHideDescription);
+    }
+    if (newSettings.channelInfoOverlayHideMetaBadge !== undefined) {
+      setChannelInfoOverlayHideMetaBadge(newSettings.channelInfoOverlayHideMetaBadge);
+      onChannelInfoOverlayHideMetaBadgeChange?.(newSettings.channelInfoOverlayHideMetaBadge);
+    }
+    if (newSettings.channelInfoOverlayHideLogo !== undefined) {
+      setChannelInfoOverlayHideLogo(newSettings.channelInfoOverlayHideLogo);
+      onChannelInfoOverlayHideLogoChange?.(newSettings.channelInfoOverlayHideLogo);
+    }
+    if (newSettings.channelInfoOverlayPosition !== undefined) {
+      setChannelInfoOverlayPosition(newSettings.channelInfoOverlayPosition);
+      onChannelInfoOverlayPositionChange?.(newSettings.channelInfoOverlayPosition);
     }
     if (newSettings.playerControlDesign !== undefined) {
       onPlayerControlDesignChange?.(newSettings.playerControlDesign);
@@ -2292,6 +2355,9 @@ export function Settings({
               channelInfoOverlayBoxWidth,
               channelInfoOverlayOpacity,
               channelInfoOverlayHideDescription,
+              channelInfoOverlayHideMetaBadge,
+              channelInfoOverlayHideLogo,
+              channelInfoOverlayPosition,
             }}
             onSettingsChange={handleUiSettingsChange}
           />
@@ -2483,6 +2549,12 @@ export function Settings({
             onChannelInfoOverlayOpacityChange={handleChannelInfoOverlayOpacityChange}
             channelInfoOverlayHideDescription={channelInfoOverlayHideDescription}
             onChannelInfoOverlayHideDescriptionChange={handleChannelInfoOverlayHideDescriptionChange}
+            channelInfoOverlayHideMetaBadge={channelInfoOverlayHideMetaBadge}
+            onChannelInfoOverlayHideMetaBadgeChange={handleChannelInfoOverlayHideMetaBadgeChange}
+            channelInfoOverlayHideLogo={channelInfoOverlayHideLogo}
+            onChannelInfoOverlayHideLogoChange={handleChannelInfoOverlayHideLogoChange}
+            channelInfoOverlayPosition={channelInfoOverlayPosition}
+            onChannelInfoOverlayPositionChange={handleChannelInfoOverlayPositionChange}
             failoverGroupShowSource={failoverGroupShowSource}
             onFailoverGroupShowSourceChange={handleFailoverGroupShowSourceChange}
             widgetScale={widgetScale}

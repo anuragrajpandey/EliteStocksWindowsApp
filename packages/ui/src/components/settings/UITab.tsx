@@ -20,6 +20,9 @@ interface UITabProps {
     channelInfoOverlayBoxWidth?: number;
     channelInfoOverlayOpacity?: number;
     channelInfoOverlayHideDescription?: boolean;
+    channelInfoOverlayHideMetaBadge?: boolean;
+    channelInfoOverlayHideLogo?: boolean;
+    channelInfoOverlayPosition?: 'left' | 'right';
   };
   onSettingsChange: (settings: {
     startupWidth?: number;
@@ -37,6 +40,9 @@ interface UITabProps {
     channelInfoOverlayBoxWidth?: number;
     channelInfoOverlayOpacity?: number;
     channelInfoOverlayHideDescription?: boolean;
+    channelInfoOverlayHideMetaBadge?: boolean;
+    channelInfoOverlayHideLogo?: boolean;
+    channelInfoOverlayPosition?: 'left' | 'right';
   }) => void;
 }
 
@@ -177,7 +183,6 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
     onSettingsChange({
       ...settings,
       playerControlDesign: newDesign,
-      channelInfoOverlayEnabled: newDesign === 'clean' ? true : (settings.channelInfoOverlayEnabled ?? false)
     });
   };
 
@@ -544,7 +549,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                   </span>
                 </div>
                 <select
-                  value={settings.playerControlDesign ?? 'default'}
+                  value={settings.playerControlDesign ?? 'clean'}
                   onChange={(e) => handleDesignChange(e.target.value as 'default' | 'clean')}
                   style={{
                     padding: '0.4rem 0.8rem',
@@ -609,6 +614,70 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                   />
                   <span className="toggle-slider" />
                 </label>
+              </div>
+
+              {/* Hide Metadata Badge */}
+              <div className="timeshift-toggle-row">
+                <div className="timeshift-toggle-info">
+                  <span className="timeshift-toggle-label">Hide Metadata Badge</span>
+                  <span className="timeshift-toggle-sub">
+                    When enabled, resolution, frame rate, and audio channel badges will be hidden from the overlay.
+                  </span>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={settings.channelInfoOverlayHideMetaBadge ?? false}
+                    onChange={(e) => onSettingsChange({ ...settings, channelInfoOverlayHideMetaBadge: e.target.checked })}
+                  />
+                  <span className="toggle-slider" />
+                </label>
+              </div>
+
+              {/* Hide Channel Logo */}
+              <div className="timeshift-toggle-row">
+                <div className="timeshift-toggle-info">
+                  <span className="timeshift-toggle-label">Hide Channel Logo</span>
+                  <span className="timeshift-toggle-sub">
+                    When enabled, the channel icon or logo image will be hidden from the overlay.
+                  </span>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={settings.channelInfoOverlayHideLogo ?? false}
+                    onChange={(e) => onSettingsChange({ ...settings, channelInfoOverlayHideLogo: e.target.checked })}
+                  />
+                  <span className="toggle-slider" />
+                </label>
+              </div>
+
+              {/* Overlay Position */}
+              <div className="timeshift-toggle-row">
+                <div className="timeshift-toggle-info">
+                  <span className="timeshift-toggle-label">Overlay Position</span>
+                  <span className="timeshift-toggle-sub">
+                    Choose whether the channel information overlay appears on the top-left or top-right of the screen.
+                  </span>
+                </div>
+                <select
+                  value={settings.channelInfoOverlayPosition ?? 'left'}
+                  onChange={(e) => onSettingsChange({ ...settings, channelInfoOverlayPosition: e.target.value as 'left' | 'right' })}
+                  style={{
+                    padding: '0.4rem 0.8rem',
+                    backgroundColor: 'var(--bg-tertiary, #1f1f2e)',
+                    border: '1px solid var(--border-color, rgba(255, 255, 255, 0.15))',
+                    borderRadius: '6px',
+                    color: 'var(--text-primary, #ffffff)',
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    minWidth: '120px',
+                    outline: 'none'
+                  }}
+                >
+                  <option value="left" style={{ backgroundColor: '#1f1f2e' }}>Left</option>
+                  <option value="right" style={{ backgroundColor: '#1f1f2e' }}>Right</option>
+                </select>
               </div>
             </div>
 

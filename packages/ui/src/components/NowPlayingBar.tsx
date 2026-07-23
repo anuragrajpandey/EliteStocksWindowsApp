@@ -134,7 +134,7 @@ export function NowPlayingBar({
   onTogglePip,
   pipMode,
   hasAudioDelay,
-  playerControlDesign = 'default',
+  playerControlDesign = 'clean',
 }: NowPlayingBarProps) {
   // scrubMode: 'timeshift' | 'epgcatchup' — local toggle when channel supports both
   const [scrubMode, setScrubMode] = useState<'timeshift' | 'epgcatchup'>('timeshift');

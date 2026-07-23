@@ -309,7 +309,7 @@ export function ChannelPanel({
   onPreviewVideoRectChange,
   pipMode = false,
   onTogglePip,
-  playerControlDesign = 'default',
+  playerControlDesign = 'clean',
 }: ChannelPanelProps) {
   const epgView = useEpgView();
   const epgVisibleHours = useEpgVisibleHours();

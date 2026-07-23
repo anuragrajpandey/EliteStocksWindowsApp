@@ -2,12 +2,21 @@
 .channel-info-overlay {
   position: absolute;
   top: 40px;
-  left: 16px;
   z-index: 60;
   max-width: var(--cio-box-width, 380px);
   min-width: 200px;
   pointer-events: none;
   transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.channel-info-overlay.position-left {
+  left: 16px;
+  right: auto;
+}
+
+.channel-info-overlay.position-right {
+  left: auto;
+  right: 16px;
 }
 
 .channel-info-overlay.hidden {

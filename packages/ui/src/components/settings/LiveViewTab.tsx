@@ -13,6 +13,12 @@ interface LiveViewTabProps {
   onChannelInfoOverlayOpacityChange: (opacity: number) => void;
   channelInfoOverlayHideDescription: boolean;
   onChannelInfoOverlayHideDescriptionChange: (hide: boolean) => void;
+  channelInfoOverlayHideMetaBadge: boolean;
+  onChannelInfoOverlayHideMetaBadgeChange: (hide: boolean) => void;
+  channelInfoOverlayHideLogo: boolean;
+  onChannelInfoOverlayHideLogoChange: (hide: boolean) => void;
+  channelInfoOverlayPosition: 'left' | 'right';
+  onChannelInfoOverlayPositionChange: (pos: 'left' | 'right') => void;
   failoverGroupShowSource: boolean;
   onFailoverGroupShowSourceChange: (enabled: boolean) => void;
 }
@@ -30,6 +36,12 @@ export function LiveViewTab({
   onChannelInfoOverlayOpacityChange,
   channelInfoOverlayHideDescription,
   onChannelInfoOverlayHideDescriptionChange,
+  channelInfoOverlayHideMetaBadge,
+  onChannelInfoOverlayHideMetaBadgeChange,
+  channelInfoOverlayHideLogo,
+  onChannelInfoOverlayHideLogoChange,
+  channelInfoOverlayPosition,
+  onChannelInfoOverlayPositionChange,
   failoverGroupShowSource,
   onFailoverGroupShowSourceChange,
 }: LiveViewTabProps) {
@@ -78,6 +90,70 @@ export function LiveViewTab({
               />
               <span className="toggle-slider" />
             </label>
+          </div>
+
+          {/* Hide Metadata Badge */}
+          <div className="timeshift-toggle-row">
+            <div className="timeshift-toggle-info">
+              <span className="timeshift-toggle-label">Hide Metadata Badge</span>
+              <span className="timeshift-toggle-sub">
+                When enabled, resolution, frame rate, and audio channel badges (e.g. 1080P 60FPS STEREOCH) will be hidden from the overlay.
+              </span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={channelInfoOverlayHideMetaBadge}
+                onChange={(e) => onChannelInfoOverlayHideMetaBadgeChange(e.target.checked)}
+              />
+              <span className="toggle-slider" />
+            </label>
+          </div>
+
+          {/* Hide Channel Logo */}
+          <div className="timeshift-toggle-row">
+            <div className="timeshift-toggle-info">
+              <span className="timeshift-toggle-label">Hide Channel Logo</span>
+              <span className="timeshift-toggle-sub">
+                When enabled, the channel icon or logo image will be hidden from the overlay.
+              </span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={channelInfoOverlayHideLogo}
+                onChange={(e) => onChannelInfoOverlayHideLogoChange(e.target.checked)}
+              />
+              <span className="toggle-slider" />
+            </label>
+          </div>
+
+          {/* Overlay Position */}
+          <div className="timeshift-toggle-row">
+            <div className="timeshift-toggle-info">
+              <span className="timeshift-toggle-label">Overlay Position</span>
+              <span className="timeshift-toggle-sub">
+                Choose whether the channel information overlay appears on the top-left or top-right of the screen.
+              </span>
+            </div>
+            <select
+              value={channelInfoOverlayPosition}
+              onChange={(e) => onChannelInfoOverlayPositionChange(e.target.value as 'left' | 'right')}
+              style={{
+                padding: '0.4rem 0.8rem',
+                backgroundColor: 'var(--bg-tertiary, #1f1f2e)',
+                border: '1px solid var(--border-color, rgba(255, 255, 255, 0.15))',
+                borderRadius: '6px',
+                color: 'var(--text-primary, #ffffff)',
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                minWidth: '120px',
+                outline: 'none'
+              }}
+            >
+              <option value="left" style={{ backgroundColor: '#1f1f2e' }}>Left</option>
+              <option value="right" style={{ backgroundColor: '#1f1f2e' }}>Right</option>
+            </select>
           </div>
 
           {/* Show Source for Failover Group */}

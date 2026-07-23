@@ -8,6 +8,9 @@ interface ChannelInfoOverlayProps {
   channel: StoredChannel | null;
   visible: boolean;
   hideDescription?: boolean;
+  hideMetaBadge?: boolean;
+  hideLogo?: boolean;
+  overlayPosition?: 'left' | 'right';
   isCatchup?: boolean;
   catchupInfo?: {
     channelId: string;
@@ -28,6 +31,9 @@ export function ChannelInfoOverlay({
   channel,
   visible,
   hideDescription,
+  hideMetaBadge = false,
+  hideLogo = false,
+  overlayPosition = 'left',
   isCatchup = false,
   catchupInfo = null,
   position = 0,
@@ -119,12 +125,12 @@ export function ChannelInfoOverlay({
 
   return (
     <div
-      className={`channel-info-overlay ${visible ? 'visible' : 'hidden'}`}
+      className={`channel-info-overlay ${visible ? 'visible' : 'hidden'} ${overlayPosition === 'right' ? 'position-right' : 'position-left'}`}
     >
       <div className="cio-content">
         {/* Channel logo and name row */}
         <div className="cio-header">
-          {channel.stream_icon && (
+          {!hideLogo && channel.stream_icon && (
             <img
               key={channel.stream_icon}
               src={channel.stream_icon}
@@ -137,7 +143,7 @@ export function ChannelInfoOverlay({
             <span className="cio-channel-name" title={channel.alias || channel.name}>
               {channel.alias || channel.name}
             </span>
-            <MetadataBadge streamId={channel.stream_id} variant="detailed" />
+            {!hideMetaBadge && <MetadataBadge streamId={channel.stream_id} variant="detailed" />}
           </div>
         </div>
 
