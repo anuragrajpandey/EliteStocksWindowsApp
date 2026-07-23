@@ -13,12 +13,9 @@ import './StremioHome.css';
 
 const HIDDEN_CATALOG_IDS = new Set(['last-videos', 'calendar-videos']);
 
-const cleanTitle = (title: string, type: 'trakt' | 'simkl') => {
+const cleanTitle = (title: string, type: 'trakt') => {
   if (type === 'trakt') {
     return title.replace(/^Trakt\s*—\s*/, '').replace(/^Trakt\s*/, '');
-  }
-  if (type === 'simkl') {
-    return title.replace(/^Simkl\s*—\s*/, '').replace(/^Simkl\s*/, '');
   }
   return title;
 };
@@ -34,15 +31,12 @@ interface CloudCatalogDetailViewProps {
   onBack: () => void;
 }
 
-function parseCloudKey(key: string): { type: 'trakt' | 'trakt-list' | 'simkl'; id: string } {
+function parseCloudKey(key: string): { type: 'trakt' | 'trakt-list'; id: string } {
   if (key.startsWith('trakt-list-')) {
     return { type: 'trakt-list', id: key.slice('trakt-list-'.length) };
   }
   if (key.startsWith('trakt-')) {
     return { type: 'trakt', id: key.slice('trakt-'.length) };
-  }
-  if (key.startsWith('simkl-')) {
-    return { type: 'simkl', id: key.slice('simkl-'.length) };
   }
   return { type: 'trakt', id: key };
 }
@@ -54,10 +48,6 @@ async function fetchCloudCatalogPage(key: string, page: number): Promise<{ items
   }
   if (parsed.type === 'trakt') {
     return scrobbler.fetchTraktCatalog(parsed.id as TraktCatalogType, page);
-  }
-  if (parsed.type === 'simkl') {
-    const items = await scrobbler.fetchSimklCatalog(parsed.id as 'watchlist' | 'history');
-    return { items, hasMore: false };
   }
   return { items: [], hasMore: false };
 }
@@ -91,7 +81,6 @@ export function CloudCatalogDetailView({ cloudCatalogKey, onItemClick, onBack }:
   }, [addons]);
 
   const hasTrakt = useMemo(() => availableCatalogs.some((c) => c.key.startsWith('trakt')), [availableCatalogs]);
-  const hasSimkl = useMemo(() => availableCatalogs.some((c) => c.key.startsWith('simkl')), [availableCatalogs]);
 
   const typeOptions = useMemo(() => {
     const list = types.map((t) => ({
@@ -101,13 +90,10 @@ export function CloudCatalogDetailView({ cloudCatalogKey, onItemClick, onBack }:
     if (hasTrakt) {
       list.push({ value: 'trakt', label: 'Trakt' });
     }
-    if (hasSimkl) {
-      list.push({ value: 'simkl', label: 'Simkl' });
-    }
     return list;
-  }, [types, hasTrakt, hasSimkl]);
+  }, [types, hasTrakt]);
 
-  const currentType = selectedKey.startsWith('simkl') ? 'simkl' : 'trakt';
+  const currentType = 'trakt';
 
   const filteredCatalogs = useMemo(() => {
     return availableCatalogs.filter((c) => c.key.startsWith(currentType));
@@ -135,10 +121,6 @@ export function CloudCatalogDetailView({ cloudCatalogKey, onItemClick, onBack }:
           for (const list of enabledLists) {
             entries.push({ key: `trakt-list-${list.id}`, title: `Trakt \u2014 ${list.name}` });
           }
-        }
-
-        if (s.simklEnabled && s.simklAccessToken) {
-          entries.push({ key: 'simkl-watchlist', title: 'Simkl Watchlist' });
         }
 
         if (active) {
@@ -175,7 +157,7 @@ export function CloudCatalogDetailView({ cloudCatalogKey, onItemClick, onBack }:
   }, [setSelectedCloudCatalogKey]);
 
   const handleTypeChange = (newType: string) => {
-    if (newType === 'trakt' || newType === 'simkl') {
+    if (newType === 'trakt') {
       const firstOfNewType = availableCatalogs.find((c) => c.key.startsWith(newType));
       if (firstOfNewType) {
         setSelectedCloudCatalogKey(firstOfNewType.key);

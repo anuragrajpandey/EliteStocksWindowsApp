@@ -9,7 +9,6 @@ const logError = (...args: any[]) => console.error('[Scrobbler]', ...args);
 
 // API Endpoints
 const TRAKT_API_URL = 'https://api.trakt.tv';
-const SIMKL_API_URL = 'https://api.simkl.com';
 
 // ---------------------------------------------------------------------------
 // Trakt Catalog Definitions
@@ -87,19 +86,16 @@ export const TRAKT_CATALOG_DEFINITIONS: TraktCatalogDefinition[] = [
   { type: 'anticipated-shows', label: 'Most Anticipated Shows', description: 'Most anticipated upcoming shows on Trakt', group: 'Trending & Popular' },
 ];
 
-type ScrobblerProvider = 'Trakt' | 'Simkl';
+type ScrobblerProvider = 'Trakt';
 
 const buildCredentials = {
   traktClientId: import.meta.env.VITE_TRAKT_CLIENT_ID?.trim() || '',
   traktClientSecret: import.meta.env.VITE_TRAKT_CLIENT_SECRET?.trim() || '',
-  simklClientId: import.meta.env.VITE_SIMKL_CLIENT_ID?.trim() || '',
-  simklClientSecret: import.meta.env.VITE_SIMKL_CLIENT_SECRET?.trim() || '',
 };
 
 export function getScrobblerCredentialStatus() {
   return {
     traktConfigured: Boolean(buildCredentials.traktClientId && buildCredentials.traktClientSecret),
-    simklConfigured: Boolean(buildCredentials.simklClientId && buildCredentials.simklClientSecret),
   };
 }
 
@@ -112,13 +108,6 @@ function getTraktCredentials() {
   return {
     clientId: requireBuildCredential(buildCredentials.traktClientId, 'Trakt', 'client_id'),
     clientSecret: requireBuildCredential(buildCredentials.traktClientSecret, 'Trakt', 'client_secret'),
-  };
-}
-
-function getSimklCredentials() {
-  return {
-    clientId: requireBuildCredential(buildCredentials.simklClientId, 'Simkl', 'client_id'),
-    clientSecret: requireBuildCredential(buildCredentials.simklClientSecret, 'Simkl', 'client_secret'),
   };
 }
 
@@ -340,104 +329,28 @@ class ScrobblerService {
   }
 
   // --------------------------------------------------------------------------
-  // Simkl Authentication / OAuth Flow
-  // --------------------------------------------------------------------------
-  async generateSimklDeviceCode(): Promise<DeviceCodeResponse> {
-    const { clientId } = getSimklCredentials();
-
-    logInfo('Generating Simkl PIN Code...');
-    // Simkl PIN flow uses GET /oauth/pin?client_id=...
-    const response = await makeRequest(`${SIMKL_API_URL}/oauth/pin?client_id=${clientId}`, {
-      method: 'GET',
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to generate Simkl PIN code');
-    }
-
-    const data = await response.json();
-    if (!data.user_code) {
-      throw new Error('Failed to generate Simkl PIN code: invalid response');
-    }
-    return data;
-  }
-
-  // NOTE: Simkl uses the user_code (not device_code) as the identifier for polling
-  async pollSimklToken(userCode: string): Promise<{ success: boolean; error?: string }> {
-    const { clientId } = getSimklCredentials();
-
-    logInfo('Polling Simkl access token...');
-    // Simkl PIN polling is a GET to /oauth/pin/{user_code}?client_id=...
-    const response = await makeRequest(`${SIMKL_API_URL}/oauth/pin/${userCode}?client_id=${clientId}`, {
-      method: 'GET',
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data.access_token) {
-        await this.updateSettings({
-          simklEnabled: true,
-          simklAccessToken: data.access_token,
-          simklScrobbleEnabled: true,
-          simklSyncEnabled: false,
-        });
-        logInfo('Simkl linked successfully.');
-        return { success: true };
-      }
-
-      // If result is OK but no access_token yet, still pending
-      if (data.result === 'OK' && !data.access_token) {
-        return { success: false };
-      }
-    }
-
-    // Non-OK response means still pending (the API returns 200 with just {result: 'OK'}
-    // until the user approves, at which point it includes access_token)
-    return { success: false };
-  }
-
-  async logoutSimkl(): Promise<void> {
-    await this.updateSettings({
-      simklEnabled: false,
-      simklAccessToken: null,
-      simklScrobbleEnabled: false,
-      simklSyncEnabled: false,
-    });
-    logInfo('Simkl unlinked successfully.');
-  }
-
-  // --------------------------------------------------------------------------
-  // Unified Real-Time Scrobbling APIs (Trakt & Simkl)
+  // Unified Real-Time Scrobbling APIs (Trakt)
   // --------------------------------------------------------------------------
   async startScrobble(media: PlaybackMediaInfo): Promise<void> {
     this.lastActiveMedia = media;
     this.isScrobblingActive = true;
     logInfo('Start scrobbling media:', media.title, media.type === 'series' ? `S${media.season}E${media.episode}` : '', `(${Math.round(media.progressPercent)}%)`);
 
-    await Promise.all([
-      this.sendTraktScrobble('start', media),
-      this.sendSimklScrobble('start', media),
-    ]);
+    await this.sendTraktScrobble('start', media);
   }
 
   async updateScrobble(progressPercent: number): Promise<void> {
     if (!this.isScrobblingActive || !this.lastActiveMedia) return;
     
     this.lastActiveMedia.progressPercent = progressPercent;
-    
     logInfo('Updating scrobble progress:', this.lastActiveMedia.title, `(${Math.round(progressPercent)}%)`);
-
-    await this.sendSimklScrobble('start', this.lastActiveMedia);
   }
 
   async pauseScrobble(): Promise<void> {
     if (!this.isScrobblingActive || !this.lastActiveMedia) return;
     logInfo('Pausing scrobble:', this.lastActiveMedia.title);
 
-    await Promise.all([
-      this.sendTraktScrobble('pause', this.lastActiveMedia),
-      this.sendSimklScrobble('pause', this.lastActiveMedia),
-    ]);
+    await this.sendTraktScrobble('pause', this.lastActiveMedia);
   }
 
   async stopScrobble(progressPercent: number): Promise<void> {
@@ -448,16 +361,11 @@ class ScrobblerService {
     
     logInfo('Stopping scrobble:', this.lastActiveMedia.title, `(${Math.round(progressPercent)}%)`);
 
-    const simklAction: 'stop' | 'pause' = progressPercent >= 90 ? 'stop' : 'pause';
     if (progressPercent >= 90) {
       logInfo('Media completed (>=90%)! Marking as fully watched.');
     }
 
-    await Promise.all([
-      this.sendTraktScrobble('stop', this.lastActiveMedia), // Trakt handles >=80% as scrobble, <80% as pause
-      this.sendSimklScrobble(simklAction, this.lastActiveMedia),
-    ]);
-
+    await this.sendTraktScrobble('stop', this.lastActiveMedia);
     this.lastActiveMedia = null;
   }
 
@@ -581,87 +489,15 @@ class ScrobblerService {
   }
 
   // --------------------------------------------------------------------------
-  // Simkl Internal Scrobbler Request
-  // --------------------------------------------------------------------------
-  private async sendSimklScrobble(action: 'start' | 'pause' | 'stop', media: PlaybackMediaInfo): Promise<void> {
-    const settings = await this.getSettings();
-    if (!settings.simklEnabled || !settings.simklScrobbleEnabled || !settings.simklAccessToken) return;
-
-    try {
-      const { clientId } = getSimklCredentials();
-      const headers = {
-        'Authorization': `Bearer ${settings.simklAccessToken}`,
-        'simkl-api-key': clientId,
-      };
-
-      // Simkl uses a standard POST to /scrobble
-      // Action is handled by fields: "paused": true/false and percentage/duration
-      const payload: any = {
-        progress: Math.min(100, Math.max(0, media.progressPercent)),
-      };
-
-      const imdbClean = media.imdbId && media.imdbId.startsWith('tt') ? media.imdbId : undefined;
-
-      if (media.type === 'movie') {
-        payload.movie = {
-          title: media.title,
-          ids: imdbClean ? { imdb: imdbClean } : undefined,
-        };
-      } else {
-        payload.show = {
-          title: media.title,
-          ids: imdbClean ? { imdb: imdbClean } : undefined,
-        };
-        payload.episode = {
-          season: media.season ?? 1,
-          number: media.episode ?? 1,
-        };
-      }
-
-      // Simkl states mapping:
-      // start -> active session (paused: false)
-      // pause -> paused session (paused: true)
-      // stop -> mark watched (completed if progress >= 90%)
-      if (action === 'pause') {
-        payload.paused = true;
-      } else if (action === 'stop' && media.progressPercent >= 90) {
-        payload.watched = true;
-      } else {
-        payload.paused = false;
-      }
-
-      // Endpoint: Simkl uses /scrobble/start, /scrobble/pause, /scrobble/stop
-      const url = `${SIMKL_API_URL}/scrobble/${action}`;
-      logInfo(`Sending Simkl Scrobble (${action}) request...`);
-      const response = await makeRequest(url, {
-        method: 'POST',
-        headers,
-        body: payload,
-      });
-
-      if (!response.ok) {
-        logWarn('Simkl scrobble failed with status:', response.status);
-      }
-    } catch (e) {
-      logError('Simkl scrobble connection error:', e);
-    }
-  }
-
-  // --------------------------------------------------------------------------
-  // Progress Sync Engine (Unifies Trakt/Simkl continue watches)
+  // Progress Sync Engine (Trakt continue watches)
   // --------------------------------------------------------------------------
   async syncPlaybackProgress(): Promise<void> {
-    logInfo('Running bi-directional watch progress sync...');
+    logInfo('Running watch progress sync...');
     const settings = await this.getSettings();
 
     if (settings.traktEnabled && settings.traktSyncEnabled && settings.traktAccessToken) {
       const { clientId } = getTraktCredentials();
       await this.syncTraktPlaybackProgress(settings.traktAccessToken, clientId);
-    }
-
-    if (settings.simklEnabled && settings.simklSyncEnabled && settings.simklAccessToken) {
-      const { clientId } = getSimklCredentials();
-      await this.syncSimklPlaybackProgress(settings.simklAccessToken, clientId);
     }
   }
 
@@ -689,7 +525,6 @@ class ScrobblerService {
 
             if (item.type === 'movie' && item.movie) {
               const title = item.movie.title;
-              const year = item.movie.year ? String(item.movie.year) : undefined;
               
               // Sync to local sqlite DB
               await updateVodWatchProgress(imdbId, 'movie', Math.floor(fraction * 7200), 7200).catch(() => {});
@@ -702,7 +537,6 @@ class ScrobblerService {
               const videoId = `imdbId:${imdbId}:${season}:${epNum}`; // standard stremio video ID string format
               
               // Sync to local sqlite DB
-              const mediaId = `${imdbId}_ep_${videoId}`;
               await updateVodWatchProgress(imdbId, 'series', Math.floor(fraction * 2700), 2700).catch(() => {});
               await recordEpisodeWatch(videoId, imdbId, 'stremio', season, epNum, `Episode ${epNum}`, Math.floor(fraction * 2700), 2700).catch(() => {});
 
@@ -716,62 +550,8 @@ class ScrobblerService {
     }
   }
 
-  private async syncSimklPlaybackProgress(token: string, clientId: string): Promise<void> {
-    try {
-      logInfo('Syncing active continue-watching sessions from Simkl...');
-      
-      // Simkl splits playback status into movies and episodes
-      const types = ['movies', 'episodes'];
-      for (const type of types) {
-        const response = await makeRequest(`${SIMKL_API_URL}/sync/playback/${type}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'simkl-api-key': clientId,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const items = data[type] || data.shows || data.movies || data;
-          if (Array.isArray(items)) {
-            for (const item of items) {
-              const fraction = item.progress ? item.progress / 100 : 0;
-              if (fraction <= 0.02 || fraction >= 0.95) continue;
-
-              const imdbId = item.movie?.ids?.imdb || item.show?.ids?.imdb;
-              if (!imdbId) continue;
-
-              if (type === 'movies' && item.movie) {
-                const title = item.movie.title;
-                
-                // Sync to local sqlite DB
-                await updateVodWatchProgress(imdbId, 'movie', Math.floor(fraction * 7200), 7200).catch(() => {});
-
-                logInfo(`Synced Simkl Movie resume progress: ${title} (${Math.round(item.progress)}%)`);
-              } else if (type === 'episodes' && item.show && item.episode) {
-                const showTitle = item.show.title;
-                const season = item.episode.season;
-                const epNum = item.episode.number;
-                const videoId = `imdbId:${imdbId}:${season}:${epNum}`;
-                
-                // Sync to local sqlite DB
-                await updateVodWatchProgress(imdbId, 'series', Math.floor(fraction * 2700), 2700).catch(() => {});
-                await recordEpisodeWatch(videoId, imdbId, 'stremio', season, epNum, `Episode ${epNum}`, Math.floor(fraction * 2700), 2700).catch(() => {});
-
-                logInfo(`Synced Simkl Series resume progress: ${showTitle} S${season}E${epNum} (${Math.round(item.progress)}%)`);
-              }
-            }
-          }
-        }
-      }
-    } catch (e) {
-      logWarn('Simkl playback progress sync error:', e);
-    }
-  }
-
   // --------------------------------------------------------------------------
-  // Catalog Fetching (Transforms Trakt/Simkl APIs into Stremio-friendly items)
+  // Catalog Fetching (Transforms Trakt APIs into Stremio-friendly items)
   // --------------------------------------------------------------------------
   async fetchTraktCatalog(type: TraktCatalogType, page: number = 1): Promise<{ items: StremioMetaPreview[]; hasMore: boolean }> {
     if (type !== 'playback') {
@@ -998,79 +778,6 @@ class ScrobblerService {
       logError(`Failed to fetch Trakt list catalog ${listId}:`, e);
     }
     return { items: [], hasMore: false };
-  }
-
-  async fetchSimklCatalog(type: 'watchlist' | 'history'): Promise<any[]> {
-    const settings = await this.getSettings();
-    if (!settings.simklEnabled || !settings.simklAccessToken) return [];
-
-    try {
-      const { clientId } = getSimklCredentials();
-      const headers = {
-        'Authorization': `Bearer ${settings.simklAccessToken}`,
-        'simkl-api-key': clientId,
-      };
-
-      let url = '';
-      if (type === 'watchlist') {
-        // Fetch items from library marked as "plantowatch" or "watching"
-        url = `${SIMKL_API_URL}/sync/all-items`;
-      } else {
-        url = `${SIMKL_API_URL}/sync/history?limit=30`;
-      }
-
-      logInfo(`Fetching Simkl ${type} catalog...`);
-      const response = await makeRequest(url, { method: 'GET', headers });
-
-      if (response.ok) {
-        const data = await response.json();
-        
-        if (type === 'watchlist') {
-          // Parse Simkl library
-          const list: any[] = [];
-          const movies = data.movies || [];
-          const shows = data.shows || [];
-
-          [...movies, ...shows].forEach((item: any) => {
-            // Include items in watchlists
-            if (item.status === 'plantowatch' || item.status === 'watching') {
-              const media = item.movie || item.show;
-              const imdbId = media?.ids?.imdb;
-              if (imdbId) {
-                list.push({
-                  id: imdbId,
-                  type: item.movie ? 'movie' : 'series',
-                  name: media.title,
-                  poster: `https://images.metahub.space/poster/medium/${imdbId}/img`,
-                  year: media.year,
-                });
-              }
-            }
-          });
-          return list;
-        } else {
-          // Parse Simkl history items
-          if (Array.isArray(data)) {
-            return data.map((item: any) => {
-              const media = item.movie || item.show;
-              const imdbId = media?.ids?.imdb;
-              if (!imdbId) return null;
-
-              return {
-                id: imdbId,
-                type: item.movie ? 'movie' : 'series',
-                name: media.title,
-                poster: `https://images.metahub.space/poster/medium/${imdbId}/img`,
-                year: media.year,
-              };
-            }).filter(Boolean);
-          }
-        }
-      }
-    } catch (e) {
-      logError(`Failed to fetch Simkl catalog ${type}:`, e);
-    }
-    return [];
   }
 }
 

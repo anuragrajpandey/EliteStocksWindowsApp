@@ -160,7 +160,7 @@ export interface AppSettings {
     navHiddenTabs?: string[];
     // EPG button visibility — buttons hidden from LiveTV EPG header
     epgHiddenButtons?: string[];
-    // Trakt & Simkl integration settings
+    // Trakt integration settings
     traktEnabled?: boolean;
     traktAccessToken?: string | null;
     traktRefreshToken?: string | null;
@@ -175,10 +175,6 @@ export interface AppSettings {
     traktNuvioCatalogOrder?: string[];
     traktNuvioCatalogsBeforeAddon?: boolean;
     traktNuvioEnabledLists?: { id: string; name: string }[];
-    simklEnabled?: boolean;
-    simklAccessToken?: string | null;
-    simklScrobbleEnabled?: boolean;
-    simklSyncEnabled?: boolean;
     globalLiveTvUserAgent?: string;
     catchupStartPadding?: number;
     catchupEndPadding?: number;

@@ -163,7 +163,6 @@ export function StremioHome({ addons, onItemClick }: StremioHomeProps) {
   }
   const [cloudCatalogRows, setCloudCatalogRows] = useState<CloudCatalogRow[]>([]);
   const [traktCatalogsBeforeAddon, setTraktCatalogsBeforeAddon] = useState(false);
-  const [simklWatchlist, setSimklWatchlist] = useState<StremioMetaPreview[]>([]);
 
   // Fetch cloud catalogs on mount or when view changes back to home/search
   useEffect(() => {
@@ -227,14 +226,6 @@ export function StremioHome({ addons, onItemClick }: StremioHomeProps) {
         if (active) {
           setCloudCatalogRows(rows);
           setTraktCatalogsBeforeAddon(s.traktCatalogsBeforeAddon ?? false);
-        }
-
-        if (s.simklEnabled && s.simklAccessToken) {
-          scrobbler.fetchSimklCatalog('watchlist').then((items) => {
-            if (active) setSimklWatchlist(items);
-          });
-        } else {
-          setSimklWatchlist([]);
         }
       } catch (e) {
         console.error('Failed to load scrobbler catalogs in StremioHome:', e);
@@ -772,15 +763,6 @@ export function StremioHome({ addons, onItemClick }: StremioHomeProps) {
             }}
           />
         ))}
-
-        {simklWatchlist.length > 0 && (
-          <StremioCatalogRow
-            key="simkl-watchlist"
-            title="Simkl Watchlist"
-            items={simklWatchlist}
-            onItemClick={handleItemClickWrapper}
-          />
-        )}
       </div>
 
       <button

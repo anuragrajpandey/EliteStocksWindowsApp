@@ -35,7 +35,6 @@ export function CatalogDetailView({ addon, catalog, onItemClick }: CatalogDetail
 
   const [items, setItems] = useState<StremioMetaPreview[]>([]);
   const [traktEnabled, setTraktEnabled] = useState(false);
-  const [simklEnabled, setSimklEnabled] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -43,7 +42,6 @@ export function CatalogDetailView({ addon, catalog, onItemClick }: CatalogDetail
       if (!active) return;
       const s = res.data || {};
       setTraktEnabled(!!(s.traktEnabled && s.traktAccessToken));
-      setSimklEnabled(!!(s.simklEnabled && s.simklAccessToken));
     });
     return () => { active = false; };
   }, []);
@@ -88,11 +86,8 @@ export function CatalogDetailView({ addon, catalog, onItemClick }: CatalogDetail
     if (traktEnabled) {
       list.push({ value: 'trakt', label: 'Trakt' });
     }
-    if (simklEnabled) {
-      list.push({ value: 'simkl', label: 'Simkl' });
-    }
     return list;
-  }, [types, traktEnabled, simklEnabled]);
+  }, [types, traktEnabled]);
 
   const availableCatalogs = useMemo(() => {
     const list: { addon: InstalledAddon; catalog: StremioManifestCatalog }[] = [];
@@ -115,26 +110,20 @@ export function CatalogDetailView({ addon, catalog, onItemClick }: CatalogDetail
   }, [genreExtra]);
 
   const handleTypeChange = (newType: string) => {
-    if (newType === 'trakt' || newType === 'simkl') {
+    if (newType === 'trakt') {
       window.storage?.getSettings().then((res) => {
         const s = res.data || {};
         let defaultKey = '';
-        if (newType === 'trakt') {
-          if (s.traktEnabled && s.traktAccessToken) {
-            const enabledCatalogs: Record<string, boolean> = s.traktCatalogsEnabled || {};
-            const firstDef = TRAKT_CATALOG_DEFINITIONS.find((def) => enabledCatalogs[def.type] === true);
-            if (firstDef) {
-              defaultKey = `trakt-${firstDef.type}`;
-            } else {
-              const enabledLists = s.traktEnabledLists || [];
-              if (enabledLists.length > 0) {
-                defaultKey = `trakt-list-${enabledLists[0].id}`;
-              }
+        if (s.traktEnabled && s.traktAccessToken) {
+          const enabledCatalogs: Record<string, boolean> = s.traktCatalogsEnabled || {};
+          const firstDef = TRAKT_CATALOG_DEFINITIONS.find((def) => enabledCatalogs[def.type] === true);
+          if (firstDef) {
+            defaultKey = `trakt-${firstDef.type}`;
+          } else {
+            const enabledLists = s.traktEnabledLists || [];
+            if (enabledLists.length > 0) {
+              defaultKey = `trakt-list-${enabledLists[0].id}`;
             }
-          }
-        } else if (newType === 'simkl') {
-          if (s.simklEnabled && s.simklAccessToken) {
-            defaultKey = 'simkl-watchlist';
           }
         }
 

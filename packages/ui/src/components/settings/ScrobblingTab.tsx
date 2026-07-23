@@ -8,10 +8,6 @@ export function ScrobblingTab() {
   const [traktScrobbleEnabled, setTraktScrobbleEnabled] = useState(false);
   const [traktLinked, setTraktLinked] = useState(false);
 
-  const [simklScrobbleEnabled, setSimklScrobbleEnabled] = useState(false);
-  const [simklSyncEnabled, setSimklSyncEnabled] = useState(false);
-  const [simklLinked, setSimklLinked] = useState(false);
-
   const credentialStatus = getScrobblerCredentialStatus();
 
   const [traktAuthState, setTraktAuthState] = useState<'idle' | 'polling' | 'success' | 'error'>('idle');
@@ -21,31 +17,18 @@ export function ScrobblingTab() {
 
   const [activeModalType, setActiveModalType] = useState<'strem' | 'nuvio' | null>(null);
 
-  const [simklAuthState, setSimklAuthState] = useState<'idle' | 'polling' | 'success' | 'error'>('idle');
-  const [simklUserCode, setSimklUserCode] = useState('');
-  const [simklVerificationUrl, setSimklVerificationUrl] = useState('');
-  const [simklExpiresIn, setSimklExpiresIn] = useState(0);
-
   const traktPollTimer = useRef<any>(null);
   const traktCountdownTimer = useRef<any>(null);
-  const simklPollTimer = useRef<any>(null);
-  const simklCountdownTimer = useRef<any>(null);
 
   useEffect(() => {
     return () => {
       clearTraktTimers();
-      clearSimklTimers();
     };
   }, []);
 
   const clearTraktTimers = () => {
     if (traktPollTimer.current) clearInterval(traktPollTimer.current);
     if (traktCountdownTimer.current) clearInterval(traktCountdownTimer.current);
-  };
-
-  const clearSimklTimers = () => {
-    if (simklPollTimer.current) clearInterval(simklPollTimer.current);
-    if (simklCountdownTimer.current) clearInterval(simklCountdownTimer.current);
   };
 
   const loadSettings = async () => {
@@ -56,10 +39,6 @@ export function ScrobblingTab() {
 
       setTraktScrobbleEnabled(s.traktScrobbleEnabled ?? false);
       setTraktLinked(!!s.traktAccessToken);
-
-      setSimklScrobbleEnabled(s.simklScrobbleEnabled ?? false);
-      setSimklSyncEnabled(s.simklSyncEnabled ?? false);
-      setSimklLinked(!!s.simklAccessToken);
     } catch (e) {
       console.error('Error loading scrobbler settings:', e);
     }

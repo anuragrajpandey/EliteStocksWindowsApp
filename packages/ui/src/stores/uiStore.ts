@@ -123,7 +123,7 @@ interface UIState {
   traktCatalogRefreshToken: number;
   setTraktCatalogRefreshToken: (value: number) => void;
 
-  // Cloud catalog selection (Trakt/Simkl) for detail view
+  // Cloud catalog selection (Trakt) for detail view
   stremioSelectedCloudCatalogKey: string | null;
   setStremioSelectedCloudCatalogKey: (key: string | null) => void;
 
