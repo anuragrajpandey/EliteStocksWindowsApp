@@ -22,6 +22,7 @@ interface UITabProps {
     channelInfoOverlayHideDescription?: boolean;
     channelInfoOverlayHideMetaBadge?: boolean;
     channelInfoOverlayHideLogo?: boolean;
+    channelInfoOverlayHideTimer?: boolean;
     channelInfoOverlayPosition?: 'left' | 'right';
   };
   onSettingsChange: (settings: {
@@ -42,6 +43,7 @@ interface UITabProps {
     channelInfoOverlayHideDescription?: boolean;
     channelInfoOverlayHideMetaBadge?: boolean;
     channelInfoOverlayHideLogo?: boolean;
+    channelInfoOverlayHideTimer?: boolean;
     channelInfoOverlayPosition?: 'left' | 'right';
   }) => void;
 }
@@ -647,6 +649,24 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                     type="checkbox"
                     checked={settings.channelInfoOverlayHideLogo ?? false}
                     onChange={(e) => onSettingsChange({ ...settings, channelInfoOverlayHideLogo: e.target.checked })}
+                  />
+                  <span className="toggle-slider" />
+                </label>
+              </div>
+
+              {/* Hide Program Timer */}
+              <div className="timeshift-toggle-row">
+                <div className="timeshift-toggle-info">
+                  <span className="timeshift-toggle-label">Hide Program Timer & Progress</span>
+                  <span className="timeshift-toggle-sub">
+                    When enabled, program start/end time, time remaining, and the progress bar will be hidden from the overlay.
+                  </span>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={settings.channelInfoOverlayHideTimer ?? false}
+                    onChange={(e) => onSettingsChange({ ...settings, channelInfoOverlayHideTimer: e.target.checked })}
                   />
                   <span className="toggle-slider" />
                 </label>

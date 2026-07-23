@@ -44,6 +44,7 @@ export interface AppSettings {
   channelInfoOverlayHideDescription: boolean;
   channelInfoOverlayHideMetaBadge: boolean;
   channelInfoOverlayHideLogo: boolean;
+  channelInfoOverlayHideTimer: boolean;
   channelInfoOverlayPosition: 'left' | 'right';
   transparentGuideOnZap: boolean;
 
@@ -125,6 +126,7 @@ export interface AppSettings {
     setChannelInfoOverlayHideDescription: (hide: boolean) => void;
     setChannelInfoOverlayHideMetaBadge: (hide: boolean) => void;
     setChannelInfoOverlayHideLogo: (hide: boolean) => void;
+    setChannelInfoOverlayHideTimer: (hide: boolean) => void;
     setChannelInfoOverlayPosition: (pos: 'left' | 'right') => void;
     setTransparentGuideOnZap: (enabled: boolean) => void;
     setPopoutStopMain: (stop: boolean) => void;
@@ -218,6 +220,7 @@ export function useAppSettings(): AppSettings {
   const [channelInfoOverlayHideDescription, setChannelInfoOverlayHideDescriptionState] = useState(false);
   const [channelInfoOverlayHideMetaBadge, setChannelInfoOverlayHideMetaBadgeState] = useState(false);
   const [channelInfoOverlayHideLogo, setChannelInfoOverlayHideLogoState] = useState(false);
+  const [channelInfoOverlayHideTimer, setChannelInfoOverlayHideTimerState] = useState(false);
   const [channelInfoOverlayPosition, setChannelInfoOverlayPositionState] = useState<'left' | 'right'>('left');
   const [transparentGuideOnZap, setTransparentGuideOnZapState] = useState(false);
 
@@ -513,6 +516,7 @@ export function useAppSettings(): AppSettings {
           setChannelInfoOverlayHideDescriptionState(result.data.channelInfoOverlayHideDescription ?? false);
           setChannelInfoOverlayHideMetaBadgeState(result.data.channelInfoOverlayHideMetaBadge ?? false);
           setChannelInfoOverlayHideLogoState(result.data.channelInfoOverlayHideLogo ?? false);
+          setChannelInfoOverlayHideTimerState(result.data.channelInfoOverlayHideTimer ?? false);
           setChannelInfoOverlayPositionState(result.data.channelInfoOverlayPosition ?? 'left');
           setTransparentGuideOnZapState(result.data.transparentGuideOnZap ?? false);
           setCategoriesHiddenState(result.data.categoriesHidden ?? false);
@@ -924,6 +928,17 @@ export function useAppSettings(): AppSettings {
         await window.storage.updateSettings({ channelInfoOverlayHideLogo: hide });
       } catch (e) {
         console.error('[useAppSettings] Failed to save channelInfoOverlayHideLogo:', e);
+      }
+    }
+  }, []);
+
+  const setChannelInfoOverlayHideTimer = useCallback(async (hide: boolean) => {
+    setChannelInfoOverlayHideTimerState(hide);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ channelInfoOverlayHideTimer: hide });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save channelInfoOverlayHideTimer:', e);
       }
     }
   }, []);
@@ -1383,6 +1398,7 @@ export function useAppSettings(): AppSettings {
     channelInfoOverlayHideDescription,
     channelInfoOverlayHideMetaBadge,
     channelInfoOverlayHideLogo,
+    channelInfoOverlayHideTimer,
     channelInfoOverlayPosition,
     transparentGuideOnZap,
     popoutStopMain,
@@ -1426,6 +1442,7 @@ export function useAppSettings(): AppSettings {
     setChannelInfoOverlayHideDescription,
     setChannelInfoOverlayHideMetaBadge,
     setChannelInfoOverlayHideLogo,
+    setChannelInfoOverlayHideTimer,
     setChannelInfoOverlayPosition,
     setTransparentGuideOnZap,
     setCategorySortOrder: setCategorySortOrderSetting,

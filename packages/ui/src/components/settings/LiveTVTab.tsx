@@ -68,6 +68,8 @@ interface LiveTVTabProps {
   onChannelInfoOverlayHideMetaBadgeChange: (hide: boolean) => void;
   channelInfoOverlayHideLogo: boolean;
   onChannelInfoOverlayHideLogoChange: (hide: boolean) => void;
+  channelInfoOverlayHideTimer: boolean;
+  onChannelInfoOverlayHideTimerChange: (hide: boolean) => void;
   channelInfoOverlayPosition: 'left' | 'right';
   onChannelInfoOverlayPositionChange: (pos: 'left' | 'right') => void;
   failoverGroupShowSource: boolean;
@@ -153,6 +155,8 @@ export function LiveTVTab({
   onChannelInfoOverlayHideMetaBadgeChange,
   channelInfoOverlayHideLogo,
   onChannelInfoOverlayHideLogoChange,
+  channelInfoOverlayHideTimer,
+  onChannelInfoOverlayHideTimerChange,
   channelInfoOverlayPosition,
   onChannelInfoOverlayPositionChange,
   failoverGroupShowSource,
@@ -785,6 +789,8 @@ export function LiveTVTab({
             onChannelInfoOverlayHideMetaBadgeChange={onChannelInfoOverlayHideMetaBadgeChange}
             channelInfoOverlayHideLogo={channelInfoOverlayHideLogo}
             onChannelInfoOverlayHideLogoChange={onChannelInfoOverlayHideLogoChange}
+            channelInfoOverlayHideTimer={channelInfoOverlayHideTimer}
+            onChannelInfoOverlayHideTimerChange={onChannelInfoOverlayHideTimerChange}
             channelInfoOverlayPosition={channelInfoOverlayPosition}
             onChannelInfoOverlayPositionChange={onChannelInfoOverlayPositionChange}
             failoverGroupShowSource={failoverGroupShowSource}

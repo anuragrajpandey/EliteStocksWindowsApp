@@ -17,6 +17,8 @@ interface LiveViewTabProps {
   onChannelInfoOverlayHideMetaBadgeChange: (hide: boolean) => void;
   channelInfoOverlayHideLogo: boolean;
   onChannelInfoOverlayHideLogoChange: (hide: boolean) => void;
+  channelInfoOverlayHideTimer: boolean;
+  onChannelInfoOverlayHideTimerChange: (hide: boolean) => void;
   channelInfoOverlayPosition: 'left' | 'right';
   onChannelInfoOverlayPositionChange: (pos: 'left' | 'right') => void;
   failoverGroupShowSource: boolean;
@@ -40,6 +42,8 @@ export function LiveViewTab({
   onChannelInfoOverlayHideMetaBadgeChange,
   channelInfoOverlayHideLogo,
   onChannelInfoOverlayHideLogoChange,
+  channelInfoOverlayHideTimer,
+  onChannelInfoOverlayHideTimerChange,
   channelInfoOverlayPosition,
   onChannelInfoOverlayPositionChange,
   failoverGroupShowSource,
@@ -123,6 +127,24 @@ export function LiveViewTab({
                 type="checkbox"
                 checked={channelInfoOverlayHideLogo}
                 onChange={(e) => onChannelInfoOverlayHideLogoChange(e.target.checked)}
+              />
+              <span className="toggle-slider" />
+            </label>
+          </div>
+
+          {/* Hide Program Timer */}
+          <div className="timeshift-toggle-row">
+            <div className="timeshift-toggle-info">
+              <span className="timeshift-toggle-label">Hide Program Timer & Progress</span>
+              <span className="timeshift-toggle-sub">
+                When enabled, program start/end time, time remaining, and the progress bar will be hidden from the overlay.
+              </span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={channelInfoOverlayHideTimer}
+                onChange={(e) => onChannelInfoOverlayHideTimerChange(e.target.checked)}
               />
               <span className="toggle-slider" />
             </label>

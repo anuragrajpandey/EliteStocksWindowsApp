@@ -191,7 +191,7 @@
 
 .npb-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #00d4ff, #00a8cc);
+  background: var(--accent-primary, #00d4ff);
   border-radius: 2px;
   transition: width 0.5s ease;
 }
@@ -707,7 +707,7 @@
   left: 0;
   top: 0;
   height: 100%;
-  background: linear-gradient(90deg, #00d4ff, #00a8cc);
+  background: var(--accent-primary, #00d4ff);
   border-radius: 4px;
   transition: width 0.1s linear;
 }
@@ -753,7 +753,7 @@
 }
 
 .npb-behind-live {
-  color: rgba(255, 180, 0, 0.9);
+  color: #ffffff;
   font-size: 0.75rem;
   margin-left: auto;
 }
@@ -955,7 +955,7 @@ html.modern-ui-v3 .now-playing-bar.clean-design::after,
 .npb-clean-behind-text {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #ff9800;
+  color: #ffffff;
 }
 
 .npb-clean-live-badge {
@@ -988,7 +988,7 @@ html.modern-ui-v3 .now-playing-bar.clean-design::after,
 
 .npb-clean-progress-fill {
   height: 100%;
-  background: #ff9800;
+  background: var(--accent-primary, #00d4ff);
   border-radius: 2px;
   transition: width 0.1s linear;
 }
@@ -999,7 +999,7 @@ html.modern-ui-v3 .now-playing-bar.clean-design::after,
   transform: translate(-50%, -50%);
   width: 12px;
   height: 12px;
-  background: #ff9800;
+  background: var(--accent-primary, #00d4ff);
   border-radius: 50%;
   pointer-events: none;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);

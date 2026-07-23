@@ -10,6 +10,7 @@ interface ChannelInfoOverlayProps {
   hideDescription?: boolean;
   hideMetaBadge?: boolean;
   hideLogo?: boolean;
+  hideTimer?: boolean;
   overlayPosition?: 'left' | 'right';
   isCatchup?: boolean;
   catchupInfo?: {
@@ -33,6 +34,7 @@ export function ChannelInfoOverlay({
   hideDescription,
   hideMetaBadge = false,
   hideLogo = false,
+  hideTimer = false,
   overlayPosition = 'left',
   isCatchup = false,
   catchupInfo = null,
@@ -162,23 +164,26 @@ export function ChannelInfoOverlay({
               </div>
             )}
 
-            {/* Time row: start - end | time remaining */}
-            <div className="cio-time-row">
-              <span className="cio-time-range">
-                {formatTime(new Date(activeProgram.start))} - {formatTime(new Date(activeProgram.end))}
-              </span>
-              {timeRemaining && (
-                <span className="cio-time-remaining">{timeRemaining}</span>
-              )}
-            </div>
+            {/* Time row & progress bar */}
+            {!hideTimer && (
+              <>
+                <div className="cio-time-row">
+                  <span className="cio-time-range">
+                    {formatTime(new Date(activeProgram.start))} - {formatTime(new Date(activeProgram.end))}
+                  </span>
+                  {timeRemaining && (
+                    <span className="cio-time-remaining">{timeRemaining}</span>
+                  )}
+                </div>
 
-            {/* Progress bar */}
-            <div className="cio-progress-bar">
-              <div
-                className="cio-progress-fill"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+                <div className="cio-progress-bar">
+                  <div
+                    className="cio-progress-fill"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </>
+            )}
 
             {/* Description */}
             {!hideDescription && activeProgram.description && (

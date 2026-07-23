@@ -56,6 +56,8 @@ interface SettingsProps {
   onChannelInfoOverlayHideMetaBadgeChange?: (hide: boolean) => void;
   channelInfoOverlayHideLogo?: boolean;
   onChannelInfoOverlayHideLogoChange?: (hide: boolean) => void;
+  channelInfoOverlayHideTimer?: boolean;
+  onChannelInfoOverlayHideTimerChange?: (hide: boolean) => void;
   channelInfoOverlayPosition?: 'left' | 'right';
   onChannelInfoOverlayPositionChange?: (pos: 'left' | 'right') => void;
   playerControlDesign?: 'default' | 'clean';
@@ -141,6 +143,8 @@ export function Settings({
   onChannelInfoOverlayHideMetaBadgeChange,
   channelInfoOverlayHideLogo: channelInfoOverlayHideLogoProp,
   onChannelInfoOverlayHideLogoChange,
+  channelInfoOverlayHideTimer: channelInfoOverlayHideTimerProp,
+  onChannelInfoOverlayHideTimerChange,
   channelInfoOverlayPosition: channelInfoOverlayPositionProp,
   onChannelInfoOverlayPositionChange,
   playerControlDesign: playerControlDesignProp,
@@ -537,6 +541,7 @@ export function Settings({
   const [channelInfoOverlayHideDescription, setChannelInfoOverlayHideDescription] = useState(channelInfoOverlayHideDescriptionProp ?? false);
   const [channelInfoOverlayHideMetaBadge, setChannelInfoOverlayHideMetaBadge] = useState(channelInfoOverlayHideMetaBadgeProp ?? false);
   const [channelInfoOverlayHideLogo, setChannelInfoOverlayHideLogo] = useState(channelInfoOverlayHideLogoProp ?? false);
+  const [channelInfoOverlayHideTimer, setChannelInfoOverlayHideTimer] = useState(channelInfoOverlayHideTimerProp ?? false);
   const [channelInfoOverlayPosition, setChannelInfoOverlayPosition] = useState(channelInfoOverlayPositionProp ?? 'left');
 
   // Popout settings state
@@ -570,6 +575,7 @@ export function Settings({
   useEffect(() => { setChannelInfoOverlayHideDescription(channelInfoOverlayHideDescriptionProp ?? false); }, [channelInfoOverlayHideDescriptionProp]);
   useEffect(() => { setChannelInfoOverlayHideMetaBadge(channelInfoOverlayHideMetaBadgeProp ?? false); }, [channelInfoOverlayHideMetaBadgeProp]);
   useEffect(() => { setChannelInfoOverlayHideLogo(channelInfoOverlayHideLogoProp ?? false); }, [channelInfoOverlayHideLogoProp]);
+  useEffect(() => { setChannelInfoOverlayHideTimer(channelInfoOverlayHideTimerProp ?? false); }, [channelInfoOverlayHideTimerProp]);
   useEffect(() => { setChannelInfoOverlayPosition(channelInfoOverlayPositionProp ?? 'left'); }, [channelInfoOverlayPositionProp]);
   useEffect(() => { setCastEnabled(castEnabledProp ?? false); }, [castEnabledProp]);
   useEffect(() => { setCastRewriteTs(castRewriteTsProp ?? true); }, [castRewriteTsProp]);
@@ -1855,6 +1861,16 @@ export function Settings({
     }
   };
 
+  const handleChannelInfoOverlayHideTimerChange = async (hide: boolean) => {
+    setChannelInfoOverlayHideTimer(hide);
+    if (onChannelInfoOverlayHideTimerChange) {
+      onChannelInfoOverlayHideTimerChange(hide);
+    }
+    if (window.storage) {
+      await window.storage.updateSettings({ channelInfoOverlayHideTimer: hide });
+    }
+  };
+
   const handleChannelInfoOverlayPositionChange = async (pos: 'left' | 'right') => {
     setChannelInfoOverlayPosition(pos);
     if (onChannelInfoOverlayPositionChange) {
@@ -2005,6 +2021,7 @@ export function Settings({
     channelInfoOverlayHideDescription?: boolean;
     channelInfoOverlayHideMetaBadge?: boolean;
     channelInfoOverlayHideLogo?: boolean;
+    channelInfoOverlayHideTimer?: boolean;
     channelInfoOverlayPosition?: 'left' | 'right';
   }) => {
     const updated = { ...uiSettings, ...newSettings };
@@ -2041,6 +2058,10 @@ export function Settings({
     if (newSettings.channelInfoOverlayHideLogo !== undefined) {
       setChannelInfoOverlayHideLogo(newSettings.channelInfoOverlayHideLogo);
       onChannelInfoOverlayHideLogoChange?.(newSettings.channelInfoOverlayHideLogo);
+    }
+    if (newSettings.channelInfoOverlayHideTimer !== undefined) {
+      setChannelInfoOverlayHideTimer(newSettings.channelInfoOverlayHideTimer);
+      onChannelInfoOverlayHideTimerChange?.(newSettings.channelInfoOverlayHideTimer);
     }
     if (newSettings.channelInfoOverlayPosition !== undefined) {
       setChannelInfoOverlayPosition(newSettings.channelInfoOverlayPosition);
@@ -2357,6 +2378,7 @@ export function Settings({
               channelInfoOverlayHideDescription,
               channelInfoOverlayHideMetaBadge,
               channelInfoOverlayHideLogo,
+              channelInfoOverlayHideTimer,
               channelInfoOverlayPosition,
             }}
             onSettingsChange={handleUiSettingsChange}
@@ -2553,6 +2575,8 @@ export function Settings({
             onChannelInfoOverlayHideMetaBadgeChange={handleChannelInfoOverlayHideMetaBadgeChange}
             channelInfoOverlayHideLogo={channelInfoOverlayHideLogo}
             onChannelInfoOverlayHideLogoChange={handleChannelInfoOverlayHideLogoChange}
+            channelInfoOverlayHideTimer={channelInfoOverlayHideTimer}
+            onChannelInfoOverlayHideTimerChange={handleChannelInfoOverlayHideTimerChange}
             channelInfoOverlayPosition={channelInfoOverlayPosition}
             onChannelInfoOverlayPositionChange={handleChannelInfoOverlayPositionChange}
             failoverGroupShowSource={failoverGroupShowSource}
