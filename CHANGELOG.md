@@ -1,5 +1,36 @@
 # Changelog
 
+## v2.2.3
+
+### Added
+
+- **Redesigned media player controls** - The media control overlay has been updated with a cleaner, more streamlined layout. The previous layout remains available under `Settings → UI → Player → Control Design: Legacy`.
+- **Catch-up support for some MAC portals** - Catch-up stream playback and downloading are now available for supported MAC portal sources.
+- **Custom source refresh intervals** - Automatic sync intervals can now be configured individually per source playlist.
+- **Persistent volume level** - Volume is now saved and restored automatically between sessions.
+- **Auto-expand active source and category** - The active source playlist and category are now automatically expanded in the navigation sidebar upon entering LiveTV.
+- **Autoplay next VOD episode** - The next episode in a VOD series will now begin playing automatically upon completion. Disable under `Settings → Playback → VOD`.
+- **Pause and resume VOD downloads** - VOD downloads can now be paused and resumed at any time from the Downloads manager.
+- **Subtitle downloads for Stalker VODs** - Embedded subtitles can now be downloaded alongside content when downloading Stalker VOD items.
+- **World Cup tab hidden by default** - The World Cup tab in the top navigation is now hidden. Can be turned back on by enabling it again in `Sports → Settings`.
+- **Source name in failover overlays** - Failover Overlay can also show the source the channel is from by enabling in `Settings → Live TV → Channel Overlay → Show Source for Failover Group`.
+- **Show Source Badge for VOD Home/Recent/All** - Shows source badge name on posters for VOD. Can be enabled in `Settings → Playback → VOD→ Show source badge`.
+- **Text labels in Player Selector** - Clear text labels (`Embedded`, `Popout`, `External`) have been added to the Player Selector button in the Live TV EPG.
+- **M3U category handling for non-ASCII names** - Unicode letters and numbers — including Cyrillic, Greek, Arabic, and accented characters are now preserved when generating M3U category IDs during source syncs. This prevents non-English categories from grouping incorrectly or producing empty IDs, and adds a fallback for symbol-only category names. *(Contributed by @GabrieleElPikaso in #136)*
+- **Preview player gradient scrim** - A subtle gradient overlay has been added to the preview player to improve legibility of text and controls.
+- **Highlight border on active EPG program** - An optional highlight border around the currently airing program in the EPG grid can be enabled under `Settings → Live TV → EPG → Highlight Border Around Current Playing`.
+- **Updated home screen widgets** - Widgets have been resized for a smaller, less intrusive footprint on the home screen.
+- **Enhanced channel info overlay settings** - Additional customization options for elements displayed in the channel info overlay are now available under `Settings → UI → Player`.
+- **Hardware acceleration enabled by default** - Hardware-accelerated video decoding is now enabled by default (sets `--hwdec=auto` and `--vo=gpu` as MPV parameters). Existing custom `hwdec` or `vo` parameters will take priority over the defaults. Can be disabled under `Settings → Playback`.
+- **UI hardware acceleration** - UI rendering now offloaded to the GPU for improved performance. Can be disabled under `Settings → Optimization`.
+- **Startup performance optimization** - Auto-sync is now slightly delayed on launch, and several processes that were contributing to high CPU and memory usage at startup have been adjusted.
+
+### Fixed
+
+- **Incorrect episode playback for Stalker VODs** - Resolved an issue where selecting a series episode from a Stalker portal could result in the wrong episode stream being played.
+- **Catch-up downloads fetching incorrect time window with EPG timeshift** - Catch-up downloads will now correctly account for any active EPG timeshift offset when determining the time window to fetch.
+- **Custom playlists not appearing in Advanced Search** - Resolved an issue preventing channels and content from custom playlists from being returned in Advanced Search results.
+
 ## v2.2.2
 
 ### Added
