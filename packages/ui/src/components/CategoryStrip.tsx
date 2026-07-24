@@ -333,11 +333,16 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
   const prevVisibleRef = useRef(visible);
   const prevSelectedCatRef = useRef(selectedCategoryId);
   const pendingScrollRef = useRef(false);
+  const reopenPendingRef = useRef(visible);
 
   // Track scroll triggers: only flag pending scroll on opening LiveTV or changing categories
   useLayoutEffect(() => {
     const justOpened = visible && !prevVisibleRef.current;
     const catChanged = selectedCategoryId !== prevSelectedCatRef.current;
+
+    if (justOpened) {
+      reopenPendingRef.current = true;
+    }
 
     prevVisibleRef.current = visible;
     prevSelectedCatRef.current = selectedCategoryId;
@@ -646,17 +651,20 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
     return map;
   }, [allCategoriesList]);
 
-  // Auto-expand the parent of the currently selected category on load or selection change
+  // Auto-expand the parent of the currently selected category ONLY when reopening LiveTV / transparent LiveTV EPG
   useLayoutEffect(() => {
-    if (!visible || !selectedCategoryId) return;
+    if (!visible || !reopenPendingRef.current || !selectedCategoryId) return;
 
     let parentSourceId: string | null = null;
     let parentPlaylistId: string | null = null;
+    let resolved = false;
 
     if (selectedCategoryId.startsWith('__allsrc_pl_')) {
       parentPlaylistId = selectedCategoryId.replace('__allsrc_pl_', '');
+      resolved = true;
     } else if (selectedCategoryId.startsWith('__allsrc_')) {
       parentSourceId = selectedCategoryId.replace('__allsrc_', '');
+      resolved = true;
     } else if (selectedCategoryId.startsWith('__plindiv_')) {
       const id = selectedCategoryId.replace('__plindiv_', '');
       const isPlaylist = customPlaylists?.some(p => p.playlist_id === id);
@@ -665,6 +673,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
       } else {
         parentSourceId = id;
       }
+      resolved = true;
     } else if (selectedCategoryId.startsWith('__plcat_')) {
       const linkId = parseInt(selectedCategoryId.replace('__plcat_', ''), 10);
       if (!isNaN(linkId) && allPlaylistCategoryLinks) {
@@ -677,7 +686,15 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
             parentSourceId = link.playlist_id;
           }
         }
+        resolved = true;
       }
+    } else if (
+      selectedCategoryId === '__all__' ||
+      selectedCategoryId === '__favorites__' ||
+      selectedCategoryId === '__watchlist__' ||
+      selectedCategoryId === '__recent__'
+    ) {
+      resolved = true;
     } else {
       // Normal native category ID
       if (groupedCategories) {
@@ -687,20 +704,24 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
         if (foundGroup) {
           parentSourceId = foundGroup.sourceId;
         }
+        resolved = true;
       }
     }
 
-    if (parentSourceId) {
-      setExpandedSources(prev => {
-        if (prev[parentSourceId!] === true) return prev;
-        return { ...prev, [parentSourceId!]: true };
-      });
-    }
-    if (parentPlaylistId) {
-      setExpandedPlaylists(prev => {
-        if (prev[parentPlaylistId!] === true) return prev;
-        return { ...prev, [parentPlaylistId!]: true };
-      });
+    if (resolved) {
+      if (parentSourceId) {
+        setExpandedSources(prev => {
+          if (prev[parentSourceId!] === true) return prev;
+          return { ...prev, [parentSourceId!]: true };
+        });
+      }
+      if (parentPlaylistId) {
+        setExpandedPlaylists(prev => {
+          if (prev[parentPlaylistId!] === true) return prev;
+          return { ...prev, [parentPlaylistId!]: true };
+        });
+      }
+      reopenPendingRef.current = false;
     }
   }, [
     visible,

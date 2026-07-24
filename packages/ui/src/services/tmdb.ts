@@ -98,6 +98,10 @@ export interface TmdbMovieDetails extends TmdbMovieResult {
   status: string;
   budget: number;
   revenue: number;
+  original_language?: string;
+  production_countries?: Array<{ iso_3166_1: string; name: string }>;
+  origin_country?: string[];
+  spoken_languages?: Array<{ iso_639_1: string; name: string; english_name?: string }>;
 }
 
 export interface TmdbCastMember {
@@ -145,11 +149,185 @@ export interface TmdbTvDetails extends TmdbTvResult {
   external_ids?: {
     imdb_id: string | null;
   };
+  original_language?: string;
+  production_countries?: Array<{ iso_3166_1: string; name: string }>;
+  origin_country?: string[];
+  spoken_languages?: Array<{ iso_639_1: string; name: string; english_name?: string }>;
 }
 
 export interface TmdbGenre {
   id: number;
   name: string;
+}
+
+const ISO_639_2_TO_1: Record<string, string> = {
+  kor: 'ko',
+  chn: 'zh',
+  zho: 'zh',
+  chi: 'zh',
+  eng: 'en',
+  jpn: 'ja',
+  fre: 'fr',
+  fra: 'fr',
+  ger: 'de',
+  deu: 'de',
+  spa: 'es',
+  ita: 'it',
+  por: 'pt',
+  rus: 'ru',
+  hin: 'hi',
+  ara: 'ar',
+  tur: 'tr',
+  dut: 'nl',
+  nld: 'nl',
+  pol: 'pl',
+  swe: 'sv',
+  dan: 'da',
+  fin: 'fi',
+  nor: 'no',
+  cze: 'cs',
+  ces: 'cs',
+  gre: 'el',
+  ell: 'el',
+  heb: 'he',
+  hun: 'hu',
+  ind: 'id',
+  tha: 'th',
+  vie: 'vi',
+  ukr: 'uk',
+  cat: 'ca',
+  ron: 'ro',
+  rum: 'ro',
+  slk: 'sk',
+  slo: 'sk',
+  bul: 'bg',
+  hrv: 'hr',
+  srp: 'sr',
+  tam: 'ta',
+  tel: 'te',
+  mal: 'ml',
+  kan: 'kn',
+  mar: 'mr',
+  ben: 'bn',
+  pan: 'pa',
+  guj: 'gu',
+  urd: 'ur',
+  fas: 'fa',
+  per: 'fa',
+  fil: 'tl',
+  tgl: 'tl',
+};
+
+/**
+ * Helper to format ISO 639-1 / ISO 639-2 language code to English name (e.g. 'en' / 'eng' -> 'English', 'kor' -> 'Korean', 'chn' / 'zh' -> 'Chinese').
+ * If spokenLanguages array is passed, checks that first for exact match.
+ */
+export function formatLanguageCode(
+  code?: string,
+  spokenLanguages?: Array<{ iso_639_1: string; name?: string; english_name?: string }>
+): string | undefined {
+  if (!code) return undefined;
+  const rawClean = code.trim();
+  if (!rawClean) return undefined;
+
+  let lookupCode = rawClean.toLowerCase();
+  if (ISO_639_2_TO_1[lookupCode]) {
+    lookupCode = ISO_639_2_TO_1[lookupCode];
+  }
+
+  if (spokenLanguages && spokenLanguages.length > 0) {
+    const match = spokenLanguages.find((l) => l.iso_639_1.toLowerCase() === lookupCode || l.iso_639_1.toLowerCase() === rawClean.toLowerCase());
+    if (match?.english_name) return match.english_name;
+    if (match?.name) return match.name;
+  }
+
+  try {
+    const displayNames = new Intl.DisplayNames(['en'], { type: 'language' });
+    const name = displayNames.of(lookupCode);
+    if (name && name.toLowerCase() !== lookupCode) {
+      return name;
+    }
+  } catch {
+    // fallback
+  }
+
+  if (rawClean.length > 3 && rawClean[0] === rawClean[0].toUpperCase() && rawClean[1] === rawClean[1].toLowerCase()) {
+    return rawClean;
+  }
+
+  return rawClean.charAt(0).toUpperCase() + rawClean.slice(1);
+}
+
+/**
+ * Helper to format country code or production countries into readable name(s).
+ */
+export function formatCountryCode(
+  countries?: Array<{ iso_3166_1?: string; name?: string }> | string,
+  originCountries?: string[]
+): string | undefined {
+  // 1. Prefer originCountries if provided
+  if (originCountries && originCountries.length > 0) {
+    try {
+      const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+      const names = originCountries
+        .map((code) => {
+          const clean = code.trim().toUpperCase();
+          if (clean === 'USA') return 'United States';
+          if (clean === 'UK') return 'United Kingdom';
+          if (clean.length === 2) {
+            try {
+              return displayNames.of(clean) || clean;
+            } catch {
+              return clean;
+            }
+          }
+          return clean;
+        })
+        .filter(Boolean);
+      if (names.length > 0) return names.join(', ');
+    } catch {
+      return originCountries.join(', ');
+    }
+  }
+
+  // 2. Fallback to production_countries list
+  if (Array.isArray(countries) && countries.length > 0) {
+    const names = countries
+      .map((c) => {
+        const iso = c.iso_3166_1?.trim().toUpperCase();
+        if (iso && iso.length === 2) {
+          try {
+            const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+            return displayNames.of(iso) || c.name || iso;
+          } catch {
+            return c.name || iso;
+          }
+        }
+        return c.name || c.iso_3166_1;
+      })
+      .filter(Boolean);
+    if (names.length > 0) return names.join(', ');
+  }
+
+  // 3. Fallback if single string was passed
+  if (typeof countries === 'string') {
+    const clean = countries.trim();
+    if (!clean) return undefined;
+    const upper = clean.toUpperCase();
+    if (upper === 'USA') return 'United States';
+    if (upper === 'UK') return 'United Kingdom';
+    if (upper.length === 2) {
+      try {
+        const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+        return displayNames.of(upper) || clean;
+      } catch {
+        return clean;
+      }
+    }
+    return clean;
+  }
+
+  return undefined;
 }
 
 // ===========================================================================

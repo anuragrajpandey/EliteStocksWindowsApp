@@ -12,7 +12,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { db, type StoredMovie } from '../db';
-import { getTmdb, getTmdbImageUrl, searchMovies, getMovieDetails, getMovieCredits } from '../services/tmdb';
+import { getTmdb, getTmdbImageUrl, searchMovies, getMovieDetails, getMovieCredits, formatLanguageCode, formatCountryCode } from '../services/tmdb';
 import { cleanTitleForSearch } from '../utils/cleanTitle';
 
 export interface CastMember {
@@ -26,6 +26,8 @@ export interface MovieExtras {
   cast: CastMember[];
   logoUrl: string | null;
   imdbId: string | null;
+  country: string | null;
+  language: string | null;
   loading: boolean;
 }
 
@@ -36,6 +38,8 @@ export function useLazyMovieExtras(
   const [cast, setCast] = useState<CastMember[]>([]);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [imdbId, setImdbId] = useState<string | null>(null);
+  const [country, setCountry] = useState<string | null>(null);
+  const [language, setLanguage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const lastMovieIdRef = useRef<string | null>(null);
   const fetchingRef = useRef(false);
@@ -47,6 +51,8 @@ export function useLazyMovieExtras(
     setCast([]);
     setLogoUrl(null);
     setImdbId(null);
+    setCountry(null);
+    setLanguage(null);
   }
 
   useEffect(() => {
@@ -72,6 +78,8 @@ export function useLazyMovieExtras(
         let newCast: CastMember[] = [];
         let newLogo: string | null = null;
         let newImdbId: string | null = null;
+        let newCountry: string | null = null;
+        let newLanguage: string | null = null;
 
         // Resolve TMDB ID if missing
         if (!foundTmdbId) {
@@ -93,11 +101,13 @@ export function useLazyMovieExtras(
 
         const tmdb = getTmdb(apiKey);
 
-        // Fetch movie details for imdb_id
+        // Fetch movie details for imdb_id, country, and language
         try {
           const details = await getMovieDetails(apiKey, foundTmdbId);
           if (!cancelled) {
             newImdbId = details.imdb_id || null;
+            newCountry = formatCountryCode(details.production_countries, details.origin_country) || null;
+            newLanguage = formatLanguageCode(details.original_language, details.spoken_languages) || null;
           }
         } catch (e) {
           console.warn('[useLazyMovieExtras] TMDB details failed:', e);
@@ -142,6 +152,8 @@ export function useLazyMovieExtras(
           setCast(newCast);
           setLogoUrl(newLogo);
           setImdbId(newImdbId);
+          setCountry(newCountry);
+          setLanguage(newLanguage);
         }
       } catch (err) {
         if (!cancelled) {
@@ -161,7 +173,7 @@ export function useLazyMovieExtras(
     };
   }, [movie?.stream_id, movie?.title, movie?.name, movie?.tmdb_id, movie?.imdb_id, apiKey]);
 
-  return { cast, logoUrl, imdbId, loading };
+  return { cast, logoUrl, imdbId, country, language, loading };
 }
 
 export default useLazyMovieExtras;

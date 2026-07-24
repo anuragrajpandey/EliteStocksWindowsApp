@@ -12,7 +12,7 @@ import { useLazyStremioCast, type StremioCastMember } from '../../hooks/useLazyS
 import { useLazyStremioTrailer } from '../../hooks/useLazyStremioTrailer';
 import { useLazyStremioRecommendations, type RecommendationItem } from '../../hooks/useLazyStremioRecommendations';
 import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
-import { getMovieDetails, getTvShowDetails, getTmdbImageUrl, tmdbPersonIdByName } from '../../services/tmdb';
+import { getMovieDetails, getTvShowDetails, getTmdbImageUrl, tmdbPersonIdByName, formatLanguageCode, formatCountryCode, getTmdb } from '../../services/tmdb';
 import { useDownloadStore } from '../../stores/downloadStore';
 import { useNuvioPreselectVideoId, useSetNuvioPreselectVideoId } from '../../stores/uiStore';
 import '../stremio/StremioDetail.css';
@@ -192,9 +192,30 @@ export function NuvioDetailView({
         }
       } else if (!isTmdbId) {
         imdbId = meta.id;
+        if (activeToken) {
+          try {
+            const tmdb = getTmdb(activeToken);
+            const findResult = await tmdb.find.byExternalId(imdbId, { external_source: 'imdb_id' });
+            const tmdbIdNum = isSeriesItem
+              ? findResult.tv_results?.[0]?.id
+              : findResult.movie_results?.[0]?.id;
+            if (tmdbIdNum) {
+              if (isSeriesItem) {
+                tmdbDetails = await getTvShowDetails(activeToken, tmdbIdNum);
+              } else {
+                tmdbDetails = await getMovieDetails(activeToken, tmdbIdNum);
+              }
+            }
+          } catch (err) {
+            console.warn('[NuvioDetailView] Optional TMDB details lookup failed for IMDb ID:', imdbId, err);
+          }
+        }
       }
 
       if (!active) return;
+
+      const tmdbCountry = tmdbDetails ? formatCountryCode(tmdbDetails.production_countries, tmdbDetails.origin_country) : undefined;
+      const tmdbLanguage = tmdbDetails ? formatLanguageCode(tmdbDetails.original_language, tmdbDetails.spoken_languages) : undefined;
 
       let fetched: StremioMeta | null = null;
       if (imdbId) {
@@ -207,6 +228,9 @@ export function NuvioDetailView({
       fetchedIdsRef.current.add(meta.id);
 
       if (fetched) {
+        fetched.country = tmdbCountry || formatCountryCode(fetched.country);
+        fetched.originalLanguage = tmdbLanguage || formatLanguageCode(fetched.originalLanguage || fetched.language);
+        fetched.language = fetched.originalLanguage;
         setFullMeta(fetched);
         if (fetched.videos) {
           const s = [...new Set(fetched.videos.map((v) => v.season).filter((s): s is number => s != null && s > 0))].sort((a, b) => a - b);
@@ -223,6 +247,9 @@ export function NuvioDetailView({
           runtime: tmdbDetails.runtime ? `${tmdbDetails.runtime} min` : undefined,
           background: getTmdbImageUrl(tmdbDetails.backdrop_path, 'original') || meta.background || undefined,
           poster: meta.poster || undefined,
+          country: tmdbCountry || formatCountryCode((metaRef.current as any).country),
+          language: tmdbLanguage || formatLanguageCode((metaRef.current as any).originalLanguage || (metaRef.current as any).language),
+          originalLanguage: tmdbLanguage || formatLanguageCode((metaRef.current as any).originalLanguage || (metaRef.current as any).language),
         };
         setFullMeta(enriched);
       } else {
@@ -842,6 +869,12 @@ export function NuvioDetailView({
               <span className="stremio-detail-meta-item stremio-detail-imdb">
                 {effectiveMeta.imdbRating} <span className="stremio-detail-imdb-badge">IMDb</span>
               </span>
+            )}
+            {effectiveMeta.country && (
+              <span className="stremio-detail-meta-item">{formatCountryCode(effectiveMeta.country)}</span>
+            )}
+            {(effectiveMeta.originalLanguage || effectiveMeta.language) && (
+              <span className="stremio-detail-meta-item">{formatLanguageCode(effectiveMeta.originalLanguage || effectiveMeta.language)}</span>
             )}
           </div>
 

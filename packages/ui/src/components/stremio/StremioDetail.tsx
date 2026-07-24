@@ -19,7 +19,7 @@ import { useLazyStremioCast, type StremioCastMember } from '../../hooks/useLazyS
 import { useLazyStremioTrailer } from '../../hooks/useLazyStremioTrailer';
 import { useLazyStremioRecommendations, type RecommendationItem } from '../../hooks/useLazyStremioRecommendations';
 import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
-import { getMovieDetails, getTvShowDetails, getTmdbImageUrl, tmdbPersonIdByName } from '../../services/tmdb';
+import { getMovieDetails, getTvShowDetails, getTmdbImageUrl, tmdbPersonIdByName, formatLanguageCode, formatCountryCode, getTmdb } from '../../services/tmdb';
 import { useDownloadStore } from '../../stores/downloadStore';
 import './StremioDetail.css';
 
@@ -138,12 +138,6 @@ export function StremioDetail({
   // Auto-heal/fetch full metadata if we only have TMDB ID or incomplete metadata
   useEffect(() => {
     if (!meta.id || fetchedIdsRef.current.has(meta.id)) return;
-    
-    const isTmdbId = meta.id.startsWith('tmdb:');
-    const isSeriesItem = meta.type === 'series';
-    const isIncomplete = isTmdbId || (isSeriesItem && !metaRef.current.videos) || !metaRef.current.description;
-    
-    if (!isIncomplete) return;
 
     let active = true;
 
@@ -159,7 +153,10 @@ export function StremioDetail({
         }
       }
 
-      // If we need TMDB details but don't have a token (and couldn't read one), abort and let it retry
+      const isTmdbId = meta.id.startsWith('tmdb:');
+      const isSeriesItem = meta.type === 'series';
+
+      // If we strictly need TMDB details for a tmdb: ID but don't have a token, abort
       if (isTmdbId && !activeToken) {
         return;
       }
@@ -168,7 +165,7 @@ export function StremioDetail({
       const tmdbIdStr = isTmdbId ? meta.id.replace('tmdb:', '') : null;
       let tmdbDetails: any = null;
 
-      // 1. If it's a TMDB ID, we need to get the IMDb ID from TMDB
+      // 1. If it's a TMDB ID, get details from TMDB
       if (isTmdbId && tmdbIdStr && activeToken) {
         try {
           const idNum = parseInt(tmdbIdStr, 10);
@@ -185,11 +182,32 @@ export function StremioDetail({
           console.error('[StremioDetail] Failed to fetch TMDB details for ID:', meta.id, err);
         }
       } else if (!isTmdbId) {
-        // It's already an IMDb ID (tt...)
+        // It's an IMDb ID (tt...) or other ID
         imdbId = meta.id;
+        if (activeToken) {
+          try {
+            const tmdb = getTmdb(activeToken);
+            const findResult = await tmdb.find.byExternalId(imdbId, { external_source: 'imdb_id' });
+            const tmdbIdNum = isSeriesItem
+              ? (findResult.tv_results?.[0]?.id || findResult.movie_results?.[0]?.id)
+              : (findResult.movie_results?.[0]?.id || findResult.tv_results?.[0]?.id);
+            if (tmdbIdNum) {
+              if (isSeriesItem || findResult.tv_results?.[0]) {
+                tmdbDetails = await getTvShowDetails(activeToken, tmdbIdNum);
+              } else {
+                tmdbDetails = await getMovieDetails(activeToken, tmdbIdNum);
+              }
+            }
+          } catch (err) {
+            console.warn('[StremioDetail] Optional TMDB details lookup failed for IMDb ID:', imdbId, err);
+          }
+        }
       }
 
       if (!active) return;
+
+      const tmdbCountry = tmdbDetails ? formatCountryCode(tmdbDetails.production_countries, tmdbDetails.origin_country) : undefined;
+      const tmdbLanguage = tmdbDetails ? formatLanguageCode(tmdbDetails.original_language, tmdbDetails.spoken_languages) : undefined;
 
       // 2. Fetch Stremio metadata using the IMDb ID
       let fullMeta: StremioMeta | null = null;
@@ -212,10 +230,12 @@ export function StremioDetail({
         if (!fullMeta.imdbRating && metaRef.current.imdbRating) {
           fullMeta.imdbRating = metaRef.current.imdbRating;
         }
+        fullMeta.country = tmdbCountry || formatCountryCode(fullMeta.country);
+        fullMeta.originalLanguage = tmdbLanguage || formatLanguageCode(fullMeta.originalLanguage || fullMeta.language);
+        fullMeta.language = fullMeta.originalLanguage;
         setStremioActiveMeta(fullMeta);
       } else if (tmdbDetails) {
         console.warn('[StremioDetail] Stremio metadata fetch failed, using TMDB fallback details');
-        // Fallback: If Stremio metadata fetch failed but we have TMDB details, enrich what we have
         const enrichedMeta: StremioMeta = {
           ...metaRef.current,
           id: imdbId || meta.id,
@@ -223,6 +243,9 @@ export function StremioDetail({
           genres: tmdbDetails.genres?.map((g: any) => g.name) || metaRef.current.genres,
           runtime: tmdbDetails.runtime ? `${tmdbDetails.runtime} min` : metaRef.current.runtime,
           background: getTmdbImageUrl(tmdbDetails.backdrop_path, 'original') || metaRef.current.background,
+          country: tmdbCountry || formatCountryCode(metaRef.current.country),
+          language: tmdbLanguage || formatLanguageCode((metaRef.current as any).originalLanguage || metaRef.current.language),
+          originalLanguage: tmdbLanguage || formatLanguageCode((metaRef.current as any).originalLanguage || metaRef.current.language),
         };
         setStremioActiveMeta(enrichedMeta);
       } else {
@@ -652,6 +675,12 @@ export function StremioDetail({
               <span className="stremio-detail-meta-item stremio-detail-imdb">
                 {meta.imdbRating} <span className="stremio-detail-imdb-badge">IMDb</span>
               </span>
+            )}
+            {meta.country && (
+              <span className="stremio-detail-meta-item">{formatCountryCode(meta.country)}</span>
+            )}
+            {(meta.originalLanguage || meta.language) && (
+              <span className="stremio-detail-meta-item">{formatLanguageCode(meta.originalLanguage || meta.language)}</span>
             )}
           </div>
 

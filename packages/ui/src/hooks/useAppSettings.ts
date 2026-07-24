@@ -246,7 +246,7 @@ export function useAppSettings(): AppSettings {
   const [catchupContinuePlaying, setCatchupContinuePlayingState] = useState(false);
 
   // VOD settings state
-  const [vodAutoPlayNextEpisode, setVodAutoPlayNextEpisodeState] = useState(false);
+  const [vodAutoPlayNextEpisode, setVodAutoPlayNextEpisodeState] = useState(true);
   const [vodShowSourceBadge, setVodShowSourceBadgeState] = useState(false);
   const [failoverGroupShowSource, setFailoverGroupShowSourceState] = useState(false);
 
@@ -541,7 +541,7 @@ export function useAppSettings(): AppSettings {
           setCatchupStartPaddingState(result.data.catchupStartPadding ?? 0);
           setCatchupEndPaddingState(result.data.catchupEndPadding ?? 0);
           setCatchupContinuePlayingState(result.data.catchupContinuePlaying ?? false);
-          setVodAutoPlayNextEpisodeState(result.data.vodAutoPlayNextEpisode ?? false);
+          setVodAutoPlayNextEpisodeState(result.data.vodAutoPlayNextEpisode ?? true);
           setVodShowSourceBadgeState(result.data.vodShowSourceBadge ?? false);
           setFailoverGroupShowSourceState(result.data.failoverGroupShowSource ?? false);
 

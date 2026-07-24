@@ -43,8 +43,8 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick }: Mov
   const tmdbBackdropUrl = useLazyBackdrop(movie, apiKey);
   const { plot: lazyPlot, genre: lazyGenre, rating: lazyRating } = useLazyPlot(movie, apiKey);
 
-  // Lazy-load cast photos, logo, imdb_id
-  const { cast, logoUrl, imdbId, loading: extrasLoading } = useLazyMovieExtras(movie, apiKey);
+  // Lazy-load cast photos, logo, imdb_id, country, language
+  const { cast, logoUrl, imdbId, country, language, loading: extrasLoading } = useLazyMovieExtras(movie, apiKey);
 
   // Get images - use TMDB backdrop if available, fallback to stream_icon
   const backdropUrl = tmdbBackdropUrl || movie.stream_icon;
@@ -219,6 +219,12 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick }: Mov
                 >
                   IMDb
                 </a>
+              )}
+              {country && (
+                <span className="movie-detail__country">{country}</span>
+              )}
+              {language && (
+                <span className="movie-detail__language">{language}</span>
               )}
             </div>
 

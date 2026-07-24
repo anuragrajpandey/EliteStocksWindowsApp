@@ -64,6 +64,7 @@ export interface StremioMeta extends StremioMetaPreview {
   released?: string;
   country?: string;
   language?: string;
+  originalLanguage?: string;
   slug?: string;
   behaviorHints?: { defaultVideoId?: string; hasScheduledVideos?: boolean };
   videos?: StremioVideo[];

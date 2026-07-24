@@ -377,7 +377,7 @@ export function Settings({
   const [catchupStartPadding, setCatchupStartPadding] = useState(0);
   const [catchupEndPadding, setCatchupEndPadding] = useState(0);
   const [catchupContinuePlaying, setCatchupContinuePlaying] = useState(false);
-  const [vodAutoPlayNextEpisode, setVodAutoPlayNextEpisode] = useState(false);
+  const [vodAutoPlayNextEpisode, setVodAutoPlayNextEpisode] = useState(true);
   const [vodShowSourceBadge, setVodShowSourceBadge] = useState(false);
   const [failoverGroupShowSource, setFailoverGroupShowSource] = useState(false);
   // Stremio settings
@@ -956,7 +956,7 @@ export function Settings({
       setCatchupStartPadding(settings.catchupStartPadding ?? 0);
       setCatchupEndPadding(settings.catchupEndPadding ?? 0);
       setCatchupContinuePlaying(settings.catchupContinuePlaying ?? false);
-      setVodAutoPlayNextEpisode(settings.vodAutoPlayNextEpisode ?? false);
+      setVodAutoPlayNextEpisode(settings.vodAutoPlayNextEpisode ?? true);
       setVodShowSourceBadge(settings.vodShowSourceBadge ?? false);
       setFailoverGroupShowSource(settings.failoverGroupShowSource ?? false);
       setStremioStreamPickerMode(settings.stremioStreamPickerMode ?? 'modal');
