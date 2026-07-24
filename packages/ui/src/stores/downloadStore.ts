@@ -23,10 +23,23 @@ export interface DownloadItem {
   watchProgressSeconds?: number;
   sourceId?: string;
   directUrl?: string;
+  extractSubtitles?: boolean;
+}
+
+export interface PendingStalkerDownload {
+  title: string;
+  url: string;
+  userAgent?: string;
+  durationSecs?: number;
+  preResolvedSavePath?: string;
+  poster?: string;
+  sourceId?: string;
+  directUrl?: string;
 }
 
 interface DownloadState {
   downloads: DownloadItem[];
+  pendingStalkerDownload: PendingStalkerDownload | null;
   startDownload: (
     title: string,
     url: string,
@@ -35,8 +48,11 @@ interface DownloadState {
     preResolvedSavePath?: string,
     poster?: string,
     sourceId?: string,
-    directUrl?: string
+    directUrl?: string,
+    extractSubtitles?: boolean
   ) => Promise<void>;
+  confirmStalkerDownload: (extractSubtitles: boolean) => Promise<void>;
+  cancelStalkerDownload: () => void;
   cancelDownload: (id: string) => Promise<void>;
   pauseDownload: (id: string) => Promise<void>;
   resumeDownload: (id: string) => Promise<void>;
@@ -66,8 +82,49 @@ export const useDownloadStore = create<DownloadState>()(
   persist(
     (set, get) => ({
       downloads: [],
+      pendingStalkerDownload: null,
 
-      startDownload: async (title, url, userAgent, durationSecs, preResolvedSavePath, poster, sourceId, directUrl) => {
+      confirmStalkerDownload: async (extractSubtitles: boolean) => {
+        const pending = get().pendingStalkerDownload;
+        if (!pending) return;
+        set({ pendingStalkerDownload: null });
+        await get().startDownload(
+          pending.title,
+          pending.url,
+          pending.userAgent,
+          pending.durationSecs,
+          pending.preResolvedSavePath,
+          pending.poster,
+          pending.sourceId,
+          pending.directUrl,
+          extractSubtitles
+        );
+      },
+
+      cancelStalkerDownload: () => {
+        set({ pendingStalkerDownload: null });
+      },
+
+      startDownload: async (title, url, userAgent, durationSecs, preResolvedSavePath, poster, sourceId, directUrl, extractSubtitles) => {
+        const isStalker = (directUrl && (directUrl.startsWith('stalker_') || directUrl.startsWith('stalker'))) ||
+                          (url && (url.startsWith('stalker_') || url.includes('stalker')));
+
+        if (isStalker && extractSubtitles === undefined) {
+          set({
+            pendingStalkerDownload: {
+              title,
+              url,
+              userAgent,
+              durationSecs,
+              preResolvedSavePath,
+              poster,
+              sourceId,
+              directUrl,
+            }
+          });
+          return;
+        }
+
         try {
           // 1. Resolve save path
           let savePath = '';
@@ -123,6 +180,7 @@ export const useDownloadStore = create<DownloadState>()(
             poster,
             sourceId,
             directUrl,
+            extractSubtitles: extractSubtitles ?? true,
           };
 
           set((state) => ({ downloads: [newItem, ...(state.downloads || [])] }));
@@ -138,6 +196,7 @@ export const useDownloadStore = create<DownloadState>()(
                 user_agent: userAgent || null,
                 duration_secs: durationSecs || null,
                 resume: false,
+                extract_subtitles: extractSubtitles ?? true,
               }
             });
           }
@@ -306,6 +365,7 @@ export const useDownloadStore = create<DownloadState>()(
                 user_agent: userAgent || null,
                 duration_secs: nextItem.durationSecs || null,
                 resume: nextItem.progress > 0,
+                extract_subtitles: nextItem.extractSubtitles ?? true,
               }
             });
           } catch (error: any) {
@@ -385,6 +445,23 @@ export const useDownloadStore = create<DownloadState>()(
     }),
     {
       name: 'ynotv-media-downloads',
+      partialize: (state) => ({ downloads: state.downloads }),
+      onRehydrateStorage: () => (state) => {
+        if (state && state.downloads) {
+          const sanitized = state.downloads.map((d) => {
+            if (d.status === 'downloading') {
+              return {
+                ...d,
+                status: 'failed' as const,
+                error: d.statusText ? `Interrupted: ${d.statusText}` : 'Interrupted by app restart',
+                statusText: undefined,
+              };
+            }
+            return d;
+          });
+          useDownloadStore.setState({ downloads: sanitized });
+        }
+      },
     }
   )
 );

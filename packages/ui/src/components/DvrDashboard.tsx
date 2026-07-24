@@ -36,6 +36,20 @@ const formatSpeed = (bytesPerSec: number): string => {
     return `${mb.toFixed(2)} MB/s`;
 };
 
+const getExtractionLines = (text?: string | null): { line1: string; line2: string } => {
+    if (!text) return { line1: 'Video finished downloading.', line2: 'Extracting subtitles please wait' };
+
+    const countMatch = text.match(/Extracting (\d+) subtitle|(\d+)\s*stream/i);
+    const count = countMatch ? (countMatch[1] || countMatch[2]) : null;
+
+    const line1 = 'Video finished downloading.';
+    const line2 = count
+        ? `Extracting ${count} subtitle${parseInt(count, 10) === 1 ? '' : 's'} please wait`
+        : 'Extracting subtitles please wait';
+
+    return { line1, line2 };
+};
+
 interface DvrDashboardProps {
     onPlay?: (recording: DvrRecording) => void;
     onClose: () => void;
@@ -1382,10 +1396,12 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                                     {item.status !== 'completed' && (
                                         <span 
                                             className={`dvr-download-status-badge ${item.status}`}
-                                            style={item.status === 'paused' ? { background: 'rgba(230, 126, 34, 0.15)', color: '#e67e22' } : undefined}
+                                            style={item.status === 'paused' 
+                                                ? { background: 'rgba(230, 126, 34, 0.15)', color: '#e67e22' } 
+                                                : (item.statusText ? { background: 'rgba(129, 140, 248, 0.25)', color: '#a5b4fc', border: '1px solid rgba(129, 140, 248, 0.4)' } : undefined)}
                                         >
                                             {item.status === 'downloading'
-                                                ? (item.statusText ? item.statusText.toUpperCase() : 'DOWNLOADING')
+                                                ? (item.statusText ? (item.statusText.toLowerCase().includes('subtitle') ? 'EXTRACTING SUBTITLES' : 'POST-PROCESSING') : 'DOWNLOADING')
                                                 : item.status === 'queued'
                                                 ? 'QUEUED'
                                                 : item.status === 'paused'
@@ -1462,9 +1478,7 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                                             <button
                                                 className="dvr-btn-icon danger"
                                                 onClick={() => cancelDownload(item.id)}
-                                                disabled={!!item.statusText}
-                                                style={item.statusText ? { opacity: 0.3, cursor: 'not-allowed' } : undefined}
-                                                title={item.statusText ? "Cannot cancel during post-processing" : "Cancel Download (Deletes partial files)"}
+                                                title="Cancel Download (Deletes partial files)"
                                             >
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                     <line x1="18" y1="6" x2="6" y2="18" />
@@ -1549,9 +1563,21 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                                             <div className="dvr-download-progress-section" style={isPaused ? { opacity: 0.7 } : undefined}>
                                                 <div className="dvr-download-progress-header">
                                                     {item.statusText ? (
-                                                        <span className="dvr-download-progress-status-text" style={{ fontStyle: 'italic', color: 'rgba(255,255,255,0.7)' }}>
-                                                            {item.statusText}
-                                                        </span>
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, minWidth: 0 }}>
+                                                            {(() => {
+                                                                const { line1, line2 } = getExtractionLines(item.statusText);
+                                                                return (
+                                                                    <>
+                                                                        <span style={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '11px', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={line1}>
+                                                                            {line1}
+                                                                        </span>
+                                                                        <span style={{ color: '#a5b4fc', fontSize: '11.5px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={line2}>
+                                                                            {line2}
+                                                                        </span>
+                                                                    </>
+                                                                );
+                                                            })()}
+                                                        </div>
                                                     ) : (
                                                         <>
                                                             <span className="dvr-download-progress-bytes">
@@ -1570,13 +1596,15 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                                                             PAUSED
                                                         </span>
                                                     )}
-                                                    <span className="dvr-download-progress-percent">
-                                                        {Math.round(item.progress)}%
-                                                    </span>
+                                                    {!item.statusText && (
+                                                        <span className="dvr-download-progress-percent">
+                                                            {Math.round(item.progress)}%
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <div className="dvr-progress-bar">
                                                     <div
-                                                        className={`dvr-progress-fill downloads ${isPaused ? 'paused' : ''}`}
+                                                        className={`dvr-progress-fill downloads ${isPaused ? 'paused' : ''} ${item.statusText ? 'extracting' : ''}`}
                                                         style={{
                                                             width: `${Math.min(100, Math.max(0, item.progress))}%`,
                                                             background: isPaused ? '#e67e22' : undefined

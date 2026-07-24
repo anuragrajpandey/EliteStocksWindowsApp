@@ -400,7 +400,7 @@ export function NowPlayingBar({
   // Handle click to seek
   const handleProgressClick = useCallback((e: React.MouseEvent) => {
     const isLiveCatchup = !isVod && !isCatchup && currentProgram && (Boolean(channel?.tv_archive) || channel?.tv_archive === 1);
-    const hasTimeshift = timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1;
+    const hasTimeshift = !isVod && !isCatchup && timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1;
 
     if (hasTimeshift && timeshiftState && onSeek) {
       if (!progressBarRef.current) return;
@@ -431,7 +431,7 @@ export function NowPlayingBar({
   // Handle mouse move for hover tooltip
   const handleProgressMouseMove = useCallback((e: React.MouseEvent) => {
     const isLiveCatchup = !isVod && !isCatchup && currentProgram && (Boolean(channel?.tv_archive) || channel?.tv_archive === 1);
-    const hasTimeshift = timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1;
+    const hasTimeshift = !isVod && !isCatchup && timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1;
     if (!isVod && !isCatchup && !isLiveCatchup && !hasTimeshift) return;
 
     if (hasTimeshift && timeshiftState) {
@@ -457,7 +457,7 @@ export function NowPlayingBar({
   // Handle drag start
   const handleDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     const isLiveCatchup = !isVod && !isCatchup && currentProgram && (Boolean(channel?.tv_archive) || channel?.tv_archive === 1);
-    const hasTimeshift = timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1;
+    const hasTimeshift = !isVod && !isCatchup && timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1;
 
     if (hasTimeshift && timeshiftState) {
       e.preventDefault();
@@ -499,7 +499,7 @@ export function NowPlayingBar({
     const handleMove = (e: MouseEvent | TouchEvent) => {
       try {
         const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-        const hasTimeshift = timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1;
+        const hasTimeshift = !isVod && !isCatchup && timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1;
 
         if (hasTimeshift && timeshiftState) {
           if (!progressBarRef.current) return;
@@ -527,7 +527,7 @@ export function NowPlayingBar({
       setIsDragging(false);
       try {
         const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
-        const hasTimeshift = timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1;
+        const hasTimeshift = !isVod && !isCatchup && timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1;
 
         if (hasTimeshift && timeshiftState && onSeek) {
           if (!progressBarRef.current) return;
@@ -622,12 +622,12 @@ export function NowPlayingBar({
                     <div
                       className="npb-time-tooltip"
                       style={{
-                        left: `${timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1
+                        left: `${!isVod && !isCatchup && timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1
                           ? Math.max(0, Math.min(100, ((hoverPosition - timeshiftState.cacheStart) / timeshiftState.cachedDuration) * 100))
                           : (hoverPosition / (duration || 1)) * 100}%`
                       }}
                     >
-                      {formatTime(timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1 ? hoverPosition - timeshiftState.cacheStart : hoverPosition)}
+                      {formatTime(!isVod && !isCatchup && timeshiftEnabled && timeshiftState && timeshiftState.cachedDuration > 1 ? hoverPosition - timeshiftState.cacheStart : hoverPosition)}
                     </div>
                   )}
                 </div>

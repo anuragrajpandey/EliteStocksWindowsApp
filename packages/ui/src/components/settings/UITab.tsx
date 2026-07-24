@@ -573,7 +573,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
           </div>
 
           {/* Channel Info Overlay Settings */}
-          <div className="settings-section" style={{ paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: '20px' }}>
+          <div className="settings-section" style={{ paddingTop: '8px' }}>
             <div className="section-header">
               <h3>Channel Information Overlay</h3>
             </div>

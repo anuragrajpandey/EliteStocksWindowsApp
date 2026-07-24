@@ -17,6 +17,7 @@ import { ChannelInfoOverlay } from './components/ChannelInfoOverlay';
 import { FailoverGroupOverlay } from './components/FailoverGroupOverlay';
 import { TrackSelectionModal } from './components/TrackSelectionModal';
 import { SubtitleControlModal } from './components/SubtitleControlModal';
+import { StalkerSubtitleModal } from './components/StalkerSubtitleModal';
 import { CategoryStrip } from './components/CategoryStrip';
 import { ChannelPanel } from './components/ChannelPanel';
 import { MoviesPage } from './components/MoviesPage';
@@ -4139,6 +4140,8 @@ function App() {
           }}
         />
       )}
+      <StalkerSubtitleModal />
+
       <TrackSelectionModal
         isOpen={showAudioModal}
         type="audio"

@@ -614,6 +614,11 @@ export function SourcesTab({
       console.log('[SourcesTab] Saving source with UA:', source.user_agent);
       console.log('[SourcesTab] Saving source epg_url:', source.epg_url, 'length:', source.epg_url?.length);
 
+      // If stalker, clear any cached tokens for this source so fresh settings are used
+      if (formData.type === 'stalker') {
+        StalkerClient.clearTokenCache(sourceId);
+      }
+
       // If swap occurred, trigger resync after save
       const needsResync = formData.pendingSwap;
 

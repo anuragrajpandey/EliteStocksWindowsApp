@@ -297,11 +297,31 @@ export class StalkerClient {
     }
 
     /**
-     * Ensure we have a valid token (renew if expired)
+    /**
+     * Clear cached token globally for a given source or all sources
+     */
+    static clearTokenCache(sourceId?: string): void {
+        if (sourceId) {
+            StalkerClient.globalTokens.delete(sourceId);
+            StalkerClient.globalRefreshPromises.delete(sourceId);
+        } else {
+            StalkerClient.globalTokens.clear();
+            StalkerClient.globalRefreshPromises.clear();
+        }
+    }
+
+    /**
+     * Ensure we have a valid token (renew if expired or force requested)
      * Uses static promise-based locking to prevent concurrent token refresh operations across instances
      */
-    async ensureToken(): Promise<void> {
+    async ensureToken(force: boolean = false): Promise<void> {
         const sourceId = this.sourceId;
+
+        if (force) {
+            StalkerClient.clearTokenCache(sourceId);
+            this.token = null;
+            this.tokenTimestamp = 0;
+        }
 
         // 1. If a refresh is already in progress for this source, wait for it to complete
         const activePromise = StalkerClient.globalRefreshPromises.get(sourceId);
@@ -318,17 +338,19 @@ export class StalkerClient {
             return;
         }
 
-        // 2. Sync local instance fields with global shared cache if available
-        const shared = StalkerClient.globalTokens.get(sourceId);
-        if (shared) {
-            this.token = shared.token;
-            this.tokenTimestamp = shared.timestamp;
+        // 2. Sync local instance fields with global shared cache if available (unless forcing)
+        if (!force) {
+            const shared = StalkerClient.globalTokens.get(sourceId);
+            if (shared) {
+                this.token = shared.token;
+                this.tokenTimestamp = shared.timestamp;
+            }
         }
 
         const currentTimestamp = Date.now() / 1000;
 
-        if (!this.token || (currentTimestamp - this.tokenTimestamp) > STALKER_TOKEN_VALIDITY_SECONDS) {
-            console.log(`[Stalker] Token expired or missing for source ${sourceId}. Starting refresh...`);
+        if (force || !this.token || (currentTimestamp - this.tokenTimestamp) > STALKER_TOKEN_VALIDITY_SECONDS) {
+            console.log(`[Stalker] Token expired, missing, or force refreshed for source ${sourceId}. Starting refresh...`);
 
             // Create and store the refresh promise to block concurrent calls globally for this source
             const refreshPromise = (async () => {
@@ -393,7 +415,8 @@ export class StalkerClient {
         action: string,
         type: string = 'itv',
         extraParams: Record<string, string> = {},
-        customHeaders: Record<string, string> | null = null
+        customHeaders: Record<string, string> | null = null,
+        isRetryAfterAuthRefresh: boolean = false
     ): Promise<T> {
         const params = new URLSearchParams({
             type,
@@ -426,9 +449,15 @@ export class StalkerClient {
                     if (!response.ok) {
                         if (response.status === 401 || response.status === 403) {
                             console.warn(`[Stalker] Auth/Token error (${response.status}). Clearing cached token for source ${this.sourceId}.`);
-                            StalkerClient.globalTokens.delete(this.sourceId);
+                            StalkerClient.clearTokenCache(this.sourceId);
                             this.token = null;
                             this.tokenTimestamp = 0;
+
+                            if (!isRetryAfterAuthRefresh && action !== 'handshake' && action !== 'get_profile') {
+                                console.log(`[Stalker] Retrying request ${action} with fresh token handshake...`);
+                                await this.ensureToken(true);
+                                return await this.fetchStalker<T>(action, type, extraParams, customHeaders, true);
+                            }
                         }
                         if (response.status === 404) {
                             console.warn(`[Stalker] 404 Not Found from ${baseUrl}`);
@@ -449,6 +478,18 @@ export class StalkerClient {
                         parsed = JSON.parse(response.text);
                     } catch (e) {
                         console.warn(`[Stalker] Invalid JSON from ${baseUrl} for ${action}.`);
+
+                        // Stalker servers often return HTTP 200 OK with HTML error page ("Authorization failed") when session expires on server.
+                        // If we used a cached token, force a token refresh and retry once.
+                        if (this.token && !isRetryAfterAuthRefresh && action !== 'handshake' && action !== 'get_profile') {
+                            console.warn(`[Stalker] Cached token for source ${this.sourceId} returned invalid JSON/HTML from server (likely expired session). Refreshing token...`);
+                            try {
+                                await this.ensureToken(true);
+                                return await this.fetchStalker<T>(action, type, extraParams, customHeaders, true);
+                            } catch (refreshErr) {
+                                console.error(`[Stalker] Automatic token refresh retry failed for ${action}:`, refreshErr);
+                            }
+                        }
                         break; // Try next fallback URL
                     }
 

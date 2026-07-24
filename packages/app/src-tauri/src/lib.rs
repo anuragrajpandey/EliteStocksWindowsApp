@@ -2589,6 +2589,7 @@ struct DownloadRequest {
     user_agent: Option<String>,
     duration_secs: Option<u64>,
     resume: Option<bool>,
+    extract_subtitles: Option<bool>,
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
@@ -2767,12 +2768,66 @@ async fn probe_file_subtitle_stream_count(
     }
 }
 
+fn parse_ffmpeg_stderr_line(line: &str) -> (Option<f64>, Option<f64>, Option<u64>) {
+    let mut time_secs = None;
+    let mut speed_mult = None;
+    let mut speed_bytes = None;
+
+    if let Some(pos) = line.find("time=") {
+        let after = &line[pos + 5..];
+        let token = after.split_whitespace().next().unwrap_or("");
+        let parts: Vec<&str> = token.split(':').collect();
+        if parts.len() == 3 {
+            if let (Ok(h), Ok(m), Ok(s)) = (
+                parts[0].parse::<f64>(),
+                parts[1].parse::<f64>(),
+                parts[2].parse::<f64>(),
+            ) {
+                time_secs = Some(h * 3600.0 + m * 60.0 + s);
+            }
+        } else if parts.len() == 1 {
+            if let Ok(s) = parts[0].parse::<f64>() {
+                time_secs = Some(s);
+            }
+        }
+    }
+
+    if let Some(pos) = line.find("speed=") {
+        let after = &line[pos + 6..];
+        let token = after.split_whitespace().next().unwrap_or("").trim_end_matches('x');
+        if let Ok(sp) = token.parse::<f64>() {
+            if sp > 0.0 {
+                speed_mult = Some(sp);
+            }
+        }
+    }
+
+    if let Some(pos) = line.find("bitrate=") {
+        let after = &line[pos + 8..];
+        let token = after.split_whitespace().next().unwrap_or("");
+        if token.ends_with("kbits/s") {
+            if let Ok(kbps) = token.trim_end_matches("kbits/s").parse::<f64>() {
+                speed_bytes = Some((kbps * 1000.0 / 8.0) as u64);
+            }
+        }
+    }
+
+    (time_secs, speed_mult, speed_bytes)
+}
+
 async fn extract_hls_subtitle_container(
+    app_handle: Option<&tauri::AppHandle>,
+    id: Option<&str>,
+    title: Option<&str>,
     ffmpeg_path: &std::path::Path,
     source_url: &str,
     user_agent: Option<&str>,
     dest_path: &std::path::Path,
+    subtitle_count: usize,
+    duration_secs: Option<u64>,
+    final_mkv_path: &std::path::Path,
 ) -> usize {
+    use tokio::io::AsyncBufReadExt;
     use tokio::process::Command;
 
     let mut cmd = Command::new(ffmpeg_path);
@@ -2789,17 +2844,84 @@ async fn extract_hls_subtitle_container(
     #[cfg(windows)]
     cmd.creation_flags(0x08000000);
 
-    let output = match cmd.output().await {
-        Ok(output) => output,
+    let mut child = match cmd.spawn() {
+        Ok(child) => child,
         Err(e) => {
-            debug!("[PostProcessor] HLS subtitle extraction failed to start: {}", e);
+            debug!("[PostProcessor] HLS subtitle extraction failed to spawn: {}", e);
             return 0;
         }
     };
 
-    if !output.status.success() {
-        let err_msg = String::from_utf8_lossy(&output.stderr);
-        warn!("[PostProcessor] HLS subtitle extraction failed: {}", err_msg);
+    let stderr = match child.stderr.take() {
+        Some(stderr) => stderr,
+        None => {
+            let _ = child.wait().await;
+            return 0;
+        }
+    };
+
+    let mut reader = tokio::io::BufReader::new(stderr).lines();
+    let mut last_emit = std::time::Instant::now();
+
+    while let Ok(Some(line)) = reader.next_line().await {
+        if let (Some(app_handle), Some(id), Some(title)) = (app_handle, id, title) {
+            if last_emit.elapsed() >= std::time::Duration::from_millis(500) {
+                last_emit = std::time::Instant::now();
+
+                let (time_secs, speed_mult, speed_bytes) = parse_ffmpeg_stderr_line(&line);
+                if time_secs.is_some() || speed_mult.is_some() {
+                    let total_dur = duration_secs.unwrap_or(0) as f64;
+                    let sub_pct = if total_dur > 0.0 {
+                        time_secs.map(|t| (t / total_dur * 100.0).min(100.0)).unwrap_or(0.0)
+                    } else {
+                        0.0
+                    };
+
+                    let progress = 98.0 + (sub_pct * 0.015);
+
+                    let speed_str = if let Some(sp) = speed_mult {
+                        format!(" @ {:.1}x speed", sp)
+                    } else {
+                        "".to_string()
+                    };
+
+                    let stream_str = if subtitle_count > 1 {
+                        format!(" (Extracting {} subtitle streams{})", subtitle_count, speed_str)
+                    } else {
+                        format!(" (Extracting 1 subtitle stream{})", speed_str)
+                    };
+
+                    let status_text = format!("Video finished downloading. Extracting subtitles{}", stream_str);
+
+                    let event = DownloadProgressEvent {
+                        id: id.to_string(),
+                        title: title.to_string(),
+                        status: "downloading".to_string(),
+                        progress,
+                        bytes_written: 0,
+                        total_bytes: None,
+                        speed_bytes: speed_bytes.unwrap_or(0),
+                        file_path: final_mkv_path.to_string_lossy().to_string(),
+                        error: None,
+                        status_text: Some(status_text),
+                    };
+                    let _ = app_handle.emit("download:event", &event);
+                }
+            }
+        }
+    }
+
+    let status = match child.wait().await {
+        Ok(s) => s,
+        Err(e) => {
+            warn!("[PostProcessor] HLS subtitle extraction wait failed: {}", e);
+            let _ = tokio::fs::remove_file(dest_path).await;
+            return 0;
+        }
+    };
+
+    if !status.success() {
+        warn!("[PostProcessor] HLS subtitle extraction process failed");
         let _ = tokio::fs::remove_file(dest_path).await;
         return 0;
     }
@@ -2820,6 +2942,8 @@ async fn post_process_mkv(
     final_mkv_path: std::path::PathBuf,
     source_url: Option<String>,
     user_agent: Option<String>,
+    duration_secs: Option<u64>,
+    extract_subtitles: Option<bool>,
 ) -> Result<(), String> {
     use tokio::process::Command;
 
@@ -2863,44 +2987,60 @@ async fn post_process_mkv(
     );
 
     let mut hls_subtitle_container: Option<(std::path::PathBuf, usize)> = None;
-    if let Some(source_url) = source_url.as_deref() {
-        let hls_subtitle_count = probe_hls_subtitle_stream_count(
-            &ffmpeg_path,
-            source_url,
-            user_agent.as_deref(),
-        ).await;
-
-        if hls_subtitle_count > 0 {
-            let event = DownloadProgressEvent {
-                id: id.clone(),
-                title: title.clone(),
-                status: "downloading".to_string(),
-                progress: 98.5,
-                bytes_written: 0,
-                total_bytes: None,
-                speed_bytes: 0,
-                file_path: final_mkv_path.to_string_lossy().to_string(),
-                error: None,
-                status_text: Some("Extracting subtitles...".to_string()),
-            };
-            let _ = app_handle.emit("download:event", &event);
-
-            let hls_subs_path = temp_ts_path.with_extension("hls-subs.mkv");
-            let extracted_count = extract_hls_subtitle_container(
+    let should_extract = extract_subtitles.unwrap_or(true);
+    if should_extract {
+        if let Some(source_url) = source_url.as_deref() {
+            let hls_subtitle_count = probe_hls_subtitle_stream_count(
                 &ffmpeg_path,
                 source_url,
                 user_agent.as_deref(),
-                &hls_subs_path,
             ).await;
 
-            if extracted_count > 0 {
-                debug!(
-                    "[PostProcessor] Using FFmpeg-extracted HLS subtitle container with {} stream(s); ignoring yt-dlp subtitle sidecars",
-                    extracted_count
+            if hls_subtitle_count > 0 {
+                let initial_status_text = format!(
+                    "Video finished downloading. Extracting subtitles ({} stream(s) found)...",
+                    hls_subtitle_count
                 );
-                hls_subtitle_container = Some((hls_subs_path, extracted_count));
+
+                let event = DownloadProgressEvent {
+                    id: id.clone(),
+                    title: title.clone(),
+                    status: "downloading".to_string(),
+                    progress: 98.0,
+                    bytes_written: 0,
+                    total_bytes: None,
+                    speed_bytes: 0,
+                    file_path: final_mkv_path.to_string_lossy().to_string(),
+                    error: None,
+                    status_text: Some(initial_status_text),
+                };
+                let _ = app_handle.emit("download:event", &event);
+
+                let hls_subs_path = temp_ts_path.with_extension("hls-subs.mkv");
+                let extracted_count = extract_hls_subtitle_container(
+                    Some(&app_handle),
+                    Some(&id),
+                    Some(&title),
+                    &ffmpeg_path,
+                    source_url,
+                    user_agent.as_deref(),
+                    &hls_subs_path,
+                    hls_subtitle_count,
+                    duration_secs,
+                    &final_mkv_path,
+                ).await;
+
+                if extracted_count > 0 {
+                    debug!(
+                        "[PostProcessor] Using FFmpeg-extracted HLS subtitle container with {} stream(s); ignoring yt-dlp subtitle sidecars",
+                        extracted_count
+                    );
+                    hls_subtitle_container = Some((hls_subs_path, extracted_count));
+                }
             }
         }
+    } else {
+        debug!("[PostProcessor] Skipping subtitle extraction per user choice");
     }
 
     let using_hls_subtitle_container = hls_subtitle_container.is_some();
@@ -3043,6 +3183,8 @@ async fn download_media(
     let duration_secs = request.duration_secs;
     let resume = request.resume;
 
+    let extract_subtitles = request.extract_subtitles;
+
     let (cancel_tx, mut cancel_rx) = tokio::sync::watch::channel(None);
     ACTIVE_DOWNLOADS.lock().insert(id.clone(), cancel_tx);
 
@@ -3083,6 +3225,8 @@ async fn download_media(
                         std::path::PathBuf::from(&save_path),
                         Some(url.clone()),
                         user_agent.clone(),
+                        duration_secs,
+                        extract_subtitles,
                     ).await
                 } else {
                     Ok(())
