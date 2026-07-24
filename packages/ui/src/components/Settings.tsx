@@ -363,6 +363,7 @@ export function Settings({
   // Playback settings state
   const [mpvParams, setMpvParams] = useState<string>('');
   const [mpvDisableWhitelist, setMpvDisableWhitelist] = useState(false);
+  const [mpvHwdecEnabled, setMpvHwdecEnabled] = useState(true);
   const [timeshiftEnabled, setTimeshiftEnabled] = useState(true);
   const [timeshiftCacheBytes, setTimeshiftCacheBytes] = useState(268_435_456);
   const [liveBufferOffset, setLiveBufferOffset] = useState(0);
@@ -547,6 +548,7 @@ export function Settings({
   // Popout settings state
   const [popoutStopMain, setPopoutStopMain] = useState(true);
   const [popoutAlwaysOnTop, setPopoutAlwaysOnTop] = useState(false);
+  const [popoutHwdecEnabled, setPopoutHwdecEnabled] = useState(true);
   const [popoutMpvParamsEnabled, setPopoutMpvParamsEnabled] = useState(false);
   const [popoutMpvParams, setPopoutMpvParams] = useState('');
   // External player settings state
@@ -726,6 +728,7 @@ export function Settings({
         startupView?: 'none' | 'guide' | 'movies' | 'series' | 'dvr' | 'sports' | 'calendar' | 'stremio' | 'nuvio';
         mpvParams?: string;
         mpvDisableWhitelist?: boolean;
+        mpvHwdecEnabled?: boolean;
         timeshiftEnabled?: boolean;
         timeshiftCacheBytes?: number;
         liveBufferOffset?: number;
@@ -761,6 +764,7 @@ export function Settings({
         channelInfoOverlayHideDescription?: boolean;
         popoutStopMain?: boolean;
         popoutAlwaysOnTop?: boolean;
+        popoutHwdecEnabled?: boolean;
         popoutMpvParamsEnabled?: boolean;
         popoutMpvParams?: string;
         externalPlayerPath?: string;
@@ -940,6 +944,7 @@ export function Settings({
       // Load playback settings
       setMpvParams(settings.mpvParams ?? '');
       setMpvDisableWhitelist(settings.mpvDisableWhitelist ?? false);
+      setMpvHwdecEnabled(settings.mpvHwdecEnabled ?? true);
       setTimeshiftEnabled(settings.timeshiftEnabled ?? true);
       setTimeshiftCacheBytes(settings.timeshiftCacheBytes ?? 268_435_456);
       setLiveBufferOffset(settings.liveBufferOffset ?? 0);
@@ -1091,6 +1096,7 @@ export function Settings({
       // Load Popout settings
       setPopoutStopMain(settings.popoutStopMain ?? true);
       setPopoutAlwaysOnTop(settings.popoutAlwaysOnTop ?? false);
+      setPopoutHwdecEnabled(settings.popoutHwdecEnabled ?? true);
       setPopoutMpvParamsEnabled(settings.popoutMpvParamsEnabled ?? false);
       setPopoutMpvParams(settings.popoutMpvParams ?? '');
 
@@ -1224,6 +1230,13 @@ export function Settings({
     setMpvDisableWhitelist(disabled);
     if (window.storage) {
       await window.storage.updateSettings({ mpvDisableWhitelist: disabled });
+    }
+  };
+
+  const handleMpvHwdecEnabledChange = async (enabled: boolean) => {
+    setMpvHwdecEnabled(enabled);
+    if (window.storage) {
+      await window.storage.updateSettings({ mpvHwdecEnabled: enabled });
     }
   };
 
@@ -1905,6 +1918,13 @@ export function Settings({
     }
   };
 
+  const handlePopoutHwdecEnabledChange = async (enabled: boolean) => {
+    setPopoutHwdecEnabled(enabled);
+    if (window.storage) {
+      await window.storage.updateSettings({ popoutHwdecEnabled: enabled });
+    }
+  };
+
   const handlePopoutMpvParamsEnabledChange = async (enabled: boolean) => {
     setPopoutMpvParamsEnabled(enabled);
     if (window.storage) {
@@ -2430,6 +2450,8 @@ export function Settings({
             initialSubTab={(pendingSubTabFromParent || pendingSubTab) as 'mpv' | 'reconnect' | 'cast' | 'popout' | 'skipintro' | 'catchup' | undefined}
             mpvParams={mpvParams}
             mpvDisableWhitelist={mpvDisableWhitelist}
+            mpvHwdecEnabled={mpvHwdecEnabled}
+            onMpvHwdecEnabledChange={handleMpvHwdecEnabledChange}
             onMpvParamsChange={handleMpvParamsChange}
             onMpvDisableWhitelistChange={handleMpvDisableWhitelistChange}
             streamWatchdogSeconds={streamWatchdogSeconds}
@@ -2450,6 +2472,8 @@ export function Settings({
             onPopoutStopMainChange={handlePopoutStopMainChange}
             popoutAlwaysOnTop={popoutAlwaysOnTop}
             onPopoutAlwaysOnTopChange={handlePopoutAlwaysOnTopChange}
+            popoutHwdecEnabled={popoutHwdecEnabled}
+            onPopoutHwdecEnabledChange={handlePopoutHwdecEnabledChange}
             popoutMpvParamsEnabled={popoutMpvParamsEnabled}
             onPopoutMpvParamsEnabledChange={handlePopoutMpvParamsEnabledChange}
             popoutMpvParams={popoutMpvParams}

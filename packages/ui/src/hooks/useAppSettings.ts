@@ -51,6 +51,7 @@ export interface AppSettings {
   // Popout
   popoutStopMain: boolean;
   popoutAlwaysOnTop: boolean;
+  popoutHwdecEnabled: boolean;
   popoutMpvParamsEnabled: boolean;
   popoutMpvParams: string;
 
@@ -90,6 +91,7 @@ export interface AppSettings {
   sportsBgOpacity: number; // 0–1
 
   // Theme Optimization
+  hardwareAcceleration: boolean;
   disableThemeBlobs: boolean;
   disableThemeBackdropBlur: boolean;
   epgLazyLoadingEnabled: boolean;
@@ -131,6 +133,7 @@ export interface AppSettings {
     setTransparentGuideOnZap: (enabled: boolean) => void;
     setPopoutStopMain: (stop: boolean) => void;
     setPopoutAlwaysOnTop: (onTop: boolean) => void;
+    setPopoutHwdecEnabled: (enabled: boolean) => void;
     setPopoutMpvParamsEnabled: (enabled: boolean) => void;
     setPopoutMpvParams: (params: string) => void;
     setWidgetScale: (scale: number) => void;
@@ -151,6 +154,7 @@ export interface AppSettings {
     updateAppFont: (family: string, base64?: string, format?: string, name?: string) => Promise<void> | void;
     setSavedCustomThemes: (themes: CustomThemeConfig[]) => void;
     setDisableThemeBlobs: (disabled: boolean) => void;
+    setHardwareAcceleration: (enabled: boolean) => void;
     setDisableThemeBackdropBlur: (disabled: boolean) => void;
     setEpgLazyLoadingEnabled: (enabled: boolean) => void;
     setDisableEpgTransitions: (disabled: boolean) => void;
@@ -227,6 +231,7 @@ export function useAppSettings(): AppSettings {
   // Popout settings
   const [popoutStopMain, setPopoutStopMainState] = useState(true);
   const [popoutAlwaysOnTop, setPopoutAlwaysOnTopState] = useState(false);
+  const [popoutHwdecEnabled, setPopoutHwdecEnabledState] = useState(true);
   const [popoutMpvParamsEnabled, setPopoutMpvParamsEnabledState] = useState(false);
   const [popoutMpvParams, setPopoutMpvParamsState] = useState('');
 
@@ -312,6 +317,7 @@ export function useAppSettings(): AppSettings {
   const [castRewriteTs, setCastRewriteTsState] = useState(true);
 
   // Theme Optimization settings
+  const [hardwareAcceleration, setHardwareAccelerationState] = useState(true);
   const [disableThemeBlobs, setDisableThemeBlobsState] = useState(false);
   const [disableThemeBackdropBlur, setDisableThemeBackdropBlurState] = useState(false);
   const [epgLazyLoadingEnabled, setEpgLazyLoadingEnabledState] = useState(false);
@@ -526,6 +532,7 @@ export function useAppSettings(): AppSettings {
           setPlayerControlDesignState(result.data.playerControlDesign ?? 'clean');
           setPopoutStopMainState(result.data.popoutStopMain ?? true);
           setPopoutAlwaysOnTopState(result.data.popoutAlwaysOnTop ?? false);
+          setPopoutHwdecEnabledState(result.data.popoutHwdecEnabled ?? true);
           setPopoutMpvParamsEnabledState(result.data.popoutMpvParamsEnabled ?? false);
           setPopoutMpvParamsState(result.data.popoutMpvParams ?? '');
           setExternalPlayerPathState(result.data.externalPlayerPath ?? '');
@@ -569,6 +576,7 @@ export function useAppSettings(): AppSettings {
           setCastRewriteTsState(result.data.castRewriteTs ?? true);
 
           // Load Optimization settings
+          setHardwareAccelerationState(result.data.hardwareAcceleration ?? true);
           setDisableThemeBlobsState(result.data.disableThemeBlobs ?? false);
           setDisableThemeBackdropBlurState(result.data.disableThemeBackdropBlur ?? false);
           setEpgLazyLoadingEnabledState(result.data.epgLazyLoadingEnabled ?? false);
@@ -976,6 +984,17 @@ export function useAppSettings(): AppSettings {
     }
   }, []);
 
+  const setPopoutHwdecEnabled = useCallback(async (enabled: boolean) => {
+    setPopoutHwdecEnabledState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ popoutHwdecEnabled: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save popoutHwdecEnabled:', e);
+      }
+    }
+  }, []);
+
   const setPopoutMpvParamsEnabled = useCallback(async (enabled: boolean) => {
     setPopoutMpvParamsEnabledState(enabled);
     if (window.storage) {
@@ -1258,6 +1277,17 @@ export function useAppSettings(): AppSettings {
     }
   }, []);
 
+  const setHardwareAcceleration = useCallback(async (enabled: boolean) => {
+    setHardwareAccelerationState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ hardwareAcceleration: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save hardwareAcceleration:', e);
+      }
+    }
+  }, []);
+
   const setDisableThemeBlobs = useCallback(async (disabled: boolean) => {
     setDisableThemeBlobsState(disabled);
     if (window.storage) {
@@ -1402,9 +1432,15 @@ export function useAppSettings(): AppSettings {
     channelInfoOverlayPosition,
     transparentGuideOnZap,
     popoutStopMain,
+    setPopoutStopMain,
     popoutAlwaysOnTop,
+    setPopoutAlwaysOnTop,
+    popoutHwdecEnabled,
+    setPopoutHwdecEnabled,
     popoutMpvParamsEnabled,
+    setPopoutMpvParamsEnabled,
     popoutMpvParams,
+    setPopoutMpvParams,
     theme,
     customThemeConfig,
     shortcuts,
@@ -1447,10 +1483,6 @@ export function useAppSettings(): AppSettings {
     setTransparentGuideOnZap,
     setCategorySortOrder: setCategorySortOrderSetting,
     setIncludeAllChannelsToPlaylist: setIncludeAllChannelsToPlaylistSetting,
-    setPopoutStopMain,
-    setPopoutAlwaysOnTop,
-    setPopoutMpvParamsEnabled,
-    setPopoutMpvParams,
     setWidgetScale,
     setWidgetBgOpacity,
     setSportsScale,
@@ -1469,6 +1501,8 @@ export function useAppSettings(): AppSettings {
     setExternalPlayerReuse,
     disableThemeBlobs,
     setDisableThemeBlobs,
+    hardwareAcceleration,
+    setHardwareAcceleration,
     disableThemeBackdropBlur,
     setDisableThemeBackdropBlur,
     epgLazyLoadingEnabled,

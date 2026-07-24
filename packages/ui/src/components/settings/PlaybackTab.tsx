@@ -22,6 +22,8 @@ interface PlaybackTabProps {
   onStreamMaxRetriesChange: (retries: number) => Promise<void>;
   castEnabled?: boolean;
   onCastEnabledChange?: (enabled: boolean) => Promise<void>;
+  mpvHwdecEnabled?: boolean;
+  onMpvHwdecEnabledChange?: (enabled: boolean) => void;
   castRewriteTs?: boolean;
   onCastRewriteTsChange?: (enabled: boolean) => Promise<void>;
   useEventBasedReconnect: boolean;
@@ -35,6 +37,8 @@ interface PlaybackTabProps {
   onPopoutStopMainChange: (stop: boolean) => void;
   popoutAlwaysOnTop: boolean;
   onPopoutAlwaysOnTopChange: (onTop: boolean) => void;
+  popoutHwdecEnabled?: boolean;
+  onPopoutHwdecEnabledChange?: (enabled: boolean) => void;
   popoutMpvParamsEnabled: boolean;
   onPopoutMpvParamsEnabledChange: (enabled: boolean) => void;
   popoutMpvParams: string;
@@ -77,6 +81,8 @@ export function PlaybackTab({
   initialSubTab,
   mpvParams,
   mpvDisableWhitelist,
+  mpvHwdecEnabled,
+  onMpvHwdecEnabledChange,
   onMpvParamsChange,
   onMpvDisableWhitelistChange,
   streamWatchdogSeconds,
@@ -97,6 +103,8 @@ export function PlaybackTab({
   onPopoutStopMainChange,
   popoutAlwaysOnTop,
   onPopoutAlwaysOnTopChange,
+  popoutHwdecEnabled,
+  onPopoutHwdecEnabledChange,
   popoutMpvParamsEnabled,
   onPopoutMpvParamsEnabledChange,
   popoutMpvParams,
@@ -133,6 +141,8 @@ export function PlaybackTab({
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
   const [showRestartModal, setShowRestartModal] = useState(false);
 
+  const isHwdecOverridden = /--?hwdec[=\s]/i.test(localParams);
+
   // Local state for retry settings (committed on blur / enter)
   const [localWatchdog, setLocalWatchdog] = useState(String(streamWatchdogSeconds));
   const [localMaxRetries, setLocalMaxRetries] = useState(String(streamMaxRetries));
@@ -154,13 +164,26 @@ export function PlaybackTab({
     setHasChanges(value !== mpvParams);
   };
 
+  const [pendingHwdec, setPendingHwdec] = useState<boolean | null>(null);
+
+  const handleHwdecToggle = (newValue: boolean) => {
+    setPendingHwdec(newValue);
+    setShowRestartModal(true);
+  };
+
   const handleSave = () => {
     setShowRestartModal(true);
   };
 
   const confirmSaveWithRestart = async () => {
-    await onMpvParamsChange(localParams.trim());
-    setHasChanges(false);
+    if (pendingHwdec !== null) {
+      onMpvHwdecEnabledChange?.(pendingHwdec);
+      setPendingHwdec(null);
+    }
+    if (hasChanges) {
+      await onMpvParamsChange(localParams.trim());
+      setHasChanges(false);
+    }
     setShowRestartModal(false);
     try {
       await relaunch();
@@ -170,8 +193,14 @@ export function PlaybackTab({
   };
 
   const confirmSaveWithoutRestart = async () => {
-    await onMpvParamsChange(localParams.trim());
-    setHasChanges(false);
+    if (pendingHwdec !== null) {
+      onMpvHwdecEnabledChange?.(pendingHwdec);
+      setPendingHwdec(null);
+    }
+    if (hasChanges) {
+      await onMpvParamsChange(localParams.trim());
+      setHasChanges(false);
+    }
     setShowRestartModal(false);
   };
 
@@ -250,7 +279,29 @@ export function PlaybackTab({
       <div className="settings-tab-content">
         {activeSubTab === 'mpv' && (
           <div className="settings-section">
-
+              <div style={{ marginBottom: '1.25rem', background: 'var(--card-bg, rgba(255,255,255,0.04))', padding: '14px 16px', borderRadius: '8px', border: '1px solid var(--border-color, rgba(255,255,255,0.1))', opacity: isHwdecOverridden ? 0.75 : 1 }}>
+                <label className="genre-checkbox" style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: isHwdecOverridden ? 'not-allowed' : 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={mpvHwdecEnabled ?? true}
+                    disabled={isHwdecOverridden}
+                    onChange={(e) => handleHwdecToggle(e.target.checked)}
+                  />
+                  <span style={{ fontWeight: 600, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    Enable Hardware Video Acceleration (--hwdec=auto)
+                    {isHwdecOverridden && (
+                      <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', background: 'rgba(255, 193, 7, 0.15)', color: '#ffc107', border: '1px solid rgba(255, 193, 7, 0.3)', fontWeight: 500 }}>
+                        Managed by custom parameter below
+                      </span>
+                    )}
+                  </span>
+                </label>
+                <p style={{ marginTop: '0.4rem', marginLeft: '26px', opacity: 0.8, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4', margin: '6px 0 0 26px' }}>
+                  {isHwdecOverridden
+                    ? 'A custom --hwdec parameter was detected in your parameters below. Your custom parameter will take priority over this toggle.'
+                    : <>Automatically passes <code style={{ color: 'var(--accent-color, #00d4ff)' }}>--hwdec=auto</code> and <code style={{ color: 'var(--accent-color, #00d4ff)' }}>--vo=gpu</code> to MPV to offload live video decoding to your GPU. Can be overridden using custom parameters below.</>}
+                </p>
+              </div>
 
             <div className="playback-section" style={{ marginTop: 0 }}>
               <div className="playback-label">
@@ -571,6 +622,8 @@ export function PlaybackTab({
             onPopoutStopMainChange={onPopoutStopMainChange}
             popoutAlwaysOnTop={popoutAlwaysOnTop}
             onPopoutAlwaysOnTopChange={onPopoutAlwaysOnTopChange}
+            popoutHwdecEnabled={popoutHwdecEnabled}
+            onPopoutHwdecEnabledChange={onPopoutHwdecEnabledChange}
             popoutMpvParamsEnabled={popoutMpvParamsEnabled}
             onPopoutMpvParamsEnabledChange={onPopoutMpvParamsEnabledChange}
             popoutMpvParams={popoutMpvParams}

@@ -103,6 +103,7 @@ const SETTINGS_SEARCH_INDEX: SettingsSearchResult[] = [
 
   // --- Playback ---
   { id: 'playback-tab', label: 'Playback', tabId: 'playback', tabLabel: 'Playback', subTabId: 'mpv', section: 'Playback' },
+  { id: 'mpv-hwdec', label: 'Enable Hardware Video Acceleration (--hwdec=auto)', description: 'Automatically pass --hwdec=auto and --vo=gpu to MPV to offload video decoding to your GPU.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'mpv', section: 'MPV Parameters' },
   { id: 'mpv-parameters', label: 'MPV Parameters', description: 'Custom command-line flags passed to MPV on startup.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'mpv', section: 'MPV Parameters' },
   { id: 'disable-parameter-whitelist', label: 'Disable Parameter Whitelist', description: 'Allows any MPV parameter to be passed, including potentially unsafe ones.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'mpv', section: 'MPV Parameters' },
   { id: 'event-based-reconnect', label: 'Event-Based Reconnect', description: 'React immediately to stream errors like EOF, HTTP errors, and MPV crashes.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'reconnect', section: 'Reconnect' },
@@ -119,6 +120,7 @@ const SETTINGS_SEARCH_INDEX: SettingsSearchResult[] = [
   { id: 'popout-stop-main', label: 'Stop main player when popout opens', description: 'Stop the embedded player when a popout is opened.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'popout', section: 'Popout Player' },
   { id: 'popout-always-on-top', label: 'Always on top', description: 'Keep the popout window above all other windows.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'popout', section: 'Popout Player' },
   { id: 'disable-parameter-whitelist-popout', label: 'Disable Parameter Whitelist', description: 'Allows any MPV parameter to be passed, including potentially unsafe ones.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'popout', section: 'Popout Player' },
+  { id: 'popout-hwdec', label: 'Enable Popout Hardware Video Acceleration (--hwdec=auto)', description: 'Automatically pass --hwdec=auto and --vo=gpu to the popout MPV player instance.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'popout', section: 'Popout Player' },
   { id: 'popout-mpv-params', label: 'Enable additional MPV parameters for popout', description: 'Pass custom command-line arguments to the popout MPV instance.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'popout', section: 'Popout Player' },
   { id: 'popout-player', label: 'Popout Player', tabId: 'playback', tabLabel: 'Playback', subTabId: 'popout', section: 'Popout Player' },
   { id: 'skip-intro-auto', label: 'Automatic Intro Skip', description: 'Skip the intro automatically without showing a button.', tabId: 'playback', tabLabel: 'Playback', subTabId: 'skipintro', section: 'Skip Intro' },
@@ -157,6 +159,7 @@ const SETTINGS_SEARCH_INDEX: SettingsSearchResult[] = [
 
   // --- Optimization ---
   { id: 'optimization-tab', label: 'Optimization', tabId: 'optimization', tabLabel: 'Optimization', section: 'Optimization' },
+  { id: 'opt-hw-accel', label: 'Enable GPU Hardware Acceleration', description: 'Offload UI compositing and rendering to GPU for lower CPU usage.', tabId: 'optimization', tabLabel: 'Optimization', section: 'Hardware Acceleration' },
   { id: 'opt-theme-blobs', label: 'Disable Background Animations (Glass Blobs)', description: 'Hide floating background glass blobs to reduce idle GPU usage.', tabId: 'optimization', tabLabel: 'Optimization', section: 'Theme Optimization' },
   { id: 'opt-theme-blur', label: 'Disable Glass Backdrop Blur', description: 'Remove backdrop blur from UI components to reduce GPU usage.', tabId: 'optimization', tabLabel: 'Optimization', section: 'Theme Optimization' },
   { id: 'opt-epg-lazy-load', label: 'Enable EPG Lazy Loading', description: 'Only load EPG programs for the visible time window to reduce lag.', tabId: 'optimization', tabLabel: 'Optimization', section: 'EPG Optimization' },

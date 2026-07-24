@@ -1,7 +1,11 @@
+import { useState } from 'react';
+import { relaunch } from '@tauri-apps/plugin-process';
 import { useAppSettings } from '../../hooks/useAppSettings';
 
 export function OptimizationTab() {
   const {
+    hardwareAcceleration,
+    setHardwareAcceleration,
     disableThemeBlobs,
     setDisableThemeBlobs,
     disableThemeBackdropBlur,
@@ -16,10 +20,64 @@ export function OptimizationTab() {
     setEpgDisableChannelFade,
   } = useAppSettings();
 
+  const [showRestartModal, setShowRestartModal] = useState(false);
+  const [pendingHwAccel, setPendingHwAccel] = useState<boolean | null>(null);
+
+  const handleHwAccelToggle = (newValue: boolean) => {
+    setPendingHwAccel(newValue);
+    setShowRestartModal(true);
+  };
+
+  const confirmRestart = async () => {
+    if (pendingHwAccel !== null) {
+      await setHardwareAcceleration(pendingHwAccel);
+    }
+    setShowRestartModal(false);
+    try {
+      await relaunch();
+    } catch (e) {
+      console.error('[OptimizationTab] Failed to relaunch app:', e);
+    }
+  };
+
+  const confirmSaveWithoutRestart = async () => {
+    if (pendingHwAccel !== null) {
+      await setHardwareAcceleration(pendingHwAccel);
+    }
+    setShowRestartModal(false);
+  };
+
   return (
     <div className="settings-tab-content">
-      {/* Theme Optimization Section */}
+      {/* Hardware Acceleration Section */}
       <div className="settings-section" style={{ paddingTop: '8px' }}>
+        <div className="section-header">
+          <h3>Hardware Acceleration</h3>
+        </div>
+
+        <p className="section-description">
+          Configure GPU hardware acceleration for interface rendering and window compositing.
+        </p>
+
+        <div className="tmdb-form" style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div>
+            <label className="genre-checkbox" style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', maxWidth: '450px' }}>
+              <input
+                type="checkbox"
+                checked={hardwareAcceleration}
+                onChange={(e) => handleHwAccelToggle(e.target.checked)}
+              />
+              <span className="genre-name" style={{ fontWeight: 600, fontSize: '0.95rem' }}>Enable GPU Hardware Acceleration</span>
+            </label>
+            <p className="form-hint" style={{ marginTop: '0.4rem', marginLeft: '26px', opacity: 0.8, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+              Offloads UI compositing, glass animations, and layout rendering to your graphics processor (integrated or dedicated GPU). Keep enabled for lowest CPU usage. If you experience screen flickering (such as with G-Sync windowed mode) or display driver crashes, you can disable this option. <em style={{ color: 'var(--accent-color, #00d4ff)' }}>(Requires App Restart)</em>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Theme Optimization Section */}
+      <div className="settings-section" style={{ marginTop: '2rem' }}>
         <div className="section-header">
           <h3>Theme Optimization</h3>
         </div>
@@ -127,6 +185,31 @@ export function OptimizationTab() {
           </div>
         </div>
       </div>
+
+      {showRestartModal && (
+        <div className="modal-overlay" onClick={() => setShowRestartModal(false)}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Restart Required</h3>
+            </div>
+            <div className="modal-body">
+              <p className="modal-message">
+                For hardware acceleration settings to take effect in the application engine, the app needs to restart.
+                <br /><br />
+                Would you like to restart now?
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button className="modal-btn modal-btn-secondary" onClick={confirmSaveWithoutRestart}>
+                No, Save Only
+              </button>
+              <button className="modal-btn modal-btn-primary" onClick={confirmRestart}>
+                Yes, Restart Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

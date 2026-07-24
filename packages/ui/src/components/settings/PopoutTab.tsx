@@ -8,6 +8,8 @@ interface PopoutTabProps {
   onPopoutStopMainChange: (stop: boolean) => void;
   popoutAlwaysOnTop: boolean;
   onPopoutAlwaysOnTopChange: (onTop: boolean) => void;
+  popoutHwdecEnabled?: boolean;
+  onPopoutHwdecEnabledChange?: (enabled: boolean) => void;
   popoutMpvParamsEnabled: boolean;
   onPopoutMpvParamsEnabledChange: (enabled: boolean) => void;
   popoutMpvParams: string;
@@ -25,6 +27,8 @@ export function PopoutTab({
   onPopoutStopMainChange,
   popoutAlwaysOnTop,
   onPopoutAlwaysOnTopChange,
+  popoutHwdecEnabled,
+  onPopoutHwdecEnabledChange,
   popoutMpvParamsEnabled,
   onPopoutMpvParamsEnabledChange,
   popoutMpvParams,
@@ -39,6 +43,8 @@ export function PopoutTab({
   const [localParams, setLocalParams] = useState(popoutMpvParams);
   const [hasChanges, setHasChanges] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
+
+  const isPopoutHwdecOverridden = popoutMpvParamsEnabled && /--?hwdec[=\s]/i.test(localParams);
 
   useEffect(() => {
     setLocalParams(popoutMpvParams);
@@ -197,6 +203,33 @@ export function PopoutTab({
                 type="checkbox"
                 checked={mpvDisableWhitelist}
                 onChange={(e) => onMpvDisableWhitelistChange(e.target.checked)}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div className="timeshift-toggle-row" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '12px', opacity: isPopoutHwdecOverridden ? 0.75 : 1 }}>
+            <div className="timeshift-toggle-info">
+              <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                Enable Hardware Video Acceleration (--hwdec=auto)
+                {isPopoutHwdecOverridden && (
+                  <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', background: 'rgba(255, 193, 7, 0.15)', color: '#ffc107', border: '1px solid rgba(255, 193, 7, 0.3)', fontWeight: 500 }}>
+                    Managed by custom parameter below
+                  </span>
+                )}
+              </span>
+              <span className="timeshift-toggle-sub">
+                {isPopoutHwdecOverridden
+                  ? 'A custom --hwdec parameter was detected in your parameters below. Your custom parameter will take priority over this toggle.'
+                  : 'Automatically passes --hwdec=auto and --vo=gpu to the popout player instance to offload live video decoding to your GPU.'}
+              </span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={popoutHwdecEnabled ?? true}
+                disabled={isPopoutHwdecOverridden}
+                onChange={(e) => onPopoutHwdecEnabledChange?.(e.target.checked)}
               />
               <span className="toggle-slider"></span>
             </label>

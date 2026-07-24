@@ -498,6 +498,39 @@ async fn get_mpv_params_from_store<R: Runtime>(app: &AppHandle<R>) -> Vec<String
                 debug!("[MPV] No mpvParams found in store");
             }
 
+            // Check hardware video acceleration toggle (default true)
+            let mpv_hwdec = get_value("mpvHwdecEnabled")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(true);
+
+            // Robust check if user explicitly supplied hwdec or vo in their custom parameters
+            let has_hwdec = args.iter().any(|a| {
+                let clean = a.trim_start_matches('-');
+                clean == "hwdec" || clean.starts_with("hwdec=") || clean.starts_with("hwdec ")
+            });
+
+            let has_vo = args.iter().any(|a| {
+                let clean = a.trim_start_matches('-');
+                clean == "vo" || clean.starts_with("vo=") || clean.starts_with("vo ")
+            });
+
+            if !has_hwdec {
+                if mpv_hwdec {
+                    debug!("[MPV] Auto-injecting default --hwdec=auto");
+                    args.insert(0, "--hwdec=auto".to_string());
+                } else {
+                    debug!("[MPV] Auto-injecting --hwdec=no (disabled in Playback settings)");
+                    args.insert(0, "--hwdec=no".to_string());
+                }
+            } else {
+                debug!("[MPV] User custom parameters contain explicit hwdec flag; skipping auto-injection");
+            }
+
+            if mpv_hwdec && !has_vo {
+                debug!("[MPV] Auto-injecting default --vo=gpu");
+                args.insert(0, "--vo=gpu".to_string());
+            }
+
             // Inject timeshift back-buffer arg if enabled
             let ts_enabled = get_value("timeshiftEnabled")
                 .and_then(|v| v.as_bool())
@@ -1294,12 +1327,44 @@ async fn popout_open<R: Runtime>(
     custom_params: String,
 ) -> Result<(), String> {
     // Parse custom params string into lines
-    let raw_params: Vec<String> = custom_params
+    let mut raw_params: Vec<String> = custom_params
         .lines()
         .map(|line| line.trim())
         .filter(|line| !line.is_empty() && !line.starts_with('#'))
         .map(|s| s.to_string())
         .collect();
+
+    // Check popout hardware video acceleration toggle (default true)
+    let popout_hwdec = read_store_setting(&app, "popoutHwdecEnabled")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(true);
+
+    let has_hwdec = raw_params.iter().any(|a| {
+        let clean = a.trim_start_matches('-');
+        clean == "hwdec" || clean.starts_with("hwdec=") || clean.starts_with("hwdec ")
+    });
+
+    let has_vo = raw_params.iter().any(|a| {
+        let clean = a.trim_start_matches('-');
+        clean == "vo" || clean.starts_with("vo=") || clean.starts_with("vo ")
+    });
+
+    if !has_hwdec {
+        if popout_hwdec {
+            debug!("[Popout MPV] Auto-injecting default --hwdec=auto");
+            raw_params.insert(0, "--hwdec=auto".to_string());
+        } else {
+            debug!("[Popout MPV] Auto-injecting --hwdec=no (disabled in settings)");
+            raw_params.insert(0, "--hwdec=no".to_string());
+        }
+    } else {
+        debug!("[Popout MPV] User custom parameters contain explicit hwdec flag; skipping auto-injection");
+    }
+
+    if popout_hwdec && !has_vo {
+        debug!("[Popout MPV] Auto-injecting default --vo=gpu");
+        raw_params.insert(0, "--vo=gpu".to_string());
+    }
 
     // Check whitelist disable setting (reuse main MPV setting)
     let disable_whitelist = read_store_setting(&app, "mpvDisableWhitelist")
@@ -4104,6 +4169,39 @@ impl ExternalPlayerState {
 // ─── App Entry Point ─────────────────────────────────────────────────────────
 
 pub fn run() {
+    #[cfg(target_os = "windows")]
+    {
+        let mut enable_hw_accel = true;
+        if let Some(data_dir) = dirs::data_dir() {
+            let store_path = data_dir.join("com.ynotv.app").join(".settings.dat");
+            if let Ok(contents) = std::fs::read_to_string(&store_path) {
+                if let Ok(val) = serde_json::from_str::<serde_json::Value>(&contents) {
+                    if let Some(settings) = val.get("settings") {
+                        if let Some(hw) = settings.get("hardwareAcceleration").and_then(|v| v.as_bool()) {
+                            enable_hw_accel = hw;
+                        }
+                    } else if let Some(hw) = val.get("hardwareAcceleration").and_then(|v| v.as_bool()) {
+                        enable_hw_accel = hw;
+                    }
+                }
+            }
+        }
+
+        let existing = std::env::var("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS").unwrap_or_default();
+        let target_flags = if enable_hw_accel {
+            "--ignore-gpu-blocklist --enable-gpu-rasterization --enable-zero-copy"
+        } else {
+            "--disable-gpu --disable-gpu-compositing"
+        };
+
+        if !existing.contains("--ignore-gpu-blocklist") && !existing.contains("--disable-gpu") {
+            std::env::set_var(
+                "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS",
+                format!("{} {}", existing, target_flags).trim(),
+            );
+        }
+    }
+
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
