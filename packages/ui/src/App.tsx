@@ -6,6 +6,7 @@ let hasStartupAutoSyncTriggered = false;
 import { invoke } from '@tauri-apps/api/core';
 import type { StremioStream, StremioStreamPickerMode, StremioMeta, BadgeSource, StreamAutoPlayMode, StreamAutoPlaySourceScope } from './types/stremio';
 import { checkForUpdates, checkForUpdatesSilent } from './services/updater';
+import { getCachedSettings } from './services/settings-cache';
 import { Settings } from './components/Settings';
 import type { SettingsTabId } from './components/settings/SettingsSidebar';
 import { useModal } from './components/Modal';
@@ -467,7 +468,7 @@ function App() {
     if (!layoutSettingsLoaded) return;
     const loadStremioMode = async () => {
       try {
-        const res = await window.storage.getSettings();
+        const res = await getCachedSettings();
         if (res.data?.stremioStreamPickerMode) {
           setStremioStreamPickerMode(res.data.stremioStreamPickerMode as StremioStreamPickerMode);
         }
@@ -1525,7 +1526,8 @@ function App() {
   useEffect(() => {
     if (layoutSettingsLoaded) {
       initializeStremioAddons();
-      initializeStremioSync();
+      // Defer cloud sync by 3 s so the initial render and DB queries complete first
+      setTimeout(() => initializeStremioSync(), 3000);
     }
   }, [layoutSettingsLoaded, initializeStremioAddons, initializeStremioSync]);
 
@@ -1536,7 +1538,8 @@ function App() {
 
   useEffect(() => {
     if (layoutSettingsLoaded) {
-      initializeNuvioSync();
+      // Defer cloud sync by 3 s so the initial render and DB queries complete first
+      setTimeout(() => initializeNuvioSync(), 3000);
     }
   }, [layoutSettingsLoaded, initializeNuvioSync]);
 
@@ -1888,10 +1891,17 @@ function App() {
   useDvrEvents();
   useDvrUrlResolver();
 
-  // ==========================================================================
-  // Category & Channel State
-  // ==========================================================================
-  const currentChannels = useChannels(categoryId, channelSortOrder);
+  // Skip loading channels until we know which category the user last had selected
+  // (categoryLoading=true while getLastCategory() is in-flight). Without this guard,
+  // a race exists for LiveTV-startup users: setActiveView('guide') can fire before
+  // getLastCategory() resolves → activeView='guide' + categoryId=null clears the
+  // skip, triggering a full all-channels table scan (50k+ rows) while the EPG
+  // simultaneously issues program queries for every channel — causing the 1.4 GB
+  // WebView2 memory spike. Also keeps the skip while on the hero with nothing
+  // selected; channels load on-demand once a view or category is chosen.
+  const currentChannels = useChannels(categoryId, channelSortOrder, {
+    skip: categoryLoading || (activeView === 'none' && categoryId === null),
+  });
   const currentChannelsRef = useRef(currentChannels);
   useEffect(() => { currentChannelsRef.current = currentChannels; }, [currentChannels]);
 

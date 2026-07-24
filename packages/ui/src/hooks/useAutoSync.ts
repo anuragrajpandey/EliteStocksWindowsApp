@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { syncSource, syncVodForSource, isEpgStale, isVodStale, syncAllStaleGlobalEpgLinks } from '../db/sync';
 import { bulkOps } from '../services/bulk-ops';
+import { getCachedSettings } from '../services/settings-cache';
 import { useToastStore } from '../stores/toastStore';
 import {
     useSetChannelSyncing,
@@ -83,7 +84,7 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                 const result = await window.storage.getSources();
                 if (!result.data || result.data.length === 0) return;
 
-                const settingsResult = await window.storage.getSettings();
+                const settingsResult = await getCachedSettings();
                 const epgRefreshHours = settingsResult.data?.epgRefreshHours ?? 6;
                 const vodRefreshHours = settingsResult.data?.vodRefreshHours ?? 24;
 
@@ -196,6 +197,11 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
 
             if (!window.storage) return;
 
+            // Delay startup sync so the app finishes its initial render first.
+            // This keeps the JS thread free during the critical first-paint window
+            // and avoids racing with useAppSettings / the channel live-query.
+            await new Promise<void>(resolve => setTimeout(resolve, 2000));
+
             // Health check — ensure backend bulk-ops plugin is ready
             const healthy = await bulkOps.healthCheck();
             if (!healthy) {
@@ -206,7 +212,7 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                 const result = await window.storage.getSources();
                 if (!result.data || result.data.length === 0) return;
 
-                const settingsResult = await window.storage.getSettings();
+                const settingsResult = await getCachedSettings();
                 const epgRefreshHours = settingsResult.data?.epgRefreshHours ?? 6;
                 const vodRefreshHours = settingsResult.data?.vodRefreshHours ?? 24;
                 const syncedSourceIds: string[] = [];

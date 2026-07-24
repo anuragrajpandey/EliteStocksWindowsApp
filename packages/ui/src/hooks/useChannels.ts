@@ -8,6 +8,7 @@ import { useSourceVersion } from '../contexts/SourceVersionContext';
 import { applyFilterWords } from './useFilterWords';
 import { useCategorySortOrder } from '../stores/uiStore';
 import { useAppSettings } from './useAppSettings';
+import { getCachedSettings } from '../services/settings-cache';
 import type { Source } from '@ynotv/core';
 
 // Hook to get enabled source IDs (for filtering data from disabled sources)
@@ -595,9 +596,9 @@ export function useChannels(categoryId: string | null, sortOrder: 'alphabetical'
 
           if (window.storage && epgIdsToQuery.size > 0) {
             try {
-              const settings = await window.storage.getSettings();
+              const settings = await getCachedSettings();
               const globalEpgLinks = settings.data?.globalEpgLinks || [];
-              const cacheLinks = globalEpgLinks.filter(link => link.saveEntireEpg);
+              const cacheLinks = globalEpgLinks.filter((link: any) => link.saveEntireEpg);
               
               if (cacheLinks.length > 0) {
                 const Database = (await import('@tauri-apps/plugin-sql')).default;
