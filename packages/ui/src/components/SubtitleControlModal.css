@@ -172,8 +172,8 @@
 
 .subtitle-col-controls {
   flex: 0 0 auto;
-  min-width: 140px;
-  max-width: 170px;
+  min-width: 190px;
+  max-width: 230px;
 }
 
 .subtitle-col:last-child {
@@ -409,12 +409,13 @@
 .subtitle-control-inputs {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
 }
 
 .subtitle-control-nudge {
-  width: 28px;
+  min-width: 26px;
   height: 28px;
+  padding: 0 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -422,11 +423,12 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 5px;
   color: var(--text-primary, #ddd);
-  font-size: 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.12s;
   line-height: 1;
-  padding: 0;
+  white-space: nowrap;
 }
 
 .subtitle-control-nudge:hover {
@@ -434,9 +436,9 @@
 }
 
 .subtitle-control-display {
-  min-width: 50px;
+  min-width: 44px;
   text-align: center;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-primary, #fff);
   font-family: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, monospace;
   font-weight: 600;

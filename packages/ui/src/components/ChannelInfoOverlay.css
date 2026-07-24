@@ -78,6 +78,7 @@
 /* Metadata badge inside overlay */
 .cio-header-text .metadata-badge {
   margin-top: 2px;
+  background: rgba(0, 0, 0, var(--cio-bg-opacity, 0.55));
 }
 
 .cio-header-text .metadata-badge.detailed {

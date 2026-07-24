@@ -640,40 +640,11 @@ export function NowPlayingBar({
                     : (timeRemaining ? `-${timeRemaining}` : 'LIVE')}
                 </span>
               </div>
-
-              {/* Sub-row underneath seekbar: Live button & behind live indicator (Live TV only) */}
-              {!isVod && !isCatchup && (
-                <div className="npb-clean-seekbar-sub">
-                  {timeshiftState && timeshiftState.behindLive >= 5 ? (
-                    <div className="npb-clean-behind-live-group">
-                      {onTimeshiftCatchUp ? (
-                        <button className="npb-clean-live-btn active" onClick={onTimeshiftCatchUp} title="Catch up to live">
-                          <span className="npb-clean-live-dot red" />
-                          LIVE
-                        </button>
-                      ) : (
-                        <span className="npb-clean-live-badge">
-                          <span className="npb-clean-live-dot red" />
-                          LIVE
-                        </span>
-                      )}
-                      <span className="npb-clean-behind-text">
-                        −{formatTime(timeshiftState.behindLive)} behind live
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="npb-clean-live-badge">
-                      <span className="npb-clean-live-dot red" />
-                      LIVE
-                    </span>
-                  )}
-                </div>
-              )}
             </div>
 
             {/* Bottom Row: Controls (Left, Center, Right) */}
             <div className="npb-clean-controls-row">
-              {/* Left Group: Volume & DVR */}
+              {/* Left Group: Volume, DVR, & LIVE status */}
               <div className="npb-clean-left">
                 <button
                   className="npb-clean-btn"
@@ -705,6 +676,31 @@ export function NowPlayingBar({
                   >
                     <span className="npb-clean-dvr-dash">-</span> DVR
                   </button>
+                )}
+                {!isVod && !isCatchup && (
+                  timeshiftState && timeshiftState.behindLive >= 5 ? (
+                    <div className="npb-clean-behind-live-group">
+                      {onTimeshiftCatchUp ? (
+                        <button className="npb-clean-live-btn active" onClick={onTimeshiftCatchUp} title="Catch up to live">
+                          <span className="npb-clean-live-dot red" />
+                          LIVE
+                        </button>
+                      ) : (
+                        <span className="npb-clean-live-badge">
+                          <span className="npb-clean-live-dot red" />
+                          LIVE
+                        </span>
+                      )}
+                      <span className="npb-clean-behind-text">
+                        −{formatTime(timeshiftState.behindLive)} behind live
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="npb-clean-live-badge">
+                      <span className="npb-clean-live-dot red" />
+                      LIVE
+                    </span>
+                  )
                 )}
                 {isCatchup && onGoToLive && (
                   <button

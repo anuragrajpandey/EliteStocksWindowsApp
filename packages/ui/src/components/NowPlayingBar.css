@@ -919,13 +919,6 @@ html.modern-ui-v3 .now-playing-bar.clean-design::after,
   text-align: right;
 }
 
-.npb-clean-seekbar-sub {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-left: 54px;
-}
-
 .npb-clean-behind-live-group {
   display: flex;
   align-items: center;
