@@ -34,6 +34,8 @@ export interface UseKeyboardShortcutsOptions {
     lastPlayedChannel: StoredChannel | null;
 
     // --- Action callbacks ---
+    showShortcutsOverlay: boolean;
+    setShowShortcutsOverlay: React.Dispatch<React.SetStateAction<boolean>>;
     handleTogglePlay: () => void;
     handleToggleMute: () => void;
     handleToggleStats: () => void;
@@ -94,6 +96,8 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                 titleBarSearchRef,
                 handlePlayChannel,
                 lastPlayedChannel,
+                showShortcutsOverlay,
+                setShowShortcutsOverlay,
                 handleTogglePlay,
                 handleToggleMute,
                 handleToggleStats,
@@ -129,7 +133,10 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                 return false;
             };
 
-            if (matches('togglePlay', e.key)) {
+            if (matches('toggleShortcutsOverlay', e.key)) {
+                e.preventDefault();
+                setShowShortcutsOverlay((show) => !show);
+            } else if (matches('togglePlay', e.key)) {
                 e.preventDefault();
                 handleTogglePlay();
             } else if (matches('toggleMute', e.key)) {
@@ -221,6 +228,10 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                 }
             } else if (matches('close', e.key)) {
                 e.preventDefault();
+                if (showShortcutsOverlay) {
+                    setShowShortcutsOverlay(false);
+                    return;
+                }
                 try {
                     if (await Bridge.isFullscreen()) {
                         await Bridge.toggleFullscreen();

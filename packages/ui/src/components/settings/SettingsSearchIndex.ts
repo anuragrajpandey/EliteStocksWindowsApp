@@ -242,6 +242,7 @@ const SETTINGS_SEARCH_INDEX: SettingsSearchResult[] = [
   { id: 'shortcut-seek-backward', label: 'Seek Backward', tabId: 'shortcuts', tabLabel: 'Shortcuts', section: 'Playback' },
   { id: 'shortcut-channel-up', label: 'Channel Up', tabId: 'shortcuts', tabLabel: 'Shortcuts', section: 'Navigation' },
   { id: 'shortcut-channel-down', label: 'Channel Down', tabId: 'shortcuts', tabLabel: 'Shortcuts', section: 'Navigation' },
+  { id: 'shortcut-toggle-shortcuts-overlay', label: 'Toggle Shortcuts Overlay', tabId: 'shortcuts', tabLabel: 'Shortcuts', section: 'Interface' },
   { id: 'shortcut-toggle-livetv', label: 'Toggle Live TV', tabId: 'shortcuts', tabLabel: 'Shortcuts', section: 'Interface' },
   { id: 'shortcut-toggle-guide', label: 'Toggle Guide', tabId: 'shortcuts', tabLabel: 'Shortcuts', section: 'Interface' },
   { id: 'shortcut-toggle-categories', label: 'Toggle Categories', tabId: 'shortcuts', tabLabel: 'Shortcuts', section: 'Interface' },

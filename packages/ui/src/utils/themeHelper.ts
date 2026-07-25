@@ -111,8 +111,13 @@ export const applyCustomTheme = (config: CustomThemeConfig) => {
   root.style.setProperty('--custom-blob-4', hexToRgba(cb4, cb4Opacity));
 
   // 8. Show/hide background bulbs
-  const blobDisplay = config.showGlassBlobs === false ? 'none' : 'block';
-  root.style.setProperty('--glass-blob-display', blobDisplay);
+  // Use opacity/visibility instead of display:none — display changes require a CPU layout pass
+  // and can flash for 1-2 frames when GPU compositor renders layers before layout completes.
+  const blobHidden = config.showGlassBlobs === false;
+  root.style.setProperty('--glass-blob-opacity', blobHidden ? '0' : '0.18');
+  root.style.setProperty('--glass-blob-visibility', blobHidden ? 'hidden' : 'visible');
+  // De-promote GPU layer when hidden so compositor doesn't render it independently
+  root.style.setProperty('--glass-blob-will-change', blobHidden ? 'auto' : 'transform');
 };
 
 export const extractCurrentThemeVariables = (): CustomThemeConfig => {

@@ -87,6 +87,7 @@ import { useTimeshift } from './hooks/useTimeshift';
 import { useDvrEvents } from './hooks/useDvrEvents';
 import { useDvrUrlResolver } from './hooks/useDvrUrlResolver';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { UpdateModal } from './components/UpdateModal';
 import { registerUpdateModal } from './services/updater';
 import { WhatsNewModal } from './components/WhatsNewModal/WhatsNewModal';
@@ -1253,6 +1254,8 @@ function App() {
       rawSetShowSettingsPopup(nextVal);
     }
   }, [showSettingsPopup, settingsTab, nuvioHasUnsavedHomeLayout, nuvioTabSaveFn, rawSetShowSettingsPopup, showConfirm]);
+
+  const [showShortcutsOverlay, setShowShortcutsOverlay] = useState(false);
 
   // Wrap handleStop to restore Stremio/Nuvio page if stopped from a media context
   const handleStop = useCallback(async () => {
@@ -3010,6 +3013,8 @@ function App() {
     shortcuts,
     activeView,
     showSettingsPopup,
+    showShortcutsOverlay,
+    setShowShortcutsOverlay,
     categoriesOpen,
     categoriesHidden,
     categoriesHiddenTransparent,
@@ -4244,10 +4249,11 @@ function App() {
       {/* V3 Liquid Glass Background */}
       {(() => {
         const isPreviewView = activeView === 'guide' || activeView === 'sports';
+        const isPageOverlayView = activeView !== 'guide' && activeView !== 'sports' && activeView !== 'none';
         const hasPreviewRect = !!previewVideoRect;
         const shouldRenderGlassBg = liveTvDesign === 'v3' && (
+          isPageOverlayView ||
           (isPreviewView && !guideTransparent && (!currentChannel || hasPreviewRect)) ||
-          ((activeView === 'movies' || activeView === 'series' || activeView === 'dvr' || activeView === 'stremio' || activeView === 'nuvio' || activeView === 'calendar' || activeView === 'settings') && !guideTransparent) ||
           (activeView === 'none' && !currentChannel)
         );
 
@@ -4884,6 +4890,12 @@ function App() {
         isOpen={whatsNewModalOpen}
         onClose={() => setWhatsNewModalOpen(false)}
         version={appVersion}
+      />
+      {/* Keyboard Shortcuts Modal Overlay */}
+      <KeyboardShortcutsModal
+        isOpen={showShortcutsOverlay}
+        onClose={() => setShowShortcutsOverlay(false)}
+        shortcuts={shortcuts}
       />
       <ModalComponent />
       <div id="hls-fallback-container" style={{ display: 'none' }} />

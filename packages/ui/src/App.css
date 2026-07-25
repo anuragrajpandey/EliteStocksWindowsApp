@@ -1227,6 +1227,11 @@ html[data-custom-scrollbar="true"] .movie-detail::-webkit-scrollbar-thumb {
   border: 1px solid rgba(0, 0, 0, 0.3) !important;
 }
 
+html[data-custom-scrollbar="true"] .series-detail:hover::-webkit-scrollbar-thumb,
+html[data-custom-scrollbar="true"] .movie-detail:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.45) !important;
+}
+
 html[data-custom-scrollbar="true"] ::-webkit-scrollbar-thumb:hover,
 html[data-custom-scrollbar="true"] *::-webkit-scrollbar-thumb:hover,
 html[data-custom-scrollbar="true"] .modern-ui ::-webkit-scrollbar-thumb:hover,

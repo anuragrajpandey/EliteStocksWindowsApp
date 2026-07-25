@@ -38,4 +38,5 @@ export const DEFAULT_SHORTCUTS: Record<ShortcutAction, string> = {
     toggleTransparentGuide: 'z',
     toggleNuvio: 'n',
     toggleStrem: 'x',
+    toggleShortcutsOverlay: '/',
 };

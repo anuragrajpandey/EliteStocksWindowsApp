@@ -10,6 +10,8 @@
   display: flex;
   flex-direction: row;
   overflow: hidden;
+  /* Prevent GPU compositor layers from blob background (z-index: 2) bleeding through */
+  isolation: isolate;
 }
 
 /* Search - refined Apple-style */
@@ -83,6 +85,7 @@
   /* Important: allows flex child to shrink below content size */
   overflow-y: auto;
   position: relative;
+  background: var(--bg-primary, #0d0d0d);
 }
 
 .vod-page__content::-webkit-scrollbar,
@@ -113,6 +116,7 @@
 /* Virtualized home view - must fill container for Virtuoso */
 .vod-page__home {
   height: 100%;
+  background: var(--bg-primary, #0d0d0d);
 }
 
 /* Wrapper for genre carousels in virtualized list */

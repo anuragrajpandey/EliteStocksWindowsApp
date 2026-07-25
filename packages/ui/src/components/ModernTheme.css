@@ -7904,7 +7904,9 @@ html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg {
 html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg .glass-blob,
 html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg::before,
 html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg::after {
-  display: var(--glass-blob-display, block) !important;
+  opacity: var(--glass-blob-opacity, 0.18) !important;
+  visibility: var(--glass-blob-visibility, visible) !important;
+  will-change: var(--glass-blob-will-change, transform) !important;
 }
 html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg .blob-1 {
   background: radial-gradient(circle, var(--custom-blob-1, rgba(0, 191, 255, 0.55)) 0%, transparent 70%) !important;
@@ -7927,8 +7929,11 @@ html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg .blob-4 {
 html.disable-theme-blobs .livetv-liquid-glass-bg .glass-blob,
 html.disable-theme-blobs .livetv-liquid-glass-bg::before,
 html.disable-theme-blobs .livetv-liquid-glass-bg::after {
-  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
   animation: none !important;
+  will-change: auto !important; /* De-promote GPU layer so compositor doesn't render it independently */
 }
 
 /* 2. Disable Glass Backdrop Blur */
@@ -7956,8 +7961,11 @@ html.modern-ui-v3 .now-playing-bar .npb-btn:disabled {
 html.disable-theme-blobs .livetv-liquid-glass-bg .glass-blob,
 html.disable-theme-blobs .livetv-liquid-glass-bg::before,
 html.disable-theme-blobs .livetv-liquid-glass-bg::after {
-  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
   animation: none !important;
+  will-change: auto !important; /* De-promote GPU layer so compositor doesn't render it independently */
 }
 
 /* 2. Disable Glass Backdrop Blur */

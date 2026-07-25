@@ -284,33 +284,48 @@ export function useAppSettings(): AppSettings {
   });
 
   // Custom theme state
-  const [customThemeConfig, setCustomThemeConfigState] = useState<CustomThemeConfig>({
-    backgroundType: 'solid',
-    backgroundColor: '#1a1a1a',
-    gradientStart: '#1a0b2e',
-    gradientMiddle: '#4a1a6b',
-    gradientEnd: '#2d1b4e',
-    gradientColor4: '#1a0b2e',
-    gradientColor5: '#2d1b4e',
-    accentColor: '#00d4ff',
-    textColor: '#ffffff',
-    textSecondaryColor: 'rgba(255,255,255,0.7)',
-    surfaceColor: '#282828',
-    surfaceOpacity: 0.85,
-    surfaceBorderColor: '#ffffff',
-    surfaceBorderOpacity: 0.1,
-    glassBlur: 20,
-    glassSaturation: 150,
-    customBlob1: '#00bbf5',
-    customBlob2: '#ff1493',
-    customBlob3: '#ffd700',
-    customBlob4: '#76ff03',
-    customBlob1Opacity: 0.55,
-    customBlob2Opacity: 0.45,
-    customBlob3Opacity: 0.35,
-    customBlob4Opacity: 0.3,
-    showGlassBlobs: true,
-    fontFamily: 'inter'
+  const [customThemeConfig, setCustomThemeConfigState] = useState<CustomThemeConfig>(() => {
+    if (cachedSettings?.customThemeConfig) {
+      return cachedSettings.customThemeConfig;
+    }
+    try {
+      const existing = typeof localStorage !== 'undefined' ? localStorage.getItem('app-settings') : null;
+      if (existing) {
+        const parsed = JSON.parse(existing);
+        if (parsed.customThemeConfig) {
+          cachedSettings = { ...cachedSettings, customThemeConfig: parsed.customThemeConfig };
+          return parsed.customThemeConfig;
+        }
+      }
+    } catch (e) {}
+    return {
+      backgroundType: 'solid',
+      backgroundColor: '#1a1a1a',
+      gradientStart: '#1a0b2e',
+      gradientMiddle: '#4a1a6b',
+      gradientEnd: '#2d1b4e',
+      gradientColor4: '#1a0b2e',
+      gradientColor5: '#2d1b4e',
+      accentColor: '#00d4ff',
+      textColor: '#ffffff',
+      textSecondaryColor: 'rgba(255,255,255,0.7)',
+      surfaceColor: '#282828',
+      surfaceOpacity: 0.85,
+      surfaceBorderColor: '#ffffff',
+      surfaceBorderOpacity: 0.1,
+      glassBlur: 20,
+      glassSaturation: 150,
+      customBlob1: '#00bbf5',
+      customBlob2: '#ff1493',
+      customBlob3: '#ffd700',
+      customBlob4: '#76ff03',
+      customBlob1Opacity: 0.55,
+      customBlob2Opacity: 0.45,
+      customBlob3Opacity: 0.35,
+      customBlob4Opacity: 0.3,
+      showGlassBlobs: true,
+      fontFamily: 'inter'
+    };
   });
 
   // Saved Custom Themes List
@@ -445,7 +460,9 @@ export function useAppSettings(): AppSettings {
         '--custom-blob-2',
         '--custom-blob-3',
         '--custom-blob-4',
-        '--glass-blob-display'
+        '--glass-blob-opacity',
+        '--glass-blob-visibility',
+        '--glass-blob-will-change'
       ];
       customKeys.forEach(key => {
         document.documentElement.style.removeProperty(key);
@@ -663,10 +680,22 @@ export function useAppSettings(): AppSettings {
           setSavedLayoutState(layoutState);
           console.log('[useAppSettings] Loaded saved layout state:', layoutState);
 
-          // Load theme
-          const savedTheme = result.data.theme || localStorageTheme || 'dark-cyan';
-          setThemeState(savedTheme as ThemeId);
-          cachedSettings = { ...cachedSettings, ...result.data, theme: savedTheme };
+          // Load active custom theme config FIRST so themeState doesn't trigger effect with uninitialized config
+          let loadedCustomConfig = result.data.customThemeConfig;
+          if (!loadedCustomConfig) {
+            try {
+              const existing = localStorage.getItem('app-settings');
+              if (existing) {
+                const parsed = JSON.parse(existing);
+                if (parsed.customThemeConfig) {
+                  loadedCustomConfig = parsed.customThemeConfig;
+                }
+              }
+            } catch (e) {}
+          }
+          if (loadedCustomConfig) {
+            setCustomThemeConfigState(loadedCustomConfig);
+          }
 
           // Load global font settings
           const fFamily = result.data.appFontFamily || 'inter';
@@ -682,20 +711,10 @@ export function useAppSettings(): AppSettings {
           const savedThemesList = result.data.savedCustomThemes || [];
           setSavedCustomThemesState(savedThemesList);
 
-          // Load active custom theme config
-          if (result.data.customThemeConfig) {
-            setCustomThemeConfigState(result.data.customThemeConfig);
-          } else {
-            try {
-              const existing = localStorage.getItem('app-settings');
-              if (existing) {
-                const parsed = JSON.parse(existing);
-                if (parsed.customThemeConfig) {
-                  setCustomThemeConfigState(parsed.customThemeConfig);
-                }
-              }
-            } catch (e) {}
-          }
+          // Load theme
+          const savedTheme = result.data.theme || localStorageTheme || 'dark-cyan';
+          cachedSettings = { ...cachedSettings, ...result.data, theme: savedTheme, customThemeConfig: loadedCustomConfig || cachedSettings?.customThemeConfig };
+          setThemeState(savedTheme as ThemeId);
 
           // Propagate Tauri values to localStorage
           try {

@@ -68,7 +68,8 @@ export type ShortcutAction =
     | 'replayLastStream'
     | 'toggleTransparentGuide'
     | 'toggleNuvio'
-    | 'toggleStrem';
+    | 'toggleStrem'
+    | 'toggleShortcutsOverlay';
 
 export interface SavedChannelState {
     channelName: string | null;
