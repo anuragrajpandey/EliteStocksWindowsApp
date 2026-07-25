@@ -141,7 +141,8 @@ export interface AppSettings {
     shortcuts?: ShortcutsMap;
     startupWidth?: number;
     startupHeight?: number;
-    dontSaveWindowSizeOnClose?: boolean;
+    playerControlDesign?: 'default' | 'clean';
+    showVolumePercent?: boolean;
     overlayAutohideTimer?: number;
     uiScale?: number;
     epgVisibleHours?: 'auto' | number;

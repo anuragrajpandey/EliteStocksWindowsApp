@@ -2874,8 +2874,9 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
     to bottom,
     rgba(12, 14, 24, 0.15) 0%,
     rgba(12, 14, 24, 0.45) 30%,
-    rgba(12, 14, 24, 0.7) 60%,
-    rgba(12, 14, 24, 0.9) 100%
+    rgba(12, 14, 24, 0.75) 60%,
+    rgba(12, 14, 24, 0.95) 85%,
+    var(--bg-primary, #0c0e18) 100%
   ) !important;
 }
 

@@ -241,6 +241,8 @@ function App() {
     setFailoverGroupShowSource,
     playerControlDesign,
     setPlayerControlDesign,
+    showVolumePercent,
+    setShowVolumePercent,
   } = useAppSettings();
   const navHiddenTabs = useUIStore((s) => s.navHiddenTabs);
   const setNavHiddenStore = useUIStore((s) => s.setNavHiddenTabs);
@@ -1610,6 +1612,18 @@ function App() {
     }, (overlayAutohideTimer + 1) * 1000);
   }, [transparentGuideOnZap, overlayAutohideTimer]);
 
+  const handleToggleTransparentGuide = useCallback(() => {
+    setShowControls(true);
+    if (activeView === 'guide' && guideTransparent) {
+      setActiveView('none');
+      setCategoriesOpen(false);
+    } else {
+      setGuideTransparent(true);
+      setActiveView('guide');
+      setCategoriesOpen(!categoriesHiddenTransparent);
+    }
+  }, [activeView, guideTransparent, categoriesHiddenTransparent]);
+
   const isChannelInfoOverlayVisible = useMemo(() => {
     if (!channelInfoOverlayEnabled || !currentChannel || pipMode) return false;
     const isVod = currentChannel.stream_id === 'vod' || currentChannel.stream_id?.startsWith('recording_');
@@ -2500,8 +2514,39 @@ function App() {
     const prevPlaying = prevPlayingRef.current;
     prevPlayingRef.current = playing;
 
-    if (prevPlaying && !playing && vodInfo?.type === 'series' && duration > 0 && position >= duration - 2) {
-      const { seriesId, seasonNum, episodeNum, title, source_id, year, plot, backdropUrl, logoUrl } = vodInfo;
+    if (prevPlaying && !playing && vodInfo?.type === 'series' && duration > 0 && (position >= duration - 5 || position / duration >= 0.90)) {
+      const { seriesId, seasonNum, episodeNum, episodeId, title, source_id, year, plot, backdropUrl, logoUrl, mediaId } = vodInfo;
+      
+      // Always mark the ended episode as completed (100% watched)
+      const currentEpId = episodeId || (mediaId && mediaId.includes('_ep_') ? mediaId.split('_ep_')[1] : null);
+      if (currentEpId && seriesId) {
+        console.log('[AutoPlay] Marking ended episode as completed:', currentEpId);
+        void recordEpisodeWatch(
+          currentEpId,
+          seriesId,
+          source_id || '',
+          seasonNum ?? 0,
+          episodeNum ?? 0,
+          '',
+          Math.floor(duration),
+          Math.floor(duration)
+        );
+      }
+
+      if (stremioEpisodeRef.current) {
+        const watchStore = useStremioWatchStore.getState();
+        watchStore.updateEpisodeProgress(
+          stremioEpisodeRef.current.metaId,
+          stremioEpisodeRef.current.videoId,
+          1.0,
+          stremioEpisodeRef.current.season,
+          stremioEpisodeRef.current.episode,
+          stremioEpisodeRef.current.nextVideoId,
+          stremioEpisodeRef.current.nextSeason,
+          stremioEpisodeRef.current.nextEpisode
+        );
+      }
+
       if (vodAutoPlayNextEpisode && seriesId && seasonNum !== undefined && episodeNum !== undefined && title) {
         console.log('[AutoPlay] VOD Series ended naturally, triggering auto-play next episode');
         
@@ -3998,6 +4043,9 @@ function App() {
         catchupInfo={catchupInfo}
         channelInfoOverlayEnabled={channelInfoOverlayEnabled}
         playerControlDesign={playerControlDesign}
+        showVolumePercent={showVolumePercent}
+        onToggleTransparentGuide={handleToggleTransparentGuide}
+        guideTransparent={guideTransparent}
         onTogglePlay={handleTogglePlay}
         onStop={handleStop}
         onToggleMute={handleToggleMute}
@@ -4376,6 +4424,8 @@ function App() {
         pipMode={pipMode}
         onTogglePip={handlePipFromPreview}
         playerControlDesign={playerControlDesign}
+        showVolumePercent={showVolumePercent}
+        onToggleTransparentGuide={handleToggleTransparentGuide}
       />
 
       {/* Settings Panel - as popup overlay in main layout, or full view in multiview */}
@@ -4393,6 +4443,8 @@ function App() {
           onFailoverGroupShowSourceChange={setFailoverGroupShowSource}
           playerControlDesign={playerControlDesign}
           onPlayerControlDesignChange={setPlayerControlDesign}
+          showVolumePercent={showVolumePercent}
+          onShowVolumePercentChange={setShowVolumePercent}
           stremioStreamPickerMode={stremioStreamPickerMode}
           onStremioStreamPickerModeChange={handleStremioStreamPickerModeChange}
           showStremioStreamBadges={showStremioStreamBadges}

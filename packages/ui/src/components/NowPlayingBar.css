@@ -1052,7 +1052,12 @@ html.modern-ui-v3 .now-playing-bar.clean-design::after,
 .npb-clean-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+}
+
+.npb-clean-right > div {
+  display: flex;
+  align-items: center;
 }
 
 /* Clean buttons - NO background, NO border, pure SVGs */
@@ -1061,13 +1066,24 @@ html.modern-ui-v3 .now-playing-bar.clean-design::after,
   border: none !important;
   box-shadow: none !important;
   color: rgba(255, 255, 255, 0.85);
-  padding: 4px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: color 0.15s ease, transform 0.15s ease;
   outline: none;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.npb-clean-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  flex-shrink: 0;
 }
 
 .npb-clean-btn:hover {
@@ -1143,5 +1159,15 @@ html.modern-ui-v3 .now-playing-bar.clean-design::after,
   border-radius: 50%;
   background: #ffffff;
   cursor: pointer;
+}
+
+.npb-clean-volume-value {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  min-width: 26px;
+  text-align: left;
+  white-space: nowrap;
 }
 

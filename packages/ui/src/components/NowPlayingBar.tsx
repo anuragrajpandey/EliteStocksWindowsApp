@@ -4,6 +4,7 @@ import { invoke } from '@tauri-apps/api/core';
 import type { StoredChannel } from '../db';
 import type { VodPlayInfo } from '../types/media';
 import { useCurrentProgram } from '../hooks/useChannels';
+import { useAppSettings } from '../hooks/useAppSettings';
 import { MetadataBadge } from './MetadataBadge';
 import { scheduleRecording, getDvrSettings, updatePlayingStream, detectScheduleConflicts, db, type DvrSchedule } from '../db';
 import { StalkerClient } from '@ynotv/local-adapter';
@@ -73,6 +74,9 @@ interface NowPlayingBarProps {
   pipMode?: boolean;
   hasAudioDelay?: boolean;
   playerControlDesign?: 'default' | 'clean';
+  showVolumePercent?: boolean;
+  onToggleTransparentGuide?: () => void;
+  guideTransparent?: boolean;
 }
 
 // Format seconds to "H:MM:SS" or "M:SS"
@@ -135,7 +139,13 @@ export function NowPlayingBar({
   pipMode,
   hasAudioDelay,
   playerControlDesign = 'clean',
+  showVolumePercent: propShowVolumePercent,
+  onToggleTransparentGuide,
+  guideTransparent = false,
 }: NowPlayingBarProps) {
+  const { showVolumePercent: showVolumePercentSetting } = useAppSettings();
+  const showVolumePercent = propShowVolumePercent ?? showVolumePercentSetting ?? false;
+
   // scrubMode: 'timeshift' | 'epgcatchup' — local toggle when channel supports both
   const [scrubMode, setScrubMode] = useState<'timeshift' | 'epgcatchup'>('timeshift');
   // Modal state
@@ -667,6 +677,11 @@ export function NowPlayingBar({
                   onTouchEnd={onVolumeDragEnd}
                   disabled={!mpvReady}
                 />
+                {showVolumePercent && (
+                  <span className="npb-clean-volume-value" title={`Volume ${volume}`}>
+                    {volume}
+                  </span>
+                )}
                 {!isVod && (
                   <button
                     className="npb-clean-dvr-btn"
@@ -788,6 +803,16 @@ export function NowPlayingBar({
                     style={{ fontWeight: 700, fontSize: '0.8rem', minWidth: '28px' }}
                   >
                     {speed === 1 ? '1x' : speed === 1.5 ? '1.5x' : '2x'}
+                  </button>
+                )}
+
+                {onToggleTransparentGuide && (
+                  <button
+                    className={`npb-clean-btn${guideTransparent ? ' active' : ''}`}
+                    onClick={onToggleTransparentGuide}
+                    title="Toggle Transparent EPG Guide (Z)"
+                  >
+                    <TvIcon />
                   </button>
                 )}
 
@@ -1318,7 +1343,7 @@ export function NowPlayingBar({
                   onTouchEnd={onVolumeDragEnd}
                   disabled={!mpvReady}
                 />
-                <span className="npb-volume-value">{volume}</span>
+                {showVolumePercent && <span className="npb-volume-value">{volume}</span>}
               </div>
 
               {/* PiP button */}
@@ -1426,7 +1451,7 @@ export function NowPlayingBar({
               onTouchEnd={onVolumeDragEnd}
               disabled={!mpvReady}
             />
-            <span className="npb-volume-value">{volume}</span>
+            {showVolumePercent && <span className="npb-volume-value">{volume}</span>}
           </div>
 
           {/* Fullscreen button - always available */}
@@ -1521,9 +1546,11 @@ function TranslateIcon() {
 
 function SubtitleIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="2" y="15" width="20" height="4" rx="1" />
-      <rect x="2" y="9" width="20" height="4" rx="1" />
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <line x1="6" y1="10" x2="12" y2="10" />
+      <line x1="14" y1="10" x2="18" y2="10" />
+      <line x1="6" y1="14" x2="15" y2="14" />
     </svg>
   );
 }
@@ -1549,6 +1576,15 @@ function StatsIcon() {
 interface VolumeIconProps {
   muted: boolean;
   volume: number;
+}
+
+function TvIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="8" width="18" height="13" rx="2" ry="2" />
+      <polyline points="16 3 12 8 8 3" />
+    </svg>
+  );
 }
 
 function VolumeIcon({ muted, volume }: VolumeIconProps) {

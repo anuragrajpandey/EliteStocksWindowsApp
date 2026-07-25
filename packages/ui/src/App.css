@@ -1183,3 +1183,93 @@ html:not(.modern-ui-v3) .title-bar-unified .segmented-btn.active {
     0 2px 8px rgba(0, 0, 0, 0.4) !important;
 }
 
+/* ─── Custom Scrollbar Width & Visibility Override ─────────────────────────── */
+html[data-custom-scrollbar="true"] ::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] *::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .modern-ui ::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .modern-ui-v3 ::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .vertical-sidebar__scrollable::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .vod-browse::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .vod-browse *::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .vod-page__content::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .vod-page__content *::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .category-strip-scrollable::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .category-strip-list::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .guide-channels::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .series-detail::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .movie-detail::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .stremio-detail::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .stremio-detail-left::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .stremio-detail-video-list::-webkit-scrollbar {
+  display: block !important;
+  width: var(--app-scrollbar-width, 12px) !important;
+}
+
+html[data-custom-scrollbar="true"] ::-webkit-scrollbar-track,
+html[data-custom-scrollbar="true"] *::-webkit-scrollbar-track,
+html[data-custom-scrollbar="true"] .modern-ui ::-webkit-scrollbar-track,
+html[data-custom-scrollbar="true"] .modern-ui-v3 ::-webkit-scrollbar-track,
+html[data-custom-scrollbar="true"] .series-detail::-webkit-scrollbar-track,
+html[data-custom-scrollbar="true"] .movie-detail::-webkit-scrollbar-track {
+  background: rgba(15, 15, 25, 0.7) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: none !important;
+}
+
+html[data-custom-scrollbar="true"] ::-webkit-scrollbar-thumb,
+html[data-custom-scrollbar="true"] *::-webkit-scrollbar-thumb,
+html[data-custom-scrollbar="true"] .modern-ui ::-webkit-scrollbar-thumb,
+html[data-custom-scrollbar="true"] .modern-ui-v3 ::-webkit-scrollbar-thumb,
+html[data-custom-scrollbar="true"] .series-detail::-webkit-scrollbar-thumb,
+html[data-custom-scrollbar="true"] .movie-detail::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.45) !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba(0, 0, 0, 0.3) !important;
+}
+
+html[data-custom-scrollbar="true"] ::-webkit-scrollbar-thumb:hover,
+html[data-custom-scrollbar="true"] *::-webkit-scrollbar-thumb:hover,
+html[data-custom-scrollbar="true"] .modern-ui ::-webkit-scrollbar-thumb:hover,
+html[data-custom-scrollbar="true"] .modern-ui-v3 ::-webkit-scrollbar-thumb:hover,
+html[data-custom-scrollbar="true"] .series-detail::-webkit-scrollbar-thumb:hover,
+html[data-custom-scrollbar="true"] .movie-detail::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary, #00d4ff) !important;
+}
+
+
+
+/* ─── Hide Horizontal Scrollbars on Carousels & Rows ─────────────────────────── */
+.carousel__scroll-container::-webkit-scrollbar,
+.carousel__scroll-container::-webkit-scrollbar:horizontal,
+.horizontal-carousel::-webkit-scrollbar,
+.horizontal-carousel::-webkit-scrollbar:horizontal,
+.movie-detail__cast-row::-webkit-scrollbar,
+.movie-detail__cast-row::-webkit-scrollbar:horizontal,
+.series-detail__cast-row::-webkit-scrollbar,
+.series-detail__cast-row::-webkit-scrollbar:horizontal,
+.stremio-carousel::-webkit-scrollbar,
+.stremio-carousel::-webkit-scrollbar:horizontal,
+.nuvio-carousel::-webkit-scrollbar,
+.nuvio-carousel::-webkit-scrollbar:horizontal,
+.streaming-service-view__items::-webkit-scrollbar,
+.streaming-service-view__items::-webkit-scrollbar:horizontal,
+html[data-custom-scrollbar="true"] .carousel__scroll-container::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .carousel__scroll-container::-webkit-scrollbar:horizontal,
+html[data-custom-scrollbar="true"] .horizontal-carousel::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .movie-detail__cast-row::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .series-detail__cast-row::-webkit-scrollbar,
+html[data-custom-scrollbar="true"] .streaming-service-view__items::-webkit-scrollbar {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+}
+
+html[data-custom-scrollbar="true"] .carousel__scroll-container,
+html[data-custom-scrollbar="true"] .horizontal-carousel,
+html[data-custom-scrollbar="true"] .movie-detail__cast-row,
+html[data-custom-scrollbar="true"] .series-detail__cast-row,
+html[data-custom-scrollbar="true"] .streaming-service-view__items {
+  scrollbar-width: none !important;
+}
+
+

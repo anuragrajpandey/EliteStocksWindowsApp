@@ -6,7 +6,7 @@
  * Slides in as a full page, not a modal.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getTmdbImageUrl, TMDB_POSTER_SIZES, tmdbPersonIdByName } from '../../services/tmdb';
 import { useLazyBackdrop } from '../../hooks/useLazyBackdrop';
 import { useLazyPlot } from '../../hooks/useLazyPlot';
@@ -370,16 +370,45 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
   // Current season episodes
   const currentEpisodes = seasons[selectedSeason] ?? [];
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    containerRef.current?.focus();
+  }, []);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      containerRef.current?.scrollBy({ top: 200, behavior: 'smooth' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      containerRef.current?.scrollBy({ top: -200, behavior: 'smooth' });
+    } else if (e.key === 'PageDown') {
+      e.preventDefault();
+      containerRef.current?.scrollBy({ top: 500, behavior: 'smooth' });
+    } else if (e.key === 'PageUp') {
+      e.preventDefault();
+      containerRef.current?.scrollBy({ top: -500, behavior: 'smooth' });
+    }
+  }, []);
+
   return (
-    <div className="series-detail">
-      {/* Backdrop */}
-      <div className="series-detail__backdrop">
+    <>
+      {/* Fixed background & hero image that NEVER moves when scrolling */}
+      <div className="series-detail-fixed-backdrop">
         {backdropUrl && <img src={backdropUrl} alt="" aria-hidden="true" />}
-        <div className="series-detail__backdrop-gradient" />
+        <div className="series-detail-fixed-backdrop-gradient" />
       </div>
 
-      {/* Header with back button */}
-      <header className="series-detail__header">
+      <div
+        className="series-detail"
+        ref={containerRef}
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
+        style={{ outline: 'none' }}
+      >
+        {/* Header with back button */}
+        <header className="series-detail__header">
         <button
           className="series-detail__back"
           onClick={onClose}
@@ -675,7 +704,8 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
         </div>
       </div>
     </div>
-  );
+  </>
+);
 }
 
 function formatAirDate(dateStr: string): string {

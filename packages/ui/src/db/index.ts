@@ -2866,35 +2866,36 @@ export async function recordEpisodeWatch(
 ): Promise<void> {
   try {
     const watchedAt = Date.now();
-    // Mark as completed if watched > 95%
-    const completed = totalDuration > 0 && (progressSeconds / totalDuration) > 0.95 ? 1 : 0;
+    // Mark as completed if watched >= 90%, within 5s of end, or explicitly marked (e.g. 1/1)
+    const isCompletedCalc = (totalDuration > 0 && (progressSeconds / totalDuration) >= 0.90) ||
+                           (totalDuration > 0 && progressSeconds >= totalDuration - 5) ||
+                           (totalDuration === 1 && progressSeconds === 1);
+    let completed = isCompletedCalc ? 1 : 0;
 
     console.log('[DB] recordEpisodeWatch called:', { episodeId, progressSeconds, totalDuration, completed });
 
     const dbInstance = await (db as any).dbPromise;
     
     // Check if entry exists
-    const existing = await dbInstance.select(
-      'SELECT id FROM episode_history WHERE episode_id = ? LIMIT 1',
+    const existingRecord = await dbInstance.select(
+      'SELECT id, total_duration, completed FROM episode_history WHERE episode_id = ? LIMIT 1',
       [episodeId]
     );
     
-    if (existing && existing.length > 0) {
-      // Update existing entry - preserve duration if new value is 0 or invalid
+    if (existingRecord && existingRecord.length > 0) {
+      // Update existing entry - preserve duration if new value is 0 or invalid, and preserve completed state
       console.log('[DB] Updating existing episode record:', episodeId);
       
-      // Get the existing record to check current duration
-      const existingRecord = await dbInstance.select(
-        'SELECT total_duration FROM episode_history WHERE episode_id = ? LIMIT 1',
-        [episodeId]
-      );
-      
-      // Use existing duration if new value is 0/invalid and we have a valid existing duration
       let effectiveDuration = totalDuration;
       if ((totalDuration === 0 || totalDuration === undefined || totalDuration === null) && 
-          existingRecord && existingRecord.length > 0 && existingRecord[0].total_duration > 0) {
+          existingRecord[0].total_duration > 0) {
         effectiveDuration = existingRecord[0].total_duration;
         console.log('[DB] Preserving existing duration:', effectiveDuration, '(new value was:', totalDuration + ')');
+      }
+
+      // If existing record was already completed, keep it completed unless progress is explicitly reset to 0
+      if (existingRecord[0].completed === 1 && progressSeconds > 0) {
+        completed = 1;
       }
       
       await dbInstance.execute(

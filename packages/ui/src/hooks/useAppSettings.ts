@@ -3,6 +3,18 @@ import type { SavedLayoutState } from './useLayoutPersistence';
 import type { ThemeId, CustomThemeConfig, ShortcutsMap } from '../types/app';
 import { applyCustomTheme } from '../utils/themeHelper';
 
+function getInitialSettingsFromStorage(): Record<string, any> | null {
+  try {
+    const localData = typeof localStorage !== 'undefined' ? localStorage.getItem('app-settings') : null;
+    if (localData) {
+      return JSON.parse(localData);
+    }
+  } catch (e) {}
+  return null;
+}
+
+let cachedSettings: Record<string, any> | null = getInitialSettingsFromStorage();
+
 export interface AppSettings {
   // Layout persistence
   rememberLastChannels: boolean;
@@ -81,6 +93,7 @@ export interface AppSettings {
   overlayAutohideTimer: number;
   overlayOnClickOnly: boolean;
   playerControlDesign: 'default' | 'clean';
+  showVolumePercent: boolean;
 
   // Widget scale
   widgetScale: number;
@@ -114,6 +127,7 @@ export interface AppSettings {
   setOverlayAutohideTimer: (seconds: number) => void;
   setOverlayOnClickOnly: (enabled: boolean) => void;
   setPlayerControlDesign: (design: 'default' | 'clean') => void;
+  setShowVolumePercent: (enabled: boolean) => void;
   setAdvancedSearchScope: (scope: 'channels' | 'epg' | 'both') => void;
   setAdvancedSearchSourceIds: (ids: string[]) => void;
   setAdvancedSearchCategoryIds: (ids: string[]) => void;
@@ -175,6 +189,10 @@ export interface AppSettings {
     setVodShowSourceBadge: (enabled: boolean) => void;
     failoverGroupShowSource: boolean;
     setFailoverGroupShowSource: (enabled: boolean) => void;
+    enableCustomScrollbarWidth: boolean;
+    setEnableCustomScrollbarWidth: (enabled: boolean) => void;
+    customScrollbarWidth: number;
+    setCustomScrollbarWidth: (width: number) => void;
 }
 
 /**
@@ -213,6 +231,7 @@ export function useAppSettings(): AppSettings {
 
   // UI visibility
   const [playerControlDesign, setPlayerControlDesignState] = useState<'default' | 'clean'>('clean');
+  const [showVolumePercent, setShowVolumePercentState] = useState<boolean>(false);
 
   // LiveTV settings
   const [epgView, setEpgView] = useState<'traditional' | 'alternate'>('traditional');
@@ -250,8 +269,19 @@ export function useAppSettings(): AppSettings {
   const [vodShowSourceBadge, setVodShowSourceBadgeState] = useState(false);
   const [failoverGroupShowSource, setFailoverGroupShowSourceState] = useState(false);
 
+  // Custom scrollbar width settings
+  const [enableCustomScrollbarWidth, setEnableCustomScrollbarWidthState] = useState(false);
+  const [customScrollbarWidth, setCustomScrollbarWidthState] = useState(12);
+
   // Theme state
-  const [theme, setThemeState] = useState<ThemeId>('dark-cyan');
+  const [theme, setThemeState] = useState<ThemeId>(() => {
+    if (cachedSettings?.theme) return cachedSettings.theme as ThemeId;
+    if (typeof document !== 'undefined') {
+      const activeDomTheme = document.documentElement.getAttribute('data-theme');
+      if (activeDomTheme) return activeDomTheme as ThemeId;
+    }
+    return 'dark-cyan';
+  });
 
   // Custom theme state
   const [customThemeConfig, setCustomThemeConfigState] = useState<CustomThemeConfig>({
@@ -379,7 +409,10 @@ export function useAppSettings(): AppSettings {
 
   // Apply theme effect
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
+    const currentDomTheme = document.documentElement.getAttribute('data-theme');
+    if (currentDomTheme !== theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
     if (theme === 'custom' && customThemeConfig) {
       applyCustomTheme(customThemeConfig);
     } else {
@@ -530,6 +563,7 @@ export function useAppSettings(): AppSettings {
           setOverlayAutohideTimerState(result.data.overlayAutohideTimer ?? 3);
           setOverlayOnClickOnlyState(result.data.overlayOnClickOnly ?? false);
           setPlayerControlDesignState(result.data.playerControlDesign ?? 'clean');
+          setShowVolumePercentState(result.data.showVolumePercent ?? false);
           setPopoutStopMainState(result.data.popoutStopMain ?? true);
           setPopoutAlwaysOnTopState(result.data.popoutAlwaysOnTop ?? false);
           setPopoutHwdecEnabledState(result.data.popoutHwdecEnabled ?? true);
@@ -575,6 +609,19 @@ export function useAppSettings(): AppSettings {
           setCastEnabledState(result.data.castEnabled ?? false);
           setCastRewriteTsState(result.data.castRewriteTs ?? true);
 
+          // Load Custom Scrollbar settings
+          const savedEnableCustomScrollbarWidth = result.data.enableCustomScrollbarWidth ?? false;
+          const savedCustomScrollbarWidth = result.data.customScrollbarWidth ?? 12;
+          setEnableCustomScrollbarWidthState(savedEnableCustomScrollbarWidth);
+          setCustomScrollbarWidthState(savedCustomScrollbarWidth);
+          if (savedEnableCustomScrollbarWidth) {
+            document.documentElement.dataset.customScrollbar = 'true';
+            document.documentElement.style.setProperty('--app-scrollbar-width', `${savedCustomScrollbarWidth}px`);
+          } else {
+            delete document.documentElement.dataset.customScrollbar;
+            document.documentElement.style.removeProperty('--app-scrollbar-width');
+          }
+
           // Load Optimization settings
           setHardwareAccelerationState(result.data.hardwareAcceleration ?? true);
           setDisableThemeBlobsState(result.data.disableThemeBlobs ?? false);
@@ -619,6 +666,7 @@ export function useAppSettings(): AppSettings {
           // Load theme
           const savedTheme = result.data.theme || localStorageTheme || 'dark-cyan';
           setThemeState(savedTheme as ThemeId);
+          cachedSettings = { ...cachedSettings, ...result.data, theme: savedTheme };
 
           // Load global font settings
           const fFamily = result.data.appFontFamily || 'inter';
@@ -736,6 +784,7 @@ export function useAppSettings(): AppSettings {
   }, []);
 
   const setTheme = useCallback(async (newTheme: ThemeId) => {
+    cachedSettings = { ...cachedSettings, theme: newTheme };
     setThemeState(newTheme);
     // Persist to storage
     if (window.storage) {
@@ -881,6 +930,17 @@ export function useAppSettings(): AppSettings {
         await window.storage.updateSettings({ playerControlDesign: design });
       } catch (e) {
         console.error('[useAppSettings] Failed to save playerControlDesign:', e);
+      }
+    }
+  }, []);
+
+  const setShowVolumePercent = useCallback(async (enabled: boolean) => {
+    setShowVolumePercentState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ showVolumePercent: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save showVolumePercent:', e);
       }
     }
   }, []);
@@ -1392,6 +1452,39 @@ export function useAppSettings(): AppSettings {
     }
   }, []);
 
+  const setEnableCustomScrollbarWidth = useCallback(async (enabled: boolean) => {
+    setEnableCustomScrollbarWidthState(enabled);
+    if (enabled) {
+      document.documentElement.dataset.customScrollbar = 'true';
+      document.documentElement.style.setProperty('--app-scrollbar-width', `${customScrollbarWidth}px`);
+    } else {
+      delete document.documentElement.dataset.customScrollbar;
+      document.documentElement.style.removeProperty('--app-scrollbar-width');
+    }
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ enableCustomScrollbarWidth: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save enableCustomScrollbarWidth:', e);
+      }
+    }
+  }, [customScrollbarWidth]);
+
+  const setCustomScrollbarWidth = useCallback(async (width: number) => {
+    setCustomScrollbarWidthState(width);
+    if (enableCustomScrollbarWidth) {
+      document.documentElement.dataset.customScrollbar = 'true';
+      document.documentElement.style.setProperty('--app-scrollbar-width', `${width}px`);
+    }
+    if (window.storage) {
+      try {
+        window.storage.debouncedUpdateSettings({ customScrollbarWidth: width });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save customScrollbarWidth:', e);
+      }
+    }
+  }, [enableCustomScrollbarWidth]);
+
   return {
     savedCustomThemes,
     setSavedCustomThemes,
@@ -1452,6 +1545,8 @@ export function useAppSettings(): AppSettings {
     overlayOnClickOnly,
     playerControlDesign,
     setPlayerControlDesign,
+    showVolumePercent,
+    setShowVolumePercent,
     widgetScale,
     widgetBgOpacity,
     sportsScale,
@@ -1529,5 +1624,9 @@ export function useAppSettings(): AppSettings {
     setVodShowSourceBadge,
     failoverGroupShowSource,
     setFailoverGroupShowSource,
+    enableCustomScrollbarWidth,
+    setEnableCustomScrollbarWidth,
+    customScrollbarWidth,
+    setCustomScrollbarWidth,
   };
 }

@@ -62,6 +62,8 @@ interface SettingsProps {
   onChannelInfoOverlayPositionChange?: (pos: 'left' | 'right') => void;
   playerControlDesign?: 'default' | 'clean';
   onPlayerControlDesignChange?: (design: 'default' | 'clean') => void;
+  showVolumePercent?: boolean;
+  onShowVolumePercentChange?: (enabled: boolean) => void;
   overlayAutohideTimer?: number;
   onOverlayAutohideTimerChange?: (seconds: number) => void;
   overlayOnClickOnly?: boolean;
@@ -149,6 +151,8 @@ export function Settings({
   onChannelInfoOverlayPositionChange,
   playerControlDesign: playerControlDesignProp,
   onPlayerControlDesignChange,
+  showVolumePercent: showVolumePercentProp,
+  onShowVolumePercentChange,
   overlayAutohideTimer: overlayAutohideTimerProp,
   onOverlayAutohideTimerChange,
   overlayOnClickOnly: overlayOnClickOnlyProp,
@@ -336,6 +340,7 @@ export function Settings({
     overlayOnClickOnly?: boolean;
     uiScale?: number;
     playerControlDesign?: 'default' | 'clean';
+    showVolumePercent?: boolean;
   }>({
     modernUiEnabled: 'v3',
     collapseSourceCategoriesOnStartup: false,
@@ -343,6 +348,7 @@ export function Settings({
     overlayOnClickOnly: false,
     uiScale: 100,
     playerControlDesign: 'clean',
+    showVolumePercent: false,
   });
 
   // Font size state (moved to LiveTV tab)
@@ -753,6 +759,8 @@ export function Settings({
         overlayAutohideTimer?: number;
         overlayOnClickOnly?: boolean;
         uiScale?: number;
+        playerControlDesign?: 'default' | 'clean';
+        showVolumePercent?: boolean;
         epgVisibleHours?: 'auto' | number;
         epgTitleFontSize?: number;
         epgBodyFontSize?: number;
@@ -907,6 +915,8 @@ export function Settings({
         overlayAutohideTimer: settings.overlayAutohideTimer ?? 3,
         overlayOnClickOnly: settings.overlayOnClickOnly ?? false,
         uiScale: settings.uiScale ?? 100,
+        playerControlDesign: settings.playerControlDesign ?? 'clean',
+        showVolumePercent: settings.showVolumePercent ?? showVolumePercentProp ?? false,
       };
       setUiSettings(loadedUiSettings);
 
@@ -2033,6 +2043,7 @@ export function Settings({
     overlayOnClickOnly?: boolean;
     uiScale?: number;
     playerControlDesign?: 'default' | 'clean';
+    showVolumePercent?: boolean;
     channelInfoOverlayEnabled?: boolean;
     channelInfoOverlayFontSize?: number;
     channelInfoOverlayLogoSize?: number;
@@ -2089,6 +2100,9 @@ export function Settings({
     }
     if (newSettings.playerControlDesign !== undefined) {
       onPlayerControlDesignChange?.(newSettings.playerControlDesign);
+    }
+    if (newSettings.showVolumePercent !== undefined) {
+      onShowVolumePercentChange?.(newSettings.showVolumePercent);
     }
 
     // Apply/remove the modern-ui class when modernUiEnabled changes
@@ -2390,6 +2404,7 @@ export function Settings({
             settings={{
               ...uiSettings,
               playerControlDesign: playerControlDesignProp ?? uiSettings.playerControlDesign,
+              showVolumePercent: showVolumePercentProp ?? uiSettings.showVolumePercent,
               channelInfoOverlayEnabled,
               channelInfoOverlayFontSize,
               channelInfoOverlayLogoSize,

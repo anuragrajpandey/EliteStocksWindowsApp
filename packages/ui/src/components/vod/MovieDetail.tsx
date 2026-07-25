@@ -150,15 +150,16 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick }: Mov
     : null;
 
   return (
-    <div className="movie-detail">
-      {/* Backdrop */}
-      <div className="movie-detail__backdrop">
+    <>
+      {/* Fixed background & hero image that NEVER moves when scrolling */}
+      <div className="movie-detail-fixed-backdrop">
         {backdropUrl && <img src={backdropUrl} alt="" aria-hidden="true" />}
-        <div className="movie-detail__backdrop-gradient" />
+        <div className="movie-detail-fixed-backdrop-gradient" />
       </div>
 
-      {/* Header with back button */}
-      <header className="movie-detail__header">
+      <div className="movie-detail">
+        {/* Header with back button */}
+        <header className="movie-detail__header">
         <button
           className="movie-detail__back"
           onClick={onClose}
@@ -341,7 +342,8 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick }: Mov
         )}
       </div>
     </div>
-  );
+  </>
+);
 }
 
 export default MovieDetail;

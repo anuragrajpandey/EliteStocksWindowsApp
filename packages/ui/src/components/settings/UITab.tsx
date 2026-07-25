@@ -14,6 +14,7 @@ interface UITabProps {
     overlayOnClickOnly?: boolean;
     uiScale?: number;
     playerControlDesign?: 'default' | 'clean';
+    showVolumePercent?: boolean;
     channelInfoOverlayEnabled?: boolean;
     channelInfoOverlayFontSize?: number;
     channelInfoOverlayLogoSize?: number;
@@ -35,6 +36,7 @@ interface UITabProps {
     overlayOnClickOnly?: boolean;
     uiScale?: number;
     playerControlDesign?: 'default' | 'clean';
+    showVolumePercent?: boolean;
     channelInfoOverlayEnabled?: boolean;
     channelInfoOverlayFontSize?: number;
     channelInfoOverlayLogoSize?: number;
@@ -164,7 +166,11 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
     appCustomFontBase64,
     appCustomFontFormat,
     appCustomFontName,
-    updateAppFont
+    updateAppFont,
+    enableCustomScrollbarWidth,
+    setEnableCustomScrollbarWidth,
+    customScrollbarWidth,
+    setCustomScrollbarWidth,
   } = useAppSettings();
 
   const [localScale, setLocalScale] = useState(settings.uiScale ?? 100);
@@ -272,6 +278,53 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                   <span className="toggle-slider" />
                 </label>
               </div>
+
+              {/* Override Scrollbar Width */}
+              <div className="timeshift-toggle-row">
+                <div className="timeshift-toggle-info">
+                  <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    Override Scrollbar Width
+                    <div className="epg-tooltip">
+                      <span className="epg-tooltip-icon">?</span>
+                      <div className="epg-tooltip-content">
+                        When enabled, custom scrollbars throughout the application will follow the specified width. When disabled, standard custom scrollbars are used.
+                      </div>
+                    </div>
+                  </span>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={enableCustomScrollbarWidth}
+                    onChange={(e) => setEnableCustomScrollbarWidth(e.target.checked)}
+                  />
+                  <span className="toggle-slider" />
+                </label>
+              </div>
+
+              {enableCustomScrollbarWidth && (
+                <div className="timeshift-toggle-row">
+                  <div className="timeshift-toggle-info">
+                    <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      Custom Scrollbar Width ({customScrollbarWidth}px)
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <input
+                      type="range"
+                      min="6"
+                      max="20"
+                      step="1"
+                      value={customScrollbarWidth}
+                      onChange={(e) => setCustomScrollbarWidth(parseInt(e.target.value) || 12)}
+                      style={{ width: '130px', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary, rgba(255, 255, 255, 0.7))', minWidth: '35px' }}>
+                      {customScrollbarWidth}px
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Autohide Overlay Timer */}
               <div className="timeshift-toggle-row">
@@ -568,6 +621,25 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                   <option value="default" style={{ backgroundColor: '#1f1f2e' }}>Legacy</option>
                   <option value="clean" style={{ backgroundColor: '#1f1f2e' }}>Clean / Borderless</option>
                 </select>
+              </div>
+
+              <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
+                <div className="timeshift-toggle-info">
+                  <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    Show Volume %
+                  </span>
+                  <span className="timeshift-toggle-sub">
+                    Display the volume percentage number on the right of the volume control in the now playing bar.
+                  </span>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={settings.showVolumePercent ?? false}
+                    onChange={(e) => onSettingsChange({ ...settings, showVolumePercent: e.target.checked })}
+                  />
+                  <span className="toggle-slider"></span>
+                </label>
               </div>
             </div>
           </div>

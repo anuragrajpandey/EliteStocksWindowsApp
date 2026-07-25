@@ -239,6 +239,8 @@ interface ChannelPanelProps {
   // Transparent guide mode (Z key) — hides preview pane, shows EPG grid over full video
   guideTransparent?: boolean;
   playerControlDesign?: 'default' | 'clean';
+  showVolumePercent?: boolean;
+  onToggleTransparentGuide?: () => void;
 }
 
 export function ChannelPanel({
@@ -310,6 +312,8 @@ export function ChannelPanel({
   pipMode = false,
   onTogglePip,
   playerControlDesign = 'clean',
+  showVolumePercent,
+  onToggleTransparentGuide,
 }: ChannelPanelProps) {
   const epgView = useEpgView();
   const epgVisibleHours = useEpgVisibleHours();
@@ -489,29 +493,47 @@ export function ChannelPanel({
     return saved === 'true';
   });
 
+  const [showCustomPlaylistName, setShowCustomPlaylistName] = useState(() => {
+    const saved = localStorage.getItem('showCustomPlaylistName');
+    return saved === 'true';
+  });
+
   const [sourceNames, setSourceNames] = useState<Map<string, string>>(new Map());
   const [shortEpgSourceIds, setShortEpgSourceIds] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
     async function loadSourceNames() {
-      if (!window.storage) return;
-      try {
-        const result = await window.storage.getSources();
-        if (result.data) {
-          const map = new Map<string, string>();
-          const shortEpgIds = new Set<string>();
-          for (const source of result.data) {
-            map.set(source.id, source.name);
-            if (source.type === 'stalker' && source.mac && !source.disable_short_epg) {
-              shortEpgIds.add(source.id);
+      const map = new Map<string, string>();
+      const shortEpgIds = new Set<string>();
+
+      if (window.storage) {
+        try {
+          const result = await window.storage.getSources();
+          if (result.data) {
+            for (const source of result.data) {
+              map.set(source.id, source.name);
+              if (source.type === 'stalker' && source.mac && !source.disable_short_epg) {
+                shortEpgIds.add(source.id);
+              }
             }
           }
-          setSourceNames(map);
-          setShortEpgSourceIds(shortEpgIds);
+        } catch (e) {
+          console.error('Failed to load source names', e);
+        }
+      }
+
+      try {
+        const customPls = await db.customPlaylists.toArray();
+        for (const pl of customPls) {
+          map.set(`playlist:${pl.playlist_id}`, pl.name);
+          map.set(pl.playlist_id, pl.name);
         }
       } catch (e) {
-        console.error('Failed to load source names', e);
+        console.error('Failed to load custom playlists for source names', e);
       }
+
+      setSourceNames(map);
+      setShortEpgSourceIds(shortEpgIds);
     }
     loadSourceNames();
   }, []);
@@ -1025,6 +1047,9 @@ export function ChannelPanel({
   
   const isCustomGroup = !!customGroup;
   const customGroupName = customGroup?.name || 'Custom Group';
+  const isCustomPlaylistCat = !!categoryId && (categoryId.startsWith('__plindiv_') || categoryId.startsWith('__allsrc_pl_') || categoryId.startsWith('playlist:'));
+  const isPlaylistSource = !!sourceId && sourceId.startsWith('playlist:');
+  const isCustomCategory = isCustomGroup || Boolean(isPlaylistCatLink) || isCustomPlaylistCat || isPlaylistSource;
 
   // Format time
   const formatTime = useCallback((date: Date) => {
@@ -2191,6 +2216,9 @@ export function ChannelPanel({
           pipMode={pipMode}
           onTogglePip={onTogglePip}
           playerControlDesign={playerControlDesign}
+          showVolumePercent={showVolumePercent}
+          onToggleTransparentGuide={onToggleTransparentGuide}
+          guideTransparent={guideTransparent}
         />
       )}
     </div>
@@ -2301,7 +2329,7 @@ export function ChannelPanel({
                   }}
                   title="Show playlist name for each channel"
                 >
-                  {showWatchlistPlaylistName ? '📋' : '📄'} Toggle Playlist Name
+                  {showWatchlistPlaylistName ? '📋' : '📄'} Show Source
                 </button>
               </>
             ) : isSearchMode ? (
@@ -2338,7 +2366,7 @@ export function ChannelPanel({
                       }}
                       title="Show playlist name for each channel"
                     >
-                      {showFavPlaylistName ? '📋' : '📄'} Toggle Playlist Name
+                      {showFavPlaylistName ? '📋' : '📄'} Show Source
                     </button>
                   </>
                 )}
@@ -2352,7 +2380,20 @@ export function ChannelPanel({
                     }}
                     title="Show playlist name for each channel"
                   >
-                    {showRecentPlaylistName ? '📋' : '📄'} Toggle Playlist Name
+                    {showRecentPlaylistName ? '📋' : '📄'} Show Source
+                  </button>
+                )}
+                {isCustomCategory && categoryId !== '__favorites__' && categoryId !== '__recent__' && (
+                  <button
+                    className={`guide-manage-channels-btn ${showCustomPlaylistName ? 'active-toggle' : ''}`}
+                    onClick={() => {
+                      const newVal = !showCustomPlaylistName;
+                      setShowCustomPlaylistName(newVal);
+                      localStorage.setItem('showCustomPlaylistName', String(newVal));
+                    }}
+                    title="Show playlist name for each channel"
+                  >
+                    {showCustomPlaylistName ? '📋' : '📄'} Show Source
                   </button>
                 )}
                 {canManageChannels && (
@@ -2383,7 +2424,7 @@ export function ChannelPanel({
                     )}
                     {!isCustomGroup && (
                       <>
-                        {!sourceId?.startsWith('playlist:') && !epgHiddenButtons.includes('refresh-source') && (
+                        {!isCustomCategory && !sourceId?.startsWith('playlist:') && !epgHiddenButtons.includes('refresh-source') && (
                           <button
                             className="guide-refresh-source-btn"
                             onClick={handleRefreshSource}
@@ -2535,6 +2576,18 @@ export function ChannelPanel({
                 />
               )}
             </div>
+            {guideTransparent && (
+              <button
+                className="guide-transparent-close-btn"
+                onClick={onClose}
+                title="Close Transparent EPG Guide"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            )}
           </div>
         )}
 
@@ -2839,7 +2892,7 @@ export function ChannelPanel({
                 onPlayInPopout,
                 onPlayInExternal,
                 currentChannel,
-                showPlaylistName: categoryId === '__recent__' ? showRecentPlaylistName : showFavPlaylistName,
+                showPlaylistName: categoryId === '__recent__' ? showRecentPlaylistName : categoryId === '__favorites__' ? showFavPlaylistName : isCustomCategory ? showCustomPlaylistName : false,
                 sourceNames,
               }}
               components={{

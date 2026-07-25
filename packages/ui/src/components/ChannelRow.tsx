@@ -113,7 +113,7 @@ export const ChannelRow = memo(function ChannelRow({
     });
   }
 
-  const isPlaylistNameShown = showPlaylistName && (categoryId === '__favorites__' || categoryId === '__recent__');
+  const isPlaylistNameShown = Boolean(showPlaylistName);
   const showMultiviewButtons = Boolean(onSendToSlot && currentLayout && currentLayout !== 'main');
 
   const isSlotActive = useCallback((slotId: 1 | 2 | 3 | 4) => {
