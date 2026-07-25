@@ -418,7 +418,18 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
   }, [groupedCategories, searchQuery]);
 
   const [sources, setSources] = useState<Record<string, string>>({});
-  const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
+  const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem('ynotv:expandedSources');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('ynotv:expandedSources', JSON.stringify(expandedSources));
+  }, [expandedSources]);
   const { version } = useSourceVersion(); // Listen for source changes
 
   // Category visibility settings
@@ -667,16 +678,18 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
       resolved = true;
     } else if (selectedCategoryId.startsWith('__plindiv_')) {
       const id = selectedCategoryId.replace('__plindiv_', '');
-      const isPlaylist = customPlaylists?.some(p => p.playlist_id === id);
-      if (isPlaylist) {
-        parentPlaylistId = id;
-      } else {
-        parentSourceId = id;
+      if (customPlaylists !== undefined) {
+        const isPlaylist = customPlaylists.some(p => p.playlist_id === id);
+        if (isPlaylist) {
+          parentPlaylistId = id;
+        } else {
+          parentSourceId = id;
+        }
+        resolved = true;
       }
-      resolved = true;
     } else if (selectedCategoryId.startsWith('__plcat_')) {
       const linkId = parseInt(selectedCategoryId.replace('__plcat_', ''), 10);
-      if (!isNaN(linkId) && allPlaylistCategoryLinks) {
+      if (!isNaN(linkId) && allPlaylistCategoryLinks !== undefined) {
         const link = allPlaylistCategoryLinks.find(l => l.id === linkId);
         if (link) {
           const isPlaylist = customPlaylists?.some(p => p.playlist_id === link.playlist_id);
@@ -696,8 +709,8 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
     ) {
       resolved = true;
     } else {
-      // Normal native category ID
-      if (groupedCategories) {
+      // Normal native category ID - ensure groupedCategories is populated before resolving
+      if (groupedCategories && groupedCategories.length > 0) {
         const foundGroup = groupedCategories.find(g =>
           g.categories.some(cat => cat.category_id === selectedCategoryId)
         );
@@ -1101,6 +1114,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
 
         if (collapseOnStartup && isFirstLoad.current) {
           setExpandedPlaylists({});
+          setExpandedSources({});
         }
         isFirstLoad.current = false;
         
