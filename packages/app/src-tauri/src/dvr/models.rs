@@ -141,6 +141,8 @@ pub struct DvrSettings {
     pub default_end_padding_sec: i32,
     pub keep_recordings_days: Option<i32>,
     pub auto_convert_format: String,
+    #[serde(default)]
+    pub allow_permissive_hls_extensions: bool,
 }
 
 impl Default for DvrSettings {
@@ -153,6 +155,7 @@ impl Default for DvrSettings {
             default_end_padding_sec: 300,
             keep_recordings_days: Some(30),
             auto_convert_format: "none".to_string(),
+            allow_permissive_hls_extensions: false,
         }
     }
 }

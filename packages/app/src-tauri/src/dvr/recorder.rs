@@ -4,7 +4,7 @@
 //! Handles process lifecycle, monitoring, and status updates.
 
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Stdio;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -200,9 +200,8 @@ impl RecordingManager {
             _ => schedule.channel_name.clone(),
         };
 
-        // Generate filename
-        let filename = generate_filename(&schedule, &channel_name);
-        let output_path = storage_path.join(&filename);
+        // Generate unique filename to avoid database file_path collision
+        let (filename, output_path) = generate_unique_filename(&self.db, &storage_path, &schedule, &channel_name);
 
         // Calculate recording duration
         let duration_secs = schedule.actual_end() - schedule.actual_start();
@@ -235,20 +234,48 @@ impl RecordingManager {
         let mut cmd = Command::new(&self.ffmpeg_path);
         cmd.arg("-stats");
         
-        // HTTP reconnection flags (must be specified before the input -i)
+        // Detect if this is a catchup/replay stream (past program or replay URL)
+        let now = chrono::Utc::now().timestamp();
+        let is_catchup_stream = schedule.scheduled_end <= now
+            || stream_url.contains("start=")
+            || stream_url.contains("utc=")
+            || stream_url.contains("replay")
+            || stream_url.contains("timeshift");
+
+        // HTTP reconnection & User-Agent flags (must be specified before the input -i)
         if stream_url.starts_with("http://") || stream_url.starts_with("https://") {
+            cmd.arg("-user_agent").arg("ynoTVPlayer");
             cmd.arg("-reconnect").arg("1")
-                .arg("-reconnect_at_eof").arg("1")
-                .arg("-reconnect_streamed").arg("1")
                 .arg("-reconnect_delay_max").arg("5")
                 .arg("-reconnect_on_network_error").arg("1");
+
+            if !is_catchup_stream {
+                // Only enable reconnect_at_eof and reconnect_streamed for live broadcast streams
+                cmd.arg("-reconnect_at_eof").arg("1")
+                    .arg("-reconnect_streamed").arg("1");
+            }
         }
+
+        // Retrieve DVR settings to check user opt-in for permissive HLS extensions
+        let dvr_settings = self.db.get_settings().unwrap_or_default();
 
         // Input flags
         if is_hls {
-            // HLS-specific flags
-            cmd.arg("-live_start_index").arg("-1");  // Start from live edge
-            cmd.arg("-http_persistent").arg("0");    // Don't reuse HTTP connections
+            if dvr_settings.allow_permissive_hls_extensions {
+                // User opted in: Allow non-standard HLS segment extensions (.jpg, .png, .css)
+                cmd.arg("-allowed_segment_extensions").arg("ALL");
+                cmd.arg("-extension_picky").arg("0");
+            }
+
+            if is_catchup_stream {
+                // For catchup/replay downloads, start from beginning of playlist and use persistent connection for fast downloading
+                cmd.arg("-live_start_index").arg("0");
+                cmd.arg("-http_persistent").arg("1");
+            } else {
+                // For live edge recording, start from live edge
+                cmd.arg("-live_start_index").arg("-1");
+                cmd.arg("-http_persistent").arg("0");
+            }
         }
         
         cmd.arg("-timeout").arg("30000000")  // 30 second read timeout (microseconds)
@@ -505,12 +532,9 @@ impl RecordingManager {
                                     }
                                 }
 
-                                // Only log lines that end with \n (actual log messages, not progress overwrite lines)
-                                if byte == b'\n' {
-                                    println!("[FFmpeg #{}] {}", recording_id, line);
-                                    output.push_str(&line);
-                                    output.push('\n');
-                                }
+                                println!("[FFmpeg #{}] {}", recording_id, line);
+                                output.push_str(&line);
+                                output.push('\n');
                             }
                         } else {
                             buf.push(byte);
@@ -906,6 +930,34 @@ fn generate_filename(schedule: &Schedule, channel_name: &str) -> String {
         .collect();
 
     format!("{}_{}_{}.ts", timestamp, sanitized_channel, sanitized_title)
+}
+
+/// Generate a unique filename and output path to prevent UNIQUE constraint collisions in SQLite or on disk
+fn generate_unique_filename(db: &DvrDatabase, storage_path: &Path, schedule: &Schedule, channel_name: &str) -> (String, PathBuf) {
+    let base_filename = generate_filename(schedule, channel_name);
+    let (stem, ext) = match base_filename.rfind('.') {
+        Some(idx) => (&base_filename[..idx], &base_filename[idx + 1..]),
+        None => (base_filename.as_str(), "ts"),
+    };
+
+    let mut counter = 0;
+    loop {
+        let filename = if counter == 0 {
+            format!("{}.{}", stem, ext)
+        } else {
+            format!("{}_{}.{}", stem, counter, ext)
+        };
+
+        let output_path = storage_path.join(&filename);
+        let path_str = output_path.to_string_lossy().to_string();
+
+        let exists_in_db = db.file_path_exists(&path_str).unwrap_or(false);
+        if !exists_in_db && !output_path.exists() {
+            return (filename, output_path);
+        }
+
+        counter += 1;
+    }
 }
 
 /// Convert a recording from .ts to mp4 or mkv using FFmpeg copy (lossless remuxing)

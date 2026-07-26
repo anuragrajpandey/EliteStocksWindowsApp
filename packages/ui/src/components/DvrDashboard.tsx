@@ -887,12 +887,19 @@ interface RecordingCardProps {
 }
 
 function RecordingCard({ item, progress, onEdit, onCancel, onPlay, formatDateTime, formatDuration, formatElapsed }: RecordingCardProps) {
-    const isCatchup = !!(item.stream_url && (item.stream_url.includes('timeshift') || item.stream_url.includes('catchup')));
+    const nowSec = Math.floor(Date.now() / 1000);
+    const isCatchup = item.scheduled_end <= nowSec || !!(item.stream_url && (
+        item.stream_url.includes('timeshift') ||
+        item.stream_url.includes('catchup') ||
+        item.stream_url.includes('replay') ||
+        item.stream_url.includes('start=') ||
+        item.stream_url.includes('utc=')
+    ));
 
     const percent = progress
-        ? isCatchup && progress.progress_seconds !== undefined
-            ? Math.min(100, (progress.progress_seconds / progress.scheduled_duration) * 100)
-            : Math.min(100, (progress.elapsed_seconds / progress.scheduled_duration) * 100)
+        ? isCatchup && progress.progress_seconds !== undefined && progress.scheduled_duration > 0
+            ? Math.min(100, Math.max(0, (progress.progress_seconds / progress.scheduled_duration) * 100))
+            : Math.min(100, Math.max(0, (progress.elapsed_seconds / progress.scheduled_duration) * 100))
         : 0;
 
     return (
@@ -954,20 +961,23 @@ function RecordingCard({ item, progress, onEdit, onCancel, onPlay, formatDateTim
                             <span className="dvr-progress-label">
                                 {isCatchup ? 'Download in progress' : 'Recording in progress'}
                             </span>
-                            {isCatchup && progress.speed_bytes !== undefined && (
-                                <span className="dvr-progress-speed" style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)' }}>
-                                    {formatSpeed(progress.speed_bytes)}
-                                </span>
-                            )}
                             <span className="dvr-progress-time">
                                 {isCatchup
-                                    ? `${formatBytes(progress.progress_bytes || 0)} (${Math.round(percent)}%)`
-                                    : formatElapsed(progress.elapsed_seconds)}
+                                    ? `${formatElapsed(Math.floor(progress.progress_seconds || 0))} / ${formatDuration(item.scheduled_start, item.scheduled_end)} (${Math.round(percent)}%)`
+                                    : `${formatElapsed(progress.elapsed_seconds)} / ${formatDuration(item.scheduled_start, item.scheduled_end)}`}
                             </span>
                         </div>
-                        <div className="dvr-progress-bar">
+                        <div className="dvr-progress-bar" style={{ marginTop: '4px', marginBottom: isCatchup ? '4px' : '0' }}>
                             <div className="dvr-progress-fill" style={{ width: `${percent}%` }} />
                         </div>
+                        {isCatchup && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)', marginTop: '4px' }}>
+                                <span>Size: {formatBytes(progress.progress_bytes || 0)}</span>
+                                {progress.speed_bytes !== undefined && progress.speed_bytes > 0 && (
+                                    <span>Speed: {formatSpeed(progress.speed_bytes)}</span>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
                 {item.recurrence && item.recurrence !== 'once' && (

@@ -13,6 +13,7 @@ export function DvrTab() {
     const [autoCleanup, setAutoCleanup] = useState(false);
     const [maxDiskUsage, setMaxDiskUsage] = useState(80);
     const [keepDays, setKeepDays] = useState<number | null>(30);
+    const [allowPermissiveHls, setAllowPermissiveHls] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -33,6 +34,7 @@ export function DvrTab() {
             setAutoCleanup(settings.auto_cleanup_enabled !== false);
             setMaxDiskUsage(settings.max_disk_usage_percent || 80);
             setKeepDays(settings.keep_recordings_days !== undefined ? settings.keep_recordings_days : 30);
+            setAllowPermissiveHls(settings.allow_permissive_hls_extensions === true || settings.allow_permissive_hls_extensions === 'true');
 
             if (window.storage) {
                 const settingsRes = await window.storage.getSettings();
@@ -123,6 +125,11 @@ export function DvrTab() {
     async function handleKeepDaysChange(value: number | null) {
         setKeepDays(value);
         await saveDvrSetting('keep_recordings_days', value);
+    }
+
+    async function handleAllowPermissiveHlsChange(value: boolean) {
+        setAllowPermissiveHls(value);
+        await saveDvrSetting('allow_permissive_hls_extensions', value);
     }
 
     const formatDuration = (seconds: number): string => {
@@ -508,6 +515,66 @@ export function DvrTab() {
                         <option value="mp4" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>MP4 (.mp4)</option>
                         <option value="mkv" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>MKV (.mkv)</option>
                     </select>
+                </div>
+            </div>
+
+            {/* Stream Compatibility & Security */}
+            <div className="settings-section" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
+                <div className="section-header">
+                    <h3>Stream Compatibility & Security</h3>
+                </div>
+                <p className="section-description" style={{ marginBottom: '12px' }}>
+                    Configure FFmpeg security strictness when recording stream segments.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ paddingRight: '16px' }}>
+                            <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
+                                Allow Non-Standard HLS Extensions (.jpg / .css)
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginTop: '2px', lineHeight: '1.4' }}>
+                                Bypasses strict FFmpeg segment extension checks (CVE-2023-6602) for IPTV providers that disguise video segments as .jpg or .css files. Disabled by default to preserve standard security.
+                            </div>
+                        </div>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}>
+                            <input
+                                type="checkbox"
+                                id="allowPermissiveHls"
+                                checked={allowPermissiveHls}
+                                onChange={(e) => handleAllowPermissiveHlsChange(e.target.checked)}
+                                style={{ display: 'none' }}
+                            />
+                            <label
+                                htmlFor="allowPermissiveHls"
+                                style={{
+                                    width: '46px',
+                                    height: '24px',
+                                    background: allowPermissiveHls ? 'linear-gradient(135deg, #00d4ff, #0072ff)' : 'rgba(255,255,255,0.1)',
+                                    display: 'block',
+                                    borderRadius: '12px',
+                                    position: 'relative',
+                                    cursor: 'pointer',
+                                    transition: 'background 0.3s ease',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    flexShrink: 0
+                                }}
+                            >
+                                <span
+                                    style={{
+                                        position: 'absolute',
+                                        top: '2px',
+                                        left: allowPermissiveHls ? '24px' : '2px',
+                                        width: '18px',
+                                        height: '18px',
+                                        background: '#fff',
+                                        borderRadius: '50%',
+                                        transition: 'left 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                    }}
+                                />
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

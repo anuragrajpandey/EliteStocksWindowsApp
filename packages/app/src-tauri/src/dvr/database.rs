@@ -736,6 +736,17 @@ impl DvrDatabase {
         Ok(id)
     }
 
+    /// Check if a file_path already exists in dvr_recordings
+    pub fn file_path_exists(&self, file_path: &str) -> Result<bool> {
+        let conn = self.get_conn()?;
+        let count: i64 = conn.query_row(
+            "SELECT COUNT(*) FROM dvr_recordings WHERE file_path = ?1",
+            params![file_path],
+            |row| row.get(0),
+        )?;
+        Ok(count > 0)
+    }
+
     /// Update recording status
     pub fn update_recording_status(
         &self,
@@ -947,6 +958,9 @@ impl DvrDatabase {
                 }
                 "auto_convert_format" => {
                     settings.auto_convert_format = value;
+                }
+                "allow_permissive_hls_extensions" => {
+                    settings.allow_permissive_hls_extensions = value == "true" || value == "1" || value == "\"true\"";
                 }
                 _ => {}
             }
