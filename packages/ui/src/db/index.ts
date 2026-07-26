@@ -481,14 +481,17 @@ class YnotvDatabase extends SqliteDatabase {
         live INTEGER,
         is_adult BOOLEAN,
         alias TEXT,
-        xtream_stream_id TEXT
+        xtream_stream_id TEXT,
+        catchup_type TEXT,
+        catchup_source TEXT,
+        catchup_days INTEGER
       )`);
 
     // ─── Versioned migrations via PRAGMA user_version ─────────────────────────
     // Each version block runs exactly ONCE. To add new columns in the future,
     // increment DB_VERSION and add a new case (do NOT modify existing cases).
     // ─────────────────────────────────────────────────────────────────────────
-    const DB_VERSION = 21;
+    const DB_VERSION = 22;
     const versionResult = await db.select('PRAGMA user_version') as Array<{ user_version: number }>;
     const currentVersion = versionResult[0]?.user_version ?? 0;
 
@@ -860,6 +863,17 @@ class YnotvDatabase extends SqliteDatabase {
         } catch (e) {
           console.warn('[DB] v21 migration failed:', e);
         }
+      }
+
+      // v22: Add catchup_type, catchup_source, catchup_days to channels
+      if (currentVersion < 22) {
+        console.log('[DB] v22 migration: Adding M3U catchup columns to channels');
+        const addColumn = async (table: string, col: string, type: string) => {
+          try { await db.execute(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`); } catch { /* already exists */ }
+        };
+        await addColumn('channels', 'catchup_type', 'TEXT');
+        await addColumn('channels', 'catchup_source', 'TEXT');
+        await addColumn('channels', 'catchup_days', 'INTEGER');
       }
 
       // Bump the stored version so these migrations never run again

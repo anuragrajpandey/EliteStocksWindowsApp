@@ -30,7 +30,7 @@ interface SourceData {
     name?: string;
 }
 
-/** Extra options for catchup / timeshift URLs (Xtream only) */
+/** Extra options for catchup / timeshift URLs */
 export interface CatchupOptions {
     /** Raw stream ID (source-prefix already stripped, e.g. "12345") */
     rawStreamId: string;
@@ -38,6 +38,14 @@ export interface CatchupOptions {
     startTimeMs: number;
     /** Requested duration of the programme in minutes */
     durationMinutes: number;
+    /** M3U catchup-source template string (e.g. "http://...?start={utc}") */
+    catchupSource?: string;
+    /** M3U catchup mode/type (e.g. "default", "append", "flussonic", "shift") */
+    catchupType?: string;
+    /** Number of catchup days available */
+    catchupDays?: number;
+    /** EPG channel ID or stream identifier for placeholder substitution */
+    epgChannelId?: string;
 }
 
 /** Result returned by resolvePlayUrl */
@@ -55,12 +63,12 @@ export interface ResolvedUrl {
 // ---------------------------------------------------------------------------
 
 /**
- * Resolve a raw stream URL (which may be a Stalker opaque token or a Xtream
- * catchup URL) into a concrete, playable HTTP URL.
+ * Resolve a raw stream URL (which may be a Stalker opaque token, Xtream catchup URL,
+ * or M3U catchup template) into a concrete, playable HTTP URL.
  *
  * @param sourceId   The source ID to look up from window.storage
  * @param rawUrl     The direct_url / URL string to resolve
- * @param catchup    Pass this for Xtream catchup (timeshift) URLs only
+ * @param catchup    Pass this for catchup (timeshift) URLs only
  * @returns          Resolved URL + optional userAgent + optional sourceName
  *
  * @throws           If the Stalker client cannot resolve the URL (callers
@@ -139,6 +147,21 @@ export async function resolvePlayUrl(
                   }
                 : undefined;
             resolvedUrl = await client.resolveStreamUrl(rawUrl, stalkerCatchup);
+            return { url: resolvedUrl, userAgent, sourceName };
+        }
+
+        // ── M3U Catchup (catchup-source template or catchup type) ────────────────
+        if (catchup && catchup.catchupSource && catchup.catchupSource.trim().length > 0) {
+            const { buildM3uCatchupUrl } = await import('@ynotv/local-adapter');
+            resolvedUrl = buildM3uCatchupUrl({
+                catchupSource: catchup.catchupSource,
+                catchupType: catchup.catchupType,
+                directUrl: rawUrl,
+                startTimeMs: catchup.startTimeMs,
+                durationMinutes: catchup.durationMinutes,
+                epgChannelId: catchup.epgChannelId,
+            });
+            console.log(`[stream-resolver] M3U Catchup resolved URL via catchup-source: ${resolvedUrl}`);
             return { url: resolvedUrl, userAgent, sourceName };
         }
 
@@ -221,6 +244,21 @@ export async function resolvePlayUrl(
                     originalStartMs: new Date(startTimeMs).toISOString(),
                     offsetMs,
                 });
+                return { url: resolvedUrl, userAgent, sourceName };
+            }
+
+            // Fallback for non-Xtream M3U sources with catchupType (e.g. append, shift, flussonic)
+            if (catchup.catchupType || sourceData.type === 'm3u') {
+                const { buildM3uCatchupUrl } = await import('@ynotv/local-adapter');
+                resolvedUrl = buildM3uCatchupUrl({
+                    catchupSource: catchup.catchupSource,
+                    catchupType: catchup.catchupType,
+                    directUrl: rawUrl,
+                    startTimeMs: catchup.startTimeMs,
+                    durationMinutes: catchup.durationMinutes,
+                    epgChannelId: catchup.epgChannelId,
+                });
+                console.log(`[stream-resolver] M3U Catchup resolved URL via catchupType fallback: ${resolvedUrl}`);
                 return { url: resolvedUrl, userAgent, sourceName };
             }
         }

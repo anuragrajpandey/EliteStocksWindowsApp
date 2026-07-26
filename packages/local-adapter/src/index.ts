@@ -1,6 +1,7 @@
-// M3U Parser
 export { parseM3U, fetchAndParseM3U, extractXtreamStreamId } from './m3u-parser';
 export type { M3UParseResult } from './m3u-parser';
+export { buildM3uCatchupUrl } from './m3u-catchup';
+export type { M3uCatchupOptions } from './m3u-catchup';
 
 // XMLTV Parser (shared by Xtream and M3U)
 export { parseXmltv, extractXmltvChannels } from './xmltv-parser';

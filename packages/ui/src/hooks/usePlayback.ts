@@ -2001,6 +2001,10 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
         rawStreamId,
         startTimeMs: adjustedStartTimeMs,
         durationMinutes: adjustedDurationMinutes,
+        catchupSource: (channel as any).catchup_source,
+        catchupType: (channel as any).catchup_type,
+        catchupDays: (channel as any).catchup_days,
+        epgChannelId: channel.epg_channel_id || channel.stream_id,
       });
     } catch (e) {
       console.error('Failed to resolve catchup source:', e);

@@ -193,6 +193,9 @@ pub async fn sync_xtream_source(
             is_adult: None,
             xtream_stream_id: Some(stream_id_str.clone()),
             tv_archive_duration: None,
+            catchup_type: None,
+            catchup_source: None,
+            catchup_days: None,
         });
     }
 
@@ -495,7 +498,15 @@ pub async fn sync_m3u_source(
                 let tvg_chno_str = extract_attr("tvg-chno");
                 let tvg_chno = tvg_chno_str.parse::<i32>().ok();
                 
-                let tv_archive = if extract_attr("catchup") != "" || extract_attr("catchup-source") != "" { 1 } else { 0 };
+                let catchup_attr = extract_attr("catchup");
+                let catchup_source_attr = extract_attr("catchup-source");
+                let catchup_days_attr = extract_attr("catchup-days");
+
+                let catchup_type = if !catchup_attr.is_empty() { Some(catchup_attr) } else { None };
+                let catchup_source = if !catchup_source_attr.is_empty() { Some(catchup_source_attr) } else { None };
+                let catchup_days = catchup_days_attr.parse::<i32>().ok();
+
+                let tv_archive = if catchup_type.is_some() || catchup_source.is_some() || catchup_days.is_some() { 1 } else { 0 };
 
                 let display_name = if let Some(comma_pos) = extinf.rfind(',') {
                     extinf[comma_pos + 1..].trim().to_string()
@@ -549,6 +560,9 @@ pub async fn sync_m3u_source(
                     is_adult: None,
                     xtream_stream_id,
                     tv_archive_duration: None,
+                    catchup_type,
+                    catchup_source,
+                    catchup_days,
                 });
             }
         }

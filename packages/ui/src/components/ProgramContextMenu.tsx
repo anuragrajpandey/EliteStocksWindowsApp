@@ -390,6 +390,10 @@ export function ProgramContextMenu({
                 rawStreamId,
                 startTimeMs: adjustedStartTimeMs,
                 durationMinutes: adjustedDurationMinutes,
+                catchupSource: (channel as any).catchup_source,
+                catchupType: (channel as any).catchup_type,
+                catchupDays: (channel as any).catchup_days,
+                epgChannelId: channel.epg_channel_id || channel.stream_id,
             });
 
             const schedule: Omit<DvrSchedule, 'id' | 'created_at' | 'status'> = {

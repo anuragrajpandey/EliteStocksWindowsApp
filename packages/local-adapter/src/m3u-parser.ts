@@ -119,6 +119,7 @@ interface ExtInfMetadata {
   groupTitle: string;
   displayName: string;
   tvArchive: boolean;
+  catchupType?: string;
   catchupDays?: number;
   catchupSource?: string;
 }
@@ -203,6 +204,9 @@ export function parseM3U(content: string, sourceId: string): M3UParseResult {
         provider_order: channelCounter - 1, // 0-based position in M3U file
         ...(currentMetadata.tvgChno !== null && { channel_num: currentMetadata.tvgChno }),
         xtream_stream_id: extractXtreamStreamId(line) || undefined,
+        catchup_type: currentMetadata.catchupType,
+        catchup_source: currentMetadata.catchupSource,
+        catchup_days: currentMetadata.catchupDays,
       };
 
       channels.push(channel);
@@ -300,6 +304,7 @@ function parseExtInf(line: string): ExtInfMetadata {
   const catchupMatch = attrPart.match(/catchup="([^"]*)"/i);
   if (catchupMatch && catchupMatch[1].length > 0) {
     metadata.tvArchive = true;
+    metadata.catchupType = catchupMatch[1];
   }
 
   const catchupDaysMatch = attrPart.match(/catchup-days="([^"]*)"/i);
