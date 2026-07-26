@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { useEffect, useState, useMemo } from 'react';
 import './TVShowsManager.css';
 import { db, addTvEpisodeToWatchlist, clearAutoAddedEpisodesForShow, type AutoAddEpisode } from '../db';
+import { matchesSearch } from '../utils/searchNormalization';
 
 interface TrackedShow {
   tvmaze_id: number;
@@ -130,10 +131,9 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
 
     // Filter by search
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
       result = result.filter(s =>
-        s.show_name.toLowerCase().includes(query) ||
-        (s.channel_name?.toLowerCase() || '').includes(query)
+        matchesSearch(s.show_name, searchQuery) ||
+        matchesSearch(s.channel_name, searchQuery)
       );
     }
 

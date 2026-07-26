@@ -30,7 +30,7 @@ export function normalizeTitleForMatch(title: string): string {
     .replace(/\s*\[\d{4}\]\s*/g, ' ')
     .replace(/\s+\d{4}$/g, '')
     .replace(/\s*(4k|uhd|hd|sd|1080p|720p|480p|bluray|web-dl|hdrip|dvdrip)\s*/gi, ' ')
-    .replace(/[^\w\s]/g, ' ')
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }

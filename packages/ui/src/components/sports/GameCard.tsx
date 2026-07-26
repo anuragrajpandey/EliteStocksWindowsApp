@@ -3,6 +3,7 @@ import type { SportsEvent } from '@ynotv/core';
 import { formatEventTime } from '../../services/sports';
 import { db } from '../../db';
 import type { StoredChannel } from '../../db';
+import { buildSearchQueryClauses } from '../../utils/searchNormalization';
 import { useSportsSelectedChannels, useSetSportsSelectedChannel } from '../../stores/uiStore';
 import './styles/GameCard.css';
 
@@ -231,9 +232,8 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
       }
 
       const categoryPlaceholders = enabledCategoryIds.map(() => '?').join(',');
-      const wordLikeClauses = queryWords.map(() => `c.name LIKE ?`).join(' AND ');
-      const progLikeClauses = queryWords.map(() => `p.title LIKE ?`).join(' AND ');
-      const wordParams = queryWords.map((w) => `%${w}%`);
+      const { sql: wordLikeClauses, params: wordParams } = buildSearchQueryClauses('c.name', query);
+      const { sql: progLikeClauses, params: progParams } = buildSearchQueryClauses('p.title', query);
       const nowIso = new Date().toISOString();
 
       const channelMatches = await dbInstance.select(
@@ -243,7 +243,7 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
 
       const programMatches = await dbInstance.select(
         `SELECT DISTINCT c.* FROM channels c INNER JOIN programs p ON p.stream_id = c.stream_id CROSS JOIN json_each(c.category_ids) AS cat WHERE (${progLikeClauses}) AND p.end > ? AND c.source_id IN (${sourcePlaceholders}) AND (c.enabled IS NULL OR c.enabled != 0) AND cat.value IN (${categoryPlaceholders}) LIMIT 15`,
-        [...wordParams, nowIso, ...enabledSources, ...enabledCategoryIds]
+        [...progParams, nowIso, ...enabledSources, ...enabledCategoryIds]
       );
 
       const mergedMap = new Map<string, StoredChannel>();

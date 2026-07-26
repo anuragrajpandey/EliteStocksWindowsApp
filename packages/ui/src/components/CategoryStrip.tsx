@@ -7,6 +7,7 @@ import { PlaylistEditorModal } from './PlaylistEditorModal';
 import type { Source } from '@ynotv/core';
 import { useSourceVersion } from '../contexts/SourceVersionContext';
 import { normalizeBoolean } from '../utils/db-helpers';
+import { matchesSearch } from '../utils/searchNormalization';
 import { useModal } from './Modal';
 import { createCustomGroup, deleteCustomGroup } from '../services/custom-groups';
 import { CustomGroupManager } from './CustomGroupManager';
@@ -402,12 +403,10 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
     if (!searchQuery.trim()) {
       return groupedCategories;
     }
-    const query = searchQuery.toLowerCase();
-    
     return groupedCategories.map(group => {
-      // Find categories that match the search query (case insensitive)
+      // Find categories that match the search query with multi-language/Cyrillic support
       const filteredCategories = group.categories.filter(cat => 
-        (cat.alias || cat.category_name).toLowerCase().includes(query)
+        matchesSearch(cat.alias || cat.category_name, searchQuery)
       );
       
       return {

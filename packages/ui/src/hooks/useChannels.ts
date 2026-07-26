@@ -10,6 +10,7 @@ import { useCategorySortOrder } from '../stores/uiStore';
 import { useAppSettings } from './useAppSettings';
 import { getCachedSettings } from '../services/settings-cache';
 import type { Source } from '@ynotv/core';
+import { buildSearchQueryClauses, getSearchVariants } from '../utils/searchNormalization';
 
 // Hook to get enabled source IDs (for filtering data from disabled sources)
 // Returns null during loading to avoid hiding all data
@@ -1007,10 +1008,8 @@ export function useChannelSearch(
         }
       }
 
-      // Split query into individual words for AND matching
-      const queryWords = query.trim().toLowerCase().split(/\s+/).filter(w => w.length > 0);
-      const wordLikeClauses = queryWords.map(() => `c.name LIKE ?`).join(' AND ');
-      const wordLikeParams = queryWords.map(w => `%${w}%`);
+      // Split query into individual words with Cyrillic/multi-language variants for AND matching
+      const { sql: wordLikeClauses, params: wordLikeParams } = buildSearchQueryClauses('c.name', query);
 
       let catMatchSql = '';
       let catMatchParams: any[] = [];
@@ -1408,10 +1407,20 @@ export function useProgramSearch(
         ${sourceMatchSql ? 'AND' : 'WHERE'} (c.enabled IS NULL OR c.enabled NOT IN (0, '0', 'false'))
       `;
 
-      // Split query into individual words for AND matching across all words
-      const queryWords = query.trim().toLowerCase().split(/\s+/).filter(w => w.length > 0);
-      const wordLikeClauses = queryWords.map(() => `(p.title LIKE ? OR p.subtitle LIKE ?)`).join(' AND ');
-      const wordLikeParams = queryWords.flatMap(w => [`%${w}%`, `%${w}%`]);
+      // Split query into individual words with Cyrillic/multi-language variants for AND matching across all words
+      const queryWords = query.trim().split(/\s+/).filter(w => w.length > 0);
+      const wordSqlParts: string[] = [];
+      const wordLikeParams: string[] = [];
+      for (const word of queryWords) {
+        const variants = getSearchVariants(word);
+        const fieldClauses: string[] = [];
+        for (const v of variants) {
+          fieldClauses.push(`p.title LIKE ?`, `p.subtitle LIKE ?`);
+          wordLikeParams.push(`%${v}%`, `%${v}%`);
+        }
+        wordSqlParts.push(`(${fieldClauses.join(' OR ')})`);
+      }
+      const wordLikeClauses = wordSqlParts.join(' AND ');
 
       const nowIso = new Date().toISOString();
       const orderByClause = order === 'alphabetical' 

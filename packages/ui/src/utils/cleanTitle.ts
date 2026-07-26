@@ -8,10 +8,9 @@ export function cleanTitleForSearch(title: string | undefined | null): string {
 
   let cleaned = title.trim();
 
-  // Strip leading language-code prefixes
-  // Examples: "EN - Title", "AR/BG - Title", "EXYU - Title",
-  //           "EN/FR/DE - Title", "AR/BG/BR/CN/DE/ES/EXYU/FR - Title"
-  cleaned = cleaned.replace(/^([A-Z]{2,4}\/)*[A-Z]{2,4}\s*[-–—]\s*/i, '');
+  // Strip leading language-code prefixes (Latin & Cyrillic)
+  // Examples: "EN - Title", "AR/BG - Title", "EXYU - Title", "РУС - Title", "UA - Title"
+  cleaned = cleaned.replace(/^([A-Za-z\u0400-\u04FF]{2,4}\/)*[A-Za-z\u0400-\u04FF]{2,4}\s*[-–—]\s*/i, '');
 
   // Strip trailing year patterns:
   // "Movie Name - 2023", "Movie Name (2023)", "Movie Name [2023]",

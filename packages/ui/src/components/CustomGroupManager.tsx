@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { db, type StoredChannel, type StoredCategory } from '../db';
+import { buildSearchQueryClauses } from '../utils/searchNormalization';
 import { addChannelsToGroup, removeChannelsFromGroup, reorderGroupChannels, renameCustomGroup } from '../services/custom-groups';
 import './CustomGroupManager.css';
 
@@ -67,18 +68,17 @@ function SearchResults({ query, groupChannelIds, onAdd, onRemove, enabledSourceI
                 }
 
                 // Use case-insensitive search by lowercasing both sides
-                // Also filter by enabled sources to avoid searching disabled source channels
-                const searchTerm = query.toLowerCase();
+                const { sql: wordClauses, params: wordParams } = buildSearchQueryClauses('name', query);
                 let all: StoredChannel[];
                 if (enabledSourceIds && enabledSourceIds.size > 0) {
                     const sourceList = Array.from(enabledSourceIds);
                     const placeholders = sourceList.map(() => '?').join(',');
                     all = await db.channels.whereRaw(
-                        `LOWER(name) LIKE ? AND source_id IN (${placeholders})`,
-                        [`%${searchTerm}%`, ...sourceList]
+                        `(${wordClauses}) AND source_id IN (${placeholders})`,
+                        [...wordParams, ...sourceList]
                     ).limit(maxSearchResults).toArray();
                 } else {
-                    all = await db.channels.whereRaw('LOWER(name) LIKE ?', [`%${searchTerm}%`]).limit(maxSearchResults).toArray();
+                    all = await db.channels.whereRaw(wordClauses, wordParams).limit(maxSearchResults).toArray();
                 }
                 console.log('[CustomGroupManager] Raw results:', all.length, 'for query:', query);
 

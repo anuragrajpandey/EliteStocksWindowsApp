@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import './TVCalendarPage.css';
 import { ShowDetailsModal } from './ShowDetailsModal';
+import { matchesSearch } from '../utils/searchNormalization';
 import { TVCalendarTab } from './settings/TVCalendarTab';
 import { db, addTvEpisodeToWatchlist, clearAutoAddedEpisodesForShow, type StoredChannel, type AutoAddEpisode } from '../db';
 
@@ -680,10 +681,9 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
   // Filtered shows for My Shows tab
   const filteredShows = useMemo(() => {
     if (!showSearchQuery.trim()) return shows;
-    const query = showSearchQuery.toLowerCase();
     return shows.filter(s =>
-      s.show_name.toLowerCase().includes(query) ||
-      (s.channel_name?.toLowerCase() || '').includes(query)
+      matchesSearch(s.show_name, showSearchQuery) ||
+      matchesSearch(s.channel_name, showSearchQuery)
     );
   }, [shows, showSearchQuery]);
 

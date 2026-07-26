@@ -8,6 +8,7 @@
 
 import { db } from '../db';
 import type { EpgChannelOverride, EpgProgramOverride, StoredEpgChannel } from '../db';
+import { getSearchVariants } from '../utils/searchNormalization';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -480,7 +481,29 @@ export async function searchEpgChannels(
 ): Promise<ScoredEpgChannel[]> {
   const dbInstance = await (db as any).dbPromise;
 
-  const likePattern = `%${query.replace(/[%_]/g, '\\$&')}%`;
+  const queryWords = query.trim().split(/\s+/).filter(Boolean);
+  const wordSqlPartsEpg: string[] = [];
+  const wordSqlPartsCh: string[] = [];
+  const epgParams: string[] = [];
+  const chParams: string[] = [];
+
+  for (const word of queryWords) {
+    const variants = getSearchVariants(word);
+    const epgClauses: string[] = [];
+    const chClauses: string[] = [];
+    for (const v of variants) {
+      const escaped = v.replace(/[%_]/g, '\\$&');
+      epgClauses.push(`display_name LIKE ? ESCAPE '\\'`, `id LIKE ? ESCAPE '\\'`);
+      epgParams.push(`%${escaped}%`, `%${escaped}%`);
+      chClauses.push(`name LIKE ? ESCAPE '\\'`, `epg_channel_id LIKE ? ESCAPE '\\'`);
+      chParams.push(`%${escaped}%`, `%${escaped}%`);
+    }
+    wordSqlPartsEpg.push(`(${epgClauses.join(' OR ')})`);
+    wordSqlPartsCh.push(`(${chClauses.join(' OR ')})`);
+  }
+
+  const epgWhere = wordSqlPartsEpg.join(' AND ');
+  const chWhere = wordSqlPartsCh.join(' AND ');
 
   let rows: { id: string; display_name: string; icon_url: string | null; source_id: string }[];
 
@@ -492,12 +515,13 @@ export async function searchEpgChannels(
         icon_url,
         source_id
       FROM epg_channels
-      WHERE (LOWER(display_name) LIKE LOWER($1) ESCAPE '\\' OR LOWER(id) LIKE LOWER($1) ESCAPE '\\')
-        ${sourceId ? 'AND source_id = $2' : ''}
+      WHERE (${epgWhere})
+        ${sourceId ? 'AND source_id = ?' : ''}
       ORDER BY display_name COLLATE NOCASE
       LIMIT 300
     `;
-    rows = await dbInstance.select(sql, sourceId ? [likePattern, sourceId] : [likePattern]);
+    const finalParams = sourceId ? [...epgParams, sourceId] : epgParams;
+    rows = await dbInstance.select(sql, finalParams);
   } else {
     const sql = `
       SELECT
@@ -506,13 +530,14 @@ export async function searchEpgChannels(
         stream_icon                      AS icon_url,
         source_id
       FROM channels
-      WHERE (LOWER(name) LIKE LOWER($1) ESCAPE '\\' OR LOWER(epg_channel_id) LIKE LOWER($1) ESCAPE '\\')
-        ${sourceId ? 'AND source_id = $2' : ''}
+      WHERE (${chWhere})
+        ${sourceId ? 'AND source_id = ?' : ''}
       GROUP BY COALESCE(epg_channel_id, name), source_id
       ORDER BY name COLLATE NOCASE
       LIMIT 300
     `;
-    rows = await dbInstance.select(sql, sourceId ? [likePattern, sourceId] : [likePattern]);
+    const finalParams = sourceId ? [...chParams, sourceId] : chParams;
+    rows = await dbInstance.select(sql, finalParams);
   }
 
   // Load additional results from local cache databases if searchMode === 'epg'
@@ -537,10 +562,10 @@ export async function searchEpgChannels(
           const sql = `
             SELECT id, display_name, icon_url
             FROM epg_channels
-            WHERE (LOWER(display_name) LIKE LOWER($1) ESCAPE '\\' OR LOWER(id) LIKE LOWER($1) ESCAPE '\\')
+            WHERE (${epgWhere})
             LIMIT 100
           `;
-          const cacheRows = await cacheDb.select(sql, [likePattern]) as any[];
+          const cacheRows = await cacheDb.select(sql, epgParams) as any[];
           for (const r of cacheRows) {
             extraResults.push({
               id: r.id,

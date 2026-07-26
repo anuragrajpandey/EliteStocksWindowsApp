@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../hooks/useSqliteLiveQuery';
 import { db, type PlaylistCategoryLink, type PlaylistIndividualChannel, type StoredChannel, type StoredCategory } from '../db';
+import { buildSearchQueryClauses } from '../utils/searchNormalization';
 import {
   addCategoryToPlaylist,
   removeCategoryFromPlaylist,
@@ -930,9 +931,10 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
     }
     setSearchLoading(true);
     const tid = setTimeout(async () => {
+      const { sql: wordClauses, params: wordParams } = buildSearchQueryClauses('name', searchQuery);
       const results = showHidden
-        ? await db.channels.whereRaw(`LOWER(name) LIKE ?`, [`%${searchQuery.toLowerCase()}%`]).toArray()
-        : await db.channels.whereRaw(`LOWER(name) LIKE ? AND (enabled IS NULL OR enabled NOT IN (0, '0', 'false'))`, [`%${searchQuery.toLowerCase()}%`]).toArray();
+        ? await db.channels.whereRaw(`(${wordClauses})`, wordParams).toArray()
+        : await db.channels.whereRaw(`(${wordClauses}) AND (enabled IS NULL OR enabled NOT IN (0, '0', 'false'))`, wordParams).toArray();
       
       const activeSourceIds = new Set(sources.filter(s => !s.isCustomPlaylist).map(s => s.id));
       const filtered = results.filter(ch => activeSourceIds.has(ch.source_id));

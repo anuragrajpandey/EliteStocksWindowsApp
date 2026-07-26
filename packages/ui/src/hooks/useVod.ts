@@ -6,6 +6,7 @@ import { syncSeriesEpisodes, syncAllVod, type VodSyncResult } from '../db/sync';
 import type { Source } from '@ynotv/core';
 import { useEnabledSources } from './useChannels';
 import { getTmdbImageUrl, TMDB_POSTER_SIZES } from '../services/tmdb';
+import { getSearchVariants } from '../utils/searchNormalization';
 
 // ===========================================================================
 // Movies Hooks
@@ -68,13 +69,20 @@ export function useMovies(categoryId?: string | null, search?: string, limit = 2
       params.push(...enabledCatIds);
 
       if (search) {
-        const searchTerms = search.toLowerCase().split(/\s+/).filter(Boolean);
-        const searchClauses = searchTerms.map(() => `(name LIKE ? OR title LIKE ?)`).join(' AND ');
+        const searchWords = search.trim().split(/\s+/).filter(Boolean);
+        const wordSqlParts: string[] = [];
+        for (const word of searchWords) {
+          const variants = getSearchVariants(word);
+          const fieldClauses: string[] = [];
+          for (const v of variants) {
+            fieldClauses.push(`name LIKE ?`, `title LIKE ?`);
+            params.push(`%${v}%`, `%${v}%`);
+          }
+          wordSqlParts.push(`(${fieldClauses.join(' OR ')})`);
+        }
+        const searchClauses = wordSqlParts.join(' AND ');
         if (searchClauses) {
           queryStr += ` AND (${searchClauses})`;
-          searchTerms.forEach(term => {
-            params.push(`%${term}%`, `%${term}%`);
-          });
         }
       }
 
@@ -196,13 +204,20 @@ export function useSeries(categoryId?: string | null, search?: string, limit = 2
       params.push(...enabledCatIds);
 
       if (search) {
-        const searchTerms = search.toLowerCase().split(/\s+/).filter(Boolean);
-        const searchClauses = searchTerms.map(() => `(name LIKE ? OR title LIKE ?)`).join(' AND ');
+        const searchWords = search.trim().split(/\s+/).filter(Boolean);
+        const wordSqlParts: string[] = [];
+        for (const word of searchWords) {
+          const variants = getSearchVariants(word);
+          const fieldClauses: string[] = [];
+          for (const v of variants) {
+            fieldClauses.push(`name LIKE ?`, `title LIKE ?`);
+            params.push(`%${v}%`, `%${v}%`);
+          }
+          wordSqlParts.push(`(${fieldClauses.join(' OR ')})`);
+        }
+        const searchClauses = wordSqlParts.join(' AND ');
         if (searchClauses) {
           queryStr += ` AND (${searchClauses})`;
-          searchTerms.forEach(term => {
-            params.push(`%${term}%`, `%${term}%`);
-          });
         }
       }
 
@@ -602,13 +617,20 @@ export function useWindowedMovies(
         }
 
         if (search) {
-          const searchTerms = search.toLowerCase().split(/\s+/).filter(Boolean);
-          const searchClauses = searchTerms.map(() => `(name LIKE ? OR title LIKE ?)`).join(' AND ');
+          const searchWords = search.trim().split(/\s+/).filter(Boolean);
+          const wordSqlParts: string[] = [];
+          for (const word of searchWords) {
+            const variants = getSearchVariants(word);
+            const fieldClauses: string[] = [];
+            for (const v of variants) {
+              fieldClauses.push(`name LIKE ?`, `title LIKE ?`);
+              finalParams.push(`%${v}%`, `%${v}%`);
+            }
+            wordSqlParts.push(`(${fieldClauses.join(' OR ')})`);
+          }
+          const searchClauses = wordSqlParts.join(' AND ');
           if (searchClauses) {
             finalWhere += ` AND (${searchClauses})`;
-            searchTerms.forEach(term => {
-              finalParams.push(`%${term}%`, `%${term}%`);
-            });
           }
         }
 
@@ -757,13 +779,20 @@ export function useWindowedSeries(
         }
 
         if (search) {
-          const searchTerms = search.toLowerCase().split(/\s+/).filter(Boolean);
-          const searchClauses = searchTerms.map(() => `(name LIKE ? OR title LIKE ?)`).join(' AND ');
+          const searchWords = search.trim().split(/\s+/).filter(Boolean);
+          const wordSqlParts: string[] = [];
+          for (const word of searchWords) {
+            const variants = getSearchVariants(word);
+            const fieldClauses: string[] = [];
+            for (const v of variants) {
+              fieldClauses.push(`name LIKE ?`, `title LIKE ?`);
+              params.push(`%${v}%`, `%${v}%`);
+            }
+            wordSqlParts.push(`(${fieldClauses.join(' OR ')})`);
+          }
+          const searchClauses = wordSqlParts.join(' AND ');
           if (searchClauses) {
             whereClause += ` AND (${searchClauses})`;
-            searchTerms.forEach(term => {
-              params.push(`%${term}%`, `%${term}%`);
-            });
           }
         }
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { db, type StoredChannel, type StoredCategory } from '../db';
+import { buildSearchQueryClauses } from '../utils/searchNormalization';
 import {
     addChannelToFailoverGroup,
     removeChannelFromFailoverGroup,
@@ -68,17 +69,17 @@ function SearchResults({ query, groupChannelIds, onAdd, onRemove, enabledSourceI
                     );
                 }
 
-                const searchTerm = query.toLowerCase();
+                const { sql: wordClauses, params: wordParams } = buildSearchQueryClauses('name', query);
                 let all: StoredChannel[];
                 if (enabledSourceIds && enabledSourceIds.size > 0) {
                     const sourceList = Array.from(enabledSourceIds);
                     const placeholders = sourceList.map(() => '?').join(',');
                     all = await db.channels.whereRaw(
-                        `LOWER(name) LIKE ? AND source_id IN (${placeholders})`,
-                        [`%${searchTerm}%`, ...sourceList]
+                        `(${wordClauses}) AND source_id IN (${placeholders})`,
+                        [...wordParams, ...sourceList]
                     ).limit(maxSearchResults).toArray();
                 } else {
-                    all = await db.channels.whereRaw('LOWER(name) LIKE ?', [`%${searchTerm}%`]).limit(maxSearchResults).toArray();
+                    all = await db.channels.whereRaw(wordClauses, wordParams).limit(maxSearchResults).toArray();
                 }
 
                 const filtered = all.filter(c => {

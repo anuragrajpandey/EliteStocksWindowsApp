@@ -16,6 +16,7 @@ import { dbEvents } from '../db/sqlite-adapter';
 import { useModal } from './Modal';
 import { DvrTab } from './settings/DvrTab';
 import { useDownloadStore } from '../stores/downloadStore';
+import { matchesSearch } from '../utils/searchNormalization';
 import './DvrDashboard.css';
 
 const formatBytes = (bytes: number): string => {
@@ -1234,8 +1235,7 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
     const otherDownloads = downloads.filter((d) => d.status !== 'downloading' && d.status !== 'queued' && d.status !== 'paused' && d.status !== 'completed');
 
     const filteredDownloads = downloads.filter((item) =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.savePath.toLowerCase().includes(searchQuery.toLowerCase())
+        matchesSearch(item.title, searchQuery) || matchesSearch(item.savePath, searchQuery)
     );
 
     return (
