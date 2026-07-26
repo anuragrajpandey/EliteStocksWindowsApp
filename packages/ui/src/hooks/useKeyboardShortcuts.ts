@@ -117,45 +117,59 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                 onTransparentGuideZapFlash,
             } = latestRefs.current;
 
-            // Helper to match keys case-insensitively for letters
-            const matches = (action: ShortcutAction, eventKey: string): boolean => {
+            // Helper to match keys case-insensitively for letters, falling back to physical key code (e.code) for non-English layouts
+            const matches = (action: ShortcutAction): boolean => {
                 const storedKey = shortcuts[action] || DEFAULT_SHORTCUTS[action];
                 if (!storedKey) return false;
 
-                // Precise match first
-                if (eventKey === storedKey) return true;
+                const eventKey = e.key;
+                const eventCode = e.code;
 
-                // Case-insensitive match for single letters
-                if (eventKey.length === 1 && storedKey.length === 1) {
-                    return eventKey.toLowerCase() === storedKey.toLowerCase();
+                // 1. Direct character match (case-insensitive for single letters)
+                if (eventKey === storedKey) return true;
+                if (eventKey.length === 1 && storedKey.length === 1 && eventKey.toLowerCase() === storedKey.toLowerCase()) {
+                    return true;
+                }
+
+                // 2. Physical key position fallback (layout-independent for non-English OS keyboards)
+                if (storedKey.length === 1 && /^[a-zA-Z]$/.test(storedKey)) {
+                    if (eventCode === `Key${storedKey.toUpperCase()}`) return true;
+                } else if (storedKey.length === 1 && /^[0-9]$/.test(storedKey)) {
+                    if (eventCode === `Digit${storedKey}` || eventCode === `Numpad${storedKey}`) return true;
+                } else if (storedKey === '/') {
+                    if (eventCode === 'Slash' || eventCode === 'NumpadDivide') return true;
+                } else if (storedKey === ',') {
+                    if (eventCode === 'Comma') return true;
+                } else if (storedKey === ' ') {
+                    if (eventCode === 'Space') return true;
                 }
 
                 return false;
             };
 
-            if (matches('toggleShortcutsOverlay', e.key)) {
+            if (matches('toggleShortcutsOverlay')) {
                 e.preventDefault();
                 setShowShortcutsOverlay((show) => !show);
-            } else if (matches('togglePlay', e.key)) {
+            } else if (matches('togglePlay')) {
                 e.preventDefault();
                 handleTogglePlay();
-            } else if (matches('toggleMute', e.key)) {
+            } else if (matches('toggleMute')) {
                 handleToggleMute();
-            } else if (matches('toggleStats', e.key)) {
+            } else if (matches('toggleStats')) {
                 e.preventDefault();
                 handleToggleStats();
-            } else if (matches('toggleFullscreen', e.key)) {
+            } else if (matches('toggleFullscreen')) {
                 e.preventDefault();
                 handleToggleFullscreen();
-            } else if (matches('selectSubtitle', e.key)) {
+            } else if (matches('selectSubtitle')) {
                 e.preventDefault();
                 handleShowSubtitleModal();
-            } else if (matches('selectAudio', e.key)) {
+            } else if (matches('selectAudio')) {
                 e.preventDefault();
                 handleShowAudioModal();
-            } else if (matches('toggleGuide', e.key)) {
+            } else if (matches('toggleGuide')) {
                 setActiveView((v) => (v === 'guide' ? 'none' : 'guide'));
-            } else if (matches('toggleTransparentGuide', e.key)) {
+            } else if (matches('toggleTransparentGuide')) {
                 e.preventDefault();
                 setShowControls(true);
                 if (activeView === 'guide') {
@@ -170,9 +184,9 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                     setActiveView('guide');
                     setCategoriesOpen(!categoriesHiddenTransparent);
                 }
-            } else if (matches('toggleCategories', e.key)) {
+            } else if (matches('toggleCategories')) {
                 setCategoriesOpen((open) => !open);
-            } else if (matches('toggleLiveTV', e.key)) {
+            } else if (matches('toggleLiveTV')) {
                 e.preventDefault();
                 setShowControls(true);
                 if (activeView === 'guide') {
@@ -189,34 +203,34 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                     setActiveView('guide');
                     setCategoriesOpen(!categoriesHidden);
                 }
-            } else if (matches('toggleSettings', e.key)) {
+            } else if (matches('toggleSettings')) {
                 e.preventDefault();
                 // Toggle settings popup if in main layout, otherwise toggle full view
                 setShowSettingsPopup((show) => !show);
-            } else if (matches('toggleSports', e.key)) {
+            } else if (matches('toggleSports')) {
                 e.preventDefault();
                 setCategoriesOpen(false);
                 setActiveView((v) => (v === 'sports' ? 'none' : 'sports'));
-            } else if (matches('toggleDvr', e.key)) {
+            } else if (matches('toggleDvr')) {
                 e.preventDefault();
                 setCategoriesOpen(false);
                 setActiveView((v) => (v === 'dvr' ? 'none' : 'dvr'));
-            } else if (matches('toggleCalendar', e.key)) {
+            } else if (matches('toggleCalendar')) {
                 e.preventDefault();
                 setCategoriesOpen(false);
                 setActiveView((v) => (v === 'calendar' ? 'none' : 'calendar'));
-            } else if (matches('toggleNuvio', e.key)) {
+            } else if (matches('toggleNuvio')) {
                 e.preventDefault();
                 setCategoriesOpen(false);
                 setActiveView((v) => (v === 'nuvio' ? 'none' : 'nuvio'));
-            } else if (matches('toggleStrem', e.key)) {
+            } else if (matches('toggleStrem')) {
                 e.preventDefault();
                 setCategoriesOpen(false);
                 setActiveView((v) => (v === 'stremio' ? 'none' : 'stremio'));
-            } else if (matches('toggleEpgView', e.key)) {
+            } else if (matches('toggleEpgView')) {
                 e.preventDefault();
                 handleToggleEpgView();
-            } else if (matches('focusSearch', e.key)) {
+            } else if (matches('focusSearch')) {
                 e.preventDefault();
                 setShowControls(true);
                 if (activeView !== 'guide') {
@@ -226,7 +240,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                 if (titleBarSearchRef.current) {
                     titleBarSearchRef.current.focus();
                 }
-            } else if (matches('close', e.key)) {
+            } else if (matches('close')) {
                 e.preventDefault();
                 if (showShortcutsOverlay) {
                     setShowShortcutsOverlay(false);
@@ -249,25 +263,25 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                 }
                 setCategoriesOpen(false);
                 setShowControls(false);
-            } else if (matches('seekForward', e.key)) {
+            } else if (matches('seekForward')) {
                 e.preventDefault();
                 handleSeek(position + 10);
-            } else if (matches('seekBackward', e.key)) {
+            } else if (matches('seekBackward')) {
                 e.preventDefault();
                 handleSeek(position - 10);
-            } else if (matches('layoutMain', e.key)) {
+            } else if (matches('layoutMain')) {
                 e.preventDefault();
                 switchLayout?.('main');
-            } else if (matches('layoutPip', e.key)) {
+            } else if (matches('layoutPip')) {
                 e.preventDefault();
                 switchLayout?.('pip');
-            } else if (matches('layoutBigBottom', e.key)) {
+            } else if (matches('layoutBigBottom')) {
                 e.preventDefault();
                 switchLayout?.('bigbottom');
-            } else if (matches('layout2x2', e.key)) {
+            } else if (matches('layout2x2')) {
                 e.preventDefault();
                 switchLayout?.('2x2');
-            } else if (matches('channelUp', e.key)) {
+            } else if (matches('channelUp')) {
                 e.preventDefault();
                 if (currentChannels.length > 0 && currentChannel) {
                     const currentIndex = currentChannels.findIndex((ch) => ch.stream_id === currentChannel.stream_id);
@@ -286,7 +300,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                         onTransparentGuideZapFlash?.();
                     }
                 }
-            } else if (matches('channelDown', e.key)) {
+            } else if (matches('channelDown')) {
                 e.preventDefault();
                 if (currentChannels.length > 0 && currentChannel) {
                     const currentIndex = currentChannels.findIndex((ch) => ch.stream_id === currentChannel.stream_id);
@@ -305,7 +319,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                         onTransparentGuideZapFlash?.();
                     }
                 }
-            } else if (matches('replayLastStream', e.key)) {
+            } else if (matches('replayLastStream')) {
                 e.preventDefault();
                 if (lastPlayedChannel) {
                     handlePlayChannel(lastPlayedChannel);

@@ -192,11 +192,8 @@ export async function resolvePlayUrl(
             }
 
             if (xcUrl && xcUsername && xcPassword && streamId) {
-                // Re-calculate the maximum allowed duration (EPG start → now, capped)
-                const endMs = startTimeMs + durationMinutes * 60_000;
-                const actualDurationMinutes = Math.ceil(
-                    (Math.min(endMs, Date.now()) - startTimeMs) / 60_000,
-                );
+                // Use the requested program duration (plus any padding configured by caller)
+                const actualDurationMinutes = Math.max(1, Math.ceil(durationMinutes));
 
                 // Fetch server_info to calculate the precise timezone offset of the server
                 let offsetMs = 0;

@@ -2591,7 +2591,7 @@ function NuvioPageContent({
                     <h3 className="nuvio-row-title">Library</h3>
                   </div>
                   {library.length > 0 ? (
-                    <div className="nuvio-scroll-rail">
+                    <div className="nuvio-library-grid">
                       {library.map((item) => {
                         const previewItem = {
                           id: item.content_id,
