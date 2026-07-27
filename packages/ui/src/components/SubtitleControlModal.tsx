@@ -730,6 +730,38 @@ export function SubtitleControlModal({
   };
 
   /* -------------------------------------------------------------- */
+  /*  Load local subtitle file                                       */
+  /* -------------------------------------------------------------- */
+
+  const handleLoadLocalFile = async () => {
+    try {
+      setSearchError('');
+      const { open } = await import('@tauri-apps/plugin-dialog');
+      const selected = await open({
+        multiple: false,
+        directory: false,
+        title: 'Select Subtitle File',
+        filters: [
+          {
+            name: 'Subtitle Files (*.srt, *.vtt, *.sub, *.ass, *.ssa)',
+            extensions: ['srt', 'vtt', 'sub', 'ass', 'ssa', 'txt'],
+          },
+        ],
+      });
+
+      if (selected && typeof selected === 'string') {
+        console.log('[SubtitleModal] Selected local subtitle file:', selected);
+        await Bridge.addSubtitleFile(selected);
+        await loadTracks();
+        setViewState('tracks');
+      }
+    } catch (e: any) {
+      console.error('[SubtitleModal] Failed to load local subtitle file:', e);
+      setSearchError(e?.message || 'Failed to open local subtitle file');
+    }
+  };
+
+  /* -------------------------------------------------------------- */
   /*  Remove external subtitle                                        */
   /* -------------------------------------------------------------- */
 
@@ -856,11 +888,23 @@ export function SubtitleControlModal({
 
           {/* ── Column 2: Loaded Subtitles ── */}
           <div className="subtitle-col subtitle-col-tracks">
-            <div className="subtitle-col-title">Loaded Subtitles</div>
+            <div className="subtitle-col-title-bar">
+              <div className="subtitle-col-title">Loaded Subtitles</div>
+              <button
+                className="subtitle-load-file-btn"
+                onClick={handleLoadLocalFile}
+                title="Load external subtitle file from hard drive"
+              >
+                📂 Load File…
+              </button>
+            </div>
             {loading ? (
               <div className="subtitle-empty">Loading tracks…</div>
             ) : (
               <div className="subtitle-track-list">
+                <button className="subtitle-load-local-action-btn" onClick={handleLoadLocalFile}>
+                  <span>📂 Load Subtitle File from Disk…</span>
+                </button>
                 {searchLang === 'off' ? (
                   <button
                     className={`subtitle-track-btn ${selectedId === 0 ? 'active' : ''}`}

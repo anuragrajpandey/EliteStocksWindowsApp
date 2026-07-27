@@ -345,16 +345,119 @@ export async function downloadSubSourceSubtitle(
   return { success: true, content: srtText };
 }
 
+import pako from 'pako';
+
 /* ─── ZIP extraction ─── */
 export function getZipEntries(zipData: Uint8Array): ZipEntry[] {
   const decoder = new TextDecoder();
   const entries: ZipEntry[] = [];
-  let offset = 0;
 
   log('ZIP', `scanning ${zipData.length} bytes for entries`);
 
+  // 1. Try Central Directory parsing first
+  let eocdPos = -1;
+  const minScan = Math.max(0, zipData.length - 65557);
+  for (let i = zipData.length - 22; i >= minScan; i--) {
+    if (
+      zipData[i] === 0x50 &&
+      zipData[i + 1] === 0x4b &&
+      zipData[i + 2] === 0x05 &&
+      zipData[i + 3] === 0x06
+    ) {
+      eocdPos = i;
+      break;
+    }
+  }
+
+  if (eocdPos !== -1) {
+    const cdSize =
+      (zipData[eocdPos + 12] |
+      (zipData[eocdPos + 13] << 8) |
+      (zipData[eocdPos + 14] << 16) |
+      (zipData[eocdPos + 15] << 24)) >>> 0;
+    const cdOffset =
+      (zipData[eocdPos + 16] |
+      (zipData[eocdPos + 17] << 8) |
+      (zipData[eocdPos + 18] << 16) |
+      (zipData[eocdPos + 19] << 24)) >>> 0;
+
+    let offset = cdOffset;
+    const cdEnd = Math.min(zipData.length, cdOffset + cdSize);
+
+    log('ZIP', `EOCD found at ${eocdPos}, CD offset=${cdOffset}, size=${cdSize}`);
+
+    while (offset < cdEnd - 46) {
+      // Central directory file header signature: PK\x01\x02
+      if (
+        zipData[offset] !== 0x50 ||
+        zipData[offset + 1] !== 0x4b ||
+        zipData[offset + 2] !== 0x01 ||
+        zipData[offset + 3] !== 0x02
+      ) {
+        break;
+      }
+
+      const compressionMethod = zipData[offset + 10] | (zipData[offset + 11] << 8);
+      const compressedSize =
+        (zipData[offset + 20] |
+        (zipData[offset + 21] << 8) |
+        (zipData[offset + 22] << 16) |
+        (zipData[offset + 23] << 24)) >>> 0;
+      const uncompressedSize =
+        (zipData[offset + 24] |
+        (zipData[offset + 25] << 8) |
+        (zipData[offset + 26] << 16) |
+        (zipData[offset + 27] << 24)) >>> 0;
+      const fileNameLength = zipData[offset + 28] | (zipData[offset + 29] << 8);
+      const extraLength = zipData[offset + 30] | (zipData[offset + 31] << 8);
+      const commentLength = zipData[offset + 32] | (zipData[offset + 33] << 8);
+      const localHeaderOffset =
+        (zipData[offset + 42] |
+        (zipData[offset + 43] << 8) |
+        (zipData[offset + 44] << 16) |
+        (zipData[offset + 45] << 24)) >>> 0;
+
+      const fileNameStart = offset + 46;
+      const fileName = decoder.decode(zipData.slice(fileNameStart, fileNameStart + fileNameLength));
+
+      // Calculate dataStart from Local Header
+      let dataStart = localHeaderOffset + 30 + fileNameLength + extraLength;
+      if (
+        localHeaderOffset + 30 <= zipData.length &&
+        zipData[localHeaderOffset] === 0x50 &&
+        zipData[localHeaderOffset + 1] === 0x4b &&
+        zipData[localHeaderOffset + 2] === 0x03 &&
+        zipData[localHeaderOffset + 3] === 0x04
+      ) {
+        const localFileNameLen = zipData[localHeaderOffset + 26] | (zipData[localHeaderOffset + 27] << 8);
+        const localExtraLen = zipData[localHeaderOffset + 28] | (zipData[localHeaderOffset + 29] << 8);
+        dataStart = localHeaderOffset + 30 + localFileNameLen + localExtraLen;
+      }
+
+      const lowerName = fileName.toLowerCase();
+      if (lowerName.endsWith('.srt') || lowerName.endsWith('.vtt')) {
+        entries.push({
+          fileName,
+          compressionMethod,
+          compressedSize,
+          uncompressedSize,
+          dataStart,
+        });
+      }
+
+      offset = fileNameStart + fileNameLength + extraLength + commentLength;
+    }
+
+    if (entries.length > 0) {
+      log('ZIP', `found ${entries.length} entries via Central Directory`);
+      return entries;
+    }
+  }
+
+  // 2. Fallback to Local Header scanning
+  log('ZIP', 'Central Directory empty or not found, falling back to Local Header scan');
+  let offset = 0;
   while (offset < zipData.length - 30) {
-    // local file header signature: PK\x03\x04
     if (
       zipData[offset] !== 0x50 ||
       zipData[offset + 1] !== 0x4b ||
@@ -366,22 +469,40 @@ export function getZipEntries(zipData: Uint8Array): ZipEntry[] {
     }
 
     const compressionMethod = zipData[offset + 8] | (zipData[offset + 9] << 8);
-    const compressedSize =
-      zipData[offset + 18] |
+    let compressedSize =
+      (zipData[offset + 18] |
       (zipData[offset + 19] << 8) |
       (zipData[offset + 20] << 16) |
-      (zipData[offset + 21] << 24);
-    const uncompressedSize =
-      zipData[offset + 22] |
+      (zipData[offset + 21] << 24)) >>> 0;
+    let uncompressedSize =
+      (zipData[offset + 22] |
       (zipData[offset + 23] << 8) |
       (zipData[offset + 24] << 16) |
-      (zipData[offset + 25] << 24);
+      (zipData[offset + 25] << 24)) >>> 0;
     const fileNameLength = zipData[offset + 26] | (zipData[offset + 27] << 8);
     const extraLength = zipData[offset + 28] | (zipData[offset + 29] << 8);
 
     const fileNameStart = offset + 30;
     const fileName = decoder.decode(zipData.slice(fileNameStart, fileNameStart + fileNameLength));
     const dataStart = fileNameStart + fileNameLength + extraLength;
+
+    if (compressedSize === 0) {
+      let nextHeader = zipData.length;
+      for (let j = dataStart; j < zipData.length - 4; j++) {
+        if (
+          zipData[j] === 0x50 &&
+          zipData[j + 1] === 0x4b &&
+          (zipData[j + 2] === 0x03 || zipData[j + 2] === 0x01)
+        ) {
+          nextHeader = j;
+          break;
+        }
+      }
+      compressedSize = nextHeader - dataStart;
+      if (uncompressedSize === 0) {
+        uncompressedSize = compressedSize;
+      }
+    }
 
     const lowerName = fileName.toLowerCase();
     if (lowerName.endsWith('.srt') || lowerName.endsWith('.vtt')) {
@@ -394,7 +515,6 @@ export function getZipEntries(zipData: Uint8Array): ZipEntry[] {
       });
     }
 
-    // jump to next local file header
     offset = dataStart + compressedSize;
   }
 
@@ -405,23 +525,37 @@ export async function decompressZipEntry(zipData: Uint8Array, entry: ZipEntry): 
   const decoder = new TextDecoder();
   const { fileName, compressionMethod, compressedSize, uncompressedSize, dataStart } = entry;
 
-  log('ZIP', `extracting: "${fileName}" method=${compressionMethod} size=${compressedSize}`);
+  log('ZIP', `extracting: "${fileName}" method=${compressionMethod} compSize=${compressedSize} uncompSize=${uncompressedSize}`);
+
+  const sliceEnd = compressedSize > 0 ? dataStart + compressedSize : zipData.length;
+  const compressed = new Uint8Array(zipData.buffer, zipData.byteOffset + dataStart, Math.min(sliceEnd - dataStart, zipData.length - dataStart));
 
   if (compressionMethod === 0) {
     // Stored (no compression)
-    const text = decoder.decode(zipData.slice(dataStart, dataStart + uncompressedSize));
-    log('ZIP', 'extracted stored file');
+    const text = decoder.decode(compressed);
+    log('ZIP', `extracted stored file (${text.length} chars)`);
     return text;
   }
 
   if (compressionMethod === 8) {
-    // Deflated – try raw deflate via DecompressionStream
+    // Deflated – try pako.inflateRaw first
     try {
-      const compressed = zipData.slice(dataStart, dataStart + compressedSize);
-      log('ZIP', 'decompressing deflated entry…');
+      const decompressedBytes = pako.inflateRaw(compressed);
+      const text = decoder.decode(decompressedBytes);
+      if (text) {
+        log('ZIP', `extracted deflated file via pako.inflateRaw (${text.length} chars)`);
+        return text;
+      }
+    } catch (e: any) {
+      log('ZIP', 'pako.inflateRaw failed:', e?.message);
+    }
+
+    // Try standard DecompressionStream
+    try {
       const ds = new DecompressionStream('deflate-raw');
       const writer = ds.writable.getWriter();
-      writer.write(compressed);
+      const chunkToWrite = new Uint8Array(compressed.buffer.slice(compressed.byteOffset, compressed.byteOffset + compressed.byteLength));
+      writer.write(chunkToWrite as BufferSource);
       writer.close();
 
       const reader = ds.readable.getReader();
@@ -441,10 +575,24 @@ export async function decompressZipEntry(zipData: Uint8Array, entry: ZipEntry): 
       }
 
       const text = decoder.decode(result);
-      log('ZIP', 'extracted deflated file');
-      return text;
+      if (text) {
+        log('ZIP', `extracted deflated file via DecompressionStream (${text.length} chars)`);
+        return text;
+      }
     } catch (e: any) {
-      log('ZIP', 'deflate-raw failed:', e?.message);
+      log('ZIP', 'DecompressionStream failed:', e?.message);
+    }
+
+    // Try pako.inflate (zlib format)
+    try {
+      const decompressedBytes = pako.inflate(compressed);
+      const text = decoder.decode(decompressedBytes);
+      if (text) {
+        log('ZIP', `extracted deflated file via pako.inflate (${text.length} chars)`);
+        return text;
+      }
+    } catch (e: any) {
+      log('ZIP', 'pako.inflate failed:', e?.message);
     }
   }
 
