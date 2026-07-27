@@ -258,6 +258,7 @@ export function ProgramContextMenu({
         startPadding: number;
         endPadding: number;
         recurrence: string;
+        title?: string;
     }) {
         setShowOptionsModal(false);
         setScheduling(true);
@@ -269,7 +270,7 @@ export function ProgramContextMenu({
                 source_id: sourceId,
                 channel_id: channelId,
                 channel_name: channelName,
-                program_title: program.title,
+                program_title: options.title?.trim() || program.title,
                 scheduled_start: Math.floor(startTime.getTime() / 1000),
                 scheduled_end: Math.floor(endTime.getTime() / 1000),
                 start_padding_sec: options.startPadding,

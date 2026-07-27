@@ -2152,6 +2152,17 @@ export async function deleteRecording(recordingId: number): Promise<void> {
   dbEvents.notify('dvr_recordings', 'delete');
 }
 
+/** Rename a recording entry */
+export async function updateRecordingTitle(recordingId: number, programTitle: string): Promise<void> {
+  try {
+    await invoke('update_recording_title', { id: recordingId, programTitle });
+  } catch (err) {
+    console.warn('[DVR] Rust update_recording_title failed, fallback to local DB update:', err);
+  }
+  await db.dvrRecordings.update(recordingId, { program_title: programTitle });
+  dbEvents.notify('dvr_recordings', 'update');
+}
+
 /**
  * Update watch progress and optional duration for a DVR recording
  */

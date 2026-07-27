@@ -820,6 +820,19 @@ impl DvrDatabase {
         Ok(())
     }
 
+    /// Update recording program title
+    pub fn update_recording_title(&self, id: i64, program_title: &str) -> Result<()> {
+        let conn = self.get_conn()?;
+
+        conn.execute(
+            "UPDATE dvr_recordings SET program_title = ?1 WHERE id = ?2",
+            params![program_title, id],
+        )?;
+
+        info!("Updated title for recording {}: {}", id, program_title);
+        Ok(())
+    }
+
     /// Get recording by ID
     pub fn get_recording(&self, id: i64) -> Result<Option<Recording>> {
         let conn = self.get_conn()?;

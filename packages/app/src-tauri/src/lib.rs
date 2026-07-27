@@ -1825,6 +1825,19 @@ async fn save_dvr_setting(
     Ok(())
 }
 
+/// Update recording program title
+#[tauri::command]
+async fn update_recording_title(
+    state: tauri::State<'_, DvrState>,
+    id: i64,
+    program_title: String,
+) -> Result<(), String> {
+    state
+        .db
+        .update_recording_title(id, &program_title)
+        .map_err(|e| format!("Failed to update recording title: {}", e))
+}
+
 /// Manual convert recording
 #[tauri::command]
 async fn convert_recording(
@@ -4630,6 +4643,7 @@ pub fn run() {
             update_dvr_stream_url,
             get_dvr_settings,
             save_dvr_setting,
+            update_recording_title,
             convert_recording,
             open_file_location,
             open_log_folder,

@@ -13,6 +13,7 @@ interface DvrScheduleOptionsModalProps {
     startPadding: number;
     endPadding: number;
     recurrence: string;
+    title: string;
   }) => void;
   onCancel: () => void;
 }
@@ -31,6 +32,7 @@ export function DvrScheduleOptionsModal({
   const [endPadding, setEndPadding] = useState(defaultEndPadding);
   const [recurrence, setRecurrence] = useState('once');
   const [recurrenceDays, setRecurrenceDays] = useState(3);
+  const [title, setTitle] = useState(programTitle);
 
   useEffect(() => {
     if (isOpen) {
@@ -38,8 +40,9 @@ export function DvrScheduleOptionsModal({
       setEndPadding(defaultEndPadding);
       setRecurrence('once');
       setRecurrenceDays(3);
+      setTitle(programTitle);
     }
-  }, [isOpen, defaultStartPadding, defaultEndPadding]);
+  }, [isOpen, defaultStartPadding, defaultEndPadding, programTitle]);
 
   // Handle escape key
   useEffect(() => {
@@ -61,8 +64,9 @@ export function DvrScheduleOptionsModal({
       startPadding,
       endPadding,
       recurrence: finalRecurrence,
+      title: title.trim() || programTitle,
     });
-  }, [onConfirm, startPadding, endPadding, recurrence, recurrenceDays]);
+  }, [onConfirm, startPadding, endPadding, recurrence, recurrenceDays, title, programTitle]);
 
   if (!isOpen) return null;
 
@@ -85,6 +89,18 @@ export function DvrScheduleOptionsModal({
             <div className="dvr-options-program-title">{programTitle}</div>
             <div className="dvr-options-program-channel">{channelName}</div>
             <div className="dvr-options-program-time">{timeString}</div>
+          </div>
+
+          {/* Title Edit */}
+          <div className="dvr-options-form-group">
+            <label className="dvr-options-label">Recording Title</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="dvr-options-text-input"
+              placeholder="Recording Title"
+            />
           </div>
 
           {/* Recurrence Selection */}

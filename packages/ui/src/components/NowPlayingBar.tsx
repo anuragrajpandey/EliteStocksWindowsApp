@@ -152,6 +152,8 @@ export function NowPlayingBar({
   const [recording, setRecording] = useState(false);
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [recordDuration, setRecordDuration] = useState(5);
+  const [recordTitle, setRecordTitle] = useState('');
+  const [isStopAndRecord, setIsStopAndRecord] = useState(false);
   const canControl = mpvReady && channel !== null;
   const currentProgram = useCurrentProgram(channel?.stream_id ?? null);
   const { showSuccess, showError, showConfirmThree, showPrompt, ModalComponent } = useModal();
@@ -232,12 +234,16 @@ export function NowPlayingBar({
   const handleQuickRecord = useCallback(async () => {
     if (!channel) return;
 
+    const defaultTitle = currentProgram?.title || `Quick Record - ${channel.name}`;
+    setRecordTitle(defaultTitle);
+    setIsStopAndRecord(false);
+
     const now = Math.floor(Date.now() / 1000);
     const tempSchedule: Omit<DvrSchedule, 'id' | 'created_at' | 'status'> = {
       source_id: channel.source_id,
       channel_id: channel.stream_id,
       channel_name: channel.name,
-      program_title: `Quick Record - ${channel.name}`,
+      program_title: defaultTitle,
       scheduled_start: now,
       scheduled_end: now + (5 * 60),
       start_padding_sec: 0,
@@ -251,56 +257,14 @@ export function NowPlayingBar({
         'Scheduling Conflict',
         `This source has a 1 connection limit. Use Stop & Record to stop the playback and watch in DVR tab while recording.`,
         () => {
-          // Stop & Record - ask for duration, then stop and record
-          // Defer to let the current modal fully close first
-          setTimeout(() => {
-            showPrompt(
-              'Recording Duration',
-              'Enter recording duration in minutes:',
-              async (value) => {
-                const duration = Math.max(1, Math.min(180, parseInt(value) || 5));
-                setRecording(true);
-                try {
-                  onStop();
-                  const settings = await getDvrSettings();
-                  const startTime = Math.floor(Date.now() / 1000);
-                  const schedule: Omit<DvrSchedule, 'id' | 'created_at' | 'status'> = {
-                    source_id: channel!.source_id,
-                    channel_id: channel!.stream_id,
-                    channel_name: channel!.name,
-                    program_title: `Quick Record - ${channel!.name}`,
-                    scheduled_start: startTime,
-                    scheduled_end: startTime + (duration * 60),
-                    start_padding_sec: 0,
-                    end_padding_sec: 0, // Quick recording has 0 padding
-                    stream_url: undefined,
-                  };
-                  await scheduleRecording(schedule);
-                  onNavigateDvr?.();
-                  // Small delay to let DVR view render before showing success
-                  await new Promise(r => setTimeout(r, 100));
-                  showSuccess('Recording Scheduled', `Recording scheduled for ${duration} minutes`);
-                } catch (error: any) {
-                  showError('Recording Failed', error?.message || 'Failed to start recording');
-                } finally {
-                  setRecording(false);
-                }
-              },
-              undefined,
-              'Minutes (1-180)',
-              '5',
-              'Start Recording',
-              'Cancel'
-            );
-          }, 0);
+          setIsStopAndRecord(true);
+          setShowRecordModal(true);
+          setRecordDuration(5);
         },
         () => {
-          // Ignore - show duration modal, record without stopping
-          // Defer to let the current modal fully close first
-          setTimeout(() => {
-            setShowRecordModal(true);
-            setRecordDuration(5);
-          }, 0);
+          setIsStopAndRecord(false);
+          setShowRecordModal(true);
+          setRecordDuration(5);
         },
         undefined,
         'Stop & Record',
@@ -312,7 +276,7 @@ export function NowPlayingBar({
 
     setShowRecordModal(true);
     setRecordDuration(5);
-  }, [channel, onStop, showConfirmThree, showSuccess, showError, onNavigateDvr]);
+  }, [channel, currentProgram, showConfirmThree]);
 
   // Start recording with selected duration (no-conflict or Ignore flow)
   const handleStartRecording = useCallback(async () => {
@@ -321,15 +285,19 @@ export function NowPlayingBar({
     setShowRecordModal(false);
     setRecording(true);
     try {
-      const settings = await getDvrSettings();
+      if (isStopAndRecord) {
+        onStop();
+      }
       const now = Math.floor(Date.now() / 1000);
       const isStalker = channel.direct_url?.startsWith('stalker_');
+      const defaultTitle = currentProgram?.title || `Quick Record - ${channel.name}`;
+      const finalTitle = recordTitle.trim() || defaultTitle;
 
       const schedule: Omit<DvrSchedule, 'id' | 'created_at' | 'status'> = {
         source_id: channel.source_id,
         channel_id: channel.stream_id,
         channel_name: channel.name,
-        program_title: currentProgram?.title || `Quick Record - ${channel.name}`,
+        program_title: finalTitle,
         scheduled_start: now,
         scheduled_end: now + (recordDuration * 60),
         start_padding_sec: 0,
@@ -340,6 +308,10 @@ export function NowPlayingBar({
       };
 
       await scheduleRecording(schedule);
+      if (isStopAndRecord) {
+        onNavigateDvr?.();
+        await new Promise(r => setTimeout(r, 100));
+      }
       showSuccess(
         'Recording Scheduled',
         `Recording scheduled for ${recordDuration} minutes`
@@ -352,8 +324,9 @@ export function NowPlayingBar({
       );
     } finally {
       setRecording(false);
+      setIsStopAndRecord(false);
     }
-  }, [channel, currentProgram, recordDuration, showSuccess, showError]);
+  }, [channel, currentProgram, isStopAndRecord, onStop, recordDuration, recordTitle, showSuccess, showError, onNavigateDvr]);
 
   // Progress tracking for live TV - updates every second
   const [progress, setProgress] = useState(0);
@@ -1386,7 +1359,16 @@ export function NowPlayingBar({
               </div>
               <div className="npb-modal-body">
                 <p>Record <strong>{channel?.name}</strong></p>
-                {currentProgram?.title && <p>Program: {currentProgram.title}</p>}
+                <div className="npb-form-group">
+                  <label>Recording Title</label>
+                  <input
+                    type="text"
+                    value={recordTitle}
+                    onChange={(e) => setRecordTitle(e.target.value)}
+                    placeholder={currentProgram?.title || `Quick Record - ${channel?.name || ''}`}
+                    autoFocus
+                  />
+                </div>
                 <div className="npb-form-group">
                   <label>Duration (minutes)</label>
                   <input
@@ -1395,7 +1377,6 @@ export function NowPlayingBar({
                     max="180"
                     value={recordDuration}
                     onChange={(e) => setRecordDuration(Math.max(1, Math.min(180, parseInt(e.target.value) || 1)))}
-                    autoFocus
                   />
                 </div>
               </div>

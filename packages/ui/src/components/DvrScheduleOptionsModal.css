@@ -108,7 +108,8 @@
 }
 
 .dvr-options-select,
-.dvr-options-number-input {
+.dvr-options-number-input,
+.dvr-options-text-input {
   width: 100%;
   padding: 10px 12px;
   background: rgba(255, 255, 255, 0.05);
@@ -125,7 +126,8 @@
 }
 
 .dvr-options-select:focus,
-.dvr-options-number-input:focus {
+.dvr-options-number-input:focus,
+.dvr-options-text-input:focus {
   outline: none;
   border-color: var(--primary-color, #00d4ff);
   background: rgba(255, 255, 255, 0.08);

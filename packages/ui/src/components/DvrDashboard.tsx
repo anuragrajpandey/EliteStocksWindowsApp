@@ -7,6 +7,7 @@ import {
     getActiveRecordings,
     cancelRecording,
     deleteRecording,
+    updateRecordingTitle,
     updateScheduleSettings,
     type DvrSchedule,
     type DvrRecording,
@@ -74,7 +75,7 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
     const [savingEdit, setSavingEdit] = useState(false);
 
     // Modal hook
-    const { showConfirm, showError, showSuccess, ModalComponent } = useModal();
+    const { showConfirm, showError, showSuccess, showPrompt, ModalComponent } = useModal();
 
     async function loadData(showLoading = true) {
         if (showLoading) setLoading(true);
@@ -258,6 +259,29 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
         );
     }
 
+    function handleRename(id: number, currentTitle: string) {
+        showPrompt(
+            'Rename Recording',
+            'Enter a new title for this recording:',
+            async (newTitle) => {
+                const trimmed = newTitle.trim();
+                if (!trimmed || trimmed === currentTitle) return;
+                try {
+                    await updateRecordingTitle(id, trimmed);
+                    await loadData(false);
+                } catch (error) {
+                    console.error('Failed to rename recording:', error);
+                    showError('Error', 'Failed to rename recording');
+                }
+            },
+            undefined,
+            'Recording Title',
+            currentTitle,
+            'Save',
+            'Cancel'
+        );
+    }
+
     function formatDateTime(timestamp: number): string {
         return new Date(timestamp * 1000).toLocaleString([], {
             month: 'short',
@@ -402,6 +426,7 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
                             recorded={recorded}
                             onPlay={onPlay}
                             onDelete={handleDelete}
+                            onRename={handleRename}
                             formatDateTime={formatDateTime}
                         />
                     ) : activeTab === 'downloads' ? (
@@ -603,10 +628,11 @@ interface RecordedTabProps {
     recorded: DvrRecording[];
     onPlay?: (recording: DvrRecording) => void;
     onDelete: (id: number, filePath?: string) => void;
+    onRename: (id: number, currentTitle: string) => void;
     formatDateTime: (timestamp: number) => string;
 }
 
-function RecordedTab({ recorded, onPlay, onDelete, formatDateTime }: RecordedTabProps) {
+function RecordedTab({ recorded, onPlay, onDelete, onRename, formatDateTime }: RecordedTabProps) {
     // Store thumbnail URLs by recording ID
     const [thumbnails, setThumbnails] = useState<Record<number, string>>({});
     const [convertingIds, setConvertingIds] = useState<Record<number, boolean>>({});
@@ -816,6 +842,19 @@ function RecordedTab({ recorded, onPlay, onDelete, formatDateTime }: RecordedTab
                             </>
                         );
                     })()}
+                    <button
+                        className="dvr-media-rename"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onRename(item.id!, item.program_title);
+                        }}
+                        title="Rename Recording"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                    </button>
                     <button
                         className="dvr-media-delete"
                         onClick={() => onDelete(item.id!, item.file_path)}

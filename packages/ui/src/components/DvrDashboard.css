@@ -698,12 +698,36 @@
     transition: all 0.2s ease;
 }
 
-.dvr-media-card:hover .dvr-media-delete {
+.dvr-media-rename {
+    position: absolute;
+    top: 12px;
+    left: 50px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    border-radius: 8px;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s ease;
+}
+
+.dvr-media-card:hover .dvr-media-delete,
+.dvr-media-card:hover .dvr-media-rename {
     opacity: 1;
 }
 
 .dvr-media-delete:hover {
     background: rgba(231, 76, 60, 0.8);
+    color: #fff;
+}
+
+.dvr-media-rename:hover {
+    background: rgba(0, 212, 255, 0.8);
     color: #fff;
 }
 

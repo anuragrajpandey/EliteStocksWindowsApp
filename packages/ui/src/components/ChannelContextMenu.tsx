@@ -62,6 +62,8 @@ export function ChannelContextMenu({
     const [customHours, setCustomHours] = useState<string>('');
     const [customMinutes, setCustomMinutes] = useState<string>('');
     const [isCustomActive, setIsCustomActive] = useState(false);
+    const [quickTitle, setQuickTitle] = useState('');
+    const [customTitle, setCustomTitle] = useState('');
     const [scheduling, setScheduling] = useState(false);
     const [adjustedPosition, setAdjustedPosition] = useState(position);
     const [showEpgEditor, setShowEpgEditor] = useState(false);
@@ -364,7 +366,8 @@ export function ChannelContextMenu({
                 ? (parseInt(customHours) || 0) * 60 + (parseInt(customMinutes) || 0)
                 : durationMinutes;
             const endTimestamp = startTimestamp + (finalDuration * 60);
-            await createRecording(startTimestamp, endTimestamp, `${channel.name} - Quick Record`);
+            const titleToUse = quickTitle.trim() || `${channel.name} - Quick Record`;
+            await createRecording(startTimestamp, endTimestamp, titleToUse);
         } catch (error: any) {
             console.error('Failed to schedule recording:', error);
             setMenuHidden(true);
@@ -419,10 +422,11 @@ export function ChannelContextMenu({
             // Load default paddings from settings
             const settings = await getDvrSettings();
 
+            const titleToUse = customTitle.trim() || `${channel.name} - Scheduled`;
             await createRecording(
                 startTimestamp,
                 endTimestamp,
-                `${channel.name} - Scheduled`,
+                titleToUse,
                 finalRecurrence !== 'once' ? finalRecurrence : undefined,
                 settings.default_start_padding_sec,
                 settings.default_end_padding_sec
@@ -768,6 +772,18 @@ export function ChannelContextMenu({
                     Quick Record {channel.name}
                 </div>
                 <div className="context-menu-separator" />
+                <div className="custom-duration-section" style={{ paddingBottom: '4px' }}>
+                    <div className="custom-duration-label">Recording Title</div>
+                    <input
+                        type="text"
+                        value={quickTitle !== '' ? quickTitle : `${channel.name} - Quick Record`}
+                        onChange={(e) => setQuickTitle(e.target.value)}
+                        className="datetime-input"
+                        style={{ width: '100%', marginTop: '4px' }}
+                        placeholder={`${channel.name} - Quick Record`}
+                    />
+                </div>
+                <div className="context-menu-separator" />
                 <div className="duration-options">
                     {durationOptions.map((mins) => (
                         <button
@@ -842,6 +858,18 @@ export function ChannelContextMenu({
             >
                 <div className="context-menu-header">Schedule Recording</div>
                 <div className="context-menu-separator" />
+
+                <div className="datetime-section">
+                    <label className="datetime-label">Title</label>
+                    <input
+                        type="text"
+                        value={customTitle !== '' ? customTitle : `${channel.name} - Scheduled`}
+                        onChange={(e) => setCustomTitle(e.target.value)}
+                        className="datetime-input"
+                        style={{ width: '100%' }}
+                        placeholder={`${channel.name} - Scheduled`}
+                    />
+                </div>
 
                 <div className="datetime-section">
                     <label className="datetime-label">Start</label>
