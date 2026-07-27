@@ -17,6 +17,7 @@ export interface SubtitleSettings {
   subOutlineColor: string;
   subDelay: number;
   subVerticalOffset: number;
+  subAssOverride?: 'yes' | 'force' | 'scale' | 'no';
   audioDevice?: string;
 }
 
@@ -32,6 +33,7 @@ const DEFAULT_SETTINGS: SubtitleSettings = {
   subOutlineColor: '#000000',
   subDelay: 0,
   subVerticalOffset: 0,
+  subAssOverride: 'yes',
   audioDevice: 'auto',
 };
 
@@ -263,6 +265,23 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                     {merged.defaultSize}
                   </span>
                 </div>
+              </div>
+
+              {/* Override Embedded Styles */}
+              <div className="timeshift-toggle-row">
+                <div className="timeshift-toggle-info">
+                  <span className="timeshift-toggle-label">Override Embedded Styles</span>
+                  <span className="timeshift-toggle-sub">Apply player size & style controls to embedded ASS/SSA subtitles.</span>
+                </div>
+                <select
+                  value={merged.subAssOverride || 'yes'}
+                  onChange={(e) => update({ subAssOverride: e.target.value as any })}
+                >
+                  <option value="yes">Yes (Apply Player Styles & Resizing)</option>
+                  <option value="force">Force All (Including Placement)</option>
+                  <option value="scale">Scale Only</option>
+                  <option value="no">No (Keep Embedded Styles)</option>
+                </select>
               </div>
 
               {/* Subtitle Color */}

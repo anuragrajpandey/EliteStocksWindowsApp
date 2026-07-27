@@ -552,7 +552,24 @@ export const Bridge = {
     },
 
     async setSubtitleTrack(id: number) {
-        return invoke('mpv_set_subtitle', { id });
+        const res = await invoke('mpv_set_subtitle', { id });
+        if (id > 0) {
+            try {
+                if (window.storage) {
+                    const result = await window.storage.getSettings();
+                    const ss = result.data?.subtitleSettings;
+                    const size = ss?.defaultSize || 35;
+                    const override = ss?.subAssOverride || 'yes';
+                    const scale = Math.max(0.2, Math.min(3.0, size / 35));
+                    await invoke('mpv_set_property', { name: 'sub-font-size', value: size }).catch(() => {});
+                    await invoke('mpv_set_property', { name: 'sub-scale', value: scale }).catch(() => {});
+                    await invoke('mpv_set_property', { name: 'sub-ass-override', value: override === 'no' ? 'no' : 'force' }).catch(() => {});
+                    await invoke('mpv_set_property', { name: 'sub-use-media-style', value: override === 'no' }).catch(() => {});
+                    await invoke('mpv_set_property', { name: 'sub-ass-scale-with-window', value: true }).catch(() => {});
+                }
+            } catch (e) {}
+        }
+        return res;
     },
 
     async addSubtitleFile(filePath: string, flag?: string) {
@@ -568,7 +585,29 @@ export const Bridge = {
     },
 
     async setSubtitleSize(size: number) {
-        return invoke('mpv_set_property', { name: 'sub-font-size', value: size });
+        const scale = Math.max(0.2, Math.min(3.0, size / 35));
+        await invoke('mpv_set_property', { name: 'sub-font-size', value: size }).catch(() => {});
+        await invoke('mpv_set_property', { name: 'sub-scale', value: scale }).catch(() => {});
+        await invoke('mpv_set_property', { name: 'sub-ass-override', value: 'force' }).catch(() => {});
+        await invoke('mpv_set_property', { name: 'sub-use-media-style', value: false }).catch(() => {});
+        await invoke('mpv_set_property', { name: 'sub-ass-scale-with-window', value: true }).catch(() => {});
+        return;
+    },
+
+    async setSubtitleScale(scale: number) {
+        return invoke('mpv_set_property', { name: 'sub-scale', value: scale });
+    },
+
+    async setSubAssOverride(override: string) {
+        if (override === 'yes' || override === 'force') {
+            await invoke('mpv_set_property', { name: 'sub-ass-override', value: 'force' }).catch(() => {});
+            await invoke('mpv_set_property', { name: 'sub-use-media-style', value: false }).catch(() => {});
+        } else if (override === 'no') {
+            await invoke('mpv_set_property', { name: 'sub-ass-override', value: 'no' }).catch(() => {});
+            await invoke('mpv_set_property', { name: 'sub-use-media-style', value: true }).catch(() => {});
+        } else {
+            await invoke('mpv_set_property', { name: 'sub-ass-override', value: override }).catch(() => {});
+        }
     },
 
     async setSubtitleColor(color: string) {
@@ -1014,6 +1053,8 @@ export async function initPolyfills() {
         removeSubtitleFile: Bridge.removeSubtitleFile,
         setSubtitleDelay: Bridge.setSubtitleDelay,
         setSubtitleSize: Bridge.setSubtitleSize,
+        setSubtitleScale: Bridge.setSubtitleScale,
+        setSubAssOverride: Bridge.setSubAssOverride,
         setSubtitleColor: Bridge.setSubtitleColor,
         setSubtitleBackColor: Bridge.setSubtitleBackColor,
         setSubtitleBackOpacity: Bridge.setSubtitleBackOpacity,

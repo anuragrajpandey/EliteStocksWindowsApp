@@ -27,9 +27,15 @@ async function applySubtitleSettings() {
     const ss = result.data?.subtitleSettings;
     if (!ss) return;
 
-    if (ss.defaultSize) {
-      await Bridge.setSubtitleSize(ss.defaultSize).catch(() => {});
-    }
+    const size = ss.defaultSize || 35;
+    await Bridge.setSubtitleSize(size).catch(() => {});
+
+    const assOverride = ss.subAssOverride || 'yes';
+    const effectiveOverride = assOverride === 'no' ? 'no' : 'force';
+    await Bridge.setSubAssOverride(effectiveOverride).catch(() => {});
+    await Bridge.setProperty('sub-use-media-style', assOverride === 'no').catch(() => {});
+    await Bridge.setProperty('sub-ass-scale-with-window', true).catch(() => {});
+
     if (ss.subColor) {
       await Bridge.setSubtitleColor(ss.subColor).catch(() => {});
     }
@@ -2123,7 +2129,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
               const progressSeconds = episodeProgress.progress_seconds ?? 0;
               const progressPercent = (progressSeconds / totalDuration) * 100;
               console.log('[Playback] Episode progress calculation:', { progressSeconds, totalDuration, progressPercent });
-              if (progressPercent > 5 && progressPercent < 95) {
+              if ((progressSeconds >= 10 || progressPercent > 1) && progressPercent < 95) {
                 resumePosition = progressSeconds;
                 logInfo('[Playback] Resuming episode from:', resumePosition, 'seconds');
               } else {
@@ -2142,8 +2148,8 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
           console.log('[Playback] Series progress result:', savedProgress);
           if (savedProgress && savedProgress.total_duration > 0) {
             const progressPercent = (savedProgress.progress_seconds / savedProgress.total_duration) * 100;
-            // Only resume if between 5% and 95% watched
-            if (progressPercent > 5 && progressPercent < 95) {
+            // Only resume if between 10s/1% and 95% watched
+            if ((savedProgress.progress_seconds >= 10 || progressPercent > 1) && progressPercent < 95) {
               resumePosition = savedProgress.progress_seconds;
               logInfo('[Playback] Resuming VOD at:', resumePosition, 'seconds');
             }
@@ -2183,7 +2189,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
               const match = items.find(item => item.progress_key === progressKey || (item.content_id === info.seriesId && item.video_id === info.episodeId));
               if (match && match.duration > 0) {
                 const progressPercent = (match.position / match.duration) * 100;
-                if (progressPercent > 5 && progressPercent < 95) {
+                if ((match.position >= 10000 || progressPercent > 1) && progressPercent < 95) {
                   resumePosition = match.position / 1000; // convert to seconds
                   logInfo('[Playback] Found Nuvio synced progress fallback:', resumePosition, 'seconds');
                 }
@@ -2257,7 +2263,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
         const freshRecord = await db.dvrRecordings.get(recording.id);
         if (freshRecord && freshRecord.progress_seconds && freshRecord.duration_sec) {
           const progressPercent = (freshRecord.progress_seconds / freshRecord.duration_sec) * 100;
-          if (progressPercent > 5 && progressPercent < 95) {
+          if ((freshRecord.progress_seconds >= 10 || progressPercent > 1) && progressPercent < 95) {
             resumePosition = freshRecord.progress_seconds;
             logInfo(`[Playback] Resuming DVR recording at: ${resumePosition} seconds`);
           }
@@ -2272,7 +2278,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
           let shouldResume = true;
           if (match.durationSecs) {
             const progressPercent = (match.watchProgressSeconds / match.durationSecs) * 100;
-            shouldResume = progressPercent > 5 && progressPercent < 95;
+            shouldResume = (match.watchProgressSeconds >= 10 || progressPercent > 1) && progressPercent < 95;
           }
           if (shouldResume) {
             resumePosition = match.watchProgressSeconds;

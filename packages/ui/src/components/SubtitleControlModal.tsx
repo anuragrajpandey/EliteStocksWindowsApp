@@ -445,7 +445,17 @@ export function SubtitleControlModal({
 
   const handleSizeChange = useCallback(async (value: number) => {
     setSize(value);
-    try { await Bridge.setSubtitleSize(value); } catch (e) { console.error(e); }
+    try {
+      await Bridge.setSubtitleSize(value);
+      if (window.storage) {
+        const result = await window.storage.getSettings();
+        const settings: any = result.data || {};
+        const ss = settings.subtitleSettings || {};
+        await window.storage.updateSettings({
+          subtitleSettings: { ...ss, defaultSize: value },
+        });
+      }
+    } catch (e) { console.error(e); }
   }, []);
 
   const handleVerticalOffsetChange = useCallback(async (value: number) => {
