@@ -3,13 +3,25 @@ import type { SportsEvent, SportsTeam } from '@ynotv/core';
 import { 
   getTeamSchedule, 
   getTeamDetails, 
+  getTeamDepthChart,
+  getTeamInjuries,
+  getTeamLeaders,
+  getTeamNews,
   formatEventTime, 
   formatEventDate,
   type TeamDetails,
   type TeamAthlete,
+  type DepthChartGroup,
+  type DepthChartPosition,
+  type DepthChartAthlete,
+  type TeamInjury,
+  type TeamLeaderCategory,
+  type TeamLeader,
+  type TeamNewsArticle,
 } from '../../services/sports';
 import { useAddFavorite, useRemoveFavorite, useIsFavorite } from '../../stores/sportsFavoritesStore';
 import { GameDetail } from './GameDetail';
+import { AthleteDetailModal } from './AthleteDetailModal';
 
 interface TeamDetailProps {
   team: SportsTeam;
@@ -18,14 +30,19 @@ interface TeamDetailProps {
   onPlayChannel?: (channel: import('../../db').StoredChannel) => void;
 }
 
-type TabId = 'schedule' | 'roster';
+type TabId = 'schedule' | 'roster' | 'depth' | 'injuries' | 'leaders' | 'news';
 
 export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: TeamDetailProps) {
   const [details, setDetails] = useState<TeamDetails | null>(null);
   const [upcoming, setUpcoming] = useState<SportsEvent[]>([]);
   const [past, setPast] = useState<SportsEvent[]>([]);
+  const [depthChart, setDepthChart] = useState<DepthChartGroup[]>([]);
+  const [injuries, setInjuries] = useState<TeamInjury[]>([]);
+  const [leaders, setLeaders] = useState<TeamLeaderCategory[]>([]);
+  const [news, setNews] = useState<TeamNewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
+  const [selectedAthleteId, setSelectedAthleteId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('schedule');
 
   const isFavorite = useIsFavorite(team.id);
@@ -39,11 +56,19 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
     Promise.all([
       getTeamDetails(team.id, leagueId),
       getTeamSchedule(team.id, leagueId),
+      getTeamDepthChart(team.id, leagueId),
+      getTeamInjuries(team.id, leagueId),
+      getTeamLeaders(team.id, leagueId),
+      getTeamNews(team.id, leagueId),
     ])
-      .then(([detailsResult, scheduleResult]) => {
+      .then(([detailsResult, scheduleResult, depthRes, injRes, leadersRes, newsRes]) => {
         setDetails(detailsResult);
         setUpcoming(scheduleResult.upcoming);
         setPast(scheduleResult.past);
+        setDepthChart(depthRes);
+        setInjuries(injRes);
+        setLeaders(leadersRes);
+        setNews(newsRes);
       })
       .finally(() => setLoading(false));
   }, [team.id, team.leagueId]);
@@ -190,6 +215,38 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
             >
               Roster ({details?.athletes.length || 0})
             </button>
+            {depthChart.length > 0 && (
+              <button 
+                className={`team-tab ${activeTab === 'depth' ? 'active' : ''}`}
+                onClick={() => setActiveTab('depth')}
+              >
+                Depth Chart
+              </button>
+            )}
+            {injuries.length > 0 && (
+              <button 
+                className={`team-tab ${activeTab === 'injuries' ? 'active' : ''}`}
+                onClick={() => setActiveTab('injuries')}
+              >
+                Injuries ({injuries.length})
+              </button>
+            )}
+            {leaders.length > 0 && (
+              <button 
+                className={`team-tab ${activeTab === 'leaders' ? 'active' : ''}`}
+                onClick={() => setActiveTab('leaders')}
+              >
+                Leaders
+              </button>
+            )}
+            {news.length > 0 && (
+              <button 
+                className={`team-tab ${activeTab === 'news' ? 'active' : ''}`}
+                onClick={() => setActiveTab('news')}
+              >
+                News ({news.length})
+              </button>
+            )}
           </div>
 
           <div className="team-tab-content">
@@ -238,10 +295,46 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
             )}
 
             {activeTab === 'roster' && (
-              <TeamRoster athletes={details?.athletes || []} />
+              <TeamRoster
+                athletes={details?.athletes || []}
+                onAthleteClick={(id) => setSelectedAthleteId(id)}
+              />
+            )}
+
+            {activeTab === 'depth' && (
+              <TeamDepthChart
+                depthChart={depthChart}
+                onAthleteClick={(id) => setSelectedAthleteId(id)}
+              />
+            )}
+
+            {activeTab === 'injuries' && (
+              <TeamInjuries
+                injuries={injuries}
+                onAthleteClick={(id) => setSelectedAthleteId(id)}
+              />
+            )}
+
+            {activeTab === 'leaders' && (
+              <TeamLeaders
+                leaders={leaders}
+                onAthleteClick={(id) => setSelectedAthleteId(id)}
+              />
+            )}
+
+            {activeTab === 'news' && (
+              <TeamNews news={news} />
             )}
           </div>
         </>
+      )}
+
+      {selectedAthleteId && (
+        <AthleteDetailModal
+          athleteId={selectedAthleteId}
+          leagueId={team.leagueId || 'nfl'}
+          onClose={() => setSelectedAthleteId(null)}
+        />
       )}
     </div>
   );
@@ -325,9 +418,10 @@ function TeamEventCard({ event, teamId, onClick, onChannelClick }: TeamEventCard
 
 interface TeamRosterProps {
   athletes: TeamAthlete[];
+  onAthleteClick?: (athleteId: string) => void;
 }
 
-function TeamRoster({ athletes }: TeamRosterProps) {
+function TeamRoster({ athletes, onAthleteClick }: TeamRosterProps) {
   const [selectedPosition, setSelectedPosition] = useState<string>('all');
 
   const positions = [...new Set(athletes.map(a => a.position))].sort();
@@ -388,7 +482,11 @@ function TeamRoster({ athletes }: TeamRosterProps) {
           <h4 className="team-roster-group-title">{position}</h4>
           <div className="team-roster-list">
             {groupedByPosition[position].map(athlete => (
-              <div key={athlete.id} className="team-roster-player">
+              <div
+                key={athlete.id}
+                className="team-roster-player clickable"
+                onClick={() => onAthleteClick?.(athlete.id)}
+              >
                 {athlete.headshot && (
                   <img 
                     src={athlete.headshot} 
@@ -422,4 +520,176 @@ function TeamRoster({ athletes }: TeamRosterProps) {
   );
 }
 
+function TeamDepthChart({
+  depthChart,
+  onAthleteClick,
+}: {
+  depthChart: DepthChartGroup[];
+  onAthleteClick: (athleteId: string) => void;
+}) {
+  const [activeGroup, setActiveGroup] = useState<string>(depthChart[0]?.id || '');
+
+  const currentGroup = depthChart.find(g => g.id === activeGroup) || depthChart[0];
+
+  if (!currentGroup) return null;
+
+  return (
+    <div className="team-depth-chart">
+      {depthChart.length > 1 && (
+        <div className="team-depth-pills">
+          {depthChart.map(g => (
+            <button
+              key={g.id}
+              className={`sports-standings-pill ${currentGroup.id === g.id ? 'active' : ''}`}
+              onClick={() => setActiveGroup(g.id)}
+            >
+              {g.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="team-depth-grid">
+        {currentGroup.positions.map((pos: DepthChartPosition) => (
+          <div key={pos.name} className="team-depth-pos-card">
+            <div className="team-depth-pos-header">
+              <span className="team-depth-pos-title">{pos.displayName}</span>
+              <span className="team-depth-pos-abbrev">{pos.abbreviation}</span>
+            </div>
+            <div className="team-depth-players">
+              {pos.athletes.map((ath: DepthChartAthlete) => (
+                <button
+                  key={ath.id}
+                  className="team-depth-player-btn"
+                  onClick={() => onAthleteClick(ath.id)}
+                >
+                  <span className={`team-depth-rank ${ath.rank === 1 ? 'starter' : ''}`}>
+                    {ath.rank === 1 ? 'STARTER' : `#${ath.rank}`}
+                  </span>
+                  {ath.headshot && (
+                    <img src={ath.headshot} alt="" className="team-depth-avatar" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                  )}
+                  <span className="team-depth-player-name">{ath.name}</span>
+                  {ath.jersey && <span className="team-depth-player-jersey">#{ath.jersey}</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TeamInjuries({
+  injuries,
+  onAthleteClick,
+}: {
+  injuries: TeamInjury[];
+  onAthleteClick: (athleteId: string) => void;
+}) {
+  return (
+    <div className="team-injuries-list">
+      {injuries.map(inj => (
+        <div
+          key={inj.id}
+          className="team-injury-card clickable"
+          onClick={() => onAthleteClick(inj.athleteId)}
+        >
+          {inj.headshot && (
+            <img src={inj.headshot} alt="" className="team-injury-headshot" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+          )}
+          <div className="team-injury-info">
+            <div className="team-injury-header-line">
+              <span className="team-injury-name">{inj.athleteName}</span>
+              {inj.jersey && <span className="team-injury-jersey">#{inj.jersey}</span>}
+              {inj.position && <span className="team-injury-pos">{inj.position}</span>}
+              <span className={`team-injury-badge ${inj.status.toLowerCase().replace(/[^a-z]/g, '')}`}>
+                {inj.status}
+              </span>
+            </div>
+            {inj.location && (
+              <span className="team-injury-details">
+                Injury: {inj.location} {inj.type ? `(${inj.type})` : ''} {inj.returnDate ? `• Return Date: ${inj.returnDate}` : ''}
+              </span>
+            )}
+            {inj.comment && (
+              <p className="team-injury-comment">{inj.comment}</p>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TeamLeaders({
+  leaders,
+  onAthleteClick,
+}: {
+  leaders: TeamLeaderCategory[];
+  onAthleteClick: (athleteId: string) => void;
+}) {
+  return (
+    <div className="team-leaders-grid">
+      {leaders.map(cat => (
+        <div key={cat.name} className="team-leader-card">
+          <h4 className="team-leader-title">{cat.displayName}</h4>
+          <div className="team-leader-players">
+            {cat.leaders.slice(0, 3).map((l: TeamLeader, idx: number) => (
+              <button
+                key={l.athleteId + idx}
+                className="team-leader-player-row"
+                onClick={() => onAthleteClick(l.athleteId)}
+              >
+                <span className="team-leader-rank">#{idx + 1}</span>
+                {l.headshot && (
+                  <img src={l.headshot} alt="" className="team-leader-avatar" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                )}
+                <div className="team-leader-player-info">
+                  <span className="team-leader-name">{l.name}</span>
+                  {l.position && <span className="team-leader-pos">{l.position}</span>}
+                </div>
+                <span className="team-leader-val">{l.valueDisplay}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TeamNews({ news }: { news: TeamNewsArticle[] }) {
+  return (
+    <div className="team-news-grid">
+      {news.map(art => (
+        <a
+          key={art.id}
+          href={art.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="team-news-card"
+        >
+          {art.imageUrl && (
+            <img src={art.imageUrl} alt="" className="team-news-thumb" />
+          )}
+          <div className="team-news-content">
+            <h4 className="team-news-headline">{art.headline}</h4>
+            {art.description && (
+              <p className="team-news-desc">{art.description}</p>
+            )}
+            {art.published && (
+              <span className="team-news-date">
+                {new Date(art.published).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+              </span>
+            )}
+          </div>
+        </a>
+      ))}
+    </div>
+  );
+}
+
 export default TeamDetail;
+

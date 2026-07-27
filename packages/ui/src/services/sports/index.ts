@@ -66,6 +66,27 @@ export type {
   GolfRanking,
   TennisRanking,
   RacingStanding,
+
+  // Depth Chart types
+  DepthChartGroup,
+  DepthChartPosition,
+  DepthChartAthlete,
+
+  // Injury types
+  TeamInjury,
+
+  // Team Leader types
+  TeamLeaderCategory,
+  TeamLeader,
+
+  // Team News types
+  TeamNewsArticle,
+
+  // Athlete types
+  AthleteBio,
+  AthleteStatSplit,
+  AthleteGameLogRow,
+  AthleteGameLogData,
 } from './types';
 
 // Configuration
@@ -126,7 +147,18 @@ export {
   getLeagueStandings,
   getLeagueStandingsGrouped,
   getLeagueStandingsByDivision,
+  getTeamDepthChart,
+  getTeamInjuries,
+  getTeamLeaders,
+  getTeamNews,
 } from './teams';
+
+// Athletes API
+export {
+  getAthleteDetails,
+  getAthleteGameLog,
+  type AthleteProfileResponse,
+} from './athletes';
 
 // Games API
 export {

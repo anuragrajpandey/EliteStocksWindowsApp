@@ -14,6 +14,12 @@ import type {
   TeamAthlete,
   StandingTeam,
   StandingGroup,
+  DepthChartGroup,
+  DepthChartPosition,
+  TeamInjury,
+  TeamLeaderCategory,
+  TeamLeader,
+  TeamNewsArticle,
 } from './types';
 import { SPORT_CONFIG } from './config';
 import { 
@@ -306,26 +312,131 @@ const DIVISION_MAP: Record<string, Record<string, string>> = {
     '22': 'NFC West', '14': 'NFC West', '25': 'NFC West', '26': 'NFC West',
   },
   mlb: {
-    'BAL': 'AL East', 'BOS': 'AL East', 'NYY': 'AL East', 'TB': 'AL East', 'TOR': 'AL East',
-    'CWS': 'AL Central', 'CLE': 'AL Central', 'DET': 'AL Central', 'KC': 'AL Central', 'MIN': 'AL Central',
-    'HOU': 'AL West', 'LAA': 'AL West', 'OAK': 'AL West', 'ATH': 'AL West', 'SEA': 'AL West', 'TEX': 'AL West',
-    'ATL': 'NL East', 'MIA': 'NL East', 'NYM': 'NL East', 'PHI': 'NL East', 'WSH': 'NL East',
-    'CHC': 'NL Central', 'CIN': 'NL Central', 'MIL': 'NL Central', 'PIT': 'NL Central', 'STL': 'NL Central',
-    'ARI': 'NL West', 'COL': 'NL West', 'LAD': 'NL West', 'SD': 'NL West', 'SF': 'NL West',
+    // AL East
+    'BAL': 'AL East', '1': 'AL East',
+    'BOS': 'AL East', '2': 'AL East',
+    'NYY': 'AL East', '10': 'AL East',
+    'TB': 'AL East', '30': 'AL East',
+    'TOR': 'AL East', '14': 'AL East',
+
+    // AL Central
+    'CHW': 'AL Central', 'CWS': 'AL Central', '4': 'AL Central',
+    'CLE': 'AL Central', '5': 'AL Central',
+    'DET': 'AL Central', '6': 'AL Central',
+    'KC': 'AL Central', '7': 'AL Central',
+    'MIN': 'AL Central', '9': 'AL Central',
+
+    // AL West
+    'ATH': 'AL West', 'OAK': 'AL West', '11': 'AL West',
+    'HOU': 'AL West', '18': 'AL West',
+    'LAA': 'AL West', '3': 'AL West',
+    'SEA': 'AL West', '12': 'AL West',
+    'TEX': 'AL West', '13': 'AL West',
+
+    // NL East
+    'ATL': 'NL East', '15': 'NL East',
+    'MIA': 'NL East', '28': 'NL East',
+    'NYM': 'NL East', '21': 'NL East',
+    'PHI': 'NL East', '22': 'NL East',
+    'WSH': 'NL East', 'WAS': 'NL East', '20': 'NL East',
+
+    // NL Central
+    'CHC': 'NL Central', '16': 'NL Central',
+    'CIN': 'NL Central', '17': 'NL Central',
+    'MIL': 'NL Central', '8': 'NL Central',
+    'PIT': 'NL Central', '23': 'NL Central',
+    'STL': 'NL Central', '24': 'NL Central',
+
+    // NL West
+    'ARI': 'NL West', '29': 'NL West',
+    'COL': 'NL West', '27': 'NL West',
+    'LAD': 'NL West', '19': 'NL West',
+    'SD': 'NL West', '25': 'NL West',
+    'SF': 'NL West', '26': 'NL West',
   },
   nba: {
-    'BOS': 'Atlantic', 'BKN': 'Atlantic', 'NYK': 'Atlantic', 'PHI': 'Atlantic', 'TOR': 'Atlantic',
-    'CHI': 'Central', 'CLE': 'Central', 'DET': 'Central', 'IND': 'Central', 'MIL': 'Central',
-    'ATL': 'Southeast', 'CHA': 'Southeast', 'MIA': 'Southeast', 'ORL': 'Southeast', 'WAS': 'Southeast',
-    'DEN': 'Northwest', 'MIN': 'Northwest', 'OKC': 'Northwest', 'POR': 'Northwest', 'UTA': 'Northwest',
-    'GS': 'Pacific', 'LAC': 'Pacific', 'LAL': 'Pacific', 'PHX': 'Pacific', 'SAC': 'Pacific',
-    'DAL': 'Southwest', 'HOU': 'Southwest', 'MEM': 'Southwest', 'NOP': 'Southwest', 'SAS': 'Southwest',
+    // Atlantic
+    'BOS': 'Atlantic', '2': 'Atlantic',
+    'BKN': 'Atlantic', 'NJN': 'Atlantic', '17': 'Atlantic',
+    'NY': 'Atlantic', 'NYK': 'Atlantic', '18': 'Atlantic',
+    'PHI': 'Atlantic', '20': 'Atlantic',
+    'TOR': 'Atlantic', '28': 'Atlantic',
+
+    // Central
+    'CHI': 'Central', '4': 'Central',
+    'CLE': 'Central', '5': 'Central',
+    'DET': 'Central', '8': 'Central',
+    'IND': 'Central', '11': 'Central',
+    'MIL': 'Central', '15': 'Central',
+
+    // Southeast
+    'ATL': 'Southeast', '1': 'Southeast',
+    'CHA': 'Southeast', 'CHH': 'Southeast', '30': 'Southeast',
+    'MIA': 'Southeast', '14': 'Southeast',
+    'ORL': 'Southeast', '19': 'Southeast',
+    'WAS': 'Southeast', 'WSH': 'Southeast', '27': 'Southeast',
+
+    // Northwest
+    'DEN': 'Northwest', '7': 'Northwest',
+    'MIN': 'Northwest', '16': 'Northwest',
+    'OKC': 'Northwest', '25': 'Northwest',
+    'POR': 'Northwest', '22': 'Northwest',
+    'UTAH': 'Northwest', 'UTA': 'Northwest', '26': 'Northwest',
+
+    // Pacific
+    'GS': 'Pacific', 'GSW': 'Pacific', '9': 'Pacific',
+    'LAC': 'Pacific', '12': 'Pacific',
+    'LAL': 'Pacific', '13': 'Pacific',
+    'PHX': 'Pacific', 'PHO': 'Pacific', '21': 'Pacific',
+    'SAC': 'Pacific', '23': 'Pacific',
+
+    // Southwest
+    'DAL': 'Southwest', '6': 'Southwest',
+    'HOU': 'Southwest', '10': 'Southwest',
+    'MEM': 'Southwest', '29': 'Southwest',
+    'NO': 'Southwest', 'NOP': 'Southwest', '3': 'Southwest',
+    'SA': 'Southwest', 'SAS': 'Southwest', '24': 'Southwest',
   },
   nhl: {
-    'BOS': 'Atlantic', 'BUF': 'Atlantic', 'DET': 'Atlantic', 'FLA': 'Atlantic', 'MTL': 'Atlantic', 'OTT': 'Atlantic', 'TB': 'Atlantic', 'TOR': 'Atlantic',
-    'CAR': 'Metropolitan', 'CBJ': 'Metropolitan', 'NJ': 'Metropolitan', 'NYI': 'Metropolitan', 'NYR': 'Metropolitan', 'PHI': 'Metropolitan', 'PIT': 'Metropolitan', 'WSH': 'Metropolitan',
-    'CHI': 'Central', 'COL': 'Central', 'DAL': 'Central', 'MIN': 'Central', 'NSH': 'Central', 'STL': 'Central', 'UTA': 'Central', 'WPG': 'Central',
-    'ANA': 'Pacific', 'CGY': 'Pacific', 'EDM': 'Pacific', 'LA': 'Pacific', 'SJ': 'Pacific', 'SEA': 'Pacific', 'VGK': 'Pacific', 'VAN': 'Pacific',
+    // Atlantic
+    'BOS': 'Atlantic', '1': 'Atlantic',
+    'BUF': 'Atlantic', '2': 'Atlantic',
+    'DET': 'Atlantic', '5': 'Atlantic',
+    'FLA': 'Atlantic', '26': 'Atlantic',
+    'MTL': 'Atlantic', 'MON': 'Atlantic', '10': 'Atlantic',
+    'OTT': 'Atlantic', '14': 'Atlantic',
+    'TB': 'Atlantic', 'TBL': 'Atlantic', '20': 'Atlantic',
+    'TOR': 'Atlantic', '21': 'Atlantic',
+
+    // Metropolitan
+    'CAR': 'Metropolitan', '7': 'Metropolitan',
+    'CBJ': 'Metropolitan', '29': 'Metropolitan',
+    'NJ': 'Metropolitan', 'NJD': 'Metropolitan', '11': 'Metropolitan',
+    'NYI': 'Metropolitan', '12': 'Metropolitan',
+    'NYR': 'Metropolitan', '13': 'Metropolitan',
+    'PHI': 'Metropolitan', '15': 'Metropolitan',
+    'PIT': 'Metropolitan', '16': 'Metropolitan',
+    'WSH': 'Metropolitan', 'WAS': 'Metropolitan', '23': 'Metropolitan',
+
+    // Central
+    'CHI': 'Central', '4': 'Central',
+    'COL': 'Central', '17': 'Central',
+    'DAL': 'Central', '9': 'Central',
+    'MIN': 'Central', '30': 'Central',
+    'NSH': 'Central', '27': 'Central',
+    'STL': 'Central', '19': 'Central',
+    'UTA': 'Central', '129764': 'Central',
+    'WPG': 'Central', '28': 'Central',
+
+    // Pacific
+    'ANA': 'Pacific', '25': 'Pacific',
+    'CGY': 'Pacific', '3': 'Pacific',
+    'EDM': 'Pacific', '6': 'Pacific',
+    'LA': 'Pacific', 'LAK': 'Pacific', '8': 'Pacific',
+    'SJ': 'Pacific', 'SJS': 'Pacific', '18': 'Pacific',
+    'SEA': 'Pacific', '124292': 'Pacific',
+    'VGK': 'Pacific', 'VEG': 'Pacific', '37': 'Pacific',
+    'VAN': 'Pacific', '22': 'Pacific',
   }
 };
 
@@ -472,4 +583,343 @@ export function getLeagueStandingsByDivision(leagueId: string, conferenceGroups:
 
   return result;
 }
+
+function formatDepthGroupName(name: string): string {
+  const lower = name.toLowerCase();
+  if (lower.includes('special')) return 'Special Teams';
+  if (lower.includes('3wr') || lower.includes('offense') || lower.includes('personnel')) return 'Offense';
+  if (lower.includes('3-4') || lower.includes('4-3') || lower.includes('defense') || lower.includes(' d') || lower.endsWith(' d')) return 'Defense';
+  return name;
+}
+
+export async function getTeamDepthChart(teamId: string, leagueId: string): Promise<DepthChartGroup[]> {
+  const config = SPORT_CONFIG[leagueId] || SPORT_CONFIG['nfl'];
+  if (!config) return [];
+
+  try {
+    const data = await fetchJson<{
+      depthchart?: Array<{
+        id: string;
+        name: string;
+        positions?: Record<
+          string,
+          {
+            position?: { displayName?: string; name?: string; abbreviation?: string };
+            athletes?: Array<{
+              id: string;
+              displayName: string;
+              shortName?: string;
+              jersey?: string;
+              rank?: number;
+              headshot?: { href: string };
+            }>;
+          }
+        >;
+      }>;
+    }>(`https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.league}/teams/${teamId}/depthcharts`);
+
+    const results: DepthChartGroup[] = [];
+
+    for (const group of data?.depthchart || []) {
+      const positions: DepthChartPosition[] = [];
+      for (const [posKey, posObj] of Object.entries(group.positions || {})) {
+        const posName = posObj.position?.displayName || posObj.position?.name || posKey.toUpperCase();
+        const posAbbrev = posObj.position?.abbreviation || posKey.toUpperCase();
+        const athletes = (posObj.athletes || []).map((a, idx) => ({
+          id: a.id,
+          name: a.displayName,
+          shortName: a.shortName,
+          jersey: a.jersey,
+          rank: a.rank || idx + 1,
+          headshot: a.headshot?.href || `https://a.espncdn.com/i/headshots/${config.sport}/players/full/${a.id}.png`,
+          position: posAbbrev,
+        }));
+
+        positions.push({
+          name: posKey,
+          displayName: posName,
+          abbreviation: posAbbrev,
+          athletes,
+        });
+      }
+
+      if (positions.length > 0) {
+        results.push({
+          id: group.id,
+          name: formatDepthGroupName(group.name),
+          positions,
+        });
+      }
+    }
+
+    const groupOrder = ['Offense', 'Defense', 'Special Teams'];
+    results.sort((a, b) => {
+      const aIdx = groupOrder.indexOf(a.name);
+      const bIdx = groupOrder.indexOf(b.name);
+      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+      if (aIdx !== -1) return -1;
+      if (bIdx !== -1) return 1;
+      return a.name.localeCompare(b.name);
+    });
+
+    return results;
+  } catch (err) {
+    console.error('[ESPN API] Failed to fetch depth chart:', err);
+    return [];
+  }
+}
+
+export async function getTeamInjuries(teamId: string, leagueId: string): Promise<TeamInjury[]> {
+  const config = SPORT_CONFIG[leagueId] || SPORT_CONFIG['nfl'];
+  if (!config) return [];
+
+  try {
+    const data = await fetchJson<{
+      team?: {
+        athletes?: Array<{
+          id: string;
+          displayName: string;
+          jersey?: string;
+          position?: { abbreviation?: string; displayName?: string };
+          headshot?: { href: string };
+          injuries?: Array<{
+            id?: string;
+            status?: string;
+            date?: string;
+            longComment?: string;
+            shortComment?: string;
+            details?: {
+              type?: string;
+              location?: string;
+              side?: string;
+              returnDate?: string;
+            };
+          }>;
+        }>;
+      };
+    }>(`${buildTeamUrl(config.sport, config.league, teamId)}?enable=roster`);
+
+    const injuries: TeamInjury[] = [];
+
+    for (const a of data?.team?.athletes || []) {
+      if (a.injuries && a.injuries.length > 0) {
+        for (const inj of a.injuries) {
+          injuries.push({
+            id: inj.id || `${a.id}-inj`,
+            athleteId: a.id,
+            athleteName: a.displayName,
+            jersey: a.jersey,
+            position: a.position?.abbreviation || a.position?.displayName,
+            headshot: a.headshot?.href || `https://a.espncdn.com/i/headshots/${config.sport}/players/full/${a.id}.png`,
+            status: inj.status || 'Injured',
+            date: inj.date,
+            comment: inj.longComment || inj.shortComment,
+            shortComment: inj.shortComment,
+            returnDate: inj.details?.returnDate,
+            location: inj.details?.location,
+            type: inj.details?.type,
+          });
+        }
+      }
+    }
+
+    return injuries;
+  } catch (err) {
+    console.error('[ESPN API] Failed to fetch team injuries:', err);
+    return [];
+  }
+}
+
+export async function getTeamNews(teamId: string, leagueId: string): Promise<TeamNewsArticle[]> {
+  const config = SPORT_CONFIG[leagueId] || SPORT_CONFIG['nfl'];
+  if (!config) return [];
+
+  try {
+    const data = await fetchJson<{
+      articles?: Array<{
+        id: string;
+        headline: string;
+        description?: string;
+        published?: string;
+        images?: Array<{ url: string }>;
+        links?: { web?: { href: string } };
+      }>;
+    }>(`https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.league}/news?team=${teamId}`);
+
+    return (data?.articles || []).map(art => ({
+      id: art.id,
+      headline: art.headline,
+      description: art.description,
+      published: art.published,
+      imageUrl: art.images?.[0]?.url,
+      link: art.links?.web?.href,
+    }));
+  } catch (err) {
+    console.error('[ESPN API] Failed to fetch team news:', err);
+    return [];
+  }
+}
+
+export async function getTeamLeaders(teamId: string, leagueId: string): Promise<TeamLeaderCategory[]> {
+  const config = SPORT_CONFIG[leagueId] || SPORT_CONFIG['nfl'];
+  if (!config) return [];
+
+  try {
+    const currentYear = new Date().getFullYear();
+    const rosterUrl = `${buildTeamUrl(config.sport, config.league, teamId)}?enable=roster`;
+    let leadersUrl = `https://sports.core.api.espn.com/v2/sports/${config.sport}/leagues/${config.league}/seasons/${currentYear}/types/2/teams/${teamId}/leaders`;
+
+    let [rosterData, leadersData] = await Promise.all([
+      fetchJson<{
+        team?: {
+          athletes?: Array<{
+            id: string;
+            displayName?: string;
+            fullName?: string;
+            jersey?: string;
+            headshot?: { href?: string };
+            position?: { abbreviation?: string; displayName?: string };
+          }>;
+        };
+      }>(rosterUrl),
+
+      fetchJson<{
+        categories?: Array<{
+          name: string;
+          displayName: string;
+          shortDisplayName: string;
+          abbreviation?: string;
+          leaders?: Array<{
+            displayValue?: string;
+            value?: number;
+            athlete?: {
+              $ref?: string;
+              id?: string;
+              displayName?: string;
+              fullName?: string;
+              jersey?: string;
+              headshot?: { href?: string };
+              position?: { abbreviation?: string };
+            };
+          }>;
+        }>;
+      }>(leadersUrl),
+    ]);
+
+    if (!leadersData?.categories || leadersData.categories.length === 0) {
+      leadersUrl = `https://sports.core.api.espn.com/v2/sports/${config.sport}/leagues/${config.league}/seasons/${currentYear - 1}/types/2/teams/${teamId}/leaders`;
+      leadersData = await fetchJson(leadersUrl);
+    }
+
+    const athleteMap = new Map<string, {
+      name: string;
+      jersey?: string;
+      position?: string;
+      headshot?: string;
+    }>();
+
+    for (const ath of rosterData?.team?.athletes || []) {
+      athleteMap.set(ath.id, {
+        name: ath.displayName || ath.fullName || 'Athlete',
+        jersey: ath.jersey,
+        position: ath.position?.abbreviation || ath.position?.displayName,
+        headshot: ath.headshot?.href,
+      });
+    }
+
+    // Collect any leader athlete IDs that are not present in current roster payload
+    const missingIds = new Set<string>();
+    for (const cat of leadersData?.categories || []) {
+      for (const l of cat.leaders || []) {
+        let athId = l.athlete?.id;
+        const refStr = l.athlete?.$ref;
+        if (!athId && refStr) {
+          const match = refStr.match(/athletes\/(\d+)/);
+          if (match) athId = match[1];
+        }
+        if (athId && !athleteMap.has(athId)) {
+          missingIds.add(athId);
+        }
+      }
+    }
+
+    // Resolve missing athlete names in parallel
+    if (missingIds.size > 0) {
+      await Promise.all(
+        Array.from(missingIds).map(async (id) => {
+          try {
+            const bioRes = await fetchJson<{
+              athlete?: {
+                id: string;
+                displayName?: string;
+                fullName?: string;
+                jersey?: string;
+                headshot?: { href?: string };
+                position?: { abbreviation?: string; displayName?: string };
+              };
+            }>(`https://site.api.espn.com/apis/common/v3/sports/${config.sport}/${config.league}/athletes/${id}`);
+
+            if (bioRes?.athlete) {
+              const ath = bioRes.athlete;
+              athleteMap.set(id, {
+                name: ath.displayName || ath.fullName || 'Athlete',
+                jersey: ath.jersey,
+                position: ath.position?.abbreviation || ath.position?.displayName,
+                headshot: ath.headshot?.href || `https://a.espncdn.com/i/headshots/${config.sport}/players/full/${id}.png`,
+              });
+            }
+          } catch {
+            // Ignore single athlete resolution failure
+          }
+        })
+      );
+    }
+
+    const results: TeamLeaderCategory[] = [];
+
+    for (const cat of leadersData?.categories || []) {
+      const leaders: TeamLeader[] = [];
+      for (const l of cat.leaders || []) {
+        let athId = l.athlete?.id;
+        const refStr = l.athlete?.$ref;
+        if (!athId && refStr) {
+          const match = refStr.match(/athletes\/(\d+)/);
+          if (match) athId = match[1];
+        }
+        if (athId) {
+          const info = athleteMap.get(athId);
+          const name = info?.name || l.athlete?.displayName || l.athlete?.fullName || 'Athlete';
+          const jersey = info?.jersey || l.athlete?.jersey;
+          const position = info?.position || l.athlete?.position?.abbreviation;
+          const headshot = info?.headshot || l.athlete?.headshot?.href || `https://a.espncdn.com/i/headshots/${config.sport}/players/full/${athId}.png`;
+
+          leaders.push({
+            athleteId: athId,
+            name,
+            jersey,
+            position,
+            headshot,
+            valueDisplay: l.displayValue || String(l.value || ''),
+            statName: cat.abbreviation || cat.shortDisplayName,
+          });
+        }
+      }
+
+      if (leaders.length > 0) {
+        results.push({
+          name: cat.name,
+          displayName: cat.displayName,
+          shortDisplayName: cat.shortDisplayName,
+          abbreviation: cat.abbreviation,
+          leaders,
+        });
+      }
+    }
+
+    return results;
+  } catch {
+    return [];
+  }
+}
+
 

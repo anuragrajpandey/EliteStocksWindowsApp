@@ -1,13 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
+import type { SportsTeam } from '@ynotv/core';
 import {
   getLeagueLeaders,
-  getAvailableLeagues,
   type LeadersCategory,
 } from '../../services/sports';
+import { TeamDetail } from './TeamDetail';
+import { AthleteDetailModal } from './AthleteDetailModal';
 import './LoadingSkeleton.css';
 
 interface LeadersTabProps {
   onSearchChannels?: (channelName: string) => void;
+  onPlayChannel?: (channel: import('../../db').StoredChannel) => void;
 }
 
 const LEADERS_LEAGUES = [
@@ -17,12 +20,14 @@ const LEADERS_LEAGUES = [
   { id: 'nhl', name: 'NHL' },
 ];
 
-export function LeadersTab({ }: LeadersTabProps) {
+export function LeadersTab({ onSearchChannels, onPlayChannel }: LeadersTabProps) {
   const [leaders, setLeaders] = useState<LeadersCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedLeague, setSelectedLeague] = useState<string>('nfl');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<SportsTeam | null>(null);
+  const [selectedAthleteId, setSelectedAthleteId] = useState<string | null>(null);
 
   const loadLeaders = useCallback(async () => {
     setLoading(true);
@@ -44,6 +49,17 @@ export function LeadersTab({ }: LeadersTabProps) {
   useEffect(() => {
     loadLeaders();
   }, [loadLeaders]);
+
+  if (selectedTeam) {
+    return (
+      <TeamDetail
+        team={selectedTeam}
+        onClose={() => setSelectedTeam(null)}
+        onChannelClick={onSearchChannels}
+        onPlayChannel={onPlayChannel}
+      />
+    );
+  }
 
   if (loading && leaders.length === 0) {
     return (
@@ -122,10 +138,24 @@ export function LeadersTab({ }: LeadersTabProps) {
             {leaders
               .filter(cat => cat.name === selectedCategory)
               .map((category) => (
-                <LeadersTable key={category.name} category={category} />
+                <LeadersTable 
+                  key={category.name} 
+                  category={category} 
+                  selectedLeague={selectedLeague}
+                  onAthleteClick={(id) => setSelectedAthleteId(id)}
+                  onTeamClick={(team) => setSelectedTeam(team)}
+                />
               ))}
           </div>
         </div>
+      )}
+
+      {selectedAthleteId && (
+        <AthleteDetailModal
+          athleteId={selectedAthleteId}
+          leagueId={selectedLeague}
+          onClose={() => setSelectedAthleteId(null)}
+        />
       )}
     </div>
   );
@@ -133,9 +163,12 @@ export function LeadersTab({ }: LeadersTabProps) {
 
 interface LeadersTableProps {
   category: LeadersCategory;
+  selectedLeague: string;
+  onAthleteClick: (athleteId: string) => void;
+  onTeamClick: (team: SportsTeam) => void;
 }
 
-function LeadersTable({ category }: LeadersTableProps) {
+function LeadersTable({ category, selectedLeague, onAthleteClick, onTeamClick }: LeadersTableProps) {
   return (
     <div className="leaders-table-wrapper">
       <h3 className="leaders-table-title">{category.displayName}</h3>
@@ -152,7 +185,10 @@ function LeadersTable({ category }: LeadersTableProps) {
           {category.leaders.slice(0, 10).map((leader, idx) => (
             <tr key={`${leader.athlete.id}-${idx}`}>
               <td className="leaders-table-rank">{leader.rank}</td>
-              <td className="leaders-table-player">
+              <td 
+                className="leaders-table-player clickable"
+                onClick={() => onAthleteClick(leader.athlete.id)}
+              >
                 <div className="leaders-player-cell">
                   {leader.athlete.headshot && (
                     <img 
@@ -170,7 +206,16 @@ function LeadersTable({ category }: LeadersTableProps) {
                   </div>
                 </div>
               </td>
-              <td className="leaders-table-team">
+              <td 
+                className="leaders-table-team clickable"
+                onClick={() => onTeamClick({
+                  id: leader.team.id,
+                  name: leader.team.name,
+                  shortName: leader.team.shortName,
+                  logo: leader.team.logo,
+                  leagueId: selectedLeague,
+                })}
+              >
                 <div className="leaders-team-cell">
                   {leader.team.logo && (
                     <img 

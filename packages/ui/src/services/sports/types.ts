@@ -473,3 +473,122 @@ export interface RacingStanding {
   wins: number;
   podiums: number;
 }
+
+// Depth Chart Types
+export interface DepthChartAthlete {
+  id: string;
+  name: string;
+  shortName?: string;
+  jersey?: string;
+  rank: number;
+  headshot?: string;
+  position?: string;
+}
+
+export interface DepthChartPosition {
+  name: string;
+  displayName: string;
+  abbreviation: string;
+  athletes: DepthChartAthlete[];
+}
+
+export interface DepthChartGroup {
+  id: string;
+  name: string; // e.g. "Offense", "Defense", "Special Teams"
+  positions: DepthChartPosition[];
+}
+
+// Injury Types
+export interface TeamInjury {
+  id: string;
+  athleteId: string;
+  athleteName: string;
+  position?: string;
+  headshot?: string;
+  jersey?: string;
+  status: string; // e.g. "Out", "Questionable", "Doubtful", "IR"
+  date?: string;
+  comment?: string;
+  shortComment?: string;
+  returnDate?: string;
+  location?: string;
+  type?: string;
+}
+
+// Team Leaders Types
+export interface TeamLeader {
+  athleteId: string;
+  name: string;
+  jersey?: string;
+  headshot?: string;
+  position?: string;
+  valueDisplay: string;
+  statName?: string;
+}
+
+export interface TeamLeaderCategory {
+  name: string;
+  displayName: string;
+  shortDisplayName: string;
+  abbreviation?: string;
+  leaders: TeamLeader[];
+}
+
+// Team News Types
+export interface TeamNewsArticle {
+  id: string;
+  headline: string;
+  description?: string;
+  published?: string;
+  imageUrl?: string;
+  link?: string;
+}
+
+// Athlete Details & Profile Types
+export interface AthleteBio {
+  id: string;
+  name: string;
+  firstName?: string;
+  lastName?: string;
+  jersey?: string;
+  position?: string;
+  positionAbbrev?: string;
+  teamId?: string;
+  teamName?: string;
+  teamLogo?: string;
+  headshot?: string;
+  height?: string;
+  weight?: string;
+  age?: number;
+  birthDate?: string;
+  experience?: string;
+  college?: string;
+  draftSummary?: string;
+  injuryStatus?: string;
+}
+
+export interface AthleteStatSplit {
+  category: string; // e.g. "Regular Season 2025", "Career"
+  labels: string[];
+  rows: Array<{
+    title?: string;
+    stats: string[];
+  }>;
+}
+
+export interface AthleteGameLogRow {
+  id: string;
+  gameDate: string;
+  opponentName: string;
+  opponentLogo?: string;
+  atVs: string;
+  gameResult: string;
+  score: string;
+  stats: string[];
+}
+
+export interface AthleteGameLogData {
+  labels: string[];
+  rows: AthleteGameLogRow[];
+}
+

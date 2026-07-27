@@ -293,8 +293,8 @@ export async function getUpcomingEvents(days: number = 7, leagues?: string[]): P
     .sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 }
 
-export async function getLeagueEvents(leagueId: string): Promise<SportsEvent[]> {
-  return getScoreboard(leagueId);
+export async function getLeagueEvents(leagueId: string, date?: Date): Promise<SportsEvent[]> {
+  return getScoreboard(leagueId, date);
 }
 
 export async function getEventsForDate(date: Date): Promise<SportsEvent[]> {

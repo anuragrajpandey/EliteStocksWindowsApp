@@ -29,8 +29,10 @@ export function buildScoreboardUrl(sport: string, league: string, date?: Date): 
   let url = `${ESPN_API_BASE}/${sport}/${league}/scoreboard`;
   
   if (date) {
-    const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
-    url += `?dates=${dateStr}`;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    url += `?dates=${year}${month}${day}`;
   }
   
   return url;

@@ -184,6 +184,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
   const [selectedTeam, setSelectedTeam] = useState<SportsTeam | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
   const [activeSport, setActiveSport] = useState<string>('');
+  const [selectedScheduleDate, setSelectedScheduleDate] = useState<Date | null>(null);
 
   const isUFC = selectedLeague?.id === 'ufc';
   const isGolf = selectedLeague?.id === 'pga' || selectedLeague?.id === 'lpga';
@@ -235,6 +236,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
   useEffect(() => {
     if (selectedLeague) {
       setLoading(true);
+      setSelectedScheduleDate(null);
       // For individual sports, default to schedule (events)
       setActiveView(isIndividualSport ? 'schedule' : 'teams');
       
@@ -251,6 +253,18 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
     }
   }, [selectedLeague, isIndividualSport]);
 
+  const handleDateChange = useCallback(async (date: Date | null) => {
+    if (!selectedLeague) return;
+    setSelectedScheduleDate(date);
+    setLoading(true);
+    try {
+      const events = await getLeagueEvents(selectedLeague.id, date || undefined);
+      setLeagueEvents(events);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedLeague]);
+
   const handleViewChange = useCallback(async (view: LeagueView) => {
     if (!selectedLeague) return;
     
@@ -258,8 +272,8 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
     setLoading(true);
 
     try {
-        if (view === 'schedule') {
-        const events = await getLeagueEvents(selectedLeague.id);
+      if (view === 'schedule') {
+        const events = await getLeagueEvents(selectedLeague.id, selectedScheduleDate || undefined);
         setLeagueEvents(events);
       } else if (view === 'standings') {
         if (isGolf) {
@@ -284,7 +298,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
     } finally {
       setLoading(false);
     }
-  }, [selectedLeague, isIndividualSport, isUFC, isGolf, isTennis, isRacing]);
+  }, [selectedLeague, isIndividualSport, isUFC, isGolf, isTennis, isRacing, selectedScheduleDate]);
 
   const handleChannelClick = (channelName: string) => {
     if (onSearchChannels) {
@@ -294,6 +308,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
 
   const handleClose = () => {
     setSelectedLeague(null);
+    setSelectedScheduleDate(null);
     setLeagueTeams([]);
     setLeagueEvents([]);
     setLeagueStandings([]);
@@ -327,7 +342,9 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
           racingStandings={racingStandings}
           loading={loading}
           activeView={activeView}
+          selectedDate={selectedScheduleDate}
           onViewChange={handleViewChange}
+          onDateChange={handleDateChange}
           onClose={handleClose}
           onTeamSelect={setSelectedTeam}
           onChannelClick={handleChannelClick}
@@ -357,7 +374,9 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
         racingStandings={racingStandings}
         loading={loading}
         activeView={activeView}
+        selectedDate={selectedScheduleDate}
         onViewChange={handleViewChange}
+        onDateChange={handleDateChange}
         onClose={handleClose}
         onTeamSelect={setSelectedTeam}
         onChannelClick={handleChannelClick}
@@ -462,7 +481,9 @@ interface LeagueDetailProps {
   racingStandings: RacingStanding[];
   loading: boolean;
   activeView: LeagueView;
+  selectedDate?: Date | null;
   onViewChange: (view: LeagueView) => void;
+  onDateChange?: (date: Date | null) => void;
   onClose: () => void;
   onTeamSelect: (team: SportsTeam) => void;
   onChannelClick?: (channelName: string) => void;
@@ -481,7 +502,9 @@ function LeagueDetail({
   racingStandings,
   loading,
   activeView,
+  selectedDate,
   onViewChange,
+  onDateChange,
   onClose,
   onTeamSelect,
   onChannelClick,
@@ -508,7 +531,7 @@ function LeagueDetail({
     try {
       const saved = localStorage.getItem(`sports_standings_mode_${league.id}`) || localStorage.getItem('sports_standings_mode');
       if (saved === 'division' || saved === 'conference') {
-        setStandingsMode(saved);
+        setStandingsMode(saved as 'conference' | 'division');
       }
     } catch {
       // ignore
@@ -625,12 +648,64 @@ function LeagueDetail({
 
           {activeView === 'schedule' && (
             <section className="sports-section">
-              <h3 className="sports-section-title">
-                {isIndividualSport ? 'Tournaments & Events' : 'Games'}
-              </h3>
+              <div className="league-schedule-top-bar">
+                <h3 className="sports-section-title">
+                  {isIndividualSport ? 'Tournaments & Events' : 'Games'}
+                </h3>
+                {onDateChange && (
+                  <div className="league-schedule-date-controls">
+                    <select
+                      className="league-date-select"
+                      value={selectedDate ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}` : 'default'}
+                      onChange={(e) => {
+                        if (e.target.value === 'default') {
+                          onDateChange(null);
+                        } else {
+                          const [y, m, d] = e.target.value.split('-').map(Number);
+                          onDateChange(new Date(y, m - 1, d));
+                        }
+                      }}
+                    >
+                      <option value="default">Default Schedule</option>
+                      {Array.from({ length: 14 }, (_, i) => {
+                        const d = new Date();
+                        d.setDate(d.getDate() + i);
+                        const valStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                        const isToday = i === 0;
+                        const label = isToday
+                          ? `Today (${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })})`
+                          : d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+                        return (
+                          <option key={valStr} value={valStr}>
+                            {label}
+                          </option>
+                        );
+                      })}
+                    </select>
+
+                    <div className="league-custom-date-wrapper">
+                      <span className="league-date-label">Custom Date:</span>
+                      <input
+                        type="date"
+                        className="league-date-input"
+                        value={selectedDate ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}` : ''}
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            const [y, m, d] = e.target.value.split('-').map(Number);
+                            onDateChange(new Date(y, m - 1, d));
+                          } else {
+                            onDateChange(null);
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {events.length > 0 ? (
                 <div className="sports-events-list">
-                  {events.slice(0, 20).map(event => (
+                  {events.slice(0, 50).map(event => (
                     <LeagueEventRow
                       key={event.id}
                       event={event}
@@ -642,7 +717,7 @@ function LeagueDetail({
                 </div>
               ) : (
                 <div className="sports-empty">
-                  <p>No events scheduled</p>
+                  <p>No events scheduled for selected date</p>
                 </div>
               )}
             </section>
