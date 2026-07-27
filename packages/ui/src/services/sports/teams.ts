@@ -277,6 +277,65 @@ export async function getLeagueTeams(leagueId: string): Promise<SportsTeam[]> {
   return teams;
 }
 
+const DIVISION_MAP: Record<string, Record<string, string>> = {
+  nfl: {
+    // AFC East
+    'BUF': 'AFC East', 'MIA': 'AFC East', 'NE': 'AFC East', 'NYJ': 'AFC East',
+    '2': 'AFC East', '15': 'AFC East', '17': 'AFC East', '20': 'AFC East',
+    // AFC North
+    'BAL': 'AFC North', 'CIN': 'AFC North', 'CLE': 'AFC North', 'PIT': 'AFC North',
+    '33': 'AFC North', '4': 'AFC North', '5': 'AFC North', '23': 'AFC North',
+    // AFC South
+    'HOU': 'AFC South', 'IND': 'AFC South', 'JAX': 'AFC South', 'JAC': 'AFC South', 'TEN': 'AFC South',
+    '34': 'AFC South', '11': 'AFC South', '30': 'AFC South', '10': 'AFC South',
+    // AFC West
+    'DEN': 'AFC West', 'KC': 'AFC West', 'LV': 'AFC West', 'LVR': 'AFC West', 'LAC': 'AFC West',
+    '7': 'AFC West', '12': 'AFC West', '13': 'AFC West', '24': 'AFC West',
+
+    // NFC East
+    'DAL': 'NFC East', 'NYG': 'NFC East', 'PHI': 'NFC East', 'WAS': 'NFC East', 'WSH': 'NFC East',
+    '6': 'NFC East', '19': 'NFC East', '21': 'NFC East', '28': 'NFC East',
+    // NFC North
+    'CHI': 'NFC North', 'DET': 'NFC North', 'GB': 'NFC North', 'MIN': 'NFC North',
+    '3': 'NFC North', '8': 'NFC North', '9': 'NFC North', '16': 'NFC North',
+    // NFC South
+    'ATL': 'NFC South', 'CAR': 'NFC South', 'NO': 'NFC South', 'TB': 'NFC South',
+    '1': 'NFC South', '29': 'NFC South', '18': 'NFC South', '27': 'NFC South',
+    // NFC West
+    'ARI': 'NFC West', 'LAR': 'NFC West', 'SF': 'NFC West', 'SEA': 'NFC West',
+    '22': 'NFC West', '14': 'NFC West', '25': 'NFC West', '26': 'NFC West',
+  },
+  mlb: {
+    'BAL': 'AL East', 'BOS': 'AL East', 'NYY': 'AL East', 'TB': 'AL East', 'TOR': 'AL East',
+    'CWS': 'AL Central', 'CLE': 'AL Central', 'DET': 'AL Central', 'KC': 'AL Central', 'MIN': 'AL Central',
+    'HOU': 'AL West', 'LAA': 'AL West', 'OAK': 'AL West', 'ATH': 'AL West', 'SEA': 'AL West', 'TEX': 'AL West',
+    'ATL': 'NL East', 'MIA': 'NL East', 'NYM': 'NL East', 'PHI': 'NL East', 'WSH': 'NL East',
+    'CHC': 'NL Central', 'CIN': 'NL Central', 'MIL': 'NL Central', 'PIT': 'NL Central', 'STL': 'NL Central',
+    'ARI': 'NL West', 'COL': 'NL West', 'LAD': 'NL West', 'SD': 'NL West', 'SF': 'NL West',
+  },
+  nba: {
+    'BOS': 'Atlantic', 'BKN': 'Atlantic', 'NYK': 'Atlantic', 'PHI': 'Atlantic', 'TOR': 'Atlantic',
+    'CHI': 'Central', 'CLE': 'Central', 'DET': 'Central', 'IND': 'Central', 'MIL': 'Central',
+    'ATL': 'Southeast', 'CHA': 'Southeast', 'MIA': 'Southeast', 'ORL': 'Southeast', 'WAS': 'Southeast',
+    'DEN': 'Northwest', 'MIN': 'Northwest', 'OKC': 'Northwest', 'POR': 'Northwest', 'UTA': 'Northwest',
+    'GS': 'Pacific', 'LAC': 'Pacific', 'LAL': 'Pacific', 'PHX': 'Pacific', 'SAC': 'Pacific',
+    'DAL': 'Southwest', 'HOU': 'Southwest', 'MEM': 'Southwest', 'NOP': 'Southwest', 'SAS': 'Southwest',
+  },
+  nhl: {
+    'BOS': 'Atlantic', 'BUF': 'Atlantic', 'DET': 'Atlantic', 'FLA': 'Atlantic', 'MTL': 'Atlantic', 'OTT': 'Atlantic', 'TB': 'Atlantic', 'TOR': 'Atlantic',
+    'CAR': 'Metropolitan', 'CBJ': 'Metropolitan', 'NJ': 'Metropolitan', 'NYI': 'Metropolitan', 'NYR': 'Metropolitan', 'PHI': 'Metropolitan', 'PIT': 'Metropolitan', 'WSH': 'Metropolitan',
+    'CHI': 'Central', 'COL': 'Central', 'DAL': 'Central', 'MIN': 'Central', 'NSH': 'Central', 'STL': 'Central', 'UTA': 'Central', 'WPG': 'Central',
+    'ANA': 'Pacific', 'CGY': 'Pacific', 'EDM': 'Pacific', 'LA': 'Pacific', 'SJ': 'Pacific', 'SEA': 'Pacific', 'VGK': 'Pacific', 'VAN': 'Pacific',
+  }
+};
+
+const DIVISION_ORDER: Record<string, string[]> = {
+  nfl: ['AFC East', 'AFC North', 'AFC South', 'AFC West', 'NFC East', 'NFC North', 'NFC South', 'NFC West'],
+  mlb: ['AL East', 'AL Central', 'AL West', 'NL East', 'NL Central', 'NL West'],
+  nba: ['Atlantic', 'Central', 'Southeast', 'Northwest', 'Pacific', 'Southwest'],
+  nhl: ['Atlantic', 'Metropolitan', 'Central', 'Pacific'],
+};
+
 export async function getLeagueStandings(leagueId: string): Promise<StandingTeam[]> {
   const groups = await getLeagueStandingsGrouped(leagueId);
   return groups.flatMap(g => g.teams);
@@ -310,6 +369,7 @@ export async function getLeagueStandingsGrouped(leagueId: string): Promise<Stand
   }>(buildStandingsUrl(config.sport, config.league));
 
   const groups: StandingGroup[] = [];
+  const divMap = DIVISION_MAP[leagueId];
 
   if (data?.children) {
     for (const conference of data.children) {
@@ -336,6 +396,10 @@ export async function getLeagueStandingsGrouped(leagueId: string): Promise<Stand
             ? ((wins / total) * 100).toFixed(1) 
             : '0.0';
 
+        const mappedDivision = divMap 
+          ? (divMap[team.id] || (team.abbreviation ? divMap[team.abbreviation] : undefined))
+          : undefined;
+
         teams.push({
           id: team.id,
           name: team.displayName,
@@ -348,7 +412,7 @@ export async function getLeagueStandingsGrouped(leagueId: string): Promise<Stand
           winPercentValue: winPercent || (total > 0 ? wins / total : 0),
           gamesBehind: gamesBehind ? String(gamesBehind) : undefined,
           streak: streak ? (streak > 0 ? `W${streak}` : `L${Math.abs(streak)}`) : undefined,
-          division: conference.isConference ? conference.name : undefined,
+          division: mappedDivision || (conference.isConference ? conference.name : undefined),
           rank: 0,
         });
       }
@@ -370,3 +434,42 @@ export async function getLeagueStandingsGrouped(leagueId: string): Promise<Stand
   console.log('[ESPN API] Standings groups:', groups.length, 'for', leagueId);
   return groups;
 }
+
+export function getLeagueStandingsByDivision(leagueId: string, conferenceGroups: StandingGroup[]): StandingGroup[] {
+  const allTeams = conferenceGroups.flatMap(g => g.teams);
+  const divMap = DIVISION_MAP[leagueId];
+  if (!divMap) return conferenceGroups;
+
+  const divisionOrder = DIVISION_ORDER[leagueId] || [];
+  const groupsByDiv: Record<string, StandingTeam[]> = {};
+
+  for (const team of allTeams) {
+    const divName = team.division || 'Other';
+    if (!groupsByDiv[divName]) {
+      groupsByDiv[divName] = [];
+    }
+    groupsByDiv[divName].push({ ...team });
+  }
+
+  const result: StandingGroup[] = [];
+
+  const sortedDivNames = [
+    ...divisionOrder.filter(d => groupsByDiv[d]),
+    ...Object.keys(groupsByDiv).filter(d => !divisionOrder.includes(d)),
+  ];
+
+  for (const divName of sortedDivNames) {
+    const teams = groupsByDiv[divName];
+    teams.sort((a, b) => b.winPercentValue - a.winPercentValue || b.wins - a.wins);
+    teams.forEach((t, idx) => { t.rank = idx + 1; });
+
+    result.push({
+      name: divName,
+      isConference: false,
+      teams,
+    });
+  }
+
+  return result;
+}
+

@@ -6,6 +6,7 @@ import {
   getLeagueTeams,
   getLeagueStandings,
   getLeagueStandingsGrouped,
+  getLeagueStandingsByDivision,
   getGolfRankings,
   getTennisRankings,
   getRacingStandings,
@@ -493,6 +494,41 @@ function LeagueDetail({
   const isRacing = league.id === 'f1' || league.id === 'nascar' || league.id === 'indycar';
   const isIndividualSport = INDIVIDUAL_SPORTS.includes(league.id);
 
+  const [standingsMode, setStandingsMode] = useState<'conference' | 'division'>(() => {
+    try {
+      const saved = localStorage.getItem(`sports_standings_mode_${league.id}`) || localStorage.getItem('sports_standings_mode');
+      return (saved === 'division' || saved === 'conference') ? saved : 'conference';
+    } catch {
+      return 'conference';
+    }
+  });
+  const [selectedDivision, setSelectedDivision] = useState<string>('all');
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(`sports_standings_mode_${league.id}`) || localStorage.getItem('sports_standings_mode');
+      if (saved === 'division' || saved === 'conference') {
+        setStandingsMode(saved);
+      }
+    } catch {
+      // ignore
+    }
+  }, [league.id]);
+
+  const handleStandingsModeChange = (mode: 'conference' | 'division') => {
+    setStandingsMode(mode);
+    setSelectedDivision('all');
+    try {
+      localStorage.setItem(`sports_standings_mode_${league.id}`, mode);
+      localStorage.setItem('sports_standings_mode', mode);
+    } catch {
+      // ignore
+    }
+  };
+
+  const divisionGroups = getLeagueStandingsByDivision(league.id, standingsGroups);
+  const hasDivisions = divisionGroups.length > 0 && divisionGroups.some(g => g.name !== standingsGroups[0]?.name);
+
   return (
     <div className="sports-tab-content">
       <div className="sports-league-header">
@@ -614,75 +650,127 @@ function LeagueDetail({
 
           {activeView === 'standings' && !isIndividualSport && (
             <section className="sports-section">
-              <h3 className="sports-section-title">Standings</h3>
-              {standingsGroups.length > 0 ? (
-                <div className="sports-standings-groups">
-                  {standingsGroups.map((group) => (
-                    <div key={group.name} className="sports-standings-group">
-                      {group.isConference && (
-                        <h4 className="sports-standings-conference">{group.name}</h4>
-                      )}
-                      <div className="sports-standings-table">
-                        <div className="sports-standings-header">
-                          <span>#</span>
-                          <span>Team</span>
-                          <span>W</span>
-                          <span>L</span>
-                          <span>PCT</span>
-                        </div>
-                        {group.teams.map((team) => (
-                          <div key={team.id} className="sports-standings-row">
-                            <span>{team.rank}</span>
-                            <button
-                              className="sports-standings-team"
-                              onClick={() => onTeamSelect({ id: team.id, name: team.name, shortName: team.shortName, logo: team.logo, leagueId: league.id })}
-                            >
-                              {team.logo && (
-                                <img src={team.logo} alt="" className="sports-standings-logo" />
-                              )}
-                              {team.name}
-                            </button>
-                            <span>{team.wins}</span>
-                            <span>{team.losses}</span>
-                            <span>{team.winPercent}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : standings.length > 0 ? (
-                <div className="sports-standings-table">
-                  <div className="sports-standings-header">
-                    <span>#</span>
-                    <span>Team</span>
-                    <span>W</span>
-                    <span>L</span>
-                    <span>PCT</span>
+              <div className="sports-standings-top-bar">
+                <h3 className="sports-section-title">Standings</h3>
+                {hasDivisions && (
+                  <div className="sports-standings-toggle-group">
+                    <button
+                      className={`sports-standings-toggle-btn ${standingsMode === 'conference' ? 'active' : ''}`}
+                      onClick={() => handleStandingsModeChange('conference')}
+                    >
+                      By Conference
+                    </button>
+                    <button
+                      className={`sports-standings-toggle-btn ${standingsMode === 'division' ? 'active' : ''}`}
+                      onClick={() => handleStandingsModeChange('division')}
+                    >
+                      By Division
+                    </button>
                   </div>
-                  {standings.map((team, idx) => (
-                    <div key={team.id} className="sports-standings-row">
-                      <span>{idx + 1}</span>
-                      <button
-                        className="sports-standings-team"
-                        onClick={() => onTeamSelect({ id: team.id, name: team.name, shortName: team.shortName, logo: team.logo, leagueId: league.id })}
-                      >
-                        {team.logo && (
-                          <img src={team.logo} alt="" className="sports-standings-logo" />
-                        )}
-                        {team.name}
-                      </button>
-                      <span>{team.wins}</span>
-                      <span>{team.losses}</span>
-                      <span>{team.winPercent}</span>
-                    </div>
+                )}
+              </div>
+
+              {hasDivisions && standingsMode === 'division' && (
+                <div className="sports-standings-division-pills">
+                  <button
+                    className={`sports-standings-pill ${selectedDivision === 'all' ? 'active' : ''}`}
+                    onClick={() => setSelectedDivision('all')}
+                  >
+                    All Divisions
+                  </button>
+                  {divisionGroups.map((group) => (
+                    <button
+                      key={group.name}
+                      className={`sports-standings-pill ${selectedDivision === group.name ? 'active' : ''}`}
+                      onClick={() => setSelectedDivision(group.name)}
+                    >
+                      {group.name}
+                    </button>
                   ))}
-                </div>
-              ) : (
-                <div className="sports-empty">
-                  <p>Standings not available</p>
                 </div>
               )}
+
+              {(() => {
+                const activeGroups = (standingsMode === 'division' && hasDivisions) ? divisionGroups : standingsGroups;
+                const filteredGroups = selectedDivision === 'all'
+                  ? activeGroups
+                  : activeGroups.filter(g => g.name === selectedDivision);
+
+                if (filteredGroups.length > 0) {
+                  return (
+                    <div className="sports-standings-groups">
+                      {filteredGroups.map((group) => (
+                        <div key={group.name} className="sports-standings-group">
+                          <h4 className="sports-standings-conference">{group.name}</h4>
+                          <div className="sports-standings-table">
+                            <div className="sports-standings-header">
+                              <span>#</span>
+                              <span>Team</span>
+                              <span>W</span>
+                              <span>L</span>
+                              <span>PCT</span>
+                            </div>
+                            {group.teams.map((team) => (
+                              <div key={team.id} className="sports-standings-row">
+                                <span>{team.rank}</span>
+                                <button
+                                  className="sports-standings-team"
+                                  onClick={() => onTeamSelect({ id: team.id, name: team.name, shortName: team.shortName, logo: team.logo, leagueId: league.id })}
+                                >
+                                  {team.logo && (
+                                    <img src={team.logo} alt="" className="sports-standings-logo" />
+                                  )}
+                                  {team.name}
+                                </button>
+                                <span>{team.wins}</span>
+                                <span>{team.losses}</span>
+                                <span>{team.winPercent}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+
+                if (standings.length > 0) {
+                  return (
+                    <div className="sports-standings-table">
+                      <div className="sports-standings-header">
+                        <span>#</span>
+                        <span>Team</span>
+                        <span>W</span>
+                        <span>L</span>
+                        <span>PCT</span>
+                      </div>
+                      {standings.map((team, idx) => (
+                        <div key={team.id} className="sports-standings-row">
+                          <span>{idx + 1}</span>
+                          <button
+                            className="sports-standings-team"
+                            onClick={() => onTeamSelect({ id: team.id, name: team.name, shortName: team.shortName, logo: team.logo, leagueId: league.id })}
+                          >
+                            {team.logo && (
+                              <img src={team.logo} alt="" className="sports-standings-logo" />
+                            )}
+                            {team.name}
+                          </button>
+                          <span>{team.wins}</span>
+                          <span>{team.losses}</span>
+                          <span>{team.winPercent}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="sports-empty">
+                    <p>Standings not available</p>
+                  </div>
+                );
+              })()}
             </section>
           )}
 

@@ -125,6 +125,7 @@ export {
   getLeagueTeams,
   getLeagueStandings,
   getLeagueStandingsGrouped,
+  getLeagueStandingsByDivision,
 } from './teams';
 
 // Games API

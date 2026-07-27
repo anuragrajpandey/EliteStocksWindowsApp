@@ -139,7 +139,7 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
                 </div>
               </div>
 
-              {(details.record.pointsFor || details.record.pointsAgainst) && (
+              {Boolean(details.record.pointsFor || details.record.pointsAgainst) && (
                 <div className="team-stats-row">
                   <div className="team-stat-item">
                     <span className="team-stat-value">{details.record.pointsFor || 0}</span>
