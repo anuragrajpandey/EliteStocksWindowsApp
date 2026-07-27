@@ -4810,23 +4810,36 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  border: none;
-  color: rgba(255, 255, 255, 0.8);
+  background: rgba(15, 15, 20, 0.65);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .team-favorite-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(25, 25, 35, 0.85);
+  border-color: rgba(255, 255, 255, 0.45);
+  transform: scale(1.08);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
 }
 
 .team-favorite-btn.is-favorite {
   color: #fbbf24;
-  background: rgba(251, 191, 36, 0.2);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.35) 0%, rgba(245, 158, 11, 0.45) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.65);
+  box-shadow: 0 4px 14px rgba(251, 191, 36, 0.35);
+}
+
+.team-favorite-btn.is-favorite:hover {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.5) 0%, rgba(245, 158, 11, 0.65) 100%);
+  border-color: #fbbf24;
+  box-shadow: 0 6px 18px rgba(251, 191, 36, 0.5);
 }
 
 .team-record-section {

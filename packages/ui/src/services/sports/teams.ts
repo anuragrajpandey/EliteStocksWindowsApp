@@ -208,7 +208,7 @@ export async function getTeamDetails(teamId: string, leagueId: string): Promise<
     logo: team.logos?.[0]?.href,
     record: parseTeamRecord(team.record),
     standingSummary: team.standingSummary,
-    nextEvent: team.nextEvent?.[0] ? mapESPNEvent(team.nextEvent[0], leagueId) : undefined,
+    nextEvent: team.nextEvent?.[0] && new Date(team.nextEvent[0].date) >= new Date() ? mapESPNEvent(team.nextEvent[0], leagueId) : undefined,
     athletes: (team.athletes || []).map(a => ({
       id: a.id,
       name: a.displayName,

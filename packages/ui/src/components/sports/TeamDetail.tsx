@@ -185,22 +185,32 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
             </div>
           )}
 
-          {details?.nextEvent && (
-            <div className="team-next-game" onClick={() => setSelectedEvent(details.nextEvent!)}>
-              <span className="team-next-label">Next Game</span>
-              <div className="team-next-content">
-                <span className="team-next-opponent">
-                  {details.nextEvent.homeTeam.id === team.id ? 'vs ' : '@ '}
-                  {details.nextEvent.homeTeam.id === team.id 
-                    ? details.nextEvent.awayTeam.name 
-                    : details.nextEvent.homeTeam.name}
-                </span>
-                <span className="team-next-date">
-                  {formatEventDate(details.nextEvent.startTime)} at {formatEventTime(details.nextEvent.startTime)}
-                </span>
+          {(() => {
+            const nextGame = (upcoming && upcoming.length > 0)
+              ? upcoming[0]
+              : (details?.nextEvent && new Date(details.nextEvent.startTime) >= new Date())
+                ? details.nextEvent
+                : undefined;
+
+            if (!nextGame) return null;
+
+            return (
+              <div className="team-next-game" onClick={() => setSelectedEvent(nextGame)}>
+                <span className="team-next-label">Next Game</span>
+                <div className="team-next-content">
+                  <span className="team-next-opponent">
+                    {nextGame.homeTeam.id === team.id ? 'vs ' : '@ '}
+                    {nextGame.homeTeam.id === team.id 
+                      ? nextGame.awayTeam.name 
+                      : nextGame.homeTeam.name}
+                  </span>
+                  <span className="team-next-date">
+                    {formatEventDate(nextGame.startTime)} at {formatEventTime(nextGame.startTime)}
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           <div className="team-tabs">
             <button 
