@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useEpgClockFormat } from '../../stores/uiStore';
 import type { SportsEvent, SportsTeam } from '@ynotv/core';
 import { 
   getTeamSchedule, 
@@ -33,6 +34,7 @@ interface TeamDetailProps {
 type TabId = 'schedule' | 'roster' | 'depth' | 'injuries' | 'leaders' | 'news';
 
 export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: TeamDetailProps) {
+  const epgClockFormat = useEpgClockFormat();
   const [details, setDetails] = useState<TeamDetails | null>(null);
   const [upcoming, setUpcoming] = useState<SportsEvent[]>([]);
   const [past, setPast] = useState<SportsEvent[]>([]);
@@ -205,7 +207,7 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
                       : nextGame.homeTeam.name}
                   </span>
                   <span className="team-next-date">
-                    {formatEventDate(nextGame.startTime)} at {formatEventTime(nextGame.startTime)}
+                    {formatEventDate(nextGame.startTime)} at {formatEventTime(nextGame.startTime, epgClockFormat !== '24h')}
                   </span>
                 </div>
               </div>
@@ -358,6 +360,7 @@ interface TeamEventCardProps {
 }
 
 function TeamEventCard({ event, teamId, onClick, onChannelClick }: TeamEventCardProps) {
+  const epgClockFormat = useEpgClockFormat();
   const isHome = event.homeTeam.id === teamId;
   const opponent = isHome ? event.awayTeam : event.homeTeam;
   const teamScore = isHome ? event.homeScore : event.awayScore;
@@ -379,7 +382,7 @@ function TeamEventCard({ event, teamId, onClick, onChannelClick }: TeamEventCard
           {event.startTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
         </span>
         <span className="team-schedule-card-time">
-          {event.startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+          {event.startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}
         </span>
         {isLive && <span className="team-schedule-live">LIVE</span>}
       </div>

@@ -18,6 +18,7 @@ import { useModal } from './Modal';
 import { DvrTab } from './settings/DvrTab';
 import { useDownloadStore } from '../stores/downloadStore';
 import { matchesSearch } from '../utils/searchNormalization';
+import { useEpgClockFormat } from '../stores/uiStore';
 import './DvrDashboard.css';
 
 const formatBytes = (bytes: number): string => {
@@ -60,6 +61,7 @@ interface DvrDashboardProps {
 type DvrDashboardTab = 'scheduled' | 'recorded' | 'downloads' | 'settings';
 
 export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
+    const epgClockFormat = useEpgClockFormat();
     const [activeTab, setActiveTab] = useState<DvrDashboardTab>('scheduled');
     const [scheduled, setScheduled] = useState<DvrSchedule[]>([]);
     const [recorded, setRecorded] = useState<DvrRecording[]>([]);
@@ -288,6 +290,7 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
+            hour12: epgClockFormat !== '24h',
         });
     }
 

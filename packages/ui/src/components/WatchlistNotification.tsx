@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import type { WatchlistItem } from '../db';
+import { useEpgClockFormat } from '../stores/uiStore';
 import './WatchlistNotification.css';
 
 export interface WatchlistNotificationItem {
@@ -62,8 +63,10 @@ function NotificationItem({
     return () => clearInterval(timer);
   }, [handleDismiss]);
 
+  const epgClockFormat = useEpgClockFormat();
+
   const formatTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
   };
 
   const isReminder = notification.type === 'reminder';

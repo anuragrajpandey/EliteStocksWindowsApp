@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Source } from '@ynotv/core';
-import { useEpgView, useSetEpgView, useSetEpgVisibleHours, useUIStore, useIncludeAllChannelsToPlaylist, useSetIncludeAllChannelsToPlaylist } from '../stores/uiStore';
+import { useEpgView, useSetEpgView, useSetEpgVisibleHours, useSetEpgClockFormat, useUIStore, useIncludeAllChannelsToPlaylist, useSetIncludeAllChannelsToPlaylist } from '../stores/uiStore';
 import { SettingsSidebar, type SettingsTabId } from './settings/SettingsSidebar';
 import { searchSettings, type SettingsSearchResult } from './settings/SettingsSearchIndex';
 import { SourcesTab } from './settings/SourcesTab';
@@ -532,6 +532,8 @@ export function Settings({
   const setEpgView = useSetEpgView();
   const setEpgVisibleHours = useSetEpgVisibleHours();
   const [epgVisibleHours, setEpgVisibleHoursState] = useState<'auto' | number>('auto');
+  const setEpgClockFormat = useSetEpgClockFormat();
+  const [epgClockFormat, setEpgClockFormatState] = useState<'12h' | '24h'>('12h');
   const [transparentGuideHeight, setTransparentGuideHeight] = useState(40);
   const [transparentGuideHideHeader, setTransparentGuideHideHeader] = useState(false);
   const [transparentGuideOverlayOpacity, setTransparentGuideOverlayOpacity] = useState(55);
@@ -762,6 +764,7 @@ export function Settings({
         playerControlDesign?: 'default' | 'clean';
         showVolumePercent?: boolean;
         epgVisibleHours?: 'auto' | number;
+        epgClockFormat?: '12h' | '24h';
         epgTitleFontSize?: number;
         epgBodyFontSize?: number;
         channelInfoOverlayEnabled?: boolean;
@@ -1067,6 +1070,11 @@ export function Settings({
       const loadedEpgVisibleHours = rawEpgVisibleHours === 'auto' ? 'auto' : Number(rawEpgVisibleHours);
       setEpgVisibleHoursState(loadedEpgVisibleHours);
       setEpgVisibleHours(loadedEpgVisibleHours);
+
+      // Load EPG clock format setting
+      const loadedClockFormat = (settings.epgClockFormat as '12h' | '24h') ?? '12h';
+      setEpgClockFormatState(loadedClockFormat);
+      setEpgClockFormat(loadedClockFormat);
 
       // Load transparent guide overlay settings
       const loadedGuideHeight = settings.transparentGuideHeight ?? 40;
@@ -1742,6 +1750,14 @@ export function Settings({
     setEpgVisibleHours(hours);
     if (window.storage) {
       await window.storage.updateSettings({ epgVisibleHours: hours });
+    }
+  };
+
+  const handleEpgClockFormatChange = async (format: '12h' | '24h') => {
+    setEpgClockFormatState(format);
+    setEpgClockFormat(format);
+    if (window.storage) {
+      await window.storage.updateSettings({ epgClockFormat: format });
     }
   };
 
@@ -2554,6 +2570,8 @@ export function Settings({
             onEpgHighlightBorderCurrentChange={handleEpgHighlightBorderCurrentChange}
             epgVisibleHours={epgVisibleHours}
             onEpgVisibleHoursChange={handleEpgVisibleHoursChange}
+            epgClockFormat={epgClockFormat}
+            onEpgClockFormatChange={handleEpgClockFormatChange}
             epgBoldChannelNames={epgBoldChannelNames}
             onEpgBoldChannelNamesChange={handleEpgBoldChannelNamesChange}
             epgBoldTopCategories={epgBoldTopCategories}

@@ -140,6 +140,7 @@
 /* Date/Time inputs for custom recording */
 .datetime-section {
     padding: 10px 14px;
+    box-sizing: border-box;
 }
 
 .datetime-label {
@@ -155,10 +156,13 @@
 .datetime-inputs {
     display: flex;
     gap: 8px;
+    box-sizing: border-box;
 }
 
 .datetime-input {
+    box-sizing: border-box;
     flex: 1;
+    max-width: 100%;
     padding: 8px 10px;
     background: var(--bg-tertiary, #333);
     border: 1px solid var(--border-color, #444);

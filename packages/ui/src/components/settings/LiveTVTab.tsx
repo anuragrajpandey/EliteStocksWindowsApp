@@ -15,6 +15,8 @@ interface LiveTVTabProps {
   onEpgHighlightBorderCurrentChange: (enabled: boolean) => void;
   epgVisibleHours: 'auto' | number;
   onEpgVisibleHoursChange: (hours: 'auto' | number) => void;
+  epgClockFormat: '12h' | '24h';
+  onEpgClockFormatChange: (format: '12h' | '24h') => void;
   epgBoldChannelNames: boolean;
   onEpgBoldChannelNamesChange: (enabled: boolean) => void;
   epgBoldTopCategories: boolean;
@@ -105,6 +107,8 @@ export function LiveTVTab({
   onEpgHighlightBorderCurrentChange,
   epgVisibleHours,
   onEpgVisibleHoursChange,
+  epgClockFormat,
+  onEpgClockFormatChange,
   epgBoldChannelNames,
   onEpgBoldChannelNamesChange,
   epgBoldTopCategories,
@@ -254,6 +258,21 @@ export function LiveTVTab({
                     <option value="4">4 Hours</option>
                     <option value="5">5 Hours</option>
                     <option value="6">6 Hours</option>
+                  </select>
+                </div>
+
+                {/* EPG Clock Format */}
+                <div className="timeshift-toggle-row">
+                  <div className="timeshift-toggle-info">
+                    <span className="timeshift-toggle-label">EPG Clock Format</span>
+                    <span className="timeshift-toggle-sub">Select between 12-hour (AM/PM) and 24-hour clock display across EPG grid, search results, watchlist, and recordings.</span>
+                  </div>
+                  <select
+                    value={epgClockFormat}
+                    onChange={(e) => onEpgClockFormatChange(e.target.value as '12h' | '24h')}
+                  >
+                    <option value="12h">12-Hour Clock (e.g. 2:30 PM)</option>
+                    <option value="24h">24-Hour Clock (e.g. 14:30)</option>
                   </select>
                 </div>
 

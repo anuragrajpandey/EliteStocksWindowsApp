@@ -4,7 +4,7 @@ import { formatEventTime } from '../../services/sports';
 import { db } from '../../db';
 import type { StoredChannel } from '../../db';
 import { buildSearchQueryClauses } from '../../utils/searchNormalization';
-import { useSportsSelectedChannels, useSetSportsSelectedChannel } from '../../stores/uiStore';
+import { useSportsSelectedChannels, useSetSportsSelectedChannel, useEpgClockFormat } from '../../stores/uiStore';
 import './styles/GameCard.css';
 
 /**
@@ -172,6 +172,7 @@ interface GameCardProps {
 const inlineSearchCache = new Map<string, StoredChannel[]>();
 
 export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlayChannel, compact = false }: GameCardProps) {
+  const epgClockFormat = useEpgClockFormat();
   const isLive = event.status === 'live';
   const isFinished = event.status === 'finished';
   const isScheduled = event.status === 'scheduled';
@@ -311,7 +312,7 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
           {isScheduled ? (
             <>
               <span className="gc-compact-vs">VS</span>
-              <span className="gc-compact-time">{formatEventTime(event.startTime)}</span>
+              <span className="gc-compact-time">{formatEventTime(event.startTime, epgClockFormat !== '24h')}</span>
             </>
           ) : (
             <>
@@ -358,7 +359,7 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
             </span>
           )}
           {isFinished && <span className="gc-status-final">FINAL</span>}
-          {isScheduled && <span className="gc-status-scheduled">{formatEventTime(event.startTime)}</span>}
+          {isScheduled && <span className="gc-status-scheduled">{formatEventTime(event.startTime, epgClockFormat !== '24h')}</span>}
         </div>
       </div>
 
@@ -431,7 +432,7 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
             </div>
           ) : (
             <div className="gc-racing-scheduled-info">
-              <span className="gc-racing-scheduled-date">{formatEventTime(event.startTime)}</span>
+              <span className="gc-racing-scheduled-date">{formatEventTime(event.startTime, epgClockFormat !== '24h')}</span>
             </div>
           )}
         </>
@@ -467,7 +468,7 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
             </div>
           ) : (
             <div className="gc-golf-scheduled-info">
-              <span className="gc-golf-scheduled-date">{formatEventTime(event.startTime)}</span>
+              <span className="gc-golf-scheduled-date">{formatEventTime(event.startTime, epgClockFormat !== '24h')}</span>
             </div>
           )}
         </>
@@ -514,7 +515,7 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
             </div>
           ) : (
             <div className="gc-tennis-scheduled-info">
-              <span className="gc-tennis-scheduled-date">{formatEventTime(event.startTime)}</span>
+              <span className="gc-tennis-scheduled-date">{formatEventTime(event.startTime, epgClockFormat !== '24h')}</span>
             </div>
           )}
         </>
@@ -534,7 +535,7 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
               {isScheduled ? (
                 <>
                   <span className="gc-vs-big">VS</span>
-                  <span className="gc-start-time">{formatEventTime(event.startTime)}</span>
+                  <span className="gc-start-time">{formatEventTime(event.startTime, epgClockFormat !== '24h')}</span>
                 </>
               ) : (
                 <>

@@ -1,4 +1,5 @@
 import { useMemo, memo } from 'react';
+import { useEpgClockFormat } from '../stores/uiStore';
 import { RecordingIndicator } from './RecordingIndicator';
 import type { StoredProgram, StoredChannel } from '../db';
 import './ProgramBlock.css';
@@ -87,10 +88,12 @@ export const ProgramBlock = memo(function ProgramBlock({
   const isCurrent = progStartMs <= now.getTime() && progEndMs > now.getTime();
   const isPast = progEndMs < now.getTime();
 
+  const epgClockFormat = useEpgClockFormat();
+
   // Format time for tooltip
   const formatTime = (date: Date | string) => {
     const d = date instanceof Date ? date : new Date(date);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
   };
 
   const handleProgramClick = () => {

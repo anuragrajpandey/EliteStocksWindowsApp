@@ -4,11 +4,11 @@
  * Formatting and utility functions for sports data
  */
 
-export function formatEventTime(date: Date): string {
+export function formatEventTime(date: Date, hour12: boolean = true): string {
   return date.toLocaleTimeString(undefined, {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: true,
+    hour12,
   });
 }
 
@@ -30,8 +30,8 @@ export function formatEventDate(date: Date): string {
   });
 }
 
-export function formatEventDateTime(date: Date): string {
-  return `${formatEventDate(date)} ${formatEventTime(date)}`;
+export function formatEventDateTime(date: Date, hour12: boolean = true): string {
+  return `${formatEventDate(date)} ${formatEventTime(date, hour12)}`;
 }
 
 export function formatLastUpdated(date: Date | null): string {

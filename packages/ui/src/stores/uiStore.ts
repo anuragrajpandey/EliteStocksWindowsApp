@@ -82,6 +82,8 @@ interface UIState {
   setEpgView: (value: 'traditional' | 'alternate') => void;
   epgVisibleHours: 'auto' | number;
   setEpgVisibleHours: (value: 'auto' | number) => void;
+  epgClockFormat: '12h' | '24h';
+  setEpgClockFormat: (value: '12h' | '24h') => void;
   includeAllChannelsToPlaylist: boolean;
   setIncludeAllChannelsToPlaylist: (value: boolean) => void;
 
@@ -211,6 +213,8 @@ export const useUIStore = create<UIState>((set) => ({
   setEpgView: (value) => set({ epgView: value }),
   epgVisibleHours: 'auto',
   setEpgVisibleHours: (value) => set({ epgVisibleHours: value }),
+  epgClockFormat: '12h',
+  setEpgClockFormat: (value) => set({ epgClockFormat: value }),
   includeAllChannelsToPlaylist: false,
   setIncludeAllChannelsToPlaylist: (value) => set({ includeAllChannelsToPlaylist: value }),
 
@@ -420,6 +424,8 @@ export const useEpgView = () => useUIStore((s) => s.epgView);
 export const useSetEpgView = () => useUIStore((s) => s.setEpgView);
 export const useEpgVisibleHours = () => useUIStore((s) => s.epgVisibleHours);
 export const useSetEpgVisibleHours = () => useUIStore((s) => s.setEpgVisibleHours);
+export const useEpgClockFormat = () => useUIStore((s) => s.epgClockFormat);
+export const useSetEpgClockFormat = () => useUIStore((s) => s.setEpgClockFormat);
 export const useIncludeAllChannelsToPlaylist = () => useUIStore((s) => s.includeAllChannelsToPlaylist);
 export const useSetIncludeAllChannelsToPlaylist = () => useUIStore((s) => s.setIncludeAllChannelsToPlaylist);
 

@@ -8,6 +8,7 @@ import { addChannelsToGroup } from '../services/custom-groups';
 import { addChannelToFailoverGroup, createFailoverGroup } from '../services/failover-groups';
 import { addToRecentChannels } from '../utils/recentChannels';
 import { EpgEditorModal } from './EpgEditorModal';
+import { useEpgClockFormat } from '../stores/uiStore';
 import './ProgramContextMenu.css'; // Reuse the same styles
 
 type MenuView = 'main' | 'quick' | 'custom' | 'group' | 'failover';
@@ -56,6 +57,7 @@ export function ChannelContextMenu({
     onPlayInPopout,
     onPlayInExternal,
 }: ChannelContextMenuProps) {
+    const epgClockFormat = useEpgClockFormat();
     const menuRef = useRef<HTMLDivElement>(null);
     const [currentView, setCurrentView] = useState<MenuView>('main');
     const [durationMinutes, setDurationMinutes] = useState(30);
@@ -875,7 +877,41 @@ export function ChannelContextMenu({
                     <label className="datetime-label">Start</label>
                     <div className="datetime-inputs">
                         <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="datetime-input" />
-                        <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="datetime-input" />
+                        {epgClockFormat === '24h' ? (
+                            <div className="time-24h-picker" style={{ display: 'flex', gap: '4px', alignItems: 'center', flex: 1 }}>
+                                <select
+                                    value={startTime.split(':')[0] || '00'}
+                                    onChange={(e) => {
+                                        const mins = startTime.split(':')[1] || '00';
+                                        setStartTime(`${e.target.value}:${mins}`);
+                                    }}
+                                    className="datetime-input"
+                                    style={{ flex: 1, padding: '8px 4px', textAlign: 'center' }}
+                                >
+                                    {Array.from({ length: 24 }, (_, i) => {
+                                        const h = i.toString().padStart(2, '0');
+                                        return <option key={h} value={h}>{h}</option>;
+                                    })}
+                                </select>
+                                <span style={{ color: 'var(--text-secondary, #888)', fontWeight: 'bold' }}>:</span>
+                                <select
+                                    value={startTime.split(':')[1] || '00'}
+                                    onChange={(e) => {
+                                        const hrs = startTime.split(':')[0] || '00';
+                                        setStartTime(`${hrs}:${e.target.value}`);
+                                    }}
+                                    className="datetime-input"
+                                    style={{ flex: 1, padding: '8px 4px', textAlign: 'center' }}
+                                >
+                                    {Array.from({ length: 60 }, (_, i) => {
+                                        const m = i.toString().padStart(2, '0');
+                                        return <option key={m} value={m}>{m}</option>;
+                                    })}
+                                </select>
+                            </div>
+                        ) : (
+                            <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="datetime-input" />
+                        )}
                     </div>
                 </div>
 
@@ -883,7 +919,41 @@ export function ChannelContextMenu({
                     <label className="datetime-label">End</label>
                     <div className="datetime-inputs">
                         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="datetime-input" />
-                        <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="datetime-input" />
+                        {epgClockFormat === '24h' ? (
+                            <div className="time-24h-picker" style={{ display: 'flex', gap: '4px', alignItems: 'center', flex: 1 }}>
+                                <select
+                                    value={endTime.split(':')[0] || '00'}
+                                    onChange={(e) => {
+                                        const mins = endTime.split(':')[1] || '00';
+                                        setEndTime(`${e.target.value}:${mins}`);
+                                    }}
+                                    className="datetime-input"
+                                    style={{ flex: 1, padding: '8px 4px', textAlign: 'center' }}
+                                >
+                                    {Array.from({ length: 24 }, (_, i) => {
+                                        const h = i.toString().padStart(2, '0');
+                                        return <option key={h} value={h}>{h}</option>;
+                                    })}
+                                </select>
+                                <span style={{ color: 'var(--text-secondary, #888)', fontWeight: 'bold' }}>:</span>
+                                <select
+                                    value={endTime.split(':')[1] || '00'}
+                                    onChange={(e) => {
+                                        const hrs = endTime.split(':')[0] || '00';
+                                        setEndTime(`${hrs}:${e.target.value}`);
+                                    }}
+                                    className="datetime-input"
+                                    style={{ flex: 1, padding: '8px 4px', textAlign: 'center' }}
+                                >
+                                    {Array.from({ length: 60 }, (_, i) => {
+                                        const m = i.toString().padStart(2, '0');
+                                        return <option key={m} value={m}>{m}</option>;
+                                    })}
+                                </select>
+                            </div>
+                        ) : (
+                            <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="datetime-input" />
+                        )}
                     </div>
                 </div>
 

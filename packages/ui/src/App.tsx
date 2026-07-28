@@ -58,6 +58,7 @@ import {
   useEpgView,
   useSetEpgView,
   useSetEpgVisibleHours,
+  useSetEpgClockFormat,
   useSetIncludeAllChannelsToPlaylist
 } from './stores/uiStore';
 import { getAdjacentEpisode, recordVodWatch, recordEpisodeWatch, getEpisodeProgress } from './db';
@@ -1886,6 +1887,7 @@ function App() {
   const setEpgView = useSetEpgView();
   const epgView = useEpgView();
   const setEpgVisibleHours = useSetEpgVisibleHours();
+  const setEpgClockFormat = useSetEpgClockFormat();
   const setIncludeAllChannelsToPlaylist = useSetIncludeAllChannelsToPlaylist();
 
   const handleToggleEpgView = useCallback(() => {
@@ -3130,6 +3132,9 @@ function App() {
           if (settingsResult.data.epgVisibleHours) {
             const rawHours = settingsResult.data.epgVisibleHours;
             setEpgVisibleHours(rawHours === 'auto' ? 'auto' : Number(rawHours));
+          }
+          if (settingsResult.data.epgClockFormat) {
+            setEpgClockFormat(settingsResult.data.epgClockFormat as '12h' | '24h');
           }
           if (settingsResult.data.includeAllChannelsToPlaylist !== undefined) {
             setIncludeAllChannelsToPlaylist(settingsResult.data.includeAllChannelsToPlaylist);

@@ -10,6 +10,7 @@ import {
 import { GameCard } from './GameCard';
 import { GameDetail } from './GameDetail';
 import { TeamDetail } from './TeamDetail';
+import { useEpgClockFormat } from '../../stores/uiStore';
 import './styles/WorldCupTab.css';
 
 interface WorldCupTabProps {
@@ -40,6 +41,7 @@ interface GroupStanding {
 }
 
 export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProps) {
+  const epgClockFormat = useEpgClockFormat();
   const [activeSubTab, setActiveSubTab] = useState<SubTabId>('overview');
   
   // Data States
@@ -419,7 +421,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
               <div className="wc-list-stack">
                 {upcoming.map(m => (
                   <div key={m.id} className="wc-match-row-item" onClick={() => setSelectedEvent(m)}>
-                    <span className="time">{m.startTime.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} at {formatEventTime(m.startTime)}</span>
+                    <span className="time">{m.startTime.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} at {formatEventTime(m.startTime, epgClockFormat !== '24h')}</span>
                     <div className="teams">
                       <div className="team away">
                         <img src={m.awayTeam.logo} alt="" className="flag" onError={e => e.currentTarget.style.display = 'none'} />

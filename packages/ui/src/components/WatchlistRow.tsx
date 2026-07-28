@@ -3,6 +3,7 @@ import type { WatchlistItem, StoredChannel, StoredProgram } from '../db';
 import { removeFromWatchlist, updateWatchlistOptions } from '../db';
 import { WatchlistOptionsModal } from './WatchlistOptionsModal';
 import { FavoriteButton } from './FavoriteButton';
+import { useEpgClockFormat } from '../stores/uiStore';
 import './ChannelPanel.css';
 
 // Channel column width is controlled via CSS custom property for resizability
@@ -114,10 +115,12 @@ export function WatchlistRow({
     }
   };
 
+  const epgClockFormat = useEpgClockFormat();
+
   // Format time
   const formatTime = (timestamp: number | Date) => {
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
   };
 
   // Status indicators

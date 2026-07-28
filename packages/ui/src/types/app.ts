@@ -147,6 +147,7 @@ export interface AppSettings {
     overlayAutohideTimer?: number;
     uiScale?: number;
     epgVisibleHours?: 'auto' | number;
+    epgClockFormat?: '12h' | '24h';
     rememberLastChannels?: boolean;
     savedLayoutState?: SavedLayoutState;
     startupView?: 'none' | 'guide' | 'movies' | 'series' | 'dvr' | 'sports' | 'calendar' | 'stremio' | 'nuvio';

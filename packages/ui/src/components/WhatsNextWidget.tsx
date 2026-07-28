@@ -1,5 +1,6 @@
 import type { StoredChannel } from '../db';
 import { useNextProgram } from '../hooks/useChannels';
+import { useEpgClockFormat } from '../stores/uiStore';
 import './WhatsNextWidget.css';
 
 interface WhatsNextWidgetProps {
@@ -11,8 +12,8 @@ interface WhatsNextWidgetProps {
   onMoveRight?: () => void;
 }
 
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+function formatTime(date: Date, epgClockFormat: '12h' | '24h'): string {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
 }
 
 export function WhatsNextWidget({
@@ -23,6 +24,7 @@ export function WhatsNextWidget({
   onMoveLeft,
   onMoveRight,
 }: WhatsNextWidgetProps) {
+  const epgClockFormat = useEpgClockFormat();
   const nextProgram = useNextProgram(channel?.stream_id ?? null);
 
   const isMainScreen = activeView === 'none';
@@ -59,7 +61,7 @@ export function WhatsNextWidget({
               {nextProgram.title}
             </div>
             <div className="whats-next-time">
-              {formatTime(new Date(nextProgram.start))} – {formatTime(new Date(nextProgram.end))}
+              {formatTime(new Date(nextProgram.start), epgClockFormat)} – {formatTime(new Date(nextProgram.end), epgClockFormat)}
             </div>
             {nextProgram.description && (
               <div className="whats-next-desc" title={nextProgram.description}>

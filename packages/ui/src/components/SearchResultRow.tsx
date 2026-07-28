@@ -7,6 +7,7 @@ import { addToRecentChannels } from '../utils/recentChannels';
 import type { StoredChannel, StoredProgram } from '../db';
 import { normalizeBoolean } from '../utils/db-helpers';
 import type { RecordingInfo } from '../hooks/useActiveRecordings';
+import { useEpgClockFormat } from '../stores/uiStore';
 import './ChannelPanel.css';
 
 interface SearchResultRowProps {
@@ -66,9 +67,11 @@ export const SearchResultRow = memo(function SearchResultRow({
   const [channelContextMenu, setChannelContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [programContextMenu, setProgramContextMenu] = useState<{ program: StoredProgram; x: number; y: number } | null>(null);
 
+  const epgClockFormat = useEpgClockFormat();
+
   const formatProgramTime = (date: Date | string) => {
     const d = date instanceof Date ? date : new Date(date);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
   };
 
   // Handle context menu on channel

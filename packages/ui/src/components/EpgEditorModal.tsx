@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import './EpgEditorModal.css';
 import { db } from '../db';
 import type { StoredChannel, StoredCategory } from '../db';
+import { useEpgClockFormat } from '../stores/uiStore';
 import {
   getChannelOverride,
   upsertChannelOverride,
@@ -49,13 +50,14 @@ function datetimeLocalToIso(value: string): string {
   return new Date(value).toISOString();
 }
 
-function formatShortDatetime(iso: string): string {
+function formatShortDatetime(iso: string, epgClockFormat: '12h' | '24h'): string {
   if (!iso) return '';
   const d = new Date(iso);
   if (isNaN(d.getTime())) return '';
   return d.toLocaleString([], {
     month: 'short', day: 'numeric',
     hour: '2-digit', minute: '2-digit',
+    hour12: epgClockFormat !== '24h',
   });
 }
 
@@ -77,6 +79,7 @@ function ProgramRow({
   onDelete: () => void;
   onRestore: () => void;
 }) {
+  const epgClockFormat = useEpgClockFormat();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(prog.title);
   const [subtitle, setSubtitle] = useState(prog.subtitle);
@@ -97,8 +100,8 @@ function ProgramRow({
   function handleSave() {
     onSave({
       title,
-      subtitle,
-      description: desc,
+      subtitle: subtitle || undefined,
+      description: desc || undefined,
       start: datetimeLocalToIso(start),
       end: datetimeLocalToIso(end),
     });
@@ -108,8 +111,8 @@ function ProgramRow({
   return (
     <div className={`epg-program-row${prog.is_deleted ? ' is-deleted' : ''}${prog.is_custom ? ' is-custom' : ''}${editing ? ' editing' : ''}`}>
       <div className="epg-program-time">
-        <div>{formatShortDatetime(prog.start)}</div>
-        <div style={{ opacity: 0.6, fontSize: '0.7rem', marginTop: 2 }}>→ {formatShortDatetime(prog.end)}</div>
+        <div>{formatShortDatetime(prog.start, epgClockFormat)}</div>
+        <div style={{ opacity: 0.6, fontSize: '0.7rem', marginTop: 2 }}>→ {formatShortDatetime(prog.end, epgClockFormat)}</div>
       </div>
       <div className="epg-program-info">
         <div className="epg-program-title">{prog.title || '(No title)'}</div>
@@ -194,6 +197,7 @@ function ProgramRow({
 // ─── Main Modal ───────────────────────────────────────────────────────────────
 
 export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, onClose }: EpgEditorModalProps) {
+  const epgClockFormat = useEpgClockFormat();
   const overlayRef = useRef<HTMLDivElement>(null);
 
   // ── Navigation state ──
@@ -1139,7 +1143,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                                     fontSize: '0.81rem',
                                   }}>
                                     <span style={{ color: 'var(--text-secondary, #888)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                                      {formatShortDatetime(p.start)}
+                                      {formatShortDatetime(p.start, epgClockFormat)}
                                     </span>
                                     <span style={{ color: '#fff' }}>{p.title}</span>
                                   </div>

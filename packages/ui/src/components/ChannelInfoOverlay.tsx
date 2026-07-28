@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { StoredChannel } from '../db';
 import { useCurrentProgram } from '../hooks/useChannels';
+import { useEpgClockFormat } from '../stores/uiStore';
 import { MetadataBadge } from './MetadataBadge';
 import './ChannelInfoOverlay.css';
 
@@ -24,8 +25,8 @@ interface ChannelInfoOverlayProps {
   duration?: number;
 }
 
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+function formatTime(date: Date, epgClockFormat: '12h' | '24h'): string {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
 }
 
 export function ChannelInfoOverlay({
@@ -41,6 +42,7 @@ export function ChannelInfoOverlay({
   position = 0,
   duration = 0,
 }: ChannelInfoOverlayProps) {
+  const epgClockFormat = useEpgClockFormat();
   const currentProgram = useCurrentProgram(isCatchup ? null : (channel?.stream_id ?? null));
   const [showDescription, setShowDescription] = useState(false);
 
@@ -169,7 +171,7 @@ export function ChannelInfoOverlay({
               <>
                 <div className="cio-time-row">
                   <span className="cio-time-range">
-                    {formatTime(new Date(activeProgram.start))} - {formatTime(new Date(activeProgram.end))}
+                    {formatTime(new Date(activeProgram.start), epgClockFormat)} - {formatTime(new Date(activeProgram.end), epgClockFormat)}
                   </span>
                   {timeRemaining && (
                     <span className="cio-time-remaining">{timeRemaining}</span>

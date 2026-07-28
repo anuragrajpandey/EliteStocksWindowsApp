@@ -16,7 +16,7 @@ import { CustomGroupManager } from './CustomGroupManager';
 import { FailoverGroupListModal } from './FailoverGroupListModal';
 import { PlaylistListModal } from './PlaylistListModal';
 
-import { useChannelSortOrder, useEpgView, useEpgVisibleHours, useUIStore } from '../stores/uiStore';
+import { useChannelSortOrder, useEpgView, useEpgVisibleHours, useEpgClockFormat, useUIStore } from '../stores/uiStore';
 import { NowPlayingBar } from './NowPlayingBar';
 import type { StoredChannel, StoredProgram, WatchlistItem } from '../db';
 import { db } from '../db';
@@ -317,6 +317,7 @@ export function ChannelPanel({
 }: ChannelPanelProps) {
   const epgView = useEpgView();
   const epgVisibleHours = useEpgVisibleHours();
+  const epgClockFormat = useEpgClockFormat();
   const { epgLazyLoadingEnabled, layoutSettingsLoaded } = useAppSettings();
 
   useEffect(() => {
@@ -1053,8 +1054,8 @@ export function ChannelPanel({
 
   // Format time
   const formatTime = useCallback((date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }, []);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
+  }, [epgClockFormat]);
 
   // Generate time slots aligned to the grid
   const timeSlots = useMemo(() => {
@@ -1577,7 +1578,7 @@ export function ChannelPanel({
   // Format program time
   const formatProgramTime = (date: Date | string) => {
     const d = date instanceof Date ? date : new Date(date);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
   };
 
   // Check if program is currently airing

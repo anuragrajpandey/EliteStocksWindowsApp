@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState, useRef } from 'react';
 import { ChannelSelectorModal } from './ChannelSelectorModal';
 import { ShowNotificationsModal } from './ShowNotificationsModal';
 import { db, addTvEpisodeToWatchlist, clearAutoAddedEpisodesForShow, type AutoAddEpisode, type StoredChannel } from '../db';
+import { useEpgClockFormat } from '../stores/uiStore';
 import './ShowDetailsModal.css';
 
 interface Episode {
@@ -88,6 +89,7 @@ interface Props {
 }
 
 export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onClose, onPlayChannel, onChannelSet }: Props) {
+  const epgClockFormat = useEpgClockFormat();
   const [data, setData] = useState<ShowDetailsWithEpisodes | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -585,7 +587,8 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                           {nextEpisode.airstamp
                             ? new Date(nextEpisode.airstamp).toLocaleTimeString(undefined, {
                                 hour: '2-digit',
-                                minute: '2-digit'
+                                minute: '2-digit',
+                                hour12: epgClockFormat !== '24h'
                               })
                             : formatTime(nextEpisode.airtime)}
                         </span>
@@ -648,7 +651,8 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                               {episode.airstamp
                                 ? new Date(episode.airstamp).toLocaleTimeString(undefined, {
                                     hour: '2-digit',
-                                    minute: '2-digit'
+                                    minute: '2-digit',
+                                    hour12: epgClockFormat !== '24h'
                                   })
                                 : formatTime(episode.airtime)}
                             </span>

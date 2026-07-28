@@ -5,6 +5,7 @@ import { ShowDetailsModal } from './ShowDetailsModal';
 import { matchesSearch } from '../utils/searchNormalization';
 import { TVCalendarTab } from './settings/TVCalendarTab';
 import { db, addTvEpisodeToWatchlist, clearAutoAddedEpisodesForShow, type StoredChannel, type AutoAddEpisode } from '../db';
+import { useEpgClockFormat } from '../stores/uiStore';
 
 // Cache storage key for localStorage
 const CACHE_STORAGE_KEY = 'tvmaze_episode_cache';
@@ -192,6 +193,7 @@ const SettingsIcon = () => (
 );
 
 export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
+  const epgClockFormat = useEpgClockFormat();
   const [activeTab, setActiveTab] = useState<TVCalendarTab>('calendar');
 
   // Calendar state
@@ -847,7 +849,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                           <span className="tvcp-ep-time">
                             {/* Use airstamp for accurate local timezone conversion */}
                             {ep.airstamp
-                              ? new Date(ep.airstamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+                              ? new Date(ep.airstamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })
                               : ep.airtime ?? 'TBA'}
                           </span>
                           <span className="tvcp-ep-show">{ep.show_name}</span>
@@ -998,7 +1000,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                                 {(episode.airstamp || episode.airtime) && (
                                   <span>
                                     {episode.airstamp
-                                      ? new Date(episode.airstamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+                                      ? new Date(episode.airstamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })
                                       : episode.airtime}
                                   </span>
                                 )}
@@ -1161,7 +1163,8 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                                 <span className="tvcp-myshow-upcoming-time">
                                   {' '}at {new Date(nextEp.airstamp).toLocaleTimeString(undefined, {
                                     hour: '2-digit',
-                                    minute: '2-digit'
+                                    minute: '2-digit',
+                                    hour12: epgClockFormat !== '24h'
                                   })}
                                 </span>
                               ) : nextEp.airtime ? (

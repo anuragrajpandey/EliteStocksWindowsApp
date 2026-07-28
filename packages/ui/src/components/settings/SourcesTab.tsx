@@ -11,7 +11,8 @@ import {
   useVodSyncing,
   useSetVodSyncing,
   useSyncStatusMessage,
-  useSetSyncStatusMessage
+  useSetSyncStatusMessage,
+  useEpgClockFormat
 } from '../../stores/uiStore';
 import { useToastStore } from '../../stores/toastStore';
 import { parseM3U, XtreamClient, StalkerClient } from '@ynotv/local-adapter';
@@ -2747,6 +2748,7 @@ interface GlobalEpgMatchesModalProps {
 }
 
 function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesModalProps) {
+  const epgClockFormat = useEpgClockFormat();
   const [channels, setChannels] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedChannel, setSelectedChannel] = useState<any | null>(null);
@@ -2908,7 +2910,7 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
   const formatTime = (timeStr: string | Date) => {
     try {
       const d = new Date(timeStr);
-      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
     } catch {
       return String(timeStr);
     }

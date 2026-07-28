@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useEpgClockFormat } from '../../stores/uiStore';
 import type { SportsEvent, SportsLeague, SportsTeam } from '@ynotv/core';
 import {
   getAvailableLeagues,
@@ -967,6 +968,7 @@ interface LeagueEventRowProps {
 }
 
 function LeagueEventRow({ event, isIndividualSport, onChannelClick, onClick }: LeagueEventRowProps) {
+  const epgClockFormat = useEpgClockFormat();
   const isLive = event.status === 'live';
   const isFinished = event.status === 'finished';
   
@@ -979,7 +981,7 @@ function LeagueEventRow({ event, isIndividualSport, onChannelClick, onClick }: L
             {event.startTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
           </span>
           <span className="sports-event-time">
-            {event.startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+            {event.startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}
           </span>
         </div>
 
@@ -1029,7 +1031,7 @@ function LeagueEventRow({ event, isIndividualSport, onChannelClick, onClick }: L
           {event.startTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
         </span>
         <span className="sports-event-time">
-          {event.startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+          {event.startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}
         </span>
       </div>
 

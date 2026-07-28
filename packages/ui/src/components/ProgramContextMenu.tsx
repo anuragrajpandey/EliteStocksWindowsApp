@@ -8,6 +8,7 @@ import { WatchlistOptionsModal } from './WatchlistOptionsModal';
 import { TVMazeSearchModal } from './TVMazeSearchModal';
 import { DvrScheduleOptionsModal } from './DvrScheduleOptionsModal';
 import { CatchupDownloadModal } from './CatchupDownloadModal';
+import { useEpgClockFormat } from '../stores/uiStore';
 import './ProgramContextMenu.css';
 
 interface ProgramContextMenuProps {
@@ -29,6 +30,7 @@ export function ProgramContextMenu({
     onClose,
     isCatchupAvailable = false,
 }: ProgramContextMenuProps) {
+    const epgClockFormat = useEpgClockFormat();
     const menuRef = useRef<HTMLDivElement>(null);
     const [scheduling, setScheduling] = useState(false);
     const [addingToWatchlist, setAddingToWatchlist] = useState(false);
@@ -493,7 +495,7 @@ export function ProgramContextMenu({
                 isOpen={showOptionsModal}
                 programTitle={program.title}
                 channelName={channelName}
-                timeString={`${new Date(program.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(program.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                timeString={`${new Date(program.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })} - ${new Date(program.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}`}
                 defaultStartPadding={defaultStartPadding}
                 defaultEndPadding={defaultEndPadding}
                 onConfirm={handleConfirmSchedule}
@@ -506,7 +508,7 @@ export function ProgramContextMenu({
                 isOpen={showDownloadModal}
                 programTitle={program.title}
                 channelName={channelName}
-                timeString={`${new Date(program.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(program.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                timeString={`${new Date(program.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })} - ${new Date(program.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}`}
                 defaultStartPadding={catchupStartPadding}
                 defaultEndPadding={catchupEndPadding}
                 onConfirm={handleConfirmDownload}

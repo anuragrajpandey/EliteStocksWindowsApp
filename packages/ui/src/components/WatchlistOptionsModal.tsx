@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import type { StoredProgram, StoredChannel, WatchlistOptions } from '../db';
 import type { WatchlistItem } from '../db';
+import { useEpgClockFormat } from '../stores/uiStore';
 import './WatchlistOptionsModal.css';
 
 interface WatchlistOptionsModalProps {
@@ -21,6 +22,7 @@ export function WatchlistOptionsModal({
   onConfirm,
   onCancel,
 }: WatchlistOptionsModalProps) {
+  const epgClockFormat = useEpgClockFormat();
   const [reminderEnabled, setReminderEnabled] = useState(true);
   const [reminderMinutes, setReminderMinutes] = useState(0);
   const [autoswitchEnabled, setAutoswitchEnabled] = useState(false);
@@ -74,7 +76,7 @@ export function WatchlistOptionsModal({
 
   const formatTime = (timestamp: number | Date) => {
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
   };
 
   return createPortal(

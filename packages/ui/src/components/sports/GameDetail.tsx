@@ -7,6 +7,7 @@ import {
   type GameSummary,
   type PlayerStatCategory,
 } from '../../services/sports';
+import { useEpgClockFormat } from '../../stores/uiStore';
 
 interface GameDetailProps {
   event: SportsEvent;
@@ -19,6 +20,7 @@ interface GameDetailProps {
 type TabId = 'stats' | 'players' | 'scoring' | 'info';
 
 export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, variant = 'default' }: GameDetailProps) {
+  const epgClockFormat = useEpgClockFormat();
   const [summary, setSummary] = useState<GameSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>('stats');
@@ -507,7 +509,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
                   <span className="game-detail-live-text">{event.timeElapsed || 'LIVE'}</span>
                 </div>
               ) : (
-                <span className="game-detail-datetime">{formatEventDateTime(event.startTime)}</span>
+                <span className="game-detail-datetime">{formatEventDateTime(event.startTime, epgClockFormat !== '24h')}</span>
               )}
               {event.venue && <span className="game-detail-venue">{event.venue}</span>}
             </div>
@@ -581,7 +583,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
                   LIVE
                 </span>
               )}
-              <span className="ufc-detail-datetime">{formatEventDateTime(event.startTime)}</span>
+              <span className="ufc-detail-datetime">{formatEventDateTime(event.startTime, epgClockFormat !== '24h')}</span>
               {event.venue && <span className="ufc-detail-venue">{event.venue}</span>}
             </div>
           </div>
@@ -706,7 +708,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
                   LIVE
                 </span>
               )}
-              <span className="racing-detail-datetime">{formatEventDateTime(event.startTime)}</span>
+              <span className="racing-detail-datetime">{formatEventDateTime(event.startTime, epgClockFormat !== '24h')}</span>
               {event.venue && <span className="racing-detail-venue">{event.venue}</span>}
             </div>
           </div>
@@ -825,7 +827,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
                   LIVE
                 </span>
               )}
-              <span className="golf-detail-datetime">{formatEventDateTime(event.startTime)}</span>
+              <span className="golf-detail-datetime">{formatEventDateTime(event.startTime, epgClockFormat !== '24h')}</span>
               {event.venue && <span className="golf-detail-venue">{event.venue}</span>}
             </div>
           </div>
@@ -945,7 +947,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
                   LIVE
                 </span>
               )}
-              <span className="tennis-detail-datetime">{formatEventDateTime(event.startTime)}</span>
+              <span className="tennis-detail-datetime">{formatEventDateTime(event.startTime, epgClockFormat !== '24h')}</span>
               {event.venue && <span className="tennis-detail-venue">{event.venue}</span>}
             </div>
           </div>
@@ -1080,7 +1082,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
               </div>
             ) : (
               <div className="game-detail-scheduled">
-                <span className="game-detail-datetime">{formatEventDateTime(event.startTime)}</span>
+                <span className="game-detail-datetime">{formatEventDateTime(event.startTime, epgClockFormat !== '24h')}</span>
               </div>
             )}
             {event.venue && (
