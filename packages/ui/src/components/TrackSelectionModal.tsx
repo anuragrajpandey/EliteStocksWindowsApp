@@ -34,9 +34,19 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
   const [selectedCcId, setSelectedCcId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [audioDelay, setAudioDelay] = useState<number>(0.0);
-  const [activeTab, setActiveTab] = useState<'tracks' | 'devices'>('tracks');
+  const [activeTab, setActiveTab] = useState<'tracks' | 'devices' | 'settings'>('tracks');
   const [devices, setDevices] = useState<{ name: string; description: string }[]>([]);
   const [currentDevice, setCurrentDevice] = useState<string>('auto');
+
+  // Subtitle controls state
+  const [subSize, setSubSize] = useState<number>(35);
+  const [subDelay, setSubDelay] = useState<number>(0.0);
+  const [subVerticalOffset, setSubVerticalOffset] = useState<number>(100);
+  const [subColor, setSubColor] = useState<string>('#ffffff');
+  const [subBackgroundEnabled, setSubBackgroundEnabled] = useState<boolean>(false);
+  const [subBackgroundColor, setSubBackgroundColor] = useState<string>('#000000');
+  const [subBackgroundOpacity, setSubBackgroundOpacity] = useState<number>(80);
+  const [subAlign, setSubAlign] = useState<'center' | 'left' | 'right'>('center');
 
   useEffect(() => {
     if (isOpen) {
@@ -45,6 +55,9 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
       if (type === 'audio') {
         loadAudioDelay();
         loadAudioDevices();
+      } else if (type === 'subtitle') {
+        loadSubtitleDelay();
+        loadSubtitleSettings();
       }
     }
   }, [isOpen, type]);
@@ -269,10 +282,179 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
     }
   };
 
+  const loadSubtitleSettings = async () => {
+    try {
+      if (window.storage) {
+        const settingsResult = await window.storage.getSettings();
+        const ss = settingsResult.data?.subtitleSettings || {};
+        if (ss.defaultSize) setSubSize(ss.defaultSize);
+        if (ss.subColor) setSubColor(ss.subColor);
+        if (ss.subBackgroundEnabled !== undefined) setSubBackgroundEnabled(ss.subBackgroundEnabled);
+        if (ss.subBackgroundColor) setSubBackgroundColor(ss.subBackgroundColor);
+        if (ss.subBackgroundOpacity !== undefined) setSubBackgroundOpacity(ss.subBackgroundOpacity);
+        if (ss.subVerticalOffset !== undefined) setSubVerticalOffset(100 - ss.subVerticalOffset);
+        if (ss.subAlign) setSubAlign(ss.subAlign);
+      }
+    } catch (e) {
+      console.error('Failed to load subtitle settings:', e);
+    }
+  };
+
+  const loadSubtitleDelay = async () => {
+    try {
+      const delayVal = await Bridge.getProperty('sub-delay');
+      setSubDelay(parseMpvNumber(delayVal));
+    } catch (e) {
+      console.error('Failed to load subtitle delay:', e);
+    }
+  };
+
+  const handleSubDelayChange = async (delta: number) => {
+    const newDelay = Math.round((subDelay + delta) * 10) / 10;
+    try {
+      await Bridge.setSubtitleDelay(newDelay);
+      setSubDelay(newDelay);
+    } catch (e) {
+      console.error('Failed to set subtitle delay:', e);
+    }
+  };
+
+  const handleResetSubDelay = async () => {
+    try {
+      await Bridge.setSubtitleDelay(0.0);
+      setSubDelay(0.0);
+    } catch (e) {
+      console.error('Failed to reset subtitle delay:', e);
+    }
+  };
+
+  const handleSubSizeChange = async (val: number) => {
+    setSubSize(val);
+    try {
+      await Bridge.setSubtitleSize(val);
+      if (window.storage) {
+        const settingsResult = await window.storage.getSettings();
+        const ss = settingsResult.data?.subtitleSettings || {};
+        await window.storage.updateSettings({
+          subtitleSettings: { ...ss, defaultSize: val }
+        });
+      }
+    } catch (e) {
+      console.error('Failed to set subtitle size:', e);
+    }
+  };
+
+  const handleSubPosChange = async (val: number) => {
+    setSubVerticalOffset(val);
+    try {
+      const pos = Math.max(0, Math.min(100, 100 - val));
+      await Bridge.setSubtitlePos(pos);
+      if (window.storage) {
+        const settingsResult = await window.storage.getSettings();
+        const ss = settingsResult.data?.subtitleSettings || {};
+        await window.storage.updateSettings({
+          subtitleSettings: { ...ss, subVerticalOffset: 100 - val }
+        });
+      }
+    } catch (e) {
+      console.error('Failed to set subtitle position:', e);
+    }
+  };
+
+  const handleSubAlignChange = async (align: 'center' | 'left' | 'right') => {
+    setSubAlign(align);
+    try {
+      await Bridge.setSubtitleAlign(align);
+      if (window.storage) {
+        const settingsResult = await window.storage.getSettings();
+        const ss = settingsResult.data?.subtitleSettings || {};
+        await window.storage.updateSettings({
+          subtitleSettings: { ...ss, subAlign: align }
+        });
+      }
+    } catch (e) {
+      console.error('Failed to set subtitle alignment:', e);
+    }
+  };
+
+  const handleSubColorChange = async (color: string) => {
+    setSubColor(color);
+    try {
+      await Bridge.setSubtitleColor(color);
+      if (window.storage) {
+        const settingsResult = await window.storage.getSettings();
+        const ss = settingsResult.data?.subtitleSettings || {};
+        await window.storage.updateSettings({
+          subtitleSettings: { ...ss, subColor: color }
+        });
+      }
+    } catch (e) {
+      console.error('Failed to set subtitle color:', e);
+    }
+  };
+
+  const handleSubBackgroundToggle = async (enabled: boolean) => {
+    setSubBackgroundEnabled(enabled);
+    try {
+      if (enabled) {
+        await Bridge.setSubtitleBackColor(subBackgroundColor, subBackgroundOpacity);
+        await Bridge.setSubtitleBorderStyle('background-box');
+      } else {
+        await Bridge.setSubtitleBackColor(subBackgroundColor, 0);
+        await Bridge.setSubtitleBorderStyle('outline-and-shadow');
+      }
+      if (window.storage) {
+        const settingsResult = await window.storage.getSettings();
+        const ss = settingsResult.data?.subtitleSettings || {};
+        await window.storage.updateSettings({
+          subtitleSettings: { ...ss, subBackgroundEnabled: enabled }
+        });
+      }
+    } catch (e) {
+      console.error('Failed to set subtitle background toggle:', e);
+    }
+  };
+
+  const handleSubBackgroundOpacityChange = async (opacity: number) => {
+    setSubBackgroundOpacity(opacity);
+    try {
+      if (subBackgroundEnabled) {
+        await Bridge.setSubtitleBackColor(subBackgroundColor, opacity);
+      }
+      if (window.storage) {
+        const settingsResult = await window.storage.getSettings();
+        const ss = settingsResult.data?.subtitleSettings || {};
+        await window.storage.updateSettings({
+          subtitleSettings: { ...ss, subBackgroundOpacity: opacity }
+        });
+      }
+    } catch (e) {
+      console.error('Failed to set subtitle background opacity:', e);
+    }
+  };
+
+  const handleSubBackgroundColorChange = async (color: string) => {
+    setSubBackgroundColor(color);
+    try {
+      if (subBackgroundEnabled) {
+        await Bridge.setSubtitleBackColor(color, subBackgroundOpacity);
+      }
+      if (window.storage) {
+        const settingsResult = await window.storage.getSettings();
+        const ss = settingsResult.data?.subtitleSettings || {};
+        await window.storage.updateSettings({
+          subtitleSettings: { ...ss, subBackgroundColor: color }
+        });
+      }
+    } catch (e) {
+      console.error('Failed to set subtitle background color:', e);
+    }
+  };
+
   if (!isOpen) return null;
 
   const title = type === 'subtitle' 
-    ? 'Subtitle Tracks' 
+    ? (activeTab === 'tracks' ? 'Subtitle Tracks' : 'Subtitle Settings')
     : (activeTab === 'tracks' ? 'Audio Tracks' : 'Audio Devices');
 
   return (
@@ -283,7 +465,22 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
           <button className="track-modal-close" onClick={onClose}>×</button>
         </div>
 
-        {type === 'audio' && (
+        {type === 'subtitle' ? (
+          <div className="track-modal-tabs">
+            <button 
+              className={`track-modal-tab ${activeTab === 'tracks' ? 'active' : ''}`}
+              onClick={() => setActiveTab('tracks')}
+            >
+              Subtitle Tracks
+            </button>
+            <button 
+              className={`track-modal-tab ${activeTab === 'settings' ? 'active' : ''}`}
+              onClick={() => setActiveTab('settings')}
+            >
+              Subtitle Settings
+            </button>
+          </div>
+        ) : (
           <div className="track-modal-tabs">
             <button 
               className={`track-modal-tab ${activeTab === 'tracks' ? 'active' : ''}`}
@@ -352,7 +549,176 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
                 </div>
               )}
 
-              {type === 'audio' && activeTab === 'devices' ? (
+              {type === 'subtitle' && activeTab === 'tracks' && (
+                <div className="audio-sync-container">
+                  <span className="audio-sync-label">Subtitle Delay / Sync</span>
+                  <div className="audio-sync-controls">
+                    <button 
+                      className="audio-sync-btn audio-sync-btn-large" 
+                      onClick={() => handleSubDelayChange(-1.0)}
+                      title="Decrease delay by 1s (subtitles earlier)"
+                    >
+                      -1s
+                    </button>
+                    <button 
+                      className="audio-sync-btn" 
+                      onClick={() => handleSubDelayChange(-0.1)}
+                      title="Decrease delay by 0.1s"
+                    >
+                      -0.1s
+                    </button>
+                    <span className="audio-sync-value">
+                      {subDelay > 0 ? `+${subDelay.toFixed(1)}s` : `${subDelay.toFixed(1)}s`}
+                    </span>
+                    <button 
+                      className="audio-sync-btn" 
+                      onClick={() => handleSubDelayChange(0.1)}
+                      title="Increase delay by 0.1s"
+                    >
+                      +0.1s
+                    </button>
+                    <button 
+                      className="audio-sync-btn audio-sync-btn-large" 
+                      onClick={() => handleSubDelayChange(1.0)}
+                      title="Increase delay by 1s (subtitles later)"
+                    >
+                      +1s
+                    </button>
+                    {subDelay !== 0 && (
+                      <button 
+                        className="audio-sync-reset" 
+                        onClick={handleResetSubDelay}
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {type === 'subtitle' && activeTab === 'settings' ? (
+                <div className="subtitle-settings-container">
+                  <div className="subtitle-setting-row">
+                    <div className="subtitle-setting-info">
+                      <span className="subtitle-setting-label">Font Size</span>
+                      <span className="subtitle-setting-val">{subSize}pt</span>
+                    </div>
+                    <div className="subtitle-setting-control">
+                      <input 
+                        type="range" 
+                        min="10" 
+                        max="80" 
+                        value={subSize} 
+                        onChange={(e) => handleSubSizeChange(parseInt(e.target.value))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="subtitle-setting-row">
+                    <div className="subtitle-setting-info">
+                      <span className="subtitle-setting-label">Vertical Position</span>
+                      <span className="subtitle-setting-val">{subVerticalOffset}%</span>
+                    </div>
+                    <div className="subtitle-setting-control">
+                      <input 
+                        type="range" 
+                        min="0" 
+                        max="100" 
+                        value={subVerticalOffset} 
+                        onChange={(e) => handleSubPosChange(parseInt(e.target.value))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="subtitle-setting-row">
+                    <div className="subtitle-setting-info">
+                      <span className="subtitle-setting-label">Alignment</span>
+                    </div>
+                    <div className="subtitle-align-btns">
+                      <button 
+                        className={`audio-sync-btn ${subAlign === 'left' ? 'active-align' : ''}`}
+                        onClick={() => handleSubAlignChange('left')}
+                      >
+                        Left
+                      </button>
+                      <button 
+                        className={`audio-sync-btn ${subAlign === 'center' ? 'active-align' : ''}`}
+                        onClick={() => handleSubAlignChange('center')}
+                      >
+                        Center
+                      </button>
+                      <button 
+                        className={`audio-sync-btn ${subAlign === 'right' ? 'active-align' : ''}`}
+                        onClick={() => handleSubAlignChange('right')}
+                      >
+                        Right
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="subtitle-setting-row">
+                    <div className="subtitle-setting-info">
+                      <span className="subtitle-setting-label">Text Color</span>
+                    </div>
+                    <div className="subtitle-setting-color">
+                      <input 
+                        type="color" 
+                        value={subColor} 
+                        onChange={(e) => handleSubColorChange(e.target.value)}
+                      />
+                      <span className="subtitle-hex-val">{subColor.toUpperCase()}</span>
+                    </div>
+                  </div>
+
+                  <div className="subtitle-setting-row">
+                    <div className="subtitle-setting-info">
+                      <span className="subtitle-setting-label">Background Box</span>
+                    </div>
+                    <label className="subtitle-toggle">
+                      <input 
+                        type="checkbox" 
+                        checked={subBackgroundEnabled} 
+                        onChange={(e) => handleSubBackgroundToggle(e.target.checked)}
+                      />
+                      <span className="subtitle-toggle-slider"></span>
+                    </label>
+                  </div>
+
+                  {subBackgroundEnabled && (
+                    <>
+                      <div className="subtitle-setting-row">
+                        <div className="subtitle-setting-info">
+                          <span className="subtitle-setting-label">Background Color</span>
+                        </div>
+                        <div className="subtitle-setting-color">
+                          <input 
+                            type="color" 
+                            value={subBackgroundColor} 
+                            onChange={(e) => handleSubBackgroundColorChange(e.target.value)}
+                          />
+                          <span className="subtitle-hex-val">{subBackgroundColor.toUpperCase()}</span>
+                        </div>
+                      </div>
+
+                      <div className="subtitle-setting-row">
+                        <div className="subtitle-setting-info">
+                          <span className="subtitle-setting-label">Background Opacity</span>
+                          <span className="subtitle-setting-val">{subBackgroundOpacity}%</span>
+                        </div>
+                        <div className="subtitle-setting-control">
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="100" 
+                            value={subBackgroundOpacity} 
+                            onChange={(e) => handleSubBackgroundOpacityChange(parseInt(e.target.value))}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : type === 'audio' && activeTab === 'devices' ? (
                 <ul className="track-list">
                   {devices.map((device) => {
                     const isSelected = currentDevice === device.name;

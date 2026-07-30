@@ -326,3 +326,126 @@
   font-weight: 600;
 }
 
+/* Subtitle Settings Tab Styling */
+.subtitle-settings-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+}
+
+.subtitle-setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  gap: 16px;
+}
+
+.subtitle-setting-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.subtitle-setting-label {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-primary, #fff);
+}
+
+.subtitle-setting-val {
+  font-size: 0.78rem;
+  color: var(--text-secondary, #aaa);
+  font-family: monospace;
+}
+
+.subtitle-setting-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subtitle-setting-control input[type="range"] {
+  width: 140px;
+  accent-color: #3b82f6;
+  cursor: pointer;
+}
+
+.subtitle-setting-color {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subtitle-setting-color input[type="color"] {
+  width: 36px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.subtitle-hex-val {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #aaa);
+  font-family: monospace;
+}
+
+.subtitle-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.subtitle-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.subtitle-toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  transition: all 0.2s ease;
+}
+
+.subtitle-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.subtitle-toggle input:checked + .subtitle-toggle-slider {
+  background: #3b82f6;
+}
+
+.subtitle-toggle input:checked + .subtitle-toggle-slider:before {
+  transform: translateX(20px);
+}
+
+.subtitle-align-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.active-align {
+  background: rgba(59, 130, 246, 0.3) !important;
+  border-color: #3b82f6 !important;
+  color: #60a5fa !important;
+}
+

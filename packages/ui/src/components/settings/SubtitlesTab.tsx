@@ -18,6 +18,7 @@ export interface SubtitleSettings {
   subDelay: number;
   subVerticalOffset: number;
   subAssOverride?: 'yes' | 'force' | 'scale' | 'no';
+  subAlign?: 'center' | 'left' | 'right';
   audioDevice?: string;
 }
 
@@ -34,6 +35,7 @@ const DEFAULT_SETTINGS: SubtitleSettings = {
   subDelay: 0,
   subVerticalOffset: 0,
   subAssOverride: 'yes',
+  subAlign: 'center',
   audioDevice: 'auto',
 };
 

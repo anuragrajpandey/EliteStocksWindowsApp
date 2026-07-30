@@ -31,10 +31,13 @@ async function applySubtitleSettings() {
     await Bridge.setSubtitleSize(size).catch(() => {});
 
     const assOverride = ss.subAssOverride || 'yes';
-    const effectiveOverride = assOverride === 'no' ? 'no' : 'force';
+    const effectiveOverride = assOverride === 'no' ? 'no' : (assOverride === 'scale' ? 'scale' : 'strip');
     await Bridge.setSubAssOverride(effectiveOverride).catch(() => {});
     await Bridge.setProperty('sub-use-media-style', assOverride === 'no').catch(() => {});
     await Bridge.setProperty('sub-ass-scale-with-window', true).catch(() => {});
+
+    const align = ss.subAlign || 'center';
+    await Bridge.setSubtitleAlign(align).catch(() => {});
 
     if (ss.subColor) {
       await Bridge.setSubtitleColor(ss.subColor).catch(() => {});
@@ -232,6 +235,9 @@ function getTrackLanguage(track: any): string {
     }
     for (const [code, name] of Object.entries(LANG_MAP)) {
       if (code.length === 2 && title.includes(name)) return normalizeLangCode(code);
+    }
+    if (/cc[1-4]|closed caption|cea-608|eia-608|teletext/i.test(title)) {
+      return normalizeLangCode('en');
     }
   }
   return '';
@@ -1640,6 +1646,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
     lastSubTracksCountRef.current = 0;
     lastAudioTracksCountRef.current = 0;
     isStalkerVodRef.current = false;
+    startAutoSelectPolling();
 
     clearRetryTimers();
     clearWatchdog();
@@ -1774,6 +1781,11 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
       const bestTrack = candidates[0];
       logInfo(`[Playback] Auto-selecting subtitle track: ${bestTrack.id} language: ${defaultLanguage} external: ${bestTrack.external} title: ${bestTrack.title}`);
       await Bridge.setSubtitleTrack(bestTrack.id);
+      hasAutoSelectedSubRef.current = true;
+    } else if (subTracks.length > 0) {
+      // If sub tracks exist but none matched default language, apply full subtitle settings
+      // so any active MPV subtitle (e.g. auto-selected CC/ASS track) gets proper sizing, scaling & ASS overrides.
+      await applySubtitleSettings();
       hasAutoSelectedSubRef.current = true;
     }
   }, []);
@@ -1910,14 +1922,14 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
     }, 500);
   }, [autoSelectSubtitle, autoSelectAudio]);
 
-  // Trigger or restart auto-selection polling when playback starts and duration is available (only for VODs/Movies/Series/Stremio)
+  // Trigger or restart auto-selection polling when playback starts (for Live TV, VODs, Catchup, Recordings, Stremio)
   useEffect(() => {
-    if (playing && duration > 0 && !!vodInfo) {
+    if (playing) {
       if (!hasAutoSelectedSubRef.current || !hasAutoSelectedAudioRef.current) {
         startAutoSelectPolling();
       }
     }
-  }, [playing, duration, !!vodInfo, startAutoSelectPolling]);
+  }, [playing, startAutoSelectPolling]);
 
   const handlePlayCatchup = useCallback(async (channel: StoredChannel, programTitle: string, startTimeMs: number, durationMinutes: number, programDesc?: string) => {
     const startPaddingMs = catchupStartPaddingRef.current * 60_000;
