@@ -16,17 +16,20 @@ import type { StoredMovie } from '../../db';
 import { resolvePlayUrl } from '../../services/stream-resolver';
 import { useDownloadStore } from '../../stores/downloadStore';
 import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
+import { SplitPlayButton, type VodPlayerMode } from './SplitPlayButton';
 import './MovieDetail.css';
 
 export interface MovieDetailProps {
   movie: StoredMovie;
   onClose: () => void;
-  onPlay?: (movie: StoredMovie, plot?: string | null, backdropUrl?: string | null, logoUrl?: string | null) => void;
+  onPlay?: (movie: StoredMovie, plot?: string | null, backdropUrl?: string | null, logoUrl?: string | null, targetMode?: VodPlayerMode) => void;
   apiKey?: string | null; // TMDB API key for lazy backdrop loading
   onCastClick?: (personId: number) => void;
+  vodPlayerMode?: VodPlayerMode;
+  onSelectVodPlayerMode?: (mode: VodPlayerMode) => void;
 }
 
-export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick }: MovieDetailProps) {
+export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPlayerMode, onSelectVodPlayerMode }: MovieDetailProps) {
   // Handle escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -246,15 +249,13 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick }: Mov
 
             {/* Actions */}
             <div className="movie-detail__actions">
-              <button
-                className="movie-detail__btn movie-detail__btn--primary"
-                onClick={handlePlay}
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-                Play
-              </button>
+              <SplitPlayButton
+                currentMode={vodPlayerMode}
+                onSelectMode={onSelectVodPlayerMode}
+                onPlay={(targetMode) => {
+                  onPlay?.(movie, lazyPlot || movie.plot, backdropUrl, logoUrl, targetMode);
+                }}
+              />
 
               <button
                 className={`movie-detail__btn movie-detail__btn--secondary ${isFav ? 'favorited' : ''}`}

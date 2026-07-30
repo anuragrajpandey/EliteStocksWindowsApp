@@ -553,6 +553,9 @@ function App() {
         if (res.data?.popoutMode) {
           setPopoutMode(res.data.popoutMode as 'off' | 'popout' | 'external');
         }
+        if (res.data?.vodPlayerMode) {
+          setVodPlayerModeState(res.data.vodPlayerMode as 'embedded' | 'popout' | 'external');
+        }
       } catch {}
       finally {
         isPopoutModeLoadedRef.current = true;
@@ -843,6 +846,21 @@ function App() {
   useEffect(() => {
     popoutModeRef.current = popoutMode;
   }, [popoutMode]);
+
+  // Dedicated VOD player mode state: 'embedded' | 'popout' | 'external'
+  const [vodPlayerMode, setVodPlayerModeState] = useState<'embedded' | 'popout' | 'external'>('embedded');
+  const vodPlayerModeRef = useRef(vodPlayerMode);
+  useEffect(() => {
+    vodPlayerModeRef.current = vodPlayerMode;
+  }, [vodPlayerMode]);
+
+  const setVodPlayerMode = useCallback((mode: 'embedded' | 'popout' | 'external') => {
+    setVodPlayerModeState(mode);
+    if (window.storage) {
+      window.storage.updateSettings({ vodPlayerMode: mode }).catch(console.error);
+    }
+  }, []);
+
   // Playback source view state to know where to go back when stopped
   const [playbackSourceView, setPlaybackSourceView] = useState<'movies' | 'series' | 'dvr' | 'stremio' | 'nuvio' | null>(null);
   const isPopoutModeLoadedRef = useRef(false);
@@ -2072,13 +2090,48 @@ function App() {
     }
   }, [handlePlayChannel, popoutSwapChannel, handlePlayInExternal]);
 
-  const handlePlayVodWrapper = useCallback((info: import('./types/media').VodPlayInfo, onCloseView?: () => void) => {
-    if (popoutModeRef.current === 'popout') {
+  const handlePlayVodInExternal = useCallback(async (info: import('./types/media').VodPlayInfo) => {
+    try {
+      const resolved = await resolvePlayUrl(info.source_id, info.url);
+      const result = await window.storage?.getSettings();
+      let playerPath = result?.data?.externalPlayerPath || '';
+      const playerReuse = result?.data?.externalPlayerReuse ?? false;
+      const playerArgs = result?.data?.externalPlayerArgs || '';
+      if (!playerPath) {
+        console.warn('[App] External player path not configured');
+        return;
+      }
+      playerPath = playerPath.replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1');
+      const url = resolved.url;
+
+      if (playerReuse) {
+        await invoke('spawn_external_player_reuse', { playerPath, url });
+      } else if (playerArgs.includes('{url}')) {
+        const argsStr = playerArgs.replace(/\{url\}/g, url);
+        const args = (argsStr.match(/(?:[^\s"]+|"[^"]*")+/g) || []).map((a: string) => a.replace(/^"(.*)"$/, '$1'));
+        await invoke('spawn_external_player_with_args', { playerPath, args });
+      } else if (playerArgs.trim()) {
+        const baseArgs = (playerArgs.match(/(?:[^\s"]+|"[^"]*")+/g) || []).map((a: string) => a.replace(/^"(.*)"$/, '$1'));
+        const args = [...baseArgs, url];
+        await invoke('spawn_external_player_with_args', { playerPath, args });
+      } else {
+        await invoke('spawn_external_player', { playerPath, url });
+      }
+    } catch (e) {
+      console.error('[App] Failed to launch external player for VOD:', e);
+    }
+  }, []);
+
+  const handlePlayVodWrapper = useCallback((info: import('./types/media').VodPlayInfo, onCloseView?: () => void, targetMode?: 'embedded' | 'popout' | 'external') => {
+    const effectiveMode = targetMode || info.preferredMode || vodPlayerModeRef.current;
+    if (effectiveMode === 'external') {
+      handlePlayVodInExternal(info);
+    } else if (effectiveMode === 'popout') {
       popoutSwapVod(info);
     } else {
       handlePlayVod(info, onCloseView);
     }
-  }, [handlePlayVod, popoutSwapVod]);
+  }, [handlePlayVod, popoutSwapVod, handlePlayVodInExternal]);
 
   // ==========================================================================
   // Handle Watchlist Switch (needs access to handlePlayChannel)
@@ -4539,9 +4592,11 @@ function App() {
       {/* Movies Page */}
       <TransitionView visible={activeView === 'movies'}>
         <MoviesPage
-          onPlay={(info) => {
+          vodPlayerMode={vodPlayerMode}
+          onSelectVodPlayerMode={setVodPlayerMode}
+          onPlay={(info, targetMode) => {
             setPlaybackSourceView('movies');
-            handlePlayVodWrapper(info, () => setActiveView('none'));
+            handlePlayVodWrapper(info, () => setActiveView('none'), targetMode);
           }}
           onClose={() => setActiveView('none')}
         />
@@ -4550,9 +4605,11 @@ function App() {
       {/* Series Page */}
       <TransitionView visible={activeView === 'series'}>
         <SeriesPage
-          onPlay={(info) => {
+          vodPlayerMode={vodPlayerMode}
+          onSelectVodPlayerMode={setVodPlayerMode}
+          onPlay={(info, targetMode) => {
             setPlaybackSourceView('series');
-            handlePlayVodWrapper(info, () => setActiveView('none'));
+            handlePlayVodWrapper(info, () => setActiveView('none'), targetMode);
           }}
           onClose={() => setActiveView('none')}
         />

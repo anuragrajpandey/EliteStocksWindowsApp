@@ -1,0 +1,332 @@
+/* Split Play Button Container */
+.split-play-btn-container {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+  z-index: 10;
+}
+
+.split-play-btn-container.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Split Button Main Shell */
+.split-play-btn {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.split-play-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  transform: translateY(-1px);
+}
+
+.split-play-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Size Variants */
+.split-play-btn-container--normal .split-play-btn {
+  height: 42px;
+}
+
+.split-play-btn-container--small .split-play-btn {
+  height: 34px;
+}
+
+.split-play-btn-container--large .split-play-btn {
+  height: 48px;
+}
+
+/* Main Left Button Area */
+.split-play-btn__main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  padding: 0 16px 0 18px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+
+.split-play-btn-container--small .split-play-btn__main {
+  padding: 0 12px 0 14px;
+  font-size: 0.85rem;
+  gap: 6px;
+}
+
+.split-play-btn-container--large .split-play-btn__main {
+  padding: 0 20px 0 22px;
+  font-size: 1.05rem;
+  gap: 10px;
+}
+
+.split-play-btn__main:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.split-play-btn__main:active {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.split-play-btn__play-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.split-play-btn-container--small .split-play-btn__play-icon {
+  width: 15px;
+  height: 15px;
+}
+
+.split-play-btn-container--large .split-play-btn__play-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.split-play-btn__label {
+  line-height: 1;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+}
+
+.split-play-btn__mode-tag {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  margin-left: 5px;
+}
+
+/* Vertical Separator Line */
+.split-play-btn__divider {
+  width: 1px;
+  height: 60%;
+  background: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+/* Dropdown Chevron Toggle Button */
+.split-play-btn__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 12px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.15s ease, transform 0.2s ease;
+}
+
+.split-play-btn-container--small .split-play-btn__toggle {
+  padding: 0 9px;
+}
+
+.split-play-btn-container--large .split-play-btn__toggle {
+  padding: 0 14px;
+}
+
+.split-play-btn__toggle:hover,
+.split-play-btn__toggle.active {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+.split-play-btn__toggle:active {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.split-play-btn__chevron-icon {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+}
+
+.split-play-btn__toggle.active .split-play-btn__chevron-icon {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Menu Overlay */
+.split-play-btn__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 240px;
+  background: rgba(18, 22, 32, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 6px;
+  z-index: 1000;
+  animation: splitBtnDropdownFade 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes splitBtnDropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.split-play-btn__menu-header {
+  padding: 8px 12px 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Dropdown Menu Item */
+.split-play-btn__option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.split-play-btn__option:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.split-play-btn__option.selected {
+  background: rgba(37, 99, 235, 0.2);
+  color: #ffffff;
+  border: 1px solid rgba(37, 99, 235, 0.35);
+}
+
+.split-play-btn__option-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.15s ease;
+}
+
+.split-play-btn__option:hover .split-play-btn__option-icon,
+.split-play-btn__option.selected .split-play-btn__option-icon {
+  color: #60a5fa;
+}
+
+.split-play-btn__option-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.split-play-btn__option-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: inherit;
+}
+
+.split-play-btn__option-desc {
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+.split-play-btn__option:hover .split-play-btn__option-desc {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.split-play-btn__check-icon {
+  width: 16px;
+  height: 16px;
+  color: #60a5fa;
+  flex-shrink: 0;
+}
+
+/* Set Player Dropdown Component */
+.set-player-dropdown-container {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+  z-index: 10;
+}
+
+.set-player-dropdown-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 150ms ease;
+  font-family: inherit;
+  outline: none;
+}
+
+.set-player-dropdown-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.set-player-dropdown-btn__icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.set-player-dropdown-btn__chevron {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.set-player-dropdown-btn__chevron.active {
+  transform: rotate(180deg);
+}

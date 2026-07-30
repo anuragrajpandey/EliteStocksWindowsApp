@@ -15,15 +15,18 @@ import {
   useCinemetaHero,
 } from '../../hooks/useCinemetaCatalogs';
 import { useRecentlyWatchedMovies, useRecentlyWatchedSeries } from '../../hooks/useVod';
+import { SplitPlayButton, type VodPlayerMode } from './SplitPlayButton';
 import './VodHome.css';
 
 export interface VodHomeProps {
   type: 'movies' | 'series';
   onItemClick: (item: StoredMovie | StoredSeries) => void;
-  onPlay: (item: StoredMovie | StoredSeries) => void;
+  onPlay: (item: StoredMovie | StoredSeries, targetMode?: VodPlayerMode) => void;
+  vodPlayerMode?: VodPlayerMode;
+  onSelectVodPlayerMode?: (mode: VodPlayerMode) => void;
 }
 
-export function VodHome({ type, onItemClick, onPlay }: VodHomeProps) {
+export function VodHome({ type, onItemClick, onPlay, vodPlayerMode, onSelectVodPlayerMode }: VodHomeProps) {
   const movieType = type === 'movies' ? 'movie' : 'series';
 
   // Cinemeta catalogs
@@ -52,8 +55,8 @@ export function VodHome({ type, onItemClick, onPlay }: VodHomeProps) {
   const movieProgressMap = new Map(recentlyWatchedMoviesData.map(m => [m.item.stream_id, m.progress_percent]));
   const seriesProgressMap = new Map(recentlyWatchedSeriesData.map(s => [s.item.series_id, s.progress_percent]));
 
-  const handleHeroPlay = useCallback((item: StoredMovie | StoredSeries) => {
-    onPlay(item);
+  const handleHeroPlay = useCallback((item: StoredMovie | StoredSeries, targetMode?: VodPlayerMode) => {
+    onPlay(item, targetMode);
   }, [onPlay]);
 
   const handleHeroMoreInfo = useCallback((item: StoredMovie | StoredSeries) => {
@@ -81,6 +84,8 @@ export function VodHome({ type, onItemClick, onPlay }: VodHomeProps) {
           autoRotate
           rotateInterval={8000}
           loading={heroLoading}
+          vodPlayerMode={vodPlayerMode}
+          onSelectVodPlayerMode={onSelectVodPlayerMode}
         />
 
         <div className="vod-home__carousels">
@@ -139,6 +144,8 @@ export function VodHome({ type, onItemClick, onPlay }: VodHomeProps) {
         autoRotate
         rotateInterval={8000}
         loading={heroLoading}
+        vodPlayerMode={vodPlayerMode}
+        onSelectVodPlayerMode={onSelectVodPlayerMode}
       />
 
       <div className="vod-home__carousels">

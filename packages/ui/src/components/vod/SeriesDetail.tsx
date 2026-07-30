@@ -21,18 +21,21 @@ import type { VodPlayInfo } from '../../types/media';
 import { resolvePlayUrl } from '../../services/stream-resolver';
 import { useDownloadStore } from '../../stores/downloadStore';
 import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
+import { SetPlayerDropdown, type VodPlayerMode } from './SplitPlayButton';
 import './SeriesDetail.css';
 
 export interface SeriesDetailProps {
   series: StoredSeries;
   onClose: () => void;
-  onPlayEpisode?: (info: VodPlayInfo) => void;
+  onPlayEpisode?: (info: VodPlayInfo, targetMode?: VodPlayerMode) => void;
   apiKey?: string | null; // TMDB API key for lazy backdrop loading
   initialSeason?: number; // Initial season to show (for Recently Watched navigation)
   onCastClick?: (personId: number) => void;
+  vodPlayerMode?: VodPlayerMode;
+  onSelectVodPlayerMode?: (mode: VodPlayerMode) => void;
 }
 
-export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSeason, onCastClick }: SeriesDetailProps) {
+export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSeason, onCastClick, vodPlayerMode, onSelectVodPlayerMode }: SeriesDetailProps) {
   const [selectedSeason, setSelectedSeason] = useState<number>(initialSeason ?? 1);
 
   // Fetch episodes
@@ -241,7 +244,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
   }, [apiKey, onCastClick]);
 
   const handlePlayEpisode = useCallback(
-    (episode: StoredEpisode) => {
+    (episode: StoredEpisode, targetMode?: VodPlayerMode) => {
       // Get current progress for this episode
       const progress = episodeProgress.get(episode.id);
       console.log('[SeriesDetail] Episode progress lookup:', episode.id, progress);
@@ -300,7 +303,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
         episodeId: episode.id,
         backdropUrl: backdropUrl || undefined,
         logoUrl: logoUrl || undefined,
-      });
+      }, targetMode);
     },
     [series, onPlayEpisode, lazyPlot, episodeProgress, episodeExtras, backdropUrl, logoUrl]
   );
@@ -503,17 +506,24 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
               </div>
             )}
 
-            {/* Favorite Button */}
-            <button
-              className={`series-detail__fav-btn ${isFav ? 'favorited' : ''}`}
-              onClick={handleToggleFavorite}
-              title={isFav ? 'Remove from Favorites' : 'Add to Favorites'}
-            >
-              <svg viewBox="0 0 24 24" fill={isFav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              {isFav ? 'Remove Favorite' : 'Add to Favorite'}
-            </button>
+            {/* Header Action Buttons (Set Player & Favorite) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '16px' }}>
+              <SetPlayerDropdown
+                currentMode={vodPlayerMode}
+                onSelectMode={onSelectVodPlayerMode}
+              />
+
+              <button
+                className={`series-detail__fav-btn ${isFav ? 'favorited' : ''}`}
+                onClick={handleToggleFavorite}
+                title={isFav ? 'Remove from Favorites' : 'Add to Favorites'}
+              >
+                <svg viewBox="0 0 24 24" fill={isFav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                {isFav ? 'Remove Favorite' : 'Add to Favorite'}
+              </button>
+            </div>
           </div>
         </div>
 

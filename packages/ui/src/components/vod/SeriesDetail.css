@@ -276,8 +276,6 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   transition: all 150ms ease;
-  margin-top: 16px;
-  align-self: flex-start;
 }
 
 .series-detail__fav-btn svg {

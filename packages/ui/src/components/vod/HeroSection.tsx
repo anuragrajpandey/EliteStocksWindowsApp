@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { StoredMovie, StoredSeries } from '../../db';
+import { SplitPlayButton, type VodPlayerMode } from './SplitPlayButton';
 
 import './HeroSection.css';
 
@@ -31,11 +32,13 @@ function HeroBackdropLayer({
 export interface HeroSectionProps {
   items: (StoredMovie | StoredSeries)[];
   type: 'movie' | 'series';
-  onPlay?: (item: StoredMovie | StoredSeries) => void;
+  onPlay?: (item: StoredMovie | StoredSeries, targetMode?: VodPlayerMode) => void;
   onMoreInfo?: (item: StoredMovie | StoredSeries) => void;
   autoRotate?: boolean;
   rotateInterval?: number;
   loading?: boolean;
+  vodPlayerMode?: VodPlayerMode;
+  onSelectVodPlayerMode?: (mode: VodPlayerMode) => void;
 }
 
 export function HeroSection({
@@ -46,6 +49,8 @@ export function HeroSection({
   autoRotate = true,
   rotateInterval = 8000,
   loading = false,
+  vodPlayerMode,
+  onSelectVodPlayerMode,
 }: HeroSectionProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isContentTransitioning, setIsContentTransitioning] = useState(false);
@@ -224,12 +229,12 @@ export function HeroSection({
         )}
 
         <div className="hero__actions">
-          <button className="hero__btn hero__btn--play" onClick={() => onPlay?.(currentItem)}>
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-            Play
-          </button>
+          <SplitPlayButton
+            currentMode={vodPlayerMode}
+            onSelectMode={onSelectVodPlayerMode}
+            onPlay={(targetMode) => currentItem && onPlay?.(currentItem, targetMode)}
+            size="large"
+          />
         </div>
       </div>
 

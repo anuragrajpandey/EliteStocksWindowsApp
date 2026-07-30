@@ -46,6 +46,7 @@ import {
 import type { StoredMovie, StoredSeries } from '../db';
 import { removeFromRecentlyWatched, recordVodWatch, db } from '../db';
 import { type MediaItem, type VodType, type VodPlayInfo } from '../types/media';
+import { type VodPlayerMode } from './vod/SplitPlayButton';
 import './VodPage.css';
 
 // Carousel row type for virtualization (all data pre-fetched)
@@ -67,16 +68,18 @@ interface HomeVirtuosoContext {
   featuredItems: MediaItem[];
   heroLoading: boolean;
   onItemClick: (item: MediaItem) => void;
-  onHeroPlay: (item: MediaItem) => void;
+  onHeroPlay: (item: MediaItem, targetMode?: VodPlayerMode) => void;
   onRemoveFromRecentlyWatched?: (item: MediaItem) => void;
   enabledStreamingServices: string[];
   onServiceClick: (service: string) => void;
+  vodPlayerMode?: VodPlayerMode;
+  onSelectVodPlayerMode?: (mode: VodPlayerMode) => void;
 }
 
 // Header component for Virtuoso (defined outside render to prevent remounting)
 const HomeHeader: React.ComponentType<{ context?: HomeVirtuosoContext }> = ({ context }) => {
   if (!context) return null;
-  const { featuredItems, type, onHeroPlay, onItemClick, tmdbApiKey, heroLoading } = context;
+  const { featuredItems, type, onHeroPlay, onItemClick, tmdbApiKey, heroLoading, vodPlayerMode, onSelectVodPlayerMode } = context;
   
   if (featuredItems.length === 0 && !heroLoading) return null;
   
@@ -87,6 +90,8 @@ const HomeHeader: React.ComponentType<{ context?: HomeVirtuosoContext }> = ({ co
       onPlay={onHeroPlay}
       onMoreInfo={onItemClick}
       loading={heroLoading}
+      vodPlayerMode={vodPlayerMode}
+      onSelectVodPlayerMode={onSelectVodPlayerMode}
     />
   );
 };
@@ -138,11 +143,13 @@ const homeVirtuosoComponents = {
 
 interface VodPageProps {
   type: VodType;
-  onPlay?: (info: VodPlayInfo) => void;
+  onPlay?: (info: VodPlayInfo, targetMode?: VodPlayerMode) => void;
   onClose?: () => void;
+  vodPlayerMode?: VodPlayerMode;
+  onSelectVodPlayerMode?: (mode: VodPlayerMode) => void;
 }
 
-export function VodPage({ type, onPlay, onClose }: VodPageProps) {
+export function VodPage({ type, onPlay, onClose, vodPlayerMode, onSelectVodPlayerMode }: VodPageProps) {
   // Context Menu & Management State (local, not persisted)
   const [contextMenu, setContextMenu] = useState<{ sourceId: string; sourceName: string; x: number; y: number } | null>(null);
   const [manageCategoriesSource, setManageCategoriesSource] = useState<{ id: string; name: string } | null>(null);
@@ -491,9 +498,9 @@ export function VodPage({ type, onPlay, onClose }: VodPageProps) {
     }
   }, [selectedCategoryId, selectedService, setSearchQuery, setSelectedCategoryId, setSelectedItem, setSelectedSeason, setSelectedService]);
 
-  const handlePlay = useCallback((info: VodPlayInfo) => {
+  const handlePlay = useCallback((info: VodPlayInfo, targetMode?: VodPlayerMode) => {
     if (onPlay) {
-      onPlay(info);
+      onPlay(info, targetMode);
     }
   }, [onPlay]);
 
@@ -514,7 +521,7 @@ export function VodPage({ type, onPlay, onClose }: VodPageProps) {
   }, []);
 
   // Handle hero play button - movies play directly, series open detail
-  const handleHeroPlay = useCallback((item: MediaItem) => {
+  const handleHeroPlay = useCallback((item: MediaItem, targetMode?: VodPlayerMode) => {
     if (item.source_id === 'tmdb' || item.source_id === 'cinemeta') {
       const title = item.title || item.name || '';
       if (title) {
@@ -549,7 +556,7 @@ export function VodPage({ type, onPlay, onClose }: VodPageProps) {
         type: 'movie',
         source_id: movie.source_id,
         mediaId: movie.stream_id,  // Add media ID for progress tracking
-      });
+      }, targetMode);
     } else {
       setSelectedItem(item);
     }
@@ -566,7 +573,9 @@ export function VodPage({ type, onPlay, onClose }: VodPageProps) {
     onRemoveFromRecentlyWatched: handleRemoveFromRecentlyWatched,
     enabledStreamingServices,
     onServiceClick: setSelectedService,
-  }), [type, featuredItems, heroLoading, handleItemClick, handleHeroPlay, handleRemoveFromRecentlyWatched, enabledStreamingServices]);
+    vodPlayerMode,
+    onSelectVodPlayerMode,
+  }), [type, featuredItems, heroLoading, handleItemClick, handleHeroPlay, handleRemoveFromRecentlyWatched, enabledStreamingServices, vodPlayerMode, onSelectVodPlayerMode]);
 
   // Handle category selection - also close detail view, clear search and streaming service view
   const handleCategorySelect = useCallback((id: string | null) => {
@@ -757,7 +766,9 @@ export function VodPage({ type, onPlay, onClose }: VodPageProps) {
         <MovieDetail
           movie={selectedItem as StoredMovie}
           onClose={handleCloseDetail}
-          onPlay={(movie, plot, backdropUrl, logoUrl) => {
+          vodPlayerMode={vodPlayerMode}
+          onSelectVodPlayerMode={onSelectVodPlayerMode}
+          onPlay={(movie, plot, backdropUrl, logoUrl, targetMode) => {
             // Record watch before playing
             void recordVodWatch(
               movie.stream_id,
@@ -776,7 +787,7 @@ export function VodPage({ type, onPlay, onClose }: VodPageProps) {
               mediaId: movie.stream_id,  // Add media ID for progress tracking
               backdropUrl: backdropUrl || undefined,
               logoUrl: logoUrl || undefined,
-            });
+            }, targetMode);
           }}
           apiKey={tmdbApiKey}
           onCastClick={(personId) => setActivePersonId(personId)}
@@ -786,7 +797,9 @@ export function VodPage({ type, onPlay, onClose }: VodPageProps) {
         <SeriesDetail
           series={selectedItem as StoredSeries}
           onClose={handleCloseDetail}
-          onPlayEpisode={handlePlay}
+          vodPlayerMode={vodPlayerMode}
+          onSelectVodPlayerMode={onSelectVodPlayerMode}
+          onPlayEpisode={(info, targetMode) => handlePlay(info, targetMode)}
           apiKey={tmdbApiKey}
           initialSeason={selectedSeason}
           onCastClick={(personId) => setActivePersonId(personId)}
