@@ -4694,8 +4694,57 @@ pub fn run() {
             cast_resolve_url,
             cast_stop,
             update_proxy_settings,
-            test_proxy_connection
+            test_proxy_connection,
+            // OpenSubtitles Secure Credential commands
+            save_opensubtitles_credentials,
+            get_opensubtitles_credentials,
+            delete_opensubtitles_credentials
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+// ============================================================================
+// Secure Credentials (Keyring)
+// ============================================================================
+
+const KEYRING_SERVICE: &str = "ynotv";
+const KEYRING_USER: &str = "opensubtitles_credentials";
+
+#[tauri::command]
+fn save_opensubtitles_credentials(username: String, password: String) -> Result<(), String> {
+    let entry = keyring::Entry::new(KEYRING_SERVICE, KEYRING_USER)
+        .map_err(|e| format!("Keyring error: {}", e))?;
+    let payload = format!("{}:{}", username.trim(), password);
+    entry.set_password(&payload)
+        .map_err(|e| format!("Failed to save credentials to OS vault: {}", e))?;
+    Ok(())
+}
+
+#[tauri::command]
+fn get_opensubtitles_credentials() -> Result<Option<(String, String)>, String> {
+    let entry = keyring::Entry::new(KEYRING_SERVICE, KEYRING_USER)
+        .map_err(|e| format!("Keyring error: {}", e))?;
+    match entry.get_password() {
+        Ok(pwd) => {
+            if let Some((user, pass)) = pwd.split_once(':') {
+                Ok(Some((user.to_string(), pass.to_string())))
+            } else {
+                Ok(None)
+            }
+        }
+        Err(keyring::Error::NoEntry) => Ok(None),
+        Err(e) => Err(format!("Failed to retrieve credentials: {}", e)),
+    }
+}
+
+#[tauri::command]
+fn delete_opensubtitles_credentials() -> Result<(), String> {
+    let entry = keyring::Entry::new(KEYRING_SERVICE, KEYRING_USER)
+        .map_err(|e| format!("Keyring error: {}", e))?;
+    match entry.delete_credential() {
+        Ok(_) => Ok(()),
+        Err(keyring::Error::NoEntry) => Ok(()),
+        Err(e) => Err(format!("Failed to delete credentials: {}", e)),
+    }
 }

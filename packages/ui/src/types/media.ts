@@ -61,5 +61,7 @@ export interface VodPlayInfo {
   addonName?: string;     // Current stream addon name (Stremio/Nuvio source)
   stremioType?: string;   // 'movie' or 'series' for Stremio/Nuvio stream lookup
   stremioId?: string;     // Meta ID (movie) or episode ID (series) for stream lookup
+  tmdbId?: number | string; // TMDB ID if available
+  imdbId?: string;        // IMDb ID if available
   preferredMode?: 'embedded' | 'popout' | 'external'; // Optional target player mode override
 }

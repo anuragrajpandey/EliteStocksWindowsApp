@@ -606,6 +606,9 @@ export function Settings({
   // Subtitle settings state
   const [subtitleSettings, setSubtitleSettings] = useState<SubtitleSettings>({
     subsourceApiKey: '',
+    openSubtitlesToken: '',
+    openSubtitlesUser: undefined,
+    preferredProvider: 'subsource',
     defaultLanguage: 'en',
     defaultAudioLanguage: 'default',
     defaultSize: 35,

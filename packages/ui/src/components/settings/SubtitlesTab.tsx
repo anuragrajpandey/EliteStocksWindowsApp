@@ -1,12 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { validateSubSourceApiKey } from '../../services/subsource';
+import { loginOpenSubtitles, logoutOpenSubtitles, OpenSubtitlesUser } from '../../services/opensubtitles';
 import { Bridge } from '../../services/tauri-bridge';
+import { useToastStore } from '../../stores/toastStore';
 import './PlaybackTab.css'; // Reuse existing tab styles
 
 export type SubtitlesSubTabId = 'subtitles' | 'audio';
 
 export interface SubtitleSettings {
   subsourceApiKey: string;
+  openSubtitlesToken?: string;
+  openSubtitlesUser?: OpenSubtitlesUser;
+  openSubtitlesUsername?: string;
+  openSubtitlesPassword?: string;
+  preferredProvider?: 'subsource' | 'opensubtitles';
   defaultLanguage: string;
   defaultAudioLanguage: string;
   defaultSize: number;
@@ -24,6 +31,9 @@ export interface SubtitleSettings {
 
 const DEFAULT_SETTINGS: SubtitleSettings = {
   subsourceApiKey: '',
+  openSubtitlesToken: '',
+  openSubtitlesUser: undefined,
+  preferredProvider: 'subsource',
   defaultLanguage: 'en',
   defaultAudioLanguage: 'default',
   defaultSize: 35,
@@ -156,6 +166,93 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
     }
   };
 
+  const [osUsername, setOsUsername] = useState('');
+  const [osPassword, setOsPassword] = useState('');
+  const [osLoggingIn, setOsLoggingIn] = useState(false);
+  const [osError, setOsError] = useState('');
+
+  const handleOsLogin = useCallback(async () => {
+    if (!osUsername.trim() || !osPassword) return;
+    setOsLoggingIn(true);
+    setOsError('');
+    try {
+      const res = await loginOpenSubtitles(osUsername, osPassword);
+      if (res.success && res.token && res.user) {
+        // Store password in OS Native Credential Store (Windows Credential Manager / Keychain)
+        try {
+          const { invoke } = await import('@tauri-apps/api/core');
+          await invoke('save_opensubtitles_credentials', { username: osUsername.trim(), password: osPassword });
+        } catch (err) {
+          console.warn('[SubtitlesTab] Failed to save credentials to OS vault:', err);
+        }
+
+        const updated = {
+          ...merged,
+          openSubtitlesToken: res.token,
+          openSubtitlesUser: res.user,
+          openSubtitlesUsername: osUsername.trim(),
+        };
+        delete (updated as any).openSubtitlesPassword;
+
+        if (window.storage) {
+          await window.storage.updateSettings({ subtitleSettings: updated });
+        }
+        onSettingsChange({
+          openSubtitlesToken: res.token,
+          openSubtitlesUser: res.user,
+          openSubtitlesUsername: osUsername.trim(),
+        });
+        setOsPassword('');
+        useToastStore.getState().addToast(`Logged in to OpenSubtitles as ${res.user.username}`, 'success');
+      } else {
+        const err = res.error || 'Login failed';
+        setOsError(err);
+        useToastStore.getState().addToast(err, 'error');
+      }
+    } catch (e: any) {
+      const err = e?.message || 'Login failed';
+      setOsError(err);
+      useToastStore.getState().addToast(err, 'error');
+    } finally {
+      setOsLoggingIn(false);
+    }
+  }, [osUsername, osPassword, merged, onSettingsChange]);
+
+  const handleOsLogout = useCallback(async () => {
+    if (merged.openSubtitlesToken) {
+      logoutOpenSubtitles(merged.openSubtitlesToken).catch(console.error);
+    }
+
+    try {
+      const { invoke } = await import('@tauri-apps/api/core');
+      await invoke('delete_opensubtitles_credentials');
+    } catch (err) {
+      console.warn('[SubtitlesTab] Failed to delete credentials from OS vault:', err);
+    }
+
+    const updated = {
+      ...merged,
+      openSubtitlesToken: '',
+      openSubtitlesUser: undefined,
+      openSubtitlesUsername: '',
+      preferredProvider: 'subsource' as const,
+    };
+    delete (updated as any).openSubtitlesPassword;
+
+    if (window.storage) {
+      await window.storage.updateSettings({ subtitleSettings: updated });
+    }
+    onSettingsChange({
+      openSubtitlesToken: '',
+      openSubtitlesUser: undefined,
+      openSubtitlesUsername: '',
+      preferredProvider: 'subsource',
+    });
+    setOsUsername('');
+    setOsPassword('');
+    setOsError('');
+  }, [merged, onSettingsChange]);
+
   return (
     <div className="playback-tab-content" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div className="settings-tabs" style={{ padding: '0 20px', flexShrink: 0 }}>
@@ -215,6 +312,140 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                 >
                   {validating ? 'Validating...' : keyValid === true ? 'Valid' : keyValid === false ? 'Invalid' : 'Save'}
                 </button>
+              </div>
+            </div>
+          </div>
+
+          {/* OpenSubtitles Integration Section */}
+          <div className="settings-section" style={{ marginTop: '2rem' }}>
+            <div className="section-header">
+              <h3>OpenSubtitles Integration</h3>
+            </div>
+            <p className="section-description">
+              Log in with your OpenSubtitles account to download subtitles via OpenSubtitles in the player subtitle modal.
+              <br />
+              <a
+                href="https://www.opensubtitles.com/en/users/sign_up"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tmdb-link"
+              >
+                Create an OpenSubtitles account here
+              </a>
+            </p>
+
+            {merged.openSubtitlesToken && merged.openSubtitlesUser ? (
+              <div className="tmdb-form">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255, 255, 255, 0.05)', padding: '12px 16px', borderRadius: '8px' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>
+                      Logged in as {merged.openSubtitlesUser.username}
+                      {merged.openSubtitlesUser.vip && <span style={{ marginLeft: '8px', background: 'var(--accent-color, #e50914)', color: '#fff', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase' }}>VIP</span>}
+                      {merged.openSubtitlesUser.level && <span style={{ marginLeft: '8px', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>({merged.openSubtitlesUser.level})</span>}
+                    </div>
+                    {merged.openSubtitlesUser.allowed_downloads !== undefined && (
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                        Allowed downloads per day: {merged.openSubtitlesUser.allowed_downloads}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleOsLogout}
+                    style={{ background: '#e53e3e', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="tmdb-form" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div className="form-group inline">
+                  <label>Username</label>
+                  <input
+                    type="text"
+                    value={osUsername}
+                    onChange={(e) => { setOsUsername(e.target.value); setOsError(''); }}
+                    placeholder="Enter your OpenSubtitles username"
+                  />
+                </div>
+                <div className="form-group inline">
+                  <label>Password</label>
+                  <input
+                    type="password"
+                    value={osPassword}
+                    onChange={(e) => { setOsPassword(e.target.value); setOsError(''); }}
+                    placeholder="Enter your OpenSubtitles password"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleOsLogin}
+                    disabled={osLoggingIn || !osUsername.trim() || !osPassword}
+                    className="success"
+                  >
+                    {osLoggingIn ? 'Logging in...' : 'Login'}
+                  </button>
+                </div>
+                {osError && (
+                  <div style={{ color: '#e53e3e', fontSize: '0.85rem', marginTop: '4px' }}>
+                    {osError}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Default Subtitle Provider Section */}
+          <div className="settings-section" style={{ marginTop: '2rem' }}>
+            <div className="section-header">
+              <h3>Default Subtitle Provider</h3>
+            </div>
+            <p className="section-description">
+              Choose which subtitle service to open by default when searching for subtitles in the player.
+            </p>
+
+            <div className="timeshift-settings">
+              <div className="timeshift-toggle-row">
+                <div className="timeshift-toggle-info">
+                  <span className="timeshift-toggle-label">Preferred Provider</span>
+                  <span className="timeshift-toggle-sub">
+                    Select your primary subtitle search source.
+                  </span>
+                </div>
+                <div className="timeshift-retention-select">
+                  <select
+                    value={merged.preferredProvider || 'subsource'}
+                    onChange={async (e) => {
+                      const val = e.target.value as 'subsource' | 'opensubtitles';
+                      const updated = { ...merged, preferredProvider: val };
+                      if (window.storage) {
+                        await window.storage.updateSettings({ subtitleSettings: updated });
+                      }
+                      onSettingsChange({ preferredProvider: val });
+                      useToastStore.getState().addToast(`Default subtitle provider set to ${val === 'opensubtitles' ? 'OpenSubtitles' : 'SubSource'}`, 'success');
+                    }}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      color: '#fff',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      borderRadius: '6px',
+                      padding: '6px 12px',
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <option value="subsource" style={{ background: '#1e1e1e', color: '#fff' }}>
+                      SubSource {!merged.subsourceApiKey ? '(Not configured)' : ''}
+                    </option>
+                    <option
+                      value="opensubtitles"
+                      disabled={!merged.openSubtitlesToken}
+                      style={{ background: '#1e1e1e', color: !merged.openSubtitlesToken ? '#888' : '#fff' }}
+                    >
+                      OpenSubtitles {!merged.openSubtitlesToken ? '(Requires Login)' : ''}
+                    </option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>

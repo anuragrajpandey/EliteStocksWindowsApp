@@ -65,6 +65,7 @@ flate2 = "1.0"
 # HTTP client for TMDB caching and EPG streaming
 reqwest = { version = "0.12", features = ["json", "stream", "rustls-tls", "gzip", "brotli", "deflate", "socks"], default-features = false }
 log = "0.4.29"
+keyring = "3"
 
 # Chromecast dependencies
 rust_cast = { version = "0.21", features = ["thread_safe"] }

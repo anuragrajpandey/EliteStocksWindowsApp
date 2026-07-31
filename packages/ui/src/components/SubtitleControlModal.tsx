@@ -13,6 +13,13 @@ import {
   type SubSourceSubtitle,
   type ZipEntry,
 } from '../services/subsource';
+import {
+  searchOpenSubtitles,
+  downloadOpenSubtitlesSubtitle,
+  ensureValidOpenSubtitlesToken,
+  type OpenSubtitlesSubtitle,
+} from '../services/opensubtitles';
+import { useToastStore } from '../stores/toastStore';
 import './SubtitleControlModal.css';
 
 interface Track {
@@ -34,6 +41,8 @@ interface SubtitleControlModalProps {
   vodYear?: string;
   seasonNum?: number;
   episodeNum?: number;
+  tmdbId?: number | string;
+  imdbId?: string;
 }
 
 type ViewState = 'tracks' | 'movies' | 'subtitles' | 'zip-files';
@@ -109,7 +118,7 @@ function getTrackLanguage(track: Track): string {
       if (subParts.length >= 5) {
         return normalizeLangCode(subParts[4]);
       }
-    } else if (base.startsWith('subsource__')) {
+    } else if (base.startsWith('subsource__') || base.startsWith('opensubtitles__')) {
       const subParts = base.split('__');
       if (subParts.length >= 3) {
         return normalizeLangCode(subParts[2]);
@@ -141,6 +150,15 @@ function parseExternalTrack(filePath: string): { label: string; origin: string }
     }
     return { label: 'Downloaded Subtitle', origin: 'SubSource' };
   }
+
+  if (base.startsWith('opensubtitles__')) {
+    const subParts = base.split('__');
+    if (subParts.length >= 4) {
+      const releaseInfo = subParts[1].replace(/_/g, ' ');
+      return { label: releaseInfo, origin: 'OpenSubtitles' };
+    }
+    return { label: 'Downloaded Subtitle', origin: 'OpenSubtitles' };
+  }
   
   // Fallback for legacy format
   if (base.includes('_')) {
@@ -163,6 +181,8 @@ export function SubtitleControlModal({
   vodYear,
   seasonNum,
   episodeNum,
+  tmdbId,
+  imdbId,
 }: SubtitleControlModalProps) {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -176,6 +196,11 @@ export function SubtitleControlModal({
   const [subBackgroundColor, setSubBackgroundColor] = useState('#000000');
   const [subBackgroundOpacity, setSubBackgroundOpacity] = useState(80);
 
+  // Provider flow state
+  const [provider, setProvider] = useState<'subsource' | 'opensubtitles'>('subsource');
+  const [openSubtitlesToken, setOpenSubtitlesToken] = useState('');
+  const [openSubtitlesUser, setOpenSubtitlesUser] = useState<any>(null);
+
   // SubSource flow state
   const [apiKey, setApiKey] = useState('');
   const [searchLang, setSearchLang] = useState('en');
@@ -183,12 +208,14 @@ export function SubtitleControlModal({
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
 
-  // View state
+  // View state & results
   const [viewState, setViewState] = useState<ViewState>('tracks');
   const [movies, setMovies] = useState<SubSourceMovie[]>([]);
   const [selectedMovie, setSelectedMovie] = useState<SubSourceMovie | null>(null);
   const [subtitles, setSubtitles] = useState<SubSourceSubtitle[]>([]);
+  const [openSubtitlesSubtitles, setOpenSubtitlesSubtitles] = useState<OpenSubtitlesSubtitle[]>([]);
   const [downloadingSubId, setDownloadingSubId] = useState<number | null>(null);
+  const [downloadingOsId, setDownloadingOsId] = useState<string | null>(null);
   const [zipEntries, setZipEntries] = useState<ZipEntry[]>([]);
   const [pendingZipData, setPendingZipData] = useState<Uint8Array | null>(null);
   const [activeSubSourceSubtitle, setActiveSubSourceSubtitle] = useState<SubSourceSubtitle | null>(null);
@@ -203,21 +230,26 @@ export function SubtitleControlModal({
   useEffect(() => {
     if (isOpen) {
       loadTracks();
-      loadSettings().then(({ key, defaultLanguage }) => {
-        if (!autoSearchRef.current && vodTitle && key && defaultLanguage !== 'off') {
+      loadSettings().then(({ key, osToken, prefProvider, defaultLanguage }) => {
+        if (!autoSearchRef.current && vodTitle && defaultLanguage !== 'off') {
           autoSearchRef.current = true;
-          const cacheKey = `${vodTitle}|${vodYear || ''}|${seasonNum || ''}|${defaultLanguage}`;
-          if (
-            searchCache &&
-            searchCache.query === cacheKey &&
-            Date.now() - searchCache.timestamp < CACHE_TTL_MS
-          ) {
-            setMovies(searchCache.movies);
-            setSelectedMovie(searchCache.selectedMovie);
-            setSubtitles(searchCache.subtitles);
-            setViewState(searchCache.viewState);
-          } else {
-            doAutoSearch(vodTitle, vodYear, seasonNum, key, defaultLanguage);
+          const targetProvider = (prefProvider === 'opensubtitles' && osToken) ? 'opensubtitles' : 'subsource';
+          if (targetProvider === 'opensubtitles' && osToken) {
+            doOpenSubtitlesSearch(vodTitle, vodYear, seasonNum, episodeNum, defaultLanguage, osToken);
+          } else if (key) {
+            const cacheKey = `${vodTitle}|${vodYear || ''}|${seasonNum || ''}|${defaultLanguage}`;
+            if (
+              searchCache &&
+              searchCache.query === cacheKey &&
+              Date.now() - searchCache.timestamp < CACHE_TTL_MS
+            ) {
+              setMovies(searchCache.movies);
+              setSelectedMovie(searchCache.selectedMovie);
+              setSubtitles(searchCache.subtitles);
+              setViewState(searchCache.viewState);
+            } else {
+              doAutoSearch(vodTitle, vodYear, seasonNum, key, defaultLanguage);
+            }
           }
         }
       });
@@ -239,16 +271,30 @@ export function SubtitleControlModal({
     return () => document.removeEventListener('keydown', handleKey);
   }, [isOpen, onClose]);
 
-  const loadSettings = async (): Promise<{ key: string; defaultLanguage: string }> => {
+  const loadSettings = async (): Promise<{ key: string; osToken: string; prefProvider: string; defaultLanguage: string }> => {
     try {
       const result = window.storage ? await window.storage.getSettings() : { data: {} };
       const settings: any = result.data || {};
       let key = '';
+      let osToken = '';
+      let prefProvider = 'subsource';
       let defaultLanguage = 'en';
       if (settings.subtitleSettings) {
         const ss = settings.subtitleSettings;
         key = ss.subsourceApiKey || '';
+        prefProvider = ss.preferredProvider || 'subsource';
         setApiKey(key);
+
+        const validOs = await ensureValidOpenSubtitlesToken(ss);
+        osToken = validOs.token;
+        setOpenSubtitlesToken(osToken);
+        setOpenSubtitlesUser(validOs.user || ss.openSubtitlesUser || null);
+
+        if (prefProvider === 'opensubtitles' && osToken) {
+          setProvider('opensubtitles');
+        } else {
+          setProvider('subsource');
+        }
         defaultLanguage = ss.defaultLanguage || 'en';
         setSearchLang(defaultLanguage);
         setSize(ss.defaultSize || 35);
@@ -265,10 +311,10 @@ export function SubtitleControlModal({
         setSearchQuery(clean + (vodYear ? ` ${vodYear}` : ''));
       }
       loadedRef.current = true;
-      return { key, defaultLanguage };
+      return { key, osToken, prefProvider, defaultLanguage };
     } catch (e) {
       console.error('Failed to load subtitle settings:', e);
-      return { key: '', defaultLanguage: 'en' };
+      return { key: '', osToken: '', prefProvider: 'subsource', defaultLanguage: 'en' };
     }
   };
 
@@ -289,14 +335,15 @@ export function SubtitleControlModal({
     }
 
     const cleanTitle = cleanTitleForSearch(title);
-    console.log('[SubtitleModal] Auto-searching:', { original: title, clean: cleanTitle, year, season, lang: targetLang });
+    const cleanYearStr = year ? String(year).replace(/[^0-9]/g, '') : undefined;
+    console.log('[SubtitleModal] Auto-searching SubSource:', { original: title, clean: cleanTitle, year: cleanYearStr, season, lang: targetLang });
     setSearching(true);
     setSearchError('');
     setEpisodeFilter(null);
     setAvailableEpisodes([]);
 
     try {
-      const result = await searchSubSourceMovies(key, cleanTitle, year, 'all', season);
+      const result = await searchSubSourceMovies(key, cleanTitle, cleanYearStr, 'all', season);
       console.log('[SubtitleModal] Auto-search result:', result);
 
       if (!result.success) {
@@ -516,15 +563,222 @@ export function SubtitleControlModal({
   }, [subBackgroundColor, subBackgroundEnabled, applyBackgroundSettings]);
 
   /* -------------------------------------------------------------- */
+  /*  OpenSubtitles search & download                                 */
+  /* -------------------------------------------------------------- */
+
+  const doOpenSubtitlesSearch = async (
+    title: string,
+    year?: string,
+    season?: number,
+    episode?: number,
+    langCode?: string,
+    providedToken?: string
+  ) => {
+    let token = providedToken || openSubtitlesToken;
+    if (!token && window.storage) {
+      const resSettings = await window.storage.getSettings();
+      const ss = resSettings.data?.subtitleSettings;
+      const valid = await ensureValidOpenSubtitlesToken(ss);
+      if (valid.token) {
+        token = valid.token;
+        setOpenSubtitlesToken(token);
+        setOpenSubtitlesUser(valid.user);
+      }
+    }
+
+    if (!token) {
+      setSearchError('Login required in Settings > Subtitles to search OpenSubtitles.');
+      return;
+    }
+
+    const targetLang = langCode || searchLang;
+    if (targetLang === 'off') return;
+
+    const cleanTitle = cleanTitleForSearch(title);
+    const cleanYearStr = year ? String(year).replace(/[^0-9]/g, '') : '';
+    const parsedYear = cleanYearStr ? parseInt(cleanYearStr, 10) : undefined;
+    const finalYear = (parsedYear && !isNaN(parsedYear)) ? parsedYear : undefined;
+
+    const rawImdb = imdbId ? String(imdbId).trim().replace(/^tt/, '') : undefined;
+    const rawTmdb = tmdbId ? parseInt(String(tmdbId).replace(/[^0-9]/g, ''), 10) : undefined;
+    const validTmdb = (rawTmdb && !isNaN(rawTmdb) && rawTmdb > 0) ? rawTmdb : undefined;
+
+    console.log('[SubtitleModal] Searching OpenSubtitles:', {
+      cleanTitle,
+      year: finalYear,
+      season,
+      episode,
+      lang: targetLang,
+      imdbId: rawImdb,
+      tmdbId: validTmdb,
+    });
+    setSearching(true);
+    setSearchError('');
+    setEpisodeFilter(null);
+    setAvailableEpisodes([]);
+    setOpenSubtitlesSubtitles([]);
+
+    try {
+      const res = await searchOpenSubtitles(token, {
+        query: cleanTitle,
+        seasonNumber: season,
+        episodeNumber: episode,
+        languages: targetLang,
+        year: finalYear,
+        imdbId: rawImdb,
+        tmdbId: validTmdb,
+      });
+
+      if (!res.success) {
+        const msg = res.error || 'OpenSubtitles search failed';
+        setSearchError(msg);
+        useToastStore.getState().addToast(msg, 'error');
+        return;
+      }
+
+      if (!res.subtitles || res.subtitles.length === 0) {
+        const msg = `No OpenSubtitles found for "${cleanTitle}".`;
+        setSearchError(msg);
+        return;
+      }
+
+      setOpenSubtitlesSubtitles(res.subtitles);
+
+      // Extract available episodes if present
+      const eps = new Set<number>();
+      res.subtitles.forEach((sub) => {
+        if (sub.episodeNumber && sub.episodeNumber > 0) {
+          eps.add(sub.episodeNumber);
+        } else {
+          const ep = extractEpisodeFromReleaseInfo([sub.release, sub.fileName]);
+          if (ep !== null) eps.add(ep);
+        }
+      });
+      const sortedEps = Array.from(eps).sort((a, b) => a - b);
+      setAvailableEpisodes(sortedEps);
+
+      if (episodeNum !== undefined && episodeNum > 0 && sortedEps.includes(episodeNum)) {
+        setEpisodeFilter(episodeNum);
+      }
+
+      setViewState('subtitles');
+    } catch (e: any) {
+      console.error('[SubtitleModal] OpenSubtitles search error:', e);
+      const msg = e?.message || 'OpenSubtitles search failed';
+      setSearchError(msg);
+      useToastStore.getState().addToast(msg, 'error');
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleDownloadOpenSubtitles = async (sub: OpenSubtitlesSubtitle) => {
+    if (!openSubtitlesToken) {
+      const msg = 'Login required in Settings > Subtitles';
+      setSearchError(msg);
+      useToastStore.getState().addToast(msg, 'error');
+      return;
+    }
+    setDownloadingOsId(sub.id);
+    setSearchError('');
+
+    try {
+      const res = await downloadOpenSubtitlesSubtitle(openSubtitlesToken, sub.fileId);
+      if (!res.success || !res.content) {
+        const msg = res.error || 'Failed to download subtitle from OpenSubtitles';
+        setSearchError(msg);
+        useToastStore.getState().addToast(msg, 'error');
+        return;
+      }
+
+      const { writeTextFile, mkdir, BaseDirectory } = await import('@tauri-apps/plugin-fs');
+      const { appLocalDataDir, join } = await import('@tauri-apps/api/path');
+      const appDir = await appLocalDataDir();
+
+      const sanitizePart = (val?: string) => {
+        if (!val) return 'unknown';
+        return val.replace(/__/g, '_').replace(/ /g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+      };
+
+      const cleanRelease = sanitizePart(sub.release || sub.fileName).slice(0, 40);
+      const cleanLang = sanitizePart(sub.language).slice(0, 10);
+      const ext = (res.fileName || sub.fileName || '').toLowerCase().endsWith('.vtt') ? 'vtt' : 'srt';
+
+      const relPath = `subtitles/opensubtitles__${cleanRelease}__${cleanLang}__${sub.fileId}.${ext}`;
+      const filePath = await join(appDir, relPath);
+
+      await mkdir('subtitles', { baseDir: BaseDirectory.AppLocalData, recursive: true }).catch(() => {});
+      await writeTextFile(relPath, res.content, { baseDir: BaseDirectory.AppLocalData });
+      console.log('[SubtitleModal] Saved OpenSubtitles file to:', filePath);
+
+      await Bridge.addSubtitleFile(filePath);
+      await loadTracks();
+      setViewState('tracks');
+    } catch (e: any) {
+      console.error('[SubtitleModal] OpenSubtitles download exception:', e);
+      const msg = e?.message || 'Download failed';
+      setSearchError(msg);
+      useToastStore.getState().addToast(msg, 'error');
+    } finally {
+      setDownloadingOsId(null);
+    }
+  };
+
+  const handleProviderChange = async (newProvider: 'subsource' | 'opensubtitles') => {
+    setProvider(newProvider);
+    setSearchError('');
+    setViewState('tracks');
+
+    // Save preferred provider to settings
+    try {
+      if (window.storage) {
+        const result = await window.storage.getSettings();
+        const settings: any = result.data || {};
+        const ss = settings.subtitleSettings || {};
+        await window.storage.updateSettings({
+          subtitleSettings: { ...ss, preferredProvider: newProvider },
+        });
+      }
+    } catch (e) {
+      console.error('Failed to save preferred provider setting:', e);
+    }
+
+    if (searchQuery.trim()) {
+      if (newProvider === 'opensubtitles' && openSubtitlesToken) {
+        doOpenSubtitlesSearch(searchQuery, vodYear, seasonNum, episodeNum, searchLang);
+      } else if (newProvider === 'subsource' && apiKey) {
+        const cleanQuery = cleanTitleForSearch(searchQuery.trim());
+        setSearching(true);
+        searchSubSourceMovies(apiKey, cleanQuery, vodYear, 'all', seasonNum)
+          .then((result) => {
+            if (result.success && result.movies && result.movies.length > 0) {
+              setMovies(result.movies);
+              setViewState('movies');
+            } else if (!result.success) {
+              setSearchError(result.error || 'SubSource search failed');
+            }
+          })
+          .finally(() => setSearching(false));
+      }
+    }
+  };
+
+  /* -------------------------------------------------------------- */
   /*  SubSource movie search (manual)                                 */
   /* -------------------------------------------------------------- */
 
   const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+
+    if (provider === 'opensubtitles') {
+      await doOpenSubtitlesSearch(searchQuery, vodYear, seasonNum, episodeNum, searchLang);
+      return;
+    }
+
     if (!apiKey) {
       setSearchError('Configure API key in Settings > Subtitles');
       return;
     }
-    if (!searchQuery.trim()) return;
 
     setSearching(true);
     setSearchError('');
@@ -838,6 +1092,16 @@ export function SubtitleControlModal({
       })
     : subtitles;
 
+  const filteredOsSubtitles = episodeFilter !== null
+    ? openSubtitlesSubtitles.filter((sub) => {
+        if (sub.episodeNumber && sub.episodeNumber > 0) {
+          return sub.episodeNumber === episodeFilter;
+        }
+        const ep = extractEpisodeFromReleaseInfo([sub.release, sub.fileName]);
+        return ep === episodeFilter;
+      })
+    : openSubtitlesSubtitles;
+
   return (
     <div className="subtitle-modal-overlay">
       <div className="subtitle-modal">
@@ -979,58 +1243,127 @@ export function SubtitleControlModal({
             )}
           </div>
 
-          {/* ── Column 3: SubSource Search & Download ── */}
+          {/* ── Column 3: Search & Download ── */}
           <div className="subtitle-col subtitle-col-search">
-            <div className="subtitle-col-title">
-              {viewState === 'tracks' && 'SubSource Search'}
-              {viewState === 'movies' && (
-                <button className="subtitle-back-btn" onClick={() => setViewState('tracks')}>
-                  ← Back
-                </button>
-              )}
-              {viewState === 'subtitles' && selectedMovie && (
+            <div className="subtitle-col-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {viewState === 'movies' && (
+                  <button className="subtitle-back-btn" onClick={() => setViewState('tracks')}>
+                    ← Back
+                  </button>
+                )}
+                {viewState === 'subtitles' && provider === 'subsource' && selectedMovie && (
+                  <button
+                    className="subtitle-back-btn"
+                    onClick={() => {
+                      setViewState('movies');
+                      setSubtitles([]);
+                      setEpisodeFilter(null);
+                      setAvailableEpisodes([]);
+                    }}
+                  >
+                    ← Back
+                  </button>
+                )}
+                {viewState === 'subtitles' && provider === 'opensubtitles' && (
+                  <button
+                    className="subtitle-back-btn"
+                    onClick={() => {
+                      setViewState('tracks');
+                      setOpenSubtitlesSubtitles([]);
+                      setEpisodeFilter(null);
+                      setAvailableEpisodes([]);
+                    }}
+                  >
+                    ← Back
+                  </button>
+                )}
+                {viewState === 'zip-files' && (
+                  <button
+                    className="subtitle-back-btn"
+                    onClick={() => {
+                      setViewState('subtitles');
+                      setZipEntries([]);
+                      setPendingZipData(null);
+                      setActiveSubSourceSubtitle(null);
+                    }}
+                  >
+                    ← Back
+                  </button>
+                )}
+                {viewState === 'tracks' && (
+                  <span>Provider</span>
+                )}
+              </div>
+
+              {/* Provider selector toggle */}
+              <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.08)', padding: '2px', borderRadius: '6px' }}>
                 <button
-                  className="subtitle-back-btn"
-                  onClick={() => {
-                    setViewState('movies');
-                    setSubtitles([]);
-                    setEpisodeFilter(null);
-                    setAvailableEpisodes([]);
+                  type="button"
+                  onClick={() => handleProviderChange('subsource')}
+                  style={{
+                    padding: '3px 8px',
+                    fontSize: '0.75rem',
+                    borderRadius: '4px',
+                    border: 'none',
+                    background: provider === 'subsource' ? 'var(--accent-color, #e50914)' : 'transparent',
+                    color: '#fff',
+                    cursor: 'pointer',
+                    fontWeight: provider === 'subsource' ? 600 : 400
                   }}
                 >
-                  ← Back
+                  SubSource
                 </button>
-              )}
-              {viewState === 'zip-files' && (
                 <button
-                  className="subtitle-back-btn"
+                  type="button"
                   onClick={() => {
-                    setViewState('subtitles');
-                    setZipEntries([]);
-                    setPendingZipData(null);
-                    setActiveSubSourceSubtitle(null);
+                    if (openSubtitlesToken) handleProviderChange('opensubtitles');
+                  }}
+                  disabled={!openSubtitlesToken}
+                  title={!openSubtitlesToken ? 'Login required in Settings > Subtitles to use OpenSubtitles' : 'Search OpenSubtitles'}
+                  style={{
+                    padding: '3px 8px',
+                    fontSize: '0.75rem',
+                    borderRadius: '4px',
+                    border: 'none',
+                    background: provider === 'opensubtitles' ? 'var(--accent-color, #e50914)' : 'transparent',
+                    color: !openSubtitlesToken ? 'rgba(255,255,255,0.3)' : '#fff',
+                    cursor: !openSubtitlesToken ? 'not-allowed' : 'pointer',
+                    fontWeight: provider === 'opensubtitles' ? 600 : 400
                   }}
                 >
-                  ← Back
+                  OpenSubtitles{!openSubtitlesToken && ' 🔒'}
                 </button>
-              )}
+              </div>
             </div>
 
             {/* Default / Empty / Initial search state */}
             {viewState === 'tracks' && (
               <div className="subtitle-empty">
-                {movies.length > 0 ? (
-                  <button className="subtitle-back-btn" onClick={() => setViewState('movies')}>
-                    Show {movies.length} result{movies.length !== 1 ? 's' : ''} →
-                  </button>
+                {provider === 'subsource' ? (
+                  movies.length > 0 ? (
+                    <button className="subtitle-back-btn" onClick={() => setViewState('movies')}>
+                      Show {movies.length} result{movies.length !== 1 ? 's' : ''} →
+                    </button>
+                  ) : (
+                    'Search above to find subtitles on SubSource'
+                  )
                 ) : (
-                  'Search above to find subtitles on SubSource'
+                  openSubtitlesSubtitles.length > 0 ? (
+                    <button className="subtitle-back-btn" onClick={() => setViewState('subtitles')}>
+                      Show {openSubtitlesSubtitles.length} result{openSubtitlesSubtitles.length !== 1 ? 's' : ''} →
+                    </button>
+                  ) : openSubtitlesToken ? (
+                    'Search above to find subtitles on OpenSubtitles'
+                  ) : (
+                    'Log in to OpenSubtitles in Settings > Subtitles to enable OpenSubtitles'
+                  )
                 )}
               </div>
             )}
 
-            {/* MOVIES view */}
-            {viewState === 'movies' && (
+            {/* MOVIES view (SubSource only) */}
+            {viewState === 'movies' && provider === 'subsource' && (
               <div className="subtitle-movie-list">
                 {movies.map((movie) => (
                   <button
@@ -1056,8 +1389,75 @@ export function SubtitleControlModal({
               </div>
             )}
 
-            {/* SUBTITLES view */}
-            {viewState === 'subtitles' && selectedMovie && (
+            {/* SUBTITLES view (OpenSubtitles) */}
+            {viewState === 'subtitles' && provider === 'opensubtitles' && (
+              <div className="subtitle-result-list">
+                <div className="subtitle-result-header">
+                  OpenSubtitles Results — {LANG_LABELS[searchLang] || searchLang}
+                </div>
+
+                {/* Episode filter bar */}
+                {availableEpisodes.length > 0 && (
+                  <div className="subtitle-episode-filters">
+                    <button
+                      className={`subtitle-episode-filter ${episodeFilter === null ? 'active' : ''}`}
+                      onClick={() => setEpisodeFilter(null)}
+                    >
+                      All
+                    </button>
+                    {availableEpisodes.map((ep) => (
+                      <button
+                        key={ep}
+                        className={`subtitle-episode-filter ${episodeFilter === ep ? 'active' : ''}`}
+                        onClick={() => setEpisodeFilter(ep)}
+                      >
+                        E{ep.toString().padStart(2, '0')}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {filteredOsSubtitles.map((sub) => (
+                  <button
+                    key={sub.id}
+                    className="subtitle-result-btn"
+                    onClick={() => handleDownloadOpenSubtitles(sub)}
+                    disabled={downloadingOsId === sub.id}
+                  >
+                    <span className="subtitle-result-info">
+                      <span className="subtitle-result-release" title={sub.release}>
+                        <span className="subtitle-result-release-inner">
+                          {sub.release}
+                        </span>
+                      </span>
+                      <span className="subtitle-result-detail">
+                        {sub.hd && 'HD'}
+                        {sub.fps && ` · ${sub.fps}fps`}
+                        {sub.hearingImpaired && ' · CC'}
+                        {sub.downloads > 0 && ` · ${sub.downloads}↓`}
+                        {sub.rating > 0 && (
+                          <span className="subtitle-result-rating">
+                            {' '}· ★ {sub.rating}
+                          </span>
+                        )}
+                      </span>
+                    </span>
+                    <span className="subtitle-result-action">
+                      {downloadingOsId === sub.id ? '…' : 'Load'}
+                    </span>
+                  </button>
+                ))}
+
+                {episodeFilter !== null && filteredOsSubtitles.length === 0 && (
+                  <div className="subtitle-empty">
+                    No subtitles found for E{episodeFilter.toString().padStart(2, '0')}.
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* SUBTITLES view (SubSource) */}
+            {viewState === 'subtitles' && provider === 'subsource' && selectedMovie && (
               <div className="subtitle-result-list">
                 <div className="subtitle-result-header">
                   {selectedMovie.title}

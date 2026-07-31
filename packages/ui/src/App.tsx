@@ -4239,6 +4239,13 @@ function App() {
           vodYear={vodInfo?.year}
           seasonNum={vodInfo?.seasonNum}
           episodeNum={vodInfo?.episodeNum}
+          tmdbId={vodInfo?.tmdbId || (vodInfo as any)?.tmdb_id}
+          imdbId={
+            vodInfo?.imdbId ||
+            (vodInfo as any)?.imdb_id ||
+            (vodInfo?.stremioId && vodInfo.stremioId.startsWith('tt') ? vodInfo.stremioId.split(/[:_]/)[0] : undefined) ||
+            (vodInfo?.mediaId && vodInfo.mediaId.startsWith('tt') ? vodInfo.mediaId.split(/[:_]/)[0] : undefined)
+          }
         />
       ) : (
         <TrackSelectionModal
