@@ -19,6 +19,7 @@ export type SettingsTabId =
   | 'startup'
   | 'playback'
   | 'scrobbling'
+  | 'simkl'
   | 'cache'
   | 'livetv'
   | 'about';
@@ -45,6 +46,7 @@ const SETTINGS_TABS: SettingsTab[] = [
   { id: 'navigation', label: 'Navigation' },
   { id: 'startup', label: 'Startup' },
   { id: 'scrobbling', label: 'Trakt' },
+  { id: 'simkl', label: 'Simkl' },
   { id: 'cache', label: 'Cache' },
   { id: 'security', label: 'Security' },
   { id: 'proxy', label: 'Proxy' },

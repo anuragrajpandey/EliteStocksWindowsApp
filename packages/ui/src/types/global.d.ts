@@ -6,6 +6,7 @@ declare global {
         readonly VITE_TRAKT_CLIENT_ID?: string;
         readonly VITE_TRAKT_CLIENT_SECRET?: string;
         readonly VITE_OPENSUBTITLES_API_KEY?: string;
+        readonly VITE_SIMKL_CLIENT_ID?: string;
     }
 
     interface ImportMeta {

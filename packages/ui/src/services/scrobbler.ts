@@ -9,6 +9,18 @@ const logError = (...args: any[]) => console.error('[Scrobbler]', ...args);
 
 // API Endpoints
 const TRAKT_API_URL = 'https://api.trakt.tv';
+export const SIMKL_API_URL = 'https://api.simkl.com';
+export const DEFAULT_SIMKL_CLIENT_ID = 'cfab28c8449e6a5784705e4ff09d63e155598acb0491b074d246cca91bfe8408';
+
+export interface SimklPinResponse {
+  result: string;
+  device_code: string;
+  user_code: string;
+  verification_uri: string;
+  verification_url: string;
+  expires_in: number;
+  interval: number;
+}
 
 // ---------------------------------------------------------------------------
 // Trakt Catalog Definitions
@@ -91,6 +103,7 @@ type ScrobblerProvider = 'Trakt';
 const buildCredentials = {
   traktClientId: import.meta.env.VITE_TRAKT_CLIENT_ID?.trim() || '',
   traktClientSecret: import.meta.env.VITE_TRAKT_CLIENT_SECRET?.trim() || '',
+  simklClientId: import.meta.env.VITE_SIMKL_CLIENT_ID?.trim() || DEFAULT_SIMKL_CLIENT_ID,
 };
 
 export function getScrobblerCredentialStatus() {
@@ -174,6 +187,7 @@ async function makeRequest(url: string, options: any = {}) {
 class ScrobblerService {
   private lastActiveMedia: PlaybackMediaInfo | null = null;
   private isScrobblingActive = false;
+  private scrobbleSessionId = 0;
 
   // Cache for Trakt catalogs (stale after 30 minutes, playback type not cached)
   private catalogCache = new Map<string, { data: { items: StremioMetaPreview[]; hasMore: boolean }; timestamp: number }>();
@@ -329,14 +343,93 @@ class ScrobblerService {
   }
 
   // --------------------------------------------------------------------------
-  // Unified Real-Time Scrobbling APIs (Trakt)
+  // Simkl Authentication / PIN Flow (device auth, no redirect URI required)
+  // --------------------------------------------------------------------------
+  async generateSimklPinCode(): Promise<SimklPinResponse> {
+    const clientId = buildCredentials.simklClientId || DEFAULT_SIMKL_CLIENT_ID;
+    logInfo('Requesting Simkl PIN code...');
+    const url = `${SIMKL_API_URL}/oauth/pin?client_id=${encodeURIComponent(clientId)}&app-name=ynotv&app-version=1.0`;
+    const response = await makeRequest(url, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'ynotv/1.0',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to request Simkl PIN code (${response.status})`);
+    }
+
+    const data = await response.json();
+    if (!data.user_code) {
+      throw new Error('Simkl PIN response missing user_code');
+    }
+    return data as SimklPinResponse;
+  }
+
+  async pollSimklPin(userCode: string): Promise<{ success: boolean; accessToken?: string; error?: string }> {
+    const clientId = buildCredentials.simklClientId || DEFAULT_SIMKL_CLIENT_ID;
+    try {
+      const url = `${SIMKL_API_URL}/oauth/pin/${encodeURIComponent(userCode)}?client_id=${encodeURIComponent(clientId)}&app-name=ynotv&app-version=1.0`;
+      const response = await makeRequest(url, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'ynotv/1.0',
+        },
+      });
+
+      if (!response.ok) {
+        return { success: false, error: `Simkl PIN poll failed (${response.status})` };
+      }
+
+      const data = await response.json();
+
+      // A response containing device_code means the original code is gone
+      // (already authorized, expired, or garbage-collected) — stop polling.
+      if (data.device_code) {
+        return { success: false, error: 'The code has expired. Please try again.' };
+      }
+
+      if (data.result === 'OK' && data.access_token) {
+        await this.updateSettings({
+          simklEnabled: true,
+          simklAccessToken: data.access_token,
+          simklScrobbleEnabled: true,
+        });
+        logInfo('Simkl linked successfully via PIN flow.');
+        return { success: true, accessToken: data.access_token };
+      }
+
+      // result === 'KO' → user has not authorized yet; keep polling.
+      return { success: false };
+    } catch (e) {
+      logError('Simkl PIN poll error:', e);
+      return { success: false, error: 'Simkl PIN poll request failed' };
+    }
+  }
+
+  async logoutSimkl(): Promise<void> {
+    await this.updateSettings({
+      simklEnabled: false,
+      simklAccessToken: null,
+      simklScrobbleEnabled: false,
+    });
+    logInfo('Simkl unlinked successfully.');
+  }
+
+  // --------------------------------------------------------------------------
+  // Unified Real-Time Scrobbling APIs (Trakt & Simkl)
   // --------------------------------------------------------------------------
   async startScrobble(media: PlaybackMediaInfo): Promise<void> {
+    this.scrobbleSessionId += 1;
     this.lastActiveMedia = media;
     this.isScrobblingActive = true;
     logInfo('Start scrobbling media:', media.title, media.type === 'series' ? `S${media.season}E${media.episode}` : '', `(${Math.round(media.progressPercent)}%)`);
 
-    await this.sendTraktScrobble('start', media);
+    await Promise.allSettled([
+      this.sendTraktScrobble('start', media),
+      this.sendSimklScrobble('start', media),
+    ]);
   }
 
   async updateScrobble(progressPercent: number): Promise<void> {
@@ -344,29 +437,46 @@ class ScrobblerService {
     
     this.lastActiveMedia.progressPercent = progressPercent;
     logInfo('Updating scrobble progress:', this.lastActiveMedia.title, `(${Math.round(progressPercent)}%)`);
+
+    // Simkl is excluded here: it expects scrobble events only on real play/pause/stop
+    // actions and extrapolates progress server-side. Periodic re-posting is discouraged.
+    await this.sendTraktScrobble('start', this.lastActiveMedia);
   }
 
   async pauseScrobble(): Promise<void> {
     if (!this.isScrobblingActive || !this.lastActiveMedia) return;
     logInfo('Pausing scrobble:', this.lastActiveMedia.title);
 
-    await this.sendTraktScrobble('pause', this.lastActiveMedia);
+    await Promise.allSettled([
+      this.sendTraktScrobble('pause', this.lastActiveMedia),
+      this.sendSimklScrobble('pause', this.lastActiveMedia),
+    ]);
   }
 
   async stopScrobble(progressPercent: number): Promise<void> {
     if (!this.isScrobblingActive || !this.lastActiveMedia) return;
     
-    this.lastActiveMedia.progressPercent = progressPercent;
+    const stoppedMedia = this.lastActiveMedia;
+    const sessionId = this.scrobbleSessionId;
+    stoppedMedia.progressPercent = progressPercent;
     this.isScrobblingActive = false;
     
-    logInfo('Stopping scrobble:', this.lastActiveMedia.title, `(${Math.round(progressPercent)}%)`);
+    logInfo('Stopping scrobble:', stoppedMedia.title, `(${Math.round(progressPercent)}%)`);
 
     if (progressPercent >= 90) {
       logInfo('Media completed (>=90%)! Marking as fully watched.');
     }
 
-    await this.sendTraktScrobble('stop', this.lastActiveMedia);
-    this.lastActiveMedia = null;
+    await Promise.allSettled([
+      this.sendTraktScrobble('stop', stoppedMedia),
+      this.sendSimklScrobble('stop', stoppedMedia),
+    ]);
+
+    // Don't clear the active media if a new playback session started while the
+    // stop request was in flight (e.g. autoplay advancing to the next episode).
+    if (this.scrobbleSessionId === sessionId && this.lastActiveMedia === stoppedMedia) {
+      this.lastActiveMedia = null;
+    }
   }
 
   // --------------------------------------------------------------------------
@@ -435,6 +545,120 @@ class ScrobblerService {
       }
     } catch (e) {
       logError('Trakt scrobble connection error:', e);
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Simkl Internal Scrobbler Request
+  // --------------------------------------------------------------------------
+  private async sendSimklScrobble(action: 'start' | 'pause' | 'stop', media: PlaybackMediaInfo): Promise<void> {
+    const settings = await this.getSettings();
+    if (!settings.simklEnabled || !settings.simklScrobbleEnabled || !settings.simklAccessToken) return;
+
+    const clientId = buildCredentials.simklClientId || DEFAULT_SIMKL_CLIENT_ID;
+    const imdbClean = media.imdbId && media.imdbId.startsWith('tt') ? media.imdbId : undefined;
+
+    // Metadata guard: Ensure at least valid IMDb ID or valid title metadata exists
+    if (!imdbClean && (!media.title || media.title === 'Unknown Video')) {
+      logWarn('[Simkl] Skipping scrobble: missing valid IMDb ID or title metadata.');
+      return;
+    }
+
+    // Simkl accepts progress with up to 2 decimal places
+    const progress = Math.round(Math.min(100, Math.max(0, media.progressPercent)) * 100) / 100;
+
+    let payload: any = {};
+    if (media.type === 'movie') {
+      payload = {
+        progress,
+        movie: {
+          title: media.title,
+          year: media.year ? parseInt(String(media.year), 10) : undefined,
+          ids: imdbClean ? { imdb: imdbClean } : undefined,
+        },
+      };
+    } else {
+      payload = {
+        progress,
+        show: {
+          title: media.title,
+          year: media.year ? parseInt(String(media.year), 10) : undefined,
+          ids: imdbClean ? { imdb: imdbClean } : undefined,
+        },
+        episode: {
+          season: media.season ?? 1,
+          number: media.episode ?? 1,
+        },
+      };
+    }
+
+    const headers = {
+      'Authorization': `Bearer ${settings.simklAccessToken}`,
+      'Content-Type': 'application/json',
+      'User-Agent': 'ynotv/1.0',
+    };
+
+    const url = `${SIMKL_API_URL}/scrobble/${action}?client_id=${encodeURIComponent(clientId)}&app-name=ynotv&app-version=1.0`;
+    logInfo(`Sending Simkl Scrobble (${action}) request...`, media.title);
+
+    let response: any = null;
+    let responseText = '';
+    let attempts = 0;
+    while (attempts < 3) {
+      try {
+        const res = await makeRequest(url, {
+          method: 'POST',
+          headers,
+          body: payload,
+        });
+
+        if (res.status === 401) {
+          logWarn('[Simkl] 401 Unauthorized during scrobble. Invalidating access token.');
+          await this.updateSettings({
+            simklEnabled: false,
+            simklAccessToken: null,
+          });
+          return;
+        }
+
+        responseText = await res.text().catch(() => '');
+
+        // Simkl throttles scrobbles with a 20s per-user lock that returns HTTP 400
+        // with a RATE_LIMIT error (not 429). Handle both forms.
+        const isRateLimited = res.status === 429
+          || (res.status === 400 && responseText.toUpperCase().includes('RATE_LIMIT'));
+
+        if (isRateLimited) {
+          attempts++;
+          const backoffMs = Math.pow(2, attempts) * 1000;
+          logWarn(`[Simkl] Scrobble rate limited (${res.status}). Retrying in ${backoffMs}ms...`);
+          await new Promise((r) => setTimeout(r, backoffMs));
+          continue;
+        }
+
+        response = res;
+        break;
+      } catch (e) {
+        logError('Simkl scrobble request error:', e);
+        return;
+      }
+    }
+
+    if (!response) return;
+
+    let responseBody: any = null;
+    if (responseText) {
+      try {
+        responseBody = JSON.parse(responseText);
+      } catch {
+        responseBody = responseText;
+      }
+    }
+
+    if (!response.ok) {
+      logWarn('[Simkl] Scrobble failed with status:', response.status, responseBody);
+    } else {
+      logInfo(`[Simkl] Scrobble (${action}) accepted:`, responseBody);
     }
   }
 

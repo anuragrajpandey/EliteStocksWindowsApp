@@ -27,6 +27,7 @@ const TAB_LABELS: Record<SettingsTabId, string> = {
   navigation: 'Navigation',
   startup: 'Startup',
   scrobbling: 'Trakt',
+  simkl: 'Simkl',
   cache: 'Cache',
   security: 'Security',
   proxy: 'Proxy',

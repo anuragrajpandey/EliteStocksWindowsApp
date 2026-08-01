@@ -3015,9 +3015,18 @@ function useTmdbPresencePoster(
       }, 30000);
 
     } else if (!playing && scrobblingMediaRef.current) {
-      // Playback paused
-      console.log('[Scrobbler] Playback paused, pausing scrobble...');
-      scrobbler.pauseScrobble().catch(console.error);
+      // Playback paused, or the media ended naturally (e.g. autoplay advancing to
+      // the next episode). If it ran to completion, send a stop so Trakt/Simkl mark
+      // it watched instead of a pause (which only saves a resume point).
+      const completed = duration > 0 && (position >= duration - 5 || position / duration >= 0.9);
+      if (completed) {
+        const finalPercent = Math.min(100, (position / duration) * 100);
+        console.log('[Scrobbler] Playback completed, stopping scrobble at percent:', finalPercent);
+        scrobbler.stopScrobble(finalPercent).catch(console.error);
+      } else {
+        console.log('[Scrobbler] Playback paused, pausing scrobble...');
+        scrobbler.pauseScrobble().catch(console.error);
+      }
       if (scrobbleTimerRef.current) {
         clearInterval(scrobbleTimerRef.current);
         scrobbleTimerRef.current = null;
@@ -3227,6 +3236,15 @@ function useTmdbPresencePoster(
           // Get progress for resume
           const progress = await getEpisodeProgress(nextEpisode.id);
           const resumePosition = progress?.progress_seconds && progress.progress_seconds > 10 ? progress.progress_seconds : 0;
+
+          // Stop scrobbling the current episode at its current progress so it is
+          // saved as resumable playback (or watched if already >=80%) on Trakt/Simkl
+          // before switching to the next episode.
+          const curDur = durationRef.current;
+          const curPos = positionRef.current;
+          const curPercent = curDur > 0 ? Math.min(100, (curPos / curDur) * 100) : lastKnownProgressPercentRef.current;
+          console.log('[Scrobbler] Skipping to next episode, stopping scrobble at percent:', curPercent);
+          scrobbler.stopScrobble(curPercent).catch(console.error);
           
           // Record watch history
           void recordVodWatch(

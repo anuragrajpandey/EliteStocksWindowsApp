@@ -180,6 +180,10 @@ export interface AppSettings {
     traktNuvioCatalogOrder?: string[];
     traktNuvioCatalogsBeforeAddon?: boolean;
     traktNuvioEnabledLists?: { id: string; name: string }[];
+    // Simkl integration settings
+    simklEnabled?: boolean;
+    simklAccessToken?: string | null;
+    simklScrobbleEnabled?: boolean;
     globalLiveTvUserAgent?: string;
     catchupStartPadding?: number;
     catchupEndPadding?: number;
