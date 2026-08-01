@@ -164,13 +164,31 @@ export function SimklTab() {
         {!simklLinked ? (
           <div>
             {authState === 'idle' && (
-              <button
-                className="sync-btn"
-                onClick={startSimklPinAuth}
-                style={{ padding: '8px 20px', fontSize: '0.9rem' }}
-              >
-                Connect Simkl Account
-              </button>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <button
+                  className="sync-btn"
+                  onClick={startSimklPinAuth}
+                  style={{ padding: '8px 20px', fontSize: '0.9rem' }}
+                >
+                  Connect Simkl Account
+                </button>
+                <a
+                  href="https://simkl.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="sync-btn"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    padding: '8px 20px',
+                    fontSize: '0.9rem',
+                    textDecoration: 'none',
+                    background: 'rgba(255,255,255,0.05)',
+                  }}
+                >
+                  About Simkl ↗
+                </a>
+              </div>
             )}
 
             {authState === 'polling' && (
@@ -306,9 +324,27 @@ export function SimklTab() {
               </label>
             </div>
 
-            <button className="sync-btn danger" onClick={handleSimklUnlink}>
-              Disconnect Simkl Account
-            </button>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', marginTop: '16px' }}>
+              <a
+                href="https://simkl.com"
+                target="_blank"
+                rel="noreferrer"
+                className="sync-btn"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '8px 20px',
+                  fontSize: '0.9rem',
+                  textDecoration: 'none',
+                  background: 'rgba(255,255,255,0.05)',
+                }}
+              >
+                About Simkl ↗
+              </a>
+              <button className="sync-btn danger" onClick={handleSimklUnlink}>
+                Disconnect Simkl Account
+              </button>
+            </div>
           </div>
         )}
       </div>
