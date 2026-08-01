@@ -1132,6 +1132,19 @@ html.epg-rectangle-logos .guide-channel-logo {
 html.epg-rectangle-logos .guide-channel-logo.logo-on-light {
   background: rgba(255, 255, 255, 0.9);
 }
+
+/* No-padding overrides for standard & rectangle logos */
+.guide-channel-logo.no-padding,
+html.epg-rectangle-logos .guide-channel-logo.no-padding {
+  padding: 0 !important;
+}
+
+.guide-channel-logo.no-padding img,
+html.epg-rectangle-logos .guide-channel-logo.no-padding img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
 html.epg-rectangle-logos .logo-placeholder {
   font-size: 0.8rem;
   width: 66px;

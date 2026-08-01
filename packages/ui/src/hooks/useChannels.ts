@@ -573,11 +573,13 @@ export function useChannels(categoryId: string | null, sortOrder: 'alphabetical'
         const overrides = await db.epgChannelOverrides.toArray();
         const logoMap = new Map<string, string>();
         const logoBgMap = new Map<string, string>();
+        const logoPaddingMap = new Map<string, string>();
         const epgIdMap = new Map<string, string>();
         
         for (const o of overrides) {
           if (o.stream_icon) logoMap.set(o.stream_id, o.stream_icon);
           if (o.logo_background) logoBgMap.set(o.stream_id, o.logo_background);
+          if (o.logo_padding) logoPaddingMap.set(o.stream_id, o.logo_padding);
           if (o.epg_channel_id) epgIdMap.set(o.stream_id, o.epg_channel_id);
         }
 
@@ -636,6 +638,7 @@ export function useChannels(categoryId: string | null, sortOrder: 'alphabetical'
         results = results.map(ch => {
           const customIcon = logoMap.get(ch.stream_id);
           const logoBg = logoBgMap.get(ch.stream_id);
+          const logoPad = logoPaddingMap.get(ch.stream_id);
           let effectiveIcon = customIcon;
 
           if (!effectiveIcon && epgPreferEpgLogos) {
@@ -645,11 +648,12 @@ export function useChannels(categoryId: string | null, sortOrder: 'alphabetical'
             }
           }
 
-          if (effectiveIcon || logoBg !== undefined) {
+          if (effectiveIcon || logoBg !== undefined || logoPad !== undefined) {
             return {
               ...ch,
               ...(effectiveIcon ? { stream_icon: effectiveIcon } : {}),
               ...(logoBg !== undefined ? { logo_background: logoBg } : {}),
+              ...(logoPad !== undefined ? { logo_padding: logoPad } : {}),
             };
           }
           return ch;
@@ -1173,11 +1177,13 @@ export function useChannelSearch(
         const overrides = await db.epgChannelOverrides.toArray();
         const logoMap = new Map<string, string>();
         const logoBgMap = new Map<string, string>();
+        const logoPaddingMap = new Map<string, string>();
         const epgIdMap = new Map<string, string>();
         
         for (const o of overrides) {
           if (o.stream_icon) logoMap.set(o.stream_id, o.stream_icon);
           if (o.logo_background) logoBgMap.set(o.stream_id, o.logo_background);
+          if (o.logo_padding) logoPaddingMap.set(o.stream_id, o.logo_padding);
           if (o.epg_channel_id) epgIdMap.set(o.stream_id, o.epg_channel_id);
         }
 
@@ -1236,6 +1242,7 @@ export function useChannelSearch(
         filteredChannels = filteredChannels.map(ch => {
           const customIcon = logoMap.get(ch.stream_id);
           const logoBg = logoBgMap.get(ch.stream_id);
+          const logoPad = logoPaddingMap.get(ch.stream_id);
           let effectiveIcon = customIcon;
 
           if (!effectiveIcon && epgPreferEpgLogos) {
@@ -1245,11 +1252,12 @@ export function useChannelSearch(
             }
           }
 
-          if (effectiveIcon || logoBg !== undefined) {
+          if (effectiveIcon || logoBg !== undefined || logoPad !== undefined) {
             return {
               ...ch,
               ...(effectiveIcon ? { stream_icon: effectiveIcon } : {}),
               ...(logoBg !== undefined ? { logo_background: logoBg } : {}),
+              ...(logoPad !== undefined ? { logo_padding: logoPad } : {}),
             };
           }
           return ch;

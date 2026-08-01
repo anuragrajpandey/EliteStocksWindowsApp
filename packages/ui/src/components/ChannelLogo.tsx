@@ -9,10 +9,12 @@ interface ChannelLogoProps {
   lazy?: boolean;
   /** Manual tile background override from the EPG editor. 'auto' (or undefined) uses luminance detection. */
   background?: 'auto' | 'light' | 'dark';
+  /** Manual logo padding override. 'default' (or undefined) uses normal tile padding, 'none' removes padding. */
+  padding?: 'default' | 'none';
 }
 
 /**
- * Channel logo with automatic luminance-based background.
+ * Channel logo with automatic luminance-based background and configurable padding.
  *
  * Renders the logo image inside a tile. On load, samples the logo's average
  * luminance once (cached) and adds the `logo-on-light` modifier class when the
@@ -21,7 +23,7 @@ interface ChannelLogoProps {
  *
  * Pass `background="light"` to always force a light tile (for dark logos the
  * auto-detection gets wrong) or `background="dark"` to always keep the default
- * dark tile.
+ * dark tile. Pass `padding="none"` to remove padding around the image.
  */
 export const ChannelLogo = memo(function ChannelLogo({
   src,
@@ -30,6 +32,7 @@ export const ChannelLogo = memo(function ChannelLogo({
   placeholderClass = 'logo-placeholder',
   lazy = true,
   background = 'auto',
+  padding = 'default',
 }: ChannelLogoProps) {
   const [autoLight, setAutoLight] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -57,7 +60,10 @@ export const ChannelLogo = memo(function ChannelLogo({
 
   const needsLight = background === 'light' ? true : background === 'dark' ? false : autoLight;
 
-  const containerClass = needsLight ? `${className} logo-on-light` : className;
+  const containerClass = [
+    needsLight ? `${className} logo-on-light` : className,
+    padding === 'none' ? 'no-padding' : '',
+  ].filter(Boolean).join(' ');
 
   if (!src || failed) {
     return (

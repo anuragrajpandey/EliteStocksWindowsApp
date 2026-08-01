@@ -295,6 +295,8 @@ export async function exportAllData(): Promise<{ success: boolean; filePath?: st
             streamId: o.stream_id,
             epgChannelId: o.epg_channel_id,
             streamIcon: o.stream_icon,
+            logoBackground: o.logo_background,
+            logoPadding: o.logo_padding,
             timeshiftHours: o.timeshift_hours
         }));
 
@@ -800,6 +802,8 @@ export async function importAllData(): Promise<{ success: boolean; error?: strin
                         stream_id: o.streamId || (o as any).stream_id,
                         epg_channel_id: o.epgChannelId !== undefined ? o.epgChannelId : (o as any).epg_channel_id,
                         stream_icon: o.streamIcon !== undefined ? o.streamIcon : (o as any).stream_icon,
+                        logo_background: (o as any).logoBackground !== undefined ? (o as any).logoBackground : (o as any).logo_background,
+                        logo_padding: (o as any).logoPadding !== undefined ? (o as any).logoPadding : (o as any).logo_padding,
                         timeshift_hours: o.timeshiftHours !== undefined ? o.timeshiftHours : (o as any).timeshift_hours
                     }));
                     await db.epgChannelOverrides.bulkAdd(overrides);

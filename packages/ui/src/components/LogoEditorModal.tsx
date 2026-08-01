@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { db, type StoredChannel, type EpgChannelOverride } from '../db';
 import { ChannelLogo } from './ChannelLogo';
-import { batchUpsertLogoBackground } from '../services/epg-overrides';
+import { batchUpsertLogoOverrides } from '../services/epg-overrides';
 import './LogoEditorModal.css';
 
 export interface LogoEditorModalProps {
@@ -22,9 +22,11 @@ export function LogoEditorModal({
   const [existingOverrides, setExistingOverrides] = useState<Map<string, EpgChannelOverride>>(new Map());
   const [logoBgMap, setLogoBgMap] = useState<Record<string, 'auto' | 'light' | 'dark'>>({});
   const [initialBgMap, setInitialBgMap] = useState<Record<string, 'auto' | 'light' | 'dark'>>({});
+  const [logoPaddingMap, setLogoPaddingMap] = useState<Record<string, 'default' | 'none'>>({});
+  const [initialPaddingMap, setInitialPaddingMap] = useState<Record<string, 'default' | 'none'>>({});
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterMode, setFilterMode] = useState<'all' | 'auto' | 'light' | 'dark'>('all');
+  const [filterMode, setFilterMode] = useState<'all' | 'auto' | 'light' | 'dark' | 'no-padding'>('all');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
@@ -38,7 +40,7 @@ export function LogoEditorModal({
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
-  // Load category channels and existing logo_background overrides
+  // Load category channels and existing logo overrides
   useEffect(() => {
     let isMounted = true;
     async function loadCategoryChannels() {
@@ -109,10 +111,11 @@ export function LogoEditorModal({
           }
         }
 
-        // Fetch logo_background overrides for these channels
+        // Fetch logo overrides for these channels
         const streamIds = channelList.map(ch => ch.stream_id);
         const overridesMap = new Map<string, EpgChannelOverride>();
         const bgMap: Record<string, 'auto' | 'light' | 'dark'> = {};
+        const padMap: Record<string, 'default' | 'none'> = {};
 
         if (streamIds.length > 0) {
           const overrides = await db.epgChannelOverrides.where('stream_id').anyOf(streamIds).toArray();
@@ -121,12 +124,18 @@ export function LogoEditorModal({
             if (ov.logo_background) {
               bgMap[ov.stream_id] = ov.logo_background as 'auto' | 'light' | 'dark';
             }
+            if (ov.logo_padding) {
+              padMap[ov.stream_id] = ov.logo_padding as 'default' | 'none';
+            }
           }
         }
 
         for (const ch of channelList) {
           if (!bgMap[ch.stream_id]) {
             bgMap[ch.stream_id] = 'auto';
+          }
+          if (!padMap[ch.stream_id]) {
+            padMap[ch.stream_id] = 'default';
           }
         }
 
@@ -135,6 +144,8 @@ export function LogoEditorModal({
           setExistingOverrides(overridesMap);
           setLogoBgMap(bgMap);
           setInitialBgMap(bgMap);
+          setLogoPaddingMap(padMap);
+          setInitialPaddingMap(padMap);
           setLoading(false);
         }
       } catch (err) {
@@ -153,24 +164,35 @@ export function LogoEditorModal({
     return channels.filter(ch => {
       const matchesSearch = !query || ch.name.toLowerCase().includes(query) || ch.stream_id.toLowerCase().includes(query);
       const bg = logoBgMap[ch.stream_id] || 'auto';
-      const matchesFilter = filterMode === 'all' || bg === filterMode;
+      const pad = logoPaddingMap[ch.stream_id] || 'default';
+
+      let matchesFilter = true;
+      if (filterMode === 'auto' || filterMode === 'light' || filterMode === 'dark') {
+        matchesFilter = bg === filterMode;
+      } else if (filterMode === 'no-padding') {
+        matchesFilter = pad === 'none';
+      }
       return matchesSearch && matchesFilter;
     });
-  }, [channels, searchQuery, filterMode, logoBgMap]);
+  }, [channels, searchQuery, filterMode, logoBgMap, logoPaddingMap]);
 
-  // Count summary by background type
+  // Count summary by background type & padding mode
   const counts = useMemo(() => {
     let autoCount = 0;
     let lightCount = 0;
     let darkCount = 0;
+    let noPadCount = 0;
     for (const ch of channels) {
       const bg = logoBgMap[ch.stream_id] || 'auto';
+      const pad = logoPaddingMap[ch.stream_id] || 'default';
       if (bg === 'light') lightCount++;
       else if (bg === 'dark') darkCount++;
       else autoCount++;
+
+      if (pad === 'none') noPadCount++;
     }
-    return { total: channels.length, auto: autoCount, light: lightCount, dark: darkCount };
-  }, [channels, logoBgMap]);
+    return { total: channels.length, auto: autoCount, light: lightCount, dark: darkCount, noPadding: noPadCount };
+  }, [channels, logoBgMap, logoPaddingMap]);
 
   // Handle select all / deselect all for filtered channels
   const allFilteredSelected = useMemo(() => {
@@ -214,6 +236,14 @@ export function LogoEditorModal({
     }));
   }, []);
 
+  // Individual padding update
+  const setChannelPadding = useCallback((streamId: string, pad: 'default' | 'none') => {
+    setLogoPaddingMap(prev => ({
+      ...prev,
+      [streamId]: pad,
+    }));
+  }, []);
+
   // Bulk background update
   const applyBulkBg = useCallback((bg: 'auto' | 'light' | 'dark') => {
     const targetIds = selectedIds.size > 0 ? Array.from(selectedIds) : filteredChannels.map(ch => ch.stream_id);
@@ -228,37 +258,66 @@ export function LogoEditorModal({
     });
   }, [selectedIds, filteredChannels]);
 
+  // Bulk padding update
+  const applyBulkPadding = useCallback((pad: 'default' | 'none') => {
+    const targetIds = selectedIds.size > 0 ? Array.from(selectedIds) : filteredChannels.map(ch => ch.stream_id);
+    if (targetIds.length === 0) return;
+
+    setLogoPaddingMap(prev => {
+      const next = { ...prev };
+      for (const id of targetIds) {
+        next[id] = pad;
+      }
+      return next;
+    });
+  }, [selectedIds, filteredChannels]);
+
   // Calculate if there are unsaved changes
   const hasChanges = useMemo(() => {
     for (const ch of channels) {
-      const current = logoBgMap[ch.stream_id] || 'auto';
-      const initial = initialBgMap[ch.stream_id] || 'auto';
-      if (current !== initial) return true;
+      const currentBg = logoBgMap[ch.stream_id] || 'auto';
+      const initialBg = initialBgMap[ch.stream_id] || 'auto';
+      if (currentBg !== initialBg) return true;
+
+      const currentPad = logoPaddingMap[ch.stream_id] || 'default';
+      const initialPad = initialPaddingMap[ch.stream_id] || 'default';
+      if (currentPad !== initialPad) return true;
     }
     return false;
-  }, [channels, logoBgMap, initialBgMap]);
+  }, [channels, logoBgMap, initialBgMap, logoPaddingMap, initialPaddingMap]);
 
   // Save changes to database
   const handleSaveChanges = async () => {
     setSaving(true);
     try {
-      const updates: Array<{ streamId: string; logoBackground: 'auto' | 'light' | 'dark' }> = [];
+      const updates: Array<{
+        streamId: string;
+        logoBackground?: 'auto' | 'light' | 'dark';
+        logoPadding?: 'default' | 'none';
+      }> = [];
       for (const ch of channels) {
-        const current = logoBgMap[ch.stream_id] || 'auto';
-        const initial = initialBgMap[ch.stream_id] || 'auto';
-        if (current !== initial) {
-          updates.push({ streamId: ch.stream_id, logoBackground: current });
+        const currentBg = logoBgMap[ch.stream_id] || 'auto';
+        const initialBg = initialBgMap[ch.stream_id] || 'auto';
+        const currentPad = logoPaddingMap[ch.stream_id] || 'default';
+        const initialPad = initialPaddingMap[ch.stream_id] || 'default';
+        if (currentBg !== initialBg || currentPad !== initialPad) {
+          updates.push({
+            streamId: ch.stream_id,
+            logoBackground: currentBg,
+            logoPadding: currentPad,
+          });
         }
       }
 
       if (updates.length > 0) {
-        await batchUpsertLogoBackground(updates);
+        await batchUpsertLogoOverrides(updates);
         setInitialBgMap({ ...logoBgMap });
-        setSaveSuccess(`✓ Updated ${updates.length} channel logo background${updates.length > 1 ? 's' : ''}`);
+        setInitialPaddingMap({ ...logoPaddingMap });
+        setSaveSuccess(`✓ Updated ${updates.length} channel logo setting${updates.length > 1 ? 's' : ''}`);
         setTimeout(() => setSaveSuccess(null), 3000);
       }
     } catch (err) {
-      console.error('[LogoEditorModal] Error saving logo backgrounds:', err);
+      console.error('[LogoEditorModal] Error saving logo settings:', err);
     } finally {
       setSaving(false);
     }
@@ -275,7 +334,7 @@ export function LogoEditorModal({
               🖼️ Logo Editor — <span>{categoryName}</span>
             </h2>
             <div className="logo-editor-subtitle">
-              Preview and set light or dark EPG tile backgrounds for channels in this category.
+              Preview and customize EPG tile background & padding for channels in this category.
             </div>
           </div>
           <button className="logo-editor-close-btn" onClick={onClose} title="Close (Esc)">✕</button>
@@ -322,6 +381,12 @@ export function LogoEditorModal({
             >
               🌙 Dark ({counts.dark})
             </button>
+            <button
+              className={`filter-tab ${filterMode === 'no-padding' ? 'active' : ''}`}
+              onClick={() => setFilterMode('no-padding')}
+            >
+              🖼️ No Padding ({counts.noPadding})
+            </button>
           </div>
         </div>
 
@@ -342,27 +407,45 @@ export function LogoEditorModal({
           </label>
 
           <div className="logo-editor-bulk-actions">
-            <span className="bulk-action-label">Bulk Apply:</span>
+            <span className="bulk-action-label">Background:</span>
             <button
               className="bulk-btn bulk-btn-light"
               onClick={() => applyBulkBg('light')}
               title={selectedIds.size > 0 ? "Apply Light background to selected channels" : "Apply Light background to all filtered channels"}
             >
-              ☀️ Set Light
+              ☀️ Light
             </button>
             <button
               className="bulk-btn bulk-btn-dark"
               onClick={() => applyBulkBg('dark')}
               title={selectedIds.size > 0 ? "Apply Dark background to selected channels" : "Apply Dark background to all filtered channels"}
             >
-              🌙 Set Dark
+              🌙 Dark
             </button>
             <button
               className="bulk-btn bulk-btn-auto"
               onClick={() => applyBulkBg('auto')}
               title={selectedIds.size > 0 ? "Reset background to Auto for selected channels" : "Reset background to Auto for all filtered channels"}
             >
-              🔄 Reset Auto
+              🔄 Auto
+            </button>
+
+            <div className="bulk-action-divider" />
+
+            <span className="bulk-action-label">Padding:</span>
+            <button
+              className="bulk-btn bulk-btn-no-pad"
+              onClick={() => applyBulkPadding('none')}
+              title={selectedIds.size > 0 ? "Remove padding for selected channels" : "Remove padding for all filtered channels"}
+            >
+              🖼️ Remove Padding
+            </button>
+            <button
+              className="bulk-btn bulk-btn-pad-default"
+              onClick={() => applyBulkPadding('default')}
+              title={selectedIds.size > 0 ? "Reset to normal padding for selected channels" : "Reset to normal padding for all filtered channels"}
+            >
+              📐 Normal Padding
             </button>
           </div>
         </div>
@@ -383,6 +466,7 @@ export function LogoEditorModal({
               {filteredChannels.map(channel => {
                 const isSelected = selectedIds.has(channel.stream_id);
                 const bg = logoBgMap[channel.stream_id] || 'auto';
+                const pad = logoPaddingMap[channel.stream_id] || 'default';
 
                 return (
                   <div
@@ -415,14 +499,16 @@ export function LogoEditorModal({
                           src={channel.stream_icon}
                           name={channel.name}
                           background={bg}
+                          padding={pad}
                         />
                       </div>
                       <div className={`status-badge status-${bg}`}>
                         {bg === 'light' ? '☀️ Light' : bg === 'dark' ? '🌙 Dark' : 'Auto'}
+                        {pad === 'none' ? ' • No Pad' : ''}
                       </div>
                     </div>
 
-                    {/* Segmented Control Pills */}
+                    {/* Segmented Control Pills for Background */}
                     <div className="card-segmented-control">
                       <button
                         className={`segmented-btn ${bg === 'auto' ? 'active' : ''}`}
@@ -444,6 +530,24 @@ export function LogoEditorModal({
                         title="Force dark background tile"
                       >
                         Dark
+                      </button>
+                    </div>
+
+                    {/* Segmented Control Pills for Padding */}
+                    <div className="card-segmented-control card-padding-control">
+                      <button
+                        className={`segmented-btn ${pad === 'default' ? 'active' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); setChannelPadding(channel.stream_id, 'default'); }}
+                        title="Normal logo padding (3px)"
+                      >
+                        📐 Normal
+                      </button>
+                      <button
+                        className={`segmented-btn ${pad === 'none' ? 'active' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); setChannelPadding(channel.stream_id, 'none'); }}
+                        title="Remove logo padding (0px, edge-to-edge)"
+                      >
+                        🖼️ No Pad
                       </button>
                     </div>
                   </div>

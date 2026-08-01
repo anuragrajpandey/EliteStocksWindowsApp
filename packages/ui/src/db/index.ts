@@ -38,6 +38,8 @@ export interface StoredChannel extends Omit<Channel, 'stream_icon' | 'epg_channe
   source_category_display?: string;
   // Manual logo tile background override ('auto' | 'light' | 'dark') applied from epg_channel_overrides
   logo_background?: string;
+  // Manual logo padding override ('default' | 'none') applied from epg_channel_overrides
+  logo_padding?: string;
 }
 
 // Extended category with channel count
@@ -298,6 +300,7 @@ export interface EpgChannelOverride {
   epg_channel_id?: string;    // Override tvg-id (NULL = keep original)
   stream_icon?: string;       // Override logo URL
   logo_background?: string;   // Manual logo tile background override: 'auto' | 'light' | 'dark' (NULL = keep auto)
+  logo_padding?: string;      // Manual logo padding override: 'default' | 'none' (NULL = keep default)
   timeshift_hours?: number;   // Per-channel EPG time offset (NULL = use source default)
 }
 
@@ -494,7 +497,7 @@ class YnotvDatabase extends SqliteDatabase {
     // Each version block runs exactly ONCE. To add new columns in the future,
     // increment DB_VERSION and add a new case (do NOT modify existing cases).
     // ─────────────────────────────────────────────────────────────────────────
-    const DB_VERSION = 23;
+    const DB_VERSION = 24;
     const versionResult = await db.select('PRAGMA user_version') as Array<{ user_version: number }>;
     const currentVersion = versionResult[0]?.user_version ?? 0;
 
@@ -888,6 +891,15 @@ class YnotvDatabase extends SqliteDatabase {
         await addColumn('epg_channel_overrides', 'logo_background', 'TEXT');
       }
 
+      // v24: Add per-channel logo padding override (default/none) for the Logo editor
+      if (currentVersion < 24) {
+        console.log('[DB] v24 migration: Adding logo_padding column to epg_channel_overrides');
+        const addColumn = async (table: string, col: string, type: string) => {
+          try { await db.execute(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`); } catch { /* already exists */ }
+        };
+        await addColumn('epg_channel_overrides', 'logo_padding', 'TEXT');
+      }
+
       // Bump the stored version so these migrations never run again
       await db.execute(`PRAGMA user_version = ${DB_VERSION}`);
       console.log(`[DB] Migration to v${DB_VERSION} complete`);
@@ -1262,9 +1274,10 @@ class YnotvDatabase extends SqliteDatabase {
     try { await db.execute(`ALTER TABLE vodCategories ADD COLUMN enabled INTEGER DEFAULT 1`); } catch (e) {}
     try { await db.execute(`ALTER TABLE vodCategories ADD COLUMN display_order INTEGER`); } catch (e) {}
 
-    // Self-healing: guarantee epg_channel_overrides.logo_background exists even if the
+    // Self-healing: guarantee epg_channel_overrides.logo_background and logo_padding exist even if the
     // versioned migration ran on a stale schema (or the column is missing for any reason).
     try { await db.execute(`ALTER TABLE epg_channel_overrides ADD COLUMN logo_background TEXT`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE epg_channel_overrides ADD COLUMN logo_padding TEXT`); } catch (e) {}
 
     // Self-healing migrations: Ensure critical columns from standard migrations exist
     try { await db.execute(`ALTER TABLE categories ADD COLUMN alias TEXT`); } catch (e) {}
@@ -1281,6 +1294,7 @@ class YnotvDatabase extends SqliteDatabase {
       epg_channel_id  TEXT,
       stream_icon     TEXT,
       logo_background TEXT,
+      logo_padding    TEXT,
       timeshift_hours REAL
     )`);
 
