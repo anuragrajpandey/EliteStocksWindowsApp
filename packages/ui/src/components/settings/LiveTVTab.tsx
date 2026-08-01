@@ -25,6 +25,8 @@ interface LiveTVTabProps {
   onEpgBoldSourceCategoriesChange: (enabled: boolean) => void;
   epgPreferEpgLogos: boolean;
   onEpgPreferEpgLogosChange: (enabled: boolean) => void;
+  epgLogoDisplay: 'square' | 'rectangle';
+  onEpgLogoDisplayChange: (display: 'square' | 'rectangle') => void;
   epgView: 'traditional' | 'alternate';
   onEpgViewChange: (view: 'traditional' | 'alternate') => void;
   epgTitleFontSize: number;
@@ -117,6 +119,8 @@ export function LiveTVTab({
   onEpgBoldSourceCategoriesChange,
   epgPreferEpgLogos,
   onEpgPreferEpgLogosChange,
+  epgLogoDisplay,
+  onEpgLogoDisplayChange,
   epgView,
   onEpgViewChange,
   epgTitleFontSize,
@@ -322,6 +326,21 @@ export function LiveTVTab({
                     />
                     <span className="toggle-slider" />
                   </label>
+                </div>
+
+                {/* Display Icons as square or rectangle */}
+                <div className="timeshift-toggle-row">
+                  <div className="timeshift-toggle-info">
+                    <span className="timeshift-toggle-label">Display Icons</span>
+                    <span className="timeshift-toggle-sub">Some providers use wide/horizontal channel icons. Select how channel logos are displayed in the guide.</span>
+                  </div>
+                  <select
+                    value={epgLogoDisplay}
+                    onChange={(e) => onEpgLogoDisplayChange(e.target.value as 'square' | 'rectangle')}
+                  >
+                    <option value="square">Square</option>
+                    <option value="rectangle">Rectangle (Horizontal)</option>
+                  </select>
                 </div>
 
                 {/* Preview example */}

@@ -1092,11 +1092,21 @@ html.epg-highlight-border-current .guide-channel-row.currently-playing::after {
   height: 36px;
   border-radius: 6px;
   overflow: hidden;
-  background: var(--surface-color, rgba(255, 255, 255, 0.05));
+  background: rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  padding: 3px;
+  box-sizing: border-box;
+}
+
+.guide-channel-logo.logo-on-light {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.guide-channel-logo.logo-on-light .logo-placeholder {
+  color: rgba(0, 0, 0, 0.55);
 }
 
 .guide-channel-logo img {
@@ -1109,6 +1119,26 @@ html.epg-highlight-border-current .guide-channel-row.currently-playing::after {
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-muted, rgba(255, 255, 255, 0.3));
+}
+
+/* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled on document */
+html.epg-rectangle-logos .guide-channel-logo {
+  width: 66px;
+  height: 32px;
+  border-radius: 4px;
+  padding: 1px 4px;
+  background: transparent;
+}
+html.epg-rectangle-logos .guide-channel-logo.logo-on-light {
+  background: rgba(255, 255, 255, 0.9);
+}
+html.epg-rectangle-logos .logo-placeholder {
+  font-size: 0.8rem;
+  width: 66px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Marquee effect on hover — gradient fade on right edge of channel name */
@@ -1913,6 +1943,16 @@ html.epg-disable-channel-fade .guide-channels {
   .guide-channel-logo {
     width: 24px !important;
     height: 24px !important;
+    padding: 2px !important;
+  }
+  html.epg-rectangle-logos .guide-channel-logo {
+    width: 42px !important;
+    height: 22px !important;
+    padding: 1px 4px !important;
+  }
+  html.epg-rectangle-logos .logo-placeholder {
+    width: 42px !important;
+    height: 22px !important;
   }
   .logo-placeholder {
     font-size: 0.75rem !important;

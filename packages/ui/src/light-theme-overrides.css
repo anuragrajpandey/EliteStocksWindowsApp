@@ -483,7 +483,14 @@
 
 [data-theme="light"] .guide-channel-logo {
   background: #1e293b !important;
-  border: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .guide-channel-logo.logo-on-light {
+  background: #ffffff !important;
+}
+
+[data-theme="light"] .guide-channel-logo.logo-on-light .logo-placeholder {
+  color: #334155 !important;
 }
 
 /* ==================== METADATA BADGES ==================== */

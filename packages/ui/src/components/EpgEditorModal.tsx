@@ -211,6 +211,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
   const [rawChannel, setRawChannel] = useState<StoredChannel | null>(null);
   const [tvgId, setTvgId] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
+  const [logoBackground, setLogoBackground] = useState<'auto' | 'light' | 'dark'>('auto');
   const [epgLogoUrl, setEpgLogoUrl] = useState('');
   const [timeshiftHours, setTimeshiftHours] = useState('0');
   const [channelSaving, setChannelSaving] = useState(false);
@@ -314,6 +315,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
       
       const playlistIcon = rawChan?.stream_icon ?? channel.stream_icon ?? '';
       setLogoUrl(ov?.stream_icon ?? playlistIcon);
+      setLogoBackground((ov?.logo_background as 'auto' | 'light' | 'dark') ?? 'auto');
       
       setTimeshiftHours(ov?.timeshift_hours != null ? String(ov.timeshift_hours) : '0');
     }).catch(err => {
@@ -465,6 +467,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
         stream_id: channel.stream_id,
         epg_channel_id: tvgId.trim() || undefined,
         stream_icon: logoUrl.trim() || undefined,
+        logo_background: logoBackground === 'auto' ? undefined : logoBackground,
         timeshift_hours: isNaN(hours) ? 0 : hours,
       });
       setChannelSaved(true);
@@ -823,6 +826,52 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                   ) : (
                     <div className="epg-editor-logo-placeholder">📺</div>
                   )}
+                </div>
+              </div>
+
+              <div className="epg-editor-field">
+                <label className="epg-editor-label">Logo Background</label>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    className="epg-editor-input"
+                    value={logoBackground}
+                    onChange={e => setLogoBackground(e.target.value as 'auto' | 'light' | 'dark')}
+                    style={{ maxWidth: 220, colorScheme: 'dark' }}
+                  >
+                    <option value="auto">Auto (detect)</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                  </select>
+                  <div
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: 6,
+                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.9rem',
+                      background:
+                        logoBackground === 'light'
+                          ? '#ffffff'
+                          : logoBackground === 'dark'
+                            ? '#1a1d23'
+                            : 'rgba(255,255,255,0.08)',
+                      color:
+                        logoBackground === 'light'
+                          ? '#1a1d23'
+                          : logoBackground === 'dark'
+                            ? '#ffffff'
+                            : 'rgba(255,255,255,0.6)',
+                      border: logoBackground === 'auto' ? '1px dashed rgba(255,255,255,0.25)' : 'none',
+                    }}
+                  >
+                    {logoBackground === 'auto' ? '⚙' : logoBackground === 'light' ? '◐' : '●'}
+                  </div>
+                </div>
+                <div className="epg-editor-hint">
+                  Pick the logo tile background if the automatic detection gets it wrong (e.g. a dark logo on a dark tile).
                 </div>
               </div>
 

@@ -1,0 +1,84 @@
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { classifyLogo } from '../utils/logoLuminance';
+
+interface ChannelLogoProps {
+  src?: string | null;
+  name?: string;
+  className?: string;
+  placeholderClass?: string;
+  lazy?: boolean;
+  /** Manual tile background override from the EPG editor. 'auto' (or undefined) uses luminance detection. */
+  background?: 'auto' | 'light' | 'dark';
+}
+
+/**
+ * Channel logo with automatic luminance-based background.
+ *
+ * Renders the logo image inside a tile. On load, samples the logo's average
+ * luminance once (cached) and adds the `logo-on-light` modifier class when the
+ * logo is dark, so it gets a light tile background and stays visible on the
+ * dark UI. Falls back to a letter placeholder when no image exists.
+ *
+ * Pass `background="light"` to always force a light tile (for dark logos the
+ * auto-detection gets wrong) or `background="dark"` to always keep the default
+ * dark tile.
+ */
+export const ChannelLogo = memo(function ChannelLogo({
+  src,
+  name = '',
+  className = 'guide-channel-logo',
+  placeholderClass = 'logo-placeholder',
+  lazy = true,
+  background = 'auto',
+}: ChannelLogoProps) {
+  const [autoLight, setAutoLight] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const handledSrc = useRef<string | null>(null);
+
+  // Reset state whenever the logo URL changes
+  useEffect(() => {
+    setAutoLight(false);
+    setFailed(false);
+    handledSrc.current = null;
+  }, [src]);
+
+  const handleLoad = useCallback(() => {
+    if (background !== 'auto') return;
+    const img = imgRef.current;
+    if (!img || !src || handledSrc.current === src) return;
+    handledSrc.current = src;
+    classifyLogo(src, img)
+      .then((verdict) => {
+        if (verdict === 'dark') setAutoLight(true);
+      })
+      .catch(() => {});
+  }, [src, background]);
+
+  const needsLight = background === 'light' ? true : background === 'dark' ? false : autoLight;
+
+  const containerClass = needsLight ? `${className} logo-on-light` : className;
+
+  if (!src || failed) {
+    return (
+      <div className={containerClass}>
+        <span className={placeholderClass}>{(name || '?').charAt(0)}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className={containerClass}>
+      <img
+        ref={imgRef}
+        key={src}
+        src={src}
+        alt=""
+        loading={lazy ? 'lazy' : undefined}
+        decoding="async"
+        onLoad={handleLoad}
+        onError={() => setFailed(true)}
+      />
+    </div>
+  );
+});

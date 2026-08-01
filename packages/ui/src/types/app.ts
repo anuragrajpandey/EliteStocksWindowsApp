@@ -133,6 +133,7 @@ export interface AppSettings {
     epgBoldTopCategories?: boolean;
     epgBoldSourceCategories?: boolean;
     epgPreferEpgLogos?: boolean;
+    epgLogoDisplay?: 'square' | 'rectangle';
     disableThemeBlobs?: boolean;
     disableThemeBackdropBlur?: boolean;
     epgLazyLoadingEnabled?: boolean;

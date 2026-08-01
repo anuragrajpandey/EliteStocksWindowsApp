@@ -572,10 +572,12 @@ export function useChannels(categoryId: string | null, sortOrder: 'alphabetical'
       try {
         const overrides = await db.epgChannelOverrides.toArray();
         const logoMap = new Map<string, string>();
+        const logoBgMap = new Map<string, string>();
         const epgIdMap = new Map<string, string>();
         
         for (const o of overrides) {
           if (o.stream_icon) logoMap.set(o.stream_id, o.stream_icon);
+          if (o.logo_background) logoBgMap.set(o.stream_id, o.logo_background);
           if (o.epg_channel_id) epgIdMap.set(o.stream_id, o.epg_channel_id);
         }
 
@@ -634,7 +636,7 @@ export function useChannels(categoryId: string | null, sortOrder: 'alphabetical'
         results = results.map(ch => {
           // 1. Manual override
           if (logoMap.has(ch.stream_id)) {
-            return { ...ch, stream_icon: logoMap.get(ch.stream_id) };
+            return { ...ch, stream_icon: logoMap.get(ch.stream_id), logo_background: logoBgMap.get(ch.stream_id) };
           }
           // 2. EPG Logo preference
           if (epgPreferEpgLogos) {
@@ -642,7 +644,7 @@ export function useChannels(categoryId: string | null, sortOrder: 'alphabetical'
             if (epgId && epgIconMap.has(epgId)) {
               const epgIcon = epgIconMap.get(epgId);
               if (epgIcon) {
-                return { ...ch, stream_icon: epgIcon };
+                return { ...ch, stream_icon: epgIcon, logo_background: logoBgMap.get(ch.stream_id) };
               }
             }
           }
@@ -1166,10 +1168,12 @@ export function useChannelSearch(
       try {
         const overrides = await db.epgChannelOverrides.toArray();
         const logoMap = new Map<string, string>();
+        const logoBgMap = new Map<string, string>();
         const epgIdMap = new Map<string, string>();
         
         for (const o of overrides) {
           if (o.stream_icon) logoMap.set(o.stream_id, o.stream_icon);
+          if (o.logo_background) logoBgMap.set(o.stream_id, o.logo_background);
           if (o.epg_channel_id) epgIdMap.set(o.stream_id, o.epg_channel_id);
         }
 
@@ -1228,7 +1232,7 @@ export function useChannelSearch(
         filteredChannels = filteredChannels.map(ch => {
           // 1. Manual override
           if (logoMap.has(ch.stream_id)) {
-            return { ...ch, stream_icon: logoMap.get(ch.stream_id) };
+            return { ...ch, stream_icon: logoMap.get(ch.stream_id), logo_background: logoBgMap.get(ch.stream_id) };
           }
           // 2. EPG Logo preference
           if (epgPreferEpgLogos) {
@@ -1236,7 +1240,7 @@ export function useChannelSearch(
             if (epgId && epgIconMap.has(epgId)) {
               const epgIcon = epgIconMap.get(epgId);
               if (epgIcon) {
-                return { ...ch, stream_icon: epgIcon };
+                return { ...ch, stream_icon: epgIcon, logo_background: logoBgMap.get(ch.stream_id) };
               }
             }
           }

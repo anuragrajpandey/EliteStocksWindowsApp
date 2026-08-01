@@ -4,6 +4,7 @@ import { MetadataBadge } from './MetadataBadge';
 import { ChannelContextMenu } from './ChannelContextMenu';
 import { ProgramContextMenu } from './ProgramContextMenu';
 import { addToRecentChannels } from '../utils/recentChannels';
+import { ChannelLogo } from './ChannelLogo';
 import type { StoredChannel, StoredProgram } from '../db';
 import { normalizeBoolean } from '../utils/db-helpers';
 import type { RecordingInfo } from '../hooks/useActiveRecordings';
@@ -206,20 +207,12 @@ export const SearchResultRow = memo(function SearchResultRow({
           isFavorite={isFavorite}
           onToggle={onFavoriteToggle}
         />
-        <div className="guide-channel-logo">
-          {channel.stream_icon ? (
-            <img
-              key={channel.stream_icon}
-              src={channel.stream_icon}
-              alt=""
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-          ) : (
-            <span className="logo-placeholder">{(channel.alias || channel.name).charAt(0)}</span>
-          )}
-        </div>
+        <ChannelLogo
+          src={channel.stream_icon}
+          name={channel.alias || channel.name}
+          className="guide-channel-logo"
+          background={channel.logo_background as 'auto' | 'light' | 'dark' | undefined}
+        />
         <div className="guide-channel-name-container">
           <span className="guide-channel-name" title={channel.alias || channel.name}>
             {channel.alias || channel.name}

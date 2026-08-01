@@ -924,14 +924,32 @@ html, body, button, input, select, textarea {
 .modern-ui .guide-channel-logo {
   width: 42px;
   height: 42px;
-  background: 
-    linear-gradient(135deg,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 255, 255, 0.03) 100%
-    );
+  background: rgba(255, 255, 255, 0.06);
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: none;
+  box-shadow: none;
+  padding: 3px;
+  box-sizing: border-box;
+}
+
+.modern-ui .guide-channel-logo.logo-on-light {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.modern-ui .guide-channel-logo.logo-on-light .logo-placeholder {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+/* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled */
+html.epg-rectangle-logos.modern-ui .guide-channel-logo {
+  width: 74px;
+  height: 38px;
+  border-radius: 8px;
+  padding: 1px 5px;
+  background: transparent;
+}
+html.epg-rectangle-logos.modern-ui .guide-channel-logo.logo-on-light {
+  background: rgba(255, 255, 255, 0.92);
 }
 
 /* Modern Scrollbar */
@@ -4762,6 +4780,10 @@ html.modern-ui-v3[data-theme] .guide-channel-row.currently-playing .guide-channe
 
 html.modern-ui-v3[data-theme] .guide-channel-logo {
   background: rgba(255, 255, 255, 0.04) !important;
+}
+
+html.modern-ui-v3[data-theme] .guide-channel-logo.logo-on-light {
+  background: rgba(255, 255, 255, 0.92) !important;
 }
 
 html.modern-ui-v3[data-theme] .guide-time-header-spacer {

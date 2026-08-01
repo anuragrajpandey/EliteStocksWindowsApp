@@ -112,6 +112,7 @@ export interface AppSettings {
   epgReduceGpuLayers: boolean;
   epgDisableChannelFade: boolean;
   epgPreferEpgLogos: boolean;
+  epgLogoDisplay: 'square' | 'rectangle';
 
   // Startup view
   startupView: 'none' | 'guide' | 'movies' | 'series' | 'dvr' | 'sports' | 'calendar' | 'stremio' | 'nuvio';
@@ -189,6 +190,7 @@ export interface AppSettings {
     setEpgReduceGpuLayers: (enabled: boolean) => void;
     setEpgDisableChannelFade: (enabled: boolean) => void;
     setEpgPreferEpgLogos: (enabled: boolean) => void;
+    setEpgLogoDisplay: (display: 'square' | 'rectangle') => void;
     globalLiveTvUserAgent: string;
     setGlobalLiveTvUserAgent: (ua: string) => void;
     catchupStartPadding: number;
@@ -392,6 +394,7 @@ export function useAppSettings(): AppSettings {
   const [epgReduceGpuLayers, setEpgReduceGpuLayersState] = useState(false);
   const [epgDisableChannelFade, setEpgDisableChannelFadeState] = useState(false);
   const [epgPreferEpgLogos, setEpgPreferEpgLogosState] = useState(false);
+  const [epgLogoDisplay, setEpgLogoDisplayState] = useState<'square' | 'rectangle'>('square');
   const [globalLiveTvUserAgent, setGlobalLiveTvUserAgentState] = useState('');
 
   // Global Font selection states
@@ -678,6 +681,10 @@ export function useAppSettings(): AppSettings {
           setEpgReduceGpuLayersState(result.data.epgReduceGpuLayers ?? false);
           setEpgDisableChannelFadeState(result.data.epgDisableChannelFade ?? false);
           setEpgPreferEpgLogosState(result.data.epgPreferEpgLogos ?? false);
+          setEpgLogoDisplayState(result.data.epgLogoDisplay ?? 'square');
+          if (result.data.epgLogoDisplay === 'rectangle') {
+            document.documentElement.classList.add('epg-rectangle-logos');
+          }
           setGlobalLiveTvUserAgentState(result.data.globalLiveTvUserAgent ?? '');
 
           // Apply EPG darken current setting on load
@@ -1540,6 +1547,22 @@ export function useAppSettings(): AppSettings {
     }
   }, []);
 
+  const setEpgLogoDisplay = useCallback(async (display: 'square' | 'rectangle') => {
+    setEpgLogoDisplayState(display);
+    if (display === 'rectangle') {
+      document.documentElement.classList.add('epg-rectangle-logos');
+    } else {
+      document.documentElement.classList.remove('epg-rectangle-logos');
+    }
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ epgLogoDisplay: display });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save epgLogoDisplay:', e);
+      }
+    }
+  }, []);
+
   const setGlobalLiveTvUserAgent = useCallback(async (ua: string) => {
     setGlobalLiveTvUserAgentState(ua);
     if (window.storage) {
@@ -1725,6 +1748,8 @@ export function useAppSettings(): AppSettings {
     setEpgDisableChannelFade,
     epgPreferEpgLogos,
     setEpgPreferEpgLogos,
+    epgLogoDisplay,
+    setEpgLogoDisplay,
     globalLiveTvUserAgent,
     setGlobalLiveTvUserAgent,
     catchupStartPadding,

@@ -3,6 +3,7 @@ import type { WatchlistItem, StoredChannel, StoredProgram } from '../db';
 import { removeFromWatchlist, updateWatchlistOptions } from '../db';
 import { WatchlistOptionsModal } from './WatchlistOptionsModal';
 import { FavoriteButton } from './FavoriteButton';
+import { ChannelLogo } from './ChannelLogo';
 import { useEpgClockFormat } from '../stores/uiStore';
 import './ChannelPanel.css';
 
@@ -60,9 +61,12 @@ export function WatchlistRow({
             opacity: 0.5,
           }}
         >
-          <div className="guide-channel-logo">
-            <span className="logo-placeholder">?</span>
-          </div>
+          <ChannelLogo
+            src={null}
+            name={item.channel_name}
+            className="guide-channel-logo"
+            placeholderClass="logo-placeholder"
+          />
           <div className="guide-channel-name-container">
             <span className="guide-channel-name">{item.channel_name} (Unavailable)</span>
           </div>
@@ -145,20 +149,12 @@ export function WatchlistRow({
             isFavorite={!!channel.is_favorite}
             onToggle={() => { }}
           />
-          <div className="guide-channel-logo">
-            {channel.stream_icon ? (
-              <img
-                key={channel.stream_icon}
-                src={channel.stream_icon}
-                alt=""
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            ) : (
-              <span className="logo-placeholder">{(channel.alias || channel.name).charAt(0)}</span>
-            )}
-          </div>
+          <ChannelLogo
+            src={channel.stream_icon}
+            name={channel.alias || channel.name}
+            className="guide-channel-logo"
+            background={channel.logo_background as 'auto' | 'light' | 'dark' | undefined}
+          />
           <div className="guide-channel-name-container">
             <span className="guide-channel-name" title={channel.alias || channel.name}>
               {isLive && <span className="live-indicator">●</span>}

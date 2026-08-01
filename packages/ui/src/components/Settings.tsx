@@ -565,6 +565,7 @@ export function Settings({
   const [epgBoldTopCategories, setEpgBoldTopCategories] = useState(false);
   const [epgBoldSourceCategories, setEpgBoldSourceCategories] = useState(false);
   const [epgPreferEpgLogos, setEpgPreferEpgLogos] = useState(false);
+  const [epgLogoDisplay, setEpgLogoDisplay] = useState<'square' | 'rectangle'>('square');
   const [epgTitleFontSize, setEpgTitleFontSize] = useState(32);
   const [epgBodyFontSize, setEpgBodyFontSize] = useState(16);
   const epgView = useEpgView();
@@ -806,6 +807,7 @@ export function Settings({
         epgBoldTopCategories?: boolean;
         epgBoldSourceCategories?: boolean;
         epgPreferEpgLogos?: boolean;
+        epgLogoDisplay?: 'square' | 'rectangle';
         epgView?: 'traditional' | 'alternate';
         collapseSourceCategoriesOnStartup?: boolean;
         modernUiEnabled?: boolean | string;
@@ -1115,6 +1117,10 @@ export function Settings({
         document.documentElement.classList.add('epg-bold-source-categories');
       }
       setEpgPreferEpgLogos(settings.epgPreferEpgLogos ?? false);
+      setEpgLogoDisplay(settings.epgLogoDisplay ?? 'square');
+      if (settings.epgLogoDisplay === 'rectangle') {
+        document.documentElement.classList.add('epg-rectangle-logos');
+      }
 
       // Load EPG view layout setting
       setEpgView(settings.epgView ?? 'traditional');
@@ -1753,6 +1759,18 @@ export function Settings({
     setEpgPreferEpgLogos(enabled);
     if (window.storage) {
       await window.storage.updateSettings({ epgPreferEpgLogos: enabled });
+    }
+  };
+
+  const handleEpgLogoDisplayChange = async (display: 'square' | 'rectangle') => {
+    setEpgLogoDisplay(display);
+    if (display === 'rectangle') {
+      document.documentElement.classList.add('epg-rectangle-logos');
+    } else {
+      document.documentElement.classList.remove('epg-rectangle-logos');
+    }
+    if (window.storage) {
+      await window.storage.updateSettings({ epgLogoDisplay: display });
     }
   };
 
@@ -2675,6 +2693,8 @@ export function Settings({
             onEpgBoldSourceCategoriesChange={handleEpgBoldSourceCategoriesChange}
             epgPreferEpgLogos={epgPreferEpgLogos}
             onEpgPreferEpgLogosChange={handleEpgPreferEpgLogosChange}
+            epgLogoDisplay={epgLogoDisplay}
+            onEpgLogoDisplayChange={handleEpgLogoDisplayChange}
             epgView={epgView}
             onEpgViewChange={handleEpgViewChange}
             epgTitleFontSize={epgTitleFontSize}
