@@ -3604,8 +3604,8 @@ function useTmdbPresencePoster(
           const maxWidth = monitor.size.width / scaleFactor;
           const maxHeight = monitor.size.height / scaleFactor;
           const fitScale = Math.min(maxWidth / requestedWidth, maxHeight / requestedHeight, 1);
-          width = Math.min(maxWidth, Math.max(960, Math.floor(requestedWidth * fitScale)));
-          height = Math.min(maxHeight, Math.max(600, Math.floor(requestedHeight * fitScale)));
+          width = Math.min(maxWidth, Math.max(400, Math.floor(requestedWidth * fitScale)));
+          height = Math.min(maxHeight, Math.max(300, Math.floor(requestedHeight * fitScale)));
         }
 
         if (isMaximized || isFullscreen) {

@@ -106,7 +106,7 @@ function WindowSizeSettings({ width, height, onChange }: { width: number; height
           <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Width (px)</label>
           <input
             type="number"
-            min="800"
+            min="400"
             max="7680"
             value={localWidth}
             onChange={(e) => setLocalWidth(parseInt(e.target.value) || 1920)}
@@ -118,7 +118,7 @@ function WindowSizeSettings({ width, height, onChange }: { width: number; height
           <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Height (px)</label>
           <input
             type="number"
-            min="600"
+            min="300"
             max="4320"
             value={localHeight}
             onChange={(e) => setLocalHeight(parseInt(e.target.value) || 1080)}

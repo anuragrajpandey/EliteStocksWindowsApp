@@ -25,8 +25,8 @@ const PIP_RIGHT = 24;
 const PIP_BOTTOM = 56;
 const PIP_MIN_W = 360;
 const PIP_MIN_H = 203;
-const MAIN_MIN_W = 960;
-const MAIN_MIN_H = 600;
+const MAIN_MIN_W = 400;
+const MAIN_MIN_H = 300;
 const AUTO_HIDE_MS = 1000;
 const STORAGE_KEY = 'ynotv_pip_state';
 
