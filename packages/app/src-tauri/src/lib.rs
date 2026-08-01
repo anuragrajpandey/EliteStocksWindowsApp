@@ -281,6 +281,8 @@ use cast::{
     cast_resolve_url, cast_stop,
 };
 
+mod discord_rp;
+
 
 // Bulk insert structures
 #[derive(Debug, Deserialize)]
@@ -4510,6 +4512,12 @@ pub fn run() {
                 });
             }
 
+            // Register Discord Rich Presence State
+            app.manage(discord_rp::DiscordState::new());
+
+            let discord_handle = app.handle().clone();
+            std::thread::spawn(move || discord_rp::run_loop(discord_handle));
+
             // Restore saved window position only (not size - size is controlled by UI settings)
             // Position is restored so the window opens in the same place it was closed
             restore_window_position(app.handle());
@@ -4524,6 +4532,7 @@ pub fn run() {
         .on_window_event(|window, event| {
             match event {
                 tauri::WindowEvent::CloseRequested { .. } => {
+                    discord_rp::shutdown(&window.app_handle());
                     save_window_state(&window.app_handle());
                 }
                 tauri::WindowEvent::Resized(_) | tauri::WindowEvent::Moved(_) => {
@@ -4698,7 +4707,11 @@ pub fn run() {
             // OpenSubtitles Secure Credential commands
             save_opensubtitles_credentials,
             get_opensubtitles_credentials,
-            delete_opensubtitles_credentials
+            delete_opensubtitles_credentials,
+            // Discord Rich Presence commands
+            discord_rp::discord_set_presence,
+            discord_rp::discord_clear,
+            discord_rp::discord_set_enabled
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

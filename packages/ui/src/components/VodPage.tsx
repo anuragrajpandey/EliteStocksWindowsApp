@@ -785,6 +785,7 @@ export function VodPage({ type, onPlay, onClose, vodPlayerMode, onSelectVodPlaye
               type: 'movie',
               source_id: movie.source_id,
               mediaId: movie.stream_id,  // Add media ID for progress tracking
+              posterUrl: movie.stream_icon || (movie as any).cover || (movie as any).poster || undefined,
               backdropUrl: backdropUrl || undefined,
               logoUrl: logoUrl || undefined,
             }, targetMode);

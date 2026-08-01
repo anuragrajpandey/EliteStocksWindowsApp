@@ -43,7 +43,7 @@ const DEFAULT_SETTINGS: SubtitleSettings = {
   subBackgroundOpacity: 80,
   subOutlineColor: '#000000',
   subDelay: 0,
-  subVerticalOffset: 0,
+  subVerticalOffset: 90,
   subAssOverride: 'yes',
   subAlign: 'center',
   audioDevice: 'auto',
@@ -496,6 +496,27 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                   />
                   <span style={{ minWidth: '32px', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                     {merged.defaultSize}
+                  </span>
+                </div>
+              </div>
+
+              {/* Vertical Position */}
+              <div className="timeshift-toggle-row">
+                <div className="timeshift-toggle-info">
+                  <span className="timeshift-toggle-label">Vertical Position</span>
+                  <span className="timeshift-toggle-sub">Default vertical position on screen (90% is near bottom).</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '200px', justifyContent: 'flex-end' }}>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={merged.subVerticalOffset ?? 90}
+                    onChange={(e) => update({ subVerticalOffset: parseInt(e.target.value) })}
+                    style={{ width: '140px' }}
+                  />
+                  <span style={{ minWidth: '32px', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                    {merged.subVerticalOffset ?? 90}%
                   </span>
                 </div>
               </div>

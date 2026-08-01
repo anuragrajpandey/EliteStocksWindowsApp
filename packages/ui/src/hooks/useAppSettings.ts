@@ -116,6 +116,20 @@ export interface AppSettings {
   // Startup view
   startupView: 'none' | 'guide' | 'movies' | 'series' | 'dvr' | 'sports' | 'calendar' | 'stremio' | 'nuvio';
 
+  // Discord Rich Presence
+  discordRichPresence: boolean;
+  discordHideTitle: boolean;
+  discordShowWhenPaused: boolean;
+  discordShowWhenBrowsing: boolean;
+  discordShowPoster: boolean;
+  discordShowTimestamp: boolean;
+  setDiscordRichPresence: (enabled: boolean) => void;
+  setDiscordHideTitle: (hide: boolean) => void;
+  setDiscordShowWhenPaused: (show: boolean) => void;
+  setDiscordShowWhenBrowsing: (show: boolean) => void;
+  setDiscordShowPoster: (show: boolean) => void;
+  setDiscordShowTimestamp: (show: boolean) => void;
+
   // Actions
   setNavHiddenTabs: (tabs: string[]) => void;
   setEpgHiddenButtons: (buttons: string[]) => void;
@@ -360,6 +374,14 @@ export function useAppSettings(): AppSettings {
   // Google Cast setting
   const [castEnabled, setCastEnabledState] = useState(false);
   const [castRewriteTs, setCastRewriteTsState] = useState(true);
+
+  // Discord Rich Presence settings
+  const [discordRichPresence, setDiscordRichPresenceState] = useState(false);
+  const [discordHideTitle, setDiscordHideTitleState] = useState(false);
+  const [discordShowWhenPaused, setDiscordShowWhenPausedState] = useState(true);
+  const [discordShowWhenBrowsing, setDiscordShowWhenBrowsingState] = useState(true);
+  const [discordShowPoster, setDiscordShowPosterState] = useState(true);
+  const [discordShowTimestamp, setDiscordShowTimestampState] = useState(true);
 
   // Theme Optimization settings
   const [hardwareAcceleration, setHardwareAccelerationState] = useState(true);
@@ -625,6 +647,14 @@ export function useAppSettings(): AppSettings {
           // Load Google Cast setting
           setCastEnabledState(result.data.castEnabled ?? false);
           setCastRewriteTsState(result.data.castRewriteTs ?? true);
+
+          // Load Discord settings
+          setDiscordRichPresenceState(result.data.discordRichPresence ?? false);
+          setDiscordHideTitleState(result.data.discordHideTitle ?? false);
+          setDiscordShowWhenPausedState(result.data.discordShowWhenPaused ?? true);
+          setDiscordShowWhenBrowsingState(result.data.discordShowWhenBrowsing ?? true);
+          setDiscordShowPosterState(result.data.discordShowPoster ?? true);
+          setDiscordShowTimestampState(result.data.discordShowTimestamp ?? true);
 
           // Load Custom Scrollbar settings
           const savedEnableCustomScrollbarWidth = result.data.enableCustomScrollbarWidth ?? false;
@@ -1210,6 +1240,72 @@ export function useAppSettings(): AppSettings {
     }
   }, []);
 
+  const setDiscordRichPresence = useCallback(async (enabled: boolean) => {
+    setDiscordRichPresenceState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ discordRichPresence: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save discordRichPresence:', e);
+      }
+    }
+  }, []);
+
+  const setDiscordHideTitle = useCallback(async (hide: boolean) => {
+    setDiscordHideTitleState(hide);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ discordHideTitle: hide });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save discordHideTitle:', e);
+      }
+    }
+  }, []);
+
+  const setDiscordShowWhenPaused = useCallback(async (show: boolean) => {
+    setDiscordShowWhenPausedState(show);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ discordShowWhenPaused: show });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save discordShowWhenPaused:', e);
+      }
+    }
+  }, []);
+
+  const setDiscordShowWhenBrowsing = useCallback(async (show: boolean) => {
+    setDiscordShowWhenBrowsingState(show);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ discordShowWhenBrowsing: show });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save discordShowWhenBrowsing:', e);
+      }
+    }
+  }, []);
+
+  const setDiscordShowPoster = useCallback(async (show: boolean) => {
+    setDiscordShowPosterState(show);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ discordShowPoster: show });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save discordShowPoster:', e);
+      }
+    }
+  }, []);
+
+  const setDiscordShowTimestamp = useCallback(async (show: boolean) => {
+    setDiscordShowTimestampState(show);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ discordShowTimestamp: show });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save discordShowTimestamp:', e);
+      }
+    }
+  }, []);
+
   const setCatchupStartPadding = useCallback(async (padding: number) => {
     setCatchupStartPaddingState(padding);
     if (window.storage) {
@@ -1647,5 +1743,17 @@ export function useAppSettings(): AppSettings {
     setEnableCustomScrollbarWidth,
     customScrollbarWidth,
     setCustomScrollbarWidth,
+    discordRichPresence,
+    setDiscordRichPresence,
+    discordHideTitle,
+    setDiscordHideTitle,
+    discordShowWhenPaused,
+    setDiscordShowWhenPaused,
+    discordShowWhenBrowsing,
+    setDiscordShowWhenBrowsing,
+    discordShowPoster,
+    setDiscordShowPoster,
+    discordShowTimestamp,
+    setDiscordShowTimestamp,
   };
 }

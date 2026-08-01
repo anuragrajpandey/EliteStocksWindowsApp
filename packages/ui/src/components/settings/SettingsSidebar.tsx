@@ -6,6 +6,7 @@ export type SettingsTabId =
   | 'subtitles'
   | 'strem'
   | 'nuvio'
+  | 'discord'
   | 'security'
   | 'proxy'
   | 'debug'
@@ -37,6 +38,7 @@ const SETTINGS_TABS: SettingsTab[] = [
   { id: 'subtitles', label: 'Subtitles & Audio' },
   { id: 'strem', label: 'Strem' },
   { id: 'nuvio', label: 'Nuvio' },
+  { id: 'discord', label: 'Discord Rich Presence' },
   { id: 'theme', label: 'Theme' },
   { id: 'ui', label: 'UI' },
   { id: 'optimization', label: 'Optimization' },

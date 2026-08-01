@@ -22,6 +22,7 @@ import { ScrobblingTab } from './settings/ScrobblingTab';
 import { StremTab } from './settings/StremTab';
 import { NuvioTab } from './settings/NuvioTab';
 import { ProxyTab } from './settings/ProxyTab';
+import { DiscordTab } from './settings/DiscordTab';
 import { useModal } from './Modal';
 import { TmdbTab } from './settings/TmdbTab';
 import type { ShortcutsMap, ThemeId, CustomThemeConfig } from '../types/app';
@@ -116,6 +117,18 @@ interface SettingsProps {
   onVodShowSourceBadgeChange?: (enabled: boolean) => void;
   failoverGroupShowSource?: boolean;
   onFailoverGroupShowSourceChange?: (enabled: boolean) => void;
+  discordRichPresence?: boolean;
+  onDiscordRichPresenceChange?: (enabled: boolean) => void;
+  discordHideTitle?: boolean;
+  onDiscordHideTitleChange?: (hide: boolean) => void;
+  discordShowWhenPaused?: boolean;
+  onDiscordShowWhenPausedChange?: (show: boolean) => void;
+  discordShowWhenBrowsing?: boolean;
+  onDiscordShowWhenBrowsingChange?: (show: boolean) => void;
+  discordShowPoster?: boolean;
+  onDiscordShowPosterChange?: (show: boolean) => void;
+  discordShowTimestamp?: boolean;
+  onDiscordShowTimestampChange?: (show: boolean) => void;
 }
 
 export function Settings({
@@ -205,6 +218,18 @@ export function Settings({
   onVodShowSourceBadgeChange,
   failoverGroupShowSource: failoverGroupShowSourceProp,
   onFailoverGroupShowSourceChange,
+  discordRichPresence: discordRichPresenceProp,
+  onDiscordRichPresenceChange,
+  discordHideTitle: discordHideTitleProp,
+  onDiscordHideTitleChange,
+  discordShowWhenPaused: discordShowWhenPausedProp,
+  onDiscordShowWhenPausedChange,
+  discordShowWhenBrowsing: discordShowWhenBrowsingProp,
+  onDiscordShowWhenBrowsingChange,
+  discordShowPoster: discordShowPosterProp,
+  onDiscordShowPosterChange,
+  discordShowTimestamp: discordShowTimestampProp,
+  onDiscordShowTimestampChange,
 }: SettingsProps) {
   const [activeTab, setActiveTab] = useState<SettingsTabId>(initialTab);
   const { showConfirm, ModalComponent } = useModal();
@@ -313,6 +338,20 @@ export function Settings({
   const [socks5ProxyServer, setSocks5ProxyServer] = useState('');
   const [socks5ProxyUsername, setSocks5ProxyUsername] = useState('');
   const [socks5ProxyPassword, setSocks5ProxyPassword] = useState('');
+
+  // Discord Rich Presence state
+  const [discordRichPresenceState, setDiscordRichPresenceState] = useState(false);
+  const discordRichPresence = discordRichPresenceProp ?? discordRichPresenceState;
+  const [discordHideTitleState, setDiscordHideTitleState] = useState(false);
+  const discordHideTitle = discordHideTitleProp ?? discordHideTitleState;
+  const [discordShowWhenPausedState, setDiscordShowWhenPausedState] = useState(true);
+  const discordShowWhenPaused = discordShowWhenPausedProp ?? discordShowWhenPausedState;
+  const [discordShowWhenBrowsingState, setDiscordShowWhenBrowsingState] = useState(true);
+  const discordShowWhenBrowsing = discordShowWhenBrowsingProp ?? discordShowWhenBrowsingState;
+  const [discordShowPosterState, setDiscordShowPosterState] = useState(true);
+  const discordShowPoster = discordShowPosterProp ?? discordShowPosterState;
+  const [discordShowTimestampState, setDiscordShowTimestampState] = useState(true);
+  const discordShowTimestamp = discordShowTimestampProp ?? discordShowTimestampState;
 
   // Debug state
   const [debugLoggingEnabled, setDebugLoggingEnabled] = useState(false);
@@ -618,7 +657,7 @@ export function Settings({
     subBackgroundOpacity: 80,
     subOutlineColor: '#000000',
     subDelay: 0,
-    subVerticalOffset: 0,
+    subVerticalOffset: 90,
     audioDevice: 'auto',
   });
 
@@ -715,6 +754,16 @@ export function Settings({
         posterDbApiKey?: string;
         rpdbBackdropsEnabled?: boolean;
         allowLanSources?: boolean;
+        socks5ProxyEnabled?: boolean;
+        socks5ProxyServer?: string;
+        socks5ProxyUsername?: string;
+        socks5ProxyPassword?: string;
+        discordRichPresence?: boolean;
+        discordHideTitle?: boolean;
+        discordShowWhenPaused?: boolean;
+        discordShowWhenBrowsing?: boolean;
+        discordShowPoster?: boolean;
+        discordShowTimestamp?: boolean;
         streamingCatalogsEnabled?: boolean;
         streamingNuvioCatalogsEnabled?: boolean;
         enabledStreamingServices?: string[];
@@ -812,10 +861,6 @@ export function Settings({
         transparentGuideOnZap?: boolean;
         transparentGuideOverlayOpacity?: number;
         transparentGuideSidebarOpacity?: number;
-        socks5ProxyEnabled?: boolean;
-        socks5ProxyServer?: string;
-        socks5ProxyUsername?: string;
-        socks5ProxyPassword?: string;
         showAllChannels?: boolean;
         showFavorites?: boolean;
         showWatchlist?: boolean;
@@ -881,10 +926,16 @@ export function Settings({
       setAllowLanSources(settings.allowLanSources ?? false);
 
       // Load proxy settings
-      setSocks5ProxyEnabled(settings.socks5ProxyEnabled ?? false);
-      setSocks5ProxyServer(settings.socks5ProxyServer ?? '');
-      setSocks5ProxyUsername(settings.socks5ProxyUsername ?? '');
-      setSocks5ProxyPassword(settings.socks5ProxyPassword ?? '');
+      setSocks5ProxyEnabled(result.data.socks5ProxyEnabled ?? false);
+      setSocks5ProxyServer(result.data.socks5ProxyServer ?? '');
+      setSocks5ProxyUsername(result.data.socks5ProxyUsername ?? '');
+      setSocks5ProxyPassword(result.data.socks5ProxyPassword ?? '');
+      setDiscordRichPresenceState(result.data.discordRichPresence ?? false);
+      setDiscordHideTitleState(result.data.discordHideTitle ?? false);
+      setDiscordShowWhenPausedState(result.data.discordShowWhenPaused ?? true);
+      setDiscordShowWhenBrowsingState(result.data.discordShowWhenBrowsing ?? true);
+      setDiscordShowPosterState(result.data.discordShowPoster ?? true);
+      setDiscordShowTimestampState(result.data.discordShowTimestamp ?? true);
 
       // Load debug settings
       setDebugLoggingEnabled(settings.debugLoggingEnabled ?? false);
@@ -2394,6 +2445,47 @@ export function Settings({
             onSocks5ProxyUsernameChange={handleSocks5ProxyUsernameChange}
             socks5ProxyPassword={socks5ProxyPassword}
             onSocks5ProxyPasswordChange={handleSocks5ProxyPasswordChange}
+          />
+        );
+      case 'discord':
+        return (
+          <DiscordTab
+            discordRichPresence={discordRichPresence}
+            onDiscordRichPresenceChange={(val) => {
+              setDiscordRichPresenceState(val);
+              onDiscordRichPresenceChange?.(val);
+              if (window.storage) window.storage.updateSettings({ discordRichPresence: val });
+            }}
+            discordHideTitle={discordHideTitle}
+            onDiscordHideTitleChange={(val) => {
+              setDiscordHideTitleState(val);
+              onDiscordHideTitleChange?.(val);
+              if (window.storage) window.storage.updateSettings({ discordHideTitle: val });
+            }}
+            discordShowWhenPaused={discordShowWhenPaused}
+            onDiscordShowWhenPausedChange={(val) => {
+              setDiscordShowWhenPausedState(val);
+              onDiscordShowWhenPausedChange?.(val);
+              if (window.storage) window.storage.updateSettings({ discordShowWhenPaused: val });
+            }}
+            discordShowWhenBrowsing={discordShowWhenBrowsing}
+            onDiscordShowWhenBrowsingChange={(val) => {
+              setDiscordShowWhenBrowsingState(val);
+              onDiscordShowWhenBrowsingChange?.(val);
+              if (window.storage) window.storage.updateSettings({ discordShowWhenBrowsing: val });
+            }}
+            discordShowPoster={discordShowPoster}
+            onDiscordShowPosterChange={(val) => {
+              setDiscordShowPosterState(val);
+              onDiscordShowPosterChange?.(val);
+              if (window.storage) window.storage.updateSettings({ discordShowPoster: val });
+            }}
+            discordShowTimestamp={discordShowTimestamp}
+            onDiscordShowTimestampChange={(val) => {
+              setDiscordShowTimestampState(val);
+              onDiscordShowTimestampChange?.(val);
+              if (window.storage) window.storage.updateSettings({ discordShowTimestamp: val });
+            }}
           />
         );
       case 'debug':

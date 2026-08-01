@@ -57,7 +57,7 @@ async function applySubtitleSettings() {
       await Bridge.setSubtitleDelay(ss.subDelay).catch(() => {});
     }
     if (ss.subVerticalOffset !== undefined) {
-      const pos = Math.max(0, Math.min(100, 100 - ss.subVerticalOffset));
+      const pos = Math.max(0, Math.min(100, ss.subVerticalOffset));
       await Bridge.setSubtitlePos(pos).catch(() => {});
     }
     if (ss.audioDevice) {

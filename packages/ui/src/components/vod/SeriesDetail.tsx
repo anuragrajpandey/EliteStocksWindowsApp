@@ -301,6 +301,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
         seasonNum: episode.season_num,
         episodeNum: episode.episode_num,
         episodeId: episode.id,
+        posterUrl: series.cover || (series as any).stream_icon || (series as any).poster || undefined,
         backdropUrl: backdropUrl || undefined,
         logoUrl: logoUrl || undefined,
       }, targetMode);

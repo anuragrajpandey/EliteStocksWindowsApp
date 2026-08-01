@@ -302,7 +302,7 @@ export function SubtitleControlModal({
         setSubBackgroundColor(ss.subBackgroundColor || '#000000');
         setSubBackgroundOpacity(ss.subBackgroundOpacity ?? 80);
         if (!loadedRef.current) {
-          setVerticalOffset(100 - (ss.subVerticalOffset || 0));
+          setVerticalOffset(ss.subVerticalOffset !== undefined ? ss.subVerticalOffset : 90);
           setDelay(ss.subDelay || 0);
         }
       }
@@ -507,7 +507,17 @@ export function SubtitleControlModal({
 
   const handleVerticalOffsetChange = useCallback(async (value: number) => {
     setVerticalOffset(value);
-    try { await Bridge.setSubtitlePos(value); } catch (e) { console.error(e); }
+    try {
+      await Bridge.setSubtitlePos(value);
+      if (window.storage) {
+        const result = await window.storage.getSettings();
+        const settings: any = result.data || {};
+        const ss = settings.subtitleSettings || {};
+        await window.storage.updateSettings({
+          subtitleSettings: { ...ss, subVerticalOffset: value },
+        });
+      }
+    } catch (e) { console.error(e); }
   }, []);
 
   const applyBackgroundSettings = useCallback(async (enabled: boolean, color: string, opacity: number) => {
@@ -1613,7 +1623,7 @@ export function SubtitleControlModal({
                     className="subtitle-control-nudge"
                     onClick={() => handleVerticalOffsetChange(Math.max(0, verticalOffset - 5))}
                   >↑</button>
-                  <span className="subtitle-control-display">{100 - verticalOffset}%</span>
+                  <span className="subtitle-control-display">{verticalOffset}%</span>
                   <button
                     className="subtitle-control-nudge"
                     onClick={() => handleVerticalOffsetChange(Math.min(100, verticalOffset + 5))}

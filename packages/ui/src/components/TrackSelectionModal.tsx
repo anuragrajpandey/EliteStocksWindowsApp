@@ -41,7 +41,7 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
   // Subtitle controls state
   const [subSize, setSubSize] = useState<number>(35);
   const [subDelay, setSubDelay] = useState<number>(0.0);
-  const [subVerticalOffset, setSubVerticalOffset] = useState<number>(100);
+  const [subVerticalOffset, setSubVerticalOffset] = useState<number>(90);
   const [subColor, setSubColor] = useState<string>('#ffffff');
   const [subBackgroundEnabled, setSubBackgroundEnabled] = useState<boolean>(false);
   const [subBackgroundColor, setSubBackgroundColor] = useState<string>('#000000');
@@ -292,7 +292,7 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
         if (ss.subBackgroundEnabled !== undefined) setSubBackgroundEnabled(ss.subBackgroundEnabled);
         if (ss.subBackgroundColor) setSubBackgroundColor(ss.subBackgroundColor);
         if (ss.subBackgroundOpacity !== undefined) setSubBackgroundOpacity(ss.subBackgroundOpacity);
-        if (ss.subVerticalOffset !== undefined) setSubVerticalOffset(100 - ss.subVerticalOffset);
+        if (ss.subVerticalOffset !== undefined) setSubVerticalOffset(ss.subVerticalOffset);
         if (ss.subAlign) setSubAlign(ss.subAlign);
       }
     } catch (e) {
@@ -347,13 +347,13 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
   const handleSubPosChange = async (val: number) => {
     setSubVerticalOffset(val);
     try {
-      const pos = Math.max(0, Math.min(100, 100 - val));
+      const pos = Math.max(0, Math.min(100, val));
       await Bridge.setSubtitlePos(pos);
       if (window.storage) {
         const settingsResult = await window.storage.getSettings();
         const ss = settingsResult.data?.subtitleSettings || {};
         await window.storage.updateSettings({
-          subtitleSettings: { ...ss, subVerticalOffset: 100 - val }
+          subtitleSettings: { ...ss, subVerticalOffset: val }
         });
       }
     } catch (e) {

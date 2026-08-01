@@ -20,6 +20,7 @@ const TAB_LABELS: Record<SettingsTabId, string> = {
   subtitles: 'Subtitles & Audio',
   strem: 'Strem',
   nuvio: 'Nuvio',
+  discord: 'Discord Rich Presence',
   theme: 'Theme',
   ui: 'UI',
   optimization: 'Optimization',
@@ -220,6 +221,15 @@ const SETTINGS_SEARCH_INDEX: SettingsSearchResult[] = [
   { id: 'proxy-socks5-server', label: 'SOCKS5 Proxy Server', description: 'Configure a SOCKS5 proxy server to route network traffic through.', tabId: 'proxy', tabLabel: 'Proxy', section: 'SOCKS5 Proxy Settings' },
   { id: 'proxy-socks5-username', label: 'Proxy Username', description: 'Optional username for SOCKS5 proxy authentication.', tabId: 'proxy', tabLabel: 'Proxy', section: 'SOCKS5 Proxy Settings' },
   { id: 'proxy-socks5-password', label: 'Proxy Password', description: 'Optional password for SOCKS5 proxy authentication.', tabId: 'proxy', tabLabel: 'Proxy', section: 'SOCKS5 Proxy Settings' },
+
+  // --- Discord Rich Presence ---
+  { id: 'discord-tab', label: 'Discord Rich Presence', description: 'Display media activity and playback status on Discord profile.', tabId: 'discord', tabLabel: 'Discord Rich Presence', section: 'Discord Rich Presence' },
+  { id: 'discord-show', label: 'Show on Discord', description: 'Enable Discord Rich Presence status updates.', tabId: 'discord', tabLabel: 'Discord Rich Presence', section: 'Discord Rich Presence' },
+  { id: 'discord-hide-title', label: 'Hide Title', description: 'Show Watching Something instead of movie or show title.', tabId: 'discord', tabLabel: 'Discord Rich Presence', section: 'Discord Rich Presence' },
+  { id: 'discord-show-paused', label: 'Show while paused', description: 'Keep presence visible when playback is paused.', tabId: 'discord', tabLabel: 'Discord Rich Presence', section: 'Discord Rich Presence' },
+  { id: 'discord-show-browsing', label: 'Show while browsing', description: 'Display Browsing ynotv when nothing is playing.', tabId: 'discord', tabLabel: 'Discord Rich Presence', section: 'Discord Rich Presence' },
+  { id: 'discord-show-poster', label: 'Show poster', description: 'Display movie or show poster artwork on Discord profile.', tabId: 'discord', tabLabel: 'Discord Rich Presence', section: 'Discord Rich Presence' },
+  { id: 'discord-show-timestamp', label: 'Show elapsed time', description: 'Display live progress bar showing elapsed playback time.', tabId: 'discord', tabLabel: 'Discord Rich Presence', section: 'Discord Rich Presence' },
 
   // --- Debug ---
   { id: 'debug-tab', label: 'Debug', tabId: 'debug', tabLabel: 'Debug', section: 'Debug' },

@@ -39,7 +39,10 @@ import { useSearchHistory } from './hooks/useSearchHistory';
 import { RecordingIndicator } from './components/RecordingIndicator';
 import { DownloadIndicator } from './components/DownloadIndicator';
 import { Logo } from './components/Logo';
-import { useSelectedCategory, useChannelSearch, useProgramSearch, useChannels } from './hooks/useChannels';
+import { useSelectedCategory, useChannelSearch, useProgramSearch, useChannels, useCurrentProgram } from './hooks/useChannels';
+import { useActiveTmdbToken } from './hooks/useTmdbLists';
+import { getTmdbImageUrl, searchMovies, searchTvShows, getMovieDetails, getTvShowDetails } from './services/tmdb';
+import { cleanTitleForSearch } from './utils/cleanTitle';
 import { clearLiveQueryCache } from './hooks/useSqliteLiveQuery';
 import {
   useChannelSyncing,
@@ -120,6 +123,8 @@ import { useWatchlist } from './hooks/useWatchlist';
 import { useWindowManager } from './hooks/useWindowManager';
 import { usePopoutPlayer } from './hooks/usePopoutPlayer';
 import { usePipMode } from './hooks/usePipMode';
+import { useDiscordPresence } from './hooks/useDiscordPresence';
+import { usePlaybackPresence } from './hooks/usePlaybackPresence';
 
 // ============================================================================
 // TransitionView Component
@@ -235,6 +240,18 @@ function App() {
     setCastEnabled,
     castRewriteTs,
     setCastRewriteTs,
+    discordRichPresence,
+    setDiscordRichPresence,
+    discordHideTitle,
+    setDiscordHideTitle,
+    discordShowWhenPaused,
+    setDiscordShowWhenPaused,
+    discordShowWhenBrowsing,
+    setDiscordShowWhenBrowsing,
+    discordShowPoster,
+    setDiscordShowPoster,
+    discordShowTimestamp,
+    setDiscordShowTimestamp,
     vodAutoPlayNextEpisode,
     setVodAutoPlayNextEpisode,
     vodShowSourceBadge,
@@ -1119,6 +1136,208 @@ function App() {
     handleSelectCategory,
     handleMouseMove,
   } = nav;
+
+function formatEpisodeSubtitle(
+  seasonNum?: number,
+  episodeNum?: number,
+  rawInfo?: string,
+  seriesTitle?: string
+): string {
+  const sNum = seasonNum != null ? String(seasonNum).padStart(2, '0') : undefined;
+  const eNum = episodeNum != null ? String(episodeNum).padStart(2, '0') : undefined;
+  const code = sNum && eNum ? `S${sNum}E${eNum}` : seasonNum != null && episodeNum != null ? `S${seasonNum} E${episodeNum}` : undefined;
+
+  if (!rawInfo) return code || 'Series';
+
+  let text = rawInfo.trim();
+
+  const parts = text.split(/\s*[-·:]\s*/);
+  if (parts.length > 1) {
+    const filtered = parts.filter((part) => {
+      const p = part.trim().toLowerCase();
+      if (seriesTitle && p === seriesTitle.trim().toLowerCase()) return false;
+      if (/^s\d+e\d+$/i.test(p) || /^s\d+\s*e\d+$/i.test(p)) return false;
+      if (/^episode\s+\d+$/i.test(p)) return false;
+      return true;
+    });
+    if (filtered.length > 0) {
+      text = filtered.join(' - ');
+    }
+  }
+
+  const textLower = text.trim().toLowerCase();
+  if (episodeNum != null && (textLower === `episode ${episodeNum}` || /^s\d+e\d+$/i.test(textLower))) {
+    return code || text;
+  }
+
+  return code ? `${code} - ${text}` : text;
+}
+
+const tmdbPresencePosterCache = new Map<string, string>();
+
+function useTmdbPresencePoster(
+  vodInfo: import('./types/media').VodPlayInfo | null | undefined,
+  tmdbToken: string | null
+): string | undefined {
+  const [resolvedPoster, setResolvedPoster] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!vodInfo || !tmdbToken || !tmdbToken.trim()) {
+      setResolvedPoster(undefined);
+      return;
+    }
+
+    let cancelled = false;
+    const token = tmdbToken.trim();
+
+    if (vodInfo.posterUrl && vodInfo.posterUrl.includes('image.tmdb.org')) {
+      setResolvedPoster(vodInfo.posterUrl);
+      return;
+    }
+
+    const rawTmdbId = vodInfo.tmdbId || (vodInfo as any)?.tmdb_id;
+    const cacheKey = `${vodInfo.type}_${rawTmdbId || vodInfo.title}_${vodInfo.year || ''}`;
+
+    if (tmdbPresencePosterCache.has(cacheKey)) {
+      setResolvedPoster(tmdbPresencePosterCache.get(cacheKey));
+      return;
+    }
+
+    const resolvePoster = async () => {
+      try {
+        const yearNum = vodInfo.year ? parseInt(String(vodInfo.year), 10) : undefined;
+        let posterPath: string | null = null;
+
+        if (rawTmdbId) {
+          try {
+            if (vodInfo.type === 'movie') {
+              const details = await getMovieDetails(token, Number(rawTmdbId));
+              posterPath = details.poster_path;
+            } else {
+              const details = await getTvShowDetails(token, Number(rawTmdbId));
+              posterPath = details.poster_path;
+            }
+          } catch (err) {
+            console.warn('[TMDB Presence] Direct details fetch failed, falling back to search:', err);
+          }
+        }
+
+        if (!posterPath && vodInfo.title) {
+          const query = cleanTitleForSearch(vodInfo.title);
+          if (query) {
+            if (vodInfo.type === 'movie') {
+              const results = await searchMovies(token, query, isNaN(yearNum!) ? undefined : yearNum);
+              if (results && results.length > 0 && results[0].poster_path) {
+                posterPath = results[0].poster_path;
+              }
+            } else {
+              const results = await searchTvShows(token, query, isNaN(yearNum!) ? undefined : yearNum);
+              if (results && results.length > 0 && results[0].poster_path) {
+                posterPath = results[0].poster_path;
+              }
+            }
+          }
+        }
+
+        if (posterPath && !cancelled) {
+          const fullUrl = getTmdbImageUrl(posterPath, 'w500') || undefined;
+          if (fullUrl) {
+            tmdbPresencePosterCache.set(cacheKey, fullUrl);
+            setResolvedPoster(fullUrl);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('[TMDB Presence] Failed to resolve TMDB poster for Discord:', err);
+      }
+
+      if (!cancelled) {
+        setResolvedPoster(undefined);
+      }
+    };
+
+    resolvePoster();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [vodInfo?.title, vodInfo?.type, vodInfo?.year, vodInfo?.tmdbId, (vodInfo as any)?.tmdb_id, vodInfo?.posterUrl, tmdbToken]);
+
+  return resolvedPoster;
+}
+
+  const currentProgram = useCurrentProgram(
+    currentChannel && currentChannel.stream_id !== 'vod' && !currentChannel.stream_id?.startsWith('recording_')
+      ? currentChannel.stream_id
+      : null
+  );
+
+  const activeTmdbToken = useActiveTmdbToken();
+  const tmdbPresencePoster = useTmdbPresencePoster(vodInfo, activeTmdbToken);
+
+  // Discord Rich Presence integration
+  const playbackPresenceState = useMemo(() => {
+    let title: string | null = null;
+    let subtitle: string | undefined = undefined;
+    let posterUrl: string | undefined = undefined;
+
+    const isVodPlayback = vodInfo != null || currentChannel?.stream_id === 'vod' || currentChannel?.stream_id?.startsWith('recording_');
+
+    if (isVodPlayback && vodInfo) {
+      title = vodInfo.title || 'VOD';
+
+      if (vodInfo.type === 'series' || vodInfo.seasonNum != null || vodInfo.episodeInfo) {
+        subtitle = formatEpisodeSubtitle(
+          vodInfo.seasonNum,
+          vodInfo.episodeNum,
+          vodInfo.episodeInfo,
+          vodInfo.title
+        );
+      } else if (vodInfo.type === 'movie') {
+        subtitle = vodInfo.year ? `Movie · ${vodInfo.year}` : 'Movie';
+      } else {
+        subtitle = vodInfo.episodeInfo || (vodInfo.year ? String(vodInfo.year) : undefined);
+      }
+
+      posterUrl = tmdbPresencePoster || vodInfo.posterUrl || vodInfo.logoUrl || vodInfo.backdropUrl || undefined;
+    } else if (currentChannel) {
+      const activeProgramTitle = isCatchup && catchupInfo?.programTitle ? catchupInfo.programTitle : currentProgram?.title;
+
+      if (activeProgramTitle) {
+        title = activeProgramTitle;
+        subtitle = currentChannel.name;
+      } else {
+        title = currentChannel.name;
+        subtitle = 'Live TV';
+      }
+      // Use default App Icon from Discord Dev Portal for Live TV
+      posterUrl = undefined;
+    }
+
+    return {
+      playing,
+      paused: !playing,
+      title,
+      subtitle,
+      posterUrl,
+      positionSec: position,
+      durationSec: duration,
+    };
+  }, [currentChannel, currentProgram, isCatchup, catchupInfo, vodInfo, tmdbPresencePoster, playing, position, duration]);
+
+  useDiscordPresence(
+    {
+      discordRichPresence,
+      discordHideTitle,
+      discordShowWhenPaused,
+      discordShowWhenBrowsing,
+      discordShowPoster,
+      discordShowTimestamp,
+    },
+    activeView
+  );
+
+  usePlaybackPresence(playbackPresenceState);
 
   // ==========================================================================
   // PiP (Picture-in-Picture) Mode
@@ -2276,6 +2495,7 @@ function App() {
           seasonNum: episodeVideo?.season,
           episodeNum: episodeVideo?.episode,
           episodeId: episodeVideo?.id,
+          posterUrl: meta.poster || undefined,
           backdropUrl: meta.background,
           logoUrl: meta.logo,
           addonName: stream.addonName,
@@ -4502,6 +4722,18 @@ function App() {
       {/* Settings Panel - as popup overlay in main layout, or full view in multiview */}
       {(showSettingsPopup || activeView === 'settings') && (
         <Settings
+          discordRichPresence={discordRichPresence}
+          onDiscordRichPresenceChange={setDiscordRichPresence}
+          discordHideTitle={discordHideTitle}
+          onDiscordHideTitleChange={setDiscordHideTitle}
+          discordShowWhenPaused={discordShowWhenPaused}
+          onDiscordShowWhenPausedChange={setDiscordShowWhenPaused}
+          discordShowWhenBrowsing={discordShowWhenBrowsing}
+          onDiscordShowWhenBrowsingChange={setDiscordShowWhenBrowsing}
+          discordShowPoster={discordShowPoster}
+          onDiscordShowPosterChange={setDiscordShowPoster}
+          discordShowTimestamp={discordShowTimestamp}
+          onDiscordShowTimestampChange={setDiscordShowTimestamp}
           castEnabled={castEnabled}
           onCastEnabledChange={setCastEnabled}
           castRewriteTs={castRewriteTs}

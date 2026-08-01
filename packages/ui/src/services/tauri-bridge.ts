@@ -591,7 +591,7 @@ export const Bridge = {
                         await invoke('mpv_set_property', { name: 'sub-border-color', value: ss.subOutlineColor }).catch(() => {});
                     }
                     if (ss?.subVerticalOffset !== undefined) {
-                        const pos = Math.max(0, Math.min(100, 100 - ss.subVerticalOffset));
+                        const pos = Math.max(0, Math.min(100, ss.subVerticalOffset));
                         await invoke('mpv_set_property', { name: 'sub-pos', value: pos }).catch(() => {});
                     }
                     const align = ss?.subAlign || 'center';

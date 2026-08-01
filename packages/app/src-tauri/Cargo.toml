@@ -70,6 +70,7 @@ keyring = "3"
 # Chromecast dependencies
 rust_cast = { version = "0.21", features = ["thread_safe"] }
 mdns-sd = "0.19"
+discord-rich-presence = "1.1"
 
 # Win32 APIs for MPV HWND resizing (Windows only)
 [target.'cfg(target_os = "windows")'.dependencies]
