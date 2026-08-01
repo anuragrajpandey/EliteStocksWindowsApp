@@ -20,6 +20,7 @@ import { FavoritesContextMenu } from './FavoritesContextMenu';
 import { RecentChannelsContextMenu } from './RecentChannelsContextMenu';
 import { PlaylistContextMenu } from './PlaylistContextMenu';
 import { EpgEditorModal } from './EpgEditorModal';
+import { LogoEditorModal } from './LogoEditorModal';
 import { clearRecentChannels } from '../utils/recentChannels';
 import { useCategorySortOrder, useIncludeAllChannelsToPlaylist } from '../stores/uiStore';
 import { isCategorySortCustomized } from '../utils/categorySortOverrides';
@@ -621,6 +622,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
 
   // Category Context Menu additions
   const [categoryContextMenu, setCategoryContextMenu] = useState<{ x: number, y: number, categoryId: string, categoryName: string, sourceId: string, sourceName: string } | null>(null);
+  const [logoEditorCategory, setLogoEditorCategory] = useState<{ categoryId: string, categoryName: string, sourceId: string } | null>(null);
 
   const customGroups = useLiveQuery(
     () => db.customGroups.orderBy('display_order').toArray()
@@ -1723,6 +1725,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
           isPinned={pinnedCategories.includes(`${categoryContextMenu.sourceId}:${categoryContextMenu.categoryId}`)}
           onPin={() => handlePinCategory(categoryContextMenu.sourceId, categoryContextMenu.categoryId)}
           onUnpin={() => handleUnpinCategory(categoryContextMenu.sourceId, categoryContextMenu.categoryId)}
+          onOpenLogoEditor={(catId, catName, srcId) => setLogoEditorCategory({ categoryId: catId, categoryName: catName, sourceId: srcId })}
         />
       )}
 
@@ -1797,6 +1800,16 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
           sourceId={epgEditorSource.id}
           sourceName={epgEditorSource.name}
           onClose={() => setEpgEditorSource(null)}
+        />
+      )}
+
+      {/* Category Logo Editor Modal — opened from category right-click */}
+      {logoEditorCategory && (
+        <LogoEditorModal
+          categoryId={logoEditorCategory.categoryId}
+          categoryName={logoEditorCategory.categoryName}
+          sourceId={logoEditorCategory.sourceId}
+          onClose={() => setLogoEditorCategory(null)}
         />
       )}
       </div>

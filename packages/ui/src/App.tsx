@@ -219,10 +219,12 @@ function App() {
     channelInfoOverlayHideLogo,
     channelInfoOverlayHideTimer,
     channelInfoOverlayPosition,
+    channelInfoOverlayLogoShape,
     setChannelInfoOverlayHideMetaBadge,
     setChannelInfoOverlayHideLogo,
     setChannelInfoOverlayHideTimer,
     setChannelInfoOverlayPosition,
+    setChannelInfoOverlayLogoShape,
     setChannelInfoOverlayHideDescription,
     transparentGuideOnZap,
     setTransparentGuideOnZap,
@@ -4413,6 +4415,7 @@ function useTmdbPresencePoster(
         hideLogo={channelInfoOverlayHideLogo}
         hideTimer={channelInfoOverlayHideTimer}
         overlayPosition={channelInfoOverlayPosition}
+        logoShape={channelInfoOverlayLogoShape}
         isCatchup={isCatchup}
         catchupInfo={catchupInfo}
         position={position}
@@ -4817,6 +4820,8 @@ function useTmdbPresencePoster(
           onChannelInfoOverlayHideTimerChange={setChannelInfoOverlayHideTimer}
           channelInfoOverlayPosition={channelInfoOverlayPosition}
           onChannelInfoOverlayPositionChange={setChannelInfoOverlayPosition}
+          channelInfoOverlayLogoShape={channelInfoOverlayLogoShape}
+          onChannelInfoOverlayLogoShapeChange={setChannelInfoOverlayLogoShape}
           transparentGuideOnZap={transparentGuideOnZap}
           onTransparentGuideOnZapChange={setTransparentGuideOnZap}
           overlayAutohideTimer={overlayAutohideTimer}

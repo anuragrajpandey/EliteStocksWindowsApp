@@ -21,6 +21,8 @@ interface LiveViewTabProps {
   onChannelInfoOverlayHideTimerChange: (hide: boolean) => void;
   channelInfoOverlayPosition: 'left' | 'right';
   onChannelInfoOverlayPositionChange: (pos: 'left' | 'right') => void;
+  channelInfoOverlayLogoShape: 'square' | 'horizontal';
+  onChannelInfoOverlayLogoShapeChange: (shape: 'square' | 'horizontal') => void;
   failoverGroupShowSource: boolean;
   onFailoverGroupShowSourceChange: (enabled: boolean) => void;
 }
@@ -46,6 +48,8 @@ export function LiveViewTab({
   onChannelInfoOverlayHideTimerChange,
   channelInfoOverlayPosition,
   onChannelInfoOverlayPositionChange,
+  channelInfoOverlayLogoShape,
+  onChannelInfoOverlayLogoShapeChange,
   failoverGroupShowSource,
   onFailoverGroupShowSourceChange,
 }: LiveViewTabProps) {
@@ -252,6 +256,48 @@ export function LiveViewTab({
                 </p>
               </div>
 
+              {/* Logo Shape */}
+              <div className="form-group" style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Logo Shape</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={() => onChannelInfoOverlayLogoShapeChange('square')}
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      background: channelInfoOverlayLogoShape === 'square' ? 'var(--accent-primary, #00d4ff)' : 'rgba(255,255,255,0.08)',
+                      color: channelInfoOverlayLogoShape === 'square' ? '#000' : '#fff',
+                      fontWeight: channelInfoOverlayLogoShape === 'square' ? 600 : 400,
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      borderRadius: '6px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Square (1:1)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onChannelInfoOverlayLogoShapeChange('horizontal')}
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      background: channelInfoOverlayLogoShape === 'horizontal' ? 'var(--accent-primary, #00d4ff)' : 'rgba(255,255,255,0.08)',
+                      color: channelInfoOverlayLogoShape === 'horizontal' ? '#000' : '#fff',
+                      fontWeight: channelInfoOverlayLogoShape === 'horizontal' ? 600 : 400,
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      borderRadius: '6px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Horizontal (16:9)
+                  </button>
+                </div>
+                <p className="form-hint" style={{ marginTop: '0.5rem' }}>
+                  Select whether channel logos appear as square tiles or widescreen horizontal boxes.
+                </p>
+              </div>
+
               {/* Box Width */}
               <div className="form-group" style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Box Width</label>
@@ -302,6 +348,7 @@ export function LiveViewTab({
                   onClick={() => {
                     onChannelInfoOverlayFontSizeChange(16);
                     onChannelInfoOverlayLogoSizeChange(42);
+                    onChannelInfoOverlayLogoShapeChange('square');
                     onChannelInfoOverlayBoxWidthChange(380);
                     onChannelInfoOverlayOpacityChange(55);
                   }}
@@ -335,7 +382,7 @@ export function LiveViewTab({
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div
                     style={{
-                      width: `${channelInfoOverlayLogoSize}px`,
+                      width: channelInfoOverlayLogoShape === 'horizontal' ? `${channelInfoOverlayLogoSize * 1.75}px` : `${channelInfoOverlayLogoSize}px`,
                       height: `${channelInfoOverlayLogoSize}px`,
                       borderRadius: '6px',
                       background: 'rgba(255, 255, 255, 0.1)',

@@ -13,6 +13,7 @@ interface ChannelInfoOverlayProps {
   hideLogo?: boolean;
   hideTimer?: boolean;
   overlayPosition?: 'left' | 'right';
+  logoShape?: 'square' | 'horizontal';
   isCatchup?: boolean;
   catchupInfo?: {
     channelId: string;
@@ -37,6 +38,7 @@ export function ChannelInfoOverlay({
   hideLogo = false,
   hideTimer = false,
   overlayPosition = 'left',
+  logoShape = 'square',
   isCatchup = false,
   catchupInfo = null,
   position = 0,
@@ -139,7 +141,7 @@ export function ChannelInfoOverlay({
               key={channel.stream_icon}
               src={channel.stream_icon}
               alt=""
-              className="cio-logo"
+              className={`cio-logo ${logoShape === 'horizontal' ? 'cio-logo-horizontal' : 'cio-logo-square'}`}
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
           )}

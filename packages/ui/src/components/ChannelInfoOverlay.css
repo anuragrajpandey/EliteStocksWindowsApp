@@ -3,7 +3,7 @@
   position: absolute;
   top: 40px;
   z-index: 60;
-  max-width: var(--cio-box-width, 380px);
+  max-width: max(var(--cio-box-width, 380px), calc(var(--cio-logo-size, 42px) * 1.8 + 240px));
   min-width: 200px;
   pointer-events: none;
   transition: opacity 0.4s ease, transform 0.4s ease;
@@ -47,12 +47,22 @@
 }
 
 .cio-logo {
+  object-fit: cover;
+  border-radius: 6px;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.cio-logo.cio-logo-square {
   width: var(--cio-logo-size, 42px);
   height: var(--cio-logo-size, 42px);
-  object-fit: contain;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.06);
-  flex-shrink: 0;
+  aspect-ratio: 1 / 1;
+}
+
+.cio-logo.cio-logo-horizontal {
+  width: calc(var(--cio-logo-size, 42px) * 1.75);
+  height: var(--cio-logo-size, 42px);
+  aspect-ratio: 16 / 9;
 }
 
 .cio-header-text {
@@ -60,6 +70,7 @@
   flex-direction: column;
   gap: 3px;
   min-width: 0;
+  flex: 1;
 }
 
 .cio-channel-name {
@@ -79,6 +90,8 @@
 .cio-header-text .metadata-badge {
   margin-top: 2px;
   background: rgba(0, 0, 0, var(--cio-bg-opacity, 0.55));
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .cio-header-text .metadata-badge.detailed {
@@ -91,6 +104,7 @@
 .cio-header-text .metadata-badge .audio {
   padding: 1px 5px;
   font-size: calc(var(--cio-font-size, 16px) * 0.68);
+  white-space: nowrap;
 }
 
 /* Program info */

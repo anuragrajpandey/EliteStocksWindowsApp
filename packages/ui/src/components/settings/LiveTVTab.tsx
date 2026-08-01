@@ -76,6 +76,8 @@ interface LiveTVTabProps {
   onChannelInfoOverlayHideTimerChange: (hide: boolean) => void;
   channelInfoOverlayPosition: 'left' | 'right';
   onChannelInfoOverlayPositionChange: (pos: 'left' | 'right') => void;
+  channelInfoOverlayLogoShape: 'square' | 'horizontal';
+  onChannelInfoOverlayLogoShapeChange: (shape: 'square' | 'horizontal') => void;
   failoverGroupShowSource: boolean;
   onFailoverGroupShowSourceChange: (enabled: boolean) => void;
   // Widgets props
@@ -167,6 +169,8 @@ export function LiveTVTab({
   onChannelInfoOverlayHideTimerChange,
   channelInfoOverlayPosition,
   onChannelInfoOverlayPositionChange,
+  channelInfoOverlayLogoShape,
+  onChannelInfoOverlayLogoShapeChange,
   failoverGroupShowSource,
   onFailoverGroupShowSourceChange,
   widgetScale,
@@ -831,6 +835,8 @@ export function LiveTVTab({
             onChannelInfoOverlayHideTimerChange={onChannelInfoOverlayHideTimerChange}
             channelInfoOverlayPosition={channelInfoOverlayPosition}
             onChannelInfoOverlayPositionChange={onChannelInfoOverlayPositionChange}
+            channelInfoOverlayLogoShape={channelInfoOverlayLogoShape}
+            onChannelInfoOverlayLogoShapeChange={onChannelInfoOverlayLogoShapeChange}
             failoverGroupShowSource={failoverGroupShowSource}
             onFailoverGroupShowSourceChange={onFailoverGroupShowSourceChange}
           />

@@ -25,6 +25,7 @@ interface UITabProps {
     channelInfoOverlayHideLogo?: boolean;
     channelInfoOverlayHideTimer?: boolean;
     channelInfoOverlayPosition?: 'left' | 'right';
+    channelInfoOverlayLogoShape?: 'square' | 'horizontal';
   };
   onSettingsChange: (settings: {
     startupWidth?: number;
@@ -47,6 +48,7 @@ interface UITabProps {
     channelInfoOverlayHideLogo?: boolean;
     channelInfoOverlayHideTimer?: boolean;
     channelInfoOverlayPosition?: 'left' | 'right';
+    channelInfoOverlayLogoShape?: 'square' | 'horizontal';
   }) => void;
 }
 
@@ -809,6 +811,47 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                     <span style={{ minWidth: '3rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)' }}>
                       {settings.channelInfoOverlayLogoSize ?? 42}px
                     </span>
+                  </div>
+                </div>
+
+                {/* Logo Shape */}
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Logo Shape</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      type="button"
+                      onClick={() => onSettingsChange({ ...settings, channelInfoOverlayLogoShape: 'square' })}
+                      style={{
+                        flex: 1,
+                        padding: '6px 10px',
+                        fontSize: '0.85rem',
+                        background: (settings.channelInfoOverlayLogoShape ?? 'square') === 'square' ? 'var(--accent-primary, #00d4ff)' : 'rgba(255,255,255,0.08)',
+                        color: (settings.channelInfoOverlayLogoShape ?? 'square') === 'square' ? '#000' : '#fff',
+                        fontWeight: (settings.channelInfoOverlayLogoShape ?? 'square') === 'square' ? 600 : 400,
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        borderRadius: '6px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Square (1:1)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onSettingsChange({ ...settings, channelInfoOverlayLogoShape: 'horizontal' })}
+                      style={{
+                        flex: 1,
+                        padding: '6px 10px',
+                        fontSize: '0.85rem',
+                        background: (settings.channelInfoOverlayLogoShape ?? 'square') === 'horizontal' ? 'var(--accent-primary, #00d4ff)' : 'rgba(255,255,255,0.08)',
+                        color: (settings.channelInfoOverlayLogoShape ?? 'square') === 'horizontal' ? '#000' : '#fff',
+                        fontWeight: (settings.channelInfoOverlayLogoShape ?? 'square') === 'horizontal' ? 600 : 400,
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        borderRadius: '6px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Horizontal (16:9)
+                    </button>
                   </div>
                 </div>
 

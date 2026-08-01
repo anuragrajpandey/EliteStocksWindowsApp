@@ -39,6 +39,43 @@ export async function deleteChannelOverride(streamId: string): Promise<void> {
   await db.epgChannelOverrides.delete(streamId);
 }
 
+export async function batchUpsertLogoBackground(
+  updates: Array<{ streamId: string; logoBackground: 'auto' | 'light' | 'dark' }>
+): Promise<void> {
+  if (updates.length === 0) return;
+
+  const streamIds = updates.map(u => u.streamId);
+  const existingOverrides = await db.epgChannelOverrides.where('stream_id').anyOf(streamIds).toArray();
+  const existingMap = new Map<string, EpgChannelOverride>(existingOverrides.map(o => [o.stream_id, o]));
+
+  for (const { streamId, logoBackground } of updates) {
+    const existing = existingMap.get(streamId);
+    if (logoBackground === 'auto') {
+      if (existing) {
+        if (!existing.epg_channel_id && !existing.stream_icon && (!existing.timeshift_hours || existing.timeshift_hours === 0)) {
+          await db.epgChannelOverrides.delete(streamId);
+        } else {
+          await db.epgChannelOverrides.put({
+            ...existing,
+            logo_background: undefined,
+          });
+        }
+      }
+    } else {
+      await db.epgChannelOverrides.put({
+        stream_id: streamId,
+        epg_channel_id: existing?.epg_channel_id,
+        stream_icon: existing?.stream_icon,
+        timeshift_hours: existing?.timeshift_hours ?? 0,
+        logo_background: logoBackground,
+      });
+    }
+  }
+
+  const { dbEvents } = await import('../db/sqlite-adapter');
+  dbEvents.notify('channels', 'update');
+}
+
 // ─── Program Override CRUD ────────────────────────────────────────────────────
 
 /**

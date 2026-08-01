@@ -61,6 +61,8 @@ interface SettingsProps {
   onChannelInfoOverlayHideTimerChange?: (hide: boolean) => void;
   channelInfoOverlayPosition?: 'left' | 'right';
   onChannelInfoOverlayPositionChange?: (pos: 'left' | 'right') => void;
+  channelInfoOverlayLogoShape?: 'square' | 'horizontal';
+  onChannelInfoOverlayLogoShapeChange?: (shape: 'square' | 'horizontal') => void;
   playerControlDesign?: 'default' | 'clean';
   onPlayerControlDesignChange?: (design: 'default' | 'clean') => void;
   showVolumePercent?: boolean;
@@ -94,7 +96,7 @@ interface SettingsProps {
   stremioCacheFetchTimeout?: number;
   onStremioCacheFetchTimeoutChange?: (timeout: number) => void;
   showNuvioStreamBadges?: boolean;
-  onShowNuvioStreamBadgesChange?: (enabled: boolean) => void;
+  onShowNuvioStreamBadgesChange?: (show: boolean) => void;
   nuvioBadgeSources?: BadgeSource[];
   onNuvioBadgeSourcesChange?: (sources: BadgeSource[]) => void;
   nuvioBadgeSize?: number;
@@ -162,6 +164,8 @@ export function Settings({
   onChannelInfoOverlayHideTimerChange,
   channelInfoOverlayPosition: channelInfoOverlayPositionProp,
   onChannelInfoOverlayPositionChange,
+  channelInfoOverlayLogoShape: channelInfoOverlayLogoShapeProp,
+  onChannelInfoOverlayLogoShapeChange,
   playerControlDesign: playerControlDesignProp,
   onPlayerControlDesignChange,
   showVolumePercent: showVolumePercentProp,
@@ -592,6 +596,7 @@ export function Settings({
   const [channelInfoOverlayHideLogo, setChannelInfoOverlayHideLogo] = useState(channelInfoOverlayHideLogoProp ?? false);
   const [channelInfoOverlayHideTimer, setChannelInfoOverlayHideTimer] = useState(channelInfoOverlayHideTimerProp ?? false);
   const [channelInfoOverlayPosition, setChannelInfoOverlayPosition] = useState(channelInfoOverlayPositionProp ?? 'left');
+  const [channelInfoOverlayLogoShape, setChannelInfoOverlayLogoShape] = useState<'square' | 'horizontal'>(channelInfoOverlayLogoShapeProp ?? 'square');
 
   // Popout settings state
   const [popoutStopMain, setPopoutStopMain] = useState(true);
@@ -627,6 +632,7 @@ export function Settings({
   useEffect(() => { setChannelInfoOverlayHideLogo(channelInfoOverlayHideLogoProp ?? false); }, [channelInfoOverlayHideLogoProp]);
   useEffect(() => { setChannelInfoOverlayHideTimer(channelInfoOverlayHideTimerProp ?? false); }, [channelInfoOverlayHideTimerProp]);
   useEffect(() => { setChannelInfoOverlayPosition(channelInfoOverlayPositionProp ?? 'left'); }, [channelInfoOverlayPositionProp]);
+  useEffect(() => { setChannelInfoOverlayLogoShape(channelInfoOverlayLogoShapeProp ?? 'square'); }, [channelInfoOverlayLogoShapeProp]);
   useEffect(() => { setCastEnabled(castEnabledProp ?? false); }, [castEnabledProp]);
   useEffect(() => { setCastRewriteTs(castRewriteTsProp ?? true); }, [castRewriteTsProp]);
   
@@ -1992,6 +1998,16 @@ export function Settings({
     }
   };
 
+  const handleChannelInfoOverlayLogoShapeChange = async (shape: 'square' | 'horizontal') => {
+    setChannelInfoOverlayLogoShape(shape);
+    if (onChannelInfoOverlayLogoShapeChange) {
+      onChannelInfoOverlayLogoShapeChange(shape);
+    }
+    if (window.storage) {
+      await window.storage.updateSettings({ channelInfoOverlayLogoShape: shape });
+    }
+  };
+
   const handlePopoutStopMainChange = async (stop: boolean) => {
     setPopoutStopMain(stop);
     if (window.storage) {
@@ -2751,6 +2767,8 @@ export function Settings({
             onChannelInfoOverlayHideTimerChange={handleChannelInfoOverlayHideTimerChange}
             channelInfoOverlayPosition={channelInfoOverlayPosition}
             onChannelInfoOverlayPositionChange={handleChannelInfoOverlayPositionChange}
+            channelInfoOverlayLogoShape={channelInfoOverlayLogoShape}
+            onChannelInfoOverlayLogoShapeChange={handleChannelInfoOverlayLogoShapeChange}
             failoverGroupShowSource={failoverGroupShowSource}
             onFailoverGroupShowSourceChange={handleFailoverGroupShowSourceChange}
             widgetScale={widgetScale}

@@ -634,19 +634,23 @@ export function useChannels(categoryId: string | null, sortOrder: 'alphabetical'
         }
 
         results = results.map(ch => {
-          // 1. Manual override
-          if (logoMap.has(ch.stream_id)) {
-            return { ...ch, stream_icon: logoMap.get(ch.stream_id), logo_background: logoBgMap.get(ch.stream_id) };
-          }
-          // 2. EPG Logo preference
-          if (epgPreferEpgLogos) {
+          const customIcon = logoMap.get(ch.stream_id);
+          const logoBg = logoBgMap.get(ch.stream_id);
+          let effectiveIcon = customIcon;
+
+          if (!effectiveIcon && epgPreferEpgLogos) {
             const epgId = epgIdMap.get(ch.stream_id) || ch.epg_channel_id;
             if (epgId && epgIconMap.has(epgId)) {
-              const epgIcon = epgIconMap.get(epgId);
-              if (epgIcon) {
-                return { ...ch, stream_icon: epgIcon, logo_background: logoBgMap.get(ch.stream_id) };
-              }
+              effectiveIcon = epgIconMap.get(epgId);
             }
+          }
+
+          if (effectiveIcon || logoBg !== undefined) {
+            return {
+              ...ch,
+              ...(effectiveIcon ? { stream_icon: effectiveIcon } : {}),
+              ...(logoBg !== undefined ? { logo_background: logoBg } : {}),
+            };
           }
           return ch;
         });
@@ -1230,19 +1234,23 @@ export function useChannelSearch(
         }
 
         filteredChannels = filteredChannels.map(ch => {
-          // 1. Manual override
-          if (logoMap.has(ch.stream_id)) {
-            return { ...ch, stream_icon: logoMap.get(ch.stream_id), logo_background: logoBgMap.get(ch.stream_id) };
-          }
-          // 2. EPG Logo preference
-          if (epgPreferEpgLogos) {
+          const customIcon = logoMap.get(ch.stream_id);
+          const logoBg = logoBgMap.get(ch.stream_id);
+          let effectiveIcon = customIcon;
+
+          if (!effectiveIcon && epgPreferEpgLogos) {
             const epgId = epgIdMap.get(ch.stream_id) || ch.epg_channel_id;
             if (epgId && epgIconMap.has(epgId)) {
-              const epgIcon = epgIconMap.get(epgId);
-              if (epgIcon) {
-                return { ...ch, stream_icon: epgIcon, logo_background: logoBgMap.get(ch.stream_id) };
-              }
+              effectiveIcon = epgIconMap.get(epgId);
             }
+          }
+
+          if (effectiveIcon || logoBg !== undefined) {
+            return {
+              ...ch,
+              ...(effectiveIcon ? { stream_icon: effectiveIcon } : {}),
+              ...(logoBg !== undefined ? { logo_background: logoBg } : {}),
+            };
           }
           return ch;
         });

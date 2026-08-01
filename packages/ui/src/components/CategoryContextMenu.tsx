@@ -16,6 +16,7 @@ interface CategoryContextMenuProps {
     isPinned?: boolean;
     onPin?: () => void;
     onUnpin?: () => void;
+    onOpenLogoEditor?: (categoryId: string, categoryName: string, sourceId: string) => void;
 }
 
 export function CategoryContextMenu({
@@ -31,6 +32,7 @@ export function CategoryContextMenu({
     isPinned,
     onPin,
     onUnpin,
+    onOpenLogoEditor,
 }: CategoryContextMenuProps) {
     const menuRef = useRef<HTMLDivElement>(null);
     const [adjustedPosition, setAdjustedPosition] = useState(position);
@@ -241,6 +243,11 @@ export function CategoryContextMenu({
             {onHideCategory && (
                 <div className="context-menu-item" onClick={() => { onHideCategory(categoryId); onClose(); }}>
                     Hide Category
+                </div>
+            )}
+            {onOpenLogoEditor && (
+                <div className="context-menu-item" onClick={() => { onOpenLogoEditor(categoryId, categoryName, sourceId); onClose(); }}>
+                    🖼️ Logo Editor
                 </div>
             )}
             <div className="context-menu-item" onClick={() => setCurrentView('playlist_add')}>

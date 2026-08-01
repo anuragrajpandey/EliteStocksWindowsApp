@@ -148,6 +148,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   height: 22px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .segmented-btn:hover {
