@@ -12,23 +12,38 @@
 }
 
 .series-detail-fixed-backdrop img {
-  width: 100%;
-  height: 100vh;
-  object-fit: cover;
-  object-position: center top;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+  z-index: 0 !important;
 }
 
 .series-detail-fixed-backdrop-gradient {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(12, 14, 24, 0.15) 0%,
-    rgba(12, 14, 24, 0.45) 30%,
-    rgba(12, 14, 24, 0.75) 60%,
-    rgba(12, 14, 24, 0.95) 85%,
-    var(--bg-primary, #0c0e18) 100%
-  ) !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: 
+    linear-gradient(
+      to right,
+      rgba(12, 14, 24, 0.92) 0%,
+      rgba(12, 14, 24, 0.78) 25%,
+      rgba(12, 14, 24, 0.45) 45%,
+      rgba(12, 14, 24, 0.12) 65%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(12, 14, 24, 0.1) 0%,
+      rgba(12, 14, 24, 0.35) 30%,
+      rgba(12, 14, 24, 0.75) 60%,
+      rgba(12, 14, 24, 0.95) 85%,
+      #0c0e18 100%
+    ) !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
 }
 
 /* Scrollable content view overlay */
@@ -41,6 +56,38 @@
   background: transparent !important;
   overflow-y: scroll !important;
   z-index: 200; /* Above fixed backdrop (199) */
+}
+
+/* Left-to-right gradient overlay — rendered as a fixed pseudo-element
+   NOTE: Use explicit color values (#0c0e18 or rgba) for color stops inside linear-gradient.
+   Do NOT use var(--bg-primary) as a color stop because in themes where --bg-primary is a gradient (e.g. solid-* themes),
+   nesting a gradient variable inside linear-gradient causes CSS color-stop syntax invalidation, causing the browser to drop the background rule. */
+.series-detail::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    linear-gradient(
+      to right,
+      rgba(12, 14, 24, 0.92) 0%,
+      rgba(12, 14, 24, 0.78) 25%,
+      rgba(12, 14, 24, 0.45) 45%,
+      rgba(12, 14, 24, 0.12) 65%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(12, 14, 24, 0.1) 0%,
+      rgba(12, 14, 24, 0.35) 30%,
+      rgba(12, 14, 24, 0.75) 60%,
+      rgba(12, 14, 24, 0.95) 85%,
+      #0c0e18 100%
+    );
+  pointer-events: none;
+  z-index: 0;
 }
 
 .series-detail::-webkit-scrollbar {
@@ -220,11 +267,12 @@
 
 /* Description */
 .series-detail__description {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 0.9rem;
   line-height: 1.6;
   margin: 0 0 16px 0;
   max-width: 600px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9), 0 0 24px rgba(0, 0, 0, 0.8);
 }
 
 /* Credits */
