@@ -4553,6 +4553,24 @@ html.modern-ui-v3[data-theme="light"] .team-injury-pos {
   font-weight: 600 !important;
 }
 
+/* ==================== LIQUID GLASS BACKGROUND BLOBS ==================== */
+[data-theme="light"] .livetv-liquid-glass-bg .glass-blob,
+[data-theme="light"] .livetv-liquid-glass-bg::before,
+[data-theme="light"] .livetv-liquid-glass-bg::after,
+html[data-theme="light"] .livetv-liquid-glass-bg .glass-blob,
+html[data-theme="light"] .livetv-liquid-glass-bg::before,
+html[data-theme="light"] .livetv-liquid-glass-bg::after,
+html.modern-ui-v3[data-theme="light"] .livetv-liquid-glass-bg .glass-blob,
+html.modern-ui-v3[data-theme="light"] .livetv-liquid-glass-bg::before,
+html.modern-ui-v3[data-theme="light"] .livetv-liquid-glass-bg::after {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  animation: none !important;
+  will-change: auto !important;
+}
+
 
 
 
