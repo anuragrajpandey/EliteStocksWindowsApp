@@ -1805,4 +1805,132 @@
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+/* DVR Settings Tab Elements */
+.dvr-path-input {
+    flex: 1;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: var(--text-primary, rgba(255, 255, 255, 0.9));
+    font-size: 0.85rem;
+    font-family: monospace;
+}
+
+.dvr-browse-btn {
+    max-width: 120px;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dvr-setting-label {
+    font-size: 0.85rem;
+    color: var(--text-primary, rgba(255, 255, 255, 0.85));
+    font-weight: 500;
+}
+
+.dvr-sublabel {
+    font-size: 0.75rem;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.5));
+}
+
+.dvr-duration-badge {
+    font-size: 0.8rem;
+    color: var(--accent-primary, #00d4ff);
+    background: rgba(0, 212, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.dvr-range-slider {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.dvr-range-limits {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    color: var(--text-muted, rgba(255, 255, 255, 0.4));
+}
+
+.dvr-custom-padding-box {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dvr-number-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text-primary, #fff);
+    font-size: 0.85rem;
+    outline: none;
+    padding: 2px 0;
+}
+
+.dvr-save-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border: 1px solid rgba(0, 212, 255, 0.4);
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+}
+
+.dvr-select-dropdown {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: var(--text-primary, rgba(255, 255, 255, 0.9));
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+}
+
+.dvr-select-dropdown option {
+    background: #1c1c1e;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.dvr-toggle-switch {
+    width: 46px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    display: block;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.dvr-toggle-switch span {
+    position: absolute;
+    top: 2px;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.dvr-warning-msg {
+    color: #ff9900;
 }

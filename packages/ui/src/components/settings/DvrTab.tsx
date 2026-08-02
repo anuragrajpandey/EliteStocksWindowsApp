@@ -143,7 +143,7 @@ export function DvrTab() {
         return (
             <div className="settings-tab-content">
                 <div className="settings-section">
-                    <p style={{ color: 'rgba(255,255,255,0.6)' }}>Loading settings...</p>
+                    <p className="section-description">Loading settings...</p>
                 </div>
             </div>
         );
@@ -159,7 +159,7 @@ export function DvrTab() {
                 <p className="section-description" style={{ marginBottom: '12px' }}>
                     Where recorded videos will be saved.
                     {!storagePath && (
-                        <span style={{ color: '#ff9900', display: 'block', marginTop: '4px' }}>
+                        <span className="dvr-warning-msg" style={{ display: 'block', marginTop: '4px' }}>
                             ⚠️ Storage path is required for recordings to work
                         </span>
                     )}
@@ -167,24 +167,14 @@ export function DvrTab() {
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <input
                         type="text"
+                        className="dvr-path-input"
                         value={storagePath || 'Default location'}
                         readOnly
-                        style={{
-                            flex: 1,
-                            padding: '10px 14px',
-                            background: 'rgba(255,255,255,0.05)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '6px',
-                            color: storagePath ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.4)',
-                            fontSize: '0.85rem',
-                            fontFamily: 'monospace'
-                        }}
                     />
                     <button
-                        className="sync-btn"
+                        className="sync-btn dvr-browse-btn"
                         onClick={handleSelectPath}
                         type="button"
-                        style={{ maxWidth: '120px', borderColor: 'rgba(255,255,255,0.2)' }}
                     >
                         Browse
                     </button>
@@ -202,24 +192,14 @@ export function DvrTab() {
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <input
                         type="text"
+                        className="dvr-path-input"
                         value={downloadsPath || 'Ask every time'}
                         readOnly
-                        style={{
-                            flex: 1,
-                            padding: '10px 14px',
-                            background: 'rgba(255,255,255,0.05)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '6px',
-                            color: downloadsPath ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.4)',
-                            fontSize: '0.85rem',
-                            fontFamily: 'monospace'
-                        }}
                     />
                     <button
-                        className="sync-btn"
+                        className="sync-btn dvr-browse-btn"
                         onClick={handleSelectDownloadsPath}
                         type="button"
-                        style={{ maxWidth: '120px', borderColor: 'rgba(255,255,255,0.2)' }}
                     >
                         Browse
                     </button>
@@ -237,34 +217,21 @@ export function DvrTab() {
 
                 <div style={{ marginBottom: '20px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <label style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>Start Padding</label>
-                        <span style={{ 
-                            fontSize: '0.8rem', 
-                            color: '#00d4ff',
-                            background: 'rgba(0, 212, 255, 0.1)',
-                            padding: '2px 8px',
-                            borderRadius: '4px'
-                        }}>
+                        <label className="dvr-setting-label">Start Padding</label>
+                        <span className="dvr-duration-badge">
                             {formatDuration(startPadding)}
                         </span>
                     </div>
                     <input
                         type="range"
+                        className="dvr-range-slider"
                         min="0"
                         max="300"
                         step="15"
                         value={startPadding}
                         onChange={(e) => handleStartPaddingChange(parseInt(e.target.value))}
-                        style={{
-                            width: '100%',
-                            height: '4px',
-                            background: 'rgba(255,255,255,0.1)',
-                            borderRadius: '2px',
-                            outline: 'none',
-                            cursor: 'pointer'
-                        }}
                     />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>
+                    <div className="dvr-range-limits">
                         <span>None</span>
                         <span>5 min</span>
                     </div>
@@ -272,88 +239,45 @@ export function DvrTab() {
 
                 <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <label style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>End Padding</label>
-                        <span style={{ 
-                            fontSize: '0.8rem', 
-                            color: '#00d4ff',
-                            background: 'rgba(0, 212, 255, 0.1)',
-                            padding: '2px 8px',
-                            borderRadius: '4px'
-                        }}>
+                        <label className="dvr-setting-label">End Padding</label>
+                        <span className="dvr-duration-badge">
                             {formatDuration(endPadding)}
                         </span>
                     </div>
                     <input
                         type="range"
+                        className="dvr-range-slider"
                         min="0"
                         max={Math.max(900, endPadding)}
                         step="30"
                         value={endPadding}
                         onChange={(e) => handleEndPaddingChange(parseInt(e.target.value))}
-                        style={{
-                            width: '100%',
-                            height: '4px',
-                            background: 'rgba(255,255,255,0.1)',
-                            borderRadius: '2px',
-                            outline: 'none',
-                            cursor: 'pointer'
-                        }}
                     />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>
+                    <div className="dvr-range-limits">
                         <span>None</span>
                         <span>{formatDuration(Math.max(900, endPadding))}</span>
                     </div>
 
                     {/* Custom End Padding Input */}
-                    <div style={{ 
-                        marginTop: '16px', 
-                        display: 'flex', 
-                        gap: '12px', 
-                        alignItems: 'center',
-                        background: 'rgba(255,255,255,0.02)',
-                        padding: '10px 14px',
-                        borderRadius: '6px',
-                        border: '1px solid rgba(255,255,255,0.05)'
-                    }}>
+                    <div className="dvr-custom-padding-box">
                         <div style={{ flex: 1 }}>
-                            <label style={{ 
-                                display: 'block', 
-                                fontSize: '0.75rem', 
-                                color: 'rgba(255,255,255,0.5)',
-                                marginBottom: '4px'
-                            }}>
+                            <label className="dvr-sublabel" style={{ marginBottom: '4px' }}>
                                 Custom End Padding (minutes)
                             </label>
                             <input
                                 type="number"
+                                className="dvr-number-input"
                                 min="0"
                                 placeholder="Enter custom minutes"
                                 value={customEndPaddingInput}
                                 onChange={(e) => setCustomEndPaddingInput(e.target.value)}
-                                style={{
-                                    width: '100%',
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: '#fff',
-                                    fontSize: '0.85rem',
-                                    outline: 'none',
-                                    padding: '2px 0'
-                                }}
                             />
                         </div>
                         <button
                             type="button"
                             onClick={handleSaveCustomEndPadding}
                             disabled={customEndPaddingInput === '' || isNaN(parseFloat(customEndPaddingInput)) || parseFloat(customEndPaddingInput) < 0}
-                            className="sync-btn"
-                            style={{
-                                padding: '6px 12px',
-                                fontSize: '0.8rem',
-                                border: '1px solid rgba(0, 212, 255, 0.4)',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                outline: 'none'
-                            }}
+                            className="sync-btn dvr-save-btn"
                         >
                             Save
                         </button>
@@ -373,10 +297,10 @@ export function DvrTab() {
                 {/* Enable Auto-Cleanup Toggle */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <div>
-                        <label style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)', display: 'block', fontWeight: 500 }}>
+                        <label className="dvr-setting-label" style={{ display: 'block', fontWeight: 500 }}>
                             Auto-Cleanup
                         </label>
-                        <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
+                        <span className="dvr-sublabel">
                             Automatically delete oldest recordings to enforce disk space quotas.
                         </span>
                     </div>
@@ -390,29 +314,14 @@ export function DvrTab() {
                         />
                         <label
                             htmlFor="autoCleanup"
+                            className="dvr-toggle-switch"
                             style={{
-                                width: '46px',
-                                height: '24px',
-                                background: autoCleanup ? 'linear-gradient(135deg, #00d4ff, #0072ff)' : 'rgba(255,255,255,0.1)',
-                                display: 'block',
-                                borderRadius: '12px',
-                                position: 'relative',
-                                cursor: 'pointer',
-                                transition: 'background 0.3s ease',
-                                border: '1px solid rgba(255,255,255,0.1)'
+                                background: autoCleanup ? 'linear-gradient(135deg, #00d4ff, #0072ff)' : undefined,
                             }}
                         >
                             <span
                                 style={{
-                                    position: 'absolute',
-                                    top: '2px',
                                     left: autoCleanup ? '24px' : '2px',
-                                    width: '18px',
-                                    height: '18px',
-                                    background: '#fff',
-                                    borderRadius: '50%',
-                                    transition: 'left 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                                 }}
                             />
                         </label>
@@ -424,34 +333,21 @@ export function DvrTab() {
                         {/* Max Disk Usage Slider */}
                         <div style={{ marginBottom: '20px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                <label style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>Max Disk Usage Threshold</label>
-                                <span style={{ 
-                                    fontSize: '0.8rem', 
-                                    color: '#00d4ff',
-                                    background: 'rgba(0, 212, 255, 0.1)',
-                                    padding: '2px 8px',
-                                    borderRadius: '4px'
-                                }}>
+                                <label className="dvr-setting-label">Max Disk Usage Threshold</label>
+                                <span className="dvr-duration-badge">
                                     {maxDiskUsage}%
                                 </span>
                             </div>
                             <input
                                 type="range"
+                                className="dvr-range-slider"
                                 min="50"
                                 max="95"
                                 step="5"
                                 value={maxDiskUsage}
                                 onChange={(e) => handleMaxDiskUsageChange(parseInt(e.target.value))}
-                                style={{
-                                    width: '100%',
-                                    height: '4px',
-                                    background: 'rgba(255,255,255,0.1)',
-                                    borderRadius: '2px',
-                                    outline: 'none',
-                                    cursor: 'pointer'
-                                }}
                             />
-                            <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginTop: '6px' }}>
+                            <p className="dvr-sublabel" style={{ marginTop: '6px' }}>
                                 Cleanup starts when the recording drive's total usage exceeds this limit.
                             </p>
                         </div>
@@ -459,28 +355,18 @@ export function DvrTab() {
                         {/* Keep Recordings Days Dropdown */}
                         <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                <label style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>Keep Recordings For</label>
+                                <label className="dvr-setting-label">Keep Recordings For</label>
                             </div>
                             <select
+                                className="dvr-select-dropdown"
                                 value={keepDays === null || keepDays === undefined || (keepDays as any) === 'none' ? 'none' : keepDays.toString()}
                                 onChange={(e) => handleKeepDaysChange(e.target.value === 'none' ? null : parseInt(e.target.value))}
-                                style={{
-                                    width: '100%',
-                                    padding: '10px 14px',
-                                    background: 'rgba(255,255,255,0.05)',
-                                    border: '1px solid rgba(255,255,255,0.1)',
-                                    borderRadius: '6px',
-                                    color: 'rgba(255,255,255,0.9)',
-                                    fontSize: '0.85rem',
-                                    cursor: 'pointer',
-                                    outline: 'none',
-                                }}
                             >
-                                <option value="none" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>Indefinitely (Until space is needed)</option>
-                                <option value="7" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>7 Days</option>
-                                <option value="14" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>14 Days</option>
-                                <option value="30" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>30 Days</option>
-                                <option value="90" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>90 Days</option>
+                                <option value="none">Indefinitely (Until space is needed)</option>
+                                <option value="7">7 Days</option>
+                                <option value="14">14 Days</option>
+                                <option value="30">30 Days</option>
+                                <option value="90">90 Days</option>
                             </select>
                         </div>
                     </>
@@ -497,23 +383,13 @@ export function DvrTab() {
                 </p>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <select
+                        className="dvr-select-dropdown"
                         value={autoConvertFormat}
                         onChange={(e) => handleAutoConvertChange(e.target.value)}
-                        style={{
-                            flex: 1,
-                            padding: '10px 14px',
-                            background: 'rgba(255,255,255,0.05)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '6px',
-                            color: 'rgba(255,255,255,0.9)',
-                            fontSize: '0.85rem',
-                            cursor: 'pointer',
-                            outline: 'none',
-                        }}
                     >
-                        <option value="none" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>None (Keep original .ts)</option>
-                        <option value="mp4" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>MP4 (.mp4)</option>
-                        <option value="mkv" style={{ background: '#1c1c1e', color: 'rgba(255,255,255,0.9)' }}>MKV (.mkv)</option>
+                        <option value="none">None (Keep original .ts)</option>
+                        <option value="mp4">MP4 (.mp4)</option>
+                        <option value="mkv">MKV (.mkv)</option>
                     </select>
                 </div>
             </div>
@@ -529,10 +405,10 @@ export function DvrTab() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ paddingRight: '16px' }}>
-                            <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
+                            <div className="dvr-setting-label">
                                 Allow Non-Standard HLS Extensions (.jpg / .css)
                             </div>
-                            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginTop: '2px', lineHeight: '1.4' }}>
+                            <div className="dvr-sublabel" style={{ marginTop: '2px', lineHeight: '1.4' }}>
                                 Bypasses strict FFmpeg segment extension checks (CVE-2023-6602) for IPTV providers that disguise video segments as .jpg or .css files. Disabled by default to preserve standard security.
                             </div>
                         </div>
@@ -546,30 +422,14 @@ export function DvrTab() {
                             />
                             <label
                                 htmlFor="allowPermissiveHls"
+                                className="dvr-toggle-switch"
                                 style={{
-                                    width: '46px',
-                                    height: '24px',
-                                    background: allowPermissiveHls ? 'linear-gradient(135deg, #00d4ff, #0072ff)' : 'rgba(255,255,255,0.1)',
-                                    display: 'block',
-                                    borderRadius: '12px',
-                                    position: 'relative',
-                                    cursor: 'pointer',
-                                    transition: 'background 0.3s ease',
-                                    border: '1px solid rgba(255,255,255,0.1)',
-                                    flexShrink: 0
+                                    background: allowPermissiveHls ? 'linear-gradient(135deg, #00d4ff, #0072ff)' : undefined,
                                 }}
                             >
                                 <span
                                     style={{
-                                        position: 'absolute',
-                                        top: '2px',
                                         left: allowPermissiveHls ? '24px' : '2px',
-                                        width: '18px',
-                                        height: '18px',
-                                        background: '#fff',
-                                        borderRadius: '50%',
-                                        transition: 'left 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                                     }}
                                 />
                             </label>

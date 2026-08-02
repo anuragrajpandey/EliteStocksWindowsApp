@@ -296,6 +296,77 @@
   color: #ffffff !important;
 }
 
+/* ==================== STICKIED / PINNED CATEGORIES ==================== */
+[data-theme="light"] .category-item.nested.is-pinned,
+html[data-theme="light"] .category-item.nested.is-pinned,
+html.modern-ui-v3[data-theme="light"] .category-item.nested.is-pinned,
+html.modern-ui-v3[data-theme="light"] .category-source-content .category-item.nested.is-pinned {
+  background: #f1f5f9 !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .category-item.nested.is-pinned .category-name,
+html[data-theme="light"] .category-item.nested.is-pinned .category-name,
+html.modern-ui-v3[data-theme="light"] .category-item.nested.is-pinned .category-name,
+html.modern-ui-v3[data-theme="light"] .category-source-content .category-item.nested.is-pinned .category-name {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .category-item.nested.is-pinned:hover,
+html[data-theme="light"] .category-item.nested.is-pinned:hover,
+html.modern-ui-v3[data-theme="light"] .category-item.nested.is-pinned:hover,
+html.modern-ui-v3[data-theme="light"] .category-source-content .category-item.nested.is-pinned:hover {
+  background: #e2e8f0 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .category-item.nested.is-pinned.selected,
+html[data-theme="light"] .category-item.nested.is-pinned.selected,
+html.modern-ui-v3[data-theme="light"] .category-item.nested.is-pinned.selected,
+html.modern-ui-v3[data-theme="light"] .category-source-content .category-item.nested.is-pinned.selected {
+  background: #e0f2fe !important;
+  border-color: var(--accent-primary, #0066cc) !important;
+  color: var(--accent-primary, #0066cc) !important;
+}
+
+[data-theme="light"] .category-item.nested.is-pinned.selected .category-name,
+html[data-theme="light"] .category-item.nested.is-pinned.selected .category-name,
+html.modern-ui-v3[data-theme="light"] .category-item.nested.is-pinned.selected .category-name,
+html.modern-ui-v3[data-theme="light"] .category-source-content .category-item.nested.is-pinned.selected .category-name {
+  color: var(--accent-primary, #0066cc) !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .category-item.nested.is-pinned .category-pin-icon,
+html[data-theme="light"] .category-item.nested.is-pinned .category-pin-icon,
+html.modern-ui-v3[data-theme="light"] .category-item.nested.is-pinned .category-pin-icon {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .category-item.nested.is-pinned.selected .category-pin-icon,
+html[data-theme="light"] .category-item.nested.is-pinned.selected .category-pin-icon,
+html.modern-ui-v3[data-theme="light"] .category-item.nested.is-pinned.selected .category-pin-icon {
+  color: var(--accent-primary, #0066cc) !important;
+}
+
+[data-theme="light"] .category-item.nested.is-pinned .category-count,
+html[data-theme="light"] .category-item.nested.is-pinned .category-count,
+html.modern-ui-v3[data-theme="light"] .category-item.nested.is-pinned .category-count,
+html.modern-ui-v3[data-theme="light"] .category-source-content .category-item.nested.is-pinned .category-count {
+  background: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .category-item.nested.is-pinned.selected .category-count,
+html[data-theme="light"] .category-item.nested.is-pinned.selected .category-count,
+html.modern-ui-v3[data-theme="light"] .category-item.nested.is-pinned.selected .category-count,
+html.modern-ui-v3[data-theme="light"] .category-source-content .category-item.nested.is-pinned.selected .category-count {
+  background: var(--accent-primary, #0066cc) !important;
+  color: #ffffff !important;
+}
+
 [data-theme="light"] .sidebar-section-header {
   color: #64748b !important;
 }
@@ -2168,4 +2239,849 @@ html.modern-ui-v3[data-theme="light"] .category-manager-footer .cancel-btn:hover
   background: #e2e8f0 !important;
   color: #000000 !important;
 }
+
+/* ==================== DVR SETTINGS PAGE ==================== */
+
+[data-theme="light"] .dvr-dashboard,
+html[data-theme="light"] .dvr-dashboard,
+html.modern-ui-v3[data-theme="light"] .dvr-dashboard {
+  background: #f8fafc !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .dvr-main-header,
+html[data-theme="light"] .dvr-main-header,
+html.modern-ui-v3[data-theme="light"] .dvr-main-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .dvr-main-header h2,
+html[data-theme="light"] .dvr-main-header h2,
+html.modern-ui-v3[data-theme="light"] .dvr-main-header h2 {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .dvr-main-nav-btn,
+html[data-theme="light"] .dvr-main-nav-btn,
+html.modern-ui-v3[data-theme="light"] .dvr-main-nav-btn {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .dvr-main-nav-btn:hover,
+html[data-theme="light"] .dvr-main-nav-btn:hover,
+html.modern-ui-v3[data-theme="light"] .dvr-main-nav-btn:hover {
+  color: #000000 !important;
+  background: #f1f5f9 !important;
+}
+
+[data-theme="light"] .dvr-main-nav-btn.active,
+html[data-theme="light"] .dvr-main-nav-btn.active,
+html.modern-ui-v3[data-theme="light"] .dvr-main-nav-btn.active {
+  color: var(--accent-primary, #0066cc) !important;
+  border-bottom-color: var(--accent-primary, #0066cc) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .settings-tab-content,
+html[data-theme="light"] .settings-tab-content,
+html.modern-ui-v3[data-theme="light"] .settings-tab-content {
+  color: #000000 !important;
+}
+
+[data-theme="light"] .settings-section,
+html[data-theme="light"] .settings-section,
+html.modern-ui-v3[data-theme="light"] .settings-section {
+  border-bottom: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .section-header h3,
+html[data-theme="light"] .section-header h3,
+html.modern-ui-v3[data-theme="light"] .section-header h3,
+[data-theme="light"] .settings-section .section-header h3,
+html[data-theme="light"] .settings-section .section-header h3,
+html.modern-ui-v3[data-theme="light"] .settings-section .section-header h3 {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .section-description,
+html[data-theme="light"] .section-description,
+html.modern-ui-v3[data-theme="light"] .section-description,
+[data-theme="light"] .settings-section p.section-description,
+html[data-theme="light"] .settings-section p.section-description,
+html.modern-ui-v3[data-theme="light"] .settings-section p.section-description {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .dvr-setting-label,
+html[data-theme="light"] .dvr-setting-label,
+html.modern-ui-v3[data-theme="light"] .dvr-setting-label {
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .dvr-sublabel,
+html[data-theme="light"] .dvr-sublabel,
+html.modern-ui-v3[data-theme="light"] .dvr-sublabel {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .dvr-path-input,
+html[data-theme="light"] .dvr-path-input,
+html.modern-ui-v3[data-theme="light"] .dvr-path-input {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .dvr-select-dropdown,
+html[data-theme="light"] .dvr-select-dropdown,
+html.modern-ui-v3[data-theme="light"] .dvr-select-dropdown {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .dvr-select-dropdown option,
+html[data-theme="light"] .dvr-select-dropdown option,
+html.modern-ui-v3[data-theme="light"] .dvr-select-dropdown option {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .dvr-duration-badge,
+html[data-theme="light"] .dvr-duration-badge,
+html.modern-ui-v3[data-theme="light"] .dvr-duration-badge {
+  background: #e0f2fe !important;
+  color: var(--accent-primary, #0066cc) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .dvr-range-slider,
+html[data-theme="light"] .dvr-range-slider,
+html.modern-ui-v3[data-theme="light"] .dvr-range-slider {
+  background: #cbd5e1 !important;
+}
+
+[data-theme="light"] .dvr-range-limits,
+html[data-theme="light"] .dvr-range-limits,
+html.modern-ui-v3[data-theme="light"] .dvr-range-limits {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .dvr-custom-padding-box,
+html[data-theme="light"] .dvr-custom-padding-box,
+html.modern-ui-v3[data-theme="light"] .dvr-custom-padding-box {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .dvr-number-input,
+html[data-theme="light"] .dvr-number-input,
+html.modern-ui-v3[data-theme="light"] .dvr-number-input {
+  color: #000000 !important;
+}
+
+[data-theme="light"] .dvr-number-input::placeholder,
+html[data-theme="light"] .dvr-number-input::placeholder,
+html.modern-ui-v3[data-theme="light"] .dvr-number-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .dvr-browse-btn,
+[data-theme="light"] .dvr-save-btn,
+html[data-theme="light"] .dvr-browse-btn,
+html[data-theme="light"] .dvr-save-btn,
+html.modern-ui-v3[data-theme="light"] .dvr-browse-btn,
+html.modern-ui-v3[data-theme="light"] .dvr-save-btn {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: var(--accent-primary, #0066cc) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .dvr-browse-btn:hover,
+[data-theme="light"] .dvr-save-btn:hover,
+html[data-theme="light"] .dvr-browse-btn:hover,
+html[data-theme="light"] .dvr-save-btn:hover,
+html.modern-ui-v3[data-theme="light"] .dvr-browse-btn:hover,
+html.modern-ui-v3[data-theme="light"] .dvr-save-btn:hover {
+  background: #e2e8f0 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .dvr-toggle-switch,
+html[data-theme="light"] .dvr-toggle-switch,
+html.modern-ui-v3[data-theme="light"] .dvr-toggle-switch {
+  border: 1px solid #cbd5e1 !important;
+  background: #e2e8f0 !important;
+}
+
+[data-theme="light"] .dvr-warning-msg,
+html[data-theme="light"] .dvr-warning-msg,
+html.modern-ui-v3[data-theme="light"] .dvr-warning-msg {
+  color: #d97706 !important;
+}
+
+/* ==================== SPORTS SETTINGS PAGE ==================== */
+
+[data-theme="light"] .sports-settings-title,
+html[data-theme="light"] .sports-settings-title,
+html.modern-ui-v3[data-theme="light"] .sports-settings-title {
+  color: #000000 !important;
+  font-weight: 750 !important;
+}
+
+[data-theme="light"] .sports-settings-subtitle,
+html[data-theme="light"] .sports-settings-subtitle,
+html.modern-ui-v3[data-theme="light"] .sports-settings-subtitle {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .sports-settings-reset,
+html[data-theme="light"] .sports-settings-reset,
+html.modern-ui-v3[data-theme="light"] .sports-settings-reset {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+[data-theme="light"] .sports-settings-reset:hover,
+html[data-theme="light"] .sports-settings-reset:hover,
+html.modern-ui-v3[data-theme="light"] .sports-settings-reset:hover {
+  background: #e2e8f0 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .sports-settings-card,
+html[data-theme="light"] .sports-settings-card,
+html.modern-ui-v3[data-theme="light"] .sports-settings-card {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .sports-settings-card-header,
+html[data-theme="light"] .sports-settings-card-header,
+html.modern-ui-v3[data-theme="light"] .sports-settings-card-header {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .sports-settings-category-title,
+html[data-theme="light"] .sports-settings-category-title,
+html.modern-ui-v3[data-theme="light"] .sports-settings-category-title {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .sports-settings-league-item,
+html[data-theme="light"] .sports-settings-league-item,
+html.modern-ui-v3[data-theme="light"] .sports-settings-league-item {
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .sports-settings-league-name,
+html[data-theme="light"] .sports-settings-league-name,
+html.modern-ui-v3[data-theme="light"] .sports-settings-league-name {
+  color: #0f172a !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="light"] .sports-settings-toggle-label,
+html[data-theme="light"] .sports-settings-toggle-label,
+html.modern-ui-v3[data-theme="light"] .sports-settings-toggle-label {
+  color: #475569 !important;
+}
+
+/* Unchecked Toggle Switch track & knob in Light Theme */
+[data-theme="light"] .sports-settings-toggle-slider,
+html[data-theme="light"] .sports-settings-toggle-slider,
+html.modern-ui-v3[data-theme="light"] .sports-settings-toggle-slider {
+  background-color: #cbd5e1 !important;
+  border: 1px solid #94a3b8 !important;
+}
+
+[data-theme="light"] .sports-settings-toggle-slider:before,
+html[data-theme="light"] .sports-settings-toggle-slider:before,
+html.modern-ui-v3[data-theme="light"] .sports-settings-toggle-slider:before {
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Checked Toggle Switch in Light Theme */
+[data-theme="light"] .sports-settings-toggle input:checked + .sports-settings-toggle-slider,
+html[data-theme="light"] .sports-settings-toggle input:checked + .sports-settings-toggle-slider,
+html.modern-ui-v3[data-theme="light"] .sports-settings-toggle input:checked + .sports-settings-toggle-slider {
+  background-color: var(--accent-primary, #0066cc) !important;
+  border-color: var(--accent-primary, #0066cc) !important;
+}
+
+[data-theme="light"] .sports-settings-toggle input:checked + .sports-settings-toggle-slider:before,
+html[data-theme="light"] .sports-settings-toggle input:checked + .sports-settings-toggle-slider:before,
+html.modern-ui-v3[data-theme="light"] .sports-settings-toggle input:checked + .sports-settings-toggle-slider:before {
+  background-color: #ffffff !important;
+}
+
+/* ==================== NUVIO & STREM SETTINGS ULTRA-HIGH CONTRAST LIGHT THEME ==================== */
+
+/* Topbar Profile Badge & Dropdown in Nuvio Header */
+[data-theme="light"] .nuvio-profile-badge,
+html[data-theme="light"] .nuvio-profile-badge,
+html.modern-ui-v3[data-theme="light"] .nuvio-profile-badge {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .nuvio-profile-badge:hover,
+html[data-theme="light"] .nuvio-profile-badge:hover,
+html.modern-ui-v3[data-theme="light"] .nuvio-profile-badge:hover {
+  background: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+}
+
+[data-theme="light"] .nuvio-profile-badge span,
+html[data-theme="light"] .nuvio-profile-badge span,
+html.modern-ui-v3[data-theme="light"] .nuvio-profile-badge span {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .nuvio-profile-chevron,
+html[data-theme="light"] .nuvio-profile-chevron,
+html.modern-ui-v3[data-theme="light"] .nuvio-profile-chevron {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .nuvio-profile-dropdown,
+html[data-theme="light"] .nuvio-profile-dropdown,
+html.modern-ui-v3[data-theme="light"] .nuvio-profile-dropdown {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .nuvio-profile-dropdown-header,
+html[data-theme="light"] .nuvio-profile-dropdown-header,
+html.modern-ui-v3[data-theme="light"] .nuvio-profile-dropdown-header {
+  color: #64748b !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .nuvio-profile-dropdown-item,
+html[data-theme="light"] .nuvio-profile-dropdown-item,
+html.modern-ui-v3[data-theme="light"] .nuvio-profile-dropdown-item {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .nuvio-profile-dropdown-item span,
+html[data-theme="light"] .nuvio-profile-dropdown-item span,
+html.modern-ui-v3[data-theme="light"] .nuvio-profile-dropdown-item span {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .nuvio-profile-dropdown-item:hover,
+html[data-theme="light"] .nuvio-profile-dropdown-item:hover,
+html.modern-ui-v3[data-theme="light"] .nuvio-profile-dropdown-item:hover {
+  background: #f1f5f9 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .nuvio-profile-dropdown-footer,
+html[data-theme="light"] .nuvio-profile-dropdown-footer,
+html.modern-ui-v3[data-theme="light"] .nuvio-profile-dropdown-footer {
+  color: var(--accent-primary, #0066cc) !important;
+  border-top-color: #e2e8f0 !important;
+}
+
+/* General Nuvio & Strem Settings Tab Overrides */
+[data-theme="light"] .nuvio-settings-tab,
+[data-theme="light"] .strem-settings-tab,
+html[data-theme="light"] .nuvio-settings-tab,
+html[data-theme="light"] .strem-settings-tab,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab {
+  color: #000000 !important;
+}
+
+/* All text nodes and elements inside Nuvio & Strem Settings */
+[data-theme="light"] .nuvio-settings-tab div,
+[data-theme="light"] .nuvio-settings-tab span,
+[data-theme="light"] .nuvio-settings-tab label,
+[data-theme="light"] .nuvio-settings-tab p,
+[data-theme="light"] .nuvio-settings-tab small,
+[data-theme="light"] .strem-settings-tab div,
+[data-theme="light"] .strem-settings-tab span,
+[data-theme="light"] .strem-settings-tab label,
+[data-theme="light"] .strem-settings-tab p,
+[data-theme="light"] .strem-settings-tab small,
+html[data-theme="light"] .nuvio-settings-tab div,
+html[data-theme="light"] .nuvio-settings-tab span,
+html[data-theme="light"] .nuvio-settings-tab label,
+html[data-theme="light"] .nuvio-settings-tab p,
+html[data-theme="light"] .nuvio-settings-tab small,
+html[data-theme="light"] .strem-settings-tab div,
+html[data-theme="light"] .strem-settings-tab span,
+html[data-theme="light"] .strem-settings-tab label,
+html[data-theme="light"] .strem-settings-tab p,
+html[data-theme="light"] .strem-settings-tab small,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab div,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab span,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab label,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab p,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab small,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab div,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab span,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab label,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab p,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab small {
+  color: #0f172a !important;
+}
+
+/* Headings in Nuvio & Strem Settings */
+[data-theme="light"] .nuvio-settings-tab h3,
+[data-theme="light"] .nuvio-settings-tab h4,
+[data-theme="light"] .nuvio-settings-tab h5,
+[data-theme="light"] .strem-settings-tab h3,
+[data-theme="light"] .strem-settings-tab h4,
+[data-theme="light"] .strem-settings-tab h5,
+html[data-theme="light"] .nuvio-settings-tab h3,
+html[data-theme="light"] .nuvio-settings-tab h4,
+html[data-theme="light"] .nuvio-settings-tab h5,
+html[data-theme="light"] .strem-settings-tab h3,
+html[data-theme="light"] .strem-settings-tab h4,
+html[data-theme="light"] .strem-settings-tab h5,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab h3,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab h4,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab h5,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab h3,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab h4,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab h5 {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+/* Paragraphs & Descriptions in Nuvio & Strem Settings */
+[data-theme="light"] .nuvio-settings-tab p,
+[data-theme="light"] .strem-settings-tab p,
+[data-theme="light"] .nuvio-settings-tab .timeshift-toggle-sub,
+[data-theme="light"] .strem-settings-tab .timeshift-toggle-sub,
+html[data-theme="light"] .nuvio-settings-tab p,
+html[data-theme="light"] .strem-settings-tab p,
+html[data-theme="light"] .nuvio-settings-tab .timeshift-toggle-sub,
+html[data-theme="light"] .strem-settings-tab .timeshift-toggle-sub,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab p,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab p,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab .timeshift-toggle-sub,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab .timeshift-toggle-sub {
+  color: #475569 !important;
+}
+
+/* Cards & Section Boxes in Light Theme */
+[data-theme="light"] .nuvio-settings-tab div[style*="background"],
+[data-theme="light"] .strem-settings-tab div[style*="background"],
+html[data-theme="light"] .nuvio-settings-tab div[style*="background"],
+html[data-theme="light"] .strem-settings-tab div[style*="background"],
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab div[style*="background"],
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab div[style*="background"] {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Active profile & accent containers */
+[data-theme="light"] .nuvio-settings-tab div[style*="background: rgba(0,212,255"],
+[data-theme="light"] .nuvio-settings-tab div[style*="background: 'rgba(0,212,255"],
+html[data-theme="light"] .nuvio-settings-tab div[style*="background: rgba(0,212,255"],
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab div[style*="background: rgba(0,212,255"] {
+  background: #e0f2fe !important;
+  border-color: #7dd3fc !important;
+}
+
+/* Drag Grips in Light Theme */
+[data-theme="light"] .nuvio-settings-tab .drag-grip,
+html[data-theme="light"] .nuvio-settings-tab .drag-grip,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab .drag-grip {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .nuvio-settings-tab .drag-grip:hover,
+html[data-theme="light"] .nuvio-settings-tab .drag-grip:hover,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab .drag-grip:hover {
+  color: #000000 !important;
+}
+
+/* Option Buttons (e.g. Continue Watching Style - Card, Wide, Poster) */
+[data-theme="light"] .nuvio-settings-tab button[type="button"],
+html[data-theme="light"] .nuvio-settings-tab button[type="button"],
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab button[type="button"] {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Option Buttons hover & active */
+[data-theme="light"] .nuvio-settings-tab button[type="button"]:hover,
+html[data-theme="light"] .nuvio-settings-tab button[type="button"]:hover,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab button[type="button"]:hover {
+  background: #f1f5f9 !important;
+  color: #000000 !important;
+}
+
+/* Inputs, Textareas & Selects */
+[data-theme="light"] .nuvio-settings-tab input,
+[data-theme="light"] .nuvio-settings-tab textarea,
+[data-theme="light"] .nuvio-settings-tab select,
+[data-theme="light"] .strem-settings-tab input,
+[data-theme="light"] .strem-settings-tab textarea,
+[data-theme="light"] .strem-settings-tab select,
+html[data-theme="light"] .nuvio-settings-tab input,
+html[data-theme="light"] .nuvio-settings-tab textarea,
+html[data-theme="light"] .nuvio-settings-tab select,
+html[data-theme="light"] .strem-settings-tab input,
+html[data-theme="light"] .strem-settings-tab textarea,
+html[data-theme="light"] .strem-settings-tab select,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab input,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab textarea,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab select,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab input,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab textarea,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab select {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .nuvio-settings-tab select option,
+[data-theme="light"] .strem-settings-tab select option,
+html[data-theme="light"] .nuvio-settings-tab select option,
+html[data-theme="light"] .strem-settings-tab select option,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab select option,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab select option {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .nuvio-settings-tab input::placeholder,
+[data-theme="light"] .nuvio-settings-tab textarea::placeholder,
+[data-theme="light"] .strem-settings-tab input::placeholder,
+[data-theme="light"] .strem-settings-tab textarea::placeholder,
+html[data-theme="light"] .nuvio-settings-tab input::placeholder,
+html[data-theme="light"] .nuvio-settings-tab textarea::placeholder,
+html[data-theme="light"] .strem-settings-tab input::placeholder,
+html[data-theme="light"] .strem-settings-tab textarea::placeholder,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab input::placeholder,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab textarea::placeholder,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab input::placeholder,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Stremio Picker Buttons in Light Theme */
+[data-theme="light"] .stremio-picker-btn,
+html[data-theme="light"] .stremio-picker-btn,
+html.modern-ui-v3[data-theme="light"] .stremio-picker-btn {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .stremio-picker-btn.active,
+html[data-theme="light"] .stremio-picker-btn.active,
+html.modern-ui-v3[data-theme="light"] .stremio-picker-btn.active {
+  background: var(--accent-primary, #0066cc) !important;
+  border-color: var(--accent-primary, #0066cc) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* Toggle Switches in Nuvio & Strem Settings in Light Theme */
+[data-theme="light"] .nuvio-settings-tab .toggle-slider,
+[data-theme="light"] .strem-settings-tab .toggle-slider,
+html[data-theme="light"] .nuvio-settings-tab .toggle-slider,
+html[data-theme="light"] .strem-settings-tab .toggle-slider,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab .toggle-slider,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab .toggle-slider {
+  background-color: #cbd5e1 !important;
+  border: 1px solid #94a3b8 !important;
+}
+
+[data-theme="light"] .nuvio-settings-tab .toggle-switch input:checked + .toggle-slider,
+[data-theme="light"] .strem-settings-tab .toggle-switch input:checked + .toggle-slider,
+html[data-theme="light"] .nuvio-settings-tab .toggle-switch input:checked + .toggle-slider,
+html[data-theme="light"] .strem-settings-tab .toggle-switch input:checked + .toggle-slider,
+html.modern-ui-v3[data-theme="light"] .nuvio-settings-tab .toggle-switch input:checked + .toggle-slider,
+html.modern-ui-v3[data-theme="light"] .strem-settings-tab .toggle-switch input:checked + .toggle-slider {
+  background-color: var(--accent-primary, #0066cc) !important;
+  border-color: var(--accent-primary, #0066cc) !important;
+}
+
+/* ==================== NUVIO HOME & ADDONS PAGE LIGHT THEME ==================== */
+
+/* Nuvio Catalog Filter Bar & Divider Line */
+[data-theme="light"] .nuvio-catalog-filter,
+html[data-theme="light"] .nuvio-catalog-filter,
+html.modern-ui-v3[data-theme="light"] .nuvio-catalog-filter {
+  background: #ffffff !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+  margin-bottom: 16px !important;
+  padding-bottom: 10px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] .nuvio-catalog-filter-icon,
+html[data-theme="light"] .nuvio-catalog-filter-icon,
+html.modern-ui-v3[data-theme="light"] .nuvio-catalog-filter-icon {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .nuvio-catalog-filter-input,
+html[data-theme="light"] .nuvio-catalog-filter-input,
+html.modern-ui-v3[data-theme="light"] .nuvio-catalog-filter-input {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .nuvio-catalog-filter-input::placeholder,
+html[data-theme="light"] .nuvio-catalog-filter-input::placeholder,
+html.modern-ui-v3[data-theme="light"] .nuvio-catalog-filter-input::placeholder {
+  color: #64748b !important; /* Visible crisp grey text! */
+  opacity: 1 !important;
+}
+
+[data-theme="light"] .nuvio-catalog-filter-clear,
+html[data-theme="light"] .nuvio-catalog-filter-clear,
+html.modern-ui-v3[data-theme="light"] .nuvio-catalog-filter-clear {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .nuvio-catalog-filter-clear:hover,
+html[data-theme="light"] .nuvio-catalog-filter-clear:hover,
+html.modern-ui-v3[data-theme="light"] .nuvio-catalog-filter-clear:hover {
+  color: #0f172a !important;
+  background: #e2e8f0 !important;
+}
+
+/* Nuvio Editor Container & Addons Sections in Light Theme */
+[data-theme="light"] .nuvio-editor-section,
+html[data-theme="light"] .nuvio-editor-section,
+html.modern-ui-v3[data-theme="light"] .nuvio-editor-section {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .nuvio-editor-title,
+html[data-theme="light"] .nuvio-editor-title,
+html.modern-ui-v3[data-theme="light"] .nuvio-editor-title {
+  color: #000000 !important;
+  font-weight: 700 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+/* All text inside Nuvio Editor & Addon cards */
+[data-theme="light"] .nuvio-editor-container div,
+[data-theme="light"] .nuvio-editor-container span,
+[data-theme="light"] .nuvio-editor-container p,
+[data-theme="light"] .nuvio-editor-container label,
+[data-theme="light"] .nuvio-editor-section div,
+[data-theme="light"] .nuvio-editor-section span,
+[data-theme="light"] .nuvio-editor-section p,
+[data-theme="light"] .nuvio-editor-section label,
+html[data-theme="light"] .nuvio-editor-container div,
+html[data-theme="light"] .nuvio-editor-container span,
+html[data-theme="light"] .nuvio-editor-container p,
+html[data-theme="light"] .nuvio-editor-container label,
+html[data-theme="light"] .nuvio-editor-section div,
+html[data-theme="light"] .nuvio-editor-section span,
+html[data-theme="light"] .nuvio-editor-section p,
+html[data-theme="light"] .nuvio-editor-section label,
+html.modern-ui-v3[data-theme="light"] .nuvio-editor-container div,
+html.modern-ui-v3[data-theme="light"] .nuvio-editor-container span,
+html.modern-ui-v3[data-theme="light"] .nuvio-editor-container p,
+html.modern-ui-v3[data-theme="light"] .nuvio-editor-container label,
+html.modern-ui-v3[data-theme="light"] .nuvio-editor-section div,
+html.modern-ui-v3[data-theme="light"] .nuvio-editor-section span,
+html.modern-ui-v3[data-theme="light"] .nuvio-editor-section p,
+html.modern-ui-v3[data-theme="light"] .nuvio-editor-section label {
+  color: #0f172a !important;
+}
+
+/* Sub-descriptions in Nuvio Addons */
+[data-theme="light"] .nuvio-editor-section p,
+html[data-theme="light"] .nuvio-editor-section p,
+html.modern-ui-v3[data-theme="light"] .nuvio-editor-section p {
+  color: #475569 !important;
+}
+
+/* Individual Addon & Repository card containers in Light Theme */
+[data-theme="light"] .nuvio-editor-section div[style*="background"],
+html[data-theme="light"] .nuvio-editor-section div[style*="background"],
+html.modern-ui-v3[data-theme="light"] .nuvio-editor-section div[style*="background"] {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Nuvio buttons in Light Theme */
+[data-theme="light"] .nuvio-btn,
+html[data-theme="light"] .nuvio-btn,
+html.modern-ui-v3[data-theme="light"] .nuvio-btn {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .nuvio-btn:hover,
+html[data-theme="light"] .nuvio-btn:hover,
+html.modern-ui-v3[data-theme="light"] .nuvio-btn:hover {
+  background: #f1f5f9 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .nuvio-btn-danger,
+html[data-theme="light"] .nuvio-btn-danger,
+html.modern-ui-v3[data-theme="light"] .nuvio-btn-danger {
+  background: #fef2f2 !important;
+  border: 1px solid #fca5a5 !important;
+  color: #dc2626 !important;
+}
+
+[data-theme="light"] .nuvio-btn-danger:hover,
+html[data-theme="light"] .nuvio-btn-danger:hover,
+html.modern-ui-v3[data-theme="light"] .nuvio-btn-danger:hover {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+}
+
+/* Inputs in Nuvio Editor */
+[data-theme="light"] .nuvio-input,
+html[data-theme="light"] .nuvio-input,
+html.modern-ui-v3[data-theme="light"] .nuvio-input {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .nuvio-input::placeholder,
+html[data-theme="light"] .nuvio-input::placeholder,
+html.modern-ui-v3[data-theme="light"] .nuvio-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* ==================== POSTER SIZE SLIDER LIGHT THEME OVERRIDES ==================== */
+
+[data-theme="light"] .poster-size-slider__icon,
+html[data-theme="light"] .poster-size-slider__icon,
+html.modern-ui-v3[data-theme="light"] .poster-size-slider__icon {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .poster-size-slider__icon:hover:not(:disabled),
+html[data-theme="light"] .poster-size-slider__icon:hover:not(:disabled),
+html.modern-ui-v3[data-theme="light"] .poster-size-slider__icon:hover:not(:disabled) {
+  color: #000000 !important;
+  background: #e2e8f0 !important;
+}
+
+[data-theme="light"] .poster-size-slider__icon:disabled,
+[data-theme="light"] .poster-size-slider__icon.disabled,
+html[data-theme="light"] .poster-size-slider__icon:disabled,
+html[data-theme="light"] .poster-size-slider__icon.disabled,
+html.modern-ui-v3[data-theme="light"] .poster-size-slider__icon:disabled,
+html.modern-ui-v3[data-theme="light"] .poster-size-slider__icon.disabled {
+  color: #cbd5e1 !important;
+  opacity: 0.4 !important;
+}
+
+[data-theme="light"] .poster-size-slider__input,
+html[data-theme="light"] .poster-size-slider__input,
+html.modern-ui-v3[data-theme="light"] .poster-size-slider__input {
+  background: #cbd5e1 !important;
+}
+
+[data-theme="light"] .poster-size-slider__input::-webkit-slider-thumb,
+html[data-theme="light"] .poster-size-slider__input::-webkit-slider-thumb,
+html.modern-ui-v3[data-theme="light"] .poster-size-slider__input::-webkit-slider-thumb {
+  background: #ffffff !important;
+  border: 2px solid var(--accent-primary, #0066cc) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-theme="light"] .poster-size-slider__input::-moz-range-thumb,
+html[data-theme="light"] .poster-size-slider__input::-moz-range-thumb,
+html.modern-ui-v3[data-theme="light"] .poster-size-slider__input::-moz-range-thumb {
+  background: #ffffff !important;
+  border: 2px solid var(--accent-primary, #0066cc) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-theme="light"] .poster-size-slider__mark,
+html[data-theme="light"] .poster-size-slider__mark,
+html.modern-ui-v3[data-theme="light"] .poster-size-slider__mark {
+  background: #94a3b8 !important;
+}
+
+[data-theme="light"] .poster-size-slider__mark.active,
+html[data-theme="light"] .poster-size-slider__mark.active,
+html.modern-ui-v3[data-theme="light"] .poster-size-slider__mark.active {
+  background: var(--accent-primary, #0066cc) !important;
+}
+
+/* ==================== NUVIO CATALOG TITLES & STREAMING PLATFORMS LIGHT THEME ==================== */
+
+/* Nuvio Catalog Names / Row Titles in Light Theme */
+[data-theme="light"] .nuvio-row-title,
+[data-theme="light"] .nuvio-row-header h3,
+[data-theme="light"] .nuvio-card-title,
+[data-theme="light"] .nuvio-card-name,
+[data-theme="light"] .nuvio-item-title,
+[data-theme="light"] .nuvio-section-title,
+html[data-theme="light"] .nuvio-row-title,
+html[data-theme="light"] .nuvio-row-header h3,
+html[data-theme="light"] .nuvio-card-title,
+html[data-theme="light"] .nuvio-card-name,
+html[data-theme="light"] .nuvio-item-title,
+html[data-theme="light"] .nuvio-section-title,
+html.modern-ui-v3[data-theme="light"] .nuvio-row-title,
+html.modern-ui-v3[data-theme="light"] .nuvio-row-header h3,
+html.modern-ui-v3[data-theme="light"] .nuvio-card-title,
+html.modern-ui-v3[data-theme="light"] .nuvio-card-name,
+html.modern-ui-v3[data-theme="light"] .nuvio-item-title,
+html.modern-ui-v3[data-theme="light"] .nuvio-section-title {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+/* Nuvio Streaming Platforms Rail Tiles in Light Theme (Dark Black Background like Strem) */
+[data-theme="light"] .nuvio-service-tile-btn,
+html[data-theme="light"] .nuvio-service-tile-btn,
+html.modern-ui-v3[data-theme="light"] .nuvio-service-tile-btn {
+  background: #141419 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-theme="light"] .nuvio-service-tile-btn:hover,
+html[data-theme="light"] .nuvio-service-tile-btn:hover,
+html.modern-ui-v3[data-theme="light"] .nuvio-service-tile-btn:hover {
+  background: #1e1e26 !important;
+  border-color: var(--accent-primary, #0066cc) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-theme="light"] .nuvio-service-tile-btn img,
+html[data-theme="light"] .nuvio-service-tile-btn img,
+html.modern-ui-v3[data-theme="light"] .nuvio-service-tile-btn img {
+  filter: brightness(0) invert(1) !important;
+  opacity: 0.9 !important;
+}
+
+
+
+
+
+
 

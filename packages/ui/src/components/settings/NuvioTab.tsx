@@ -744,7 +744,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
   const defaultColors = ['#00d4ff', '#ff007f', '#a020f0', '#00ff7f', '#ffaa00', '#ff0000', '#0088ff', '#ffffff'];
 
   return (
-    <div className="settings-tab-content" style={{ color: '#fff' }}>
+    <div className="settings-tab-content nuvio-settings-tab">
       {/* 1. Header & Dynamic Server Sync Info */}
       <div className="settings-section">
         <h3 style={{ margin: '0 0 8px 0', fontSize: '1rem', fontWeight: 600 }}>Nuvio Integration</h3>
@@ -867,10 +867,10 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               justifyContent: 'space-between'
             }}>
               <div>
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700, letterSpacing: '0.05em' }}>SIGNED IN AS</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'rgba(255,255,255,0.95)' }}>{authStore.user?.email}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, rgba(255,255,255,0.5))', fontWeight: 700, letterSpacing: '0.05em' }}>SIGNED IN AS</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary, rgba(255,255,255,0.95))' }}>{authStore.user?.email}</div>
                 {authStore.lastSyncTime && (
-                  <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)', marginTop: '4px' }}>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted, rgba(255,255,255,0.5))', marginTop: '4px' }}>
                     Synced: {new Date(authStore.lastSyncTime).toLocaleTimeString()}
                   </div>
                 )}

@@ -122,7 +122,7 @@ export function StremTab({
   );
 
   return (
-    <div className="settings-tab-content">
+    <div className="settings-tab-content strem-settings-tab">
       <div className="settings-section">
       <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>
         Strem Playback
