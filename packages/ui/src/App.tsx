@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 const AUTO_SYNC_CHECK_INTERVAL_MS = 10 * 60 * 1000;
 let hasStartupAutoSyncTriggered = false;
 import { invoke } from '@tauri-apps/api/core';
-import type { StremioStream, StremioStreamPickerMode, StremioMeta, BadgeSource, StreamAutoPlayMode, StreamAutoPlaySourceScope } from './types/stremio';
+import type { StremioStream, StremioStreamPickerMode, StremioMeta, StremioVideo, BadgeSource, StreamAutoPlayMode, StreamAutoPlaySourceScope } from './types/stremio';
 import { checkForUpdates, checkForUpdatesSilent } from './services/updater';
 import { getCachedSettings } from './services/settings-cache';
 import { Settings } from './components/Settings';
@@ -113,6 +113,8 @@ import { pushNuvioWatchProgress } from './services/nuvio-api';
 import { SkipIntroButton } from './components/SkipIntroButton';
 import { useSkipIntro } from './hooks/useSkipIntro';
 import { BackButtonOverlay } from './components/BackButtonOverlay';
+import { PlaybackDetailsModal } from './components/PlaybackDetailsModal';
+import type { RecommendationItem } from './hooks/useLazyStremioRecommendations';
 import { DEFAULT_BADGE_SOURCES, mergeDefaultBadgeSources, compileBadgeSources } from './utils/streamBadges';
 
 // NEW: Extracted hooks
@@ -882,6 +884,9 @@ function App() {
 
   // Playback source view state to know where to go back when stopped
   const [playbackSourceView, setPlaybackSourceView] = useState<'movies' | 'series' | 'dvr' | 'stremio' | 'nuvio' | null>(null);
+  const [showPlaybackDetailsModal, setShowPlaybackDetailsModal] = useState(false);
+  const [activeStremioMeta, setActiveStremioMeta] = useState<StremioMeta | null>(null);
+  const [activeStremioEpisode, setActiveStremioEpisode] = useState<StremioVideo | null>(null);
   const isPopoutModeLoadedRef = useRef(false);
 
   const cyclePopoutMode = useCallback(() => {
@@ -1173,6 +1178,41 @@ function formatEpisodeSubtitle(
   }
 
   return code ? `${code} - ${text}` : text;
+}
+
+function cleanEpisodeName(
+  rawInfo?: string | null,
+  seriesTitle?: string | null,
+  episodeNum?: number | null
+): string {
+  if (!rawInfo) return episodeNum ? `Episode ${episodeNum}` : 'Episode 1';
+
+  let text = rawInfo.trim();
+
+  const parts = text.split(/\s*[-·:]\s*/);
+  if (parts.length > 1) {
+    const filtered = parts.filter((part) => {
+      const p = part.trim().toLowerCase();
+      if (seriesTitle && p === seriesTitle.trim().toLowerCase()) return false;
+      if (/^s\d+e\d+$/i.test(p) || /^s\d+\s*e\d+$/i.test(p) || /^\d+x\d+$/i.test(p)) return false;
+      return true;
+    });
+    if (filtered.length > 0) {
+      text = filtered.join(' - ');
+    }
+  }
+
+  text = text.replace(/^(s\d+\s*e\d+|\d+x\d+)\s*[\-–—:\·]?\s*/i, '').trim();
+
+  if (seriesTitle && text.toLowerCase().startsWith(seriesTitle.trim().toLowerCase())) {
+    text = text.slice(seriesTitle.trim().length).replace(/^[\s\-–—:\·]+/, '').trim();
+  }
+
+  if (!text || text.match(/^[\d\s\-–—:]+$/)) {
+    return episodeNum ? `Episode ${episodeNum}` : 'Episode 1';
+  }
+
+  return text;
 }
 
 const tmdbPresencePosterCache = new Map<string, string>();
@@ -1606,6 +1646,9 @@ function useTmdbPresencePoster(
     }
 
     await handleStopRaw();
+    setShowPlaybackDetailsModal(false);
+    setActiveStremioMeta(null);
+    setActiveStremioEpisode(null);
     if (playbackSourceView) {
       setActiveView(playbackSourceView);
       setPlaybackSourceView(null);
@@ -2344,6 +2387,14 @@ function useTmdbPresencePoster(
   }, []);
 
   const handlePlayVodWrapper = useCallback((info: import('./types/media').VodPlayInfo, onCloseView?: () => void, targetMode?: 'embedded' | 'popout' | 'external') => {
+    if (info.source_id !== 'stremio' && info.source_id !== 'nuvio') {
+      stremioMetaRef.current = null;
+      stremioEpisodeVideoRef.current = null;
+      stremioMovieRef.current = null;
+      stremioEpisodeRef.current = null;
+      setActiveStremioMeta(null);
+      setActiveStremioEpisode(null);
+    }
     const effectiveMode = targetMode || info.preferredMode || vodPlayerModeRef.current;
     if (effectiveMode === 'external') {
       handlePlayVodInExternal(info);
@@ -2413,7 +2464,9 @@ function useTmdbPresencePoster(
 
         const isNuvio = !!detail.isNuvio;
         stremioMetaRef.current = meta;
+        setActiveStremioMeta(meta);
         stremioEpisodeVideoRef.current = episodeVideo || null;
+        setActiveStremioEpisode(episodeVideo || null);
         stremioIsNuvioRef.current = isNuvio;
         const watchStore = useStremioWatchStore.getState();
 
@@ -3668,12 +3721,106 @@ function useTmdbPresencePoster(
   // ==========================================================================
   // Render
   // ==========================================================================
+  const isStremioOrNuvio = playbackSourceView === 'stremio' || playbackSourceView === 'nuvio';
+  const currentStremioMeta = isStremioOrNuvio ? (activeStremioMeta || stremioMetaRef.current) : null;
+  const currentStremioEpisode = isStremioOrNuvio ? (activeStremioEpisode || stremioEpisodeVideoRef.current) : null;
+  const isSeriesPlayback = isStremioOrNuvio ? currentStremioMeta?.type === 'series' : vodInfo?.type === 'series';
+
   return (
     <div className={`app${showControls ? '' : ' controls-hidden'}${pipMode ? ' pip-mode' : ''}${!pipMode && sportsOverlayWidget === 'autohide' ? ' has-live-sports-autohide' : ''}${!pipMode && sportsOverlayWidget === 'persistent' ? ' has-live-sports-persistent' : ''}${!pipMode && recentOverlayWidget !== null ? ' has-recent-widget' : ''}${!pipMode && favoritesOverlayWidget ? ' has-favorites-widget' : ''} active-view-${activeView}${guideTransparent ? ' guide-transparent' : ''}`} onMouseMove={handleMouseMovePip}>
       <BackButtonOverlay
         visible={showControls && activeView === 'none' && !pipMode}
         sourceView={playbackSourceView}
         onBack={handleStop}
+        title={
+          isSeriesPlayback
+            ? (isStremioOrNuvio
+                ? cleanEpisodeName(currentStremioEpisode?.title, currentStremioMeta?.name, currentStremioEpisode?.episode)
+                : cleanEpisodeName(vodInfo?.episodeInfo, vodInfo?.title, vodInfo?.episodeNum))
+            : (isStremioOrNuvio ? (currentStremioMeta?.name || 'Now Playing') : (vodInfo?.title || 'Now Playing'))
+        }
+        subtitle={
+          isSeriesPlayback
+            ? (isStremioOrNuvio
+                ? `${currentStremioMeta?.name || 'Series'} · S${currentStremioEpisode?.season || 1} · E${currentStremioEpisode?.episode || 1}`
+                : `${vodInfo?.title || 'Series'} · S${vodInfo?.seasonNum || 1} · E${vodInfo?.episodeNum || 1}`)
+            : (isStremioOrNuvio
+                ? `${currentStremioMeta?.name || ''}${currentStremioMeta?.year ? ` · ${currentStremioMeta.year}` : ''}`
+                : `${vodInfo?.title || ''}${vodInfo?.year ? ` · ${vodInfo.year}` : ''}`)
+        }
+        quality={vodInfo?.addonName || '1080P'}
+        onOpenDetails={() => setShowPlaybackDetailsModal(true)}
+      />
+      <PlaybackDetailsModal
+        open={showPlaybackDetailsModal}
+        onClose={() => setShowPlaybackDetailsModal(false)}
+        playbackSourceView={playbackSourceView}
+        stremioMeta={currentStremioMeta}
+        vodInfo={vodInfo}
+        currentEpisode={currentStremioEpisode}
+        onOpenAppDetails={() => {
+          setShowPlaybackDetailsModal(false);
+          handleStop();
+        }}
+        onPlayEpisode={(video) => {
+          const meta = currentStremioMeta;
+          if (!meta) return;
+          setShowPlaybackDetailsModal(false);
+          window.dispatchEvent(new CustomEvent('ynotv:stremio-play', {
+            detail: {
+              meta,
+              episodeVideo: video,
+              stream: {
+                id: video.id,
+                title: video.title || `Episode ${video.episode}`,
+              },
+              isNuvio: stremioIsNuvioRef.current,
+            },
+          }));
+        }}
+        onPlayVodInfo={(info) => {
+          setShowPlaybackDetailsModal(false);
+          handlePlayVodWrapper(info, () => setActiveView('none'));
+        }}
+        onSelectRecommendation={(item: RecommendationItem) => {
+          setShowPlaybackDetailsModal(false);
+          handleStop();
+          const isStremio = playbackSourceView === 'stremio';
+          const isNuvio = playbackSourceView === 'nuvio';
+
+          if (isStremio || isNuvio) {
+            const isSeries = (currentStremioMeta?.type || vodInfo?.type) === 'series';
+            const newMeta: StremioMeta = {
+              id: `tmdb:${item.id}`,
+              type: isSeries ? 'series' : 'movie',
+              name: item.title,
+              poster: item.posterUrl ?? undefined,
+              year: item.year ? parseInt(item.year, 10) : undefined,
+              imdbRating: item.rating > 0 ? String(item.rating.toFixed(1)) : undefined,
+            };
+            const store = useUIStore.getState();
+            if (isNuvio) {
+              store.nuvioNavigate({ view: 'detail', meta: newMeta as any } as any);
+              setActiveView('nuvio');
+            } else {
+              store.setStremioActiveMeta(newMeta);
+              store.setStremioView('detail');
+              setActiveView('stremio');
+            }
+          } else {
+            const isSeries = vodInfo?.type === 'series' || playbackSourceView === 'series';
+            const store = useUIStore.getState();
+            if (isSeries) {
+              store.setSeriesSearchQuery(item.title);
+              store.setSeriesSelectedItem(null);
+              setActiveView('series');
+            } else {
+              store.setMoviesSearchQuery(item.title);
+              store.setMoviesSelectedItem(null);
+              setActiveView('movies');
+            }
+          }
+        }}
       />
       {/* Premium VOD & Stremio Loading Overlay */}
       {vodLoadingInfo && (

@@ -36,11 +36,13 @@
   transition: opacity 0.2s;
 }
 
-/* Prevent drag on interactive elements inside title bar */
+/* Prevent drag on interactive elements inside title bar & playback header */
 .title-bar button,
 .title-bar input,
-.title-bar .title-bar-search-integrated {
-  -webkit-app-region: no-drag;
+.title-bar .title-bar-search-integrated,
+.playback-header-container,
+.playback-header-container * {
+  -webkit-app-region: no-drag !important;
   user-select: auto;
 }
 

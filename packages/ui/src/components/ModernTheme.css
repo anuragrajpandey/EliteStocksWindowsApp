@@ -3069,7 +3069,7 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 .modern-ui-v3 .sports-hub:not(.with-preview) {
-  background: rgba(255, 255, 255, 0.06) !important;
+  background: var(--bg-primary, #0b131e) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
 }
@@ -4508,12 +4508,24 @@ html.modern-ui-v3[data-theme] .guide-info-pane,
 html.modern-ui-v3[data-theme] .vertical-sidebar,
 html.modern-ui-v3[data-theme] .vod-page__content,
 html.modern-ui-v3[data-theme] .dvr-dashboard,
-html.modern-ui-v3[data-theme] .sports-hub:not(.with-preview),
 html.modern-ui-v3[data-theme] .stremio-page,
 html.modern-ui-v3[data-theme] .nuvio-page,
 html.modern-ui-v3[data-theme] .tvcp-page {
   background: rgba(255, 255, 255, 0.06) !important;
   background-attachment: scroll !important; /* reset from fixed */
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
+}
+
+html.modern-ui-v3[data-theme] .sports-hub:not(.with-preview) {
+  background: var(--bg-primary, #0b131e) !important;
+  background-attachment: scroll !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -5264,6 +5276,10 @@ html.modern-ui-v3[data-theme="light"] .stremio-detail-right {
     inset 0 1px 0 rgba(255, 255, 255, 0.6),
     0 8px 32px rgba(0, 0, 0, 0.08),
     0 2px 8px rgba(0, 0, 0, 0.02) !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .sports-hub:not(.with-preview) {
+  background: #f1f5f9 !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .title-bar {
