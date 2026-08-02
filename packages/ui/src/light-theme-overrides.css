@@ -1751,3 +1751,421 @@
 [data-theme="light"] .guide-search-query {
   color: #64748b !important;
 }
+
+/* ==================== CUSTOM GROUP MANAGER & CATEGORY MANAGER ==================== */
+
+/* Modals */
+[data-theme="light"] .custom-group-manager-modal,
+[data-theme="light"] .category-manager-modal,
+[data-theme="light"] .failover-group-list-modal,
+html[data-theme="light"] .custom-group-manager-modal,
+html[data-theme="light"] .category-manager-modal,
+html[data-theme="light"] .failover-group-list-modal,
+html.modern-ui-v3[data-theme="light"] .custom-group-manager-modal,
+html.modern-ui-v3[data-theme="light"] .category-manager-modal,
+html.modern-ui-v3[data-theme="light"] .failover-group-list-modal {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Modal Headers */
+[data-theme="light"] .custom-group-manager-header,
+[data-theme="light"] .category-manager-header,
+[data-theme="light"] .failover-group-list-header,
+html[data-theme="light"] .custom-group-manager-header,
+html[data-theme="light"] .category-manager-header,
+html[data-theme="light"] .failover-group-list-header,
+html.modern-ui-v3[data-theme="light"] .custom-group-manager-header,
+html.modern-ui-v3[data-theme="light"] .category-manager-header,
+html.modern-ui-v3[data-theme="light"] .failover-group-list-header {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .custom-group-manager-header h2,
+[data-theme="light"] .category-manager-header h2,
+[data-theme="light"] .cgm-title-row h2,
+[data-theme="light"] .failover-group-list-header h2,
+html[data-theme="light"] .custom-group-manager-header h2,
+html[data-theme="light"] .category-manager-header h2,
+html[data-theme="light"] .cgm-title-row h2,
+html[data-theme="light"] .failover-group-list-header h2,
+html.modern-ui-v3[data-theme="light"] .custom-group-manager-header h2,
+html.modern-ui-v3[data-theme="light"] .category-manager-header h2,
+html.modern-ui-v3[data-theme="light"] .cgm-title-row h2,
+html.modern-ui-v3[data-theme="light"] .failover-group-list-header h2 {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .custom-group-manager-header .close-btn,
+[data-theme="light"] .category-manager-header .close-btn,
+[data-theme="light"] .failover-group-list-header .close-btn,
+html[data-theme="light"] .custom-group-manager-header .close-btn,
+html[data-theme="light"] .category-manager-header .close-btn,
+html[data-theme="light"] .failover-group-list-header .close-btn,
+html.modern-ui-v3[data-theme="light"] .custom-group-manager-header .close-btn,
+html.modern-ui-v3[data-theme="light"] .category-manager-header .close-btn,
+html.modern-ui-v3[data-theme="light"] .failover-group-list-header .close-btn {
+  color: #334155 !important;
+  background: transparent !important;
+}
+
+[data-theme="light"] .custom-group-manager-header .close-btn:hover,
+[data-theme="light"] .category-manager-header .close-btn:hover,
+[data-theme="light"] .failover-group-list-header .close-btn:hover,
+html[data-theme="light"] .custom-group-manager-header .close-btn:hover,
+html[data-theme="light"] .category-manager-header .close-btn:hover,
+html[data-theme="light"] .failover-group-list-header .close-btn:hover,
+html.modern-ui-v3[data-theme="light"] .custom-group-manager-header .close-btn:hover,
+html.modern-ui-v3[data-theme="light"] .category-manager-header .close-btn:hover,
+html.modern-ui-v3[data-theme="light"] .failover-group-list-header .close-btn:hover {
+  background: #e2e8f0 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .cgm-rename-btn {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .cgm-rename-btn:hover {
+  background: #e2e8f0 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .cgm-rename-input {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: var(--accent-primary, #0066cc) !important;
+}
+
+/* Custom Group Manager Split Panes */
+[data-theme="light"] .group-channels-pane,
+html[data-theme="light"] .group-channels-pane,
+html.modern-ui-v3[data-theme="light"] .group-channels-pane {
+  background: #f8fafc !important;
+  border-right: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .source-selector-pane,
+html[data-theme="light"] .source-selector-pane,
+html.modern-ui-v3[data-theme="light"] .source-selector-pane {
+  background: #ffffff !important;
+}
+
+[data-theme="light"] .pane-header,
+html[data-theme="light"] .pane-header,
+html.modern-ui-v3[data-theme="light"] .pane-header {
+  background: #f1f5f9 !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .cgm-display-source-label {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .cgm-display-source-label input[type="checkbox"] {
+  accent-color: var(--accent-primary, #0066cc) !important;
+}
+
+[data-theme="light"] .group-channel-item,
+html[data-theme="light"] .group-channel-item,
+html.modern-ui-v3[data-theme="light"] .group-channel-item {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .group-channel-item:hover,
+html[data-theme="light"] .group-channel-item:hover,
+html.modern-ui-v3[data-theme="light"] .group-channel-item:hover {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .group-channel-item .drag-handle {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .group-channel-item:hover .drag-handle {
+  color: #000000 !important;
+}
+
+[data-theme="light"] .cgm-ch-name {
+  color: #000000 !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="light"] .cgm-ch-source {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .remove-btn {
+  color: #dc2626 !important;
+}
+
+/* Right Pane Search */
+[data-theme="light"] .search-bar {
+  border-bottom: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+}
+
+[data-theme="light"] .search-bar input {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .search-bar input::placeholder {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .search-bar input:focus {
+  border-color: var(--accent-primary, #0066cc) !important;
+  background: #ffffff !important;
+}
+
+/* Tree View - Category & Source Nodes in Custom Group Manager */
+[data-theme="light"] .tree-node-header,
+html[data-theme="light"] .tree-node-header,
+html.modern-ui-v3[data-theme="light"] .tree-node-header {
+  color: #000000 !important;
+}
+
+[data-theme="light"] .tree-node-header:hover,
+html[data-theme="light"] .tree-node-header:hover,
+html.modern-ui-v3[data-theme="light"] .tree-node-header:hover {
+  background: #f1f5f9 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .source-node,
+[data-theme="light"] .source-node span,
+[data-theme="light"] .source-wrapper > .tree-node-header,
+html[data-theme="light"] .source-node,
+html[data-theme="light"] .source-node span,
+html[data-theme="light"] .source-wrapper > .tree-node-header,
+html.modern-ui-v3[data-theme="light"] .source-node,
+html.modern-ui-v3[data-theme="light"] .source-node span,
+html.modern-ui-v3[data-theme="light"] .source-wrapper > .tree-node-header {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .category-node,
+[data-theme="light"] .category-node span,
+[data-theme="light"] .category-wrapper > .tree-node-header,
+html[data-theme="light"] .category-node,
+html[data-theme="light"] .category-node span,
+html[data-theme="light"] .category-wrapper > .tree-node-header,
+html.modern-ui-v3[data-theme="light"] .category-node,
+html.modern-ui-v3[data-theme="light"] .category-node span,
+html.modern-ui-v3[data-theme="light"] .category-wrapper > .tree-node-header {
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .node-icon {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+[data-theme="light"] .channel-node,
+[data-theme="light"] .channel-node-label,
+html[data-theme="light"] .channel-node,
+html[data-theme="light"] .channel-node-label,
+html.modern-ui-v3[data-theme="light"] .channel-node,
+html.modern-ui-v3[data-theme="light"] .channel-node-label {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .channel-node:hover,
+html[data-theme="light"] .channel-node:hover,
+html.modern-ui-v3[data-theme="light"] .channel-node:hover {
+  background: #f1f5f9 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .channel-node.in-group,
+html[data-theme="light"] .channel-node.in-group,
+html.modern-ui-v3[data-theme="light"] .channel-node.in-group {
+  color: var(--accent-primary, #0066cc) !important;
+  background: rgba(0, 102, 204, 0.08) !important;
+}
+
+[data-theme="light"] .channel-node.in-group .channel-node-label,
+html[data-theme="light"] .channel-node.in-group .channel-node-label,
+html.modern-ui-v3[data-theme="light"] .channel-node.in-group .channel-node-label {
+  color: var(--accent-primary, #0066cc) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .cgm-check {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .in-group .cgm-check {
+  color: var(--accent-primary, #0066cc) !important;
+}
+
+[data-theme="light"] .cgm-count {
+  color: #64748b !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .cgm-empty {
+  color: #64748b !important;
+}
+
+/* Custom Group Manager Footer */
+[data-theme="light"] .custom-group-manager-footer,
+[data-theme="light"] .failover-group-list-footer,
+html[data-theme="light"] .custom-group-manager-footer,
+html[data-theme="light"] .failover-group-list-footer,
+html.modern-ui-v3[data-theme="light"] .custom-group-manager-footer,
+html.modern-ui-v3[data-theme="light"] .failover-group-list-footer {
+  background: #f8fafc !important;
+  border-top: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .cgm-footer-hint {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .close-done-btn {
+  background: var(--accent-primary, #0066cc) !important;
+  color: #ffffff !important;
+}
+
+/* Category Manager Modal Specifics */
+[data-theme="light"] .category-manager-stats,
+html[data-theme="light"] .category-manager-stats,
+html.modern-ui-v3[data-theme="light"] .category-manager-stats {
+  color: #475569 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .category-manager-actions,
+html[data-theme="light"] .category-manager-actions,
+html.modern-ui-v3[data-theme="light"] .category-manager-actions {
+  border-bottom: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .category-manager-actions button,
+html[data-theme="light"] .category-manager-actions button,
+html.modern-ui-v3[data-theme="light"] .category-manager-actions button {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="light"] .category-manager-actions button:hover,
+html[data-theme="light"] .category-manager-actions button:hover,
+html.modern-ui-v3[data-theme="light"] .category-manager-actions button:hover {
+  background: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .category-search,
+html[data-theme="light"] .category-search,
+html.modern-ui-v3[data-theme="light"] .category-search {
+  border-bottom: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .category-search input,
+html[data-theme="light"] .category-search input,
+html.modern-ui-v3[data-theme="light"] .category-search input {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .category-search input::placeholder,
+html[data-theme="light"] .category-search input::placeholder,
+html.modern-ui-v3[data-theme="light"] .category-search input::placeholder {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .category-manager-modal .category-item,
+html[data-theme="light"] .category-manager-modal .category-item,
+html.modern-ui-v3[data-theme="light"] .category-manager-modal .category-item {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .category-manager-modal .category-item:hover,
+html[data-theme="light"] .category-manager-modal .category-item:hover,
+html.modern-ui-v3[data-theme="light"] .category-manager-modal .category-item:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .category-manager-modal .category-name,
+html[data-theme="light"] .category-manager-modal .category-name,
+html.modern-ui-v3[data-theme="light"] .category-manager-modal .category-name {
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .category-manager-modal .drag-handle,
+html[data-theme="light"] .category-manager-modal .drag-handle,
+html.modern-ui-v3[data-theme="light"] .category-manager-modal .drag-handle {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .category-manager-modal .drag-handle:hover,
+html[data-theme="light"] .category-manager-modal .drag-handle:hover,
+html.modern-ui-v3[data-theme="light"] .category-manager-modal .drag-handle:hover {
+  color: #000000 !important;
+}
+
+[data-theme="light"] .category-manager-modal .order-btn,
+html[data-theme="light"] .category-manager-modal .order-btn,
+html.modern-ui-v3[data-theme="light"] .category-manager-modal .order-btn {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+[data-theme="light"] .category-manager-modal .order-btn:hover:not(:disabled),
+html[data-theme="light"] .category-manager-modal .order-btn:hover:not(:disabled),
+html.modern-ui-v3[data-theme="light"] .category-manager-modal .order-btn:hover:not(:disabled) {
+  background: #e2e8f0 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .category-manager-footer,
+html[data-theme="light"] .category-manager-footer,
+html.modern-ui-v3[data-theme="light"] .category-manager-footer {
+  background: #f8fafc !important;
+  border-top: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .category-manager-footer .cancel-btn,
+html[data-theme="light"] .category-manager-footer .cancel-btn,
+html.modern-ui-v3[data-theme="light"] .category-manager-footer .cancel-btn {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+[data-theme="light"] .category-manager-footer .cancel-btn:hover,
+html[data-theme="light"] .category-manager-footer .cancel-btn:hover,
+html.modern-ui-v3[data-theme="light"] .category-manager-footer .cancel-btn:hover {
+  background: #e2e8f0 !important;
+  color: #000000 !important;
+}
+

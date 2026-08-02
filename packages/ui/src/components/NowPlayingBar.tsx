@@ -779,7 +779,7 @@ export function NowPlayingBar({
                   </button>
                 )}
 
-                {onToggleTransparentGuide && (
+                {!isVod && !vodInfo && onToggleTransparentGuide && (
                   <button
                     className={`npb-clean-btn${guideTransparent ? ' active' : ''}`}
                     onClick={onToggleTransparentGuide}

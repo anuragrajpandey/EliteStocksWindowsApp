@@ -43,48 +43,6 @@ function RailWithControls({
     <div className="playback-details-rail-section">
       <div className="playback-details-rail-header">
         <h3 className="playback-details-rail-title">{title}</h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <button
-            type="button"
-            className="playback-details-rail-btn"
-            onClick={() => handleScroll('left')}
-            title="Scroll left"
-            aria-label="Scroll left"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            className="playback-details-rail-btn"
-            onClick={() => handleScroll('right')}
-            title="Scroll right"
-            aria-label="Scroll right"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </button>
-        </div>
       </div>
       <div className="playback-details-rail-wrapper">
         <button

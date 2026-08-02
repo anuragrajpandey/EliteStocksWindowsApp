@@ -113,6 +113,19 @@
   max-width: 280px;
 }
 
+.playback-header__source-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: rgba(99, 102, 241, 0.35);
+  color: #ffffff;
+  padding: 1.5px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  white-space: nowrap;
+}
+
 .playback-header__quality-badge {
   font-size: 10px;
   font-weight: 800;

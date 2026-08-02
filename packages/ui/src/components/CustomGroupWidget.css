@@ -43,7 +43,7 @@
   pointer-events: auto;
 }
 
-.group-channel-item {
+.custom-group-widget .group-channel-item {
   padding: 5px 8px;
   cursor: pointer;
   color: rgba(255, 255, 255, 0.85);
@@ -61,12 +61,12 @@
   flex-shrink: 0;
 }
 
-.group-channel-item:hover {
+.custom-group-widget .group-channel-item:hover {
   background: rgba(139, 92, 246, 0.15);
   color: #a78bfa;
 }
 
-.group-channel-item:active {
+.custom-group-widget .group-channel-item:active {
   background: rgba(139, 92, 246, 0.25);
 }
 

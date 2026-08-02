@@ -229,12 +229,16 @@ export function HeroSection({
         )}
 
         <div className="hero__actions">
-          <SplitPlayButton
-            currentMode={vodPlayerMode}
-            onSelectMode={onSelectVodPlayerMode}
-            onPlay={(targetMode) => currentItem && onPlay?.(currentItem, targetMode)}
-            size="large"
-          />
+          <button
+            type="button"
+            className="hero__btn--play"
+            onClick={() => currentItem && onPlay?.(currentItem)}
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            <span>Play</span>
+          </button>
         </div>
       </div>
 

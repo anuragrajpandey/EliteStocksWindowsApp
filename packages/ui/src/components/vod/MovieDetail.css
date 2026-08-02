@@ -293,17 +293,22 @@
 /* Actions */
 .movie-detail__actions {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 24px;
 }
 
 .movie-detail__btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 10px 22px;
+  padding: 10px 20px;
   font-size: 0.95rem;
   font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 9999px;
   cursor: pointer;

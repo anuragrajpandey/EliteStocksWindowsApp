@@ -7,6 +7,7 @@ interface BackButtonOverlayProps {
   title?: string | null;
   subtitle?: string | null;
   quality?: string | null;
+  sourceName?: string | null;
   onOpenDetails?: () => void;
 }
 

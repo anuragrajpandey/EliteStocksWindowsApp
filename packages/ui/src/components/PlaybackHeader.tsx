@@ -7,6 +7,7 @@ export interface PlaybackHeaderProps {
   title?: string | null;
   subtitle?: string | null;
   quality?: string | null;
+  sourceName?: string | null;
   onBack: () => void;
   onOpenDetails?: () => void;
 }
@@ -17,6 +18,7 @@ export function PlaybackHeader({
   title,
   subtitle,
   quality = '1080P',
+  sourceName,
   onBack,
   onOpenDetails,
 }: PlaybackHeaderProps) {
@@ -74,6 +76,11 @@ export function PlaybackHeader({
           <div className="playback-header__info-content">
             <div className="playback-header__top-row">
               <span className="playback-header__title">{displayTitle}</span>
+              {sourceName && (
+                <span className="playback-header__source-badge">
+                  {sourceName}
+                </span>
+              )}
               {displayQuality && (
                 <span className="playback-header__quality-badge">
                   {displayQuality}

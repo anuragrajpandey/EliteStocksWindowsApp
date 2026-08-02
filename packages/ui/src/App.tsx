@@ -39,7 +39,7 @@ import { useSearchHistory } from './hooks/useSearchHistory';
 import { RecordingIndicator } from './components/RecordingIndicator';
 import { DownloadIndicator } from './components/DownloadIndicator';
 import { Logo } from './components/Logo';
-import { useSelectedCategory, useChannelSearch, useProgramSearch, useChannels, useCurrentProgram } from './hooks/useChannels';
+import { useSelectedCategory, useChannelSearch, useProgramSearch, useChannels, useCurrentProgram, useSourceNameMap } from './hooks/useChannels';
 import { useActiveTmdbToken } from './hooks/useTmdbLists';
 import { getTmdbImageUrl, searchMovies, searchTvShows, getMovieDetails, getTvShowDetails } from './services/tmdb';
 import { cleanTitleForSearch } from './utils/cleanTitle';
@@ -3726,6 +3726,19 @@ function useTmdbPresencePoster(
   const currentStremioEpisode = isStremioOrNuvio ? (activeStremioEpisode || stremioEpisodeVideoRef.current) : null;
   const isSeriesPlayback = isStremioOrNuvio ? currentStremioMeta?.type === 'series' : vodInfo?.type === 'series';
 
+  const sourceNameMap = useSourceNameMap();
+  const headerSourceName = useMemo(() => {
+    if (!vodShowSourceBadge) return null;
+    if (vodInfo?.source_id && sourceNameMap) {
+      const found = sourceNameMap.get(vodInfo.source_id);
+      if (found) return found;
+    }
+    if (vodInfo?.addonName) return vodInfo.addonName;
+    if (playbackSourceView === 'nuvio') return 'Nuvio';
+    if (playbackSourceView === 'stremio') return 'Stremio';
+    return null;
+  }, [vodShowSourceBadge, vodInfo, sourceNameMap, playbackSourceView]);
+
   return (
     <div className={`app${showControls ? '' : ' controls-hidden'}${pipMode ? ' pip-mode' : ''}${!pipMode && sportsOverlayWidget === 'autohide' ? ' has-live-sports-autohide' : ''}${!pipMode && sportsOverlayWidget === 'persistent' ? ' has-live-sports-persistent' : ''}${!pipMode && recentOverlayWidget !== null ? ' has-recent-widget' : ''}${!pipMode && favoritesOverlayWidget ? ' has-favorites-widget' : ''} active-view-${activeView}${guideTransparent ? ' guide-transparent' : ''}`} onMouseMove={handleMouseMovePip}>
       <BackButtonOverlay
@@ -3749,6 +3762,7 @@ function useTmdbPresencePoster(
                 : `${vodInfo?.title || ''}${vodInfo?.year ? ` · ${vodInfo.year}` : ''}`)
         }
         quality={vodInfo?.addonName || '1080P'}
+        sourceName={headerSourceName}
         onOpenDetails={() => setShowPlaybackDetailsModal(true)}
       />
       <PlaybackDetailsModal
@@ -4494,7 +4508,15 @@ function useTmdbPresencePoster(
         channelInfoOverlayEnabled={channelInfoOverlayEnabled}
         playerControlDesign={playerControlDesign}
         showVolumePercent={showVolumePercent}
-        onToggleTransparentGuide={handleToggleTransparentGuide}
+        onToggleTransparentGuide={
+          playbackSourceView === 'movies' ||
+          playbackSourceView === 'series' ||
+          playbackSourceView === 'stremio' ||
+          playbackSourceView === 'nuvio' ||
+          vodInfo != null
+            ? undefined
+            : handleToggleTransparentGuide
+        }
         guideTransparent={guideTransparent}
         onTogglePlay={handleTogglePlay}
         onStop={handleStop}
@@ -4884,7 +4906,15 @@ function useTmdbPresencePoster(
         onTogglePip={handlePipFromPreview}
         playerControlDesign={playerControlDesign}
         showVolumePercent={showVolumePercent}
-        onToggleTransparentGuide={handleToggleTransparentGuide}
+        onToggleTransparentGuide={
+          playbackSourceView === 'movies' ||
+          playbackSourceView === 'series' ||
+          playbackSourceView === 'stremio' ||
+          playbackSourceView === 'nuvio' ||
+          vodInfo != null
+            ? undefined
+            : handleToggleTransparentGuide
+        }
       />
 
       {/* Settings Panel - as popup overlay in main layout, or full view in multiview */}

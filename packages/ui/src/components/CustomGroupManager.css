@@ -192,8 +192,9 @@
     margin-bottom: 3px;
     background: rgba(255, 255, 255, 0.04);
     border-radius: 7px;
-    display: flex;
-    align-items: center;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
     gap: 8px;
     border: 1px solid transparent;
     transition: background 0.15s, border-color 0.15s;
