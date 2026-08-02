@@ -2463,6 +2463,50 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
   background: color-mix(in srgb, var(--accent-primary, #e50914) 15%, rgb(12, 14, 24)) !important;
 }
 
+.modern-ui-v3 .category-folder-header {
+  width: 100% !important;
+  height: 34px !important;
+  box-sizing: border-box !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: none !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+.modern-ui-v3 .category-folder-header:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #fff !important;
+}
+
+.modern-ui-v3 .category-folder-header.is-pinned {
+  position: sticky !important;
+  z-index: 96 !important;
+  background: rgba(12, 14, 24, 0.98) !important;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.25) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.modern-ui-v3 .category-folder-header.is-pinned:hover {
+  background: rgba(25, 27, 44, 0.98) !important;
+  color: #fff !important;
+}
+
+.modern-ui-v3 .category-folder-group.is-expanded .category-folder-header {
+  position: sticky !important;
+  top: 40px !important;
+  z-index: 95 !important;
+  background: rgba(12, 14, 24, 0.98) !important;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.2) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.modern-ui-v3 .category-folder-group.is-expanded .category-folder-header:hover {
+  background: rgba(25, 27, 44, 0.98) !important;
+  color: #fff !important;
+}
+
 /* 8c. LiveTV source headers match VOD sidebar source header styling in V3 */
 .modern-ui-v3 .category-strip .category-source-group {
   margin: 0 !important;

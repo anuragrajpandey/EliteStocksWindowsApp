@@ -732,9 +732,13 @@
 
 .category-item.nested.is-pinned {
   position: sticky !important;
-  z-index: 99;
+  z-index: 90;
   background: rgba(20, 20, 25, 0.98);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.category-item.nested.folder-nested.is-pinned {
+  z-index: 90 !important;
 }
 
 .category-item.nested.is-pinned.selected {
@@ -744,6 +748,7 @@
 /* Category Folders in Sidebar */
 .category-folder-group {
   margin: 1px 0;
+  position: relative;
 }
 
 .category-folder-header {
@@ -761,7 +766,34 @@
   font-weight: 500;
   cursor: pointer;
   text-align: left;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* Sticky folder header when expanded or pinned */
+.category-folder-header.is-pinned {
+  position: sticky !important;
+  z-index: 96;
+  background: rgba(18, 18, 24, 0.98);
+  border-bottom: 1px solid var(--accent-primary-transparent, rgba(0, 212, 255, 0.2));
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+}
+
+.category-folder-header.is-pinned:hover {
+  background: var(--surface-hover, rgba(28, 28, 38, 0.98));
+  color: var(--text-primary, #fff);
+}
+
+.category-folder-group.is-expanded .category-folder-header {
+  background: rgba(18, 18, 24, 0.98);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+}
+
+.category-folder-group.is-expanded .category-folder-header:hover {
+  background: rgba(28, 28, 38, 0.98);
+  color: #fff;
 }
 
 .category-folder-header:hover {

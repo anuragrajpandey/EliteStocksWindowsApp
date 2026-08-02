@@ -541,7 +541,9 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
 
                       {isExpanded && (() => {
                         const targetPlaylistId = source.id.startsWith('playlist:') ? source.id.replace('playlist:', '') : source.id;
-                        const sourceFolders = categoryFolders.filter(f => f.playlist_id === targetPlaylistId);
+                        const sourceFolders = categoryFolders
+                          .filter(f => f.playlist_id === targetPlaylistId)
+                          .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
 
                         const renderCatItem = (cat: StoredCategory) => {
                           const isCatSelected = selectedCategoryIds.has(cat.category_id);

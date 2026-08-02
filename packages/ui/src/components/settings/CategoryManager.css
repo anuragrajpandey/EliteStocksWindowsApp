@@ -428,6 +428,17 @@
   border-radius: 8px;
   margin-bottom: 12px;
   overflow: hidden;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.cm-folder-card.dragging {
+  opacity: 0.5;
+  border-color: var(--accent-primary, #00d4ff);
+}
+
+.cm-folder-card.drag-over {
+  border: 2px dashed var(--accent-primary, #00d4ff);
+  background: rgba(0, 212, 255, 0.12);
 }
 
 .cm-folder-card-header {
@@ -435,8 +446,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: rgba(0, 212, 255, 0.06);
-  border-bottom: 1px solid rgba(0, 212, 255, 0.12);
+  background: var(--surface-hover, rgba(0, 212, 255, 0.06));
+  border-bottom: var(--glass-border, 1px solid rgba(0, 212, 255, 0.12));
 }
 
 .cm-folder-header-left {
@@ -445,7 +456,27 @@
   gap: 6px;
   font-weight: 600;
   font-size: 0.88rem;
-  color: #fff;
+  color: var(--text-primary, #fff);
+}
+
+.cm-folder-expand-btn {
+  background: var(--surface-hover, rgba(255, 255, 255, 0.08));
+  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.15));
+  border-radius: 4px;
+  color: var(--text-primary, #fff);
+  cursor: pointer;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 6px;
+  transition: all 0.15s ease;
+}
+
+.cm-folder-expand-btn:hover {
+  background: var(--accent-primary-transparent, rgba(0, 212, 255, 0.15));
+  color: var(--accent-primary, #00d4ff);
 }
 
 .cm-folder-header-actions {
@@ -457,7 +488,7 @@
 .cm-folder-icon-btn {
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
   cursor: pointer;
   padding: 2px 4px;
   border-radius: 4px;
@@ -465,13 +496,19 @@
 }
 
 .cm-folder-icon-btn:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary, #fff);
+  background: var(--surface-hover, rgba(255, 255, 255, 0.1));
 }
 
 .cm-folder-icon-btn.delete:hover {
   color: #ff4b4b;
   background: rgba(255, 75, 75, 0.15);
+}
+
+.cm-modal-subtext {
+  font-size: 0.82rem;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+  line-height: 1.4;
 }
 
 .cm-folder-card-body {

@@ -371,5 +371,19 @@ export async function assignCategoryToFolder(
   } else {
     await db.categories.update(String(id), { folder_id: folderId || null as any });
   }
+  const { dbEvents } = await import('../db/sqlite-adapter');
+  dbEvents.notify('categories', 'update');
+  dbEvents.notify('playlist_category_links', 'update');
 }
 
+export async function reorderCategoryFolders(folderOrders: Array<{ folderId: string; displayOrder: number }>): Promise<void> {
+  const dbInstance = await (db as any).dbPromise;
+  for (const item of folderOrders) {
+    await dbInstance.execute(
+      `UPDATE category_folders SET display_order = $1 WHERE folder_id = $2`,
+      [item.displayOrder, item.folderId]
+    );
+  }
+  const { dbEvents } = await import('../db/sqlite-adapter');
+  dbEvents.notify('category_folders', 'update');
+}

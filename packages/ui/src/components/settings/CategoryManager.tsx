@@ -4,14 +4,40 @@ import { useLiveQuery } from '../../hooks/useSqliteLiveQuery';
 import { db, type StoredCategory, updateCategoriesBatch, type CategoryFolder } from '../../db';
 import { useCategorySortOrder } from '../../stores/uiStore';
 import { isCategorySortCustomized, setCategorySortCustomized } from '../../utils/categorySortOverrides';
-import { createCategoryFolder, renameCategoryFolder, deleteCategoryFolder } from '../../services/playlist-editor';
+import { createCategoryFolder, renameCategoryFolder, deleteCategoryFolder, reorderCategoryFolders } from '../../services/playlist-editor';
 import { ChannelManager } from './ChannelManager';
 import './CategoryManager.css';
 
-const FolderIcon = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }}>
-    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-  </svg>
+const FolderIcon = ({ size = 16 }: { size?: number }) => (
+    <svg 
+        width={size} 
+        height={size} 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2.5" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+        style={{ display: 'inline-block', verticalAlign: 'middle' }}
+    >
+        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+    </svg>
+);
+
+const PencilIcon = ({ size = 14 }: { size?: number }) => (
+    <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ display: 'inline-block', verticalAlign: 'middle' }}
+    >
+        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+    </svg>
 );
 
 interface CategoryManagerProps {
@@ -33,6 +59,14 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
     const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
     const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
+    const [isCreateOnlyModalOpen, setIsCreateOnlyModalOpen] = useState(false);
+    const [createOnlyFolderName, setCreateOnlyFolderName] = useState('');
+    const [bulkFolderTarget, setBulkFolderTarget] = useState<CategoryFolder | null>(null);
+    const [bulkLeftSearch, setBulkLeftSearch] = useState('');
+    const [bulkRightSearch, setBulkRightSearch] = useState('');
+    const [renamingFolder, setRenamingFolder] = useState<CategoryFolder | null>(null);
+    const [renameInput, setRenameInput] = useState('');
+    const [deletingFolderTarget, setDeletingFolderTarget] = useState<CategoryFolder | null>(null);
     const isSavingRef = useRef(false);
     const [selectToMoveMode, setSelectToMoveMode] = useState<'inactive' | 'selecting' | 'ready'>('inactive');
     const [selectedForMove, setSelectedForMove] = useState<Set<string>>(new Set());
@@ -304,6 +338,58 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
         setDragOverIdx(null);
     }, []);
 
+    // Folder Pointer Drag Handlers
+    const folderDragFromIdx = useRef<number | null>(null);
+    const [folderDragOverIdx, setFolderDragOverIdx] = useState<number | null>(null);
+
+    const handleFolderPointerDown = useCallback((e: React.PointerEvent, index: number) => {
+        if (e.button !== 0) return;
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+        folderDragFromIdx.current = index;
+        setFolderDragOverIdx(index);
+    }, []);
+
+    const handleFolderPointerMove = useCallback((e: React.PointerEvent) => {
+        if (folderDragFromIdx.current === null) return;
+        e.preventDefault();
+        const container = listRef.current;
+        if (!container) return;
+        const folderCards = Array.from(container.querySelectorAll('.cm-folder-card')) as HTMLElement[];
+        if (folderCards.length === 0) return;
+
+        let closestIdx = 0;
+        let minDistance = Infinity;
+
+        folderCards.forEach((card: HTMLElement, idx: number) => {
+            const rect = card.getBoundingClientRect();
+            const midY = rect.top + rect.height / 2;
+            const dist = Math.abs(e.clientY - midY);
+            if (dist < minDistance) {
+                minDistance = dist;
+                closestIdx = idx;
+            }
+        });
+
+        setFolderDragOverIdx(closestIdx);
+    }, []);
+
+    const handleFolderPointerUp = useCallback(async (e: React.PointerEvent, sortedFolders: CategoryFolder[]) => {
+        if (folderDragFromIdx.current === null) return;
+        const from = folderDragFromIdx.current;
+        const to = folderDragOverIdx;
+        folderDragFromIdx.current = null;
+        setFolderDragOverIdx(null);
+
+        if (to === null || from === to) return;
+
+        const newFolders = [...sortedFolders];
+        const [moved] = newFolders.splice(from, 1);
+        newFolders.splice(to, 0, moved);
+
+        const updates = newFolders.map((f, idx) => ({ folderId: f.folder_id, displayOrder: idx }));
+        await reorderCategoryFolders(updates);
+    }, [folderDragOverIdx]);
+
     // Get visible categories based on filter and search
     const visibleCategories = useMemo(() => {
         let filtered = categories;
@@ -547,20 +633,15 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                     </button>
 
                     <button
-                        onClick={() => setIsFolderModalOpen(true)}
+                        onClick={() => {
+                            setCreateOnlyFolderName('');
+                            setIsCreateOnlyModalOpen(true);
+                        }}
                         style={{ color: 'var(--accent-primary, #00d4ff)', borderColor: 'rgba(0,212,255,0.3)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                        title="Create a new category folder in this source."
                     >
-                        <FolderIcon size={14} /> + Folder
+                        <FolderIcon size={14} /> + Create Folder
                     </button>
-
-                    {selectedForMove.size > 0 && (
-                        <button
-                            className="cm-move-folder-btn"
-                            onClick={() => setIsFolderModalOpen(true)}
-                        >
-                            <FolderIcon size={14} /> Move Selected to Folder ({selectedForMove.size})
-                        </button>
-                    )}
 
                     {selectToMoveMode !== 'inactive' && (
                         <button
@@ -714,50 +795,109 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                         };
 
                         if (categoryFolders && categoryFolders.length > 0) {
+                            const sortedCategoryFolders = [...categoryFolders].sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
                             const rootCategories = visibleCategories.filter(c => !c.folderId || !categoryFolders.some((f: CategoryFolder) => f.folder_id === c.folderId));
 
                             return (
                                 <>
-                                    {categoryFolders.map((folder: CategoryFolder) => {
+                                    {sortedCategoryFolders.map((folder: CategoryFolder, folderIndex: number) => {
                                         const folderCategories = visibleCategories.filter(c => c.folderId === folder.folder_id);
                                         const isCollapsed = !!collapsedFolders[folder.folder_id];
+                                        const isFolderDragging = folderDragFromIdx.current === folderIndex;
+                                        const isFolderDragOver = folderDragOverIdx === folderIndex && folderDragFromIdx.current !== null && folderDragFromIdx.current !== folderIndex;
 
                                         return (
-                                            <div key={folder.folder_id} className="cm-folder-card">
-                                                <div className="cm-folder-card-header">
+                                            <div key={folder.folder_id} className={`cm-folder-card ${isFolderDragging ? 'dragging' : ''} ${isFolderDragOver ? 'drag-over' : ''}`}>
+                                                <div
+                                                    className="cm-folder-card-header"
+                                                    onClick={() => setCollapsedFolders(prev => ({ ...prev, [folder.folder_id]: !prev[folder.folder_id] }))}
+                                                    style={{ cursor: 'pointer' }}
+                                                >
                                                     <div className="cm-folder-header-left">
-                                                        <button
-                                                            className="order-btn"
-                                                            onClick={() => setCollapsedFolders(prev => ({ ...prev, [folder.folder_id]: !prev[folder.folder_id] }))}
-                                                            style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '0 4px' }}
+                                                        <span
+                                                            className="drag-handle"
+                                                            title="Drag to reorder folder"
+                                                            style={{ cursor: 'grab', opacity: 0.6, fontSize: '0.9rem', padding: '0 4px', userSelect: 'none', touchAction: 'none' }}
+                                                            onPointerDown={(e) => {
+                                                                e.stopPropagation();
+                                                                handleFolderPointerDown(e, folderIndex);
+                                                            }}
+                                                            onPointerMove={(e) => handleFolderPointerMove(e)}
+                                                            onPointerUp={(e) => handleFolderPointerUp(e, sortedCategoryFolders)}
                                                         >
-                                                            {isCollapsed ? '▶' : '▼'}
-                                                        </button>
+                                                            ⠿
+                                                        </span>
                                                         <FolderIcon size={16} />
-                                                        <span>{folder.name}</span>
+                                                        <span style={{ fontWeight: 600 }}>{folder.name}</span>
                                                         <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)', fontWeight: 'normal' }}>({folderCategories.length} categories)</span>
                                                     </div>
 
-                                                    <div className="cm-folder-header-actions">
+                                                    <div className="cm-folder-header-actions" onClick={e => e.stopPropagation()}>
+                                                        <button
+                                                            className="order-btn"
+                                                            disabled={folderIndex === 0}
+                                                            onClick={async (e) => {
+                                                                e.stopPropagation();
+                                                                if (folderIndex === 0) return;
+                                                                const newFolders = [...sortedCategoryFolders];
+                                                                [newFolders[folderIndex - 1], newFolders[folderIndex]] = [newFolders[folderIndex], newFolders[folderIndex - 1]];
+                                                                const updates = newFolders.map((f, idx) => ({ folderId: f.folder_id, displayOrder: idx }));
+                                                                await reorderCategoryFolders(updates);
+                                                            }}
+                                                            title="Move folder up"
+                                                        >
+                                                            ↑
+                                                        </button>
+                                                        <button
+                                                            className="order-btn"
+                                                            disabled={folderIndex === sortedCategoryFolders.length - 1}
+                                                            onClick={async (e) => {
+                                                                e.stopPropagation();
+                                                                if (folderIndex === sortedCategoryFolders.length - 1) return;
+                                                                const newFolders = [...sortedCategoryFolders];
+                                                                [newFolders[folderIndex], newFolders[folderIndex + 1]] = [newFolders[folderIndex + 1], newFolders[folderIndex]];
+                                                                const updates = newFolders.map((f, idx) => ({ folderId: f.folder_id, displayOrder: idx }));
+                                                                await reorderCategoryFolders(updates);
+                                                            }}
+                                                            title="Move folder down"
+                                                        >
+                                                            ↓
+                                                        </button>
+                                                        <button
+                                                            className="cm-folder-bulk-btn"
+                                                            onClick={() => {
+                                                                setBulkLeftSearch('');
+                                                                setBulkRightSearch('');
+                                                                setBulkFolderTarget(folder);
+                                                            }}
+                                                            title="Bulk add/remove categories in this folder"
+                                                            style={{
+                                                                background: 'rgba(0, 212, 255, 0.12)',
+                                                                border: '1px solid rgba(0, 212, 255, 0.3)',
+                                                                borderRadius: '4px',
+                                                                color: '#00d4ff',
+                                                                fontSize: '0.75rem',
+                                                                padding: '3px 8px',
+                                                                cursor: 'pointer',
+                                                                fontWeight: 500,
+                                                                marginRight: '6px'
+                                                            }}
+                                                        >
+                                                            ⇄ Bulk Add/Remove
+                                                        </button>
                                                         <button
                                                             className="cm-folder-icon-btn"
                                                             onClick={() => {
-                                                                const newName = window.prompt('Enter new folder name:', folder.name);
-                                                                if (newName && newName.trim()) {
-                                                                    renameCategoryFolder(folder.folder_id, newName.trim());
-                                                                }
+                                                                setRenamingFolder(folder);
+                                                                setRenameInput(folder.name);
                                                             }}
                                                             title="Rename folder"
                                                         >
-                                                            ✏️
+                                                            <PencilIcon size={14} />
                                                         </button>
                                                         <button
                                                             className="cm-folder-icon-btn delete"
-                                                            onClick={() => {
-                                                                if (window.confirm(`Are you sure you want to delete folder "${folder.name}"? Categories inside will return to the root level.`)) {
-                                                                    deleteCategoryFolder(folder.folder_id);
-                                                                }
-                                                            }}
+                                                            onClick={() => setDeletingFolderTarget(folder)}
                                                             title="Delete folder"
                                                         >
                                                             ✕
@@ -931,6 +1071,297 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                         </div>
                     );
                 })()}
+                {/* Dedicated Create New Folder Modal */}
+                {isCreateOnlyModalOpen && (
+                    <div className="cm-folder-modal-overlay" onClick={() => setIsCreateOnlyModalOpen(false)}>
+                        <div className="cm-folder-modal" style={{ maxWidth: '420px' }} onClick={e => e.stopPropagation()}>
+                            <div className="cm-folder-modal-header">
+                                <h3>
+                                    <FolderIcon size={18} />
+                                    <span>Create New Folder</span>
+                                </h3>
+                                <button className="close-btn" onClick={() => setIsCreateOnlyModalOpen(false)}>✕</button>
+                            </div>
+
+                            <div className="cm-folder-modal-body" style={{ gap: '16px' }}>
+                                <div className="cm-modal-subtext">
+                                    Enter a name for the new folder to be created in <strong>{sourceName}</strong>:
+                                </div>
+
+                                <input
+                                    type="text"
+                                    className="cm-folder-create-input"
+                                    style={{ width: '100%', boxSizing: 'border-box', fontSize: '0.9rem', padding: '10px 14px' }}
+                                    placeholder="Folder name (e.g. USA, Sports, News)..."
+                                    value={createOnlyFolderName}
+                                    onChange={e => setCreateOnlyFolderName(e.target.value)}
+                                    onKeyDown={async e => {
+                                        if (e.key === 'Enter' && createOnlyFolderName.trim()) {
+                                            await createCategoryFolder(targetPlaylistId, createOnlyFolderName.trim());
+                                            setCreateOnlyFolderName('');
+                                            setIsCreateOnlyModalOpen(false);
+                                        }
+                                    }}
+                                    autoFocus
+                                />
+                            </div>
+
+                            <div className="category-manager-footer" style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                                <button className="cancel-btn" onClick={() => setIsCreateOnlyModalOpen(false)}>Cancel</button>
+                                <button
+                                    className="save-btn"
+                                    style={{ padding: '6px 18px' }}
+                                    disabled={!createOnlyFolderName.trim()}
+                                    onClick={async () => {
+                                        if (!createOnlyFolderName.trim()) return;
+                                        await createCategoryFolder(targetPlaylistId, createOnlyFolderName.trim());
+                                        setCreateOnlyFolderName('');
+                                        setIsCreateOnlyModalOpen(false);
+                                    }}
+                                >
+                                    Create Folder
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Bulk Add/Remove Categories in Folder Modal */}
+                {bulkFolderTarget && (() => {
+                    const folderId = bulkFolderTarget.folder_id;
+
+                    const insideFolder = categories.filter(c => c.folderId === folderId);
+                    const outsideFolder = categories.filter(c => !c.folderId);
+
+                    const filteredInside = insideFolder.filter(c =>
+                        !bulkLeftSearch.trim() || c.name.toLowerCase().includes(bulkLeftSearch.toLowerCase())
+                    );
+
+                    const filteredOutside = outsideFolder.filter(c =>
+                        !bulkRightSearch.trim() || c.name.toLowerCase().includes(bulkRightSearch.toLowerCase())
+                    );
+
+                    return (
+                        <div className="cm-folder-modal-overlay" onClick={() => setBulkFolderTarget(null)}>
+                            <div className="cm-folder-modal cm-bulk-modal" style={{ maxWidth: '840px' }} onClick={e => e.stopPropagation()}>
+                                <div className="cm-folder-modal-header">
+                                    <h3>
+                                        <FolderIcon size={18} />
+                                        <span>Bulk Edit Categories in Folder: <strong>{bulkFolderTarget.name}</strong></span>
+                                    </h3>
+                                    <button className="close-btn" onClick={() => setBulkFolderTarget(null)}>✕</button>
+                                </div>
+
+                                <div className="cm-folder-modal-body">
+                                    <div className="cm-bulk-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', height: '55vh' }}>
+                                        
+                                        {/* Left Column: Categories currently in this folder */}
+                                        <div className="cm-bulk-col" style={{ display: 'flex', flexDirection: 'column', background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', overflow: 'hidden' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-primary, #00d4ff)' }}>
+                                                    📁 In Folder ({insideFolder.length})
+                                                </div>
+                                                {insideFolder.length > 0 && (
+                                                    <button
+                                                        style={{ background: 'transparent', border: 'none', color: '#ff4b4b', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}
+                                                        onClick={() => {
+                                                            const ids = new Set(insideFolder.map(c => c.id));
+                                                            setCategories(cats => cats.map(c => ids.has(c.id) ? { ...c, folderId: null } : c));
+                                                            setIsDirty(true);
+                                                        }}
+                                                    >
+                                                        Remove All
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            <input
+                                                type="text"
+                                                className="cm-folder-create-input"
+                                                style={{ marginBottom: '8px', padding: '6px 10px', fontSize: '0.8rem' }}
+                                                placeholder="Filter categories in folder..."
+                                                value={bulkLeftSearch}
+                                                onChange={e => setBulkLeftSearch(e.target.value)}
+                                            />
+
+                                            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                {filteredInside.length > 0 ? (
+                                                    filteredInside.map(cat => (
+                                                        <div
+                                                            key={cat.id}
+                                                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.06)', fontSize: '0.82rem' }}
+                                                        >
+                                                            <span style={{ fontWeight: 500 }}>{cat.name}</span>
+                                                            <button
+                                                                style={{ background: 'rgba(255,75,75,0.15)', border: '1px solid rgba(255,75,75,0.3)', color: '#ff4b4b', borderRadius: '4px', cursor: 'pointer', fontSize: '0.72rem', padding: '2px 8px', fontWeight: 600 }}
+                                                                onClick={() => handleAssignFolderSingle(cat.id, null)}
+                                                                title="Remove category from this folder"
+                                                            >
+                                                                ✕ Remove
+                                                            </button>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', padding: '12px 0', textAlign: 'center' }}>
+                                                        No categories in this folder.
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Right Column: Available root categories */}
+                                        <div className="cm-bulk-col" style={{ display: 'flex', flexDirection: 'column', background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', overflow: 'hidden' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>
+                                                    📄 Available Root Categories ({outsideFolder.length})
+                                                </div>
+                                                {filteredOutside.length > 0 && bulkRightSearch.trim() && (
+                                                    <button
+                                                        style={{ background: 'transparent', border: 'none', color: 'var(--accent-primary, #00d4ff)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}
+                                                        onClick={() => {
+                                                            const ids = new Set(filteredOutside.map(c => c.id));
+                                                            setCategories(cats => cats.map(c => ids.has(c.id) ? { ...c, folderId } : c));
+                                                            setIsDirty(true);
+                                                        }}
+                                                    >
+                                                        + Add All Filtered ({filteredOutside.length})
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            <input
+                                                type="text"
+                                                className="cm-folder-create-input"
+                                                style={{ marginBottom: '8px', padding: '6px 10px', fontSize: '0.8rem' }}
+                                                placeholder="Filter available root categories..."
+                                                value={bulkRightSearch}
+                                                onChange={e => setBulkRightSearch(e.target.value)}
+                                            />
+
+                                            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                {filteredOutside.length > 0 ? (
+                                                    filteredOutside.map(cat => (
+                                                        <div
+                                                            key={cat.id}
+                                                            onClick={() => handleAssignFolderSingle(cat.id, folderId)}
+                                                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.06)', fontSize: '0.82rem', cursor: 'pointer' }}
+                                                            className="cm-bulk-add-row"
+                                                        >
+                                                            <span style={{ fontWeight: 500 }}>{cat.name}</span>
+                                                            <span style={{ fontSize: '0.72rem', color: 'var(--accent-primary, #00d4ff)', fontWeight: 600, padding: '2px 6px', background: 'rgba(0,212,255,0.1)', borderRadius: '4px' }}>
+                                                                + Add
+                                                            </span>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', padding: '12px 0', textAlign: 'center' }}>
+                                                        No available root categories.
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div className="category-manager-footer" style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end' }}>
+                                    <button className="save-btn" style={{ padding: '6px 20px' }} onClick={() => setBulkFolderTarget(null)}>Done</button>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })()}
+
+                {/* Custom Rename Folder Modal */}
+                {renamingFolder && (
+                    <div className="cm-folder-modal-overlay" onClick={() => setRenamingFolder(null)}>
+                        <div className="cm-folder-modal" style={{ maxWidth: '420px' }} onClick={e => e.stopPropagation()}>
+                            <div className="cm-folder-modal-header">
+                                <h3>
+                                    <PencilIcon size={18} />
+                                    <span>Rename Folder</span>
+                                </h3>
+                                <button className="close-btn" onClick={() => setRenamingFolder(null)}>✕</button>
+                            </div>
+
+                            <div className="cm-folder-modal-body" style={{ gap: '16px' }}>
+                                <div className="cm-modal-subtext">
+                                    Enter new name for folder <strong>{renamingFolder.name}</strong>:
+                                </div>
+
+                                <input
+                                    type="text"
+                                    className="cm-folder-create-input"
+                                    style={{ width: '100%', boxSizing: 'border-box', fontSize: '0.9rem', padding: '10px 14px' }}
+                                    value={renameInput}
+                                    onChange={e => setRenameInput(e.target.value)}
+                                    onKeyDown={async e => {
+                                        if (e.key === 'Enter' && renameInput.trim()) {
+                                            await renameCategoryFolder(renamingFolder.folder_id, renameInput.trim());
+                                            setRenamingFolder(null);
+                                        }
+                                    }}
+                                    autoFocus
+                                />
+                            </div>
+
+                            <div className="category-manager-footer" style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                                <button className="cancel-btn" onClick={() => setRenamingFolder(null)}>Cancel</button>
+                                <button
+                                    className="save-btn"
+                                    style={{ padding: '6px 18px' }}
+                                    disabled={!renameInput.trim() || renameInput.trim() === renamingFolder.name}
+                                    onClick={async () => {
+                                        if (!renameInput.trim()) return;
+                                        await renameCategoryFolder(renamingFolder.folder_id, renameInput.trim());
+                                        setRenamingFolder(null);
+                                    }}
+                                >
+                                    Save Name
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Custom Delete Folder Confirmation Modal */}
+                {deletingFolderTarget && (
+                    <div className="cm-folder-modal-overlay" onClick={() => setDeletingFolderTarget(null)}>
+                        <div className="cm-folder-modal" style={{ maxWidth: '440px' }} onClick={e => e.stopPropagation()}>
+                            <div className="cm-folder-modal-header">
+                                <h3>
+                                    <span style={{ color: '#ff4b4b' }}>⚠️</span>
+                                    <span>Delete Folder</span>
+                                </h3>
+                                <button className="close-btn" onClick={() => setDeletingFolderTarget(null)}>✕</button>
+                            </div>
+
+                            <div className="cm-folder-modal-body" style={{ gap: '12px' }}>
+                                <div style={{ fontSize: '0.92rem', fontWeight: 600 }}>
+                                    Are you sure you want to delete folder <strong>"{deletingFolderTarget.name}"</strong>?
+                                </div>
+                                <div className="cm-modal-subtext">
+                                    Categories inside this folder will not be deleted; they will return to the root level.
+                                </div>
+                            </div>
+
+                            <div className="category-manager-footer" style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                                <button className="cancel-btn" onClick={() => setDeletingFolderTarget(null)}>Cancel</button>
+                                <button
+                                    className="save-btn"
+                                    style={{ padding: '6px 18px', background: '#ff4b4b', borderColor: '#ff4b4b', color: '#fff' }}
+                                    onClick={async () => {
+                                        await deleteCategoryFolder(deletingFolderTarget.folder_id);
+                                        setDeletingFolderTarget(null);
+                                    }}
+                                    autoFocus
+                                >
+                                    Delete Folder
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

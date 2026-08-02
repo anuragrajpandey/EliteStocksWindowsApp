@@ -424,6 +424,23 @@ html.modern-ui-v3[data-theme="light"] .category-source-content .category-item.ne
   color: #0f172a !important;
 }
 
+[data-theme="light"] .category-folder-header.is-pinned,
+html[data-theme="light"] .category-folder-header.is-pinned,
+html.modern-ui-v3[data-theme="light"] .category-folder-header.is-pinned,
+html.modern-ui-v3[data-theme="light"] .category-folder-group.is-expanded .category-folder-header {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .category-folder-header.is-pinned:hover,
+html[data-theme="light"] .category-folder-header.is-pinned:hover,
+html.modern-ui-v3[data-theme="light"] .category-folder-header.is-pinned:hover,
+html.modern-ui-v3[data-theme="light"] .category-folder-group.is-expanded .category-folder-header:hover {
+  background: #e2e8f0 !important;
+  color: #000000 !important;
+}
+
 [data-theme="light"] .sidebar-section-header {
   color: #64748b !important;
 }
@@ -4569,6 +4586,171 @@ html.modern-ui-v3[data-theme="light"] .livetv-liquid-glass-bg::after {
   pointer-events: none !important;
   animation: none !important;
   will-change: auto !important;
+}
+
+/* ==================== SIDEBAR CATEGORY FOLDERS & MANAGE CATEGORIES LIGHT THEME ==================== */
+[data-theme="light"] .category-folder-header,
+html[data-theme="light"] .category-folder-header {
+  background: rgba(0, 0, 0, 0.04) !important;
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .category-folder-header:hover,
+html[data-theme="light"] .category-folder-header:hover {
+  background: rgba(0, 0, 0, 0.08) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .category-folder-group.is-expanded .category-folder-header,
+html[data-theme="light"] .category-folder-group.is-expanded .category-folder-header {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] .category-folder-group.is-expanded .category-folder-header:hover,
+html[data-theme="light"] .category-folder-group.is-expanded .category-folder-header:hover {
+  background: #e2e8f0 !important;
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .category-folder-header .folder-name,
+html[data-theme="light"] .category-folder-header .folder-name {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .folder-icon,
+html[data-theme="light"] .folder-icon {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .folder-count,
+html[data-theme="light"] .folder-count {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #64748b !important;
+}
+
+[data-theme="light"] .category-folder-content,
+html[data-theme="light"] .category-folder-content {
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Manage Categories Modal Light Theme */
+[data-theme="light"] .cm-folder-card,
+html[data-theme="light"] .cm-folder-card {
+  border: 1px solid #cbd5e1 !important;
+  background: #f8fafc !important;
+}
+
+[data-theme="light"] .cm-folder-card-header,
+html[data-theme="light"] .cm-folder-card-header {
+  background: #f1f5f9 !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .cm-folder-header-left,
+html[data-theme="light"] .cm-folder-header-left,
+[data-theme="light"] .cm-folder-header-left span,
+html[data-theme="light"] .cm-folder-header-left span {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .cm-folder-expand-btn,
+html[data-theme="light"] .cm-folder-expand-btn {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .cm-folder-expand-btn:hover,
+html[data-theme="light"] .cm-folder-expand-btn:hover {
+  background: #cbd5e1 !important;
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .cm-folder-select,
+html[data-theme="light"] .cm-folder-select {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .cm-folder-modal,
+html[data-theme="light"] .cm-folder-modal {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-theme="light"] .cm-folder-modal-header h3,
+html[data-theme="light"] .cm-folder-modal-header h3 {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .cm-folder-create-input,
+html[data-theme="light"] .cm-folder-create-input {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .cm-folder-option-btn,
+html[data-theme="light"] .cm-folder-option-btn {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .cm-folder-option-btn:hover,
+html[data-theme="light"] .cm-folder-option-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: #0284c7 !important;
+}
+
+[data-theme="light"] .cm-bulk-col,
+html[data-theme="light"] .cm-bulk-col {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .cm-bulk-item,
+[data-theme="light"] .cm-bulk-add-row,
+html[data-theme="light"] .cm-bulk-item,
+html[data-theme="light"] .cm-bulk-add-row {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .cm-folder-icon-btn,
+html[data-theme="light"] .cm-folder-icon-btn {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .cm-folder-icon-btn:hover,
+html[data-theme="light"] .cm-folder-icon-btn:hover {
+  color: #0f172a !important;
+  background: #cbd5e1 !important;
+}
+
+[data-theme="light"] .cm-folder-icon-btn.delete,
+html[data-theme="light"] .cm-folder-icon-btn.delete {
+  color: #ef4444 !important;
+}
+
+[data-theme="light"] .cm-folder-icon-btn.delete:hover,
+html[data-theme="light"] .cm-folder-icon-btn.delete:hover {
+  color: #dc2626 !important;
+  background: #fee2e2 !important;
+}
+
+[data-theme="light"] .cm-modal-subtext,
+html[data-theme="light"] .cm-modal-subtext,
+[data-theme="light"] .cm-folder-modal-body,
+html[data-theme="light"] .cm-folder-modal-body {
+  color: #334155 !important;
 }
 
 
