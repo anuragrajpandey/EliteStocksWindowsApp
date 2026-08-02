@@ -349,6 +349,41 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
+.filter-folder-group {
+  margin: 2px 0;
+}
+
+.filter-folder-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  background: rgba(0, 212, 255, 0.03);
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.filter-folder-header:hover {
+  background: rgba(0, 212, 255, 0.08);
+}
+
+.filter-folder-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-primary, #00d4ff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filter-folder-categories {
+  padding-left: 20px;
+}
+
+
 .filter-category-item.selected .filter-category-name {
   color: rgba(255, 255, 255, 0.95);
 }

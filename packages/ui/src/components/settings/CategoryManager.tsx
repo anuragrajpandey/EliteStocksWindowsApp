@@ -1,11 +1,18 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../../hooks/useSqliteLiveQuery';
-import { db, type StoredCategory, updateCategoriesBatch } from '../../db';
+import { db, type StoredCategory, updateCategoriesBatch, type CategoryFolder } from '../../db';
 import { useCategorySortOrder } from '../../stores/uiStore';
 import { isCategorySortCustomized, setCategorySortCustomized } from '../../utils/categorySortOverrides';
+import { createCategoryFolder, renameCategoryFolder, deleteCategoryFolder } from '../../services/playlist-editor';
 import { ChannelManager } from './ChannelManager';
 import './CategoryManager.css';
+
+const FolderIcon = ({ size = 14 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }}>
+    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+  </svg>
+);
 
 interface CategoryManagerProps {
     sourceId: string;
@@ -16,13 +23,16 @@ interface CategoryManagerProps {
 
 export function CategoryManager({ sourceId, sourceName, onClose, onChange }: CategoryManagerProps) {
     const [categories, setCategories] = useState<Array<
-        | { type: 'native'; id: string; name: string; enabled: boolean; displayOrder: number; category: StoredCategory }
-        | { type: 'link'; id: string; linkId: number; name: string; enabled: boolean; displayOrder: number; link: any }
+        | { type: 'native'; id: string; name: string; enabled: boolean; displayOrder: number; folderId?: string | null; category: StoredCategory }
+        | { type: 'link'; id: string; linkId: number; name: string; enabled: boolean; displayOrder: number; folderId?: string | null; link: any }
     >>([]);
     const [isDirty, setIsDirty] = useState(false);
     const [hideUnselected, setHideUnselected] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [managingCategory, setManagingCategory] = useState<{ id: string; name: string } | null>(null);
+    const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
+    const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
+    const [newFolderName, setNewFolderName] = useState('');
     const isSavingRef = useRef(false);
     const [selectToMoveMode, setSelectToMoveMode] = useState<'inactive' | 'selecting' | 'ready'>('inactive');
     const [selectedForMove, setSelectedForMove] = useState<Set<string>>(new Set());
@@ -75,6 +85,16 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
         []
     );
 
+    // Load category folders for this source/playlist
+    const categoryFolders = useLiveQuery(
+        async () => {
+            const folders = await db.categoryFolders.where('playlist_id').equals(targetPlaylistId).toArray();
+            return folders.sort((a, b) => a.display_order - b.display_order);
+        },
+        [targetPlaylistId],
+        []
+    );
+
     // Resolve name details for link categories
     const [dbCategoriesMap, setDbCategoriesMap] = useState<Record<string, StoredCategory>>({});
     useEffect(() => {
@@ -98,8 +118,8 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
 
         if (dbCategories && !isSavingRef.current) {
             const list: Array<
-                | { type: 'native'; id: string; name: string; enabled: boolean; displayOrder: number; category: StoredCategory }
-                | { type: 'link'; id: string; linkId: number; name: string; enabled: boolean; displayOrder: number; link: any }
+                | { type: 'native'; id: string; name: string; enabled: boolean; displayOrder: number; folderId?: string | null; category: StoredCategory }
+                | { type: 'link'; id: string; linkId: number; name: string; enabled: boolean; displayOrder: number; folderId?: string | null; link: any }
             > = [];
 
             // Add native categories
@@ -110,6 +130,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                     name: cat.alias || cat.category_name,
                     enabled: cat.enabled !== false,
                     displayOrder: cat.display_order ?? 9999,
+                    folderId: cat.folder_id || null,
                     category: cat,
                 });
             }
@@ -126,6 +147,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                     name: link.custom_name || resolvedName,
                     enabled: true, // category links are always active
                     displayOrder: link.display_order ?? 9999,
+                    folderId: link.folder_id || null,
                     link,
                 });
             }
@@ -282,31 +304,95 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
         setDragOverIdx(null);
     }, []);
 
+    // Get visible categories based on filter and search
+    const visibleCategories = useMemo(() => {
+        let filtered = categories;
+
+        if (hideUnselected) {
+            filtered = filtered.filter(c => c.enabled !== false);
+        }
+
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            filtered = filtered.filter(c => c.name.toLowerCase().includes(query));
+        }
+
+        return filtered;
+    }, [categories, hideUnselected, searchQuery]);
+
     // Select all visible
     const handleSelectAll = useCallback(() => {
-        setCategories(cats => cats.map(cat => {
-            const isVisible = (!hideUnselected || cat.enabled !== false) && 
-                              (!searchQuery.trim() || cat.name.toLowerCase().includes(searchQuery.toLowerCase()));
-            if (isVisible && cat.type === 'native') {
-                return { ...cat, enabled: true };
-            }
-            return cat;
-        }));
-        setIsDirty(true);
-    }, [hideUnselected, searchQuery]);
+        if (selectToMoveMode !== 'inactive') {
+            const expandedIds = visibleCategories
+                .filter(cat => !cat.folderId || !collapsedFolders[cat.folderId])
+                .map(c => c.id);
+            setSelectedForMove(prev => new Set([...prev, ...expandedIds]));
+        } else {
+            setCategories(cats => cats.map(cat => {
+                const isVisible = (!hideUnselected || cat.enabled !== false) && 
+                                  (!searchQuery.trim() || cat.name.toLowerCase().includes(searchQuery.toLowerCase()));
+                if (isVisible && cat.type === 'native') {
+                    return { ...cat, enabled: true };
+                }
+                return cat;
+            }));
+            setIsDirty(true);
+        }
+    }, [selectToMoveMode, visibleCategories, collapsedFolders, hideUnselected, searchQuery]);
 
     // Select none visible
     const handleSelectNone = useCallback(() => {
+        if (selectToMoveMode !== 'inactive') {
+            setSelectedForMove(new Set());
+        } else {
+            setCategories(cats => cats.map(cat => {
+                const isVisible = (!hideUnselected || cat.enabled !== false) && 
+                                  (!searchQuery.trim() || cat.name.toLowerCase().includes(searchQuery.toLowerCase()));
+                if (isVisible && cat.type === 'native') {
+                    return { ...cat, enabled: false };
+                }
+                return cat;
+            }));
+            setIsDirty(true);
+        }
+    }, [selectToMoveMode, hideUnselected, searchQuery]);
+
+    // Helper to get active target category IDs to move
+    const getTargetCategoryIdsToMove = useCallback((): string[] => {
+        if (selectedForMove.size > 0) {
+            return Array.from(selectedForMove);
+        }
+        if (searchQuery.trim().length > 0) {
+            return visibleCategories.map(c => c.id);
+        }
+        return visibleCategories.filter(c => c.enabled !== false).map(c => c.id);
+    }, [selectedForMove, visibleCategories, searchQuery]);
+
+    // Batch move selected categories to a folder
+    const handleMoveSelectedToFolder = useCallback((folderId: string | null) => {
+        const targetIds = getTargetCategoryIdsToMove();
+        if (targetIds.length === 0) return;
+
+        const targetSet = new Set(targetIds);
         setCategories(cats => cats.map(cat => {
-            const isVisible = (!hideUnselected || cat.enabled !== false) && 
-                              (!searchQuery.trim() || cat.name.toLowerCase().includes(searchQuery.toLowerCase()));
-            if (isVisible && cat.type === 'native') {
-                return { ...cat, enabled: false };
+            if (targetSet.has(cat.id)) {
+                return { ...cat, folderId };
             }
             return cat;
         }));
         setIsDirty(true);
-    }, [hideUnselected, searchQuery]);
+        setSelectedForMove(new Set());
+        setSelectToMoveMode('inactive');
+        setIsFolderModalOpen(false);
+    }, [getTargetCategoryIdsToMove]);
+
+    // Single category folder assignment
+    const handleAssignFolderSingle = useCallback((id: string, folderId: string | null) => {
+        setCategories(cats => cats.map(cat =>
+            cat.id === id ? { ...cat, folderId } : cat
+        ));
+        setIsDirty(true);
+    }, []);
 
     // Save changes
     const handleSave = useCallback(async () => {
@@ -320,6 +406,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                     categoryId: cat.id,
                     enabled: cat.enabled,
                     displayOrder: cat.displayOrder,
+                    folderId: cat.folderId || null,
                 }));
 
             if (nativeUpdates.length > 0) {
@@ -332,6 +419,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                 .map(cat => ({
                     ...cat.link,
                     display_order: cat.displayOrder,
+                    folder_id: cat.folderId || null,
                 }));
 
             if (linkItems.length > 0) {
@@ -348,21 +436,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
         }
     }, [categories, onChange, onClose]);
 
-    // Get visible categories based on filter and search
-    const visibleCategories = useMemo(() => {
-        let filtered = categories;
 
-        if (hideUnselected) {
-            filtered = filtered.filter(c => c.enabled !== false);
-        }
-
-        if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase();
-            filtered = filtered.filter(c => c.name.toLowerCase().includes(query));
-        }
-
-        return filtered;
-    }, [categories, hideUnselected, searchQuery]);
 
     const enabledCount = categories.filter(c => c.enabled !== false).length;
     const totalCount = categories.length;
@@ -453,7 +527,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                     )}
                 </div>
 
-                <div className="category-manager-actions">
+                <div className="category-manager-actions" style={{ flexWrap: 'wrap', gap: '8px' }}>
                     <button onClick={handleSelectAll}>✓ Select All</button>
                     <button onClick={handleSelectNone}>✗ Select None</button>
                     <div className="divider-vertical"></div>
@@ -467,10 +541,27 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                         onClick={handleSelectToMoveToggle}
                         className={selectToMoveMode !== 'inactive' ? 'active-toggle' : ''}
                     >
-                        {selectToMoveMode === 'inactive' && '⇈ Select to Move to Top'}
+                        {selectToMoveMode === 'inactive' && '⇈ Multi-Select'}
                         {selectToMoveMode === 'selecting' && `✓ Done Selecting (${selectedForMove.size})`}
                         {selectToMoveMode === 'ready' && '⇈ Move Selected to Top'}
                     </button>
+
+                    <button
+                        onClick={() => setIsFolderModalOpen(true)}
+                        style={{ color: 'var(--accent-primary, #00d4ff)', borderColor: 'rgba(0,212,255,0.3)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                    >
+                        <FolderIcon size={14} /> + Folder
+                    </button>
+
+                    {selectedForMove.size > 0 && (
+                        <button
+                            className="cm-move-folder-btn"
+                            onClick={() => setIsFolderModalOpen(true)}
+                        >
+                            <FolderIcon size={14} /> Move Selected to Folder ({selectedForMove.size})
+                        </button>
+                    )}
+
                     {selectToMoveMode !== 'inactive' && (
                         <button
                             onClick={handleSelectToMoveCancel}
@@ -497,112 +588,208 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                     onPointerUp={handleContainerPointerUp}
                     onPointerCancel={handleContainerPointerCancel}
                 >
-                    {visibleCategories.map((cat) => {
-                        const index = categories.findIndex(c => c.id === cat.id);
-                        const isDragging = dragFromIdx.current === index;
-                        const isDragOver = dragOverIdx === index && dragFromIdx.current !== null && dragFromIdx.current !== index;
+                    {(() => {
+                        const renderCategoryItem = (cat: any) => {
+                            const index = categories.findIndex(c => c.id === cat.id);
+                            const isDragging = dragFromIdx.current === index;
+                            const isDragOver = dragOverIdx === index && dragFromIdx.current !== null && dragFromIdx.current !== index;
+                            const isAlphabetical = categorySortOrder === 'alphabetical' && !isCustomized;
 
-                        const isAlphabetical = categorySortOrder === 'alphabetical' && !isCustomized;
-
-                        return (
-                            <div
-                                key={cat.id}
-                                className={`category-item ${!isAlphabetical && isDragging ? 'dragging' : ''} ${!isAlphabetical && isDragOver ? 'drag-over' : ''} ${selectToMoveMode !== 'inactive' && selectedForMove.has(cat.id) ? 'selected-for-move' : ''} ${selectToMoveMode !== 'inactive' ? 'selection-mode-item' : ''}`}
-                                onClick={selectToMoveMode !== 'inactive' ? () => toggleSelectForMove(cat.id) : undefined}
-                            >
-                                {!isAlphabetical && (
-                                    <span
-                                        className="drag-handle"
-                                        style={{ touchAction: 'none', opacity: selectToMoveMode !== 'inactive' ? 0.3 : 1 }}
-                                        onPointerDown={selectToMoveMode !== 'inactive' ? undefined : (e) => handleHandlePointerDown(e, index)}
-                                    >
-                                        ⋮⋮
-                                    </span>
-                                )}
-
-                                {cat.type === 'native' ? (
-                                    <label 
-                                        className="category-checkbox" 
-                                        onClick={selectToMoveMode !== 'inactive' ? (e) => e.preventDefault() : undefined}
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            checked={cat.enabled}
-                                            onChange={selectToMoveMode !== 'inactive' ? () => {} : () => toggleCategory(cat.id)}
-                                            disabled={selectToMoveMode !== 'inactive'}
-                                        />
-                                        <span className="category-name">{cat.name}</span>
-                                    </label>
-                                ) : (
-                                    <div className="category-checkbox">
-                                        <span className="category-name" style={{ marginLeft: '24px' }}>
-                                            🔗 {cat.name}
-                                        </span>
-                                    </div>
-                                )}
-
-                                <div className="category-actions-row" style={{ display: 'flex', alignItems: 'center' }}>
-                                    <button
-                                        className="manage-channels-btn"
-                                        onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => setManagingCategory({ id: cat.id, name: cat.name })}
-                                        disabled={selectToMoveMode !== 'inactive'}
-                                        title="Manage channels in this category"
-                                    >
-                                        📺 Channels
-                                    </button>
-                                    {cat.type === 'link' && (
-                                        <button
-                                            className="category-delete-btn"
-                                            onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => handleDeleteLink(cat.linkId)}
-                                            disabled={selectToMoveMode !== 'inactive'}
-                                            title="Remove category link"
-                                            style={{
-                                                background: 'transparent',
-                                                border: 'none',
-                                                color: '#ff4b4b',
-                                                cursor: selectToMoveMode !== 'inactive' ? 'default' : 'pointer',
-                                                fontSize: '1rem',
-                                                marginLeft: '8px',
-                                                padding: '4px',
-                                                opacity: selectToMoveMode !== 'inactive' ? 0.3 : 1
-                                            }}
+                            return (
+                                <div
+                                    key={cat.id}
+                                    className={`category-item ${!isAlphabetical && isDragging ? 'dragging' : ''} ${!isAlphabetical && isDragOver ? 'drag-over' : ''} ${selectToMoveMode !== 'inactive' && selectedForMove.has(cat.id) ? 'selected-for-move' : ''} ${selectToMoveMode !== 'inactive' ? 'selection-mode-item' : ''}`}
+                                    onClick={selectToMoveMode !== 'inactive' ? () => toggleSelectForMove(cat.id) : undefined}
+                                >
+                                    {!isAlphabetical && (
+                                        <span
+                                            className="drag-handle"
+                                            style={{ touchAction: 'none', opacity: selectToMoveMode !== 'inactive' ? 0.3 : 1 }}
+                                            onPointerDown={selectToMoveMode !== 'inactive' ? undefined : (e) => handleHandlePointerDown(e, index)}
                                         >
-                                            ✕
+                                            ⋮⋮
+                                        </span>
+                                    )}
+
+                                    {cat.type === 'native' ? (
+                                        <label 
+                                            className="category-checkbox" 
+                                            onClick={selectToMoveMode !== 'inactive' ? (e) => e.preventDefault() : undefined}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={cat.enabled}
+                                                onChange={selectToMoveMode !== 'inactive' ? () => {} : () => toggleCategory(cat.id)}
+                                                disabled={selectToMoveMode !== 'inactive'}
+                                            />
+                                            <span className="category-name">{cat.name}</span>
+                                        </label>
+                                    ) : (
+                                        <div className="category-checkbox">
+                                            <span className="category-name" style={{ marginLeft: '24px' }}>
+                                                🔗 {cat.name}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    <div className="category-actions-row" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        {categoryFolders && categoryFolders.length > 0 && (
+                                            <select
+                                                className="cm-folder-select"
+                                                value={cat.folderId || ''}
+                                                onChange={(e) => {
+                                                    const val = e.target.value || null;
+                                                    handleAssignFolderSingle(cat.id, val);
+                                                }}
+                                                onClick={(e) => e.stopPropagation()}
+                                                title="Assign category to folder"
+                                            >
+                                                <option value="">📁 Root Level</option>
+                                                {categoryFolders.map((f: CategoryFolder) => (
+                                                    <option key={f.folder_id} value={f.folder_id}>📁 {f.name}</option>
+                                                ))}
+                                            </select>
+                                        )}
+
+                                        <button
+                                            className="manage-channels-btn"
+                                            onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => setManagingCategory({ id: cat.id, name: cat.name })}
+                                            disabled={selectToMoveMode !== 'inactive'}
+                                            title="Manage channels in this category"
+                                        >
+                                            📺 Channels
                                         </button>
+                                        {cat.type === 'link' && (
+                                            <button
+                                                className="category-delete-btn"
+                                                onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => handleDeleteLink(cat.linkId)}
+                                                disabled={selectToMoveMode !== 'inactive'}
+                                                title="Remove category link"
+                                                style={{
+                                                    background: 'transparent',
+                                                    border: 'none',
+                                                    color: '#ff4b4b',
+                                                    cursor: selectToMoveMode !== 'inactive' ? 'default' : 'pointer',
+                                                    fontSize: '1rem',
+                                                    marginLeft: '8px',
+                                                    padding: '4px',
+                                                    opacity: selectToMoveMode !== 'inactive' ? 0.3 : 1
+                                                }}
+                                            >
+                                                ✕
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {!isAlphabetical && (
+                                        <div className="category-reorder">
+                                            <button
+                                                className="order-btn"
+                                                onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => moveToTop(index)}
+                                                disabled={index === 0 || selectToMoveMode !== 'inactive'}
+                                                title="Move to top"
+                                            >
+                                                ↑↑
+                                            </button>
+                                            <button
+                                                className="order-btn"
+                                                onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => moveUp(index)}
+                                                disabled={index === 0 || selectToMoveMode !== 'inactive'}
+                                                title="Move up"
+                                            >
+                                                ↑
+                                            </button>
+                                            <button
+                                                className="order-btn"
+                                                onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => moveDown(index)}
+                                                disabled={index === categories.length - 1 || selectToMoveMode !== 'inactive'}
+                                                title="Move down"
+                                            >
+                                                ↓
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
+                            );
+                        };
 
-                                {!isAlphabetical && (
-                                    <div className="category-reorder">
-                                        <button
-                                            className="order-btn"
-                                            onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => moveToTop(index)}
-                                            disabled={index === 0 || selectToMoveMode !== 'inactive'}
-                                            title="Move to top"
-                                        >
-                                            ↑↑
-                                        </button>
-                                        <button
-                                            className="order-btn"
-                                            onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => moveUp(index)}
-                                            disabled={index === 0 || selectToMoveMode !== 'inactive'}
-                                            title="Move up"
-                                        >
-                                            ↑
-                                        </button>
-                                        <button
-                                            className="order-btn"
-                                            onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => moveDown(index)}
-                                            disabled={index === categories.length - 1 || selectToMoveMode !== 'inactive'}
-                                            title="Move down"
-                                        >
-                                            ↓
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
+                        if (categoryFolders && categoryFolders.length > 0) {
+                            const rootCategories = visibleCategories.filter(c => !c.folderId || !categoryFolders.some((f: CategoryFolder) => f.folder_id === c.folderId));
+
+                            return (
+                                <>
+                                    {categoryFolders.map((folder: CategoryFolder) => {
+                                        const folderCategories = visibleCategories.filter(c => c.folderId === folder.folder_id);
+                                        const isCollapsed = !!collapsedFolders[folder.folder_id];
+
+                                        return (
+                                            <div key={folder.folder_id} className="cm-folder-card">
+                                                <div className="cm-folder-card-header">
+                                                    <div className="cm-folder-header-left">
+                                                        <button
+                                                            className="order-btn"
+                                                            onClick={() => setCollapsedFolders(prev => ({ ...prev, [folder.folder_id]: !prev[folder.folder_id] }))}
+                                                            style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '0 4px' }}
+                                                        >
+                                                            {isCollapsed ? '▶' : '▼'}
+                                                        </button>
+                                                        <FolderIcon size={16} />
+                                                        <span>{folder.name}</span>
+                                                        <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)', fontWeight: 'normal' }}>({folderCategories.length} categories)</span>
+                                                    </div>
+
+                                                    <div className="cm-folder-header-actions">
+                                                        <button
+                                                            className="cm-folder-icon-btn"
+                                                            onClick={() => {
+                                                                const newName = window.prompt('Enter new folder name:', folder.name);
+                                                                if (newName && newName.trim()) {
+                                                                    renameCategoryFolder(folder.folder_id, newName.trim());
+                                                                }
+                                                            }}
+                                                            title="Rename folder"
+                                                        >
+                                                            ✏️
+                                                        </button>
+                                                        <button
+                                                            className="cm-folder-icon-btn delete"
+                                                            onClick={() => {
+                                                                if (window.confirm(`Are you sure you want to delete folder "${folder.name}"? Categories inside will return to the root level.`)) {
+                                                                    deleteCategoryFolder(folder.folder_id);
+                                                                }
+                                                            }}
+                                                            title="Delete folder"
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                {!isCollapsed && (
+                                                    <div className="cm-folder-card-body">
+                                                        {folderCategories.length === 0 ? (
+                                                            <div className="cm-folder-empty-hint">Folder is empty. Use "Move Selected to Folder" or the folder dropdown to assign categories.</div>
+                                                        ) : (
+                                                            folderCategories.map(cat => renderCategoryItem(cat))
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+
+                                    {rootCategories.length > 0 && (
+                                        <div className="cm-root-categories">
+                                            {categoryFolders.length > 0 && <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', margin: '12px 0 6px' }}>Root Categories</div>}
+                                            {rootCategories.map(cat => renderCategoryItem(cat))}
+                                        </div>
+                                    )}
+                                </>
+                            );
+                        }
+
+                        return visibleCategories.map(cat => renderCategoryItem(cat));
+                    })()}
                 </div>
 
                 <div className="category-manager-footer">
@@ -625,6 +812,125 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                         onChange={onChange}
                     />
                 )}
+
+                {/* Custom Move to Folder Modal */}
+                {isFolderModalOpen && (() => {
+                    const activeMoveIds = getTargetCategoryIdsToMove();
+                    const activeMoveCount = activeMoveIds.length;
+
+                    return (
+                        <div className="cm-folder-modal-overlay" onClick={() => setIsFolderModalOpen(false)}>
+                            <div className="cm-folder-modal" onClick={e => e.stopPropagation()}>
+                                <div className="cm-folder-modal-header">
+                                    <h3>
+                                        <FolderIcon size={18} />
+                                        <span>{activeMoveCount > 0 ? `Move ${activeMoveCount} Categories to Folder` : `Folders in ${sourceName}`}</span>
+                                    </h3>
+                                    <button className="close-btn" onClick={() => setIsFolderModalOpen(false)}>✕</button>
+                                </div>
+
+                                <div className="cm-folder-modal-body">
+                                    <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '4px' }}>
+                                        {activeMoveCount > 0 ? 'Select Destination Folder:' : 'Current Source Folders:'}
+                                    </div>
+
+                                    <button
+                                        className="cm-folder-option-btn root"
+                                        onClick={() => {
+                                            if (activeMoveCount > 0) {
+                                                handleMoveSelectedToFolder(null);
+                                            }
+                                            setIsFolderModalOpen(false);
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <FolderIcon size={16} />
+                                            <span>Root Level (No Folder)</span>
+                                        </div>
+                                        <span style={{ opacity: 0.5, fontSize: '0.75rem' }}>Default</span>
+                                    </button>
+
+                                    {categoryFolders && categoryFolders.length > 0 ? (
+                                        categoryFolders.map((f: CategoryFolder) => {
+                                            const count = categories.filter(c => c.folderId === f.folder_id).length;
+                                            return (
+                                                <button
+                                                    key={f.folder_id}
+                                                    className="cm-folder-option-btn"
+                                                    onClick={() => {
+                                                        if (activeMoveCount > 0) {
+                                                            handleMoveSelectedToFolder(f.folder_id);
+                                                        }
+                                                        setIsFolderModalOpen(false);
+                                                    }}
+                                                >
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <FolderIcon size={16} />
+                                                        <span style={{ fontWeight: 600 }}>{f.name}</span>
+                                                    </div>
+                                                    <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)' }}>
+                                                        {count} {count === 1 ? 'category' : 'categories'}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })
+                                    ) : (
+                                        <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', padding: '6px 0' }}>
+                                            No custom folders created yet in this source.
+                                        </div>
+                                    )}
+
+                                    {/* Add New Folder Inline Form */}
+                                    <div className="cm-folder-create-box">
+                                        <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--accent-primary, #00d4ff)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <FolderIcon size={14} /> + Add New Folder
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <input
+                                                type="text"
+                                                className="cm-folder-create-input"
+                                                placeholder="Folder name (e.g. USA, Sports, News)..."
+                                                value={newFolderName}
+                                                onChange={e => setNewFolderName(e.target.value)}
+                                                onKeyDown={async e => {
+                                                    if (e.key === 'Enter' && newFolderName.trim()) {
+                                                        const newFolderId = await createCategoryFolder(targetPlaylistId, newFolderName.trim());
+                                                        if (newFolderId && activeMoveCount > 0) {
+                                                            handleMoveSelectedToFolder(newFolderId);
+                                                        }
+                                                        setNewFolderName('');
+                                                        setIsFolderModalOpen(false);
+                                                    }
+                                                }}
+                                                autoFocus
+                                            />
+                                            <button
+                                                className="save-btn"
+                                                style={{ padding: '6px 14px', whiteSpace: 'nowrap' }}
+                                                disabled={!newFolderName.trim()}
+                                                onClick={async () => {
+                                                    if (!newFolderName.trim()) return;
+                                                    const newFolderId = await createCategoryFolder(targetPlaylistId, newFolderName.trim());
+                                                    if (newFolderId && activeMoveCount > 0) {
+                                                        handleMoveSelectedToFolder(newFolderId);
+                                                    }
+                                                    setNewFolderName('');
+                                                    setIsFolderModalOpen(false);
+                                                }}
+                                            >
+                                                {activeMoveCount > 0 ? 'Create & Assign' : 'Create Folder'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="category-manager-footer" style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                                    <button className="cancel-btn" onClick={() => setIsFolderModalOpen(false)}>Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })()}
             </div>
         </div>
     );

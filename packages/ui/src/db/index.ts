@@ -1928,7 +1928,7 @@ export async function cleanupTmdbExportCache(): Promise<void> {
 
 /** Batch update categories (enabled state and/or display order) in a single SQL statement */
 export async function updateCategoriesBatch(
-  updates: Array<{ categoryId: string; enabled?: boolean; displayOrder?: number }>
+  updates: Array<{ categoryId: string; enabled?: boolean; displayOrder?: number; folderId?: string | null }>
 ): Promise<number> {
   if (updates.length === 0) return 0;
 
@@ -1943,6 +1943,7 @@ export async function updateCategoriesBatch(
     const chunk = updates.slice(i, i + CHUNK_SIZE);
     const hasEnabled = chunk.some(u => u.enabled !== undefined);
     const hasOrder = chunk.some(u => u.displayOrder !== undefined);
+    const hasFolder = chunk.some(u => u.folderId !== undefined);
 
     // Build CASE statements for each column being updated
     const caseParts: string[] = [];
@@ -1968,6 +1969,17 @@ export async function updateCategoriesBatch(
         })
         .join(' ');
       caseParts.push(`display_order = CASE category_id ${orderCases} ELSE display_order END`);
+    }
+
+    if (hasFolder) {
+      const folderCases = chunk
+        .filter(u => u.folderId !== undefined)
+        .map(u => {
+          params.push(u.categoryId, u.folderId || null);
+          return `WHEN $${params.length - 1} THEN $${params.length}`;
+        })
+        .join(' ');
+      caseParts.push(`folder_id = CASE category_id ${folderCases} ELSE folder_id END`);
     }
 
     if (caseParts.length === 0) continue;

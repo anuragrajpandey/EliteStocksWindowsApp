@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { db, type StoredCategory } from '../db';
+import { db, type StoredCategory, type CategoryFolder } from '../db';
 import { isCategorySortCustomized } from '../utils/categorySortOverrides';
 import './AdvancedSearchModal.css';
 
@@ -36,6 +36,8 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
   const [selectedSourceIds, setSelectedSourceIds] = useState<Set<string>>(new Set(initialConfig?.sourceIds ?? []));
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<Set<string>>(new Set(initialConfig?.categoryIds ?? []));
   const [expandedSources, setExpandedSources] = useState<Set<string>>(new Set());
+  const [categoryFolders, setCategoryFolders] = useState<CategoryFolder[]>([]);
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   // Load enabled sources and categories on open
@@ -118,6 +120,7 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
         }
 
         const allCategoryLinks = await db.playlistCategoryLinks.toArray();
+        const allCategoryFolders = await db.categoryFolders.toArray();
 
         // Load categorySortOrder setting
         let categorySortOrder: 'default' | 'alphabetical' = 'default';
@@ -169,8 +172,9 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
                 source_id: source.id,
                 channel_count: nativeCnt + manualCatCnt,
                 enabled: cat.enabled !== false,
-                display_order: cat.display_order ?? 0
-              });
+                display_order: cat.display_order ?? 0,
+                folder_id: (cat as any).folder_id || null,
+              } as any);
             }
           }
 
@@ -200,8 +204,9 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
               source_id: source.id,
               channel_count: count,
               enabled: true,
-              display_order: link.display_order ?? 0
-            });
+              display_order: link.display_order ?? 0,
+              folder_id: link.folder_id || null,
+            } as any);
           }
 
           // Sort sourceCats matching CategoryStrip.tsx sorting logic
@@ -239,6 +244,7 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
 
         setSources(enabledSources);
         setCategories(activeCategories);
+        setCategoryFolders(allCategoryFolders);
 
         // Auto-expand sources that have selected categories
         const sourceIdsWithSelection = new Set<string>();
@@ -324,6 +330,29 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
       return next;
     });
   }, []);
+
+  const toggleFolderInSearch = useCallback((folderId: string, sourceId: string) => {
+    const sourceCategories = categoriesBySource.get(sourceId) || [];
+    const folderCategories = sourceCategories.filter(c => (c as any).folder_id === folderId);
+    if (folderCategories.length === 0) return;
+
+    setSelectedCategoryIds(prev => {
+      const next = new Set(prev);
+      const allSelected = folderCategories.every(c => next.has(c.category_id));
+
+      if (allSelected) {
+        for (const c of folderCategories) {
+          next.delete(c.category_id);
+        }
+      } else {
+        for (const c of folderCategories) {
+          next.add(c.category_id);
+        }
+        setSelectedSourceIds(srcPrev => new Set([...srcPrev, sourceId]));
+      }
+      return next;
+    });
+  }, [categoriesBySource]);
 
   const toggleExpandSource = useCallback((sourceId: string) => {
     setExpandedSources(prev => {
@@ -510,30 +539,103 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
                         </span>
                       </div>
 
-                      {isExpanded && (
-                        <div className="filter-categories">
-                          {sourceCategories.map(cat => {
-                            const isCatSelected = selectedCategoryIds.has(cat.category_id);
-                            return (
-                              <div
-                                key={cat.category_id}
-                                className={`filter-category-item ${isCatSelected ? 'selected' : ''}`}
-                                onClick={() => toggleCategory(cat.category_id, source.id)}
-                              >
-                                <div className={`filter-checkbox ${isCatSelected ? 'checked' : ''}`}>
-                                  {isCatSelected && (
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                      <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                  )}
-                                </div>
-                                <span className="filter-category-name">{cat.category_name}</span>
-                                <span className="filter-category-count">{cat.channel_count ?? 0}</span>
+                      {isExpanded && (() => {
+                        const targetPlaylistId = source.id.startsWith('playlist:') ? source.id.replace('playlist:', '') : source.id;
+                        const sourceFolders = categoryFolders.filter(f => f.playlist_id === targetPlaylistId);
+
+                        const renderCatItem = (cat: StoredCategory) => {
+                          const isCatSelected = selectedCategoryIds.has(cat.category_id);
+                          return (
+                            <div
+                              key={cat.category_id}
+                              className={`filter-category-item ${isCatSelected ? 'selected' : ''}`}
+                              onClick={() => toggleCategory(cat.category_id, source.id)}
+                            >
+                              <div className={`filter-checkbox ${isCatSelected ? 'checked' : ''}`}>
+                                {isCatSelected && (
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                  </svg>
+                                )}
                               </div>
-                            );
-                          })}
-                        </div>
-                      )}
+                              <span className="filter-category-name">{cat.category_name}</span>
+                              <span className="filter-category-count">{cat.channel_count ?? 0}</span>
+                            </div>
+                          );
+                        };
+
+                        if (sourceFolders.length > 0) {
+                          const rootCats = sourceCategories.filter(c => !(c as any).folder_id || !sourceFolders.some(f => f.folder_id === (c as any).folder_id));
+
+                          return (
+                            <div className="filter-categories">
+                              {sourceFolders.map((folder: CategoryFolder) => {
+                                const folderCats = sourceCategories.filter(c => (c as any).folder_id === folder.folder_id);
+                                const isFolderExpanded = expandedFolders.has(folder.folder_id);
+                                const folderSelectedCount = folderCats.filter(c => selectedCategoryIds.has(c.category_id)).length;
+                                const isFolderSelected = folderCats.length > 0 && folderSelectedCount === folderCats.length;
+                                const isFolderIndeterminate = folderSelectedCount > 0 && folderSelectedCount < folderCats.length;
+
+                                return (
+                                  <div key={folder.folder_id} className="filter-folder-group">
+                                    <div
+                                      className="filter-folder-header"
+                                      onClick={() => {
+                                        setExpandedFolders(prev => {
+                                          const next = new Set(prev);
+                                          if (next.has(folder.folder_id)) next.delete(folder.folder_id);
+                                          else next.add(folder.folder_id);
+                                          return next;
+                                        });
+                                      }}
+                                    >
+                                      <svg className="filter-chevron" style={{ transform: isFolderExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                      </svg>
+                                      <div
+                                        className={`filter-checkbox ${isFolderSelected ? 'checked' : ''} ${isFolderIndeterminate ? 'indeterminate' : ''}`}
+                                        onClick={e => { e.stopPropagation(); toggleFolderInSearch(folder.folder_id, source.id); }}
+                                      >
+                                        {isFolderSelected && !isFolderIndeterminate && (
+                                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                          </svg>
+                                        )}
+                                        {isFolderIndeterminate && (
+                                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                          </svg>
+                                        )}
+                                      </div>
+                                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary, #00d4ff)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                                      </svg>
+                                      <span className="filter-folder-name">{folder.name}</span>
+                                      <span className="filter-source-count">
+                                        {folderSelectedCount > 0 ? `${folderSelectedCount}/${folderCats.length}` : folderCats.length}
+                                      </span>
+                                    </div>
+
+                                    {isFolderExpanded && (
+                                      <div className="filter-folder-categories">
+                                        {folderCats.map(cat => renderCatItem(cat))}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+
+                              {rootCats.length > 0 && rootCats.map(cat => renderCatItem(cat))}
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="filter-categories">
+                            {sourceCategories.map(cat => renderCatItem(cat))}
+                          </div>
+                        );
+                      })()}
                     </div>
                   );
                 })
