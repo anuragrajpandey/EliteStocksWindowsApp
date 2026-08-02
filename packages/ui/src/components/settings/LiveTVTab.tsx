@@ -31,6 +31,8 @@ interface LiveTVTabProps {
   onEpgMetadataBadgeResolutionChange: (enabled: boolean) => void;
   epgMetadataBadgeFps: boolean;
   onEpgMetadataBadgeFpsChange: (enabled: boolean) => void;
+  epgMetadataBadgeFpsSuffix: boolean;
+  onEpgMetadataBadgeFpsSuffixChange: (enabled: boolean) => void;
   epgMetadataBadgeSound: boolean;
   onEpgMetadataBadgeSoundChange: (enabled: boolean) => void;
   epgView: 'traditional' | 'alternate';
@@ -133,6 +135,8 @@ export function LiveTVTab({
   onEpgMetadataBadgeResolutionChange,
   epgMetadataBadgeFps,
   onEpgMetadataBadgeFpsChange,
+  epgMetadataBadgeFpsSuffix,
+  onEpgMetadataBadgeFpsSuffixChange,
   epgMetadataBadgeSound,
   onEpgMetadataBadgeSoundChange,
   epgView,
@@ -452,6 +456,21 @@ export function LiveTVTab({
                     </tr>
                   </tbody>
                 </table>
+              </div>
+
+              <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
+                <div className="timeshift-toggle-info">
+                  <span className="timeshift-toggle-label">Show "fps" suffix</span>
+                  <span className="timeshift-toggle-sub">Display frame rate as e.g. "60fps" instead of just "60".</span>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={epgMetadataBadgeFpsSuffix}
+                    onChange={(e) => onEpgMetadataBadgeFpsSuffixChange(e.target.checked)}
+                  />
+                  <span className="toggle-slider" />
+                </label>
               </div>
             </div>
 

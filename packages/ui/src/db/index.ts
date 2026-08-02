@@ -146,7 +146,7 @@ export interface ChannelMetadata {
   resolution_width: number;     // e.g., 1920
   resolution_height: number;    // e.g., 1080
   fps: number;                 // e.g., 30
-  audio_channels: string;      // e.g., "STEREO", "5.1"
+  audio_channels: string;      // e.g., "Stereo", "5.1"
   quality_label: string;       // e.g., "4K", "1080p", "720p", "SD"
   last_updated: Date | string;
 }

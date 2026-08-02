@@ -270,6 +270,8 @@ function App() {
     setEpgMetadataBadgeResolution,
     epgMetadataBadgeFps,
     setEpgMetadataBadgeFps,
+    epgMetadataBadgeFpsSuffix,
+    setEpgMetadataBadgeFpsSuffix,
     epgMetadataBadgeSound,
     setEpgMetadataBadgeSound,
   } = useAppSettings();
@@ -5038,6 +5040,8 @@ function useTmdbPresencePoster(
           onEpgMetadataBadgeResolutionChange={setEpgMetadataBadgeResolution}
           epgMetadataBadgeFps={epgMetadataBadgeFps}
           onEpgMetadataBadgeFpsChange={setEpgMetadataBadgeFps}
+          epgMetadataBadgeFpsSuffix={epgMetadataBadgeFpsSuffix}
+          onEpgMetadataBadgeFpsSuffixChange={setEpgMetadataBadgeFpsSuffix}
           epgMetadataBadgeSound={epgMetadataBadgeSound}
           onEpgMetadataBadgeSoundChange={setEpgMetadataBadgeSound}
         />

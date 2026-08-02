@@ -116,6 +116,7 @@ export interface AppSettings {
   epgLogoDisplay: 'square' | 'rectangle';
   epgMetadataBadgeResolution: boolean;
   epgMetadataBadgeFps: boolean;
+  epgMetadataBadgeFpsSuffix: boolean;
   epgMetadataBadgeSound: boolean;
 
   // Startup view
@@ -198,6 +199,7 @@ export interface AppSettings {
     setEpgLogoDisplay: (display: 'square' | 'rectangle') => void;
     setEpgMetadataBadgeResolution: (enabled: boolean) => void;
     setEpgMetadataBadgeFps: (enabled: boolean) => void;
+    setEpgMetadataBadgeFpsSuffix: (enabled: boolean) => void;
     setEpgMetadataBadgeSound: (enabled: boolean) => void;
     globalLiveTvUserAgent: string;
     setGlobalLiveTvUserAgent: (ua: string) => void;
@@ -406,6 +408,7 @@ export function useAppSettings(): AppSettings {
   const [epgLogoDisplay, setEpgLogoDisplayState] = useState<'square' | 'rectangle'>('square');
   const [epgMetadataBadgeResolution, setEpgMetadataBadgeResolutionState] = useState(cachedSettings?.epgMetadataBadgeResolution ?? true);
   const [epgMetadataBadgeFps, setEpgMetadataBadgeFpsState] = useState(cachedSettings?.epgMetadataBadgeFps ?? true);
+  const [epgMetadataBadgeFpsSuffix, setEpgMetadataBadgeFpsSuffixState] = useState(cachedSettings?.epgMetadataBadgeFpsSuffix ?? true);
   const [epgMetadataBadgeSound, setEpgMetadataBadgeSoundState] = useState(cachedSettings?.epgMetadataBadgeSound ?? true);
   const [globalLiveTvUserAgent, setGlobalLiveTvUserAgentState] = useState('');
 
@@ -698,6 +701,7 @@ export function useAppSettings(): AppSettings {
           setEpgLogoDisplayState(result.data.epgLogoDisplay ?? 'square');
           setEpgMetadataBadgeResolutionState(result.data.epgMetadataBadgeResolution ?? true);
           setEpgMetadataBadgeFpsState(result.data.epgMetadataBadgeFps ?? true);
+          setEpgMetadataBadgeFpsSuffixState(result.data.epgMetadataBadgeFpsSuffix ?? true);
           setEpgMetadataBadgeSoundState(result.data.epgMetadataBadgeSound ?? true);
           if (result.data.epgLogoDisplay === 'rectangle') {
             document.documentElement.classList.add('epg-rectangle-logos');
@@ -1609,6 +1613,17 @@ export function useAppSettings(): AppSettings {
     }
   }, []);
 
+  const setEpgMetadataBadgeFpsSuffix = useCallback(async (enabled: boolean) => {
+    setEpgMetadataBadgeFpsSuffixState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ epgMetadataBadgeFpsSuffix: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save epgMetadataBadgeFpsSuffix:', e);
+      }
+    }
+  }, []);
+
   const setEpgLogoDisplay = useCallback(async (display: 'square' | 'rectangle') => {
     setEpgLogoDisplayState(display);
     if (display === 'rectangle') {
@@ -1818,6 +1833,8 @@ export function useAppSettings(): AppSettings {
     setEpgMetadataBadgeResolution,
     epgMetadataBadgeFps,
     setEpgMetadataBadgeFps,
+    epgMetadataBadgeFpsSuffix,
+    setEpgMetadataBadgeFpsSuffix,
     epgMetadataBadgeSound,
     setEpgMetadataBadgeSound,
     globalLiveTvUserAgent,

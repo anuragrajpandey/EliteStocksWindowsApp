@@ -136,6 +136,7 @@ export interface AppSettings {
     epgLogoDisplay?: 'square' | 'rectangle';
     epgMetadataBadgeResolution?: boolean;
     epgMetadataBadgeFps?: boolean;
+    epgMetadataBadgeFpsSuffix?: boolean;
     epgMetadataBadgeSound?: boolean;
     disableThemeBlobs?: boolean;
     disableThemeBackdropBlur?: boolean;

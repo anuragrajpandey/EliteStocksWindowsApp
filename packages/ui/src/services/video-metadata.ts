@@ -57,8 +57,8 @@ export function getQualityLabel(width: number, height: number): string {
  */
 export function formatAudioChannels(channels: number): string {
     if (channels >= 6) return '5.1';
-    if (channels === 2) return 'STEREO';
-    if (channels === 1) return 'MONO';
+    if (channels === 2) return 'Stereo';
+    if (channels === 1) return 'Mono';
     return `${channels}CH`;
 }
 

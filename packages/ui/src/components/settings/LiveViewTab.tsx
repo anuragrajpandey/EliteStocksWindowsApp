@@ -105,7 +105,7 @@ export function LiveViewTab({
             <div className="timeshift-toggle-info">
               <span className="timeshift-toggle-label">Hide Metadata Badge</span>
               <span className="timeshift-toggle-sub">
-                When enabled, resolution, frame rate, and audio channel badges (e.g. 1080P 60FPS STEREOCH) will be hidden from the overlay.
+                When enabled, resolution, frame rate, and audio channel badges (e.g. 1080p 60 Stereo) will be hidden from the overlay.
               </span>
             </div>
             <label className="toggle-switch">
