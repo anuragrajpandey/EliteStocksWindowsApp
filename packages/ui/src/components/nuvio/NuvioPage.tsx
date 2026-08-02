@@ -946,7 +946,13 @@ function NuvioPageContent({
     return Array.from(map.values());
   };
 
+  const lastDeltaPullTimeRef = useRef<number>(0);
+
   const loadWatchProgressDelta = async (profileId: number, existingEntries: NuvioWatchProgressSyncEntry[]): Promise<NuvioWatchProgressSyncEntry[]> => {
+    if (Date.now() - lastDeltaPullTimeRef.current < 15000 && existingEntries.length > 0) {
+      return existingEntries;
+    }
+    lastDeltaPullTimeRef.current = Date.now();
     const cursor = deltaCursorRef.current;
     const events = await fetchNuvioWatchProgressDelta(token!, profileId, cursor, 900);
     if (!events || events.length === 0) return existingEntries;
