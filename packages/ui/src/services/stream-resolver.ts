@@ -117,7 +117,7 @@ export async function resolvePlayUrl(
             if (sourceData.type === 'stalker') {
                 userAgent = 'Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 250 Safari/533.3';
             } else if (sourceData.type === 'xtream' || sourceData.type === 'm3u') {
-                userAgent = 'ynoTVPlayer';
+                userAgent = 'VLC/3.0.18 LibVLC/3.0.18';
             }
         }
         const sourceName: string | null = sourceData.name ?? null;

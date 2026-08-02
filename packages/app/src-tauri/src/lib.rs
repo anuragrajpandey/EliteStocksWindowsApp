@@ -3525,7 +3525,7 @@ async fn do_download(
             let mut cmd = tokio::process::Command::new(ytdl_path);
             
             let ua = user_agent.as_deref().unwrap_or("");
-            let effective_ua = if ua.trim().is_empty() { "ynoTVPlayer" } else { ua };
+            let effective_ua = if ua.trim().is_empty() { "VLC/3.0.18 LibVLC/3.0.18" } else { ua };
             cmd.arg("--user-agent").arg(effective_ua);
             cmd.arg("--newline");
             cmd.arg("--progress");
@@ -3655,7 +3655,7 @@ async fn do_download(
         let mut cmd = tokio::process::Command::new(ffmpeg_path);
         
         let ua = user_agent.as_deref().unwrap_or("");
-        let effective_ua = if ua.trim().is_empty() { "ynoTVPlayer" } else { ua };
+        let effective_ua = if ua.trim().is_empty() { "VLC/3.0.18 LibVLC/3.0.18" } else { ua };
         cmd.arg("-user_agent").arg(effective_ua);
         cmd.arg("-stats");
 
@@ -3785,7 +3785,7 @@ async fn do_download(
             Err(DownloadError::Failed("FFmpeg process failed".to_string()))
         }
     } else {
-        let ua = user_agent.unwrap_or_else(|| "ynoTV".to_string());
+        let ua = user_agent.unwrap_or_else(|| "VLC/3.0.18 LibVLC/3.0.18".to_string());
         let client = reqwest::Client::builder()
             .user_agent(ua)
             .build()

@@ -67,7 +67,7 @@ pub async fn sync_xtream_source(
     let client_builder = Client::builder();
     let ua = match user_agent {
         Some(ref u) if !u.trim().is_empty() => u.clone(),
-        _ => "ynoTVPlayer".to_string(),
+        _ => "VLC/3.0.18 LibVLC/3.0.18".to_string(),
     };
     let client = client_builder.user_agent(ua).build().map_err(|e| e.to_string())?;
 
@@ -418,7 +418,7 @@ pub async fn sync_m3u_source(
     let client_builder = Client::builder();
     let ua = match user_agent {
         Some(ref u) if !u.trim().is_empty() => u.clone(),
-        _ => "ynoTVPlayer".to_string(),
+        _ => "VLC/3.0.18 LibVLC/3.0.18".to_string(),
     };
     let client = client_builder.user_agent(ua).build().map_err(|e| e.to_string())?;
 
@@ -613,7 +613,7 @@ pub async fn sync_xtream_vod_movies(
         
     let ua = match user_agent {
         Some(ref u) if !u.trim().is_empty() => u.clone(),
-        _ => "ynoTVPlayer".to_string(),
+        _ => "VLC/3.0.18 LibVLC/3.0.18".to_string(),
     };
     let client = client_builder.user_agent(ua).build().map_err(|e| e.to_string())?;
 
@@ -798,7 +798,7 @@ pub async fn sync_xtream_vod_series(
         
     let ua = match user_agent {
         Some(ref u) if !u.trim().is_empty() => u.clone(),
-        _ => "ynoTVPlayer".to_string(),
+        _ => "VLC/3.0.18 LibVLC/3.0.18".to_string(),
     };
     let client = client_builder.user_agent(ua).build().map_err(|e| e.to_string())?;
 

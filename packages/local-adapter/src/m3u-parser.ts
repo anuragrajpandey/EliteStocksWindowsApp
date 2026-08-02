@@ -354,7 +354,7 @@ function createCategoryId(sourceId: string, groupTitle: string): string {
  */
 export async function fetchAndParseM3U(url: string, sourceId: string, userAgent?: string): Promise<M3UParseResult> {
   const headers: Record<string, string> = {};
-  headers['User-Agent'] = userAgent || 'ynoTVPlayer';
+  headers['User-Agent'] = userAgent || 'VLC/3.0.18 LibVLC/3.0.18';
 
   // Tauri Environment
   if ((window as any).__TAURI__) {

@@ -337,7 +337,7 @@ pub async fn stream_parse_epg<R: tauri::Runtime>(
     // Using native-tls to handle various certificate types including self-signed
     let ua = match user_agent {
         Some(ref u) if !u.trim().is_empty() => u.clone(),
-        _ => "ynoTVPlayer".to_string(),
+        _ => "VLC/3.0.18 LibVLC/3.0.18".to_string(),
     };
 
     let client = reqwest::Client::builder()
@@ -524,7 +524,7 @@ pub async fn stream_parse_epg_multi<R: tauri::Runtime>(
     // Create HTTP client
     let ua = match user_agent {
         Some(ref u) if !u.trim().is_empty() => u.clone(),
-        _ => "ynoTVPlayer".to_string(),
+        _ => "VLC/3.0.18 LibVLC/3.0.18".to_string(),
     };
 
     let client = reqwest::Client::builder()
@@ -1910,7 +1910,7 @@ pub async fn cache_entire_epg_db<R: tauri::Runtime>(
     // 1. Download EPG XML data
     let ua = match user_agent {
         Some(ref u) if !u.trim().is_empty() => u.clone(),
-        _ => "ynoTVPlayer".to_string(),
+        _ => "VLC/3.0.18 LibVLC/3.0.18".to_string(),
     };
 
     let client = reqwest::Client::builder()

@@ -26,6 +26,13 @@ import { decompressEpgDescription } from '../../utils/compression';
 
 export type SourcesSubTabId = 'source' | 'epg' | 'refresh' | 'global_ua';
 
+const PRESET_USER_AGENTS = [
+  { label: 'VLC (Default)', value: 'VLC/3.0.18 LibVLC/3.0.18' },
+  { label: 'TiviMate/4.6.0', value: 'TiviMate/4.6.0' },
+  { label: 'GSE Smart IPTV', value: 'GSE Smart IPTV' },
+  { label: 'IPTVSmarters', value: 'IPTVSmarters' },
+];
+
 interface SourcesTabProps {
   initialSubTab?: SourcesSubTabId;
   sources: Source[];
@@ -860,7 +867,7 @@ export function SourcesTab({
         success = result.success;
       } else {
         // M3U: try a lightweight fetch
-        const finalUa = formData.userAgent.trim() || 'ynoTVPlayer';
+        const finalUa = formData.userAgent.trim() || 'VLC/3.0.18 LibVLC/3.0.18';
         if (window.fetchProxy) {
           const result = await window.fetchProxy.fetch(url, {
             headers: { 'User-Agent': finalUa }
@@ -2285,11 +2292,36 @@ export function SourcesTab({
 
             <div className="form-group">
               <label>User Agent (Optional)</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.4rem' }}>
+                {PRESET_USER_AGENTS.map((preset) => {
+                  const isActive = formData.userAgent.trim() === preset.value;
+                  return (
+                    <button
+                      key={preset.value}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, userAgent: preset.value })}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '16px',
+                        fontSize: '0.78rem',
+                        fontWeight: isActive ? 600 : 400,
+                        background: isActive ? 'var(--primary-color, #3b82f6)' : 'var(--surface-color, rgba(255, 255, 255, 0.06))',
+                        color: isActive ? '#fff' : 'var(--text-primary)',
+                        border: isActive ? '1px solid var(--primary-color, #3b82f6)' : '1px solid var(--surface-border, rgba(255, 255, 255, 0.15))',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {preset.label}
+                    </button>
+                  );
+                })}
+              </div>
               <input
                 type="text"
                 value={formData.userAgent}
                 onChange={(e) => setFormData({ ...formData, userAgent: e.target.value })}
-                placeholder="Ex: Mozilla/5.0..."
+                placeholder="Ex: VLC/3.0.18 LibVLC/3.0.18"
               />
               <span className="hint">Custom User-Agent header for requests</span>
             </div>
@@ -2562,11 +2594,38 @@ export function SourcesTab({
           <div className="settings-form" style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', maxWidth: '550px' }}>
             <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
               <label style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>User-Agent String</label>
+              
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.2rem' }}>
+                {PRESET_USER_AGENTS.map((preset) => {
+                  const isActive = (globalLiveTvUserAgent || '').trim() === preset.value;
+                  return (
+                    <button
+                      key={preset.value}
+                      type="button"
+                      onClick={() => setGlobalLiveTvUserAgent(preset.value)}
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: '20px',
+                        fontSize: '0.82rem',
+                        fontWeight: isActive ? 600 : 400,
+                        background: isActive ? 'var(--primary-color, #3b82f6)' : 'var(--surface-color, rgba(255, 255, 255, 0.06))',
+                        color: isActive ? '#fff' : 'var(--text-primary)',
+                        border: isActive ? '1px solid var(--primary-color, #3b82f6)' : '1px solid var(--surface-border, rgba(255, 255, 255, 0.15))',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {preset.label}
+                    </button>
+                  );
+                })}
+              </div>
+
               <input
                 type="text"
                 value={globalLiveTvUserAgent || ''}
                 onChange={(e) => setGlobalLiveTvUserAgent(e.target.value)}
-                placeholder="e.g. Mozilla/5.0..."
+                placeholder="e.g. VLC/3.0.18 LibVLC/3.0.18"
                 style={{
                   padding: '10px 12px',
                   borderRadius: '6px',
@@ -2579,7 +2638,7 @@ export function SourcesTab({
                 }}
               />
               <p className="form-hint" style={{ marginTop: '0.2rem', opacity: 0.7, fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-                Leave empty to fallback to the current default client user agent (<code>ynoTVPlayer</code>).
+                Leave empty to fallback to the current default client user agent (<code>VLC/3.0.18 LibVLC/3.0.18</code>).
               </p>
             </div>
           </div>

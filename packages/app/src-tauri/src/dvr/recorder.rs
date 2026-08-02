@@ -244,7 +244,7 @@ impl RecordingManager {
 
         // HTTP reconnection & User-Agent flags (must be specified before the input -i)
         if stream_url.starts_with("http://") || stream_url.starts_with("https://") {
-            cmd.arg("-user_agent").arg("ynoTVPlayer");
+            cmd.arg("-user_agent").arg("VLC/3.0.18 LibVLC/3.0.18");
             cmd.arg("-reconnect").arg("1")
                 .arg("-reconnect_delay_max").arg("5")
                 .arg("-reconnect_on_network_error").arg("1");

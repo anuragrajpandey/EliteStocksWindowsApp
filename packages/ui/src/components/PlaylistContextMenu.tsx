@@ -8,6 +8,8 @@ interface PlaylistContextMenuProps {
     position: { x: number; y: number };
     onClose: () => void;
     onEditContents: () => void;
+    onManageCategories?: () => void;
+    onCreateCategoryFolder?: () => void;
     onExportM3u: () => void;
     onRename: () => void;
     onDelete: () => void;
@@ -19,6 +21,8 @@ export function PlaylistContextMenu({
     position,
     onClose,
     onEditContents,
+    onManageCategories,
+    onCreateCategoryFolder,
     onExportM3u,
     onRename,
     onDelete,
@@ -106,6 +110,28 @@ export function PlaylistContextMenu({
             >
                 Edit Contents
             </div>
+            {onManageCategories && (
+                <div
+                    className="context-menu-item"
+                    onClick={() => {
+                        onManageCategories();
+                        onClose();
+                    }}
+                >
+                    Manage Categories
+                </div>
+            )}
+            {onCreateCategoryFolder && (
+                <div
+                    className="context-menu-item"
+                    onClick={() => {
+                        onCreateCategoryFolder();
+                        onClose();
+                    }}
+                >
+                    Create Category Folder
+                </div>
+            )}
             <div
                 className="context-menu-item"
                 onClick={() => {

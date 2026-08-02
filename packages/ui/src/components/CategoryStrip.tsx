@@ -1166,7 +1166,15 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
         const trimmed = newName.trim();
         if (trimmed && trimmed !== currentName) {
           try {
-            await updateCategoryAlias(categoryId, trimmed);
+            if (categoryId.startsWith('link:')) {
+              const linkId = parseInt(categoryId.replace('link:', ''), 10);
+              if (!isNaN(linkId)) {
+                const { renameCategoryLink } = await import('../services/playlist-editor');
+                await renameCategoryLink(linkId, trimmed);
+              }
+            } else {
+              await updateCategoryAlias(categoryId, trimmed);
+            }
           } catch (err) {
             console.error('[CategoryStrip] Failed to rename category:', err);
           }
@@ -1799,6 +1807,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                             displayName={name}
                             channelCount={count}
                             isPinned={isPinned}
+                            onContextMenu={(e) => handleCategoryContextMenu(e, `link:${link.id}`, name, playlist.playlist_id, playlist.name)}
                             style={itemStyle}
                           />
                         );
@@ -2030,6 +2039,12 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
           onEditContents={() => {
             setEditingPlaylist({ id: playlistContextMenu.playlistId, name: playlistContextMenu.playlistName });
           }}
+          onManageCategories={() => {
+            setManagingCategorySource({ id: playlistContextMenu.playlistId, name: playlistContextMenu.playlistName });
+          }}
+          onCreateCategoryFolder={() => {
+            setManagingCategorySource({ id: playlistContextMenu.playlistId, name: playlistContextMenu.playlistName, initialCreateFolder: true });
+          }}
           onExportM3u={async () => {
             try {
               const { generateM3uForPlaylist } = await import('../services/playlist-export');
@@ -2080,9 +2095,9 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
           sourceName={categoryContextMenu.sourceName}
           position={{ x: categoryContextMenu.x, y: categoryContextMenu.y }}
           onClose={() => setCategoryContextMenu(null)}
-          onManageCategories={categoryContextMenu.categoryId.startsWith('link:') ? undefined : (id, name) => setManagingCategorySource({ id, name })}
+          onManageCategories={(id, name) => setManagingCategorySource({ id, name })}
           onHideCategory={categoryContextMenu.categoryId.startsWith('link:') ? undefined : handleHideCategory}
-          onRenameCategory={categoryContextMenu.categoryId.startsWith('link:') ? undefined : handleRenameCategory}
+          onRenameCategory={handleRenameCategory}
           isPinned={pinnedCategories.includes(`${categoryContextMenu.sourceId}:${categoryContextMenu.categoryId}`)}
           onPin={() => handlePinCategory(categoryContextMenu.sourceId, categoryContextMenu.categoryId)}
           onUnpin={() => handleUnpinCategory(categoryContextMenu.sourceId, categoryContextMenu.categoryId)}

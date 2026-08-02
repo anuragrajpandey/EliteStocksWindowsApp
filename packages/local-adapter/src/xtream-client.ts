@@ -59,7 +59,7 @@ export class XtreamClient {
     this.config = {
       ...config,
       baseUrl: config.baseUrl.replace(/\/+$/, ''),
-      userAgent: config.userAgent || 'ynoTVPlayer',
+      userAgent: config.userAgent || 'VLC/3.0.18 LibVLC/3.0.18',
     };
     this.sourceId = sourceId;
   }
