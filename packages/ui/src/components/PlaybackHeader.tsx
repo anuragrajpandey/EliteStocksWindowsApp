@@ -39,7 +39,7 @@ export function PlaybackHeader({
 
   const displayTitle = title || 'Now Playing';
   const displaySubtitle = subtitle || '';
-  const displayQuality = quality || '1080P';
+  const displayQuality = quality;
 
   return (
     <div className={`playback-header-container${hiding ? ' hiding' : ''}`}>

@@ -114,6 +114,7 @@ import { SkipIntroButton } from './components/SkipIntroButton';
 import { useSkipIntro } from './hooks/useSkipIntro';
 import { BackButtonOverlay } from './components/BackButtonOverlay';
 import { PlaybackDetailsModal } from './components/PlaybackDetailsModal';
+import { SourcePickerModal } from './components/SourcePickerModal';
 import type { RecommendationItem } from './hooks/useLazyStremioRecommendations';
 import { DEFAULT_BADGE_SOURCES, mergeDefaultBadgeSources, compileBadgeSources } from './utils/streamBadges';
 
@@ -893,6 +894,13 @@ function App() {
   // Playback source view state to know where to go back when stopped
   const [playbackSourceView, setPlaybackSourceView] = useState<'movies' | 'series' | 'dvr' | 'stremio' | 'nuvio' | null>(null);
   const [showPlaybackDetailsModal, setShowPlaybackDetailsModal] = useState(false);
+  const [sourcePickerParams, setSourcePickerParams] = useState<{
+    source: 'stremio' | 'nuvio';
+    type: string;
+    id: string;
+    meta: StremioMeta;
+    video?: StremioVideo;
+  } | null>(null);
   const [activeStremioMeta, setActiveStremioMeta] = useState<StremioMeta | null>(null);
   const [activeStremioEpisode, setActiveStremioEpisode] = useState<StremioVideo | null>(null);
   const isPopoutModeLoadedRef = useRef(false);
@@ -3814,15 +3822,18 @@ function useTmdbPresencePoster(
   const sourceNameMap = useSourceNameMap();
   const headerSourceName = useMemo(() => {
     if (!vodShowSourceBadge) return null;
+    if (isStremioOrNuvio) {
+      if (playbackSourceView === 'nuvio') return 'Nuvio';
+      if (playbackSourceView === 'stremio') return 'Stremio';
+      return null;
+    }
     if (vodInfo?.source_id && sourceNameMap) {
       const found = sourceNameMap.get(vodInfo.source_id);
       if (found) return found;
     }
     if (vodInfo?.addonName) return vodInfo.addonName;
-    if (playbackSourceView === 'nuvio') return 'Nuvio';
-    if (playbackSourceView === 'stremio') return 'Stremio';
     return null;
-  }, [vodShowSourceBadge, vodInfo, sourceNameMap, playbackSourceView]);
+  }, [vodShowSourceBadge, isStremioOrNuvio, vodInfo, sourceNameMap, playbackSourceView]);
 
   return (
     <div className={`app${showControls ? '' : ' controls-hidden'}${pipMode ? ' pip-mode' : ''}${!pipMode && sportsOverlayWidget === 'autohide' ? ' has-live-sports-autohide' : ''}${!pipMode && sportsOverlayWidget === 'persistent' ? ' has-live-sports-persistent' : ''}${!pipMode && recentOverlayWidget !== null ? ' has-recent-widget' : ''}${!pipMode && favoritesOverlayWidget ? ' has-favorites-widget' : ''} active-view-${activeView}${guideTransparent ? ' guide-transparent' : ''}`} onMouseMove={handleMouseMovePip}>
@@ -3846,7 +3857,7 @@ function useTmdbPresencePoster(
                 ? `${currentStremioMeta?.name || ''}${currentStremioMeta?.year ? ` · ${currentStremioMeta.year}` : ''}`
                 : `${vodInfo?.title || ''}${vodInfo?.year ? ` · ${vodInfo.year}` : ''}`)
         }
-        quality={vodInfo?.addonName || '1080P'}
+        quality={null}
         sourceName={headerSourceName}
         onOpenDetails={() => setShowPlaybackDetailsModal(true)}
       />
@@ -3865,17 +3876,13 @@ function useTmdbPresencePoster(
           const meta = currentStremioMeta;
           if (!meta) return;
           setShowPlaybackDetailsModal(false);
-          window.dispatchEvent(new CustomEvent('ynotv:stremio-play', {
-            detail: {
-              meta,
-              episodeVideo: video,
-              stream: {
-                id: video.id,
-                title: video.title || `Episode ${video.episode}`,
-              },
-              isNuvio: stremioIsNuvioRef.current,
-            },
-          }));
+          setSourcePickerParams({
+            source: playbackSourceView === 'nuvio' ? 'nuvio' : 'stremio',
+            type: 'series',
+            id: video.id,
+            meta: meta,
+            video: video,
+          });
         }}
         onPlayVodInfo={(info) => {
           setShowPlaybackDetailsModal(false);
@@ -5494,6 +5501,32 @@ function useTmdbPresencePoster(
         onClose={() => setShowShortcutsOverlay(false)}
         shortcuts={shortcuts}
       />
+      {/* Source Selector Modal when episode selected from PlaybackDetailsModal */}
+      {sourcePickerParams && (
+        <SourcePickerModal
+          source={sourcePickerParams.source}
+          type={sourcePickerParams.type}
+          id={sourcePickerParams.id}
+          currentAddonName={vodInfo?.addonName}
+          currentUrl={vodInfo?.url}
+          compiledBadgeRules={sourcePickerParams.source === 'nuvio' ? compiledNuvioBadgeRules : compiledBadgeRules}
+          onSelect={(stream) => {
+            const params = sourcePickerParams;
+            setSourcePickerParams(null);
+            window.dispatchEvent(
+              new CustomEvent('ynotv:stremio-play', {
+                detail: {
+                  meta: params.meta,
+                  episodeVideo: params.video,
+                  stream: stream,
+                  isNuvio: params.source === 'nuvio',
+                },
+              })
+            );
+          }}
+          onClose={() => setSourcePickerParams(null)}
+        />
+      )}
       <ModalComponent />
       <div id="hls-fallback-container" style={{ display: 'none' }} />
     </div>
