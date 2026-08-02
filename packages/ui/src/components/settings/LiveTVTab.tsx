@@ -300,21 +300,23 @@ export function LiveTVTab({
                   </select>
                 </div>
 
-                {/* Enable darker current program block */}
-                <div className="timeshift-toggle-row">
-                  <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label">Make EPG Current airing program blocks darker</span>
-                    <span className="timeshift-toggle-sub">When enabled, the currently airing program in the EPG will have a deeper/darker highlight, making it easier to identify on all themes.</span>
+                {/* Enable darker current program block (v1 design only) */}
+                {(modernUiEnabled === false || modernUiEnabled === 'v1') && (
+                  <div className="timeshift-toggle-row">
+                    <div className="timeshift-toggle-info">
+                      <span className="timeshift-toggle-label">Make EPG Current airing program blocks darker</span>
+                      <span className="timeshift-toggle-sub">When enabled, the currently airing program in the EPG will have a deeper/darker highlight, making it easier to identify on all themes.</span>
+                    </div>
+                    <label className="toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={epgDarkenCurrent}
+                        onChange={(e) => onEpgDarkenCurrentChange(e.target.checked)}
+                      />
+                      <span className="toggle-slider" />
+                    </label>
                   </div>
-                  <label className="toggle-switch">
-                    <input
-                      type="checkbox"
-                      checked={epgDarkenCurrent}
-                      onChange={(e) => onEpgDarkenCurrentChange(e.target.checked)}
-                    />
-                    <span className="toggle-slider" />
-                  </label>
-                </div>
+                )}
 
                 {/* Highlight border around current playing */}
                 <div className="timeshift-toggle-row">
@@ -363,43 +365,47 @@ export function LiveTVTab({
                   </select>
                 </div>
 
-                {/* Preview example */}
-                <div style={{ marginTop: '24px', padding: '16px', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                  <h4 style={{ margin: '0 0 12px 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Preview:</h4>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    {/* Regular program block */}
-                    <div style={{
-                      padding: '8px 12px',
-                      background: 'var(--surface-color)',
-                      borderRadius: '4px',
-                      borderLeft: '2px solid transparent',
-                      flex: 1,
-                      fontSize: '0.8rem'
-                    }}>
-                      <span style={{ color: 'var(--text-secondary)' }}>Other Program</span>
-                    </div>
-                    {/* Current program block */}
-                    <div style={{
-                      padding: '8px 12px',
-                      background: epgDarkenCurrent
-                        ? 'color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, var(--bg-tertiary))'
-                        : 'color-mix(in srgb, var(--accent-primary, #00d4ff) 8%, transparent)',
-                      borderRadius: '4px',
-                      borderLeft: '3px solid var(--accent-primary, #00d4ff)',
-                      flex: 1,
-                      fontSize: '0.8rem'
-                    }}>
-                      <span style={{ color: 'var(--text-primary)' }}>Current Program</span>
+                {/* Preview example (v1 design only) */}
+                {(modernUiEnabled === false || modernUiEnabled === 'v1') && (
+                  <div style={{ marginTop: '24px', padding: '16px', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
+                    <h4 style={{ margin: '0 0 12px 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Preview:</h4>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      {/* Regular program block */}
+                      <div style={{
+                        padding: '8px 12px',
+                        background: 'var(--surface-color)',
+                        borderRadius: '4px',
+                        borderLeft: '2px solid transparent',
+                        flex: 1,
+                        fontSize: '0.8rem'
+                      }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>Other Program</span>
+                      </div>
+                      {/* Current program block */}
+                      <div style={{
+                        padding: '8px 12px',
+                        background: epgDarkenCurrent
+                          ? 'color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, var(--bg-tertiary))'
+                          : 'color-mix(in srgb, var(--accent-primary, #00d4ff) 8%, transparent)',
+                        borderRadius: '4px',
+                        borderLeft: '3px solid var(--accent-primary, #00d4ff)',
+                        flex: 1,
+                        fontSize: '0.8rem'
+                      }}>
+                        <span style={{ color: 'var(--text-primary)' }}>Current Program</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
             {/* Metadata Badges Settings */}
             <div className="settings-section">
               <div className="section-header">
-                <h3>Metadata Badges</h3>
+                <h3 style={{ color: 'var(--text-primary, #ffffff)', fontSize: '1rem', fontWeight: 600, textTransform: 'none', letterSpacing: 'normal' }}>
+                  Metadata Badges
+                </h3>
               </div>
               <p className="section-description">
                 Enable or disable metadata badges displayed on channel rows in the EPG grid.
@@ -477,7 +483,9 @@ export function LiveTVTab({
             {/* Bold Typography Settings - hidden for v3 design */}
             {modernUiEnabled !== 'v3' && <div className="settings-section">
               <div className="section-header">
-                <h3>Bold Typography</h3>
+                <h3 style={{ color: 'var(--text-primary, #ffffff)', fontSize: '1rem', fontWeight: 600, textTransform: 'none', letterSpacing: 'normal' }}>
+                  Bold Typography
+                </h3>
               </div>
               <p className="section-description">
                 Enable bold font formatting for EPG elements and sidebar categories.
@@ -540,7 +548,9 @@ export function LiveTVTab({
             {/* EPG Font Size Settings */}
             <div className="settings-section">
               <div className="section-header">
-                <h3>EPG</h3>
+                <h3 style={{ color: 'var(--text-primary, #ffffff)', fontSize: '1rem', fontWeight: 600, textTransform: 'none', letterSpacing: 'normal' }}>
+                  EPG Preview Font Sizes
+                </h3>
               </div>
               <p className="section-description">
                 Adjust the font size for program information displayed in the EPG preview panel.
@@ -608,7 +618,9 @@ export function LiveTVTab({
             {/* Preview Panel Settings */}
             <div className="settings-section">
               <div className="section-header">
-                <h3>Preview Panel</h3>
+                <h3 style={{ color: 'var(--text-primary, #ffffff)', fontSize: '1rem', fontWeight: 600, textTransform: 'none', letterSpacing: 'normal' }}>
+                  Preview Panel
+                </h3>
               </div>
               <p className="section-description">
                 Customize the video preview panel in the LiveTV/EPG view.
@@ -636,7 +648,9 @@ export function LiveTVTab({
             {/* Transparent EPG Overlay Settings */}
             <div className="settings-section">
               <div className="section-header">
-                <h3>Transparent EPG Overlay</h3>
+                <h3 style={{ color: 'var(--text-primary, #ffffff)', fontSize: '1rem', fontWeight: 600, textTransform: 'none', letterSpacing: 'normal' }}>
+                  Transparent EPG Overlay
+                </h3>
               </div>
               <p className="section-description">
                 When using Transparent Guide mode (press Z), controls how much of the screen the EPG/channel list covers, from the bottom up.
