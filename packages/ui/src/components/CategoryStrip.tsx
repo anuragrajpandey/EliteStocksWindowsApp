@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useRef, useCallback, us
 import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../hooks/useSqliteLiveQuery';
 import { useCategoriesBySource, useEnabledSources, type CategoryWithCount, type SourceWithCategories } from '../hooks/useChannels';
-import { db, getWatchlistCount, type CustomGroup, updateCategoryEnabled, updateCategoryAlias, type CustomPlaylist, type PlaylistCategoryLink } from '../db';
+import { db, getWatchlistCount, type CustomGroup, updateCategoryEnabled, updateCategoryAlias, type CustomPlaylist, type PlaylistCategoryLink, type CategoryFolder } from '../db';
 import { PlaylistEditorModal } from './PlaylistEditorModal';
 import type { Source } from '@ynotv/core';
 import { useSourceVersion } from '../contexts/SourceVersionContext';
@@ -102,10 +102,10 @@ interface CategoryStripProps {
 }
 
 // Chevron Icon for expand/collapse
-const ChevronIcon = ({ expanded }: { expanded: boolean }) => (
+const ChevronIcon = ({ expanded, size = 16 }: { expanded: boolean; size?: number }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="16" height="16"
+    width={size} height={size}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -115,7 +115,8 @@ const ChevronIcon = ({ expanded }: { expanded: boolean }) => (
     style={{
       transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
       transition: 'transform 0.2s ease',
-      marginRight: '8px'
+      marginRight: size <= 12 ? '4px' : '8px',
+      flexShrink: 0
     }}
   >
     <path d="M9 6l6 6-6 6" />
@@ -645,6 +646,27 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
     0,
     'playlist_category_links'
   );
+
+  // Load all category folders
+  const allCategoryFolders = useLiveQuery(
+    async () => {
+      const folders = await db.categoryFolders.toArray();
+      return folders.sort((a, b) => a.display_order - b.display_order);
+    },
+    [],
+    [],
+    0,
+    'category_folders'
+  );
+
+  const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
+
+  const toggleFolder = (folderId: string) => {
+    setExpandedFolders(prev => ({
+      ...prev,
+      [folderId]: !prev[folderId]
+    }));
+  };
 
   // Load all categories for link name mapping
   const allCategoriesList = useLiveQuery(
@@ -1323,6 +1345,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                         name: string;
                         count: number;
                         displayOrder: number;
+                        folderId?: string | null;
                         nativeCat?: typeof group.categories[0];
                         customLink?: PlaylistCategoryLink;
                       }
@@ -1338,6 +1361,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                           name: cat.alias || cat.category_name,
                           count: cat.channelCount + manualCount,
                           displayOrder: cat.display_order ?? 0,
+                          folderId: cat.folder_id || null,
                           nativeCat: cat
                         });
                       }
@@ -1354,6 +1378,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                           name: link.custom_name || (categoryNamesMap.get(link.category_id) || link.category_id),
                           count: nativeCount + manualCount,
                           displayOrder: link.display_order ?? 0,
+                          folderId: link.folder_id || null,
                           customLink: link
                         });
                       }
@@ -1399,7 +1424,22 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                           )}
                           {(() => {
                             let pinnedCount = 0;
-                            return list.map(catItem => {
+                            const sourceFolders = (allCategoryFolders || []).filter(f => f.playlist_id === group.sourceId);
+                            const folderMap = new Map<string, UnifiedSidebarCat[]>();
+                            const rootCats: UnifiedSidebarCat[] = [];
+
+                            for (const catItem of list) {
+                              if (catItem.folderId && sourceFolders.some((f: CategoryFolder) => f.folder_id === catItem.folderId)) {
+                                if (!folderMap.has(catItem.folderId)) {
+                                  folderMap.set(catItem.folderId, []);
+                                }
+                                folderMap.get(catItem.folderId)!.push(catItem);
+                              } else {
+                                rootCats.push(catItem);
+                              }
+                            }
+
+                            const renderCatItem = (catItem: UnifiedSidebarCat, isFolderChild: boolean) => {
                               if (catItem.type === 'native' && catItem.nativeCat) {
                                 const category = catItem.nativeCat;
                                 const isPinned = pinnedCategories.includes(`${group.sourceId}:${category.category_id}`);
@@ -1407,7 +1447,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                                 return (
                                   <button
                                     key={category.category_id}
-                                    className={`category-item nested ${selectedCategoryId === category.category_id ? 'selected' : ''} ${isPinned ? 'is-pinned' : ''}`}
+                                    className={`category-item nested ${isFolderChild ? 'folder-nested' : ''} ${selectedCategoryId === category.category_id ? 'selected' : ''} ${isPinned ? 'is-pinned' : ''}`}
                                     onClick={() => onSelectCategory(category.category_id)}
                                     onContextMenu={(e) => handleCategoryContextMenu(e, category.category_id, category.alias || category.category_name, group.sourceId, sources[group.sourceId] || 'Source')}
                                     style={itemStyle}
@@ -1444,7 +1484,45 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                                 );
                               }
                               return null;
-                            });
+                            };
+
+                            return (
+                              <>
+                                {sourceFolders.map((folder: CategoryFolder) => {
+                                  const folderCats = folderMap.get(folder.folder_id) || [];
+                                  const isFolderExpanded = !!expandedFolders[folder.folder_id] || searchQuery.trim().length > 0;
+                                  const folderChannelCount = folderCats.reduce((sum, c) => sum + c.count, 0);
+
+                                  if (searchQuery.trim() && folderCats.length === 0) return null;
+
+                                  return (
+                                    <div key={folder.folder_id} className={`category-folder-group ${isFolderExpanded ? 'is-expanded' : ''}`}>
+                                      <button
+                                        className="category-folder-header"
+                                        onClick={() => toggleFolder(folder.folder_id)}
+                                      >
+                                        <div className="folder-header-left">
+                                          <ChevronIcon expanded={isFolderExpanded} size={12} />
+                                          <span className="category-icon folder-icon">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                                            </svg>
+                                          </span>
+                                          <ScrollingText className="folder-name">{folder.name}</ScrollingText>
+                                        </div>
+                                        <span className="folder-count">{folderChannelCount}</span>
+                                      </button>
+                                      {isFolderExpanded && (
+                                        <div className="category-folder-content">
+                                          {folderCats.map(catItem => renderCatItem(catItem, true))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                                {rootCats.map(catItem => renderCatItem(catItem, false))}
+                              </>
+                            );
                           })()}
                           
                           {individualCount > 0 && (
@@ -1520,22 +1598,82 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                         <span className="category-count">{item.count}</span>
                       </button>
                     )}
-                    {playlistLinks.map(link => {
-                      const nativeCount = categoryChannelCounts.get(link.category_id) || 0;
-                      const manualCount = manualCategoryChannelCounts?.get(`${playlist.playlist_id}:link:${link.id}`) || 0;
-                      const count = nativeCount + manualCount;
-                      const name = link.custom_name || (categoryNamesMap.get(link.category_id) || link.category_id);
+                    {(() => {
+                      const sourceFolders = (allCategoryFolders || []).filter(f => f.playlist_id === playlist.playlist_id);
+                      const folderMap = new Map<string, PlaylistCategoryLink[]>();
+                      const rootLinks: PlaylistCategoryLink[] = [];
+
+                      for (const link of playlistLinks) {
+                        if (link.folder_id && sourceFolders.some((f: CategoryFolder) => f.folder_id === link.folder_id)) {
+                          if (!folderMap.has(link.folder_id)) {
+                            folderMap.set(link.folder_id, []);
+                          }
+                          folderMap.get(link.folder_id)!.push(link);
+                        } else {
+                          rootLinks.push(link);
+                        }
+                      }
+
+                      const renderLink = (link: PlaylistCategoryLink, isFolderChild: boolean) => {
+                        const nativeCount = categoryChannelCounts.get(link.category_id) || 0;
+                        const manualCount = manualCategoryChannelCounts?.get(`${playlist.playlist_id}:link:${link.id}`) || 0;
+                        const count = nativeCount + manualCount;
+                        const name = link.custom_name || (categoryNamesMap.get(link.category_id) || link.category_id);
+                        return (
+                          <PlaylistCategoryLinkItem
+                            key={link.id}
+                            link={link}
+                            selectedCategoryId={selectedCategoryId}
+                            onSelectCategory={onSelectCategory}
+                            displayName={name}
+                            channelCount={count}
+                            style={isFolderChild ? { paddingLeft: '32px' } : undefined}
+                          />
+                        );
+                      };
+
                       return (
-                        <PlaylistCategoryLinkItem
-                          key={link.id}
-                          link={link}
-                          selectedCategoryId={selectedCategoryId}
-                          onSelectCategory={onSelectCategory}
-                          displayName={name}
-                          channelCount={count}
-                        />
+                        <>
+                          {sourceFolders.map((folder: CategoryFolder) => {
+                            const fLinks = folderMap.get(folder.folder_id) || [];
+                            const isFolderExpanded = !!expandedFolders[folder.folder_id] || searchQuery.trim().length > 0;
+                            const totalCount = fLinks.reduce((sum, link) => {
+                              const nativeCount = categoryChannelCounts.get(link.category_id) || 0;
+                              const manualCount = manualCategoryChannelCounts?.get(`${playlist.playlist_id}:link:${link.id}`) || 0;
+                              return sum + nativeCount + manualCount;
+                            }, 0);
+
+                            if (searchQuery.trim() && fLinks.length === 0) return null;
+
+                            return (
+                              <div key={folder.folder_id} className={`category-folder-group ${isFolderExpanded ? 'is-expanded' : ''}`}>
+                                <button
+                                  className="category-folder-header"
+                                  onClick={() => toggleFolder(folder.folder_id)}
+                                >
+                                  <div className="folder-header-left">
+                                    <ChevronIcon expanded={isFolderExpanded} size={12} />
+                                    <span className="category-icon folder-icon">
+                                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                                      </svg>
+                                    </span>
+                                    <ScrollingText className="folder-name">{folder.name}</ScrollingText>
+                                  </div>
+                                  <span className="folder-count">{totalCount}</span>
+                                </button>
+                                {isFolderExpanded && (
+                                  <div className="category-folder-content">
+                                    {fLinks.map(link => renderLink(link, true))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                          {rootLinks.map(link => renderLink(link, false))}
+                        </>
                       );
-                    })}
+                    })()}
 
                     {individualCount > 0 && (
                       <button

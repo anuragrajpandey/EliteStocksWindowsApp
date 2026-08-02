@@ -1358,3 +1358,114 @@
     border-color: rgba(255, 255, 255, 0.05) !important;
     color: rgba(255, 255, 255, 0.3) !important;
 }
+
+/* Category Folders in Playlist Editor */
+.ple-folder-select {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--accent-primary, #00d4ff);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 0.75rem;
+  outline: none;
+  font-family: inherit;
+  cursor: pointer;
+  max-width: 140px;
+}
+
+.ple-folder-select:hover {
+  border-color: var(--accent-primary, #00d4ff);
+}
+
+.ple-folder-select option {
+  background: #1a1a24;
+  color: #fff;
+}
+
+.ple-add-folder-btn {
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: var(--accent-primary, #00d4ff);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.ple-add-folder-btn:hover {
+  background: rgba(0, 212, 255, 0.18);
+  border-color: var(--accent-primary, #00d4ff);
+}
+
+.ple-folder-card {
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  background: rgba(0, 212, 255, 0.03);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.ple-folder-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(0, 212, 255, 0.06);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.12);
+}
+
+.ple-folder-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #fff;
+}
+
+.ple-folder-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ple-folder-icon-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.ple-folder-icon-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ple-folder-icon-btn.delete:hover {
+  color: #ff4b4b;
+  background: rgba(255, 75, 75, 0.15);
+}
+
+.ple-folder-card-body {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ple-folder-empty-hint {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 8px;
+  text-align: center;
+  font-style: italic;
+}
+

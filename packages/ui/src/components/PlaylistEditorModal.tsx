@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../hooks/useSqliteLiveQuery';
-import { db, type PlaylistCategoryLink, type PlaylistIndividualChannel, type StoredChannel, type StoredCategory } from '../db';
+import { db, type PlaylistCategoryLink, type PlaylistIndividualChannel, type StoredChannel, type StoredCategory, type CategoryFolder } from '../db';
 import { buildSearchQueryClauses } from '../utils/searchNormalization';
 import {
   addCategoryToPlaylist,
@@ -16,6 +16,10 @@ import {
   removeChannelFromCategory,
   addCustomCategoryToPlaylist,
   addChannelsToCategory,
+  createCategoryFolder,
+  renameCategoryFolder,
+  deleteCategoryFolder,
+  assignCategoryToFolder,
 } from '../services/playlist-editor';
 import { useModal } from './Modal';
 import './PlaylistEditorModal.css';
@@ -119,6 +123,7 @@ interface CategoryBlockCardProps {
   playlistId: string;
   block: any;
   sources: BrowseSource[];
+  folders?: CategoryFolder[];
   index: number;
   isDragging: boolean;
   isDragOver: boolean;
@@ -133,6 +138,7 @@ function CategoryBlockCard({
   playlistId,
   block,
   sources,
+  folders,
   index,
   isDragging,
   isDragOver,
@@ -426,6 +432,28 @@ function CategoryBlockCard({
           </button>
         )}
 
+        {folders && folders.length > 0 && (
+          <select
+            className="ple-folder-select"
+            value={(block.type === 'link' ? block.link.folder_id : block.category.folder_id) || ''}
+            onChange={(e) => {
+              const val = e.target.value || null;
+              assignCategoryToFolder(
+                block.type === 'link',
+                block.type === 'link' ? block.linkId : block.category.category_id,
+                val
+              );
+            }}
+            onClick={(e) => e.stopPropagation()}
+            title="Assign category to folder"
+          >
+            <option value="">📁 Root Level</option>
+            {folders.map(f => (
+              <option key={f.folder_id} value={f.folder_id}>📁 {f.name}</option>
+            ))}
+          </select>
+        )}
+
         <button
           className={`ple-block-target-btn${isMarked ? ' marked' : ''}`}
           onClick={(e) => {
@@ -596,12 +624,30 @@ async function sortChannelsLikeLiveTV(sourceId: string, categoryId: string, chan
 }
 
 export function PlaylistEditorModal({ playlistId, playlistName, onClose }: PlaylistEditorModalProps) {
-  const { showPrompt, showSuccess, showError, ModalComponent } = useModal();
+  const { showPrompt, showConfirm, showSuccess, showError, ModalComponent } = useModal();
   const [sources, setSources] = useState<BrowseSource[]>([]);
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
   const [sourceCategories, setSourceCategories] = useState<Record<string, StoredCategory[]>>({});
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const [categoryChannels, setCategoryChannels] = useState<Record<string, StoredChannel[]>>({});
+  const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
+
+  // Load category folders for this playlist/source
+  const categoryFolders = useLiveQuery(
+    async () => {
+      const folders = await db.categoryFolders.where('playlist_id').equals(playlistId).toArray();
+      return folders.sort((a, b) => a.display_order - b.display_order);
+    },
+    [playlistId],
+    []
+  );
+
+  const toggleFolderCollapse = (folderId: string) => {
+    setCollapsedFolders(prev => ({
+      ...prev,
+      [folderId]: !prev[folderId]
+    }));
+  };
 
   // Target marking state
   const [markedCategoryId, setMarkedCategoryId] = useState<string | null>(null);
@@ -1485,24 +1531,44 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
             <div className="ple-panel-header ple-right-panel-header">
               <div className="ple-right-header-title-row">
                 <h3>Playlist Contents</h3>
-                <button
-                  className="ple-add-custom-cat-btn"
-                  onClick={() => {
-                    showPrompt(
-                      'Create Custom Category',
-                      'Enter custom category name:',
-                      async (name) => {
-                        if (name && name.trim()) {
-                          await addCustomCategoryToPlaylist(playlistId, name.trim());
-                        }
-                      },
-                      undefined,
-                      'Category name...'
-                    );
-                  }}
-                >
-                  <PlusIcon size={12} /> Custom Category
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    className="ple-add-folder-btn"
+                    onClick={() => {
+                      showPrompt(
+                        'Create Category Folder',
+                        'Enter folder name (e.g. USA, Sports, News):',
+                        async (name) => {
+                          if (name && name.trim()) {
+                            await createCategoryFolder(playlistId, name.trim());
+                          }
+                        },
+                        undefined,
+                        'Folder name...'
+                      );
+                    }}
+                  >
+                    <FolderIcon size={14} /> + Folder
+                  </button>
+                  <button
+                    className="ple-add-custom-cat-btn"
+                    onClick={() => {
+                      showPrompt(
+                        'Create Custom Category',
+                        'Enter custom category name:',
+                        async (name) => {
+                          if (name && name.trim()) {
+                            await addCustomCategoryToPlaylist(playlistId, name.trim());
+                          }
+                        },
+                        undefined,
+                        'Category name...'
+                      );
+                    }}
+                  >
+                    <PlusIcon size={12} /> Custom Category
+                  </button>
+                </div>
               </div>
               <span className="ple-meta-hint">Drag handle ⋮⋮ to reorder. Click Target to mark a category for left-panel additions.</span>
             </div>
@@ -1516,39 +1582,175 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                 </div>
               ) : (
                 <div className="ple-contents-list">
-                  {/* Category Blocks drag-reorder container */}
-                  {combinedBlocks && combinedBlocks.length > 0 && (
-                    <div
-                      className="ple-section-category-links"
-                      ref={categoryListRef}
-                      onPointerMove={handleCatPointerMove}
-                      onPointerUp={handleCatPointerUp}
-                      onPointerCancel={handleCatPointerCancel}
-                    >
-                      {combinedBlocks.map((block, index) => {
-                        const isDragging = dragFromCatIdx.current === index;
-                        const isDragOver = dragOverCatIdx === index && dragFromCatIdx.current !== null && dragFromCatIdx.current !== index;
-                        const blockId = block.type === 'native' ? block.id : `link:${block.linkId}`;
-                        const isMarked = markedCategoryId === blockId;
+                  {/* Category Folders & Blocks */}
+                  {categoryFolders && categoryFolders.length > 0 ? (
+                    <>
+                      {categoryFolders.map((folder: CategoryFolder) => {
+                        const folderBlocks = (combinedBlocks || []).filter(b => {
+                          const fId = b.type === 'link' ? b.link.folder_id : b.category.folder_id;
+                          return fId === folder.folder_id;
+                        });
+                        const isCollapsed = !!collapsedFolders[folder.folder_id];
 
                         return (
-                          <CategoryBlockCard
-                            key={block.id}
-                            playlistId={playlistId}
-                            block={block}
-                            sources={sources}
-                            index={index}
-                            isDragging={isDragging}
-                            isDragOver={isDragOver}
-                            isMarked={isMarked}
-                            onMark={() => setMarkedCategoryId(prev => prev === blockId ? null : blockId)}
-                            onPointerDown={handleCatPointerDown}
-                            onRemove={block.type === 'link' ? () => removeCategoryFromPlaylist(block.linkId) : undefined}
-                            showHidden={showHidden}
-                          />
+                          <div key={folder.folder_id} className="ple-folder-card">
+                            <div className="ple-folder-card-header">
+                              <div className="ple-folder-header-left">
+                                <button
+                                  className="ple-block-expand-btn"
+                                  onClick={() => toggleFolderCollapse(folder.folder_id)}
+                                >
+                                  <span className="ple-chevron-small">{isCollapsed ? '▶' : '▼'}</span>
+                                </button>
+                                <FolderIcon size={16} />
+                                <span>{folder.name}</span>
+                                <span className="ple-original-title-hint">({folderBlocks.length} categories)</span>
+                              </div>
+
+                              <div className="ple-folder-header-actions">
+                                <button
+                                  className="ple-folder-icon-btn"
+                                  onClick={() => {
+                                    showPrompt(
+                                      'Rename Folder',
+                                      'Enter new folder name:',
+                                      async (newName) => {
+                                        if (newName && newName.trim()) {
+                                          await renameCategoryFolder(folder.folder_id, newName.trim());
+                                        }
+                                      },
+                                      undefined,
+                                      'Folder name...',
+                                      folder.name
+                                    );
+                                  }}
+                                  title="Rename folder"
+                                >
+                                  <EditIcon size={12} />
+                                </button>
+                                <button
+                                  className="ple-folder-icon-btn delete"
+                                  onClick={() => {
+                                    showConfirm(
+                                      'Delete Folder',
+                                      `Are you sure you want to delete folder "${folder.name}"? Categories inside will return to the root level.`,
+                                      async () => {
+                                        await deleteCategoryFolder(folder.folder_id);
+                                      }
+                                    );
+                                  }}
+                                  title="Delete folder"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            </div>
+
+                            {!isCollapsed && (
+                              <div className="ple-folder-card-body">
+                                {folderBlocks.length === 0 ? (
+                                  <div className="ple-folder-empty-hint">Folder is empty. Use the "Folder" dropdown on any category below to assign it to this folder.</div>
+                                ) : (
+                                  folderBlocks.map((block) => {
+                                    const origIndex = (combinedBlocks || []).findIndex(b => b.id === block.id);
+                                    const blockId = block.type === 'native' ? block.id : `link:${block.linkId}`;
+                                    const isMarked = markedCategoryId === blockId;
+                                    return (
+                                      <CategoryBlockCard
+                                        key={block.id}
+                                        playlistId={playlistId}
+                                        block={block}
+                                        sources={sources}
+                                        folders={categoryFolders}
+                                        index={origIndex}
+                                        isDragging={dragFromCatIdx.current === origIndex}
+                                        isDragOver={dragOverCatIdx === origIndex && dragFromCatIdx.current !== null && dragFromCatIdx.current !== origIndex}
+                                        isMarked={isMarked}
+                                        onMark={() => setMarkedCategoryId(prev => prev === blockId ? null : blockId)}
+                                        onPointerDown={handleCatPointerDown}
+                                        onRemove={block.type === 'link' ? () => removeCategoryFromPlaylist(block.linkId) : undefined}
+                                        showHidden={showHidden}
+                                      />
+                                    );
+                                  })
+                                )}
+                              </div>
+                            )}
+                          </div>
                         );
                       })}
-                    </div>
+
+                      {/* Root Level Categories */}
+                      {(() => {
+                        const rootBlocks = (combinedBlocks || []).filter(b => {
+                          const fId = b.type === 'link' ? b.link.folder_id : b.category.folder_id;
+                          return !fId || !categoryFolders.some((f: CategoryFolder) => f.folder_id === fId);
+                        });
+                        if (rootBlocks.length === 0) return null;
+                        return (
+                          <div className="ple-section-category-links">
+                            {categoryFolders.length > 0 && <h4 style={{ margin: '8px 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>Root Categories</h4>}
+                            {rootBlocks.map((block) => {
+                              const origIndex = (combinedBlocks || []).findIndex(b => b.id === block.id);
+                              const blockId = block.type === 'native' ? block.id : `link:${block.linkId}`;
+                              const isMarked = markedCategoryId === blockId;
+                              return (
+                                <CategoryBlockCard
+                                  key={block.id}
+                                  playlistId={playlistId}
+                                  block={block}
+                                  sources={sources}
+                                  folders={categoryFolders}
+                                  index={origIndex}
+                                  isDragging={dragFromCatIdx.current === origIndex}
+                                  isDragOver={dragOverCatIdx === origIndex && dragFromCatIdx.current !== null && dragFromCatIdx.current !== origIndex}
+                                  isMarked={isMarked}
+                                  onMark={() => setMarkedCategoryId(prev => prev === blockId ? null : blockId)}
+                                  onPointerDown={handleCatPointerDown}
+                                  onRemove={block.type === 'link' ? () => removeCategoryFromPlaylist(block.linkId) : undefined}
+                                  showHidden={showHidden}
+                                />
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
+                    </>
+                  ) : (
+                    combinedBlocks && combinedBlocks.length > 0 && (
+                      <div
+                        className="ple-section-category-links"
+                        ref={categoryListRef}
+                        onPointerMove={handleCatPointerMove}
+                        onPointerUp={handleCatPointerUp}
+                        onPointerCancel={handleCatPointerCancel}
+                      >
+                        {combinedBlocks.map((block, index) => {
+                          const isDragging = dragFromCatIdx.current === index;
+                          const isDragOver = dragOverCatIdx === index && dragFromCatIdx.current !== null && dragFromCatIdx.current !== index;
+                          const blockId = block.type === 'native' ? block.id : `link:${block.linkId}`;
+                          const isMarked = markedCategoryId === blockId;
+
+                          return (
+                            <CategoryBlockCard
+                              key={block.id}
+                              playlistId={playlistId}
+                              block={block}
+                              sources={sources}
+                              folders={categoryFolders}
+                              index={index}
+                              isDragging={isDragging}
+                              isDragOver={isDragOver}
+                              isMarked={isMarked}
+                              onMark={() => setMarkedCategoryId(prev => prev === blockId ? null : blockId)}
+                              onPointerDown={handleCatPointerDown}
+                              onRemove={block.type === 'link' ? () => removeCategoryFromPlaylist(block.linkId) : undefined}
+                              showHidden={showHidden}
+                            />
+                          );
+                        })}
+                      </div>
+                    )
                   )}
 
                   {/* Individual Channels Section */}

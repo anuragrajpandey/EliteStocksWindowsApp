@@ -52,6 +52,7 @@ export interface StoredCategory extends Category {
   parent_id?: number;
   filter_words?: string[];  // Words to filter out from channel names
   alias?: string;           // User-defined display name override
+  folder_id?: string | null; // Category Folder assignment
 }
 
 // Source sync metadata
@@ -282,6 +283,16 @@ export interface PlaylistCategoryLink {
   custom_name?: string;  // Optional user override for the category display name
   display_order: number; // Ordering of category blocks within the playlist
   added_at: number;      // Unix timestamp ms
+  folder_id?: string | null; // Category Folder assignment
+}
+
+// Category Folder — container for grouping categories within a source or custom playlist
+export interface CategoryFolder {
+  folder_id: string;     // UUID primary key
+  playlist_id: string;   // FK → custom_playlists.playlist_id OR source_id
+  name: string;          // User-defined folder name (e.g., "USA", "Sports")
+  display_order: number; // Ordering of folders within the source/playlist
+  created_at: number;    // Unix timestamp ms
 }
 
 // Playlist Individual Channel — a single channel added to the playlist's "Individual Channels" section
@@ -376,6 +387,7 @@ class YnotvDatabase extends SqliteDatabase {
   customPlaylists: SqliteTable<CustomPlaylist, string>;
   playlistCategoryLinks: SqliteTable<PlaylistCategoryLink, number>;
   playlistIndividualChannels: SqliteTable<PlaylistIndividualChannel, number>;
+  categoryFolders: SqliteTable<CategoryFolder, string>;
 
 
   constructor() {
@@ -409,6 +421,7 @@ class YnotvDatabase extends SqliteDatabase {
     this.customPlaylists = new SqliteTable('custom_playlists', 'playlist_id', this.dbPromise);
     this.playlistCategoryLinks = new SqliteTable('playlist_category_links', 'id', this.dbPromise);
     this.playlistIndividualChannels = new SqliteTable('playlist_individual_channels', 'id', this.dbPromise);
+    this.categoryFolders = new SqliteTable('category_folders', 'folder_id', this.dbPromise);
 
     // Initialize Schema (Async) - Chain to DB promise to ensure tables exist before usage
     const rawPromise = this.dbPromise;
@@ -444,6 +457,7 @@ class YnotvDatabase extends SqliteDatabase {
     this.customPlaylists.updateDbPromise(this.dbPromise);
     this.playlistCategoryLinks.updateDbPromise(this.dbPromise);
     this.playlistIndividualChannels.updateDbPromise(this.dbPromise);
+    this.categoryFolders.updateDbPromise(this.dbPromise);
   }
 
   async initSchema(dbInstance?: Database) {
@@ -1256,6 +1270,18 @@ class YnotvDatabase extends SqliteDatabase {
     )`);
     await db.execute(`CREATE INDEX IF NOT EXISTS idx_playlist_individual_channels_playlist ON playlist_individual_channels(playlist_id)`);
     await db.execute(`CREATE UNIQUE INDEX IF NOT EXISTS idx_playlist_individual_channels_unique ON playlist_individual_channels(playlist_id, stream_id)`);
+
+    // Category Folders
+    await db.execute(`CREATE TABLE IF NOT EXISTS category_folders (
+      folder_id TEXT PRIMARY KEY,
+      playlist_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      display_order INTEGER DEFAULT 0,
+      created_at INTEGER NOT NULL
+    )`);
+    await db.execute(`CREATE INDEX IF NOT EXISTS idx_category_folders_playlist ON category_folders(playlist_id)`);
+    try { await db.execute(`ALTER TABLE categories ADD COLUMN folder_id TEXT`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE playlist_category_links ADD COLUMN folder_id TEXT`); } catch (e) {}
 
     // Migration: Add missing columns for optimized bulk operations (VOD sync fix)
     // These columns were added after initial schema creation for faster bulk upserts

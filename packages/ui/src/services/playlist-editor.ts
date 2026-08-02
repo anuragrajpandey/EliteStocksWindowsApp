@@ -325,3 +325,51 @@ export async function addChannelsToCategory(
   await db.playlistIndividualChannels.bulkAdd(newItems);
 }
 
+// ── Category Folder CRUD ─────────────────────────────────────────────────────
+
+export async function createCategoryFolder(playlistId: string, name: string): Promise<string> {
+  const folderId = crypto.randomUUID();
+  const existing = await db.categoryFolders.where('playlist_id').equals(playlistId).toArray();
+  const maxOrder = existing.length > 0 ? Math.max(...existing.map(f => f.display_order)) : -1;
+  await db.categoryFolders.add({
+    folder_id: folderId,
+    playlist_id: playlistId,
+    name,
+    display_order: maxOrder + 1,
+    created_at: Date.now()
+  });
+  return folderId;
+}
+
+export async function renameCategoryFolder(folderId: string, newName: string): Promise<void> {
+  await db.categoryFolders.update(folderId, { name: newName });
+}
+
+export async function deleteCategoryFolder(folderId: string): Promise<void> {
+  const dbInstance = await (db as any).dbPromise;
+  await dbInstance.execute(
+    `UPDATE categories SET folder_id = NULL WHERE folder_id = $1`,
+    [folderId]
+  );
+  await dbInstance.execute(
+    `UPDATE playlist_category_links SET folder_id = NULL WHERE folder_id = $1`,
+    [folderId]
+  );
+  await db.categoryFolders.delete(folderId);
+  const { dbEvents } = await import('../db/sqlite-adapter');
+  dbEvents.notify('categories', 'update');
+  dbEvents.notify('playlist_category_links', 'update');
+}
+
+export async function assignCategoryToFolder(
+  isLink: boolean,
+  id: string | number,
+  folderId: string | null
+): Promise<void> {
+  if (isLink) {
+    await db.playlistCategoryLinks.update(Number(id), { folder_id: folderId || null as any });
+  } else {
+    await db.categories.update(String(id), { folder_id: folderId || null as any });
+  }
+}
+
