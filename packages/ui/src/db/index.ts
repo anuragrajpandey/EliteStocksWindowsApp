@@ -1571,6 +1571,7 @@ export async function clearAllCachedData(): Promise<void> {
   await db.channels.clear();
   await db.categories.clear();
   await db.sourcesMeta.clear();
+  await db.epgChannels.clear();
 
   // 4. Delete VOD tables
   await db.vodEpisodes.clear();        // Has FK to vodSeries

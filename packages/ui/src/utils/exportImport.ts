@@ -168,9 +168,11 @@ export interface ExportData {
     playlistIndividualChannels?: PlaylistIndividualChannel[];
     // v7 additions (VOD Favorites)
     vodFavorites?: FavoriteItem[];
+    // v8 additions (UI Layout and Widget Preferences)
+    uiLayout?: Record<string, string>;
 }
 
-const EXPORT_VERSION = 7;
+const EXPORT_VERSION = 8;
 
 /**
  * Export all application data to a JSON file
@@ -446,6 +448,33 @@ export async function exportAllData(): Promise<{ success: boolean; filePath?: st
             console.warn('[Export] Failed to parse vod-favorites from localStorage:', e);
         }
 
+        // 15. Get UI Layout and Widget Preferences from localStorage
+        const uiLayoutKeys = [
+            'ynotv:pinnedCategories',
+            'ynotv:expandedSources',
+            'ynotv:expandedPlaylists',
+            'widgetOrder',
+            'customGroupWidgetIds',
+            'sportsOverlayWidget',
+            'recentOverlayWidget',
+            'favoritesOverlayWidget',
+            'whatsNextOverlayWidget',
+            'guidePreviewWidth',
+            'guidePreviewHeight',
+            'epgChannelColumnWidth',
+            'showFavPlaylistName',
+            'showRecentPlaylistName',
+            'showWatchlistPlaylistName',
+            'showCustomPlaylistName'
+        ];
+        const uiLayout: Record<string, string> = {};
+        for (const key of uiLayoutKeys) {
+            const val = localStorage.getItem(key);
+            if (val !== null) {
+                uiLayout[key] = val;
+            }
+        }
+
         const exportData: ExportData = {
             version: EXPORT_VERSION,
             timestamp: new Date().toISOString(),
@@ -471,7 +500,8 @@ export async function exportAllData(): Promise<{ success: boolean; filePath?: st
             customPlaylists,
             playlistCategoryLinks,
             playlistIndividualChannels,
-            vodFavorites
+            vodFavorites,
+            uiLayout
         };
 
         const fileName = `ynotv-backup-${new Date().toISOString().split('T')[0]}.json`;
@@ -545,6 +575,15 @@ export async function importAllData(): Promise<{ success: boolean; error?: strin
             }
         } else {
             localStorage.removeItem('vod-favorites');
+        }
+
+        // Restore UI Layout & Widget Preferences
+        if (data.uiLayout && typeof data.uiLayout === 'object') {
+            for (const [key, val] of Object.entries(data.uiLayout)) {
+                if (typeof val === 'string') {
+                    localStorage.setItem(key, val);
+                }
+            }
         }
 
         // 3. Restore Sources
