@@ -114,6 +114,9 @@ export interface AppSettings {
   epgDisableChannelFade: boolean;
   epgPreferEpgLogos: boolean;
   epgLogoDisplay: 'square' | 'rectangle';
+  epgMetadataBadgeResolution: boolean;
+  epgMetadataBadgeFps: boolean;
+  epgMetadataBadgeSound: boolean;
 
   // Startup view
   startupView: 'none' | 'guide' | 'movies' | 'series' | 'dvr' | 'sports' | 'calendar' | 'stremio' | 'nuvio';
@@ -193,6 +196,9 @@ export interface AppSettings {
     setEpgDisableChannelFade: (enabled: boolean) => void;
     setEpgPreferEpgLogos: (enabled: boolean) => void;
     setEpgLogoDisplay: (display: 'square' | 'rectangle') => void;
+    setEpgMetadataBadgeResolution: (enabled: boolean) => void;
+    setEpgMetadataBadgeFps: (enabled: boolean) => void;
+    setEpgMetadataBadgeSound: (enabled: boolean) => void;
     globalLiveTvUserAgent: string;
     setGlobalLiveTvUserAgent: (ua: string) => void;
     catchupStartPadding: number;
@@ -398,6 +404,9 @@ export function useAppSettings(): AppSettings {
   const [epgDisableChannelFade, setEpgDisableChannelFadeState] = useState(false);
   const [epgPreferEpgLogos, setEpgPreferEpgLogosState] = useState(false);
   const [epgLogoDisplay, setEpgLogoDisplayState] = useState<'square' | 'rectangle'>('square');
+  const [epgMetadataBadgeResolution, setEpgMetadataBadgeResolutionState] = useState(cachedSettings?.epgMetadataBadgeResolution ?? true);
+  const [epgMetadataBadgeFps, setEpgMetadataBadgeFpsState] = useState(cachedSettings?.epgMetadataBadgeFps ?? true);
+  const [epgMetadataBadgeSound, setEpgMetadataBadgeSoundState] = useState(cachedSettings?.epgMetadataBadgeSound ?? true);
   const [globalLiveTvUserAgent, setGlobalLiveTvUserAgentState] = useState('');
 
   // Global Font selection states
@@ -633,6 +642,7 @@ export function useAppSettings(): AppSettings {
           const savedBgOpacity = result.data.widgetBgOpacity ?? 0.55;
           setWidgetBgOpacityState(savedBgOpacity);
           document.documentElement.style.setProperty('--widget-bg-opacity', String(savedBgOpacity));
+          document.documentElement.style.setProperty('--cio-bg-opacity', String(savedBgOpacity));
 
           const savedSportsScale = result.data.sportsScale ?? 1;
           setSportsScaleState(savedSportsScale);
@@ -686,6 +696,9 @@ export function useAppSettings(): AppSettings {
           setEpgDisableChannelFadeState(result.data.epgDisableChannelFade ?? false);
           setEpgPreferEpgLogosState(result.data.epgPreferEpgLogos ?? false);
           setEpgLogoDisplayState(result.data.epgLogoDisplay ?? 'square');
+          setEpgMetadataBadgeResolutionState(result.data.epgMetadataBadgeResolution ?? true);
+          setEpgMetadataBadgeFpsState(result.data.epgMetadataBadgeFps ?? true);
+          setEpgMetadataBadgeSoundState(result.data.epgMetadataBadgeSound ?? true);
           if (result.data.epgLogoDisplay === 'rectangle') {
             document.documentElement.classList.add('epg-rectangle-logos');
           }
@@ -1163,6 +1176,7 @@ export function useAppSettings(): AppSettings {
   const setWidgetBgOpacity = useCallback(async (opacity: number) => {
     setWidgetBgOpacityState(opacity);
     document.documentElement.style.setProperty('--widget-bg-opacity', String(opacity));
+    document.documentElement.style.setProperty('--cio-bg-opacity', String(opacity));
     if (window.storage) {
       try {
         window.storage.debouncedUpdateSettings({ widgetBgOpacity: opacity });
@@ -1562,6 +1576,39 @@ export function useAppSettings(): AppSettings {
     }
   }, []);
 
+  const setEpgMetadataBadgeResolution = useCallback(async (enabled: boolean) => {
+    setEpgMetadataBadgeResolutionState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ epgMetadataBadgeResolution: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save epgMetadataBadgeResolution:', e);
+      }
+    }
+  }, []);
+
+  const setEpgMetadataBadgeFps = useCallback(async (enabled: boolean) => {
+    setEpgMetadataBadgeFpsState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ epgMetadataBadgeFps: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save epgMetadataBadgeFps:', e);
+      }
+    }
+  }, []);
+
+  const setEpgMetadataBadgeSound = useCallback(async (enabled: boolean) => {
+    setEpgMetadataBadgeSoundState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ epgMetadataBadgeSound: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save epgMetadataBadgeSound:', e);
+      }
+    }
+  }, []);
+
   const setEpgLogoDisplay = useCallback(async (display: 'square' | 'rectangle') => {
     setEpgLogoDisplayState(display);
     if (display === 'rectangle') {
@@ -1767,6 +1814,12 @@ export function useAppSettings(): AppSettings {
     setEpgPreferEpgLogos,
     epgLogoDisplay,
     setEpgLogoDisplay,
+    epgMetadataBadgeResolution,
+    setEpgMetadataBadgeResolution,
+    epgMetadataBadgeFps,
+    setEpgMetadataBadgeFps,
+    epgMetadataBadgeSound,
+    setEpgMetadataBadgeSound,
     globalLiveTvUserAgent,
     setGlobalLiveTvUserAgent,
     catchupStartPadding,

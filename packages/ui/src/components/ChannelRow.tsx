@@ -34,6 +34,9 @@ interface ChannelRowProps {
   isCurrentlyPlaying?: boolean;
   showPlaylistName?: boolean;
   sourceNames?: Map<string, string>;
+  epgMetadataBadgeResolution?: boolean;
+  epgMetadataBadgeFps?: boolean;
+  epgMetadataBadgeSound?: boolean;
 }
 
 export const ChannelRow = memo(function ChannelRow({
@@ -57,6 +60,9 @@ export const ChannelRow = memo(function ChannelRow({
   isCurrentlyPlaying,
   showPlaylistName,
   sourceNames,
+  epgMetadataBadgeResolution,
+  epgMetadataBadgeFps,
+  epgMetadataBadgeSound,
 }: ChannelRowProps) {
   // Context menu state
   const [contextMenu, setContextMenu] = useState<{ program: StoredProgram; x: number; y: number } | null>(null);
@@ -237,7 +243,13 @@ export const ChannelRow = memo(function ChannelRow({
           </div>
         )}
         <div className="channel-row-metadata">
-          <MetadataBadge streamId={channel.stream_id} variant="detailed" />
+          <MetadataBadge
+            streamId={channel.stream_id}
+            variant="detailed"
+            showResolution={epgMetadataBadgeResolution}
+            showFps={epgMetadataBadgeFps}
+            showSound={epgMetadataBadgeSound}
+          />
         </div>
       </div>
 

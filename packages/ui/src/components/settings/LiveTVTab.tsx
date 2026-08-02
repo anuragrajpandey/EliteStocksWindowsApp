@@ -27,6 +27,12 @@ interface LiveTVTabProps {
   onEpgPreferEpgLogosChange: (enabled: boolean) => void;
   epgLogoDisplay: 'square' | 'rectangle';
   onEpgLogoDisplayChange: (display: 'square' | 'rectangle') => void;
+  epgMetadataBadgeResolution: boolean;
+  onEpgMetadataBadgeResolutionChange: (enabled: boolean) => void;
+  epgMetadataBadgeFps: boolean;
+  onEpgMetadataBadgeFpsChange: (enabled: boolean) => void;
+  epgMetadataBadgeSound: boolean;
+  onEpgMetadataBadgeSoundChange: (enabled: boolean) => void;
   epgView: 'traditional' | 'alternate';
   onEpgViewChange: (view: 'traditional' | 'alternate') => void;
   epgTitleFontSize: number;
@@ -123,6 +129,12 @@ export function LiveTVTab({
   onEpgPreferEpgLogosChange,
   epgLogoDisplay,
   onEpgLogoDisplayChange,
+  epgMetadataBadgeResolution,
+  onEpgMetadataBadgeResolutionChange,
+  epgMetadataBadgeFps,
+  onEpgMetadataBadgeFpsChange,
+  epgMetadataBadgeSound,
+  onEpgMetadataBadgeSoundChange,
   epgView,
   onEpgViewChange,
   epgTitleFontSize,
@@ -377,6 +389,69 @@ export function LiveTVTab({
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Metadata Badges Settings */}
+            <div className="settings-section">
+              <div className="section-header">
+                <h3>Metadata Badges</h3>
+              </div>
+              <p className="section-description">
+                Enable or disable metadata badges displayed on channel rows in the EPG grid.
+              </p>
+
+              <div style={{ marginTop: '16px', overflowX: 'auto' }}>
+                <table style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  fontSize: '0.9rem',
+                  background: 'var(--bg-tertiary)',
+                  borderRadius: '8px',
+                  overflow: 'hidden'
+                }}>
+                  <thead>
+                    <tr style={{ background: 'var(--surface-color)', borderBottom: '1px solid var(--surface-border)' }}>
+                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>Resolution</th>
+                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>FPS</th>
+                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>Sound</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style={{ padding: '16px', textAlign: 'center', borderRight: '1px solid var(--surface-border)' }}>
+                        <label className="toggle-switch" style={{ margin: '0 auto' }}>
+                          <input
+                            type="checkbox"
+                            checked={epgMetadataBadgeResolution}
+                            onChange={(e) => onEpgMetadataBadgeResolutionChange(e.target.checked)}
+                          />
+                          <span className="toggle-slider" />
+                        </label>
+                      </td>
+                      <td style={{ padding: '16px', textAlign: 'center', borderRight: '1px solid var(--surface-border)' }}>
+                        <label className="toggle-switch" style={{ margin: '0 auto' }}>
+                          <input
+                            type="checkbox"
+                            checked={epgMetadataBadgeFps}
+                            onChange={(e) => onEpgMetadataBadgeFpsChange(e.target.checked)}
+                          />
+                          <span className="toggle-slider" />
+                        </label>
+                      </td>
+                      <td style={{ padding: '16px', textAlign: 'center' }}>
+                        <label className="toggle-switch" style={{ margin: '0 auto' }}>
+                          <input
+                            type="checkbox"
+                            checked={epgMetadataBadgeSound}
+                            onChange={(e) => onEpgMetadataBadgeSoundChange(e.target.checked)}
+                          />
+                          <span className="toggle-slider" />
+                        </label>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
 

@@ -114,6 +114,12 @@ interface SettingsProps {
   onNuvioCacheFetchTimeoutChange?: (timeout: number) => void;
   liveTvDesign?: 'v1' | 'v2' | 'v3';
   onLiveTvDesignChange?: (design: 'v1' | 'v2' | 'v3') => void;
+  epgMetadataBadgeResolution?: boolean;
+  onEpgMetadataBadgeResolutionChange?: (enabled: boolean) => void;
+  epgMetadataBadgeFps?: boolean;
+  onEpgMetadataBadgeFpsChange?: (enabled: boolean) => void;
+  epgMetadataBadgeSound?: boolean;
+  onEpgMetadataBadgeSoundChange?: (enabled: boolean) => void;
   vodAutoPlayNextEpisode?: boolean;
   onVodAutoPlayNextEpisodeChange?: (enabled: boolean) => void;
   vodShowSourceBadge?: boolean;
@@ -217,6 +223,12 @@ export function Settings({
   onNuvioCacheFetchTimeoutChange,
   liveTvDesign,
   onLiveTvDesignChange,
+  epgMetadataBadgeResolution: epgMetadataBadgeResolutionProp,
+  onEpgMetadataBadgeResolutionChange,
+  epgMetadataBadgeFps: epgMetadataBadgeFpsProp,
+  onEpgMetadataBadgeFpsChange,
+  epgMetadataBadgeSound: epgMetadataBadgeSoundProp,
+  onEpgMetadataBadgeSoundChange,
   vodAutoPlayNextEpisode: vodAutoPlayNextEpisodeProp,
   onVodAutoPlayNextEpisodeChange,
   vodShowSourceBadge: vodShowSourceBadgeProp,
@@ -571,6 +583,9 @@ export function Settings({
   const [epgBoldSourceCategories, setEpgBoldSourceCategories] = useState(false);
   const [epgPreferEpgLogos, setEpgPreferEpgLogos] = useState(false);
   const [epgLogoDisplay, setEpgLogoDisplay] = useState<'square' | 'rectangle'>('square');
+  const [epgMetadataBadgeResolution, setEpgMetadataBadgeResolution] = useState(epgMetadataBadgeResolutionProp ?? true);
+  const [epgMetadataBadgeFps, setEpgMetadataBadgeFps] = useState(epgMetadataBadgeFpsProp ?? true);
+  const [epgMetadataBadgeSound, setEpgMetadataBadgeSound] = useState(epgMetadataBadgeSoundProp ?? true);
   const [epgTitleFontSize, setEpgTitleFontSize] = useState(32);
   const [epgBodyFontSize, setEpgBodyFontSize] = useState(16);
   const epgView = useEpgView();
@@ -634,6 +649,9 @@ export function Settings({
   useEffect(() => { setChannelInfoOverlayHideTimer(channelInfoOverlayHideTimerProp ?? false); }, [channelInfoOverlayHideTimerProp]);
   useEffect(() => { setChannelInfoOverlayPosition(channelInfoOverlayPositionProp ?? 'left'); }, [channelInfoOverlayPositionProp]);
   useEffect(() => { setChannelInfoOverlayLogoShape(channelInfoOverlayLogoShapeProp ?? 'square'); }, [channelInfoOverlayLogoShapeProp]);
+  useEffect(() => { setEpgMetadataBadgeResolution(epgMetadataBadgeResolutionProp ?? true); }, [epgMetadataBadgeResolutionProp]);
+  useEffect(() => { setEpgMetadataBadgeFps(epgMetadataBadgeFpsProp ?? true); }, [epgMetadataBadgeFpsProp]);
+  useEffect(() => { setEpgMetadataBadgeSound(epgMetadataBadgeSoundProp ?? true); }, [epgMetadataBadgeSoundProp]);
   useEffect(() => { setCastEnabled(castEnabledProp ?? false); }, [castEnabledProp]);
   useEffect(() => { setCastRewriteTs(castRewriteTsProp ?? true); }, [castRewriteTsProp]);
   
@@ -815,6 +833,9 @@ export function Settings({
         epgBoldSourceCategories?: boolean;
         epgPreferEpgLogos?: boolean;
         epgLogoDisplay?: 'square' | 'rectangle';
+        epgMetadataBadgeResolution?: boolean;
+        epgMetadataBadgeFps?: boolean;
+        epgMetadataBadgeSound?: boolean;
         epgView?: 'traditional' | 'alternate';
         collapseSourceCategoriesOnStartup?: boolean;
         modernUiEnabled?: boolean | string;
@@ -1781,6 +1802,36 @@ export function Settings({
     }
   };
 
+  const handleEpgMetadataBadgeResolutionChange = async (enabled: boolean) => {
+    setEpgMetadataBadgeResolution(enabled);
+    if (onEpgMetadataBadgeResolutionChange) {
+      onEpgMetadataBadgeResolutionChange(enabled);
+    }
+    if (window.storage) {
+      await window.storage.updateSettings({ epgMetadataBadgeResolution: enabled });
+    }
+  };
+
+  const handleEpgMetadataBadgeFpsChange = async (enabled: boolean) => {
+    setEpgMetadataBadgeFps(enabled);
+    if (onEpgMetadataBadgeFpsChange) {
+      onEpgMetadataBadgeFpsChange(enabled);
+    }
+    if (window.storage) {
+      await window.storage.updateSettings({ epgMetadataBadgeFps: enabled });
+    }
+  };
+
+  const handleEpgMetadataBadgeSoundChange = async (enabled: boolean) => {
+    setEpgMetadataBadgeSound(enabled);
+    if (onEpgMetadataBadgeSoundChange) {
+      onEpgMetadataBadgeSoundChange(enabled);
+    }
+    if (window.storage) {
+      await window.storage.updateSettings({ epgMetadataBadgeSound: enabled });
+    }
+  };
+
   const handleEpgBoldChannelNamesChange = async (enabled: boolean) => {
     setEpgBoldChannelNames(enabled);
     if (enabled) {
@@ -2107,6 +2158,7 @@ export function Settings({
   const handleWidgetBgOpacityChange = (opacity: number) => {
     setWidgetBgOpacityState(opacity);
     document.documentElement.style.setProperty('--widget-bg-opacity', String(opacity));
+    document.documentElement.style.setProperty('--cio-bg-opacity', String(opacity));
     if (window.storage) {
       window.storage.debouncedUpdateSettings({ widgetBgOpacity: opacity });
     }
@@ -2712,6 +2764,12 @@ export function Settings({
             onEpgPreferEpgLogosChange={handleEpgPreferEpgLogosChange}
             epgLogoDisplay={epgLogoDisplay}
             onEpgLogoDisplayChange={handleEpgLogoDisplayChange}
+            epgMetadataBadgeResolution={epgMetadataBadgeResolution}
+            onEpgMetadataBadgeResolutionChange={handleEpgMetadataBadgeResolutionChange}
+            epgMetadataBadgeFps={epgMetadataBadgeFps}
+            onEpgMetadataBadgeFpsChange={handleEpgMetadataBadgeFpsChange}
+            epgMetadataBadgeSound={epgMetadataBadgeSound}
+            onEpgMetadataBadgeSoundChange={handleEpgMetadataBadgeSoundChange}
             epgView={epgView}
             onEpgViewChange={handleEpgViewChange}
             epgTitleFontSize={epgTitleFontSize}

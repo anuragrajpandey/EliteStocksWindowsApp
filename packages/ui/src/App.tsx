@@ -266,6 +266,12 @@ function App() {
     setPlayerControlDesign,
     showVolumePercent,
     setShowVolumePercent,
+    epgMetadataBadgeResolution,
+    setEpgMetadataBadgeResolution,
+    epgMetadataBadgeFps,
+    setEpgMetadataBadgeFps,
+    epgMetadataBadgeSound,
+    setEpgMetadataBadgeSound,
   } = useAppSettings();
   const navHiddenTabs = useUIStore((s) => s.navHiddenTabs);
   const setNavHiddenStore = useUIStore((s) => s.setNavHiddenTabs);
@@ -4868,6 +4874,9 @@ function useTmdbPresencePoster(
         showSettingsPopup={showSettingsPopup || layoutPickerOpen}
         includeSourceInSearch={includeSourceInSearch}
         searchResultsOrder={searchResultsOrder}
+        epgMetadataBadgeResolution={epgMetadataBadgeResolution}
+        epgMetadataBadgeFps={epgMetadataBadgeFps}
+        epgMetadataBadgeSound={epgMetadataBadgeSound}
         currentChannel={currentChannel}
         onTogglePlay={handleTogglePlay}
         isPlaying={playing}
@@ -5025,6 +5034,12 @@ function useTmdbPresencePoster(
           onOverlayOnClickOnlyChange={setOverlayOnClickOnly}
           liveTvDesign={liveTvDesign}
           onLiveTvDesignChange={setLiveTvDesign}
+          epgMetadataBadgeResolution={epgMetadataBadgeResolution}
+          onEpgMetadataBadgeResolutionChange={setEpgMetadataBadgeResolution}
+          epgMetadataBadgeFps={epgMetadataBadgeFps}
+          onEpgMetadataBadgeFpsChange={setEpgMetadataBadgeFps}
+          epgMetadataBadgeSound={epgMetadataBadgeSound}
+          onEpgMetadataBadgeSoundChange={setEpgMetadataBadgeSound}
         />
       )}
 

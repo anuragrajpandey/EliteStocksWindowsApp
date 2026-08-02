@@ -68,6 +68,9 @@ interface ChannelRowData {
   currentChannel?: StoredChannel | null;
   showPlaylistName: boolean;
   sourceNames: Map<string, string>;
+  epgMetadataBadgeResolution: boolean;
+  epgMetadataBadgeFps: boolean;
+  epgMetadataBadgeSound: boolean;
 }
 
 const ChannelRowVirtuoso = memo(function ChannelRowVirtuoso({
@@ -106,6 +109,9 @@ const ChannelRowVirtuoso = memo(function ChannelRowVirtuoso({
       isCurrentlyPlaying={isCurrentlyPlaying}
       showPlaylistName={data.showPlaylistName}
       sourceNames={data.sourceNames}
+      epgMetadataBadgeResolution={data.epgMetadataBadgeResolution}
+      epgMetadataBadgeFps={data.epgMetadataBadgeFps}
+      epgMetadataBadgeSound={data.epgMetadataBadgeSound}
     />
   );
 }, (prevProps, nextProps) => {
@@ -143,6 +149,9 @@ const ChannelRowVirtuoso = memo(function ChannelRowVirtuoso({
          prevData.categoryId === nextData.categoryId &&
          prevData.currentLayout === nextData.currentLayout &&
          prevData.showPlaylistName === nextData.showPlaylistName &&
+         prevData.epgMetadataBadgeResolution === nextData.epgMetadataBadgeResolution &&
+         prevData.epgMetadataBadgeFps === nextData.epgMetadataBadgeFps &&
+         prevData.epgMetadataBadgeSound === nextData.epgMetadataBadgeSound &&
          !recordingsChanged &&
          !programsChanged;
 });
@@ -175,6 +184,10 @@ interface ChannelPanelProps {
   // Search display props
   includeSourceInSearch?: boolean;
   searchResultsOrder?: 'default' | 'alphabetical';
+  // Metadata badge visibility on channel rows
+  epgMetadataBadgeResolution?: boolean;
+  epgMetadataBadgeFps?: boolean;
+  epgMetadataBadgeSound?: boolean;
   // Current playing channel for syncing preview
   currentChannel?: StoredChannel | null;
   onTogglePlay?: () => void;
@@ -269,6 +282,9 @@ export function ChannelPanel({
   showSettingsPopup = false,
   includeSourceInSearch,
   searchResultsOrder,
+  epgMetadataBadgeResolution = true,
+  epgMetadataBadgeFps = true,
+  epgMetadataBadgeSound = true,
   currentChannel,
   onTogglePlay,
   isPlaying,
@@ -2278,7 +2294,13 @@ export function ChannelPanel({
                     </div>
                     {selectedChannel && (
                       <div style={{ marginTop: '8px' }}>
-                        <MetadataBadge streamId={selectedChannel.stream_id} variant="detailed" />
+                        <MetadataBadge
+                          streamId={selectedChannel.stream_id}
+                          variant="detailed"
+                          showResolution={epgMetadataBadgeResolution}
+                          showFps={epgMetadataBadgeFps}
+                          showSound={epgMetadataBadgeSound}
+                        />
                       </div>
                     )}
                   </>
@@ -2895,6 +2917,9 @@ export function ChannelPanel({
                 currentChannel,
                 showPlaylistName: categoryId === '__recent__' ? showRecentPlaylistName : categoryId === '__favorites__' ? showFavPlaylistName : isCustomCategory ? showCustomPlaylistName : false,
                 sourceNames,
+                epgMetadataBadgeResolution,
+                epgMetadataBadgeFps,
+                epgMetadataBadgeSound,
               }}
               components={{
                 EmptyPlaceholder: () => (
