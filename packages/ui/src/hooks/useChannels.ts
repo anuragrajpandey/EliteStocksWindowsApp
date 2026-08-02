@@ -300,7 +300,7 @@ export function useCategoriesForSource(sourceId: string | null) {
 // Filters out channels from disabled sources
 export function useChannels(categoryId: string | null, sortOrder: 'alphabetical' | 'number' | 'provider' = 'alphabetical', options?: { skip?: boolean }) {
   const enabledSourceIds = useEnabledSources();
-  const { epgPreferEpgLogos } = useAppSettings();
+  const { epgPreferEpgLogos, sourceLogoDisplayOverrides } = useAppSettings();
   const enabledSourceKey = useMemo(
     () => (enabledSourceIds ? Array.from(enabledSourceIds).sort().join(',') : 'loading'),
     [enabledSourceIds]
@@ -639,6 +639,7 @@ export function useChannels(categoryId: string | null, sortOrder: 'alphabetical'
           const customIcon = logoMap.get(ch.stream_id);
           const logoBg = logoBgMap.get(ch.stream_id);
           const logoPad = logoPaddingMap.get(ch.stream_id);
+          const sourceDisplayOverride = sourceLogoDisplayOverrides?.[ch.source_id];
           let effectiveIcon = customIcon;
 
           if (!effectiveIcon && epgPreferEpgLogos) {
@@ -648,12 +649,13 @@ export function useChannels(categoryId: string | null, sortOrder: 'alphabetical'
             }
           }
 
-          if (effectiveIcon || logoBg !== undefined || logoPad !== undefined) {
+          if (effectiveIcon || logoBg !== undefined || logoPad !== undefined || sourceDisplayOverride !== undefined) {
             return {
               ...ch,
               ...(effectiveIcon ? { stream_icon: effectiveIcon } : {}),
               ...(logoBg !== undefined ? { logo_background: logoBg } : {}),
               ...(logoPad !== undefined ? { logo_padding: logoPad } : {}),
+              ...(sourceDisplayOverride !== undefined ? { logo_display: sourceDisplayOverride } : {}),
             };
           }
           return ch;
@@ -912,7 +914,7 @@ export function useChannelSearch(
   filterCategoryIds?: string[]
 ) {
   const enabledSourceIds = useEnabledSources();
-  const { epgPreferEpgLogos } = useAppSettings();
+  const { epgPreferEpgLogos, sourceLogoDisplayOverrides } = useAppSettings();
   const sourceNameMap = useSourceNameMap();
   const categoryNameMap = useCategoryNameMap();
 
@@ -1243,6 +1245,7 @@ export function useChannelSearch(
           const customIcon = logoMap.get(ch.stream_id);
           const logoBg = logoBgMap.get(ch.stream_id);
           const logoPad = logoPaddingMap.get(ch.stream_id);
+          const sourceDisplayOverride = sourceLogoDisplayOverrides?.[ch.source_id];
           let effectiveIcon = customIcon;
 
           if (!effectiveIcon && epgPreferEpgLogos) {
@@ -1252,12 +1255,13 @@ export function useChannelSearch(
             }
           }
 
-          if (effectiveIcon || logoBg !== undefined || logoPad !== undefined) {
+          if (effectiveIcon || logoBg !== undefined || logoPad !== undefined || sourceDisplayOverride !== undefined) {
             return {
               ...ch,
               ...(effectiveIcon ? { stream_icon: effectiveIcon } : {}),
               ...(logoBg !== undefined ? { logo_background: logoBg } : {}),
               ...(logoPad !== undefined ? { logo_padding: logoPad } : {}),
+              ...(sourceDisplayOverride !== undefined ? { logo_display: sourceDisplayOverride } : {}),
             };
           }
           return ch;

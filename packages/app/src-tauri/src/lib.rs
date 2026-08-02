@@ -270,6 +270,10 @@ mod epg_streaming;
 // TMDB caching module
 mod tmdb_cache;
 
+// Channel Logo Caching module
+mod logo_cache;
+use logo_cache::{LogoCacheManager, LogoCacheStats};
+
 // TVMaze module for TV Calendar
 mod tvmaze;
 use tmdb_cache::{TmdbCache, MatchResult, CacheStats};
@@ -2130,6 +2134,73 @@ impl TmdbCacheState {
     pub fn new(cache_dir: std::path::PathBuf) -> Self {
         Self(tokio::sync::Mutex::new(TmdbCache::new(cache_dir)))
     }
+}
+
+// =============================================================================
+// Logo Cache State & Commands
+// =============================================================================
+
+pub struct LogoCacheState(pub tokio::sync::Mutex<LogoCacheManager>);
+
+impl LogoCacheState {
+    pub fn new(cache_dir: std::path::PathBuf) -> Self {
+        Self(tokio::sync::Mutex::new(LogoCacheManager::new(cache_dir)))
+    }
+}
+
+#[tauri::command]
+async fn get_cached_logo_path(
+    state: tauri::State<'_, LogoCacheState>,
+    url: String,
+) -> Result<String, String> {
+    let mgr = state.0.lock().await;
+    mgr.get_or_cache_logo_data(&url)
+        .await
+        .map_err(|e| format!("Failed to cache logo: {}", e))
+}
+
+#[tauri::command]
+async fn get_logo_cache_stats(
+    state: tauri::State<'_, LogoCacheState>,
+    enabled: bool,
+    max_bytes: u64,
+    ttl_days: u32,
+) -> Result<LogoCacheStats, String> {
+    let mgr = state.0.lock().await;
+    mgr.get_stats(enabled, max_bytes, ttl_days)
+        .await
+        .map_err(|e| format!("Failed to get logo cache stats: {}", e))
+}
+
+#[tauri::command]
+async fn clear_logo_cache(
+    state: tauri::State<'_, LogoCacheState>,
+) -> Result<(), String> {
+    let mgr = state.0.lock().await;
+    mgr.clear_cache()
+        .await
+        .map_err(|e| format!("Failed to clear logo cache: {}", e))
+}
+
+#[tauri::command]
+async fn prefetch_logos(
+    state: tauri::State<'_, LogoCacheState>,
+    urls: Vec<String>,
+) -> Result<usize, String> {
+    let mgr = state.0.lock().await;
+    Ok(mgr.prefetch_logos(urls).await)
+}
+
+#[tauri::command]
+async fn prune_logo_cache(
+    state: tauri::State<'_, LogoCacheState>,
+    max_bytes: u64,
+    ttl_days: u32,
+) -> Result<(), String> {
+    let mgr = state.0.lock().await;
+    mgr.prune(max_bytes, ttl_days)
+        .await
+        .map_err(|e| format!("Failed to prune logo cache: {}", e))
 }
 
 // =============================================================================
@@ -4491,8 +4562,10 @@ pub fn run() {
             // across all TMDB commands instead of being re-created each call.
             match app.path().app_cache_dir() {
                 Ok(cache_dir) => {
-                    app.manage(TmdbCacheState::new(cache_dir));
+                    app.manage(TmdbCacheState::new(cache_dir.clone()));
                     info!("[TMDB] Cache state initialized");
+                    app.manage(LogoCacheState::new(cache_dir.join("logo_cache")));
+                    info!("[LogoCache] Logo cache state initialized");
                 }
                 Err(e) => {
                     error!("[TMDB] Failed to get cache dir for TmdbCacheState: {}", e);
@@ -4711,7 +4784,13 @@ pub fn run() {
             // Discord Rich Presence commands
             discord_rp::discord_set_presence,
             discord_rp::discord_clear,
-            discord_rp::discord_set_enabled
+            discord_rp::discord_set_enabled,
+            // Logo Cache commands
+            get_cached_logo_path,
+            get_logo_cache_stats,
+            clear_logo_cache,
+            prefetch_logos,
+            prune_logo_cache
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

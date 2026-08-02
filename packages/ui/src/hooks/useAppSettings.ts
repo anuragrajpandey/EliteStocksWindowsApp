@@ -118,6 +118,14 @@ export interface AppSettings {
   epgMetadataBadgeFps: boolean;
   epgMetadataBadgeFpsSuffix: boolean;
   epgMetadataBadgeSound: boolean;
+  logoCacheEnabled: boolean;
+  logoCacheMaxMb: number;
+  logoCacheTtlDays: number;
+  logoCachePrefetch: boolean;
+  setLogoCacheEnabled: (enabled: boolean) => void;
+  setLogoCacheMaxMb: (mb: number) => void;
+  setLogoCacheTtlDays: (days: number) => void;
+  setLogoCachePrefetch: (enabled: boolean) => void;
 
   // Startup view
   startupView: 'none' | 'guide' | 'movies' | 'series' | 'dvr' | 'sports' | 'calendar' | 'stremio' | 'nuvio';
@@ -197,6 +205,8 @@ export interface AppSettings {
     setEpgDisableChannelFade: (enabled: boolean) => void;
     setEpgPreferEpgLogos: (enabled: boolean) => void;
     setEpgLogoDisplay: (display: 'square' | 'rectangle') => void;
+    sourceLogoDisplayOverrides: Record<string, 'square' | 'rectangle'>;
+    setSourceLogoDisplayOverride: (sourceId: string, display: 'square' | 'rectangle' | 'default') => void;
     setEpgMetadataBadgeResolution: (enabled: boolean) => void;
     setEpgMetadataBadgeFps: (enabled: boolean) => void;
     setEpgMetadataBadgeFpsSuffix: (enabled: boolean) => void;
@@ -406,10 +416,17 @@ export function useAppSettings(): AppSettings {
   const [epgDisableChannelFade, setEpgDisableChannelFadeState] = useState(false);
   const [epgPreferEpgLogos, setEpgPreferEpgLogosState] = useState(false);
   const [epgLogoDisplay, setEpgLogoDisplayState] = useState<'square' | 'rectangle'>('square');
+  const [sourceLogoDisplayOverrides, setSourceLogoDisplayOverridesState] = useState<Record<string, 'square' | 'rectangle'>>(
+    cachedSettings?.sourceLogoDisplayOverrides ?? {}
+  );
   const [epgMetadataBadgeResolution, setEpgMetadataBadgeResolutionState] = useState(cachedSettings?.epgMetadataBadgeResolution ?? true);
   const [epgMetadataBadgeFps, setEpgMetadataBadgeFpsState] = useState(cachedSettings?.epgMetadataBadgeFps ?? true);
   const [epgMetadataBadgeFpsSuffix, setEpgMetadataBadgeFpsSuffixState] = useState(cachedSettings?.epgMetadataBadgeFpsSuffix ?? true);
   const [epgMetadataBadgeSound, setEpgMetadataBadgeSoundState] = useState(cachedSettings?.epgMetadataBadgeSound ?? true);
+  const [logoCacheEnabled, setLogoCacheEnabledState] = useState(cachedSettings?.logoCacheEnabled ?? false);
+  const [logoCacheMaxMb, setLogoCacheMaxMbState] = useState(cachedSettings?.logoCacheMaxMb ?? 250);
+  const [logoCacheTtlDays, setLogoCacheTtlDaysState] = useState(cachedSettings?.logoCacheTtlDays ?? 30);
+  const [logoCachePrefetch, setLogoCachePrefetchState] = useState(cachedSettings?.logoCachePrefetch ?? false);
   const [globalLiveTvUserAgent, setGlobalLiveTvUserAgentState] = useState('');
 
   // Global Font selection states
@@ -699,10 +716,15 @@ export function useAppSettings(): AppSettings {
           setEpgDisableChannelFadeState(result.data.epgDisableChannelFade ?? false);
           setEpgPreferEpgLogosState(result.data.epgPreferEpgLogos ?? false);
           setEpgLogoDisplayState(result.data.epgLogoDisplay ?? 'square');
+          setSourceLogoDisplayOverridesState(result.data.sourceLogoDisplayOverrides ?? {});
           setEpgMetadataBadgeResolutionState(result.data.epgMetadataBadgeResolution ?? true);
           setEpgMetadataBadgeFpsState(result.data.epgMetadataBadgeFps ?? true);
           setEpgMetadataBadgeFpsSuffixState(result.data.epgMetadataBadgeFpsSuffix ?? true);
           setEpgMetadataBadgeSoundState(result.data.epgMetadataBadgeSound ?? true);
+          setLogoCacheEnabledState(result.data.logoCacheEnabled ?? false);
+          setLogoCacheMaxMbState(result.data.logoCacheMaxMb ?? 250);
+          setLogoCacheTtlDaysState(result.data.logoCacheTtlDays ?? 30);
+          setLogoCachePrefetchState(result.data.logoCachePrefetch ?? false);
           if (result.data.epgLogoDisplay === 'rectangle') {
             document.documentElement.classList.add('epg-rectangle-logos');
           }
@@ -736,7 +758,6 @@ export function useAppSettings(): AppSettings {
           // Use localStorage state if available (more recent), otherwise use Tauri storage
           const layoutState = localStorageState || result.data.savedLayoutState || null;
           setSavedLayoutState(layoutState);
-          console.log('[useAppSettings] Loaded saved layout state:', layoutState);
 
           // Load active custom theme config FIRST so themeState doesn't trigger effect with uninitialized config
           let loadedCustomConfig = result.data.customThemeConfig;
@@ -1613,6 +1634,50 @@ export function useAppSettings(): AppSettings {
     }
   }, []);
 
+  const setLogoCacheEnabled = useCallback(async (enabled: boolean) => {
+    setLogoCacheEnabledState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ logoCacheEnabled: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save logoCacheEnabled:', e);
+      }
+    }
+  }, []);
+
+  const setLogoCacheMaxMb = useCallback(async (mb: number) => {
+    setLogoCacheMaxMbState(mb);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ logoCacheMaxMb: mb });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save logoCacheMaxMb:', e);
+      }
+    }
+  }, []);
+
+  const setLogoCacheTtlDays = useCallback(async (days: number) => {
+    setLogoCacheTtlDaysState(days);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ logoCacheTtlDays: days });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save logoCacheTtlDays:', e);
+      }
+    }
+  }, []);
+
+  const setLogoCachePrefetch = useCallback(async (enabled: boolean) => {
+    setLogoCachePrefetchState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ logoCachePrefetch: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save logoCachePrefetch:', e);
+      }
+    }
+  }, []);
+
   const setEpgMetadataBadgeFpsSuffix = useCallback(async (enabled: boolean) => {
     setEpgMetadataBadgeFpsSuffixState(enabled);
     if (window.storage) {
@@ -1638,6 +1703,23 @@ export function useAppSettings(): AppSettings {
         console.error('[useAppSettings] Failed to save epgLogoDisplay:', e);
       }
     }
+  }, []);
+
+  const setSourceLogoDisplayOverride = useCallback(async (sourceId: string, display: 'square' | 'rectangle' | 'default') => {
+    setSourceLogoDisplayOverridesState((prev) => {
+      const next = { ...prev };
+      if (display === 'default') {
+        delete next[sourceId];
+      } else {
+        next[sourceId] = display;
+      }
+      if (window.storage) {
+        window.storage.updateSettings({ sourceLogoDisplayOverrides: next }).catch(e => {
+          console.error('[useAppSettings] Failed to save sourceLogoDisplayOverrides:', e);
+        });
+      }
+      return next;
+    });
   }, []);
 
   const setGlobalLiveTvUserAgent = useCallback(async (ua: string) => {
@@ -1829,6 +1911,8 @@ export function useAppSettings(): AppSettings {
     setEpgPreferEpgLogos,
     epgLogoDisplay,
     setEpgLogoDisplay,
+    sourceLogoDisplayOverrides,
+    setSourceLogoDisplayOverride,
     epgMetadataBadgeResolution,
     setEpgMetadataBadgeResolution,
     epgMetadataBadgeFps,
@@ -1837,6 +1921,14 @@ export function useAppSettings(): AppSettings {
     setEpgMetadataBadgeFpsSuffix,
     epgMetadataBadgeSound,
     setEpgMetadataBadgeSound,
+    logoCacheEnabled,
+    setLogoCacheEnabled,
+    logoCacheMaxMb,
+    setLogoCacheMaxMb,
+    logoCacheTtlDays,
+    setLogoCacheTtlDays,
+    logoCachePrefetch,
+    setLogoCachePrefetch,
     globalLiveTvUserAgent,
     setGlobalLiveTvUserAgent,
     catchupStartPadding,

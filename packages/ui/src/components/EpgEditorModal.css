@@ -722,3 +722,49 @@
 
 /* ── Scrollbar ── */
 .epg-editor-body { scrollbar-width: thin; scrollbar-color: var(--border-color, #444) transparent; }
+
+/* Segmented Controls for EPG Editor Logo Background & Padding */
+.epg-editor-field .card-segmented-control {
+  display: flex;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.08));
+  max-width: 320px;
+}
+
+.epg-editor-field .segmented-btn {
+  flex: 1;
+  padding: 7px 12px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #888);
+  cursor: pointer;
+  border-radius: 6px;
+  text-align: center;
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.epg-editor-field .segmented-btn:hover {
+  color: var(--text-primary, #fff);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.epg-editor-field .segmented-btn.active {
+  background: var(--accent-color, #3b82f6);
+  color: #fff;
+  font-weight: 700;
+}
+
+.epg-editor-field .card-padding-control .segmented-btn.active {
+  background: #ffc107;
+  color: #000;
+  font-weight: 700;
+}

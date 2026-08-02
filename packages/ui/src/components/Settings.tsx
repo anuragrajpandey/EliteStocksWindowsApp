@@ -26,6 +26,7 @@ import { ProxyTab } from './settings/ProxyTab';
 import { DiscordTab } from './settings/DiscordTab';
 import { useModal } from './Modal';
 import { TmdbTab } from './settings/TmdbTab';
+import { useAppSettings } from '../hooks/useAppSettings';
 import type { ShortcutsMap, ThemeId, CustomThemeConfig } from '../types/app';
 import type { StremioStreamPickerMode, BadgeSource, StreamAutoPlayMode, StreamAutoPlaySourceScope } from '../types/stremio';
 import { DEFAULT_BADGE_SOURCES, mergeDefaultBadgeSources } from '../utils/streamBadges';
@@ -572,6 +573,19 @@ export function Settings({
       setNuvioCacheFetchTimeout(nuvioCacheFetchTimeoutProp);
     }
   }, [nuvioCacheFetchTimeoutProp]);
+
+  const {
+    logoCacheEnabled,
+    setLogoCacheEnabled,
+    logoCacheMaxMb,
+    setLogoCacheMaxMb,
+    logoCacheTtlDays,
+    setLogoCacheTtlDays,
+    logoCachePrefetch,
+    setLogoCachePrefetch,
+    sourceLogoDisplayOverrides,
+    setSourceLogoDisplayOverride,
+  } = useAppSettings();
 
   // Category settings state
   const [showAllChannels, setShowAllChannels] = useState(true);
@@ -2762,7 +2776,15 @@ export function Settings({
       case 'livetv':
         return (
            <LiveTVTab
-            initialSubTab={pendingSubTab as 'epg' | 'font-size' | 'sort-order' | 'search' | 'live-view' | 'widgets' | undefined}
+            initialSubTab={pendingSubTab as any}
+            logoCacheEnabled={logoCacheEnabled}
+            onLogoCacheEnabledChange={setLogoCacheEnabled}
+            logoCacheMaxMb={logoCacheMaxMb}
+            onLogoCacheMaxMbChange={setLogoCacheMaxMb}
+            logoCacheTtlDays={logoCacheTtlDays}
+            onLogoCacheTtlDaysChange={setLogoCacheTtlDays}
+            logoCachePrefetch={logoCachePrefetch}
+            onLogoCachePrefetchChange={setLogoCachePrefetch}
             epgDarkenCurrent={epgDarkenCurrent}
             onEpgDarkenCurrentChange={handleEpgDarkenCurrentChange}
             epgHighlightBorderCurrent={epgHighlightBorderCurrent}
@@ -2781,6 +2803,8 @@ export function Settings({
             onEpgPreferEpgLogosChange={handleEpgPreferEpgLogosChange}
             epgLogoDisplay={epgLogoDisplay}
             onEpgLogoDisplayChange={handleEpgLogoDisplayChange}
+            sourceLogoDisplayOverrides={sourceLogoDisplayOverrides}
+            onSetSourceLogoDisplayOverride={setSourceLogoDisplayOverride}
             epgMetadataBadgeResolution={epgMetadataBadgeResolution}
             onEpgMetadataBadgeResolutionChange={handleEpgMetadataBadgeResolutionChange}
             epgMetadataBadgeFps={epgMetadataBadgeFps}

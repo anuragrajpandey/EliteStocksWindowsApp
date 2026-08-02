@@ -64,6 +64,7 @@ flate2 = "1.0"
 
 # HTTP client for TMDB caching and EPG streaming
 reqwest = { version = "0.12", features = ["json", "stream", "rustls-tls", "gzip", "brotli", "deflate", "socks"], default-features = false }
+base64 = "0.22"
 log = "0.4.29"
 keyring = "3"
 

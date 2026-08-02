@@ -1,5 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { classifyLogo } from '../utils/logoLuminance';
+import { getCachedLogoUrl } from '../services/logoCache';
+import { useAppSettings } from '../hooks/useAppSettings';
 
 interface ChannelLogoProps {
   src?: string | null;
@@ -11,6 +13,8 @@ interface ChannelLogoProps {
   background?: 'auto' | 'light' | 'dark';
   /** Manual logo padding override. 'default' (or undefined) uses normal tile padding, 'none' removes padding. */
   padding?: 'default' | 'none';
+  /** Display shape override: 'square' or 'rectangle' */
+  shape?: 'square' | 'rectangle';
 }
 
 /**
@@ -33,18 +37,37 @@ export const ChannelLogo = memo(function ChannelLogo({
   lazy = true,
   background = 'auto',
   padding = 'default',
+  shape,
 }: ChannelLogoProps) {
+  const { logoCacheEnabled } = useAppSettings();
   const [autoLight, setAutoLight] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [effectiveSrc, setEffectiveSrc] = useState<string | undefined>(src || undefined);
   const imgRef = useRef<HTMLImageElement>(null);
   const handledSrc = useRef<string | null>(null);
 
-  // Reset state whenever the logo URL changes
+  // Reset state and resolve cached logo URL whenever the logo URL or setting changes
   useEffect(() => {
     setAutoLight(false);
     setFailed(false);
     handledSrc.current = null;
-  }, [src]);
+
+    if (!src) {
+      setEffectiveSrc(undefined);
+      return;
+    }
+
+    let isMounted = true;
+    getCachedLogoUrl(src, logoCacheEnabled).then((resolved) => {
+      if (isMounted) {
+        setEffectiveSrc(resolved);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [src, logoCacheEnabled]);
 
   const handleLoad = useCallback(() => {
     if (background !== 'auto') return;
@@ -63,9 +86,10 @@ export const ChannelLogo = memo(function ChannelLogo({
   const containerClass = [
     needsLight ? `${className} logo-on-light` : className,
     padding === 'none' ? 'no-padding' : '',
+    shape === 'rectangle' ? 'logo-shape-rectangle' : '',
   ].filter(Boolean).join(' ');
 
-  if (!src || failed) {
+  if (!src || !effectiveSrc || failed) {
     return (
       <div className={containerClass}>
         <span className={placeholderClass}>{(name || '?').charAt(0)}</span>
@@ -77,8 +101,8 @@ export const ChannelLogo = memo(function ChannelLogo({
     <div className={containerClass}>
       <img
         ref={imgRef}
-        key={src}
-        src={src}
+        key={effectiveSrc}
+        src={effectiveSrc}
         alt=""
         loading={lazy ? 'lazy' : undefined}
         decoding="async"

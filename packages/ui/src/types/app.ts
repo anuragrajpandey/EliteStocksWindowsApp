@@ -134,10 +134,15 @@ export interface AppSettings {
     epgBoldSourceCategories?: boolean;
     epgPreferEpgLogos?: boolean;
     epgLogoDisplay?: 'square' | 'rectangle';
+    sourceLogoDisplayOverrides?: Record<string, 'square' | 'rectangle'>;
     epgMetadataBadgeResolution?: boolean;
     epgMetadataBadgeFps?: boolean;
     epgMetadataBadgeFpsSuffix?: boolean;
     epgMetadataBadgeSound?: boolean;
+    logoCacheEnabled?: boolean;
+    logoCacheMaxMb?: number;
+    logoCacheTtlDays?: number;
+    logoCachePrefetch?: boolean;
     disableThemeBlobs?: boolean;
     disableThemeBackdropBlur?: boolean;
     epgLazyLoadingEnabled?: boolean;

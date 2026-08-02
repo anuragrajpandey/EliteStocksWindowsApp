@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import './EpgEditorModal.css';
 import { db } from '../db';
 import type { StoredChannel, StoredCategory } from '../db';
+import { ChannelLogo } from './ChannelLogo';
 import { useEpgClockFormat } from '../stores/uiStore';
 import {
   getChannelOverride,
@@ -212,6 +213,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
   const [tvgId, setTvgId] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
   const [logoBackground, setLogoBackground] = useState<'auto' | 'light' | 'dark'>('auto');
+  const [logoPadding, setLogoPadding] = useState<'default' | 'none'>('default');
   const [epgLogoUrl, setEpgLogoUrl] = useState('');
   const [timeshiftHours, setTimeshiftHours] = useState('0');
   const [channelSaving, setChannelSaving] = useState(false);
@@ -316,6 +318,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
       const playlistIcon = rawChan?.stream_icon ?? channel.stream_icon ?? '';
       setLogoUrl(ov?.stream_icon ?? playlistIcon);
       setLogoBackground((ov?.logo_background as 'auto' | 'light' | 'dark') ?? 'auto');
+      setLogoPadding((ov?.logo_padding as 'default' | 'none') ?? 'default');
       
       setTimeshiftHours(ov?.timeshift_hours != null ? String(ov.timeshift_hours) : '0');
     }).catch(err => {
@@ -468,6 +471,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
         epg_channel_id: tvgId.trim() || undefined,
         stream_icon: logoUrl.trim() || undefined,
         logo_background: logoBackground === 'auto' ? undefined : logoBackground,
+        logo_padding: logoPadding === 'default' ? undefined : logoPadding,
         timeshift_hours: isNaN(hours) ? 0 : hours,
       });
       setChannelSaved(true);
@@ -815,63 +819,73 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                     onChange={e => setLogoUrl(e.target.value)}
                     placeholder="https://..."
                   />
-                  {logoUrl ? (
-                    <img
-                      key={logoUrl}
-                      src={logoUrl}
-                      alt="logo"
-                      className="epg-editor-logo-preview"
-                      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  <div style={{ width: 40, height: 40, flexShrink: 0 }}>
+                    <ChannelLogo
+                      src={logoUrl || undefined}
+                      name={channel?.name || ''}
+                      background={logoBackground}
+                      padding={logoPadding}
+                      lazy={false}
                     />
-                  ) : (
-                    <div className="epg-editor-logo-placeholder">📺</div>
-                  )}
+                  </div>
                 </div>
               </div>
 
               <div className="epg-editor-field">
                 <label className="epg-editor-label">Logo Background</label>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <select
-                    className="epg-editor-input"
-                    value={logoBackground}
-                    onChange={e => setLogoBackground(e.target.value as 'auto' | 'light' | 'dark')}
-                    style={{ maxWidth: 220, colorScheme: 'dark' }}
+                <div className="card-segmented-control" style={{ marginTop: 4 }}>
+                  <button
+                    type="button"
+                    className={`segmented-btn ${logoBackground === 'auto' ? 'active' : ''}`}
+                    onClick={() => setLogoBackground('auto')}
+                    title="Auto background luminance detection"
                   >
-                    <option value="auto">Auto (detect)</option>
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                  </select>
-                  <div
-                    style={{
-                      width: 34,
-                      height: 34,
-                      borderRadius: 6,
-                      flexShrink: 0,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '0.9rem',
-                      background:
-                        logoBackground === 'light'
-                          ? '#ffffff'
-                          : logoBackground === 'dark'
-                            ? '#1a1d23'
-                            : 'rgba(255,255,255,0.08)',
-                      color:
-                        logoBackground === 'light'
-                          ? '#1a1d23'
-                          : logoBackground === 'dark'
-                            ? '#ffffff'
-                            : 'rgba(255,255,255,0.6)',
-                      border: logoBackground === 'auto' ? '1px dashed rgba(255,255,255,0.25)' : 'none',
-                    }}
+                    ✨ Auto
+                  </button>
+                  <button
+                    type="button"
+                    className={`segmented-btn ${logoBackground === 'light' ? 'active' : ''}`}
+                    onClick={() => setLogoBackground('light')}
+                    title="Force light background tile"
                   >
-                    {logoBackground === 'auto' ? '⚙' : logoBackground === 'light' ? '◐' : '●'}
-                  </div>
+                    ☀️ Light
+                  </button>
+                  <button
+                    type="button"
+                    className={`segmented-btn ${logoBackground === 'dark' ? 'active' : ''}`}
+                    onClick={() => setLogoBackground('dark')}
+                    title="Force dark background tile"
+                  >
+                    🌙 Dark
+                  </button>
                 </div>
                 <div className="epg-editor-hint">
-                  Pick the logo tile background if the automatic detection gets it wrong (e.g. a dark logo on a dark tile).
+                  Pick the logo tile background if the automatic detection gets it wrong.
+                </div>
+              </div>
+
+              <div className="epg-editor-field">
+                <label className="epg-editor-label">Logo Padding</label>
+                <div className="card-segmented-control card-padding-control" style={{ marginTop: 4 }}>
+                  <button
+                    type="button"
+                    className={`segmented-btn ${logoPadding === 'default' ? 'active' : ''}`}
+                    onClick={() => setLogoPadding('default')}
+                    title="Normal logo padding (3px)"
+                  >
+                    📐 Normal
+                  </button>
+                  <button
+                    type="button"
+                    className={`segmented-btn ${logoPadding === 'none' ? 'active' : ''}`}
+                    onClick={() => setLogoPadding('none')}
+                    title="Remove logo padding (0px, edge-to-edge)"
+                  >
+                    🖼️ No Pad
+                  </button>
+                </div>
+                <div className="epg-editor-hint">
+                  Choose Normal for standard 3px padding or No Pad for full edge-to-edge logo display.
                 </div>
               </div>
 

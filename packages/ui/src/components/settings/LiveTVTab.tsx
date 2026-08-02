@@ -2,12 +2,22 @@ import { useState, useEffect } from 'react';
 import { ChannelsTab } from './ChannelsTab';
 import { LiveViewTab } from './LiveViewTab';
 import { WidgetsTab } from './WidgetsTab';
+import { LogosTab } from './LogosTab';
 import './PlaybackTab.css'; // Reuse existing tab styles
 
-export type LiveTVSubTabId = 'epg' | 'font-size' | 'sort-order' | 'search' | 'live-view' | 'widgets';
+export type LiveTVSubTabId = 'epg' | 'logos' | 'font-size' | 'sort-order' | 'search' | 'live-view' | 'widgets';
 
 interface LiveTVTabProps {
   initialSubTab?: LiveTVSubTabId;
+  // Logo Cache props
+  logoCacheEnabled: boolean;
+  onLogoCacheEnabledChange: (enabled: boolean) => void;
+  logoCacheMaxMb: number;
+  onLogoCacheMaxMbChange: (maxMb: number) => void;
+  logoCacheTtlDays: number;
+  onLogoCacheTtlDaysChange: (days: number) => void;
+  logoCachePrefetch: boolean;
+  onLogoCachePrefetchChange: (prefetch: boolean) => void;
   // EPG props
   epgDarkenCurrent: boolean;
   onEpgDarkenCurrentChange: (enabled: boolean) => void;
@@ -27,6 +37,8 @@ interface LiveTVTabProps {
   onEpgPreferEpgLogosChange: (enabled: boolean) => void;
   epgLogoDisplay: 'square' | 'rectangle';
   onEpgLogoDisplayChange: (display: 'square' | 'rectangle') => void;
+  sourceLogoDisplayOverrides: Record<string, 'square' | 'rectangle'>;
+  onSetSourceLogoDisplayOverride: (sourceId: string, display: 'square' | 'rectangle' | 'default') => void;
   epgMetadataBadgeResolution: boolean;
   onEpgMetadataBadgeResolutionChange: (enabled: boolean) => void;
   epgMetadataBadgeFps: boolean;
@@ -113,6 +125,14 @@ interface LiveTVTabProps {
 
 export function LiveTVTab({
   initialSubTab,
+  logoCacheEnabled,
+  onLogoCacheEnabledChange,
+  logoCacheMaxMb,
+  onLogoCacheMaxMbChange,
+  logoCacheTtlDays,
+  onLogoCacheTtlDaysChange,
+  logoCachePrefetch,
+  onLogoCachePrefetchChange,
   epgDarkenCurrent,
   onEpgDarkenCurrentChange,
   epgHighlightBorderCurrent,
@@ -131,6 +151,8 @@ export function LiveTVTab({
   onEpgPreferEpgLogosChange,
   epgLogoDisplay,
   onEpgLogoDisplayChange,
+  sourceLogoDisplayOverrides,
+  onSetSourceLogoDisplayOverride,
   epgMetadataBadgeResolution,
   onEpgMetadataBadgeResolutionChange,
   epgMetadataBadgeFps,
@@ -209,11 +231,11 @@ export function LiveTVTab({
   onTransparentGuideSidebarOpacityChange,
   modernUiEnabled,
 }: LiveTVTabProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'epg' | 'font-size' | 'sort-order' | 'search' | 'live-view' | 'widgets'>('epg');
+  const [activeSubTab, setActiveSubTab] = useState<LiveTVSubTabId>('epg');
 
   useEffect(() => {
     if (initialSubTab) {
-      setActiveSubTab(initialSubTab as any);
+      setActiveSubTab(initialSubTab);
     }
   }, [initialSubTab]);
 
@@ -225,6 +247,12 @@ export function LiveTVTab({
           onClick={() => setActiveSubTab('epg')}
         >
           EPG
+        </button>
+        <button
+          className={`settings-tab ${activeSubTab === 'logos' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('logos')}
+        >
+          Logos
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'font-size' ? 'active' : ''}`}
@@ -334,36 +362,7 @@ export function LiveTVTab({
                   </label>
                 </div>
 
-                {/* Prefer EPG channel logos globally */}
-                <div className="timeshift-toggle-row">
-                  <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label">Prefer EPG logos globally</span>
-                    <span className="timeshift-toggle-sub">When enabled, channels with EPG data will display the matched EPG channel's logo instead of the playlist's logo.</span>
-                  </div>
-                  <label className="toggle-switch">
-                    <input
-                      type="checkbox"
-                      checked={epgPreferEpgLogos}
-                      onChange={(e) => onEpgPreferEpgLogosChange(e.target.checked)}
-                    />
-                    <span className="toggle-slider" />
-                  </label>
-                </div>
 
-                {/* Display Icons as square or rectangle */}
-                <div className="timeshift-toggle-row">
-                  <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label">Display Icons</span>
-                    <span className="timeshift-toggle-sub">Some providers use wide/horizontal channel icons. Select how channel logos are displayed in the guide.</span>
-                  </div>
-                  <select
-                    value={epgLogoDisplay}
-                    onChange={(e) => onEpgLogoDisplayChange(e.target.value as 'square' | 'rectangle')}
-                  >
-                    <option value="square">Square</option>
-                    <option value="rectangle">Rectangle (Horizontal)</option>
-                  </select>
-                </div>
 
                 {/* Preview example (v1 design only) */}
                 {(modernUiEnabled === false || modernUiEnabled === 'v1') && (
@@ -918,6 +917,23 @@ export function LiveTVTab({
             includeAllChannelsToPlaylist={includeAllChannelsToPlaylist}
             onIncludeAllChannelsToPlaylistChange={onIncludeAllChannelsToPlaylistChange}
             showMode={activeSubTab === 'sort-order' ? 'sort-order' : 'search'}
+          />
+        )}
+
+        {activeSubTab === 'logos' && (
+          <LogosTab
+            epgPreferEpgLogos={epgPreferEpgLogos}
+            onEpgPreferEpgLogosChange={onEpgPreferEpgLogosChange}
+            epgLogoDisplay={epgLogoDisplay}
+            onEpgLogoDisplayChange={onEpgLogoDisplayChange}
+            sourceLogoDisplayOverrides={sourceLogoDisplayOverrides}
+            onSetSourceLogoDisplayOverride={onSetSourceLogoDisplayOverride}
+            logoCacheEnabled={logoCacheEnabled}
+            onLogoCacheEnabledChange={onLogoCacheEnabledChange}
+            logoCacheMaxMb={logoCacheMaxMb}
+            onLogoCacheMaxMbChange={onLogoCacheMaxMbChange}
+            logoCacheTtlDays={logoCacheTtlDays}
+            onLogoCacheTtlDaysChange={onLogoCacheTtlDaysChange}
           />
         )}
 

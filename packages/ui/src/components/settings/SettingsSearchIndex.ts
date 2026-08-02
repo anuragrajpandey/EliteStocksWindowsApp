@@ -10,7 +10,7 @@ export interface SettingsSearchResult {
   section?: string;
 }
 
-export type LiveTVSubTabId = 'epg' | 'font-size' | 'sort-order' | 'search' | 'live-view' | 'widgets';
+export type LiveTVSubTabId = 'epg' | 'logos' | 'font-size' | 'sort-order' | 'search' | 'live-view' | 'widgets';
 
 const TAB_LABELS: Record<SettingsTabId, string> = {
   sources: 'Sources',
@@ -63,14 +63,13 @@ const SETTINGS_SEARCH_INDEX: SettingsSearchResult[] = [
   { id: 'epg-bold-top-categories', label: 'Bold Top Categories', description: 'When enabled, it bolds the top categories in the sidebar (All Channels, Favorites, Watchlist, Recently Viewed, custom groups).', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'EPG' },
   { id: 'epg-bold-source-categories', label: 'Bold Source Categories', description: 'When enabled, it bolds the nested categories listed under their media sources in the sidebar.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'EPG' },
   { id: 'epg-metadata-badges', label: 'Metadata Badges (Resolution, FPS, Sound)', description: 'Enable or disable resolution, FPS, and sound metadata badges on channel rows in the EPG grid.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'EPG' },
-  { id: 'epg-metadata-badge-fps-suffix', label: 'Show "fps" suffix', description: 'Display the frame rate as e.g. "60fps" instead of just "60" in metadata badges.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'EPG' },
-  { id: 'epg-logo-display', label: 'Display Icons', description: 'Display channel logos as square or rectangle (horizontal) format in the guide.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'EPG' },
-  { id: 'epg-view-layout', label: 'EPG View Layout', description: 'Select between the standard left-to-right setup or the full-width cinematic format.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'Preview Panel' },
-  { id: 'epg-title-font-size', label: 'EPG Title Font Size', description: 'Adjust the font size for program titles in the EPG preview panel.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'EPG' },
-  { id: 'epg-body-font-size', label: 'EPG Body Text Font Size', description: 'Adjust the font size for program descriptions in the EPG preview panel.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'EPG' },
-  { id: 'preview-panel', label: 'Preview Panel', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'Preview Panel' },
-  { id: 'transparent-guide-overlay-opacity', label: 'EPG Overlay Opacity', description: 'Opacity level of the transparent EPG overlay.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'Transparent EPG Overlay' },
-  { id: 'transparent-guide-sidebar-opacity', label: 'Category Sidebar Opacity', description: 'Opacity level of the category sidebar in transparent EPG overlay.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'epg', section: 'Transparent EPG Overlay' },
+  // LiveTV > Logos
+  { id: 'prefer-epg-logos', label: 'Prefer EPG logos globally', description: 'When enabled, channels with EPG data will display the matched EPG channel logo instead of the playlist logo.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'logos', section: 'Logo Preferences' },
+  { id: 'epg-logo-display', label: 'Display Icons', description: 'Display channel logos as square or rectangle (horizontal) format in the guide.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'logos', section: 'Logo Preferences' },
+  { id: 'logo-caching', label: 'Enable Local Logo Caching', description: 'Store channel logos locally on disk for instant load times and offline support.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'logos', section: 'Logos' },
+  { id: 'logo-max-size', label: 'Maximum Logo Cache Size', description: 'Configure max disk space allocated for cached logos.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'logos', section: 'Logos' },
+  { id: 'logo-cache-ttl', label: 'Logo Cache Expiration (TTL)', description: 'Configure auto-purging of cached logos older than the set timeframe.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'logos', section: 'Logos' },
+  { id: 'clear-logo-cache', label: 'Clear Logo Cache', description: 'Purge all cached logo images from disk and reset luminance cache.', tabId: 'livetv', tabLabel: 'LiveTV', subTabId: 'logos', section: 'Logos' },
 
 
 
