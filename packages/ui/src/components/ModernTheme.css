@@ -4536,7 +4536,7 @@ html.modern-ui-v3[data-theme] .sports-hub:not(.with-preview) {
     0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
 }
 
-html.modern-ui-v3[data-theme] .settings-panel {
+html.modern-ui-v3[data-theme]:not([data-theme="light"]) .settings-panel {
   background: rgba(16, 12, 26, 0.82) !important;
   background-attachment: scroll !important;
   backdrop-filter: blur(35px) saturate(180%) !important;
@@ -4635,7 +4635,7 @@ html.modern-ui-v3[data-theme] .source-details {
   gap: 6px !important;
 }
 
-html.modern-ui-v3[data-theme] .stat-chip {
+html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip {
   backdrop-filter: blur(8px) saturate(130%) !important;
   -webkit-backdrop-filter: blur(8px) saturate(130%) !important;
   font-size: 0.71rem !important;
@@ -4647,36 +4647,36 @@ html.modern-ui-v3[data-theme] .stat-chip {
 }
 
 /* All count chips — identical neutral white, no accent tint */
-html.modern-ui-v3[data-theme] .stat-chip--count {
+html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--count {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.13) !important;
   color: rgba(255, 255, 255, 0.88) !important;
 }
 
-html.modern-ui-v3[data-theme] .stat-chip--count svg {
+html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--count svg {
   color: rgba(255, 255, 255, 0.5) !important;
   opacity: 1 !important;
 }
 
-html.modern-ui-v3[data-theme] .stat-chip-divider {
+html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip-divider {
   background: rgba(255, 255, 255, 0.2) !important;
 }
 
 /* Expiry — muted by default */
-html.modern-ui-v3[data-theme] .stat-chip--expiry {
+html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--expiry {
   background: rgba(255, 255, 255, 0.04) !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
   color: rgba(255, 255, 255, 0.38) !important;
 }
 
 /* Expiry — red when within 30 days or expired */
-html.modern-ui-v3[data-theme] .stat-chip--expiry.stat-chip--expiry-warn {
+html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--expiry.stat-chip--expiry-warn {
   background: rgba(239, 68, 68, 0.12) !important;
   border-color: rgba(239, 68, 68, 0.28) !important;
   color: #f87171 !important;
 }
 
-html.modern-ui-v3[data-theme] .stat-chip--expiry.stat-chip--expiry-warn svg {
+html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--expiry.stat-chip--expiry-warn svg {
   color: #f87171 !important;
   opacity: 1 !important;
 }
@@ -5341,41 +5341,46 @@ html.modern-ui-v3[data-theme="light"] .settings-nav-item.active {
   border-color: color-mix(in srgb, var(--accent-primary, #8b5cf6) 30%, rgba(0, 0, 0, 0.08)) !important;
 }
 
+html.modern-ui-v3[data-theme="light"] .settings-overlay {
+  background: rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
 html.modern-ui-v3[data-theme="light"] .settings-panel {
-  background: rgba(16, 12, 26, 0.82) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
   backdrop-filter: blur(35px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(35px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
   box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 20px 50px rgba(0, 0, 0, 0.6),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-  color: #ffffff !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 20px 50px rgba(0, 0, 0, 0.15),
+    0 2px 8px color-mix(in srgb, var(--accent-primary, #0066cc) 10%, transparent) !important;
+  color: #0f172a !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
   background: transparent !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-header h2 {
-  color: #ffffff !important;
+  color: #0f172a !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .close-btn {
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #a1a1aa !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  color: #64748b !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .close-btn:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: #ffffff !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #0f172a !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-sidebar {
   background: transparent !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-sidebar::before {
@@ -5387,186 +5392,229 @@ html.modern-ui-v3[data-theme="light"] .settings-content {
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-tabs {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
   background: transparent !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-tab {
-  color: rgba(255, 255, 255, 0.55) !important;
+  color: #475569 !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-tab:hover {
-  color: rgba(255, 255, 255, 0.85) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
+  color: #0f172a !important;
+  background: rgba(0, 0, 0, 0.04) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-tab.active {
-  color: var(--accent-primary, #8b5cf6) !important;
-  border-bottom-color: var(--accent-primary, #8b5cf6) !important;
-  text-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 50%, transparent) !important;
+  color: var(--accent-primary, #0066cc) !important;
+  border-bottom-color: var(--accent-primary, #0066cc) !important;
+  text-shadow: none !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-nav-item {
-  color: rgba(255, 255, 255, 0.6) !important;
+  color: #475569 !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-nav-item:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: #fff !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  color: #0f172a !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-nav-item.active {
-  background: color-mix(in srgb, var(--accent-primary, #8b5cf6) 18%, rgba(255, 255, 255, 0.08)) !important;
-  color: #fff !important;
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #8b5cf6) 35%, rgba(255, 255, 255, 0.15)) !important;
+  background: color-mix(in srgb, var(--accent-primary, #0066cc) 12%, rgba(0, 0, 0, 0.03)) !important;
+  color: var(--accent-primary, #0066cc) !important;
+  border: 1px solid color-mix(in srgb, var(--accent-primary, #0066cc) 25%, rgba(0, 0, 0, 0.08)) !important;
   box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .section-header h3 {
-  color: #ffffff !important;
+  color: #0f172a !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .section-description,
 html.modern-ui-v3[data-theme="light"] .form-group label {
-  color: rgba(255, 255, 255, 0.6) !important;
+  color: #64748b !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .form-group input {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: #ffffff !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  color: #0f172a !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .form-group input:focus {
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) !important;
+  border-color: var(--accent-primary, #0066cc) !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary, #0066cc) 20%, transparent) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .form-group input::placeholder {
-  color: rgba(255, 255, 255, 0.4) !important;
+  color: #94a3b8 !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .type-selector button {
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  color: #475569 !important;
+  background: rgba(0, 0, 0, 0.03) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .type-selector button:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: #ffffff !important;
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #0f172a !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .type-selector button.active {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
-  color: var(--accent-primary, #8b5cf6) !important;
+  background: color-mix(in srgb, var(--accent-primary, #0066cc) 12%, #ffffff) !important;
+  border-color: color-mix(in srgb, var(--accent-primary, #0066cc) 35%, rgba(0, 0, 0, 0.1)) !important;
+  color: var(--accent-primary, #0066cc) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .cancel-btn {
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.6) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  color: #475569 !important;
+  background: rgba(0, 0, 0, 0.03) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .cancel-btn:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: #ffffff !important;
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #0f172a !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .save-btn,
 html.modern-ui-v3[data-theme="light"] .sync-btn,
 html.modern-ui-v3[data-theme="light"] .add-btn {
   border: 1px solid transparent !important;
-  background: var(--accent-primary, #8b5cf6) !important;
-  color: #121424 !important;
+  background: var(--accent-primary, #0066cc) !important;
+  color: #ffffff !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .save-btn:hover:not(:disabled),
 html.modern-ui-v3[data-theme="light"] .sync-btn:hover:not(:disabled),
 html.modern-ui-v3[data-theme="light"] .add-btn:hover {
-  background: color-mix(in srgb, var(--accent-primary, #8b5cf6) 80%, white) !important;
+  background: color-mix(in srgb, var(--accent-primary, #0066cc) 85%, black) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .source-item {
-  background: rgba(255, 255, 255, 0.05) !important;
+  background: rgba(0, 0, 0, 0.02) !important;
   backdrop-filter: blur(16px) saturate(160%) !important;
   -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
-    0 8px 32px rgba(0, 0, 0, 0.15) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 4px 16px rgba(0, 0, 0, 0.04) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .source-item:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.16) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
-    0 12px 40px rgba(0, 0, 0, 0.2) !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .source-item .source-name {
-  color: #ffffff !important;
+  color: #0f172a !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .source-type {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: #e4e4e7 !important;
+  background: rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  color: #475569 !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .source-item .toggle-label {
+  color: #475569 !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .last-sync-time {
+  color: #64748b !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .stat-chip--count {
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #1e293b !important;
+  box-shadow: none !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .stat-chip--count svg {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .stat-chip-divider {
+  background: rgba(0, 0, 0, 0.18) !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .stat-chip--expiry {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #64748b !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .stat-chip--expiry.stat-chip--expiry-warn {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.25) !important;
+  color: #dc2626 !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .stat-chip--expiry.stat-chip--expiry-warn svg {
+  color: #dc2626 !important;
+  opacity: 1 !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .source-actions button {
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.6) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  backdrop-filter: blur(12px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  color: #475569 !important;
+  background: rgba(0, 0, 0, 0.03) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .source-actions button:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: #ffffff !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #0f172a !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-content select {
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  color: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-content select:focus {
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: var(--accent-primary, #0066cc) !important;
+  background: #ffffff !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-content select option {
-  background: #141624 !important;
-  color: #ffffff !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .settings-search-input-wrapper {
+  background: rgba(0, 0, 0, 0.03) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .settings-search-input-wrapper input {
+  color: #0f172a !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .settings-search-input-wrapper:focus-within {
+  background: #ffffff !important;
+  border-color: var(--accent-primary, #0066cc) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-disclaimer,
 html.modern-ui-v3[data-theme="light"] .settings-content small,
 html.modern-ui-v3[data-theme="light"] .settings-section p.section-description {
-  color: rgba(255, 255, 255, 0.5) !important;
+  color: #64748b !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-tab-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(0, 0, 0, 0.15) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-tab-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: rgba(0, 0, 0, 0.25) !important;
 }
 
 /* Disable glow text-shadows in light theme EPG for clean readability */

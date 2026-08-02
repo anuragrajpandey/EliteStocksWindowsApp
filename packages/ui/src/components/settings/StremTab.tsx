@@ -124,10 +124,10 @@ export function StremTab({
   return (
     <div className="settings-tab-content strem-settings-tab">
       <div className="settings-section">
-      <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>
+      <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
         Strem Playback
       </h3>
-      <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)' }}>
+      <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
         Choose how streams from Stremio addons are played.
       </p>
       <div className="retry-setting-row" style={{ borderBottom: 'none' }}>
@@ -169,11 +169,11 @@ export function StremTab({
       </div>
 
       {/* Cache Fetch Results section for Stremio */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', marginTop: '20px' }}>
-        <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>
+      <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '20px', marginTop: '20px' }}>
+        <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
           Cache Fetch Results (Stremio)
         </h3>
-        <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)' }}>
+        <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
           Cache addon fetch results. When returning to the same detail page within the set time, previously fetched streams will load instantly.
         </p>
 
@@ -214,10 +214,10 @@ export function StremTab({
         )}
       </div>
 
-      <h3 style={{ margin: '24px 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>
+      <h3 style={{ margin: '24px 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
         Stream Badges
       </h3>
-      <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)' }}>
+      <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
         Show quality, codec, HDR and audio badges on stream links, or import custom badge rules.
       </p>
 
@@ -262,9 +262,9 @@ export function StremTab({
               value={streamBadgePlacement}
               onChange={(e) => onStreamBadgePlacementChange(e.target.value as 'top' | 'bottom')}
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                color: 'rgba(255,255,255,0.85)',
+                background: 'var(--surface-color)',
+                border: '1px solid var(--surface-border)',
+                color: 'var(--text-primary)',
                 borderRadius: '6px',
                 padding: '6px 10px',
                 fontSize: '0.8rem',
@@ -272,8 +272,8 @@ export function StremTab({
                 cursor: 'pointer',
               }}
             >
-              <option value="bottom" style={{ background: '#1a1a1a' }}>Bottom (Below Title)</option>
-              <option value="top" style={{ background: '#1a1a1a' }}>Top (Above Title)</option>
+              <option value="bottom" style={{ background: 'var(--surface-color)' }}>Bottom (Below Title)</option>
+              <option value="top" style={{ background: 'var(--surface-color)' }}>Top (Above Title)</option>
             </select>
           </div>
 
@@ -295,13 +295,13 @@ export function StremTab({
                 cursor: 'pointer',
                 height: '6px',
                 borderRadius: '3px',
-                background: 'rgba(255,255,255,0.1)',
+                background: 'var(--surface-color)',
                 outline: 'none',
               }}
             />
           </div>
-          <div style={{ padding: '12px 16px', background: 'rgba(0,0,0,0.25)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)', width: '100%', boxSizing: 'border-box' }}>
-            <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.05em' }}>
+          <div style={{ padding: '12px 16px', background: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--surface-border)', width: '100%', boxSizing: 'border-box' }}>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.05em' }}>
               LIVE PREVIEW
             </div>
             <div className="stremio-detail-stream-badges" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -324,8 +324,8 @@ export function StremTab({
       )}
 
       {/* Custom Badge Import */}
-      <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
-        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'rgba(255,255,255,0.8)', marginBottom: '8px' }}>
+      <div style={{ marginTop: '20px', borderTop: '1px solid var(--surface-border)', paddingTop: '16px' }}>
+        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
           Fusion Badges / Custom Rules
         </div>
 
@@ -336,9 +336,9 @@ export function StremTab({
           onChange={(e) => setBadgeUrl(e.target.value)}
           style={{
             width: '100%',
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            color: 'rgba(255,255,255,0.85)',
+            background: 'var(--surface-color)',
+            border: '1px solid var(--surface-border)',
+            color: 'var(--text-primary)',
             borderRadius: '6px',
             padding: '8px 10px',
             fontSize: '0.8rem',
@@ -355,9 +355,9 @@ export function StremTab({
           rows={3}
           style={{
             width: '100%',
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            color: 'rgba(255,255,255,0.85)',
+            background: 'var(--surface-color)',
+            border: '1px solid var(--surface-border)',
+            color: 'var(--text-primary)',
             borderRadius: '6px',
             padding: '8px 10px',
             fontSize: '0.75rem',
@@ -374,8 +374,8 @@ export function StremTab({
             onClick={handleImportBadge}
             disabled={badgeImporting}
             style={{
-              background: 'rgba(0, 212, 255, 0.15)',
-              border: '1px solid rgba(0, 212, 255, 0.3)',
+              background: 'var(--surface-glow)',
+              border: '1px solid var(--accent-glow)',
               color: '#00d4ff',
               borderRadius: '6px',
               padding: '7px 16px',
@@ -395,7 +395,7 @@ export function StremTab({
         {/* Imported Sources List */}
         {badgeSources.length > 0 && (
           <div>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: '8px', letterSpacing: '0.05em' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.05em' }}>
               IMPORTED SOURCES
             </div>
             {badgeSources.map((source) => {
@@ -408,8 +408,8 @@ export function StremTab({
                     flexDirection: 'column',
                     padding: '8px 10px',
                     borderRadius: '6px',
-                    background: 'rgba(255,255,255,0.02)',
-                    border: `1px solid ${source.isActive ? 'rgba(0,212,255,0.25)' : 'rgba(255,255,255,0.04)'}`,
+                    background: 'var(--surface-color)',
+                    border: `1px solid ${source.isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`,
                     marginBottom: '4px',
                   }}
                 >
@@ -421,7 +421,7 @@ export function StremTab({
                       <div style={{
                         fontSize: '0.8rem',
                         fontWeight: 600,
-                        color: 'rgba(255,255,255,0.85)',
+                        color: 'var(--text-primary)',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -432,7 +432,7 @@ export function StremTab({
                         <span>{source.name}</span>
                         <span style={{
                           fontSize: '0.55rem',
-                          color: 'rgba(255,255,255,0.3)',
+                          color: 'var(--text-muted)',
                           transform: isExpanded ? 'rotate(90deg)' : 'none',
                           transition: 'transform 0.15s',
                           display: 'inline-block',
@@ -442,7 +442,7 @@ export function StremTab({
                       </div>
                       <div style={{
                         fontSize: '0.65rem',
-                        color: 'rgba(255,255,255,0.35)',
+                        color: 'var(--text-muted)',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -455,9 +455,9 @@ export function StremTab({
                         onClick={() => handleToggleSource(source.url)}
                         title={source.isActive ? 'Active' : 'Click to activate'}
                         style={{
-                          background: source.isActive ? 'rgba(0,212,255,0.2)' : 'rgba(255,255,255,0.05)',
-                          border: `1px solid ${source.isActive ? 'rgba(0,212,255,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                          color: source.isActive ? '#00d4ff' : 'rgba(255,255,255,0.4)',
+                          background: source.isActive ? 'var(--surface-glow)' : 'var(--surface-color)',
+                          border: `1px solid ${source.isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`,
+                          color: source.isActive ? 'var(--accent-primary)' : 'var(--text-muted)',
                           borderRadius: '4px',
                           padding: '3px 8px',
                           fontSize: '0.7rem',
@@ -492,11 +492,11 @@ export function StremTab({
                     <div style={{
                       marginTop: '8px',
                       paddingTop: '8px',
-                      borderTop: '1px solid rgba(255,255,255,0.06)',
+                      borderTop: '1px solid var(--surface-border)',
                       width: '100%',
                       boxSizing: 'border-box'
                     }}>
-                      <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.03em' }}>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.03em' }}>
                         PREVIEW BADGES ({source.payload.filters.length}):
                       </div>
                       <div className="stremio-detail-stream-badges" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>

@@ -91,10 +91,10 @@ export function PopoutTab({
 
         <div style={{ marginTop: '12px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem' }}>
+            <label style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
               Player Executable Path
             </label>
-            <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '4px' }}>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '4px' }}>
               Full path to your player executable (e.g. C:\Program Files\mpv\mpv.exe or C:\Program Files\VideoLAN\VLC\vlc.exe).
             </span>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -144,7 +144,7 @@ export function PopoutTab({
         </div>
       </div>
 
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', margin: '0 0 8px 0' }} />
+      <div style={{ borderTop: '1px solid var(--surface-border)', margin: '0 0 8px 0' }} />
 
       {/* Popout Player Section */}
       <div className="settings-section" style={{ paddingTop: '8px' }}>
@@ -208,7 +208,7 @@ export function PopoutTab({
             </label>
           </div>
 
-          <div className="timeshift-toggle-row" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '12px', opacity: isPopoutHwdecOverridden ? 0.75 : 1 }}>
+          <div className="timeshift-toggle-row" style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '12px', opacity: isPopoutHwdecOverridden ? 0.75 : 1 }}>
             <div className="timeshift-toggle-info">
               <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 Enable Hardware Video Acceleration (--hwdec=auto)
@@ -235,7 +235,7 @@ export function PopoutTab({
             </label>
           </div>
 
-          <div className="timeshift-toggle-row" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '12px' }}>
+          <div className="timeshift-toggle-row" style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '12px' }}>
             <div className="timeshift-toggle-info">
               <span className="timeshift-toggle-label">Enable additional MPV parameters</span>
               <span className="timeshift-toggle-sub">
@@ -285,7 +285,7 @@ export function PopoutTab({
                   </button>
                 </div>
 
-                <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '16px' }}>
+                <div style={{ marginTop: '20px', borderTop: '1px solid var(--surface-border)', paddingTop: '16px' }}>
                   <button
                     className="sync-btn"
                     onClick={checkPopoutParams}
@@ -297,12 +297,12 @@ export function PopoutTab({
                     <pre style={{
                       marginTop: '12px',
                       padding: '12px',
-                      background: 'rgba(0,0,0,0.3)',
+                      background: 'var(--bg-tertiary)',
                       borderRadius: '6px',
                       fontSize: '0.75rem',
                       overflow: 'auto',
                       maxHeight: '300px',
-                      color: 'rgba(255,255,255,0.8)'
+                      color: 'var(--text-primary)'
                     }}>
                       {debugInfo}
                     </pre>

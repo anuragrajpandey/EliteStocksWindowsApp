@@ -108,7 +108,7 @@ export function PlaylistsTab() {
   };
 
   return (
-    <div style={{ padding: '20px 24px', color: '#fff' }}>
+    <div style={{ padding: '20px 24px', color: 'var(--text-primary)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
           <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>Custom Playlists</h3>
@@ -134,16 +134,16 @@ export function PlaylistsTab() {
       </div>
 
       {playlists.length === 0 ? (
-        <div style={{ padding: '60px 20px', textAlign: 'center', background: 'rgba(255, 255, 255, 0.01)', border: '1px dashed rgba(255, 255, 255, 0.1)', borderRadius: '8px', color: 'var(--text-secondary, #aaa)' }}>
+        <div style={{ padding: '60px 20px', textAlign: 'center', background: 'var(--surface-color)', border: '1px dashed var(--surface-border)', borderRadius: '8px', color: 'var(--text-secondary, #aaa)' }}>
           <span style={{ fontSize: '2rem', display: 'block', marginBottom: '10px' }}>📋</span>
-          <h4 style={{ margin: '0 0 6px 0', color: '#fff' }}>No Playlists Yet</h4>
+          <h4 style={{ margin: '0 0 6px 0', color: 'var(--text-primary)' }}>No Playlists Yet</h4>
           <p style={{ margin: 0, fontSize: '0.8rem' }}>Create a custom playlist to start adding categories and channels.</p>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.1)' }}>
+        <div style={{ overflowX: 'auto', border: '1px solid var(--surface-border)', borderRadius: '8px', background: 'var(--bg-tertiary)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-secondary, #aaa)' }}>
+              <tr style={{ borderBottom: '1px solid var(--surface-border)', background: 'var(--surface-color)', color: 'var(--text-secondary, #aaa)' }}>
                 <th style={{ padding: '12px 16px', fontWeight: 600 }}>Playlist Name</th>
                 <th style={{ padding: '12px 16px', fontWeight: 600 }}>Linked Categories</th>
                 <th style={{ padding: '12px 16px', fontWeight: 600 }}>Individual Channels</th>
@@ -158,7 +158,7 @@ export function PlaylistsTab() {
                 const dateStr = new Date(playlist.created_at).toLocaleDateString();
 
                 return (
-                  <tr key={playlist.playlist_id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                  <tr key={playlist.playlist_id} style={{ borderBottom: '1px solid var(--surface-border)' }}>
                     <td style={{ padding: '12px 16px', fontWeight: 500 }}>{playlist.name}</td>
                     <td style={{ padding: '12px 16px', color: 'var(--text-secondary, #aaa)' }}>{catCount} categories</td>
                     <td style={{ padding: '12px 16px', color: 'var(--text-secondary, #aaa)' }}>{indivCount} channels</td>
@@ -167,19 +167,19 @@ export function PlaylistsTab() {
                       <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                         <button
                           onClick={() => setEditingPlaylist({ id: playlist.playlist_id, name: playlist.name })}
-                          style={{ padding: '5px 10px', background: 'rgba(255, 255, 255, 0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px', fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'inherit' }}
+                          style={{ padding: '5px 10px', background: 'var(--surface-color)', color: 'var(--text-primary)', border: '1px solid var(--surface-border)', borderRadius: '4px', fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'inherit' }}
                         >
                           ✏️ Edit Contents
                         </button>
                         <button
                           onClick={() => handleRename(playlist)}
-                          style={{ padding: '5px 10px', background: 'rgba(255, 255, 255, 0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px', fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'inherit' }}
+                          style={{ padding: '5px 10px', background: 'var(--surface-color)', color: 'var(--text-primary)', border: '1px solid var(--surface-border)', borderRadius: '4px', fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'inherit' }}
                         >
                           📝 Rename
                         </button>
                         <button
                           onClick={() => handleExport(playlist)}
-                          style={{ padding: '5px 10px', background: 'rgba(255, 255, 255, 0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px', fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'inherit' }}
+                          style={{ padding: '5px 10px', background: 'var(--surface-color)', color: 'var(--text-primary)', border: '1px solid var(--surface-border)', borderRadius: '4px', fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'inherit' }}
                         >
                           📤 Export .m3u
                         </button>

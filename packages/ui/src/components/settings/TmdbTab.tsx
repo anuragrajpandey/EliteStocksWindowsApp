@@ -163,7 +163,7 @@ export function TmdbTab({
                       transform: 'translateY(-50%)',
                       background: 'transparent',
                       border: 'none',
-                      color: 'rgba(255,255,255,0.5)',
+                      color: 'var(--text-muted)',
                       cursor: 'pointer',
                       padding: '4px',
                       display: 'flex',
@@ -173,8 +173,8 @@ export function TmdbTab({
                       transition: 'color 0.2s, background 0.2s',
                       minWidth: 'unset',
                     }}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.9)'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; e.currentTarget.style.background = 'transparent'; }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.background = 'var(--surface-color)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent'; }}
                   >
                     {showTmdbKey ? (
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -209,7 +209,7 @@ export function TmdbTab({
             {/* Streaming Catalogs Section */}
             <div className={`streaming-catalogs-section ${tmdbKeyValid !== true ? 'disabled' : ''}`} style={{ marginTop: '2rem' }}>
               <div className="section-header" style={{ marginBottom: '12px' }}>
-                <h4 style={{ margin: 0, textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.05em' }}>
+                <h4 style={{ margin: 0, textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
                   Streaming Catalogs
                 </h4>
               </div>
@@ -217,7 +217,7 @@ export function TmdbTab({
               <div className="timeshift-settings" style={{ marginTop: 0 }}>
                 <div className="timeshift-toggle-row" style={{ padding: '8px 0', borderBottom: 'none' }}>
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label" style={{ color: tmdbKeyValid === true ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.4)' }}>Enable Streaming Catalogs</span>
+                    <span className="timeshift-toggle-label" style={{ color: tmdbKeyValid === true ? 'var(--text-primary)' : 'var(--text-muted)' }}>Enable Streaming Catalogs</span>
                     <span className="timeshift-toggle-sub">Show "Streaming Platforms" catalog row on the Stremio Home page.</span>
                   </div>
                   <label className="toggle-switch" style={{ opacity: tmdbKeyValid === true ? 1 : 0.5, cursor: tmdbKeyValid === true ? 'pointer' : 'not-allowed' }}>
@@ -233,7 +233,7 @@ export function TmdbTab({
 
                 <div className="timeshift-toggle-row" style={{ padding: '8px 0', borderBottom: 'none', marginTop: '8px' }}>
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label" style={{ color: tmdbKeyValid === true ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.4)' }}>Enable Streaming Catalogs in Nuvio</span>
+                    <span className="timeshift-toggle-label" style={{ color: tmdbKeyValid === true ? 'var(--text-primary)' : 'var(--text-muted)' }}>Enable Streaming Catalogs in Nuvio</span>
                     <span className="timeshift-toggle-sub">Show "Streaming Platforms" catalog row on the Nuvio Home page.</span>
                   </div>
                   <label className="toggle-switch" style={{ opacity: tmdbKeyValid === true ? 1 : 0.5, cursor: tmdbKeyValid === true ? 'pointer' : 'not-allowed' }}>
@@ -277,7 +277,7 @@ export function TmdbTab({
                             gap: '10px',
                             padding: '8px 12px',
                             background: '#000000',
-                            border: isEnabled ? '1px solid rgba(0, 212, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)',
+                            border: isEnabled ? '1px solid var(--accent-primary)' : '1px solid var(--surface-border)',
                             borderRadius: '8px',
                             cursor: (catalogsEnabled && tmdbKeyValid === true) ? 'pointer' : 'default',
                             transition: 'all 0.2s ease',
@@ -303,7 +303,7 @@ export function TmdbTab({
                           width: '16px',
                           height: '16px',
                           borderRadius: '4px',
-                          border: isEnabled ? '1px solid #00d4ff' : '1px solid rgba(255,255,255,0.3)',
+                          border: isEnabled ? '1px solid #00d4ff' : '1px solid var(--surface-border)',
                           background: isEnabled ? '#00d4ff' : 'transparent',
                           display: 'flex',
                           alignItems: 'center',
@@ -338,7 +338,7 @@ export function TmdbTab({
           })()}
 
               {tmdbKeyValid !== true && (
-                <p className="form-hint" style={{ color: 'rgba(255,255,255,0.4)', marginTop: '0.5rem' }}>
+                <p className="form-hint" style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>
                   Requires a valid TMDB Access Token. Save a valid token above to configure streaming catalogs.
                 </p>
               )}

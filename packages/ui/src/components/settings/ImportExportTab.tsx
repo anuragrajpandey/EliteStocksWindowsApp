@@ -92,7 +92,7 @@ export function ImportExportTab() {
                     className="sync-btn"
                     onClick={handleExport}
                     disabled={isProcessing}
-                    style={{ maxWidth: '200px', borderColor: 'rgba(255,255,255,0.2)' }}
+                    style={{ maxWidth: '200px', borderColor: 'var(--surface-border)' }}
                 >
                     {isProcessing ? 'Processing...' : 'Export to File'}
                 </button>
@@ -111,7 +111,7 @@ export function ImportExportTab() {
                     className="sync-btn"
                     onClick={handleImportClick}
                     disabled={isProcessing}
-                    style={{ maxWidth: '200px', borderColor: 'rgba(255,255,255,0.2)' }}
+                    style={{ maxWidth: '200px', borderColor: 'var(--surface-border)' }}
                 >
                     {isProcessing ? 'Processing...' : 'Import from File'}
                 </button>
@@ -121,7 +121,7 @@ export function ImportExportTab() {
                 <div className="source-form-overlay">
                     <div className="source-form" style={{ maxWidth: '400px', height: 'auto' }}>
                         <h3>Import Configuration</h3>
-                        <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '24px', lineHeight: '1.5' }}>
+                        <p style={{ color: 'var(--text-primary)', marginBottom: '24px', lineHeight: '1.5' }}>
                             WARNING: Importing will overwrite all current sources and settings. Application data will be cleared.
                             <br /><br />
                             Are you sure you want to continue?
@@ -150,7 +150,7 @@ export function ImportExportTab() {
                 <div className="source-form-overlay">
                     <div className="source-form" style={{ maxWidth: '400px', height: 'auto' }}>
                         <h3>Restart Required</h3>
-                        <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '24px', lineHeight: '1.5' }}>
+                        <p style={{ color: 'var(--text-primary)', marginBottom: '24px', lineHeight: '1.5' }}>
                             Import successful! The application needs to restart to apply changes.
                             <br /><br />
                             Do you want to restart now?

@@ -748,7 +748,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       {/* 1. Header & Dynamic Server Sync Info */}
       <div className="settings-section">
         <h3 style={{ margin: '0 0 8px 0', fontSize: '1rem', fontWeight: 600 }}>Nuvio Integration</h3>
-        <p style={{ margin: '0 0 16px 0', fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)' }}>
+        <p style={{ margin: '0 0 16px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
           Nuvio is a media synchronization and plugin platform. Log in to sync collections, profiles, and run custom scrapers.
         </p>
 
@@ -757,8 +757,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
         {/* 2. AUTH STATUS OR LOGIN FORM */}
         {!authStore.token ? (
           <div style={{
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.05)',
+            background: 'var(--surface-color)',
+            border: '1px solid var(--surface-border)',
             borderRadius: '8px',
             padding: '20px'
           }}>
@@ -774,12 +774,12 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                   onChange={(e) => setEmail(e.target.value)}
                   style={{
                     width: '100%',
-                    background: 'rgba(0,0,0,0.2)',
-                    border: '1px solid rgba(255,255,255,0.08)',
+                    background: 'var(--bg-tertiary)',
+                    border: '1px solid var(--surface-border)',
                     borderRadius: '6px',
                     padding: '10px',
                     fontSize: '0.85rem',
-                    color: '#fff',
+                    color: 'var(--text-primary)',
                     outline: 'none',
                     boxSizing: 'border-box'
                   }}
@@ -793,12 +793,12 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                   onChange={(e) => setPassword(e.target.value)}
                   style={{
                     width: '100%',
-                    background: 'rgba(0,0,0,0.2)',
-                    border: '1px solid rgba(255,255,255,0.08)',
+                    background: 'var(--bg-tertiary)',
+                    border: '1px solid var(--surface-border)',
                     borderRadius: '6px',
                     padding: '10px',
                     fontSize: '0.85rem',
-                    color: '#fff',
+                    color: 'var(--text-primary)',
                     outline: 'none',
                     boxSizing: 'border-box'
                   }}
@@ -814,7 +814,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                   type="submit"
                   disabled={authStore.isSyncing}
                   style={{
-                    background: 'linear-gradient(135deg, #00d4ff, #0088ff)',
+                    background: 'linear-gradient(135deg, var(--accent-primary), #0088ff)',
                     border: 'none',
                     color: '#000',
                     borderRadius: '6px',
@@ -833,7 +833,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: 'rgba(255,255,255,0.6)',
+                    color: 'var(--text-secondary)',
                     fontSize: '0.75rem',
                     cursor: 'pointer',
                     textDecoration: 'underline'
@@ -846,7 +846,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
             <p style={{
               margin: '14px 0 0 0',
               fontSize: '0.7rem',
-              color: 'rgba(255,255,255,0.35)',
+              color: 'var(--text-muted)',
               lineHeight: 1.5,
               textAlign: 'center'
             }}>
@@ -857,8 +857,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
           <div>
             {/* Logged in state */}
             <div style={{
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.05)',
+              background: 'var(--surface-color)',
+              border: '1px solid var(--surface-border)',
               borderRadius: '8px',
               padding: '16px',
               marginBottom: '24px',
@@ -867,10 +867,10 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               justifyContent: 'space-between'
             }}>
               <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, rgba(255,255,255,0.5))', fontWeight: 700, letterSpacing: '0.05em' }}>SIGNED IN AS</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary, rgba(255,255,255,0.95))' }}>{authStore.user?.email}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, var(--text-muted))', fontWeight: 700, letterSpacing: '0.05em' }}>SIGNED IN AS</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary, var(--text-primary))' }}>{authStore.user?.email}</div>
                 {authStore.lastSyncTime && (
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted, rgba(255,255,255,0.5))', marginTop: '4px' }}>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted, var(--text-muted))', marginTop: '4px' }}>
                     Synced: {new Date(authStore.lastSyncTime).toLocaleTimeString()}
                   </div>
                 )}
@@ -880,9 +880,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                   onClick={() => authStore.syncNow()}
                   disabled={authStore.isSyncing}
                   style={{
-                    background: 'rgba(0,212,255,0.12)',
-                    border: '1px solid rgba(0,212,255,0.25)',
-                    color: '#00d4ff',
+background: 'var(--surface-glow)',
+border: '1px solid var(--accent-glow)',
+                    color: 'var(--accent-primary)',
                     borderRadius: '6px',
                     padding: '8px 14px',
                     fontSize: '0.75rem',
@@ -913,14 +913,14 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
             {/* Profiles Section */}
             <div style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <h4 style={{ margin: 0, fontSize: '0.88rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>Profiles ({authStore.profiles.length}/4)</h4>
+                <h4 style={{ margin: 0, fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>Profiles ({authStore.profiles.length}/4)</h4>
                 {authStore.profiles.length < 4 && !showCreateProfile && (
                   <button
                     onClick={() => setShowCreateProfile(true)}
                     style={{
                       background: 'none',
                       border: 'none',
-                      color: '#00d4ff',
+                      color: 'var(--accent-primary)',
                       fontSize: '0.75rem',
                       fontWeight: 600,
                       cursor: 'pointer',
@@ -934,8 +934,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
 
               {showCreateProfile && (
                 <form onSubmit={handleCreateProfileSubmit} style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.06)',
+                  background: 'var(--surface-color)',
+                  border: '1px solid var(--surface-border)',
                   borderRadius: '8px',
                   padding: '14px',
                   marginBottom: '12px',
@@ -951,12 +951,12 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                       onChange={(e) => setNewProfileName(e.target.value)}
                       style={{
                         flex: 1,
-                        background: 'rgba(0,0,0,0.2)',
-                        border: '1px solid rgba(255,255,255,0.08)',
+                        background: 'var(--bg-tertiary)',
+                        border: '1px solid var(--surface-border)',
                         borderRadius: '6px',
                         padding: '8px',
                         fontSize: '0.8rem',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         outline: 'none'
                       }}
                     />
@@ -997,8 +997,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                       onClick={() => setShowCreateProfile(false)}
                       style={{
                         background: 'none',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        color: 'rgba(255,255,255,0.7)',
+                        border: '1px solid var(--surface-border)',
+                        color: 'var(--text-secondary)',
                         borderRadius: '4px',
                         padding: '4px 10px',
                         fontSize: '0.75rem',
@@ -1010,7 +1010,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                     <button
                       type="submit"
                       style={{
-                        background: '#00d4ff',
+                        background: 'var(--accent-primary)',
                         border: 'none',
                         color: '#000',
                         borderRadius: '4px',
@@ -1039,8 +1039,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                         justifyContent: 'space-between',
                         padding: '10px 14px',
                         borderRadius: '6px',
-                        background: isActive ? 'rgba(0,212,255,0.06)' : 'rgba(255,255,255,0.02)',
-                        border: `1px solid ${isActive ? 'rgba(0,212,255,0.2)' : 'rgba(255,255,255,0.04)'}`,
+background: isActive ? 'var(--surface-glow)' : 'var(--surface-color)',
+border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`,
                       }}
                     >
                       <div
@@ -1070,14 +1070,14 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                           {p.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <span style={{ fontSize: '0.85rem', fontWeight: isActive ? 600 : 500, color: isActive ? '#fff' : 'rgba(255,255,255,0.85)' }}>
+                          <span style={{ fontSize: '0.85rem', fontWeight: isActive ? 600 : 500, color: isActive ? 'var(--text-primary)' : 'var(--text-primary)' }}>
                             {p.name}
                           </span>
                           {isActive && (
                             <span style={{
                               marginLeft: '8px',
                               fontSize: '0.62rem',
-                              background: '#00d4ff',
+                              background: 'var(--accent-primary)',
                               color: '#000',
                               padding: '2px 6px',
                               borderRadius: '4px',
@@ -1120,23 +1120,23 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
 
             {/* Profile Cloud Settings Section */}
             <div style={{
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.05)',
+              background: 'var(--surface-color)',
+              border: '1px solid var(--surface-border)',
               borderRadius: '8px',
               padding: '20px',
               marginBottom: '24px'
             }}>
-              <h4 style={{ margin: '0 0 14px 0', fontSize: '0.95rem', fontWeight: 600, color: '#fff' }}>
+              <h4 style={{ margin: '0 0 14px 0', fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                 Profile Cloud Settings
               </h4>
-              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.45)' }}>
+              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                 Configure Debrid caching services and TMDB metadata enrichment synced directly with Nuvio's cloud profile.
               </p>
 
               {/* TMDB SECTION */}
-              <div style={{ marginBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '20px' }}>
+              <div style={{ marginBottom: '24px', borderBottom: '1px solid var(--surface-border)', paddingBottom: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>TMDB Metadata Enrichment</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>TMDB Metadata Enrichment</span>
                   <label className="toggle-switch" style={{ transform: 'scale(0.85)' }}>
                     <input
                       type="checkbox"
@@ -1150,7 +1150,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                 {tmdbEnabled && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px' }}>TMDB API Read Access Token</label>
+                      <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>TMDB API Read Access Token</label>
                       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%' }}>
                         <input
                           type={showTmdbKey ? 'text' : 'password'}
@@ -1171,7 +1171,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                             transform: 'translateY(-50%)',
                             background: 'transparent',
                             border: 'none',
-                            color: 'rgba(255,255,255,0.5)',
+                            color: 'var(--text-muted)',
                             cursor: 'pointer',
                             padding: '4px',
                             display: 'flex',
@@ -1180,8 +1180,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                             borderRadius: '4px',
                             transition: 'color 0.2s, background 0.2s',
                           }}
-                          onMouseEnter={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.9)'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; e.currentTarget.style.background = 'transparent'; }}
+                          onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.background = 'var(--surface-color)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent'; }}
                         >
                           {showTmdbKey ? (
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1198,7 +1198,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                       </div>
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px' }}>Metadata Language</label>
+                      <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Metadata Language</label>
                       <input
                         type="text"
                         placeholder="en"
@@ -1215,7 +1215,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               {/* DEBRID SECTION */}
               <div style={{ marginBottom: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>Debrid Link Resolving</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>Debrid Link Resolving</span>
                   <label className="toggle-switch" style={{ transform: 'scale(0.85)' }}>
                     <input
                       type="checkbox"
@@ -1229,7 +1229,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                 {debridEnabled && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Enable Cloud Library Cache</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Enable Cloud Library Cache</span>
                       <label className="toggle-switch" style={{ transform: 'scale(0.75)' }}>
                         <input
                           type="checkbox"
@@ -1241,7 +1241,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                     </div>
 
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px' }}>Preferred Debrid Provider</label>
+                      <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Preferred Debrid Provider</label>
                       <select
                         value={preferredDebrid}
                         onChange={(e) => setPreferredDebrid(e.target.value)}
@@ -1255,42 +1255,42 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                       </select>
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '4px', background: 'rgba(0,0,0,0.15)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>PROVIDER API KEYS</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '4px', background: 'var(--bg-tertiary)', padding: '12px', borderRadius: '6px', border: '1px solid var(--surface-border)' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>PROVIDER API KEYS</span>
                       
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px' }}>Real-Debrid API Key</label>
+                        <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Real-Debrid API Key</label>
                         <input
                           type="password"
                           placeholder="Real-Debrid Token"
                           value={realDebridKey}
                           onChange={(e) => setRealDebridKey(e.target.value)}
                           className="nuvio-input"
-                          style={{ width: '100%', background: 'rgba(0,0,0,0.2)' }}
+                          style={{ width: '100%', background: 'var(--bg-tertiary)' }}
                         />
                       </div>
 
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px' }}>Premiumize API Key</label>
+                        <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Premiumize API Key</label>
                         <input
                           type="password"
                           placeholder="Premiumize Token/PIN"
                           value={premiumizeKey}
                           onChange={(e) => setPremiumizeKey(e.target.value)}
                           className="nuvio-input"
-                          style={{ width: '100%', background: 'rgba(0,0,0,0.2)' }}
+                          style={{ width: '100%', background: 'var(--bg-tertiary)' }}
                         />
                       </div>
 
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px' }}>Torbox API Key</label>
+                        <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Torbox API Key</label>
                         <input
                           type="password"
                           placeholder="Torbox Token"
                           value={torboxKey}
                           onChange={(e) => setTorboxKey(e.target.value)}
                           className="nuvio-input"
-                          style={{ width: '100%', background: 'rgba(0,0,0,0.2)' }}
+                          style={{ width: '100%', background: 'var(--bg-tertiary)' }}
                         />
                       </div>
                     </div>
@@ -1305,7 +1305,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                   onClick={handleSaveSettings}
                   disabled={authStore.isSyncing}
                   style={{
-                    background: 'linear-gradient(135deg, #00d4ff, #0088ff)',
+                    background: 'linear-gradient(135deg, var(--accent-primary), #0088ff)',
                     border: 'none',
                     color: '#000',
                     borderRadius: '6px',
@@ -1323,26 +1323,26 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
 
             {/* Homepage Layout Customization */}
             <div style={{
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.05)',
+              background: 'var(--surface-color)',
+              border: '1px solid var(--surface-border)',
               borderRadius: '8px',
               padding: '20px',
               marginTop: '20px',
               marginBottom: '24px'
             }}>
-              <h4 style={{ margin: '0 0 14px 0', fontSize: '0.95rem', fontWeight: 600, color: '#fff' }}>
+              <h4 style={{ margin: '0 0 14px 0', fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                 Homepage Layout Customization
               </h4>
-              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.45)' }}>
+              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                 Customize which catalog rows (from your collections or addons) appear on your homepage and rearrange their display order.
               </p>
 
               {/* Toggles */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px', borderBottom: '1px solid var(--surface-border)', paddingBottom: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>Hide Unreleased Content</span>
-                    <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>Filter out movies/shows that haven't aired or released yet.</div>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>Hide Unreleased Content</span>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Filter out movies/shows that haven't aired or released yet.</div>
                   </div>
                   <label className="toggle-switch" style={{ transform: 'scale(0.85)' }}>
                     <input
@@ -1356,8 +1356,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>Hide Catalog Underline</span>
-                    <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>Hide the horizontal indicator line beneath catalog titles.</div>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>Hide Catalog Underline</span>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Hide the horizontal indicator line beneath catalog titles.</div>
                   </div>
                   <label className="toggle-switch" style={{ transform: 'scale(0.85)' }}>
                     <input
@@ -1371,8 +1371,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>Landscape Posters</span>
-                    <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>Display posters in catalogs in landscape aspect ratio.</div>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>Landscape Posters</span>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Display posters in catalogs in landscape aspect ratio.</div>
                   </div>
                   <label className="toggle-switch" style={{ transform: 'scale(0.85)' }}>
                     <input
@@ -1386,9 +1386,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               </div>
 
               {/* Continue Watching Style */}
-              <div style={{ marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '16px' }}>
-                <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)', marginBottom: '4px' }}>Continue Watching Style</div>
-                <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '10px' }}>Choose how continue watching items are displayed.</div>
+              <div style={{ marginBottom: '20px', borderBottom: '1px solid var(--surface-border)', paddingBottom: '16px' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Continue Watching Style</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '10px' }}>Choose how continue watching items are displayed.</div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   {['card', 'wide', 'poster'].map((style) => {
                     const current = localStorage.getItem('nuvio_cw_style') || 'card';
@@ -1404,9 +1404,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                           fontSize: '0.78rem',
                           fontWeight: 600,
                           cursor: 'pointer',
-                          background: current === style ? 'rgba(0,212,255,0.15)' : 'rgba(255,255,255,0.04)',
-                          border: current === style ? '1px solid #00d4ff' : '1px solid rgba(255,255,255,0.08)',
-                          color: current === style ? '#00d4ff' : 'rgba(255,255,255,0.7)',
+background: current === style ? 'var(--surface-glow)' : 'var(--surface-color)',
+border: current === style ? '1px solid var(--accent-primary)' : '1px solid var(--surface-border)',
+color: current === style ? 'var(--accent-primary)' : 'var(--text-secondary)',
                           textTransform: 'capitalize',
                           transition: 'all 0.15s ease',
                         }}
@@ -1419,9 +1419,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               </div>
 
               {/* Hero Catalog Sources */}
-              <div style={{ marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '16px' }}>
-                <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)', marginBottom: '4px' }}>Hero Banner Sources</div>
-                <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '10px' }}>
+              <div style={{ marginBottom: '20px', borderBottom: '1px solid var(--surface-border)', paddingBottom: '16px' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Hero Banner Sources</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
                   Select up to 2 catalogs to feature in the hero banner at the top of the home page. Items will be randomly picked from these catalogs.
                 </div>
                   {(() => {
@@ -1434,7 +1434,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                   return (
                     <>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 700, color: selectedKeys.length >= 2 ? '#ff4f4f' : 'rgba(255,255,255,0.4)', letterSpacing: '0.05em' }}>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 700, color: selectedKeys.length >= 2 ? '#ff4f4f' : 'var(--text-muted)', letterSpacing: '0.05em' }}>
                           {selectedKeys.length}/2 selected
                         </span>
                         <button
@@ -1470,8 +1470,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                                 gap: '10px',
                                 padding: '6px 10px',
                                 borderRadius: '6px',
-                                background: isSelected ? 'rgba(0,212,255,0.08)' : 'rgba(255,255,255,0.02)',
-                                border: isSelected ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.04)',
+background: isSelected ? 'var(--surface-glow)' : 'var(--surface-color)',
+border: isSelected ? '1px solid var(--accent-glow)' : '1px solid var(--surface-border)',
                                 cursor: atLimit && !isSelected ? 'not-allowed' : 'pointer',
                                 opacity: atLimit && !isSelected ? 0.4 : 1,
                                 transition: 'all 0.15s ease',
@@ -1498,10 +1498,10 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                                 }}
                               />
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontSize: '0.8rem', fontWeight: 500, color: isSelected ? '#fff' : 'rgba(255,255,255,0.8)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <div style={{ fontSize: '0.8rem', fontWeight: 500, color: isSelected ? 'var(--text-primary)' : 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                   {cat.title || cat.catalogId}
                                 </div>
-                                <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)' }}>
+                                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
                                   {cat.addonName} · {cat.type}
                                 </div>
                               </div>
@@ -1509,7 +1509,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                           );
                         })}
                         {catalogsList.length === 0 && (
-                          <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.3)', padding: '10px 0' }}>
+                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', padding: '10px 0' }}>
                             No catalogs available. Install addons first.
                           </div>
                         )}
@@ -1522,7 +1522,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               {/* Catalog Rows list */}
               {localCatalogItems.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: '4px', letterSpacing: '0.05em' }}>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '4px', letterSpacing: '0.05em' }}>
                     CATALOG DISPLAY ORDER & VISIBILITY
                   </div>
                   <div
@@ -1540,15 +1540,15 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                           key={item.key}
                           style={{
                             background: isDragging
-                              ? 'var(--accent-glow, rgba(0, 212, 255, 0.15))'
+                              ? 'var(--accent-glow, var(--surface-glow))'
                               : isDragOver
-                                ? 'rgba(255, 255, 255, 0.03)'
-                                : item.enabled ? 'rgba(255,255,255,0.01)' : 'rgba(255,255,255,0.005)',
+                                ? 'var(--surface-color)'
+                                : item.enabled ? 'var(--surface-color)' : 'var(--surface-color)',
                             border: isDragging
                               ? '1px solid var(--accent-primary, #00d4ff)'
                               : isDragOver
                                 ? '1px dashed var(--accent-primary, #00d4ff)'
-                                : '1px solid rgba(255,255,255,0.04)',
+                                : '1px solid var(--surface-border)',
                             borderRadius: '6px',
                             padding: '10px 12px',
                             display: 'flex',
@@ -1568,7 +1568,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                               style={{
                                 cursor: isDragging ? 'grabbing' : 'grab',
                                 padding: '4px 6px',
-                                color: isDragging ? 'var(--accent-primary, #00d4ff)' : 'rgba(255,255,255,0.3)',
+                                color: isDragging ? 'var(--accent-primary, #00d4ff)' : 'var(--text-muted)',
                                 fontSize: '1.2rem',
                                 userSelect: 'none',
                                 display: 'flex',
@@ -1585,7 +1585,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                               }}
                               onMouseLeave={(e) => {
                                 if (draggingIndex === null) {
-                                  (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.3)';
+                                  (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
                                 }
                               }}
                             >
@@ -1598,7 +1598,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                                 type="button"
                                 onClick={() => handleMoveItem(index, 'up')}
                                 disabled={index === 0}
-                                style={{ background: 'none', border: 'none', color: index === 0 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.6)', cursor: index === 0 ? 'default' : 'pointer', fontSize: '0.8rem', padding: '0 4px', lineHeight: 1 }}
+                                style={{ background: 'none', border: 'none', color: index === 0 ? 'var(--text-muted)' : 'var(--text-secondary)', cursor: index === 0 ? 'default' : 'pointer', fontSize: '0.8rem', padding: '0 4px', lineHeight: 1 }}
                               >
                                 ▲
                               </button>
@@ -1606,7 +1606,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                                 type="button"
                                 onClick={() => handleMoveItem(index, 'down')}
                                 disabled={index === localCatalogItems.length - 1}
-                                style={{ background: 'none', border: 'none', color: index === localCatalogItems.length - 1 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.6)', cursor: index === localCatalogItems.length - 1 ? 'default' : 'pointer', fontSize: '0.8rem', padding: '0 4px', lineHeight: 1 }}
+                                style={{ background: 'none', border: 'none', color: index === localCatalogItems.length - 1 ? 'var(--text-muted)' : 'var(--text-secondary)', cursor: index === localCatalogItems.length - 1 ? 'default' : 'pointer', fontSize: '0.8rem', padding: '0 4px', lineHeight: 1 }}
                               >
                                 ▼
                               </button>
@@ -1622,8 +1622,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                                 style={{
                                   background: 'transparent',
                                   border: 'none',
-                                  borderBottom: '1px dashed rgba(255,255,255,0.15)',
-                                  color: '#fff',
+                                  borderBottom: '1px dashed var(--surface-border)',
+                                  color: 'var(--text-primary)',
                                   fontSize: '0.82rem',
                                   fontWeight: 600,
                                   padding: '2px 0',
@@ -1631,7 +1631,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                                   outline: 'none'
                                 }}
                               />
-                              <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', marginTop: '2px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                                 {item.addonName} · {item.subtitle}
                               </div>
                             </div>
@@ -1652,13 +1652,13 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                   </div>
                 </div>
               ) : (
-                <div style={{ padding: '20px', textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', border: '1px dashed rgba(255,255,255,0.06)', borderRadius: '6px' }}>
+                <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem', border: '1px dashed var(--surface-border)', borderRadius: '6px' }}>
                   No collections or catalogs available. Install addons or create collections first.
                 </div>
               )}
 
               {/* SAVE / RESET ACTIONS */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid var(--surface-border)', paddingTop: '14px' }}>
                 <button
                   type="button"
                   onClick={handleResetCatalogSettings}
@@ -1680,7 +1680,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                   onClick={handleSaveCatalogSettings}
                   disabled={authStore.isSyncing}
                   style={{
-                    background: 'linear-gradient(135deg, #00d4ff, #0088ff)',
+                    background: 'linear-gradient(135deg, var(--accent-primary), #0088ff)',
                     border: 'none',
                     color: '#000',
                     borderRadius: '6px',
@@ -1697,7 +1697,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
             </div>
 
             {/* Addons Section */}
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', marginTop: '20px' }}>
+            <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '20px', marginTop: '20px' }}>
               <h4 style={{ margin: '0 0 12px 0', fontSize: '0.9rem', fontWeight: 600 }}>Nuvio Addons</h4>
               
               {/* Install Addon form */}
@@ -1709,12 +1709,12 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                   onChange={(e) => setAddonUrl(e.target.value)}
                   style={{
                     flex: 1,
-                    background: 'rgba(0,0,0,0.2)',
-                    border: '1px solid rgba(255,255,255,0.08)',
+                    background: 'var(--bg-tertiary)',
+                    border: '1px solid var(--surface-border)',
                     borderRadius: '6px',
                     padding: '8px 10px',
                     fontSize: '0.8rem',
-                    color: '#fff',
+                    color: 'var(--text-primary)',
                     outline: 'none'
                   }}
                 />
@@ -1722,9 +1722,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                   type="submit"
                   disabled={installingAddon || !addonUrl.trim()}
                   style={{
-                    background: 'rgba(0,212,255,0.15)',
-                    border: '1px solid rgba(0,212,255,0.3)',
-                    color: '#00d4ff',
+background: 'var(--surface-glow)',
+border: '1px solid var(--accent-glow)',
+                    color: 'var(--accent-primary)',
                     borderRadius: '6px',
                     padding: '8px 16px',
                     fontSize: '0.8rem',
@@ -1741,7 +1741,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               {/* Installed Addons list */}
               {addonsStore.addons.length > 0 ? (
                 <div>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: '8px', letterSpacing: '0.05em' }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.05em' }}>
                     INSTALLED ADDONS
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1749,8 +1749,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                       <div
                         key={`${addon.id}-${addon.baseUrl}`}
                         style={{
-                          background: 'rgba(255,255,255,0.01)',
-                          border: '1px solid rgba(255,255,255,0.04)',
+                          background: 'var(--surface-color)',
+                          border: '1px solid var(--surface-border)',
                           borderRadius: '8px',
                           padding: '12px 14px',
                           display: 'flex',
@@ -1759,15 +1759,15 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                         }}
                       >
                         <div style={{ overflow: 'hidden', marginRight: '10px' }}>
-                          <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff' }}>
-                            {addon.manifest.name} <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)', marginLeft: '4px' }}>v{addon.manifest.version}</span>
+                          <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                            {addon.manifest.name} <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginLeft: '4px' }}>v{addon.manifest.version}</span>
                           </div>
                           {addon.manifest.description && (
-                            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
                               {addon.manifest.description}
                             </div>
                           )}
-                          <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {addon.baseUrl}
                           </div>
                         </div>
@@ -1776,8 +1776,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                             onClick={() => handleToggleAddon(addon.id)}
                             style={{
                               background: 'none',
-                              border: '1px solid rgba(255,255,255,0.1)',
-                              color: 'rgba(255,255,255,0.7)',
+                              border: '1px solid var(--surface-border)',
+                              color: 'var(--text-secondary)',
                               borderRadius: '4px',
                               padding: '4px 8px',
                               fontSize: '0.7rem',
@@ -1809,9 +1809,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                 <div style={{
                   padding: '24px 0',
                   textAlign: 'center',
-                  color: 'rgba(255,255,255,0.3)',
+                  color: 'var(--text-muted)',
                   fontSize: '0.8rem',
-                  border: '1px dashed rgba(255,255,255,0.06)',
+                  border: '1px dashed var(--surface-border)',
                   borderRadius: '8px'
                 }}>
                   No addons installed yet.
@@ -1820,7 +1820,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
             </div>
 
             {/* Plugin Scrapers Section */}
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', marginTop: '20px' }}>
+            <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '20px', marginTop: '20px' }}>
               <h4 style={{ margin: '0 0 12px 0', fontSize: '0.9rem', fontWeight: 600 }}>Nuvio Scrapers / Plugins</h4>
               
               {/* Toggles */}
@@ -1865,12 +1865,12 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                   onChange={(e) => setRepoUrl(e.target.value)}
                   style={{
                     flex: 1,
-                    background: 'rgba(0,0,0,0.2)',
-                    border: '1px solid rgba(255,255,255,0.08)',
+                    background: 'var(--bg-tertiary)',
+                    border: '1px solid var(--surface-border)',
                     borderRadius: '6px',
                     padding: '8px 10px',
                     fontSize: '0.8rem',
-                    color: '#fff',
+                    color: 'var(--text-primary)',
                     outline: 'none'
                   }}
                 />
@@ -1878,9 +1878,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                   type="submit"
                   disabled={pluginStore.isLoading}
                   style={{
-                    background: 'rgba(0,212,255,0.15)',
-                    border: '1px solid rgba(0,212,255,0.3)',
-                    color: '#00d4ff',
+background: 'var(--surface-glow)',
+border: '1px solid var(--accent-glow)',
+                    color: 'var(--accent-primary)',
                     borderRadius: '6px',
                     padding: '8px 16px',
                     fontSize: '0.8rem',
@@ -1897,7 +1897,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               {/* Installed Repositories list */}
               {pluginStore.repositories.length > 0 ? (
                 <div>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: '8px', letterSpacing: '0.05em' }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.05em' }}>
                     INSTALLED REPOSITORIES
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1907,23 +1907,23 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                         <div
                           key={repo.manifestUrl}
                           style={{
-                            background: 'rgba(255,255,255,0.01)',
-                            border: '1px solid rgba(255,255,255,0.04)',
+                            background: 'var(--surface-color)',
+                            border: '1px solid var(--surface-border)',
                             borderRadius: '8px',
                             padding: '12px 14px',
                           }}
                         >
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div style={{ overflow: 'hidden', marginRight: '10px' }}>
-                              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff' }}>
-                                {repo.name} <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)', marginLeft: '4px' }}>v{repo.version}</span>
+                              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                                {repo.name} <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginLeft: '4px' }}>v{repo.version}</span>
                               </div>
                               {repo.description && (
-                                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
                                   {repo.description}
                                 </div>
                               )}
-                              <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {repo.manifestUrl}
                               </div>
                             </div>
@@ -1933,8 +1933,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                                 disabled={repo.isRefreshing}
                                 style={{
                                   background: 'none',
-                                  border: '1px solid rgba(255,255,255,0.1)',
-                                  color: 'rgba(255,255,255,0.7)',
+                                  border: '1px solid var(--surface-border)',
+                                  color: 'var(--text-secondary)',
                                   borderRadius: '4px',
                                   padding: '4px 8px',
                                   fontSize: '0.7rem',
@@ -1968,8 +1968,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
 
                           {/* Scrapers in repository */}
                           {repoScrapers.length > 0 && (
-                            <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.03)' }}>
-                              <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(255,255,255,0.35)', marginBottom: '6px' }}>
+                            <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid var(--surface-border)' }}>
+                              <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '6px' }}>
                                 SCRAPERS
                               </div>
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -1980,7 +1980,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                                       display: 'flex',
                                       alignItems: 'center',
                                       justifyContent: 'space-between',
-                                      background: 'rgba(255,255,255,0.01)',
+                                      background: 'var(--surface-color)',
                                       borderRadius: '4px',
                                       padding: '6px 8px',
                                     }}
@@ -1989,13 +1989,13 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                                       {scraper.logo ? (
                                         <img src={scraper.logo} alt="" style={{ width: '16px', height: '16px', borderRadius: '2px', objectFit: 'contain' }} />
                                       ) : (
-                                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#00d4ff' }} />
+                                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-primary)' }} />
                                       )}
                                       <div>
-                                        <span style={{ fontSize: '0.78rem', fontWeight: 500, color: scraper.enabled ? '#fff' : 'rgba(255,255,255,0.4)' }}>
+                                        <span style={{ fontSize: '0.78rem', fontWeight: 500, color: scraper.enabled ? 'var(--text-primary)' : 'var(--text-muted)' }}>
                                           {scraper.name}
                                         </span>
-                                        <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.25)', marginLeft: '6px' }}>
+                                        <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginLeft: '6px' }}>
                                           v{scraper.version}
                                         </span>
                                       </div>
@@ -2022,9 +2022,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                 <div style={{
                   padding: '24px 0',
                   textAlign: 'center',
-                  color: 'rgba(255,255,255,0.3)',
+                  color: 'var(--text-muted)',
                   fontSize: '0.8rem',
-                  border: '1px dashed rgba(255,255,255,0.06)',
+                  border: '1px dashed var(--surface-border)',
                   borderRadius: '8px'
                 }}>
                   No plugin repositories installed yet.
@@ -2052,11 +2052,11 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       </div>
 
       {/* Trakt Integration Section for Nuvio */}
-      <div className="settings-section" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '24px', marginTop: '24px' }}>
-        <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>
+      <div className="settings-section" style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '24px', marginTop: '24px' }}>
+        <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
           Trakt Integration (Nuvio)
         </h3>
-        <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)' }}>
+        <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
           Check your Trakt connection status and configure Trakt catalogs for Nuvio.
         </p>
 
@@ -2093,11 +2093,11 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       </div>
 
       {/* Stream Auto-Play Settings for Nuvio */}
-      <div className="settings-section" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '24px', marginTop: '24px' }}>
-        <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>
+      <div className="settings-section" style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '24px', marginTop: '24px' }}>
+        <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
           Stream Auto-Play (Nuvio)
         </h3>
-        <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)' }}>
+        <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
           Automatically select and play a stream when Nuvio detail page opens, or when a new episode is selected.
         </p>
 
@@ -2110,9 +2110,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
             value={nuvioAutoPlayMode}
             onChange={(e) => onNuvioAutoPlayModeChange(e.target.value as StreamAutoPlayMode)}
             style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(255,255,255,0.85)',
+              background: 'var(--surface-color)',
+              border: '1px solid var(--surface-border)',
+              color: 'var(--text-primary)',
               borderRadius: '6px',
               padding: '6px 10px',
               fontSize: '0.8rem',
@@ -2156,9 +2156,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                 value={nuvioAutoPlaySourceScope}
                 onChange={(e) => onNuvioAutoPlaySourceScopeChange(e.target.value as StreamAutoPlaySourceScope)}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: 'rgba(255,255,255,0.85)',
+                  background: 'var(--surface-color)',
+                  border: '1px solid var(--surface-border)',
+                  color: 'var(--text-primary)',
                   borderRadius: '6px',
                   padding: '6px 10px',
                   fontSize: '0.8rem',
@@ -2184,9 +2184,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                   value={nuvioAutoPlayRegex}
                   onChange={(e) => onNuvioAutoPlayRegexChange(e.target.value)}
                   style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    color: 'rgba(255,255,255,0.85)',
+                    background: 'var(--surface-color)',
+                    border: '1px solid var(--surface-border)',
+                    color: 'var(--text-primary)',
                     borderRadius: '6px',
                     padding: '8px 12px',
                     fontSize: '0.82rem',
@@ -2207,9 +2207,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               <button
                 onClick={() => setShowAddonDialog(true)}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: 'rgba(255,255,255,0.85)',
+                  background: 'var(--surface-color)',
+                  border: '1px solid var(--surface-border)',
+                  color: 'var(--text-primary)',
                   borderRadius: '6px',
                   padding: '6px 12px',
                   fontSize: '0.8rem',
@@ -2229,9 +2229,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               <button
                 onClick={() => setShowPluginDialog(true)}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: 'rgba(255,255,255,0.85)',
+                  background: 'var(--surface-color)',
+                  border: '1px solid var(--surface-border)',
+                  color: 'var(--text-primary)',
                   borderRadius: '6px',
                   padding: '6px 12px',
                   fontSize: '0.8rem',
@@ -2247,11 +2247,11 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       </div>
 
       {/* Cache Fetch Results section for Nuvio */}
-      <div className="settings-section" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '24px', marginTop: '24px' }}>
-        <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>
+      <div className="settings-section" style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '24px', marginTop: '24px' }}>
+        <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
           Cache Fetch Results (Nuvio)
         </h3>
-        <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)' }}>
+        <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
           Cache addon and plugin fetch results. When returning to the same detail page within the set time, previously fetched streams will load instantly.
         </p>
 
@@ -2293,11 +2293,11 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       </div>
 
       {/* Stream Badges section for Nuvio */}
-      <div className="settings-section" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '24px', marginTop: '24px' }}>
-        <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>
+      <div className="settings-section" style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '24px', marginTop: '24px' }}>
+        <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
           Stream Badges (Nuvio)
         </h3>
-        <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)' }}>
+        <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
           Show quality, codec, HDR, and audio badges on Nuvio stream links, or import custom rules.
         </p>
 
@@ -2342,9 +2342,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                 value={nuvioStreamBadgePlacement}
                 onChange={(e) => onNuvioStreamBadgePlacementChange(e.target.value as 'top' | 'bottom')}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: 'rgba(255,255,255,0.85)',
+                  background: 'var(--surface-color)',
+                  border: '1px solid var(--surface-border)',
+                  color: 'var(--text-primary)',
                   borderRadius: '6px',
                   padding: '6px 10px',
                   fontSize: '0.8rem',
@@ -2375,13 +2375,13 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                     cursor: 'pointer',
                     height: '6px',
                     borderRadius: '3px',
-                    background: 'rgba(255,255,255,0.1)',
+                    background: 'var(--surface-color)',
                     outline: 'none',
                   }}
                 />
               </div>
-              <div style={{ padding: '12px 16px', background: 'rgba(0,0,0,0.25)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)', width: '100%', boxSizing: 'border-box' }}>
-                <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.05em' }}>
+              <div style={{ padding: '12px 16px', background: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--surface-border)', width: '100%', boxSizing: 'border-box' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.05em' }}>
                   LIVE PREVIEW (NUVIO BADGES)
                 </div>
                 <div className="stremio-detail-stream-badges" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', '--stremio-badge-scale': String(nuvioBadgeSize / 100) } as React.CSSProperties}>
@@ -2404,8 +2404,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
         )}
 
         {/* Fusion Badge Rules Importer */}
-        <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
-          <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'rgba(255,255,255,0.8)', marginBottom: '8px' }}>
+        <div style={{ marginTop: '20px', borderTop: '1px solid var(--surface-border)', paddingTop: '16px' }}>
+          <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
             Fusion Badges / Custom Rules
           </div>
 
@@ -2416,9 +2416,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
             onChange={(e) => setBadgeUrl(e.target.value)}
             style={{
               width: '100%',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(255,255,255,0.85)',
+              background: 'var(--surface-color)',
+              border: '1px solid var(--surface-border)',
+              color: 'var(--text-primary)',
               borderRadius: '6px',
               padding: '8px 10px',
               fontSize: '0.8rem',
@@ -2435,9 +2435,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
             rows={3}
             style={{
               width: '100%',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(255,255,255,0.85)',
+              background: 'var(--surface-color)',
+              border: '1px solid var(--surface-border)',
+              color: 'var(--text-primary)',
               borderRadius: '6px',
               padding: '8px 10px',
               fontSize: '0.75rem',
@@ -2454,9 +2454,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               onClick={handleImportBadge}
               disabled={badgeImporting}
               style={{
-                background: 'rgba(0, 212, 255, 0.15)',
-                border: '1px solid rgba(0, 212, 255, 0.3)',
-                color: '#00d4ff',
+background: 'var(--surface-glow)',
+border: '1px solid var(--accent-glow)',
+color: 'var(--accent-primary)',
                 borderRadius: '6px',
                 padding: '7px 16px',
                 fontSize: '0.8rem',
@@ -2475,7 +2475,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
           {/* Imported Sources List */}
           {nuvioBadgeSources.length > 0 && (
             <div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: '8px', letterSpacing: '0.05em' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.05em' }}>
                 IMPORTED SOURCES
               </div>
               {nuvioBadgeSources.map((source) => {
@@ -2488,8 +2488,8 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                       flexDirection: 'column',
                       padding: '8px 10px',
                       borderRadius: '6px',
-                      background: 'rgba(255,255,255,0.02)',
-                      border: `1px solid ${source.isActive ? 'rgba(0,212,255,0.25)' : 'rgba(255,255,255,0.04)'}`,
+                      background: 'var(--surface-color)',
+                      border: `1px solid ${source.isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`,
                       marginBottom: '4px',
                     }}
                   >
@@ -2501,7 +2501,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                         <div style={{
                           fontSize: '0.8rem',
                           fontWeight: 600,
-                          color: 'rgba(255,255,255,0.85)',
+                          color: 'var(--text-primary)',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -2512,7 +2512,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                           <span>{source.name}</span>
                           <span style={{
                             fontSize: '0.55rem',
-                            color: 'rgba(255,255,255,0.3)',
+                            color: 'var(--text-muted)',
                             transform: isExpanded ? 'rotate(90deg)' : 'none',
                             transition: 'transform 0.15s',
                             display: 'inline-block',
@@ -2522,7 +2522,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                         </div>
                         <div style={{
                           fontSize: '0.65rem',
-                          color: 'rgba(255,255,255,0.35)',
+                          color: 'var(--text-muted)',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -2535,9 +2535,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                           onClick={() => handleToggleSource(source.url)}
                           title={source.isActive ? 'Active' : 'Click to activate'}
                           style={{
-                            background: source.isActive ? 'rgba(0,212,255,0.2)' : 'rgba(255,255,255,0.05)',
-                            border: `1px solid ${source.isActive ? 'rgba(0,212,255,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                            color: source.isActive ? '#00d4ff' : 'rgba(255,255,255,0.4)',
+                            background: source.isActive ? 'var(--surface-glow)' : 'var(--surface-color)',
+                            border: `1px solid ${source.isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`,
+                            color: source.isActive ? 'var(--accent-primary)' : 'var(--text-muted)',
                             borderRadius: '4px',
                             padding: '3px 8px',
                             fontSize: '0.7rem',
@@ -2572,11 +2572,11 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                       <div style={{
                         marginTop: '8px',
                         paddingTop: '8px',
-                        borderTop: '1px solid rgba(255,255,255,0.06)',
+                        borderTop: '1px solid var(--surface-border)',
                         width: '100%',
                         boxSizing: 'border-box'
                       }}>
-                        <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.03em' }}>
+                        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.03em' }}>
                           PREVIEW BADGES ({source.payload.filters.length}):
                         </div>
                         <div className="stremio-detail-stream-badges" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', '--stremio-badge-scale': 'var(--nuvio-badge-scale, 1)' } as React.CSSProperties}>
@@ -2633,13 +2633,13 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
         <div className="nuvio-pin-modal-overlay" style={{ zIndex: 3000 }} onClick={() => setShowAddonDialog(false)}>
           <div className="nuvio-pin-modal-card" style={{ width: '400px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '10px' }}>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#fff' }}>Allowed Addons</h3>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>Allowed Addons</h3>
               <button
                 onClick={() => setShowAddonDialog(false)}
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: 'rgba(255,255,255,0.4)',
+                  color: 'var(--text-muted)',
                   fontSize: '1.2rem',
                   cursor: 'pointer',
                   padding: 0
@@ -2649,7 +2649,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               </button>
             </div>
             
-            <p style={{ margin: '0 0 16px 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', width: '100%' }}>
+            <p style={{ margin: '0 0 16px 0', fontSize: '0.8rem', color: 'var(--text-muted)', width: '100%' }}>
               Select which Stremio addons are allowed to be auto-played. If none are selected, all addons are allowed.
             </p>
 
@@ -2667,7 +2667,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               {(() => {
                 const uniqueAddonNames = Array.from(new Set((addonsStore.enabledAddons || []).map(a => a.manifest?.name || a.id).filter(Boolean)));
                 if (uniqueAddonNames.length === 0) {
-                  return <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '40px 0' }}>No active addons found.</div>;
+                  return <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '40px 0' }}>No active addons found.</div>;
                 }
                 return uniqueAddonNames.map(name => {
                   const isChecked = nuvioAutoPlayAllowedAddons.includes(name);
@@ -2679,14 +2679,14 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '10px 12px',
-                        background: isChecked ? 'rgba(0, 212, 255, 0.05)' : 'rgba(255,255,255,0.02)',
-                        border: `1px solid ${isChecked ? 'rgba(0, 212, 255, 0.2)' : 'rgba(255,255,255,0.06)'}`,
+background: isChecked ? 'var(--surface-glow)' : 'var(--surface-color)',
+border: `1px solid ${isChecked ? 'var(--accent-glow)' : 'var(--surface-border)'}`,
                         borderRadius: '8px',
                         cursor: 'pointer',
                         transition: 'all 0.15s ease'
                       }}
                     >
-                      <span style={{ fontSize: '0.85rem', color: isChecked ? '#fff' : 'rgba(255,255,255,0.7)' }}>{name}</span>
+                      <span style={{ fontSize: '0.85rem', color: isChecked ? 'var(--text-primary)' : 'var(--text-secondary)' }}>{name}</span>
                       <input
                         type="checkbox"
                         checked={isChecked}
@@ -2731,13 +2731,13 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
         <div className="nuvio-pin-modal-overlay" style={{ zIndex: 3000 }} onClick={() => setShowPluginDialog(false)}>
           <div className="nuvio-pin-modal-card" style={{ width: '400px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '10px' }}>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#fff' }}>Allowed Plugins</h3>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>Allowed Plugins</h3>
               <button
                 onClick={() => setShowPluginDialog(false)}
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: 'rgba(255,255,255,0.4)',
+                  color: 'var(--text-muted)',
                   fontSize: '1.2rem',
                   cursor: 'pointer',
                   padding: 0
@@ -2747,7 +2747,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               </button>
             </div>
             
-            <p style={{ margin: '0 0 16px 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', width: '100%' }}>
+            <p style={{ margin: '0 0 16px 0', fontSize: '0.8rem', color: 'var(--text-muted)', width: '100%' }}>
               Select which scraper plugins are allowed to be auto-played. If none are selected, all plugins are allowed.
             </p>
 
@@ -2765,7 +2765,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               {(() => {
                 const uniquePluginNames = Array.from(new Set((pluginStore.scrapers || []).filter(s => s.enabled).map(s => s.name).filter(Boolean)));
                 if (uniquePluginNames.length === 0) {
-                  return <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '40px 0' }}>No active plugin scrapers found.</div>;
+                  return <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '40px 0' }}>No active plugin scrapers found.</div>;
                 }
                 return uniquePluginNames.map(name => {
                   const isChecked = nuvioAutoPlayAllowedPlugins.includes(name);
@@ -2777,14 +2777,14 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '10px 12px',
-                        background: isChecked ? 'rgba(0, 212, 255, 0.05)' : 'rgba(255,255,255,0.02)',
-                        border: `1px solid ${isChecked ? 'rgba(0, 212, 255, 0.2)' : 'rgba(255,255,255,0.06)'}`,
+background: isChecked ? 'var(--surface-glow)' : 'var(--surface-color)',
+border: `1px solid ${isChecked ? 'var(--accent-glow)' : 'var(--surface-border)'}`,
                         borderRadius: '8px',
                         cursor: 'pointer',
                         transition: 'all 0.15s ease'
                       }}
                     >
-                      <span style={{ fontSize: '0.85rem', color: isChecked ? '#fff' : 'rgba(255,255,255,0.7)' }}>{name}</span>
+                      <span style={{ fontSize: '0.85rem', color: isChecked ? 'var(--text-primary)' : 'var(--text-secondary)' }}>{name}</span>
                       <input
                         type="checkbox"
                         checked={isChecked}

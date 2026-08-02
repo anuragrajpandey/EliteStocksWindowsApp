@@ -103,7 +103,7 @@ function WindowSizeSettings({ width, height, onChange }: { width: number; height
     <div className="form-group" style={{ marginBottom: '16px' }}>
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
         <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Width (px)</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Width (px)</label>
           <input
             type="number"
             min="400"
@@ -115,7 +115,7 @@ function WindowSizeSettings({ width, height, onChange }: { width: number; height
           />
         </div>
         <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Height (px)</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Height (px)</label>
           <input
             type="number"
             min="300"
@@ -140,7 +140,7 @@ function WindowSizeSettings({ width, height, onChange }: { width: number; height
         <button
           className="sync-btn secondary"
           onClick={handleUseCurrentSize}
-          style={{ background: 'rgba(255,255,255,0.15)' }}
+          style={{ background: 'var(--surface-color)' }}
         >
           Use Current Size
         </button>
@@ -148,7 +148,7 @@ function WindowSizeSettings({ width, height, onChange }: { width: number; height
         <button
           className="sync-btn secondary"
           onClick={handleReset}
-          style={{ background: 'rgba(255,255,255,0.1)' }}
+          style={{ background: 'var(--surface-color)' }}
         >
           Reset to Default
         </button>
@@ -243,18 +243,18 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                   style={{
                     padding: '0.4rem 0.8rem',
                     backgroundColor: 'var(--bg-tertiary, #1f1f2e)',
-                    border: '1px solid var(--border-color, rgba(255, 255, 255, 0.15))',
+                    border: '1px solid var(--border-color, var(--surface-border))',
                     borderRadius: '6px',
-                    color: 'var(--text-primary, #ffffff)',
+                    color: 'var(--text-primary, var(--text-primary))',
                     fontSize: '0.85rem',
                     cursor: 'pointer',
                     minWidth: '130px',
                     outline: 'none'
                   }}
                 >
-                  <option value="v1" style={{ backgroundColor: '#1f1f2e' }}>v1 (Classic)</option>
-                  <option value="v2" style={{ backgroundColor: '#1f1f2e' }}>v2 (Modern)</option>
-                  <option value="v3" style={{ backgroundColor: '#1f1f2e' }}>v3</option>
+                  <option value="v1" style={{ backgroundColor: 'var(--bg-tertiary)' }}>v1 (Classic)</option>
+                  <option value="v2" style={{ backgroundColor: 'var(--bg-tertiary)' }}>v2 (Modern)</option>
+                  <option value="v3" style={{ backgroundColor: 'var(--bg-tertiary)' }}>v3</option>
                 </select>
               </div>
 
@@ -321,7 +321,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                       onChange={(e) => setCustomScrollbarWidth(parseInt(e.target.value) || 12)}
                       style={{ width: '130px', cursor: 'pointer' }}
                     />
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary, rgba(255, 255, 255, 0.7))', minWidth: '35px' }}>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary, var(--text-secondary))', minWidth: '35px' }}>
                       {customScrollbarWidth}px
                     </span>
                   </div>
@@ -399,7 +399,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                       onChange={(e) => setLocalScale(parseInt(e.target.value) || 100)}
                       style={{ flex: 1, cursor: 'pointer' }}
                     />
-                    <span style={{ minWidth: '3.5rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)', fontSize: '0.95rem' }}>
+                    <span style={{ minWidth: '3.5rem', textAlign: 'right', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
                       {localScale}%
                     </span>
                   </div>
@@ -449,14 +449,14 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '0.75rem 0',
-                  borderTop: '1px solid rgba(255,255,255,0.08)',
+                  borderTop: '1px solid var(--surface-border)',
                 }}
               >
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem' }}>
+                  <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
                     Do not save size on close
                   </div>
-                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
                     When enabled, the window size will not be saved when closing. The app will always launch with the dimensions set above.
                   </div>
                 </div>
@@ -471,7 +471,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
           </div>
 
           {/* Typography & Fonts Section */}
-          <div className="settings-section" style={{ paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: '20px' }}>
+          <div className="settings-section" style={{ paddingTop: '8px', borderTop: '1px solid var(--surface-border)', marginTop: '20px' }}>
             <div className="section-header">
               <h3>Typography & Fonts</h3>
             </div>
@@ -480,20 +480,20 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               Customize the global typography and select the font family used across the application.
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '8px', padding: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: 'var(--surface-color)', border: '1px solid var(--surface-border)', borderRadius: '8px', padding: '16px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>
+                <label style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 500 }}>
                   App Font Family
                 </label>
                 <select
                   value={appFontFamily}
                   onChange={(e) => updateAppFont(e.target.value, appCustomFontBase64, appCustomFontFormat, appCustomFontName)}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: 'var(--surface-color)',
+                    border: '1px solid var(--surface-border)',
                     borderRadius: '6px',
                     padding: '8px 12px',
-                    color: 'white',
+                    color: 'var(--text-primary)',
                     fontSize: '0.85rem',
                     outline: 'none',
                     cursor: 'pointer',
@@ -501,12 +501,12 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                     height: '36px'
                   }}
                 >
-                  <option value="inter" style={{ background: '#1c1c1e', color: 'white' }}>Inter (Default)</option>
-                  <option value="switzer" style={{ background: '#1c1c1e', color: 'white' }}>Switzer (Sans-Serif)</option>
-                  <option value="cabinet-grotesk" style={{ background: '#1c1c1e', color: 'white' }}>Cabinet Grotesk (Display Sans)</option>
-                  <option value="fraunces" style={{ background: '#1c1c1e', color: 'white' }}>Fraunces (Serif)</option>
-                  <option value="sentient" style={{ background: '#1c1c1e', color: 'white' }}>Sentient (Serif)</option>
-                  <option value="custom" style={{ background: '#1c1c1e', color: 'white' }}>Custom Uploaded Font...</option>
+                  <option value="inter" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Inter (Default)</option>
+                  <option value="switzer" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Switzer (Sans-Serif)</option>
+                  <option value="cabinet-grotesk" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Cabinet Grotesk (Display Sans)</option>
+                  <option value="fraunces" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Fraunces (Serif)</option>
+                  <option value="sentient" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Sentient (Serif)</option>
+                  <option value="custom" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Custom Uploaded Font...</option>
                 </select>
               </div>
 
@@ -516,12 +516,12 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '12px',
-                  background: 'rgba(255,255,255,0.01)',
-                  border: '1px dashed rgba(255,255,255,0.12)',
+                  background: 'var(--surface-color)',
+                  border: '1px dashed var(--surface-border)',
                   borderRadius: '6px',
                   padding: '12px'
                 }}>
-                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', lineHeight: '1.4' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
                     Upload a TTF, OTF, WOFF, or WOFF2 font file. It will be loaded and persisted locally in your app settings.
                   </div>
                   
@@ -529,11 +529,11 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                     <button
                       onClick={() => document.getElementById('ui-font-uploader')?.click()}
                       style={{
-                        background: 'rgba(255, 255, 255, 0.08)',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        background: 'var(--surface-color)',
+                        border: '1px solid var(--surface-border)',
                         borderRadius: '6px',
                         padding: '6px 12px',
-                        color: 'white',
+                        color: 'var(--text-primary)',
                         fontSize: '0.8rem',
                         fontWeight: 500,
                         cursor: 'pointer',
@@ -543,8 +543,8 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                         transition: 'all 0.2s ease',
                         height: '32px'
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                     >
                       Choose Font File
                     </button>
@@ -611,17 +611,17 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                   style={{
                     padding: '0.4rem 0.8rem',
                     backgroundColor: 'var(--bg-tertiary, #1f1f2e)',
-                    border: '1px solid var(--border-color, rgba(255, 255, 255, 0.15))',
+                    border: '1px solid var(--border-color, var(--surface-border))',
                     borderRadius: '6px',
-                    color: 'var(--text-primary, #ffffff)',
+                    color: 'var(--text-primary, var(--text-primary))',
                     fontSize: '0.85rem',
                     cursor: 'pointer',
                     minWidth: '150px',
                     outline: 'none'
                   }}
                 >
-                  <option value="default" style={{ backgroundColor: '#1f1f2e' }}>Legacy</option>
-                  <option value="clean" style={{ backgroundColor: '#1f1f2e' }}>Clean / Borderless</option>
+                  <option value="default" style={{ backgroundColor: 'var(--bg-tertiary)' }}>Legacy</option>
+                  <option value="clean" style={{ backgroundColor: 'var(--bg-tertiary)' }}>Clean / Borderless</option>
                 </select>
               </div>
 
@@ -760,17 +760,17 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                   style={{
                     padding: '0.4rem 0.8rem',
                     backgroundColor: 'var(--bg-tertiary, #1f1f2e)',
-                    border: '1px solid var(--border-color, rgba(255, 255, 255, 0.15))',
+                    border: '1px solid var(--border-color, var(--surface-border))',
                     borderRadius: '6px',
-                    color: 'var(--text-primary, #ffffff)',
+                    color: 'var(--text-primary, var(--text-primary))',
                     fontSize: '0.85rem',
                     cursor: 'pointer',
                     minWidth: '120px',
                     outline: 'none'
                   }}
                 >
-                  <option value="left" style={{ backgroundColor: '#1f1f2e' }}>Left</option>
-                  <option value="right" style={{ backgroundColor: '#1f1f2e' }}>Right</option>
+                  <option value="left" style={{ backgroundColor: 'var(--bg-tertiary)' }}>Left</option>
+                  <option value="right" style={{ backgroundColor: 'var(--bg-tertiary)' }}>Right</option>
                 </select>
               </div>
             </div>
@@ -780,7 +780,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {/* Font Size */}
                 <div className="form-group">
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Text Size</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Text Size</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <input
                       type="range"
@@ -790,7 +790,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                       onChange={(e) => onSettingsChange({ ...settings, channelInfoOverlayFontSize: parseInt(e.target.value) })}
                       style={{ flex: 1 }}
                     />
-                    <span style={{ minWidth: '3rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)' }}>
+                    <span style={{ minWidth: '3rem', textAlign: 'right', color: 'var(--text-primary)' }}>
                       {settings.channelInfoOverlayFontSize ?? 16}px
                     </span>
                   </div>
@@ -798,7 +798,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
 
                 {/* Logo Size */}
                 <div className="form-group">
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Logo Size</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Logo Size</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <input
                       type="range"
@@ -808,7 +808,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                       onChange={(e) => onSettingsChange({ ...settings, channelInfoOverlayLogoSize: parseInt(e.target.value) })}
                       style={{ flex: 1 }}
                     />
-                    <span style={{ minWidth: '3rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)' }}>
+                    <span style={{ minWidth: '3rem', textAlign: 'right', color: 'var(--text-primary)' }}>
                       {settings.channelInfoOverlayLogoSize ?? 42}px
                     </span>
                   </div>
@@ -816,7 +816,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
 
                 {/* Logo Shape */}
                 <div className="form-group" style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Logo Shape</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Logo Shape</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button
                       type="button"
@@ -825,10 +825,10 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                         flex: 1,
                         padding: '6px 10px',
                         fontSize: '0.85rem',
-                        background: (settings.channelInfoOverlayLogoShape ?? 'square') === 'square' ? 'var(--accent-primary, #00d4ff)' : 'rgba(255,255,255,0.08)',
-                        color: (settings.channelInfoOverlayLogoShape ?? 'square') === 'square' ? '#000' : '#fff',
+                        background: (settings.channelInfoOverlayLogoShape ?? 'square') === 'square' ? 'var(--accent-primary, #00d4ff)' : 'var(--surface-color)',
+                        color: (settings.channelInfoOverlayLogoShape ?? 'square') === 'square' ? '#000' : 'var(--text-primary)',
                         fontWeight: (settings.channelInfoOverlayLogoShape ?? 'square') === 'square' ? 600 : 400,
-                        border: '1px solid rgba(255,255,255,0.15)',
+                        border: '1px solid var(--surface-border)',
                         borderRadius: '6px',
                         cursor: 'pointer'
                       }}
@@ -842,10 +842,10 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                         flex: 1,
                         padding: '6px 10px',
                         fontSize: '0.85rem',
-                        background: (settings.channelInfoOverlayLogoShape ?? 'square') === 'horizontal' ? 'var(--accent-primary, #00d4ff)' : 'rgba(255,255,255,0.08)',
-                        color: (settings.channelInfoOverlayLogoShape ?? 'square') === 'horizontal' ? '#000' : '#fff',
+                        background: (settings.channelInfoOverlayLogoShape ?? 'square') === 'horizontal' ? 'var(--accent-primary, #00d4ff)' : 'var(--surface-color)',
+                        color: (settings.channelInfoOverlayLogoShape ?? 'square') === 'horizontal' ? '#000' : 'var(--text-primary)',
                         fontWeight: (settings.channelInfoOverlayLogoShape ?? 'square') === 'horizontal' ? 600 : 400,
-                        border: '1px solid rgba(255,255,255,0.15)',
+                        border: '1px solid var(--surface-border)',
                         borderRadius: '6px',
                         cursor: 'pointer'
                       }}
@@ -857,7 +857,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
 
                 {/* Box Width */}
                 <div className="form-group">
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Box Width</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Box Width</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <input
                       type="range"
@@ -868,7 +868,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                       onChange={(e) => onSettingsChange({ ...settings, channelInfoOverlayBoxWidth: parseInt(e.target.value) })}
                       style={{ flex: 1 }}
                     />
-                    <span style={{ minWidth: '3rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)' }}>
+                    <span style={{ minWidth: '3rem', textAlign: 'right', color: 'var(--text-primary)' }}>
                       {settings.channelInfoOverlayBoxWidth ?? 380}px
                     </span>
                   </div>
@@ -876,7 +876,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
 
                 {/* Background Opacity */}
                 <div className="form-group">
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Background Opacity</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Background Opacity</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <input
                       type="range"
@@ -886,7 +886,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                       onChange={(e) => onSettingsChange({ ...settings, channelInfoOverlayOpacity: parseInt(e.target.value) })}
                       style={{ flex: 1 }}
                     />
-                    <span style={{ minWidth: '3rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)' }}>
+                    <span style={{ minWidth: '3rem', textAlign: 'right', color: 'var(--text-primary)' }}>
                       {settings.channelInfoOverlayOpacity ?? 55}%
                     </span>
                   </div>

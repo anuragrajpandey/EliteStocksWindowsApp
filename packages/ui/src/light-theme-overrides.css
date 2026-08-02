@@ -849,260 +849,6 @@ html.modern-ui-v3[data-theme="light"] .category-source-content .category-item.ne
   background: var(--accent-primary, #0066cc) !important;
 }
 
-/* ==================== SETTINGS DIALOG ==================== */
-[data-theme="light"] .settings-overlay {
-  background: rgba(0, 0, 0, 0.5) !important;
-}
-
-[data-theme="light"] .settings-panel {
-  background: #1e293b !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important;
-}
-
-[data-theme="light"] .settings-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-[data-theme="light"] .settings-header h2 {
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .close-btn {
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #a1a1aa !important;
-}
-
-[data-theme="light"] .close-btn:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .settings-sidebar {
-  background: #0f172a !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-[data-theme="light"] .settings-sidebar::before {
-  background: #0f172a !important;
-}
-
-[data-theme="light"] .settings-nav-item {
-  color: #a1a1aa !important;
-}
-
-[data-theme="light"] .settings-nav-item:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .settings-nav-item.active {
-  background: var(--accent-primary, #0066cc) !important;
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .settings-content {
-  background: #18181b !important;
-}
-
-[data-theme="light"] .settings-tabs {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-[data-theme="light"] .settings-tab {
-  color: #a1a1aa !important;
-}
-
-[data-theme="light"] .settings-tab:hover {
-  color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.05) !important;
-}
-
-[data-theme="light"] .settings-tab.active {
-  color: var(--accent-primary, #00d4ff) !important;
-  border-bottom-color: var(--accent-primary, #00d4ff) !important;
-}
-
-[data-theme="light"] .section-header h3 {
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .section-description {
-  color: #a1a1aa !important;
-}
-
-[data-theme="light"] .form-group label {
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .form-group input {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .form-group input:focus {
-  border-color: var(--accent-primary, #0066cc) !important;
-  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2) !important;
-}
-
-[data-theme="light"] .form-group input::placeholder {
-  color: #71717a !important;
-}
-
-[data-theme="light"] .type-selector button {
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #a1a1aa !important;
-}
-
-[data-theme="light"] .type-selector button:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .type-selector button.active {
-  border-color: var(--accent-primary, #00d4ff) !important;
-  background: rgba(0, 212, 255, 0.15) !important;
-  color: #00d4ff !important;
-}
-
-[data-theme="light"] .cancel-btn {
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #a1a1aa !important;
-}
-
-[data-theme="light"] .cancel-btn:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .save-btn {
-  border: 1px solid var(--accent-primary, #0066cc) !important;
-  background: rgba(0, 102, 204, 0.15) !important;
-  color: #00d4ff !important;
-}
-
-[data-theme="light"] .save-btn:hover:not(:disabled) {
-  background: rgba(0, 102, 204, 0.25) !important;
-}
-
-[data-theme="light"] .source-item {
-  background: #1e293b !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-[data-theme="light"] .source-item:hover {
-  background: #27272a !important;
-}
-
-[data-theme="light"] .source-item .source-name {
-  color: #e2e8f0 !important;
-}
-
-[data-theme="light"] .category-strip .source-name {
-  color: #334155 !important;
-}
-
-[data-theme="light"] .source-type {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: #e4e4e7 !important;
-}
-
-[data-theme="light"] .source-actions button {
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #a1a1aa !important;
-}
-
-[data-theme="light"] .source-actions button:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .source-actions button.delete {
-  color: #ef4444 !important;
-  border-color: rgba(239, 68, 68, 0.3) !important;
-}
-
-[data-theme="light"] .source-actions button.delete:hover {
-  background: rgba(239, 68, 68, 0.1) !important;
-  color: #fca5a5 !important;
-}
-
-[data-theme="light"] .sync-btn {
-  background: rgba(0, 102, 204, 0.15) !important;
-  color: #00d4ff !important;
-  border: 1px solid var(--accent-primary, #00d4ff) !important;
-}
-
-[data-theme="light"] .sync-btn:hover:not(:disabled) {
-  background: rgba(0, 102, 204, 0.25) !important;
-}
-
-[data-theme="light"] .add-btn {
-  background: rgba(0, 102, 204, 0.15) !important;
-  color: #00d4ff !important;
-  border: 1px solid var(--accent-primary, #00d4ff) !important;
-}
-
-[data-theme="light"] .add-btn:hover {
-  background: rgba(0, 102, 204, 0.25) !important;
-}
-
-[data-theme="light"] .settings-tab-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1) !important;
-}
-
-[data-theme="light"] .settings-tab-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-}
-
-[data-theme="light"] .settings-content select {
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  background: #1e293b !important;
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .settings-content select:focus {
-  border-color: var(--accent-primary, #00d4ff) !important;
-  background: #1e293b !important;
-}
-
-[data-theme="light"] .settings-content select option {
-  background: #1e293b !important;
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .settings-content small,
-[data-theme="light"] .settings-section p.section-description {
-  color: #a1a1aa !important;
-}
-
-[data-theme="light"] .toggle-label {
-  color: #e4e4e7 !important;
-}
-
-[data-theme="light"] .checkbox-label {
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .checkbox-label input[type="checkbox"],
-[data-theme="light"] .source-toggle input[type="checkbox"] {
-  accent-color: var(--accent-primary, #00d4ff) !important;
-}
-
-[data-theme="light"] .form-group .hint {
-  color: #a1a1aa !important;
-}
-
-[data-theme="light"] .or-divider {
-  color: #a1a1aa !important;
-}
-
-[data-theme="light"] .or-divider::before,
-[data-theme="light"] .or-divider::after {
-  background: rgba(255, 255, 255, 0.1) !important;
-}
-
 /* ==================== TV CALENDAR PAGE ==================== */
 [data-theme="light"] .tvcp-page {
   background: #f1f5f9 !important;
@@ -2289,6 +2035,41 @@ html.modern-ui-v3[data-theme="light"] .dvr-main-nav-btn.active {
 html[data-theme="light"] .settings-tab-content,
 html.modern-ui-v3[data-theme="light"] .settings-tab-content {
   color: #000000 !important;
+}
+
+[data-theme="light"] .stat-chip--count {
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .stat-chip--count svg {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+[data-theme="light"] .stat-chip-divider {
+  background: rgba(0, 0, 0, 0.18) !important;
+}
+
+[data-theme="light"] .stat-chip--expiry {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #64748b !important;
+}
+
+[data-theme="light"] .stat-chip--expiry.stat-chip--expiry-warn {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.25) !important;
+  color: #dc2626 !important;
+}
+
+[data-theme="light"] .stat-chip--expiry.stat-chip--expiry-warn svg {
+  color: #dc2626 !important;
+}
+
+[data-theme="light"] .last-sync-time {
+  color: #64748b !important;
 }
 
 [data-theme="light"] .settings-section,

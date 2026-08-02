@@ -336,11 +336,11 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
 
             {merged.openSubtitlesToken && merged.openSubtitlesUser ? (
               <div className="tmdb-form">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255, 255, 255, 0.05)', padding: '12px 16px', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface-color)', padding: '12px 16px', borderRadius: '8px' }}>
                   <div>
                     <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>
                       Logged in as {merged.openSubtitlesUser.username}
-                      {merged.openSubtitlesUser.vip && <span style={{ marginLeft: '8px', background: 'var(--accent-color, #e50914)', color: '#fff', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase' }}>VIP</span>}
+                      {merged.openSubtitlesUser.vip && <span style={{ marginLeft: '8px', background: 'var(--accent-color, #e50914)', color: 'var(--text-primary)', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase' }}>VIP</span>}
                       {merged.openSubtitlesUser.level && <span style={{ marginLeft: '8px', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>({merged.openSubtitlesUser.level})</span>}
                     </div>
                     {merged.openSubtitlesUser.allowed_downloads !== undefined && (
@@ -352,7 +352,7 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                   <button
                     type="button"
                     onClick={handleOsLogout}
-                    style={{ background: '#e53e3e', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}
+                    style={{ background: '#e53e3e', color: 'var(--text-primary)', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}
                   >
                     Logout
                   </button>
@@ -425,22 +425,22 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                       useToastStore.getState().addToast(`Default subtitle provider set to ${val === 'opensubtitles' ? 'OpenSubtitles' : 'SubSource'}`, 'success');
                     }}
                     style={{
-                      background: 'rgba(255, 255, 255, 0.08)',
-                      color: '#fff',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      background: 'var(--surface-color)',
+                      color: 'var(--text-primary)',
+                      border: '1px solid var(--surface-border)',
                       borderRadius: '6px',
                       padding: '6px 12px',
                       fontSize: '0.9rem',
                       cursor: 'pointer',
                     }}
                   >
-                    <option value="subsource" style={{ background: '#1e1e1e', color: '#fff' }}>
+                    <option value="subsource" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>
                       SubSource {!merged.subsourceApiKey ? '(Not configured)' : ''}
                     </option>
                     <option
                       value="opensubtitles"
                       disabled={!merged.openSubtitlesToken}
-                      style={{ background: '#1e1e1e', color: !merged.openSubtitlesToken ? '#888' : '#fff' }}
+                      style={{ background: 'var(--surface-color)', color: !merged.openSubtitlesToken ? '#888' : 'var(--text-primary)' }}
                     >
                       OpenSubtitles {!merged.openSubtitlesToken ? '(Requires Login)' : ''}
                     </option>

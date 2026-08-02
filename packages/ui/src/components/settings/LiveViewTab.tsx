@@ -168,17 +168,17 @@ export function LiveViewTab({
               style={{
                 padding: '0.4rem 0.8rem',
                 backgroundColor: 'var(--bg-tertiary, #1f1f2e)',
-                border: '1px solid var(--border-color, rgba(255, 255, 255, 0.15))',
+                border: '1px solid var(--border-color, var(--surface-border))',
                 borderRadius: '6px',
-                color: 'var(--text-primary, #ffffff)',
+                color: 'var(--text-primary, var(--text-primary))',
                 fontSize: '0.85rem',
                 cursor: 'pointer',
                 minWidth: '120px',
                 outline: 'none'
               }}
             >
-              <option value="left" style={{ backgroundColor: '#1f1f2e' }}>Left</option>
-              <option value="right" style={{ backgroundColor: '#1f1f2e' }}>Right</option>
+              <option value="left" style={{ backgroundColor: 'var(--bg-tertiary)' }}>Left</option>
+              <option value="right" style={{ backgroundColor: 'var(--bg-tertiary)' }}>Right</option>
             </select>
           </div>
 
@@ -216,7 +216,7 @@ export function LiveViewTab({
             <div className="timeshift-settings">
               {/* Font Size */}
               <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Text Size</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Text Size</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <input
                     type="range"
@@ -226,7 +226,7 @@ export function LiveViewTab({
                     onChange={(e) => onChannelInfoOverlayFontSizeChange(parseInt(e.target.value))}
                     style={{ flex: 1 }}
                   />
-                  <span style={{ minWidth: '3rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)' }}>
+                  <span style={{ minWidth: '3rem', textAlign: 'right', color: 'var(--text-primary)' }}>
                     {channelInfoOverlayFontSize}px
                   </span>
                 </div>
@@ -237,7 +237,7 @@ export function LiveViewTab({
 
               {/* Logo Size */}
               <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Logo Size</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Logo Size</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <input
                     type="range"
@@ -247,7 +247,7 @@ export function LiveViewTab({
                     onChange={(e) => onChannelInfoOverlayLogoSizeChange(parseInt(e.target.value))}
                     style={{ flex: 1 }}
                   />
-                  <span style={{ minWidth: '3rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)' }}>
+                  <span style={{ minWidth: '3rem', textAlign: 'right', color: 'var(--text-primary)' }}>
                     {channelInfoOverlayLogoSize}px
                   </span>
                 </div>
@@ -258,7 +258,7 @@ export function LiveViewTab({
 
               {/* Logo Shape */}
               <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Logo Shape</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Logo Shape</label>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
                     type="button"
@@ -266,10 +266,10 @@ export function LiveViewTab({
                     style={{
                       flex: 1,
                       padding: '8px 12px',
-                      background: channelInfoOverlayLogoShape === 'square' ? 'var(--accent-primary, #00d4ff)' : 'rgba(255,255,255,0.08)',
-                      color: channelInfoOverlayLogoShape === 'square' ? '#000' : '#fff',
+                      background: channelInfoOverlayLogoShape === 'square' ? 'var(--accent-primary, #00d4ff)' : 'var(--surface-color)',
+                      color: channelInfoOverlayLogoShape === 'square' ? '#000' : 'var(--text-primary)',
                       fontWeight: channelInfoOverlayLogoShape === 'square' ? 600 : 400,
-                      border: '1px solid rgba(255,255,255,0.15)',
+                      border: '1px solid var(--surface-border)',
                       borderRadius: '6px',
                       cursor: 'pointer'
                     }}
@@ -282,10 +282,10 @@ export function LiveViewTab({
                     style={{
                       flex: 1,
                       padding: '8px 12px',
-                      background: channelInfoOverlayLogoShape === 'horizontal' ? 'var(--accent-primary, #00d4ff)' : 'rgba(255,255,255,0.08)',
-                      color: channelInfoOverlayLogoShape === 'horizontal' ? '#000' : '#fff',
+                      background: channelInfoOverlayLogoShape === 'horizontal' ? 'var(--accent-primary, #00d4ff)' : 'var(--surface-color)',
+                      color: channelInfoOverlayLogoShape === 'horizontal' ? '#000' : 'var(--text-primary)',
                       fontWeight: channelInfoOverlayLogoShape === 'horizontal' ? 600 : 400,
-                      border: '1px solid rgba(255,255,255,0.15)',
+                      border: '1px solid var(--surface-border)',
                       borderRadius: '6px',
                       cursor: 'pointer'
                     }}
@@ -300,7 +300,7 @@ export function LiveViewTab({
 
               {/* Box Width */}
               <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Box Width</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Box Width</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <input
                     type="range"
@@ -311,7 +311,7 @@ export function LiveViewTab({
                     onChange={(e) => onChannelInfoOverlayBoxWidthChange(parseInt(e.target.value))}
                     style={{ flex: 1 }}
                   />
-                  <span style={{ minWidth: '3rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)' }}>
+                  <span style={{ minWidth: '3rem', textAlign: 'right', color: 'var(--text-primary)' }}>
                     {channelInfoOverlayBoxWidth}px
                   </span>
                 </div>
@@ -322,7 +322,7 @@ export function LiveViewTab({
 
               {/* Background Opacity */}
               <div className="form-group" style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Background Opacity</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Background Opacity</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <input
                     type="range"
@@ -332,7 +332,7 @@ export function LiveViewTab({
                     onChange={(e) => onChannelInfoOverlayOpacityChange(parseInt(e.target.value))}
                     style={{ flex: 1 }}
                   />
-                  <span style={{ minWidth: '3rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)' }}>
+                  <span style={{ minWidth: '3rem', textAlign: 'right', color: 'var(--text-primary)' }}>
                     {channelInfoOverlayOpacity}%
                   </span>
                 </div>
@@ -368,7 +368,7 @@ export function LiveViewTab({
             <p className="section-description">
               This is how the overlay will look when switching channels.
             </p>
-            <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(0,0,0,0.3)', borderRadius: '8px' }}>
+            <div style={{ marginTop: '16px', padding: '16px', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
               <div
                 style={{
                   maxWidth: `${channelInfoOverlayBoxWidth}px`,
@@ -376,7 +376,7 @@ export function LiveViewTab({
                   backdropFilter: 'blur(12px)',
                   borderRadius: '10px',
                   padding: '14px 18px',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  border: '1px solid var(--surface-border)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -385,22 +385,22 @@ export function LiveViewTab({
                       width: channelInfoOverlayLogoShape === 'horizontal' ? `${channelInfoOverlayLogoSize * 1.75}px` : `${channelInfoOverlayLogoSize}px`,
                       height: `${channelInfoOverlayLogoSize}px`,
                       borderRadius: '6px',
-                      background: 'rgba(255, 255, 255, 0.1)',
+                      background: 'var(--surface-color)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '0.7rem',
-                      color: 'rgba(255,255,255,0.4)',
+                      color: 'var(--text-muted)',
                       flexShrink: 0,
                     }}
                   >
                     Logo
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', minWidth: 0 }}>
-                    <span style={{ fontSize: `${channelInfoOverlayFontSize}px`, fontWeight: 700, color: 'rgba(255,255,255,0.95)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <span style={{ fontSize: `${channelInfoOverlayFontSize}px`, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       Channel Name
                     </span>
-                    <span style={{ fontSize: `${Math.max(10, channelInfoOverlayFontSize - 4)}px`, color: 'rgba(255,255,255,0.55)' }}>
+                    <span style={{ fontSize: `${Math.max(10, channelInfoOverlayFontSize - 4)}px`, color: 'var(--text-secondary)' }}>
                       Current Program Title
                     </span>
                   </div>

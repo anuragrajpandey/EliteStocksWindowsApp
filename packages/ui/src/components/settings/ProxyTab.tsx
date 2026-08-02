@@ -132,7 +132,7 @@ export function ProxyTab({
         justifyContent: 'space-between',
         padding: '1rem 1.25rem',
         borderRadius: '8px',
-        backgroundColor: socks5ProxyEnabled ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+        backgroundColor: socks5ProxyEnabled ? 'rgba(16, 185, 129, 0.1)' : 'var(--surface-color)',
         border: socks5ProxyEnabled ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid var(--border-color)',
         marginBottom: '1.5rem',
         boxShadow: socks5ProxyEnabled ? '0 0 15px rgba(16, 185, 129, 0.1)' : 'none',
@@ -270,7 +270,7 @@ export function ProxyTab({
       </div>
 
       {/* Diagnostics / Verification Section */}
-      <div className="settings-section" style={{ marginTop: '2.5rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem' }}>
+      <div className="settings-section" style={{ marginTop: '2.5rem', borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>
         <div className="section-header">
           <h3>Diagnostics & Connection Test</h3>
         </div>
@@ -363,7 +363,7 @@ export function ProxyTab({
       </div>
 
       {/* Verification / FAQ Guide */}
-      <div className="settings-section" style={{ marginTop: '2.5rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
+      <div className="settings-section" style={{ marginTop: '2.5rem', borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
         <div className="section-header">
           <h3>Proxy Verification FAQ</h3>
         </div>

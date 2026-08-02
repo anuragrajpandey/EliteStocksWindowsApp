@@ -37,7 +37,7 @@ export function DiscordTab({
           justifyContent: 'space-between',
           padding: '1.25rem 1.5rem',
           borderRadius: '10px',
-          backgroundColor: discordRichPresence ? 'rgba(88, 101, 242, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+          backgroundColor: discordRichPresence ? 'rgba(88, 101, 242, 0.12)' : 'var(--surface-color)',
           border: discordRichPresence ? '1px solid rgba(88, 101, 242, 0.35)' : '1px solid var(--border-color)',
           marginBottom: '1.75rem',
           boxShadow: discordRichPresence ? '0 0 20px rgba(88, 101, 242, 0.12)' : 'none',
@@ -67,7 +67,7 @@ export function DiscordTab({
       {/* Main Settings Section */}
       <div className="settings-section" style={{ textTransform: 'none' }}>
         <div className="section-header">
-          <h3 style={{ textTransform: 'none', letterSpacing: 'normal', fontSize: '0.95rem', fontWeight: 600, color: 'rgba(255, 255, 255, 0.85)' }}>
+          <h3 style={{ textTransform: 'none', letterSpacing: 'normal', fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)' }}>
             Discord Rich Presence Settings
           </h3>
         </div>

@@ -131,9 +131,9 @@ export function ScrobblingTab() {
   const authContainerStyle: CSSProperties = {
     marginTop: '16px',
     padding: '16px',
-    background: 'rgba(0,0,0,0.2)',
+    background: 'var(--bg-tertiary)',
     borderRadius: '8px',
-    border: '1px solid rgba(255,255,255,0.06)',
+    border: '1px solid var(--surface-border)',
   };
 
   const pinCodeStyle: React.CSSProperties = {
@@ -141,11 +141,11 @@ export function ScrobblingTab() {
     fontSize: '2.2rem',
     fontWeight: 700,
     letterSpacing: '0.15em',
-    color: '#fff',
+    color: 'var(--text-primary)',
     textAlign: 'center',
     padding: '12px 24px',
-    background: 'rgba(255,255,255,0.05)',
-    border: '1px dashed rgba(255,255,255,0.2)',
+    background: 'var(--surface-color)',
+    border: '1px dashed var(--surface-border)',
     borderRadius: '8px',
     cursor: 'pointer',
     marginBottom: '12px',
@@ -163,8 +163,8 @@ export function ScrobblingTab() {
             letterSpacing: '0.05em',
             padding: '3px 8px',
             borderRadius: '4px',
-            color: traktLinked ? '#2ed573' : 'rgba(255,255,255,0.3)',
-            background: traktLinked ? 'rgba(46,213,115,0.1)' : 'rgba(255,255,255,0.03)',
+            color: traktLinked ? '#2ed573' : 'var(--text-muted)',
+            background: traktLinked ? 'rgba(46,213,115,0.1)' : 'var(--surface-color)',
           }}>
             {traktLinked ? 'Connected' : 'Not Connected'}
           </span>
@@ -190,16 +190,16 @@ export function ScrobblingTab() {
             {traktAuthState === 'polling' && (
               <div style={authContainerStyle}>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.4)', marginBottom: '8px' }}>
+                  <div style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '8px' }}>
                     Enter This Pin Code:
                   </div>
                   <div style={pinCodeStyle} onClick={() => handleCopyCode(traktUserCode)} title="Click to copy">
                     {traktUserCode}
                   </div>
-                  <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)', margin: '0 0 12px 0' }}>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '0 0 12px 0' }}>
                     Go to <a href={traktVerificationUrl} target="_blank" rel="noreferrer" style={{ color: '#00d4ff' }}>{traktVerificationUrl}</a> on any device and authenticate.
                   </p>
-                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', marginBottom: '14px' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
                     Waiting for verification... ({Math.floor(traktExpiresIn / 60)}m {traktExpiresIn % 60}s)
                   </div>
                   <button
@@ -207,7 +207,7 @@ export function ScrobblingTab() {
                     style={{
                       background: 'transparent',
                       border: 'none',
-                      color: 'rgba(255,255,255,0.4)',
+                      color: 'var(--text-muted)',
                       fontSize: '0.8rem',
                       cursor: 'pointer',
                     }}

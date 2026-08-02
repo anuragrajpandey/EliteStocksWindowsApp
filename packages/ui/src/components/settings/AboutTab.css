@@ -27,13 +27,13 @@
 .changelog-content h2 {
   margin: 0 0 8px 0;
   font-size: 1rem;
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--text-primary, rgba(255, 255, 255, 0.95));
 }
 
 .changelog-content h3 {
   margin: 12px 0 6px 0;
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary, rgba(255, 255, 255, 0.9));
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -56,12 +56,12 @@
 }
 
 .changelog-content strong {
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--text-primary, rgba(255, 255, 255, 0.95));
   font-weight: 600;
 }
 
 .changelog-content code {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-color, rgba(255, 255, 255, 0.1));
   padding: 1px 4px;
   border-radius: 3px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -70,6 +70,6 @@
 
 .changelog-content hr {
   border: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--surface-border, rgba(255, 255, 255, 0.1));
   margin: 12px 0;
 }

@@ -279,7 +279,7 @@ export function PlaybackTab({
       <div className="settings-tab-content">
         {activeSubTab === 'mpv' && (
           <div className="settings-section">
-              <div style={{ marginBottom: '1.25rem', background: 'var(--card-bg, rgba(255,255,255,0.04))', padding: '14px 16px', borderRadius: '8px', border: '1px solid var(--border-color, rgba(255,255,255,0.1))', opacity: isHwdecOverridden ? 0.75 : 1 }}>
+              <div style={{ marginBottom: '1.25rem', background: 'var(--card-bg, var(--surface-color))', padding: '14px 16px', borderRadius: '8px', border: '1px solid var(--border-color, var(--surface-border))', opacity: isHwdecOverridden ? 0.75 : 1 }}>
                 <label className="genre-checkbox" style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: isHwdecOverridden ? 'not-allowed' : 'pointer' }}>
                   <input
                     type="checkbox"
@@ -368,7 +368,7 @@ export function PlaybackTab({
                 </div>
               </div>
 
-               <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+               <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--surface-border)' }}>
                 <div className="timeshift-toggle-row" style={{ marginBottom: '12px' }}>
                   <div className="timeshift-toggle-info">
                     <span className="timeshift-toggle-label">Disable Parameter Whitelist</span>
@@ -388,7 +388,7 @@ export function PlaybackTab({
 
               </div>
 
-              <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '16px' }}>
+              <div style={{ marginTop: '20px', borderTop: '1px solid var(--surface-border)', paddingTop: '16px' }}>
                 <button
                   className="sync-btn"
                   onClick={checkMpvParams}
@@ -400,12 +400,12 @@ export function PlaybackTab({
                   <pre style={{
                     marginTop: '12px',
                     padding: '12px',
-                    background: 'rgba(0,0,0,0.3)',
+                    background: 'var(--bg-tertiary)',
                     borderRadius: '6px',
                     fontSize: '0.75rem',
                     overflow: 'auto',
                     maxHeight: '300px',
-                    color: 'rgba(255,255,255,0.8)'
+                    color: 'var(--text-primary)'
                   }}>
                     {debugInfo}
                   </pre>

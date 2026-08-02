@@ -18,7 +18,7 @@
 }
 
 .playback-tab-content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary, rgba(40, 40, 40, 0.9));
   border-radius: 4px;
 }
 
@@ -42,13 +42,13 @@
 .playback-label span {
   display: block;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary, rgba(255, 255, 255, 0.9));
   margin-bottom: 4px;
 }
 
 .playback-label small {
   display: block;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted, rgba(255, 255, 255, 0.5));
   font-size: 0.85rem;
   line-height: 1.5;
 }
@@ -58,11 +58,11 @@
   max-width: 95%;
   min-height: 200px;
   padding: 16px;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--bg-tertiary, rgba(40, 40, 40, 0.9));
   box-sizing: border-box;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.1));
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary, rgba(255, 255, 255, 0.9));
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   font-size: 0.9rem;
   line-height: 1.6;
@@ -72,26 +72,26 @@
 
 .mpv-params-input:focus {
   outline: none;
-  border-color: rgba(0, 212, 255, 0.5);
+  border-color: var(--accent-primary, rgba(0, 212, 255, 0.5));
 }
 
 .mpv-params-input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-muted, rgba(255, 255, 255, 0.3));
 }
 
 .playback-help {
   margin-top: 24px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-color, rgba(255, 255, 255, 0.03));
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.06));
 }
 
 .playback-help h4 {
   margin: 0 0 12px 0;
   font-size: 0.9rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
 }
 
 .help-grid {
@@ -105,15 +105,15 @@
   align-items: center;
   gap: 16px;
   padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary, rgba(40, 40, 40, 0.9));
   border-radius: 6px;
 }
 
 .help-item code {
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   font-size: 0.8rem;
-  color: #00d4ff;
-  background: rgba(0, 212, 255, 0.1);
+  color: var(--accent-primary, #00d4ff);
+  background: var(--surface-glow, rgba(0, 212, 255, 0.1));
   padding: 4px 10px;
   border-radius: 4px;
   white-space: nowrap;
@@ -124,7 +124,7 @@
 
 .help-item span {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.6));
 }
 
 .playback-actions {
@@ -145,13 +145,13 @@
 }
 
 .save-btn {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.1));
-  color: #00d4ff;
-  border: 1px solid rgba(0, 212, 255, 0.4) !important;
+  background: linear-gradient(135deg, var(--surface-glow, rgba(0, 212, 255, 0.2)), var(--accent-glow, rgba(0, 212, 255, 0.1)));
+  color: var(--accent-primary, #00d4ff);
+  border: 1px solid var(--accent-glow, rgba(0, 212, 255, 0.4)) !important;
 }
 
 .save-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(0, 212, 255, 0.15));
+  background: linear-gradient(135deg, var(--accent-glow, rgba(0, 212, 255, 0.3)), var(--surface-glow, rgba(0, 212, 255, 0.15)));
   transform: translateY(-1px);
 }
 
@@ -161,13 +161,13 @@
 }
 
 .reset-btn {
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background: var(--surface-hover, rgba(255, 255, 255, 0.08));
+  color: var(--text-secondary, rgba(255, 255, 255, 0.8));
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.15)) !important;
 }
 
 .reset-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--surface-active, rgba(255, 255, 255, 0.12));
 }
 
 .clear-btn {
@@ -191,7 +191,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid var(--surface-border, rgba(255, 255, 255, 0.07));
   gap: 16px;
 }
 
@@ -203,13 +203,13 @@
 }
 
 .timeshift-toggle-label {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary, rgba(255, 255, 255, 0.9));
   font-size: 0.95rem;
   font-weight: 500;
 }
 
 .timeshift-toggle-sub {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted, rgba(255, 255, 255, 0.5));
   font-size: 0.82rem;
 }
 
@@ -231,7 +231,7 @@
 .toggle-slider {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--surface-active, rgba(255, 255, 255, 0.12));
   border-radius: 22px;
   cursor: pointer;
   transition: background 0.25s;
@@ -244,13 +244,13 @@
   height: 16px;
   left: 3px;
   top: 3px;
-  background: white;
+  background: var(--text-primary, white);
   border-radius: 50%;
   transition: transform 0.25s;
 }
 
 .toggle-switch input:checked+.toggle-slider {
-  background: rgba(0, 212, 255, 0.7);
+  background: var(--accent-primary, rgba(0, 212, 255, 0.7));
 }
 
 .toggle-switch input:checked+.toggle-slider::before {
@@ -262,7 +262,7 @@
   margin-top: 20px;
   margin-bottom: 10px;
   font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-muted, rgba(255, 255, 255, 0.6));
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -277,24 +277,24 @@
 .timeshift-preset-btn {
   padding: 8px 18px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.12));
+  background: var(--surface-color, rgba(255, 255, 255, 0.06));
+  color: var(--text-secondary, rgba(255, 255, 255, 0.75));
   font-size: 0.88rem;
   cursor: pointer;
   transition: all 0.18s;
 }
 
 .timeshift-preset-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
-  color: white;
+  background: var(--surface-hover, rgba(255, 255, 255, 0.12));
+  border-color: var(--surface-hover, rgba(255, 255, 255, 0.25));
+  color: var(--text-primary, white);
 }
 
 .timeshift-preset-btn.active {
-  background: rgba(0, 212, 255, 0.15);
-  border-color: rgba(0, 212, 255, 0.5);
-  color: #00d4ff;
+  background: var(--surface-glow, rgba(0, 212, 255, 0.15));
+  border-color: var(--accent-primary, rgba(0, 212, 255, 0.5));
+  color: var(--accent-primary, #00d4ff);
 }
 
 /* Estimate table */
@@ -308,18 +308,18 @@
 .timeshift-estimate-table th {
   text-align: left;
   padding: 8px 12px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted, rgba(255, 255, 255, 0.5));
   font-weight: 500;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--surface-border, rgba(255, 255, 255, 0.08));
 }
 
 .timeshift-estimate-table td {
   padding: 10px 12px;
-  color: rgba(255, 255, 255, 0.75);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.75));
+  border-bottom: 1px solid var(--surface-border, rgba(255, 255, 255, 0.05));
 }
 
 .timeshift-estimate-table tr:last-child td {
@@ -344,7 +344,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid var(--surface-border, rgba(255, 255, 255, 0.07));
   gap: 24px;
 }
 
@@ -358,10 +358,10 @@
 .retry-number-input {
   width: 72px;
   padding: 8px 10px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--bg-tertiary, rgba(40, 40, 40, 0.9));
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.12));
   border-radius: 7px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary, rgba(255, 255, 255, 0.9));
   font-size: 0.95rem;
   font-weight: 500;
   text-align: center;
@@ -378,12 +378,12 @@
 
 .retry-number-input:focus {
   outline: none;
-  border-color: rgba(0, 212, 255, 0.5);
+  border-color: var(--accent-primary, rgba(0, 212, 255, 0.5));
 }
 
 .retry-input-unit {
   font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted, rgba(255, 255, 255, 0.4));
   white-space: nowrap;
 }
 
@@ -420,23 +420,23 @@
 .stremio-picker-btn {
   padding: 8px 16px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.12));
+  background: var(--surface-color, rgba(255, 255, 255, 0.06));
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.18s;
 }
 
 .stremio-picker-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.9);
+  background: var(--surface-hover, rgba(255, 255, 255, 0.12));
+  color: var(--text-primary, rgba(255, 255, 255, 0.9));
 }
 
 .stremio-picker-btn.active {
-  background: rgba(0, 212, 255, 0.15);
-  border-color: rgba(0, 212, 255, 0.5);
-  color: #00d4ff;
+  background: var(--surface-glow, rgba(0, 212, 255, 0.15));
+  border-color: var(--accent-primary, rgba(0, 212, 255, 0.5));
+  color: var(--accent-primary, #00d4ff);
 }
 
 /* ─── Streaming Provider Cards ─────────────────────────────── */
@@ -446,14 +446,14 @@
 }
 
 .streaming-provider-card:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.15) !important;
+  background: var(--surface-hover, rgba(255, 255, 255, 0.08)) !important;
+  border-color: var(--surface-border, rgba(255, 255, 255, 0.15)) !important;
   transform: translateY(-1px);
 }
 
 .streaming-provider-card.checked:hover {
-  background: rgba(0, 212, 255, 0.12) !important;
-  border-color: rgba(0, 212, 255, 0.4) !important;
+  background: var(--surface-glow, rgba(0, 212, 255, 0.12)) !important;
+  border-color: var(--accent-primary, rgba(0, 212, 255, 0.4)) !important;
 }
 
 .streaming-provider-card:active {

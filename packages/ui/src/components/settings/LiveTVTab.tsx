@@ -348,32 +348,32 @@ export function LiveTVTab({
                 </div>
 
                 {/* Preview example */}
-                <div style={{ marginTop: '24px', padding: '16px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
-                  <h4 style={{ margin: '0 0 12px 0', fontSize: '0.875rem', color: 'rgba(255,255,255,0.6)' }}>Preview:</h4>
+                <div style={{ marginTop: '24px', padding: '16px', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
+                  <h4 style={{ margin: '0 0 12px 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Preview:</h4>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     {/* Regular program block */}
                     <div style={{
                       padding: '8px 12px',
-                      background: 'rgba(255, 255, 255, 0.04)',
+                      background: 'var(--surface-color)',
                       borderRadius: '4px',
                       borderLeft: '2px solid transparent',
                       flex: 1,
                       fontSize: '0.8rem'
                     }}>
-                      <span style={{ color: 'rgba(255,255,255,0.6)' }}>Other Program</span>
+                      <span style={{ color: 'var(--text-secondary)' }}>Other Program</span>
                     </div>
                     {/* Current program block */}
                     <div style={{
                       padding: '8px 12px',
                       background: epgDarkenCurrent
-                        ? 'color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(0,0,0,0.3))'
+                        ? 'color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, var(--bg-tertiary))'
                         : 'color-mix(in srgb, var(--accent-primary, #00d4ff) 8%, transparent)',
                       borderRadius: '4px',
                       borderLeft: '3px solid var(--accent-primary, #00d4ff)',
                       flex: 1,
                       fontSize: '0.8rem'
                     }}>
-                      <span style={{ color: 'rgba(255,255,255,0.95)' }}>Current Program</span>
+                      <span style={{ color: 'var(--text-primary)' }}>Current Program</span>
                     </div>
                   </div>
                 </div>
@@ -394,20 +394,20 @@ export function LiveTVTab({
                   width: '100%',
                   borderCollapse: 'collapse',
                   fontSize: '0.9rem',
-                  background: 'rgba(0, 0, 0, 0.1)',
+                  background: 'var(--bg-tertiary)',
                   borderRadius: '8px',
                   overflow: 'hidden'
                 }}>
                   <thead>
-                    <tr style={{ background: 'rgba(255, 255, 255, 0.02)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'rgba(255, 255, 255, 0.6)', fontWeight: 600, fontSize: '0.85rem' }}>Channel Names</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'rgba(255, 255, 255, 0.6)', fontWeight: 600, fontSize: '0.85rem' }}>Top Categories</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'rgba(255, 255, 255, 0.6)', fontWeight: 600, fontSize: '0.85rem' }}>Source Categories</th>
+                    <tr style={{ background: 'var(--surface-color)', borderBottom: '1px solid var(--surface-border)' }}>
+                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>Channel Names</th>
+                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>Top Categories</th>
+                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>Source Categories</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td style={{ padding: '16px', textAlign: 'center', borderRight: '1px solid rgba(255, 255, 255, 0.04)' }}>
+                      <td style={{ padding: '16px', textAlign: 'center', borderRight: '1px solid var(--surface-border)' }}>
                         <label className="toggle-switch" style={{ margin: '0 auto' }}>
                           <input
                             type="checkbox"
@@ -417,7 +417,7 @@ export function LiveTVTab({
                           <span className="toggle-slider" />
                         </label>
                       </td>
-                      <td style={{ padding: '16px', textAlign: 'center', borderRight: '1px solid rgba(255, 255, 255, 0.04)' }}>
+                      <td style={{ padding: '16px', textAlign: 'center', borderRight: '1px solid var(--surface-border)' }}>
                         <label className="toggle-switch" style={{ margin: '0 auto' }}>
                           <input
                             type="checkbox"
@@ -455,7 +455,7 @@ export function LiveTVTab({
               <div className="timeshift-settings">
                 {/* EPG Title Font Size */}
                 <div className="form-group" style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Title Font Size</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Title Font Size</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <input
                       type="range"
@@ -465,7 +465,7 @@ export function LiveTVTab({
                       onChange={(e) => onEpgTitleFontSizeChange(parseInt(e.target.value))}
                       style={{ flex: 1 }}
                     />
-                    <span style={{ minWidth: '3rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)' }}>
+                    <span style={{ minWidth: '3rem', textAlign: 'right', color: 'var(--text-primary)' }}>
                       {epgTitleFontSize}px
                     </span>
                   </div>
@@ -476,7 +476,7 @@ export function LiveTVTab({
 
                 {/* EPG Body Font Size */}
                 <div className="form-group" style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Body Text Font Size</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Body Text Font Size</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <input
                       type="range"
@@ -486,7 +486,7 @@ export function LiveTVTab({
                       onChange={(e) => onEpgBodyFontSizeChange(parseInt(e.target.value))}
                       style={{ flex: 1 }}
                     />
-                    <span style={{ minWidth: '3rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)' }}>
+                    <span style={{ minWidth: '3rem', textAlign: 'right', color: 'var(--text-primary)' }}>
                       {epgBodyFontSize}px
                     </span>
                   </div>
@@ -566,7 +566,7 @@ export function LiveTVTab({
                       }}
                       style={{ width: '70px', padding: '4px 8px', textAlign: 'center' }}
                     />
-                    <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>%</span>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>%</span>
                     <input
                       type="range"
                       min="25"
@@ -592,7 +592,7 @@ export function LiveTVTab({
                     />
                     <span style={{
                       position: 'absolute', cursor: 'pointer', inset: 0,
-                      backgroundColor: transparentGuideHideHeader ? 'var(--accent-primary, #00d4ff)' : 'rgba(255,255,255,0.2)',
+                      backgroundColor: transparentGuideHideHeader ? 'var(--accent-primary, #00d4ff)' : 'var(--surface-color)',
                       borderRadius: '24px',
                       transition: 'background-color 0.2s',
                     }}>
@@ -600,7 +600,7 @@ export function LiveTVTab({
                         position: 'absolute', top: '2px',
                         left: transparentGuideHideHeader ? '22px' : '2px',
                         width: '20px', height: '20px', borderRadius: '50%',
-                        backgroundColor: '#fff', transition: 'left 0.2s',
+                        backgroundColor: 'var(--text-primary)', transition: 'left 0.2s',
                       }} />
                     </span>
                   </label>
@@ -620,7 +620,7 @@ export function LiveTVTab({
                     />
                     <span style={{
                       position: 'absolute', cursor: 'pointer', inset: 0,
-                      backgroundColor: transparentGuideOnZap ? 'var(--accent-primary, #00d4ff)' : 'rgba(255,255,255,0.2)',
+                      backgroundColor: transparentGuideOnZap ? 'var(--accent-primary, #00d4ff)' : 'var(--surface-color)',
                       borderRadius: '24px',
                       transition: 'background-color 0.2s',
                     }}>
@@ -628,7 +628,7 @@ export function LiveTVTab({
                         position: 'absolute', top: '2px',
                         left: transparentGuideOnZap ? '22px' : '2px',
                         width: '20px', height: '20px', borderRadius: '50%',
-                        backgroundColor: '#fff', transition: 'left 0.2s',
+                        backgroundColor: 'var(--text-primary)', transition: 'left 0.2s',
                       }} />
                     </span>
                   </label>
@@ -651,7 +651,7 @@ export function LiveTVTab({
                       }}
                       style={{ width: '70px', padding: '4px 8px', textAlign: 'center' }}
                     />
-                    <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>%</span>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>%</span>
                     <input
                       type="range"
                       min="0"
@@ -680,7 +680,7 @@ export function LiveTVTab({
                       }}
                       style={{ width: '70px', padding: '4px 8px', textAlign: 'center' }}
                     />
-                    <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>%</span>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>%</span>
                     <input
                       type="range"
                       min="0"
@@ -708,7 +708,7 @@ export function LiveTVTab({
 
             {/* Channel Font Size */}
             <div className="form-group" style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Channel Font Size</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Channel Font Size</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <input
                   type="range"
@@ -718,7 +718,7 @@ export function LiveTVTab({
                   onChange={(e) => onChannelFontSizeChange(parseInt(e.target.value))}
                   style={{ flex: 1 }}
                 />
-                <span style={{ minWidth: '3rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)' }}>
+                <span style={{ minWidth: '3rem', textAlign: 'right', color: 'var(--text-primary)' }}>
                   {channelFontSize}px
                 </span>
               </div>
@@ -729,7 +729,7 @@ export function LiveTVTab({
 
             {/* Category Font Size */}
             <div className="form-group" style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Category Font Size</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Category Font Size</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <input
                   type="range"
@@ -739,7 +739,7 @@ export function LiveTVTab({
                   onChange={(e) => onCategoryFontSizeChange(parseInt(e.target.value))}
                   style={{ flex: 1 }}
                 />
-                <span style={{ minWidth: '3rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)' }}>
+                <span style={{ minWidth: '3rem', textAlign: 'right', color: 'var(--text-primary)' }}>
                   {categoryFontSize}px
                 </span>
               </div>
@@ -751,7 +751,7 @@ export function LiveTVTab({
             {/* Source Font Size */}
             {modernUiEnabled === 'v3' && (
               <div className="form-group" style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>Source Font Size</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Source Font Size</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <input
                     type="range"
@@ -761,7 +761,7 @@ export function LiveTVTab({
                     onChange={(e) => onSourceFontSizeChange(parseInt(e.target.value))}
                     style={{ flex: 1 }}
                   />
-                  <span style={{ minWidth: '3rem', textAlign: 'right', color: 'rgba(255,255,255,0.8)' }}>
+                  <span style={{ minWidth: '3rem', textAlign: 'right', color: 'var(--text-primary)' }}>
                     {sourceFontSize}px
                   </span>
                 </div>

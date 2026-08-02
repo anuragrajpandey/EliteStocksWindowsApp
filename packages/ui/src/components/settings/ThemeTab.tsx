@@ -105,14 +105,14 @@ const THEMES: { id: ThemeId; name: string; description: string; preview: string;
 function ColorInput({ label, value, onChange }: { label: string; value: string; onChange: (val: string) => void }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      <label style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{label}</label>
+      <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>{label}</label>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div style={{
           width: '32px',
           height: '32px',
           borderRadius: '50%',
           background: value,
-          border: '2px solid rgba(255,255,255,0.2)',
+          border: '2px solid var(--surface-border)',
           boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
           cursor: 'pointer',
           position: 'relative',
@@ -137,7 +137,7 @@ function ColorInput({ label, value, onChange }: { label: string; value: string; 
             }}
           />
         </div>
-        <span style={{ fontSize: '0.8rem', fontFamily: 'monospace', color: 'rgba(255,255,255,0.7)' }}>
+        <span style={{ fontSize: '0.8rem', fontFamily: 'monospace', color: 'var(--text-secondary)' }}>
           {value.toUpperCase()}
         </span>
       </div>
@@ -165,7 +165,7 @@ function SliderInput({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <label style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{label}</label>
+        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>{label}</label>
         <span style={{ fontSize: '0.8rem', color: 'var(--accent-primary, #00d4ff)', fontWeight: 600 }}>{displayValue}</span>
       </div>
       <input 
@@ -179,7 +179,7 @@ function SliderInput({
           width: '100%',
           height: '6px',
           borderRadius: '3px',
-          background: 'rgba(255,255,255,0.1)',
+          background: 'var(--surface-color)',
           outline: 'none',
           cursor: 'pointer',
           accentColor: 'var(--accent-primary, #00d4ff)'
@@ -202,8 +202,8 @@ function ButtonGroupSelector<T extends string>({
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      <label style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{label}</label>
-      <div style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', padding: '4px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+      <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>{label}</label>
+      <div style={{ display: 'flex', background: 'var(--bg-tertiary)', padding: '4px', borderRadius: '8px', border: '1px solid var(--surface-border)' }}>
         {options.map((opt) => (
           <button
             key={opt.id}
@@ -212,7 +212,7 @@ function ButtonGroupSelector<T extends string>({
               flex: 1,
               padding: '6px 12px',
               background: value === opt.id ? 'var(--accent-primary, #00d4ff)' : 'transparent',
-              color: value === opt.id ? 'black' : 'white',
+              color: value === opt.id ? 'black' : 'var(--text-primary)',
               border: 'none',
               borderRadius: '6px',
               fontSize: '0.8rem',
@@ -482,7 +482,7 @@ export function ThemeTab({
       <div style={{
         display: 'flex',
         gap: '12px',
-        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        borderBottom: '1px solid var(--surface-border)',
         paddingBottom: '12px',
         marginBottom: '20px'
       }}>
@@ -490,8 +490,8 @@ export function ThemeTab({
           onClick={() => setActiveSubTab('premade')}
           style={{
             padding: '8px 16px',
-            background: activeSubTab === 'premade' ? 'rgba(255,255,255,0.15)' : 'transparent',
-            color: activeSubTab === 'premade' ? 'white' : 'rgba(255,255,255,0.6)',
+            background: activeSubTab === 'premade' ? 'var(--surface-color)' : 'transparent',
+            color: activeSubTab === 'premade' ? 'var(--text-primary)' : 'var(--text-secondary)',
             border: 'none',
             borderRadius: '20px',
             fontSize: '0.85rem',
@@ -506,8 +506,8 @@ export function ThemeTab({
           onClick={() => setActiveSubTab('custom')}
           style={{
             padding: '8px 16px',
-            background: activeSubTab === 'custom' ? 'rgba(255,255,255,0.15)' : 'transparent',
-            color: activeSubTab === 'custom' ? 'white' : 'rgba(255,255,255,0.6)',
+            background: activeSubTab === 'custom' ? 'var(--surface-color)' : 'transparent',
+            color: activeSubTab === 'custom' ? 'var(--text-primary)' : 'var(--text-secondary)',
             border: 'none',
             borderRadius: '20px',
             fontSize: '0.85rem',
@@ -530,9 +530,9 @@ export function ThemeTab({
               <button
                 onClick={handleCustomizeCurrent}
                 style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  color: 'white',
-                  border: '1px solid rgba(255,255,255,0.2)',
+          background: 'var(--surface-color)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--surface-border)',
                   borderRadius: '20px',
                   padding: '6px 14px',
                   fontSize: '0.8rem',
@@ -548,8 +548,8 @@ export function ThemeTab({
                   e.currentTarget.style.color = 'black';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                  e.currentTarget.style.color = 'white';
+                  e.currentTarget.style.background = 'var(--surface-color)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
                 }}
               >
                 🎨 Customize "{activeThemeObj?.name || theme}"
@@ -582,10 +582,10 @@ export function ThemeTab({
                   borderRadius: '12px',
                   border: theme === 'custom'
                     ? '2px solid var(--accent-primary, #00d4ff)'
-                    : '1px solid rgba(255,255,255,0.2)',
+                    : '1px solid var(--surface-border)',
                   background: theme === 'custom'
-                    ? 'rgba(0, 212, 255, 0.15)'
-                    : 'rgba(255,255,255,0.05)',
+                    ? 'var(--surface-glow)'
+                    : 'var(--surface-color)',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   boxShadow: theme === 'custom'
@@ -602,7 +602,7 @@ export function ThemeTab({
                       ? `linear-gradient(135deg, ${customThemeConfig.gradientStart} 0%, ${customThemeConfig.gradientEnd} 100%)`
                       : customThemeConfig.backgroundColor,
                     marginBottom: '10px',
-                    border: '2px solid rgba(255,255,255,0.3)',
+                    border: '2px solid var(--surface-border)',
                     boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
                     position: 'relative',
                     overflow: 'hidden',
@@ -615,10 +615,10 @@ export function ThemeTab({
                 >
                   ⚙️
                 </div>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'white', textAlign: 'center', marginBottom: '4px' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center', marginBottom: '4px' }}>
                   Custom Theme
                 </span>
-                <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', textAlign: 'center', lineHeight: 1.3 }}>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.3 }}>
                   Your personalized theme settings
                 </span>
                 {theme === 'custom' && (
@@ -656,10 +656,10 @@ export function ThemeTab({
                   borderRadius: '12px',
                   border: theme === t.id
                     ? '2px solid var(--accent-primary, #00d4ff)'
-                    : '1px solid rgba(255,255,255,0.2)',
+                    : '1px solid var(--surface-border)',
                   background: theme === t.id
-                    ? 'rgba(0, 212, 255, 0.15)'
-                    : 'rgba(255,255,255,0.05)',
+                    ? 'var(--surface-glow)'
+                    : 'var(--surface-color)',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   boxShadow: theme === t.id
@@ -676,7 +676,7 @@ export function ThemeTab({
                     borderRadius: '50%',
                     background: t.gradient || t.preview,
                     marginBottom: '10px',
-                    border: '2px solid rgba(255,255,255,0.3)',
+                    border: '2px solid var(--surface-border)',
                     boxShadow: (t.id.includes('glass') || t.id.includes('solid'))
                       ? '0 4px 15px rgba(0,0,0,0.3), inset 0 0 20px rgba(255,255,255,0.1)'
                       : '0 2px 8px rgba(0,0,0,0.2)',
@@ -704,7 +704,7 @@ export function ThemeTab({
                 <span style={{
                   fontSize: '0.85rem',
                   fontWeight: 600,
-                  color: 'white',
+                  color: 'var(--text-primary)',
                   textAlign: 'center',
                   marginBottom: '4px'
                 }}>
@@ -714,7 +714,7 @@ export function ThemeTab({
                 {/* Theme Description */}
                 <span style={{
                   fontSize: '0.7rem',
-                  color: 'rgba(255,255,255,0.6)',
+                  color: 'var(--text-secondary)',
                   textAlign: 'center',
                   lineHeight: 1.3
                 }}>
@@ -753,18 +753,18 @@ export function ThemeTab({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            background: theme === 'custom' ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.03)',
-            border: theme === 'custom' ? '1px solid rgba(0,212,255,0.25)' : '1px solid rgba(255,255,255,0.08)',
+            background: theme === 'custom' ? 'var(--surface-glow)' : 'var(--surface-color)',
+            border: theme === 'custom' ? '1px solid var(--accent-glow)' : '1px solid var(--surface-border)',
             borderRadius: '12px',
             padding: '16px',
             marginBottom: '20px',
             boxShadow: theme === 'custom' ? '0 4px 15px rgba(0, 212, 255, 0.1)' : 'none'
           }}>
             <div>
-              <span style={{ fontWeight: 600, color: 'white', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>
                 🎨 Custom Theme Creator
               </span>
-              <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                 {theme === 'custom' 
                   ? 'Your custom theme is active. Any changes you make below will apply in real time!' 
                   : 'Start customizing to design your own visual interface.'}
@@ -792,13 +792,13 @@ export function ThemeTab({
               </button>
             ) : (
               <span style={{
-                background: 'rgba(0, 212, 255, 0.2)',
-                color: '#00d4ff',
+                background: 'var(--surface-glow)',
+                color: 'var(--accent-primary)',
                 borderRadius: '20px',
                 padding: '4px 12px',
                 fontSize: '0.75rem',
                 fontWeight: 600,
-                border: '1px solid rgba(0, 212, 255, 0.3)'
+                border: '1px solid var(--accent-glow)'
               }}>
                 ● Active
               </span>
@@ -814,13 +814,13 @@ export function ThemeTab({
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 flexWrap: 'wrap',
-                background: 'rgba(255,255,255,0.02)',
+                background: 'var(--surface-color)',
                 padding: '12px 16px',
                 borderRadius: '8px',
-                border: '1px solid rgba(255,255,255,0.05)'
+                border: '1px solid var(--surface-border)'
               }}>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flex: 1, minWidth: '240px' }}>
-                  <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', whiteSpace: 'nowrap' }}>Copy theme preset:</span>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>Copy theme preset:</span>
                   <select
                     onChange={(e) => {
                       if (e.target.value) {
@@ -829,9 +829,9 @@ export function ThemeTab({
                       }
                     }}
                     style={{
-                      background: 'rgba(0, 0, 0, 0.3)',
-                      color: 'white',
-                      border: '1px solid rgba(255,255,255,0.15)',
+                      background: 'var(--bg-tertiary)',
+                      color: 'var(--text-primary)',
+                      border: '1px solid var(--surface-border)',
                       borderRadius: '6px',
                       padding: '6px 10px',
                       fontSize: '0.8rem',
@@ -850,9 +850,9 @@ export function ThemeTab({
                 <button
                   onClick={handleResetToDefaultCustom}
                   style={{
-                    background: 'rgba(255,255,255,0.08)',
-                    color: 'rgba(255,255,255,0.8)',
-                    border: '1px solid rgba(255,255,255,0.15)',
+                    background: 'var(--surface-color)',
+                    color: 'var(--text-primary)',
+                    border: '1px solid var(--surface-border)',
                     borderRadius: '6px',
                     padding: '6px 12px',
                     fontSize: '0.8rem',
@@ -860,8 +860,8 @@ export function ThemeTab({
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                 >
                   Reset Custom theme
                 </button>
@@ -869,8 +869,8 @@ export function ThemeTab({
 
               {/* Saved Themes & Sharing Panel */}
               <div style={{
-                background: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                background: 'var(--surface-color)',
+                border: '1px solid var(--surface-border)',
                 borderRadius: '12px',
                 padding: '20px',
                 marginBottom: '20px',
@@ -878,7 +878,7 @@ export function ThemeTab({
                 flexDirection: 'column',
                 gap: '16px'
               }}>
-                <h3 style={{ margin: 0, fontSize: '1.0rem', color: 'white', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
+                <h3 style={{ margin: 0, fontSize: '1.0rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--surface-border)', paddingBottom: '10px' }}>
                   Saved Themes & Sharing
                 </h3>
 
@@ -886,7 +886,7 @@ export function ThemeTab({
                   {/* Left Column: Save & List */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <label style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>
+                      <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
                         Save Current Configuration
                       </label>
                       <div style={{ display: 'flex', gap: '8px' }}>
@@ -897,11 +897,11 @@ export function ThemeTab({
                           onChange={(e) => setNewThemeName(e.target.value)}
                           style={{
                             flex: 1,
-                            background: 'rgba(0,0,0,0.3)',
-                            border: '1px solid rgba(255,255,255,0.15)',
+                            background: 'var(--bg-tertiary)',
+                            border: '1px solid var(--surface-border)',
                             borderRadius: '6px',
                             padding: '8px 12px',
-                            color: 'white',
+                            color: 'var(--text-primary)',
                             fontSize: '0.85rem',
                             outline: 'none'
                           }}
@@ -929,11 +929,11 @@ export function ThemeTab({
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
-                      <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
                         Your Saved Themes
                       </span>
                       {savedCustomThemes.length === 0 ? (
-                        <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', padding: '8px 0' }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', padding: '8px 0' }}>
                           No custom themes saved yet. Use the input above to save your first!
                         </div>
                       ) : (
@@ -945,21 +945,21 @@ export function ThemeTab({
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                background: 'rgba(255,255,255,0.02)',
-                                border: '1px solid rgba(255,255,255,0.06)',
+                                background: 'var(--surface-color)',
+                                border: '1px solid var(--surface-border)',
                                 borderRadius: '6px',
                                 padding: '8px 12px'
                               }}
                             >
-                              <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '8px' }}>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '8px' }}>
                                 {t.themeName || 'Unnamed Theme'}
                               </span>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <button
                                   onClick={() => handleLoadCustomTheme(t)}
                                   style={{
-                                    background: 'rgba(255,255,255,0.08)',
-                                    color: 'white',
+                                    background: 'var(--surface-color)',
+                                    color: 'var(--text-primary)',
                                     border: 'none',
                                     borderRadius: '4px',
                                     padding: '4px 8px',
@@ -968,16 +968,16 @@ export function ThemeTab({
                                     cursor: 'pointer',
                                     transition: 'all 0.15s ease'
                                   }}
-                                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-                                  onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
+                                  onMouseLeave={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                                 >
                                   Load
                                 </button>
                                 <button
                                   onClick={() => handleExportTheme(t)}
                                   style={{
-                                    background: copiedThemeId === t.id ? '#2e7d32' : 'rgba(255,255,255,0.08)',
-                                    color: 'white',
+                                    background: copiedThemeId === t.id ? '#2e7d32' : 'var(--surface-color)',
+                                    color: 'var(--text-primary)',
                                     border: 'none',
                                     borderRadius: '4px',
                                     padding: '4px 8px',
@@ -987,8 +987,8 @@ export function ThemeTab({
                                     transition: 'all 0.15s ease',
                                     minWidth: '55px'
                                   }}
-                                  onMouseEnter={(e) => { if (copiedThemeId !== t.id) e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
-                                  onMouseLeave={(e) => { if (copiedThemeId !== t.id) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+                                  onMouseEnter={(e) => { if (copiedThemeId !== t.id) e.currentTarget.style.background = 'var(--surface-color)'; }}
+                                  onMouseLeave={(e) => { if (copiedThemeId !== t.id) e.currentTarget.style.background = 'var(--surface-color)'; }}
                                 >
                                   {copiedThemeId === t.id ? 'Copied!' : 'Copy'}
                                 </button>
@@ -996,8 +996,8 @@ export function ThemeTab({
                                   onClick={() => handleDownloadTheme(t)}
                                   title="Download .json file"
                                   style={{
-                                    background: 'rgba(255,255,255,0.08)',
-                                    color: 'white',
+                                    background: 'var(--surface-color)',
+                                    color: 'var(--text-primary)',
                                     border: 'none',
                                     borderRadius: '4px',
                                     padding: '4px 6px',
@@ -1007,8 +1007,8 @@ export function ThemeTab({
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                   }}
-                                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-                                  onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
+                                  onMouseLeave={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                                 >
                                   💾
                                 </button>
@@ -1041,7 +1041,7 @@ export function ThemeTab({
                   {/* Right Column: Import Theme */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <label style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>
+                      <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
                         Import Theme Configuration
                       </label>
                       <textarea
@@ -1050,11 +1050,11 @@ export function ThemeTab({
                         value={importText}
                         onChange={(e) => setImportText(e.target.value)}
                         style={{
-                          background: 'rgba(0,0,0,0.3)',
-                          border: '1px solid rgba(255,255,255,0.15)',
+                          background: 'var(--bg-tertiary)',
+                          border: '1px solid var(--surface-border)',
                           borderRadius: '6px',
                           padding: '8px 12px',
-                          color: 'white',
+                          color: 'var(--text-primary)',
                           fontSize: '0.8rem',
                           outline: 'none',
                           resize: 'vertical',
@@ -1066,10 +1066,10 @@ export function ThemeTab({
                           onClick={handleImportTheme}
                           disabled={!importText.trim()}
                           style={{
-                            background: 'rgba(255, 255, 255, 0.1)',
-                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            background: 'var(--surface-color)',
+                            border: '1px solid var(--surface-border)',
                             borderRadius: '6px',
-                            color: 'white',
+                            color: 'var(--text-primary)',
                             padding: '6px 12px',
                             fontSize: '0.8rem',
                             fontWeight: 500,
@@ -1078,8 +1078,8 @@ export function ThemeTab({
                             transition: 'all 0.2s ease',
                             height: '32px'
                           }}
-                          onMouseEnter={(e) => { if (importText.trim()) e.currentTarget.style.background = 'rgba(255,255,255,0.18)'; }}
-                          onMouseLeave={(e) => { if (importText.trim()) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; }}
+                          onMouseEnter={(e) => { if (importText.trim()) e.currentTarget.style.background = 'var(--surface-color)'; }}
+                          onMouseLeave={(e) => { if (importText.trim()) e.currentTarget.style.background = 'var(--surface-color)'; }}
                         >
                           Import Clipboard Paste
                         </button>
@@ -1087,10 +1087,10 @@ export function ThemeTab({
                         <button
                           onClick={() => document.getElementById('theme-file-uploader')?.click()}
                           style={{
-                            background: 'rgba(255, 255, 255, 0.1)',
-                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            background: 'var(--surface-color)',
+                            border: '1px solid var(--surface-border)',
                             borderRadius: '6px',
-                            color: 'white',
+                            color: 'var(--text-primary)',
                             padding: '6px 12px',
                             fontSize: '0.8rem',
                             fontWeight: 500,
@@ -1098,8 +1098,8 @@ export function ThemeTab({
                             transition: 'all 0.2s ease',
                             height: '32px'
                           }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.18)'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                          onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                         >
                           Upload File
                         </button>
@@ -1136,15 +1136,15 @@ export function ThemeTab({
                 {/* Left Column: Background & Colors */}
                 <div style={{ marginBottom: '20px' }}>
                   <div style={{
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    background: 'var(--surface-color)',
+                    border: '1px solid var(--surface-border)',
                     borderRadius: '12px',
                     padding: '16px',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '16px'
                   }}>
-                    <h4 style={{ margin: '0 0 4px 0', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '8px', color: 'white', fontSize: '0.9rem' }}>
+                    <h4 style={{ margin: '0 0 4px 0', borderBottom: '1px solid var(--surface-border)', paddingBottom: '8px', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
                       Background & Accent
                     </h4>
 
@@ -1220,8 +1220,8 @@ export function ThemeTab({
 
                   {/* Typography Settings Card */}
                   <div style={{
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    background: 'var(--surface-color)',
+                    border: '1px solid var(--surface-border)',
                     borderRadius: '12px',
                     padding: '16px',
                     display: 'flex',
@@ -1229,24 +1229,24 @@ export function ThemeTab({
                     gap: '16px',
                     marginTop: '16px'
                   }}>
-                    <h4 style={{ margin: '0 0 4px 0', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '8px', color: 'white', fontSize: '0.9rem' }}>
+                    <h4 style={{ margin: '0 0 4px 0', borderBottom: '1px solid var(--surface-border)', paddingBottom: '8px', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
                       Typography Settings
                     </h4>
 
                     {/* Font Family selector */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <label style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>
+                      <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
                         App Font Family
                       </label>
                       <select
                         value={appFontFamily}
                         onChange={(e) => updateAppFont(e.target.value, appCustomFontBase64, appCustomFontFormat, appCustomFontName)}
                         style={{
-                          background: 'rgba(255, 255, 255, 0.05)',
-                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          background: 'var(--surface-color)',
+                          border: '1px solid var(--surface-border)',
                           borderRadius: '6px',
                           padding: '8px 12px',
-                          color: 'white',
+                          color: 'var(--text-primary)',
                           fontSize: '0.85rem',
                           outline: 'none',
                           cursor: 'pointer',
@@ -1254,12 +1254,12 @@ export function ThemeTab({
                           height: '36px'
                         }}
                       >
-                        <option value="inter" style={{ background: '#1c1c1e', color: 'white' }}>Inter (Default)</option>
-                        <option value="switzer" style={{ background: '#1c1c1e', color: 'white' }}>Switzer (Sans-Serif)</option>
-                        <option value="cabinet-grotesk" style={{ background: '#1c1c1e', color: 'white' }}>Cabinet Grotesk (Display Sans)</option>
-                        <option value="fraunces" style={{ background: '#1c1c1e', color: 'white' }}>Fraunces (Serif)</option>
-                        <option value="sentient" style={{ background: '#1c1c1e', color: 'white' }}>Sentient (Serif)</option>
-                        <option value="custom" style={{ background: '#1c1c1e', color: 'white' }}>Custom Uploaded Font...</option>
+                        <option value="inter" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Inter (Default)</option>
+                        <option value="switzer" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Switzer (Sans-Serif)</option>
+                        <option value="cabinet-grotesk" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Cabinet Grotesk (Display Sans)</option>
+                        <option value="fraunces" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Fraunces (Serif)</option>
+                        <option value="sentient" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Sentient (Serif)</option>
+                        <option value="custom" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Custom Uploaded Font...</option>
                       </select>
                     </div>
 
@@ -1269,13 +1269,13 @@ export function ThemeTab({
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '12px',
-                        background: 'rgba(255,255,255,0.02)',
-                        border: '1px dashed rgba(255,255,255,0.15)',
+                        background: 'var(--surface-color)',
+                        border: '1px dashed var(--surface-border)',
                         borderRadius: '8px',
                         padding: '12px',
                         marginTop: '4px'
                       }}>
-                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', lineHeight: '1.4' }}>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
                           Upload a TTF, OTF, WOFF, or WOFF2 font file. It will be loaded and persisted locally in your app settings.
                         </div>
                         
@@ -1283,11 +1283,11 @@ export function ThemeTab({
                           <button
                             onClick={() => document.getElementById('custom-font-uploader')?.click()}
                             style={{
-                              background: 'rgba(255, 255, 255, 0.08)',
-                              border: '1px solid rgba(255, 255, 255, 0.15)',
+                              background: 'var(--surface-color)',
+                              border: '1px solid var(--surface-border)',
                               borderRadius: '6px',
                               padding: '6px 12px',
-                              color: 'white',
+                              color: 'var(--text-primary)',
                               fontSize: '0.8rem',
                               fontWeight: 500,
                               cursor: 'pointer',
@@ -1297,8 +1297,8 @@ export function ThemeTab({
                               transition: 'all 0.2s ease',
                               height: '32px'
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                           >
                             Choose Font File
                           </button>
@@ -1339,15 +1339,15 @@ export function ThemeTab({
                 {/* Right Column: Surfaces, Borders & Glass Effects */}
                 <div>
                   <div style={{
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    background: 'var(--surface-color)',
+                    border: '1px solid var(--surface-border)',
                     borderRadius: '12px',
                     padding: '16px',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '16px'
                   }}>
-                    <h4 style={{ margin: '0 0 4px 0', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '8px', color: 'white', fontSize: '0.9rem' }}>
+                    <h4 style={{ margin: '0 0 4px 0', borderBottom: '1px solid var(--surface-border)', paddingBottom: '8px', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
                       Glass Surfaces & Borders
                     </h4>
 
@@ -1420,8 +1420,8 @@ export function ThemeTab({
 
                   {/* V3 UI Bulb Glows card */}
                   <div style={{
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    background: 'var(--surface-color)',
+                    border: '1px solid var(--surface-border)',
                     borderRadius: '12px',
                     padding: '16px',
                     display: 'flex',
@@ -1429,12 +1429,12 @@ export function ThemeTab({
                     gap: '16px',
                     marginTop: '16px'
                   }}>
-                    <h4 style={{ margin: '0 0 4px 0', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '8px', color: 'white', fontSize: '0.9rem' }}>
+                    <h4 style={{ margin: '0 0 4px 0', borderBottom: '1px solid var(--surface-border)', paddingBottom: '8px', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
                       V3 Liquid Glass Bulbs
                     </h4>
                     
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px dashed rgba(255,255,255,0.08)' }}>
-                      <label style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)', fontWeight: 500, cursor: 'pointer' }} htmlFor="toggle-glass-blobs">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px dashed var(--surface-border)' }}>
+                      <label style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500, cursor: 'pointer' }} htmlFor="toggle-glass-blobs">
                         Show Moving Background Bulbs
                       </label>
                       <input
@@ -1451,13 +1451,13 @@ export function ThemeTab({
                       />
                     </div>
 
-                    <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', margin: 0, lineHeight: 1.3 }}>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.3 }}>
                       Customize the four glowing ambient bulbs moving in the background in the V3 UI.
                     </p>
 
                     {(customThemeConfig.showGlassBlobs ?? true) && (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', borderBottom: '1px dashed rgba(255,255,255,0.06)', paddingBottom: '16px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', borderBottom: '1px dashed var(--surface-border)', paddingBottom: '16px' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <ColorInput
                               label="Bulb 1 (Top Left)"

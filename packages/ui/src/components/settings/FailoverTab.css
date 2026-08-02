@@ -11,7 +11,7 @@
 .failover-desc {
   margin: 0 0 12px 0;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-muted, rgba(255, 255, 255, 0.6));
   line-height: 1.5;
 }
 
@@ -26,7 +26,7 @@
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--text-muted, rgba(255, 255, 255, 0.55));
   cursor: pointer;
   user-select: none;
   font-weight: 500;
@@ -45,9 +45,9 @@
 .failover-create-btn {
   padding: 8px 16px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(60, 200, 180, 0.12);
-  color: rgba(100, 230, 210, 0.9);
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.15));
+  background: var(--surface-glow, rgba(60, 200, 180, 0.12));
+  color: var(--accent-primary, rgba(100, 230, 210, 0.9));
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -55,7 +55,7 @@
 }
 
 .failover-create-btn:hover {
-  background: rgba(60, 200, 180, 0.2);
+  background: var(--surface-hover, rgba(60, 200, 180, 0.2));
 }
 
 .failover-create-form {
@@ -68,18 +68,18 @@
   flex: 1;
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(0, 0, 0, 0.3);
-  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.15));
+  background: var(--bg-tertiary, rgba(40, 40, 40, 0.9));
+  color: var(--text-primary, rgba(255, 255, 255, 0.9));
   font-size: 13px;
 }
 
 .failover-create-form button {
   padding: 8px 14px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(60, 200, 180, 0.15);
-  color: rgba(100, 230, 210, 0.9);
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.15));
+  background: var(--surface-glow, rgba(60, 200, 180, 0.15));
+  color: var(--accent-primary, rgba(100, 230, 210, 0.9));
   font-size: 13px;
   cursor: pointer;
 }
@@ -90,15 +90,15 @@
 }
 
 .failover-create-form button.cancel-btn {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.6);
+  background: var(--surface-color, rgba(255, 255, 255, 0.06));
+  color: var(--text-muted, rgba(255, 255, 255, 0.6));
 }
 
 /* Empty state */
 .failover-empty {
   padding: 32px;
   text-align: center;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted, rgba(255, 255, 255, 0.4));
   font-size: 13px;
 }
 
@@ -111,8 +111,8 @@
 
 .failover-group-card {
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.08));
+  background: var(--bg-tertiary, rgba(40, 40, 40, 0.9));
   overflow: hidden;
 }
 
@@ -126,7 +126,7 @@
 .failover-expand-btn {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted, rgba(255, 255, 255, 0.5));
   font-size: 11px;
   cursor: pointer;
   width: 20px;
@@ -140,7 +140,7 @@
   flex: 1;
   font-size: 14px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary, rgba(255, 255, 255, 0.9));
   cursor: text;
   padding: 2px 6px;
   border-radius: 4px;
@@ -148,22 +148,22 @@
 }
 
 .failover-group-name:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bg-hover, rgba(255, 255, 255, 0.06));
 }
 
 .failover-rename-input {
   flex: 1;
   padding: 4px 8px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(0, 0, 0, 0.4);
-  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.2));
+  background: var(--bg-tertiary, rgba(40, 40, 40, 0.9));
+  color: var(--text-primary, rgba(255, 255, 255, 0.9));
   font-size: 14px;
 }
 
 .failover-group-count {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted, rgba(255, 255, 255, 0.4));
 }
 
 .failover-delete-btn {
@@ -198,21 +198,21 @@
   gap: 10px;
   padding: 8px 10px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-color, rgba(255, 255, 255, 0.03));
   border: 1px solid transparent;
   transition: background 0.1s, border-color 0.1s;
 }
 
 .failover-member-item:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-hover, rgba(255, 255, 255, 0.06));
 }
 
 .failover-member-item[data-dragover="true"] {
-  border-color: rgba(60, 200, 180, 0.4);
+  border-color: var(--accent-primary, rgba(60, 200, 180, 0.4));
 }
 
 .failover-drag-handle {
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--text-muted, rgba(255, 255, 255, 0.2));
   font-size: 12px;
   line-height: 1;
   user-select: none;
@@ -224,7 +224,7 @@
   height: 24px;
   border-radius: 4px;
   object-fit: cover;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface-color, rgba(255, 255, 255, 0.05));
 }
 
 .failover-member-icon-placeholder {
@@ -239,7 +239,7 @@
 .failover-member-name {
   flex: 1;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.85));
 }
 
 .failover-member-info {
@@ -252,7 +252,7 @@
 
 .failover-member-source {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted, rgba(255, 255, 255, 0.4));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -264,20 +264,20 @@
   letter-spacing: 0.04em;
   padding: 2px 8px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.55);
+  background: var(--surface-color, rgba(255, 255, 255, 0.08));
+  color: var(--text-muted, rgba(255, 255, 255, 0.55));
   text-transform: uppercase;
 }
 
 .failover-priority-badge.primary {
-  background: rgba(60, 200, 180, 0.15);
-  color: rgba(80, 220, 200, 0.9);
+  background: var(--surface-glow, rgba(60, 200, 180, 0.15));
+  color: var(--accent-primary, rgba(80, 220, 200, 0.9));
 }
 
 .failover-remove-member-btn {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-muted, rgba(255, 255, 255, 0.3));
   font-size: 12px;
   cursor: pointer;
   padding: 4px;
@@ -294,5 +294,5 @@
   padding: 16px;
   text-align: center;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--text-muted, rgba(255, 255, 255, 0.35));
 }

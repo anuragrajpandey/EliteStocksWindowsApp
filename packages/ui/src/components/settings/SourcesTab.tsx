@@ -1314,16 +1314,16 @@ export function SourcesTab({
   return (
     <div className="settings-tab-content">
       {/* Sub-tabs */}
-      <div className="sub-tabs" style={{ display: 'flex', gap: '2px', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+      <div className="sub-tabs" style={{ display: 'flex', gap: '2px', marginBottom: '16px', borderBottom: '1px solid var(--surface-border)' }}>
         <button
           className={`sub-tab-btn ${activeSubTab === 'source' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('source')}
           style={{
             padding: '10px 20px',
-            background: activeSubTab === 'source' ? 'rgba(255,255,255,0.08)' : 'transparent',
+            background: activeSubTab === 'source' ? 'var(--surface-color)' : 'transparent',
             border: 'none',
             borderBottom: activeSubTab === 'source' ? '2px solid var(--accent-primary, #00d4ff)' : '2px solid transparent',
-            color: activeSubTab === 'source' ? 'white' : 'rgba(255,255,255,0.6)',
+            color: activeSubTab === 'source' ? 'var(--text-primary)' : 'var(--text-secondary)',
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: 500,
@@ -1337,10 +1337,10 @@ export function SourcesTab({
           onClick={() => setActiveSubTab('epg')}
           style={{
             padding: '10px 20px',
-            background: activeSubTab === 'epg' ? 'rgba(255,255,255,0.08)' : 'transparent',
+            background: activeSubTab === 'epg' ? 'var(--surface-color)' : 'transparent',
             border: 'none',
             borderBottom: activeSubTab === 'epg' ? '2px solid var(--accent-primary, #00d4ff)' : '2px solid transparent',
-            color: activeSubTab === 'epg' ? 'white' : 'rgba(255,255,255,0.6)',
+            color: activeSubTab === 'epg' ? 'var(--text-primary)' : 'var(--text-secondary)',
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: 500,
@@ -1354,10 +1354,10 @@ export function SourcesTab({
           onClick={() => setActiveSubTab('refresh')}
           style={{
             padding: '10px 20px',
-            background: activeSubTab === 'refresh' ? 'rgba(255,255,255,0.08)' : 'transparent',
+            background: activeSubTab === 'refresh' ? 'var(--surface-color)' : 'transparent',
             border: 'none',
             borderBottom: activeSubTab === 'refresh' ? '2px solid var(--accent-primary, #00d4ff)' : '2px solid transparent',
-            color: activeSubTab === 'refresh' ? 'white' : 'rgba(255,255,255,0.6)',
+            color: activeSubTab === 'refresh' ? 'var(--text-primary)' : 'var(--text-secondary)',
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: 500,
@@ -1371,10 +1371,10 @@ export function SourcesTab({
           onClick={() => setActiveSubTab('global_ua')}
           style={{
             padding: '10px 20px',
-            background: activeSubTab === 'global_ua' ? 'rgba(255,255,255,0.08)' : 'transparent',
+            background: activeSubTab === 'global_ua' ? 'var(--surface-color)' : 'transparent',
             border: 'none',
             borderBottom: activeSubTab === 'global_ua' ? '2px solid var(--accent-primary, #00d4ff)' : '2px solid transparent',
-            color: activeSubTab === 'global_ua' ? 'white' : 'rgba(255,255,255,0.6)',
+            color: activeSubTab === 'global_ua' ? 'var(--text-primary)' : 'var(--text-secondary)',
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: 500,
@@ -2000,7 +2000,7 @@ export function SourcesTab({
 
             {displayedBuiltEpgUrl && (
               <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.03em', color: 'var(--text-muted, rgba(255, 255, 255, 0.5))' }}>
+                <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.03em', color: 'var(--text-muted, var(--text-muted))' }}>
                   <span style={{ textTransform: 'none' }}>Provider EPG URL</span>
                   <button
                     type="button"
@@ -2008,8 +2008,8 @@ export function SourcesTab({
                       navigator.clipboard.writeText(displayedBuiltEpgUrl);
                     }}
                     style={{
-                      background: 'rgba(0, 212, 255, 0.1)',
-                      border: '1px solid rgba(0, 212, 255, 0.3)',
+                      background: 'var(--surface-glow)',
+                      border: '1px solid var(--accent-glow)',
                       color: 'var(--accent-primary, #00d4ff)',
                       padding: '2px 8px',
                       borderRadius: '4px',
@@ -2030,11 +2030,11 @@ export function SourcesTab({
                     value={displayedBuiltEpgUrl}
                     style={{
                       flex: 1,
-                      background: 'rgba(0, 0, 0, 0.25)',
-                      border: '1px solid rgba(255,255,255,0.08)',
+                      background: 'var(--bg-tertiary)',
+                      border: '1px solid var(--surface-border)',
                       borderRadius: '6px',
                       padding: '8px 12px',
-                      color: '#ccc',
+                      color: 'var(--text-secondary)',
                       fontSize: '0.85rem',
                       outline: 'none',
                     }}
@@ -2323,7 +2323,7 @@ export function SourcesTab({
         <div className="source-form-overlay">
           <div className="source-form" style={{ maxWidth: '400px', height: 'auto' }}>
             <h3>Delete Source</h3>
-            <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '24px', lineHeight: '1.5' }}>
+            <p style={{ color: 'var(--text-primary)', marginBottom: '24px', lineHeight: '1.5' }}>
               Are you sure you want to delete <strong>"{deleteConfirm.name}"</strong>?
               <br /><br />
               This will remove all channels, EPG, and VOD data from this source.
@@ -2355,7 +2355,7 @@ export function SourcesTab({
         <div className="source-form-overlay" style={{ zIndex: 1002 }}>
           <div className="source-form" style={{ maxWidth: '400px', height: 'auto' }}>
             <h3>Delete Backup Credential</h3>
-            <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '24px', lineHeight: '1.5' }}>
+            <p style={{ color: 'var(--text-primary)', marginBottom: '24px', lineHeight: '1.5' }}>
               Are you sure you want to delete this backup credential?
             </p>
             <div className="form-actions" style={{ marginTop: '0' }}>
@@ -2561,7 +2561,7 @@ export function SourcesTab({
 
           <div className="settings-form" style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', maxWidth: '550px' }}>
             <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: 600, color: 'white' }}>User-Agent String</label>
+              <label style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>User-Agent String</label>
               <input
                 type="text"
                 value={globalLiveTvUserAgent || ''}
@@ -2570,9 +2570,9 @@ export function SourcesTab({
                 style={{
                   padding: '10px 12px',
                   borderRadius: '6px',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'white',
+                  background: 'var(--surface-color)',
+                  border: '1px solid var(--surface-border)',
+                  color: 'var(--text-primary)',
                   fontSize: '0.95rem',
                   outline: 'none',
                   transition: 'border-color 0.2s ease',
@@ -2625,7 +2625,7 @@ export function SourcesTab({
                 onChange={(e) => setEpgFormData({ ...epgFormData, saveEntireEpg: e.target.checked })}
                 style={{ cursor: 'pointer', width: '16px', height: '16px' }}
               />
-              <label htmlFor="saveEntireEpg" style={{ cursor: 'pointer', marginBottom: 0, fontWeight: 'normal', fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)', textTransform: 'none' }}>
+              <label htmlFor="saveEntireEpg" style={{ cursor: 'pointer', marginBottom: 0, fontWeight: 'normal', fontSize: '0.85rem', color: 'var(--text-primary)', textTransform: 'none' }}>
                 Cache entire Epg locally (enables manual search/matching in Epg editor)
               </label>
             </div>
@@ -2637,14 +2637,14 @@ export function SourcesTab({
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button
                       type="button"
-                      style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', color: '#fff' }}
+                      style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer', background: 'var(--surface-color)', border: '1px solid var(--surface-border)', borderRadius: '4px', color: 'var(--text-primary)' }}
                       onClick={() => setEpgFormData({ ...epgFormData, sourceIds: sources.map(s => s.id) })}
                     >
                       Select All
                     </button>
                     <button
                       type="button"
-                      style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', color: '#fff' }}
+                      style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer', background: 'var(--surface-color)', border: '1px solid var(--surface-border)', borderRadius: '4px', color: 'var(--text-primary)' }}
                       onClick={() => setEpgFormData({ ...epgFormData, sourceIds: [] })}
                     >
                       Select None
@@ -2668,7 +2668,7 @@ export function SourcesTab({
                         alignItems: 'center',
                         gap: '8px',
                         padding: '8px 12px',
-                        background: 'rgba(255,255,255,0.05)',
+                        background: 'var(--surface-color)',
                         borderRadius: '4px',
                         cursor: 'pointer',
                       }}
@@ -2704,7 +2704,7 @@ export function SourcesTab({
         <div className="source-form-overlay">
           <div className="source-form" style={{ maxWidth: '400px', height: 'auto' }}>
             <h3>Delete Global EPG Link</h3>
-            <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '24px', lineHeight: '1.5' }}>
+            <p style={{ color: 'var(--text-primary)', marginBottom: '24px', lineHeight: '1.5' }}>
               Are you sure you want to delete <strong>"{deleteEpgConfirm.name}"</strong>?
               <br /><br />
               This will stop this EPG from being applied to linked sources on next sync.
@@ -2934,7 +2934,7 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
         right: 0,
         bottom: 0,
         zIndex: 20000,
-        background: 'rgba(0, 0, 0, 0.75)',
+        background: 'var(--bg-overlay)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -2946,8 +2946,8 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
         style={{
           width: '950px',
           height: '700px',
-          background: '#18181c',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          background: 'var(--surface-color)',
+          border: '1px solid var(--surface-border)',
           borderRadius: '12px',
           display: 'flex',
           flexDirection: 'column',
@@ -2960,18 +2960,18 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
         <div
           style={{
             padding: '16px 24px',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            borderBottom: '1px solid var(--surface-border)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            background: '#1f1f23',
+            background: 'var(--bg-tertiary)',
           }}
         >
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#fff', fontWeight: 600 }}>
+            <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--text-primary)', fontWeight: 600 }}>
               {epgLink.name}
             </h3>
-            <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
               Matched Channels &amp; Programs
             </span>
           </div>
@@ -2980,7 +2980,7 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
             style={{
               background: 'transparent',
               border: 'none',
-              color: 'rgba(255, 255, 255, 0.5)',
+              color: 'var(--text-muted)',
               cursor: 'pointer',
               padding: '4px',
               borderRadius: '50%',
@@ -2989,8 +2989,8 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
               justifyContent: 'center',
               outline: 'none',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.5)')}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -3005,16 +3005,16 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
           <div
             style={{
               width: '320px',
-              borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRight: '1px solid var(--surface-border)',
               display: 'flex',
               flexDirection: 'column',
               padding: '16px',
               gap: '12px',
-              background: '#151518',
+              background: 'var(--bg-tertiary)',
             }}
           >
             {epgLink.saveEntireEpg && (
-              <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', padding: '3px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ display: 'flex', background: 'var(--surface-color)', padding: '3px', borderRadius: '8px', border: '1px solid var(--surface-border)' }}>
                 <button
                   onClick={() => setActiveTab('matched')}
                   style={{
@@ -3025,8 +3025,8 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                     fontSize: '0.8rem',
                     fontWeight: 500,
                     cursor: 'pointer',
-                    background: activeTab === 'matched' ? 'rgba(0, 212, 255, 0.15)' : 'transparent',
-                    color: activeTab === 'matched' ? '#00d4ff' : 'rgba(255,255,255,0.6)',
+                    background: activeTab === 'matched' ? 'var(--surface-glow)' : 'transparent',
+                    color: activeTab === 'matched' ? 'var(--accent-primary)' : 'var(--text-secondary)',
                     outline: 'none',
                     transition: 'all 0.15s ease',
                   }}
@@ -3043,8 +3043,8 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                     fontSize: '0.8rem',
                     fontWeight: 500,
                     cursor: 'pointer',
-                    background: activeTab === 'all' ? 'rgba(0, 212, 255, 0.15)' : 'transparent',
-                    color: activeTab === 'all' ? '#00d4ff' : 'rgba(255,255,255,0.6)',
+                    background: activeTab === 'all' ? 'var(--surface-glow)' : 'transparent',
+                    color: activeTab === 'all' ? 'var(--accent-primary)' : 'var(--text-secondary)',
                     outline: 'none',
                     transition: 'all 0.15s ease',
                   }}
@@ -3064,9 +3064,9 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                 boxSizing: 'border-box',
                 padding: '8px 12px',
                 borderRadius: '6px',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                background: 'rgba(0, 0, 0, 0.2)',
-                color: '#fff',
+                border: '1px solid var(--surface-border)',
+                background: 'var(--bg-tertiary)',
+                color: 'var(--text-primary)',
                 fontSize: '0.85rem',
                 outline: 'none',
               }}
@@ -3089,11 +3089,11 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
               className="sources-list"
             >
               {loading || (activeTab === 'all' && cacheLoading) ? (
-                <div style={{ padding: '24px', textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>
+                <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
                   Loading channels...
                 </div>
               ) : filteredChannels.length === 0 ? (
-                <div style={{ padding: '24px', textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>
+                <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
                   {activeTab === 'matched' 
                     ? (channels.length === 0 ? 'No channels matched yet' : 'No matching channels found')
                     : (cacheChannels.length === 0 ? 'No channels in EPG cache' : 'No matching EPG channels found')}
@@ -3112,13 +3112,13 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                         padding: '8px 12px',
                         borderRadius: '6px',
                         cursor: 'pointer',
-                        background: isSelected ? 'rgba(0, 212, 255, 0.12)' : 'transparent',
-                        border: isSelected ? '1px solid rgba(0, 212, 255, 0.3)' : '1px solid transparent',
+                        background: isSelected ? 'var(--surface-glow)' : 'transparent',
+                        border: isSelected ? '1px solid var(--accent-glow)' : '1px solid transparent',
                         transition: 'all 0.15s ease',
                       }}
                       onMouseEnter={(e) => {
                         if (!isSelected) {
-                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                          e.currentTarget.style.background = 'var(--surface-color)';
                         }
                       }}
                       onMouseLeave={(e) => {
@@ -3132,7 +3132,7 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                           width: '28px',
                           height: '28px',
                           borderRadius: '4px',
-                          background: 'rgba(255,255,255,0.03)',
+                          background: 'var(--surface-color)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -3156,7 +3156,7 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div
                           style={{
-                            color: '#fff',
+                            color: 'var(--text-primary)',
                             fontSize: '0.85rem',
                             fontWeight: 500,
                             overflow: 'hidden',
@@ -3168,7 +3168,7 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                         </div>
                         <div
                           style={{
-                            color: 'rgba(255, 255, 255, 0.35)',
+                            color: 'var(--text-muted)',
                             fontSize: '0.75rem',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -3193,7 +3193,7 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
               display: 'flex',
               flexDirection: 'column',
               padding: '24px',
-              background: '#18181c',
+              background: 'var(--surface-color)',
               overflowY: 'auto',
             }}
             className="sources-list"
@@ -3201,18 +3201,18 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
             {selectedChannel ? (
               <>
                 {/* Channel Summary Info */}
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '16px' }}>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid var(--surface-border)', paddingBottom: '16px' }}>
                   <div
                     style={{
                       width: '48px',
                       height: '48px',
                       borderRadius: '6px',
-                      background: 'rgba(255,255,255,0.03)',
+                      background: 'var(--surface-color)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       overflow: 'hidden',
-                      border: '1px solid rgba(255,255,255,0.06)',
+                      border: '1px solid var(--surface-border)',
                     }}
                   >
                     {selectedChannel.stream_icon ? (
@@ -3226,12 +3226,12 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                     )}
                   </div>
                   <div>
-                    <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#fff', fontWeight: 600 }}>
+                    <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)', fontWeight: 600 }}>
                       {selectedChannel.name}
                     </h4>
-                    <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>
+                    <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
                       {selectedChannel.is_cache ? (
-                        <span>EPG ID (tvg-id): <strong style={{ color: '#fff' }}>{selectedChannel.epg_channel_id}</strong></span>
+                        <span>EPG ID (tvg-id): <strong style={{ color: 'var(--text-primary)' }}>{selectedChannel.epg_channel_id}</strong></span>
                       ) : (
                         <>
                           <span>Source: <strong>{getSourceName(selectedChannel.source_id)}</strong></span>
@@ -3246,11 +3246,11 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                 {/* Programs List */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {programsLoading ? (
-                    <div style={{ padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.4)' }}>
+                    <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
                       Loading programs...
                     </div>
                   ) : programs.length === 0 ? (
-                    <div style={{ padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.4)' }}>
+                    <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
                       No programs found in database for this channel.
                     </div>
                   ) : (
@@ -3262,8 +3262,8 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                         <div
                           key={prog.id}
                           style={{
-                            background: 'rgba(255, 255, 255, 0.03)',
-                            border: '1px solid rgba(255, 255, 255, 0.05)',
+                            background: 'var(--surface-color)',
+                            border: '1px solid var(--surface-border)',
                             borderRadius: '8px',
                             padding: '12px 16px',
                             display: 'flex',
@@ -3272,20 +3272,20 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                           }}
                         >
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                            <span style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600 }}>
+                            <span style={{ color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: 600 }}>
                               {prog.title}
                             </span>
-                            <span style={{ color: 'var(--accent-primary, #00d4ff)', fontSize: '0.75rem', fontWeight: 500, background: 'rgba(0, 212, 255, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                            <span style={{ color: 'var(--accent-primary, #00d4ff)', fontSize: '0.75rem', fontWeight: 500, background: 'var(--surface-glow)', padding: '2px 6px', borderRadius: '4px' }}>
                               {dateLabel} {startTime} - {endTime}
                             </span>
                           </div>
                           {prog.subtitle && (
-                            <span style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.8rem', fontStyle: 'italic' }}>
+                            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontStyle: 'italic' }}>
                               {prog.subtitle}
                             </span>
                           )}
                           {prog.description && (
-                            <p style={{ margin: '4px 0 0 0', color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.8rem', lineHeight: '1.4' }}>
+                            <p style={{ margin: '4px 0 0 0', color: 'var(--text-secondary)', fontSize: '0.8rem', lineHeight: '1.4' }}>
                               {prog.description}
                             </p>
                           )}
@@ -3296,7 +3296,7 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                 </div>
               </>
             ) : (
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)', fontSize: '0.95rem' }}>
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.95rem' }}>
                 Select a channel from the left sidebar to view its EPG program timeline.
               </div>
             )}

@@ -133,9 +133,9 @@ export function SimklTab() {
   const authContainerStyle: CSSProperties = {
     marginTop: '16px',
     padding: '20px',
-    background: 'rgba(0,0,0,0.25)',
+    background: 'var(--bg-tertiary)',
     borderRadius: '10px',
-    border: '1px solid rgba(255,255,255,0.08)',
+    border: '1px solid var(--surface-border)',
   };
 
   return (
@@ -150,8 +150,8 @@ export function SimklTab() {
             letterSpacing: '0.05em',
             padding: '3px 8px',
             borderRadius: '4px',
-            color: simklLinked ? '#2ed573' : 'rgba(255,255,255,0.3)',
-            background: simklLinked ? 'rgba(46,213,115,0.1)' : 'rgba(255,255,255,0.03)',
+            color: simklLinked ? '#2ed573' : 'var(--text-muted)',
+            background: simklLinked ? 'rgba(46,213,115,0.1)' : 'var(--surface-color)',
           }}>
             {simklLinked ? 'Connected' : 'Not Connected'}
           </span>
@@ -183,7 +183,7 @@ export function SimklTab() {
                     padding: '8px 20px',
                     fontSize: '0.9rem',
                     textDecoration: 'none',
-                    background: 'rgba(255,255,255,0.05)',
+                    background: 'var(--surface-color)',
                   }}
                 >
                   About Simkl ↗
@@ -193,10 +193,10 @@ export function SimklTab() {
 
             {authState === 'polling' && (
               <div style={authContainerStyle}>
-                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#fff', marginBottom: '6px' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px' }}>
                   Step 1: Enter this code on Simkl
                 </div>
-                <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', margin: '0 0 12px 0' }}>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: '0 0 12px 0' }}>
                   Go to Simkl in your browser and enter the code below to grant authorization to ynotv:
                 </p>
 
@@ -208,8 +208,8 @@ export function SimklTab() {
                     width: '100%',
                     padding: '16px',
                     marginBottom: '12px',
-                    background: 'rgba(0, 212, 255, 0.1)',
-                    border: '1px dashed rgba(0, 212, 255, 0.5)',
+                    background: 'var(--surface-glow)',
+                    border: '1px dashed var(--accent-primary)',
                     borderRadius: '8px',
                     color: '#00d4ff',
                     fontWeight: 700,
@@ -231,8 +231,8 @@ export function SimklTab() {
                     style={{
                       display: 'inline-block',
                       padding: '8px 16px',
-                      background: 'rgba(0, 212, 255, 0.15)',
-                      border: '1px solid rgba(0, 212, 255, 0.4)',
+                      background: 'var(--surface-glow)',
+                      border: '1px solid var(--accent-primary)',
                       borderRadius: '6px',
                       color: '#00d4ff',
                       fontWeight: 600,
@@ -244,10 +244,10 @@ export function SimklTab() {
                   </a>
                 </div>
 
-                <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', marginBottom: '4px' }}>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
                   {expiresIn > 0 ? `Code expires in ${formatCountdown(expiresIn)}` : 'Checking authorization...'}
                 </div>
-                <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)', marginBottom: '12px' }}>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
                   Waiting for you to authorize... this page updates automatically.
                 </div>
 
@@ -262,7 +262,7 @@ export function SimklTab() {
                   style={{
                     background: 'transparent',
                     border: 'none',
-                    color: 'rgba(255,255,255,0.4)',
+                    color: 'var(--text-muted)',
                     fontSize: '0.8rem',
                     cursor: 'pointer',
                     padding: 0,
@@ -336,7 +336,7 @@ export function SimklTab() {
                   padding: '8px 20px',
                   fontSize: '0.9rem',
                   textDecoration: 'none',
-                  background: 'rgba(255,255,255,0.05)',
+                  background: 'var(--surface-color)',
                 }}
               >
                 About Simkl ↗

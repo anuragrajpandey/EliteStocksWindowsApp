@@ -98,14 +98,14 @@ export function StartupTab({
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '0.75rem 0',
-            borderBottom: '1px solid rgba(255,255,255,0.08)',
+            borderBottom: '1px solid var(--surface-border)',
           }}
         >
           <div style={{ flex: 1 }}>
-            <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem' }}>
+            <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
               Startup View
             </div>
-            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
               Choose which page opens when the app starts
             </div>
           </div>
@@ -116,9 +116,9 @@ export function StartupTab({
               marginLeft: '1rem',
               padding: '0.4rem 0.6rem',
               borderRadius: '6px',
-              border: '1px solid rgba(255,255,255,0.2)',
-              background: 'rgba(0,0,0,0.4)',
-              color: 'rgba(255,255,255,0.9)',
+              border: '1px solid var(--surface-border)',
+              background: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
               fontSize: '0.9rem',
               cursor: 'pointer',
               minWidth: '140px',
@@ -144,14 +144,14 @@ export function StartupTab({
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: '0.75rem 0',
-              borderBottom: '1px solid rgba(255,255,255,0.08)',
+              borderBottom: '1px solid var(--surface-border)',
             }}
           >
             <div style={{ flex: 1 }}>
-              <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem' }}>
+              <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
                 Remember Last Viewed Channels
               </div>
-              <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
                 Save channels when switching layouts and restore them on next startup
               </div>
             </div>
@@ -170,16 +170,16 @@ export function StartupTab({
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: '0.75rem 0',
-              borderBottom: '1px solid rgba(255,255,255,0.08)',
+              borderBottom: '1px solid var(--surface-border)',
               opacity: localValue ? 1 : 0.5,
               transition: 'opacity 0.2s',
             }}
           >
             <div style={{ flex: 1 }}>
-              <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem' }}>
+              <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
                 Reopen Last on Startup
               </div>
-              <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
                 Automatically load and play the remembered channels when the application starts
               </div>
             </div>
@@ -199,15 +199,15 @@ export function StartupTab({
             style={{
               marginTop: '1rem',
               padding: '1rem',
-              background: 'rgba(0, 212, 255, 0.1)',
-              border: '1px solid rgba(0, 212, 255, 0.2)',
+              background: 'var(--surface-glow)',
+              border: '1px solid var(--accent-primary)',
               borderRadius: '8px',
             }}
           >
-            <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+            <div style={{ color: 'var(--text-primary)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
               <strong>Saved Layout State</strong>
             </div>
-            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
               <div>Layout: {getLayoutLabel(savedLayoutState.layout)}</div>
               <div>Active Channels: {getActiveChannelCount()}</div>
               {savedLayoutState.mainChannel.channelName && (
@@ -232,12 +232,12 @@ export function StartupTab({
           style={{
             marginTop: '1.5rem',
             padding: '1rem',
-            background: 'rgba(255,255,255,0.05)',
+            background: 'var(--surface-color)',
             borderRadius: '8px',
           }}
         >
-          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>
-            <strong style={{ color: 'rgba(255,255,255,0.9)' }}>How it works:</strong>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+            <strong style={{ color: 'var(--text-primary)' }}>How it works:</strong>
             <ul style={{ marginTop: '0.5rem', marginLeft: '1.2rem', lineHeight: '1.6' }}>
               <li>Channels are automatically saved when you switch layouts or close the app</li>
               <li>2x2 Grid and Big Top + Bottom Bar share the same 4 video sources</li>

@@ -28,7 +28,7 @@ function SliderRow({
 }) {
   return (
     <div className="form-group" style={{ marginBottom: '18px' }}>
-      <label style={{ display: 'block', marginBottom: '0.5rem', color: 'rgba(255,255,255,0.9)' }}>
+      <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
         {label}
       </label>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -41,8 +41,8 @@ function SliderRow({
         />
         <span style={{
           minWidth: '52px', textAlign: 'center',
-          color: 'rgba(255,255,255,0.9)', fontWeight: 600, fontSize: '0.92rem',
-          background: 'rgba(255,255,255,0.07)', borderRadius: '6px', padding: '3px 8px',
+          color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.92rem',
+          background: 'var(--surface-color)', borderRadius: '6px', padding: '3px 8px',
         }}>
           {display}
         </span>
@@ -241,20 +241,20 @@ export function WidgetsTab({
                 { league: 'NHL', away: 'TBL', awayScore: 2, home: 'NYR', homeScore: 2, status: '3rd 6:30' },
               ].map((g, i) => (
                 <div key={i} style={{
-                  background: 'rgba(0,0,0,0.5)',
+                  background: 'var(--bg-tertiary)',
                   backdropFilter: 'blur(8px)',
                   borderRadius: '8px',
                   padding: '4px 10px',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  border: '1px solid var(--surface-border)',
                   display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0,
                 }}>
-                  <span style={{ fontSize: '9px', fontWeight: 600, textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>{g.league}</span>
+                  <span style={{ fontSize: '9px', fontWeight: 600, textTransform: 'uppercase',                   color: 'var(--text-secondary)' }}>{g.league}</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>{g.away}</span>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff', minWidth: '16px', textAlign: 'center' }}>{g.awayScore}</span>
-                    <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>vs</span>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff', minWidth: '16px', textAlign: 'center' }}>{g.homeScore}</span>
-                    <span style={{ fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.9)' }}>{g.home}</span>
+                    <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-primary)' }}>{g.away}</span>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', minWidth: '16px', textAlign: 'center' }}>{g.awayScore}</span>
+                    <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>vs</span>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', minWidth: '16px', textAlign: 'center' }}>{g.homeScore}</span>
+                    <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-primary)' }}>{g.home}</span>
                   </div>
                   <span style={{ fontSize: '10px', fontWeight: 600, color: '#ef4444' }}>{g.status}</span>
                 </div>

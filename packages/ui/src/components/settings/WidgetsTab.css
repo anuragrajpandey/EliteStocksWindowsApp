@@ -3,9 +3,9 @@
 .widget-preview-area {
   margin-top: 20px;
   padding: 20px;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--bg-tertiary, rgba(40, 40, 40, 0.9));
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.07));
   overflow: hidden;
   position: relative;
 }
@@ -25,29 +25,29 @@
 }
 
 .widget-preview-header {
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--surface-color, rgba(0, 0, 0, 0.55));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 10px 10px 0 0;
   padding: 8px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.08));
   border-bottom: none;
   font-size: 0.75rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-muted, rgba(255, 255, 255, 0.6));
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .widget-preview-list {
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--surface-color, rgba(0, 0, 0, 0.55));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 0 0 10px 10px;
   padding: 4px 6px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.08));
+  border-top: 1px solid var(--surface-border, rgba(255, 255, 255, 0.06));
+  box-shadow: var(--glass-shadow, 0 4px 24px rgba(0, 0, 0, 0.35));
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -64,7 +64,7 @@
   font-size: 0.82rem;
   white-space: nowrap;
   overflow: hidden;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.85));
   flex-shrink: 0;
 }
 
@@ -75,16 +75,16 @@
 .widget-preview-name {
   font-weight: 600;
   flex-shrink: 0;
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--text-primary, rgba(255, 255, 255, 0.95));
 }
 
 .widget-preview-sep {
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--text-muted, rgba(255, 255, 255, 0.35));
   flex-shrink: 0;
 }
 
 .widget-preview-prog {
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--text-muted, rgba(255, 255, 255, 0.55));
   overflow: hidden;
   text-overflow: ellipsis;
 }

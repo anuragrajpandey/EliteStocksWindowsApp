@@ -65,9 +65,9 @@ export function AboutTab() {
             </button>
           </div>
 
-          <div className="about-section" style={{ marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '24px' }}>
+          <div className="about-section" style={{ marginTop: '24px', borderTop: '1px solid var(--surface-border)', paddingTop: '24px' }}>
             <h4 style={{ margin: '0 0 12px 0', fontSize: '1rem' }}>Updates</h4>
-            <p style={{ margin: '0 0 16px 0', color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem' }}>
+            <p style={{ margin: '0 0 16px 0', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
               Check for new versions of ynoTV. Updates include bug fixes, performance improvements, and new features.
             </p>
 
@@ -80,17 +80,17 @@ export function AboutTab() {
             </button>
           </div>
 
-          <div className="about-section" style={{ marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '24px' }}>
+          <div className="about-section" style={{ marginTop: '24px', borderTop: '1px solid var(--surface-border)', paddingTop: '24px' }}>
             <h4 style={{ margin: '0 0 12px 0', fontSize: '1rem' }}>Changelog</h4>
             <div
               className="changelog-content"
               style={{
                 margin: '0',
                 padding: '12px',
-                backgroundColor: 'rgba(0,0,0,0.3)',
+                backgroundColor: 'var(--bg-tertiary)',
                 borderRadius: '6px',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'rgba(255,255,255,0.85)',
+                border: '1px solid var(--surface-border)',
+                color: 'var(--text-primary)',
                 fontSize: '0.8125rem',
                 lineHeight: '1.5',
                 maxHeight: '300px',

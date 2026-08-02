@@ -110,7 +110,7 @@ export function CacheTab({ timeshiftEnabled, timeshiftCacheBytes, liveBufferOffs
                 </tbody>
               </table>
 
-              <div className="timeshift-buffer-offset" style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              <div className="timeshift-buffer-offset" style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--surface-border)' }}>
                 <div className="timeshift-presets-label">Live Now Buffer Offset</div>
                 <p className="section-description" style={{ marginTop: '4px', fontSize: '0.8125rem' }}>
                   When pressing "Go Live" during time shift, seek to this many seconds behind the live edge. Helps prevent buffer stalls on some networks.
@@ -136,7 +136,7 @@ export function CacheTab({ timeshiftEnabled, timeshiftCacheBytes, liveBufferOffs
               </p>
 
               {/* Debug section */}
-              <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '16px' }}>
+              <div style={{ marginTop: '20px', borderTop: '1px solid var(--surface-border)', paddingTop: '16px' }}>
                 <button
                   className="sync-btn"
                   onClick={checkMpvCache}
@@ -148,12 +148,12 @@ export function CacheTab({ timeshiftEnabled, timeshiftCacheBytes, liveBufferOffs
                   <pre style={{
                     marginTop: '12px',
                     padding: '12px',
-                    background: 'rgba(0,0,0,0.3)',
+                    background: 'var(--bg-tertiary)',
                     borderRadius: '6px',
                     fontSize: '0.75rem',
                     overflow: 'auto',
                     maxHeight: '300px',
-                    color: 'rgba(255,255,255,0.8)'
+                    color: 'var(--text-primary)'
                   }}>
                     {debugInfo}
                   </pre>

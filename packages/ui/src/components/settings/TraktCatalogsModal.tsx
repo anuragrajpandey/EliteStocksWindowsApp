@@ -261,7 +261,7 @@ export function TraktCatalogsModal({ type, onClose }: TraktCatalogsModalProps) {
           </button>
         </div>
         <div className="modal-body strem-catalogs-modal-body" style={{ maxHeight: '60vh', overflowY: 'auto', paddingBottom: '8px' }}>
-          <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', margin: '0 0 16px 0', lineHeight: '1.5' }}>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0 0 16px 0', lineHeight: '1.5' }}>
             {isNuvio
               ? 'Toggle which Trakt catalogs appear on your Nuvio home page. Use the arrows to reorder them.'
               : 'Toggle which Trakt catalogs appear on your Stremio home page. Use the arrows to reorder them.'}
@@ -286,9 +286,9 @@ export function TraktCatalogsModal({ type, onClose }: TraktCatalogsModalProps) {
           {/* Enabled catalogs with reorder */}
           {ordered.length > 0 && (
             <div style={{ marginBottom: '16px' }}>
-              <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.35)', marginBottom: '8px' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '8px' }}>
                 Enabled Catalogs
-                <span style={{ marginLeft: '8px', fontWeight: 400, fontSize: '0.7rem', color: 'rgba(255,255,255,0.25)' }}>
+                <span style={{ marginLeft: '8px', fontWeight: 400, fontSize: '0.7rem', color: 'var(--text-muted)' }}>
                   (drag ⋮⋮ to reorder)
                 </span>
               </div>
@@ -309,8 +309,8 @@ export function TraktCatalogsModal({ type, onClose }: TraktCatalogsModalProps) {
                       style={{
                         padding: '10px 0',
                         opacity: isDragging ? 0.6 : 1,
-                        borderTop: isDragOver ? '3px solid #00d4ff' : '1px solid rgba(255,255,255,0.07)',
-                        background: isDragging ? 'rgba(0,212,255,0.08)' : 'transparent',
+                        borderTop: isDragOver ? '3px solid #00d4ff' : '1px solid var(--surface-border)',
+                        background: isDragging ? 'var(--surface-glow)' : 'transparent',
                         transform: isDragging ? 'scale(1.01)' : 'none',
                         transition: 'opacity 0.15s, transform 0.15s',
                       }}
@@ -320,7 +320,7 @@ export function TraktCatalogsModal({ type, onClose }: TraktCatalogsModalProps) {
                           touchAction: 'none',
                           cursor: 'grab',
                           userSelect: 'none',
-                          color: 'rgba(255,255,255,0.3)',
+                          color: 'var(--text-muted)',
                           fontSize: '1.1rem',
                           lineHeight: 1,
                           padding: '4px 6px 4px 2px',
@@ -358,7 +358,7 @@ export function TraktCatalogsModal({ type, onClose }: TraktCatalogsModalProps) {
           {/* Disabled catalogs */}
           {disabled.length > 0 && (
             <div style={{ marginBottom: '14px' }}>
-              <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.35)', marginBottom: '8px' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '8px' }}>
                 Disabled Catalogs
               </div>
               {disabled.map((entry) => (
@@ -400,7 +400,7 @@ export function TraktCatalogsModal({ type, onClose }: TraktCatalogsModalProps) {
               {listsLoading ? 'Loading...' : 'Load My Lists'}
             </button>
             {traktLists.length === 0 && !listsLoading && (
-              <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.35)', margin: '8px 0 0 0', lineHeight: '1.5' }}>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '8px 0 0 0', lineHeight: '1.5' }}>
                 Click to fetch your Trakt custom lists. Loaded lists appear in the sections above.
               </p>
             )}

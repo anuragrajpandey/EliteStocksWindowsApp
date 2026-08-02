@@ -4,7 +4,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.75);
+    background: var(--bg-overlay, rgba(0, 0, 0, 0.75));
     display: flex;
     justify-content: center;
     align-items: center;
@@ -16,8 +16,8 @@
     width: 480px;
     max-height: 80vh;
     background: var(--bg-secondary, #1a1a2e);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.1));
+    box-shadow: var(--glass-shadow, 0 20px 60px rgba(0, 0, 0, 0.6));
     border-radius: 12px;
     display: flex;
     flex-direction: column;
@@ -27,11 +27,11 @@
 
 .fav-manager-header {
     padding: 14px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--surface-border, rgba(255, 255, 255, 0.08));
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--surface-color, rgba(255, 255, 255, 0.03));
     flex-shrink: 0;
 }
 
@@ -44,15 +44,15 @@
 .fav-manager-stats {
     padding: 8px 20px;
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.4);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: var(--text-muted, rgba(255, 255, 255, 0.4));
+    border-bottom: 1px solid var(--surface-border, rgba(255, 255, 255, 0.06));
     flex-shrink: 0;
 }
 
 .fav-manager-empty {
     padding: 32px 20px;
     text-align: center;
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--text-muted, rgba(255, 255, 255, 0.35));
     font-size: 0.9rem;
 }
 
@@ -68,7 +68,7 @@
     gap: 8px;
     padding: 7px 10px;
     margin-bottom: 3px;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--surface-color, rgba(255, 255, 255, 0.04));
     border-radius: 7px;
     border: 1px solid transparent;
     transition: background 0.12s;
@@ -76,8 +76,8 @@
 }
 
 .fav-manager-item:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: var(--surface-hover, rgba(255, 255, 255, 0.08));
+    border-color: var(--surface-border, rgba(255, 255, 255, 0.1));
 }
 
 .fav-manager-item.dragging {
@@ -89,7 +89,7 @@
 }
 
 .drag-handle {
-    color: rgba(255, 255, 255, 0.25);
+    color: var(--text-muted, rgba(255, 255, 255, 0.25));
     cursor: grab;
     font-size: 1rem;
     letter-spacing: -2px;
@@ -98,7 +98,7 @@
 }
 
 .fav-manager-item:hover .drag-handle {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-muted, rgba(255, 255, 255, 0.5));
 }
 
 .fav-ch-logo {
@@ -106,7 +106,7 @@
     height: 22px;
     object-fit: contain;
     border-radius: 3px;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--bg-tertiary, rgba(40, 40, 40, 0.9));
     flex-shrink: 0;
 }
 
@@ -147,10 +147,10 @@
 
 .fav-manager-footer {
     padding: 12px 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid var(--surface-border, rgba(255, 255, 255, 0.08));
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--surface-color, rgba(255, 255, 255, 0.02));
     flex-shrink: 0;
 }

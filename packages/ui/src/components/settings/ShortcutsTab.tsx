@@ -108,7 +108,7 @@ export function ShortcutsTab({ shortcuts, onShortcutsChange }: ShortcutsTabProps
                                 fontWeight: 600,
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.05em',
-                                color: 'rgba(255, 255, 255, 0.5)',
+                                color: 'var(--text-muted)',
                                 margin: '0 0 12px 0'
                             }}>{groupName}</h4>
                             <div className="shortcuts-list">
@@ -139,7 +139,7 @@ export function ShortcutsTab({ shortcuts, onShortcutsChange }: ShortcutsTabProps
                 <div className="source-form-overlay">
                     <div className="source-form" style={{ maxWidth: '400px', height: 'auto' }}>
                         <h3>Reset Shortcuts</h3>
-                        <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '24px', lineHeight: '1.5' }}>
+                        <p style={{ color: 'var(--text-primary)', marginBottom: '24px', lineHeight: '1.5' }}>
                             Are you sure you want to reset all keyboard shortcuts to their default values?
                         </p>
                         <div className="form-actions" style={{ marginTop: '0' }}>

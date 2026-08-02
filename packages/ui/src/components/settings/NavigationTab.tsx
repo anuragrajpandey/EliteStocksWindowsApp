@@ -113,11 +113,11 @@ export function NavigationTab({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '0.75rem 0',
-                  borderBottom: '1px solid rgba(255,255,255,0.08)',
+                  borderBottom: '1px solid var(--surface-border)',
                 }}
               >
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem' }}>
+                  <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
                     {item.label}
                   </div>
                 </div>
@@ -227,11 +227,11 @@ export function NavigationTab({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '0.75rem 0',
-                  borderBottom: '1px solid rgba(255,255,255,0.08)',
+                  borderBottom: '1px solid var(--surface-border)',
                 }}
               >
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem' }}>
+                  <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
                     {item.label}
                   </div>
                 </div>
