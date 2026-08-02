@@ -6390,204 +6390,325 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
    Applies adaptive styling for Light Theme settings modals.
    ========================================================================== */
 
-html.modern-ui-v3[data-theme="light"] .category-manager-modal,
-html.modern-ui-v3[data-theme="light"] .channel-manager-modal,
-html.modern-ui-v3[data-theme="light"] .source-form,
-html.modern-ui-v3[data-theme="light"] .failover-group-list-modal,
-html.modern-ui-v3[data-theme="light"] .custom-group-manager-modal,
-html.modern-ui-v3[data-theme="light"] .playlist-list-modal,
-html.modern-ui-v3[data-theme="light"] .playlist-editor-modal {
-  background: rgba(255, 255, 255, 0.45) !important;
+html[data-theme="light"] .category-manager-overlay,
+html[data-theme="light"] .channel-manager-overlay,
+html[data-theme="light"] .source-form-overlay,
+html[data-theme="light"] .failover-group-list-overlay,
+html[data-theme="light"] .custom-group-manager-overlay,
+html[data-theme="light"] .playlist-list-overlay,
+html[data-theme="light"] .playlist-editor-backdrop {
+  background: rgba(15, 23, 42, 0.35) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+html[data-theme="light"] .category-manager-modal,
+html[data-theme="light"] .channel-manager-modal,
+html[data-theme="light"] .source-form,
+html[data-theme="light"] .failover-group-list-modal,
+html[data-theme="light"] .custom-group-manager-modal,
+html[data-theme="light"] .playlist-list-modal,
+html[data-theme="light"] .playlist-editor-modal {
+  background: rgba(255, 255, 255, 0.96) !important;
   backdrop-filter: blur(30px) saturate(190%) !important;
   -webkit-backdrop-filter: blur(30px) saturate(190%) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
   box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 8px 32px rgba(0, 0, 0, 0.08),
-    0 2px 8px rgba(0, 0, 0, 0.02) !important;
-  color: #000 !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 20px 50px rgba(0, 0, 0, 0.18),
+    0 4px 16px rgba(0, 0, 0, 0.08) !important;
+  color: #0f172a !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .category-manager-header,
-html.modern-ui-v3[data-theme="light"] .channel-manager-header,
-html.modern-ui-v3[data-theme="light"] .source-form h3,
-html.modern-ui-v3[data-theme="light"] .failover-group-list-header,
-html.modern-ui-v3[data-theme="light"] .custom-group-manager-header,
-html.modern-ui-v3[data-theme="light"] .playlist-list-header,
-html.modern-ui-v3[data-theme="light"] .playlist-editor-header {
+html[data-theme="light"] .category-manager-header,
+html[data-theme="light"] .channel-manager-header,
+html[data-theme="light"] .source-form h3,
+html[data-theme="light"] .failover-group-list-header,
+html[data-theme="light"] .custom-group-manager-header,
+html[data-theme="light"] .playlist-list-header,
+html[data-theme="light"] .playlist-editor-header {
   border-bottom-color: rgba(0, 0, 0, 0.08) !important;
-  color: #000 !important;
+  color: #0f172a !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .category-manager-header h2,
-html.modern-ui-v3[data-theme="light"] .channel-manager-header h2,
-html.modern-ui-v3[data-theme="light"] .failover-group-list-header h2,
-html.modern-ui-v3[data-theme="light"] .playlist-list-header h2,
-html.modern-ui-v3[data-theme="light"] .playlist-editor-header h2,
-html.modern-ui-v3[data-theme="light"] .custom-group-manager-header h2 {
-  color: #000 !important;
+html[data-theme="light"] .category-manager-header h2,
+html[data-theme="light"] .channel-manager-header h2,
+html[data-theme="light"] .failover-group-list-header h2,
+html[data-theme="light"] .playlist-list-header h2,
+html[data-theme="light"] .playlist-editor-header h2,
+html[data-theme="light"] .custom-group-manager-header h2 {
+  color: #0f172a !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .category-manager-stats,
-html.modern-ui-v3[data-theme="light"] .channel-manager-stats {
+html[data-theme="light"] .source-form label,
+html[data-theme="light"] .source-form .form-group label {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+html[data-theme="light"] .source-form .checkbox-label {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+html[data-theme="light"] .source-form input[type="checkbox"] {
+  accent-color: #2563eb !important;
+  width: 16px !important;
+  height: 16px !important;
+  cursor: pointer !important;
+}
+
+html[data-theme="light"] .category-manager-stats,
+html[data-theme="light"] .channel-manager-stats {
   color: rgba(0, 0, 0, 0.6) !important;
   border-bottom-color: rgba(0, 0, 0, 0.06) !important;
   background: rgba(0, 0, 0, 0.01) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .category-manager-header .close-btn,
-html.modern-ui-v3[data-theme="light"] .channel-manager-header .close-btn,
-html.modern-ui-v3[data-theme="light"] .failover-group-list-header .close-btn,
-html.modern-ui-v3[data-theme="light"] .custom-group-manager-header .close-btn,
-html.modern-ui-v3[data-theme="light"] .playlist-list-header .close-btn {
+html[data-theme="light"] .category-manager-header .close-btn,
+html[data-theme="light"] .channel-manager-header .close-btn,
+html[data-theme="light"] .failover-group-list-header .close-btn,
+html[data-theme="light"] .custom-group-manager-header .close-btn,
+html[data-theme="light"] .playlist-list-header .close-btn {
   background: rgba(0, 0, 0, 0.04) !important;
   border-color: rgba(0, 0, 0, 0.08) !important;
   color: rgba(0, 0, 0, 0.6) !important;
 }
-html.modern-ui-v3[data-theme="light"] .category-manager-header .close-btn:hover,
-html.modern-ui-v3[data-theme="light"] .channel-manager-header .close-btn:hover,
-html.modern-ui-v3[data-theme="light"] .failover-group-list-header .close-btn:hover,
-html.modern-ui-v3[data-theme="light"] .custom-group-manager-header .close-btn:hover,
-html.modern-ui-v3[data-theme="light"] .playlist-list-header .close-btn:hover {
+html[data-theme="light"] .category-manager-header .close-btn:hover,
+html[data-theme="light"] .channel-manager-header .close-btn:hover,
+html[data-theme="light"] .failover-group-list-header .close-btn:hover,
+html[data-theme="light"] .custom-group-manager-header .close-btn:hover,
+html[data-theme="light"] .playlist-list-header .close-btn:hover {
   background: rgba(0, 0, 0, 0.08) !important;
   border-color: rgba(0, 0, 0, 0.15) !important;
   color: #000 !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .category-search input,
-html.modern-ui-v3[data-theme="light"] .channel-search input,
-html.modern-ui-v3[data-theme="light"] .source-form input,
-html.modern-ui-v3[data-theme="light"] .filter-words-input-row input {
-  background: rgba(0, 0, 0, 0.02) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: #000 !important;
+html[data-theme="light"] .category-search input,
+html[data-theme="light"] .channel-search input,
+html[data-theme="light"] .source-form input,
+html[data-theme="light"] .source-form textarea,
+html[data-theme="light"] .filter-words-input-row input {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important;
 }
-html.modern-ui-v3[data-theme="light"] .category-search input:focus,
-html.modern-ui-v3[data-theme="light"] .channel-search input:focus,
-html.modern-ui-v3[data-theme="light"] .source-form input:focus,
-html.modern-ui-v3[data-theme="light"] .filter-words-input-row input:focus {
-  background: rgba(0, 0, 0, 0.05) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03) !important;
+html[data-theme="light"] .category-search input:focus,
+html[data-theme="light"] .channel-search input:focus,
+html[data-theme="light"] .source-form input:focus,
+html[data-theme="light"] .source-form textarea:focus,
+html[data-theme="light"] .filter-words-input-row input:focus {
+  background: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+  outline: none !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .category-item,
-html.modern-ui-v3[data-theme="light"] .channel-item {
+html[data-theme="light"] .source-form input::placeholder,
+html[data-theme="light"] .source-form textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="light"] .source-form input[readOnly] {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .category-item,
+html[data-theme="light"] .channel-item {
   background: rgba(0, 0, 0, 0.01) !important;
   border-color: rgba(0, 0, 0, 0.04) !important;
 }
-html.modern-ui-v3[data-theme="light"] .category-item:hover,
-html.modern-ui-v3[data-theme="light"] .channel-item:hover {
+html[data-theme="light"] .category-item:hover,
+html[data-theme="light"] .channel-item:hover {
   background: rgba(0, 0, 0, 0.04) !important;
   border-color: rgba(0, 0, 0, 0.08) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
 }
-html.modern-ui-v3[data-theme="light"] .category-item.selected-for-move {
+html[data-theme="light"] .category-item.selected-for-move {
   background: color-mix(in srgb, var(--accent-primary, #8b5cf6) 8%, rgba(0, 0, 0, 0.02)) !important;
   border-color: var(--accent-primary, #8b5cf6) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .category-name,
-html.modern-ui-v3[data-theme="light"] .channel-name {
+html[data-theme="light"] .category-name,
+html[data-theme="light"] .channel-name {
   color: rgba(0, 0, 0, 0.85) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .drag-handle {
+html[data-theme="light"] .drag-handle {
   color: rgba(0, 0, 0, 0.25) !important;
 }
-html.modern-ui-v3[data-theme="light"] .category-item:hover .drag-handle,
-html.modern-ui-v3[data-theme="light"] .channel-item:hover .drag-handle {
+html[data-theme="light"] .category-item:hover .drag-handle,
+html[data-theme="light"] .channel-item:hover .drag-handle {
   color: rgba(0, 0, 0, 0.5) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .category-manager-actions,
-html.modern-ui-v3[data-theme="light"] .channel-manager-actions {
+html[data-theme="light"] .category-manager-actions,
+html[data-theme="light"] .channel-manager-actions {
   border-bottom-color: rgba(0, 0, 0, 0.08) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .category-manager-actions button,
-html.modern-ui-v3[data-theme="light"] .channel-manager-actions button,
-html.modern-ui-v3[data-theme="light"] .type-selector button,
-html.modern-ui-v3[data-theme="light"] .import-btn,
-html.modern-ui-v3[data-theme="light"] .change-file-btn,
-html.modern-ui-v3[data-theme="light"] .add-backup-btn,
-html.modern-ui-v3[data-theme="light"] .confirm-btn,
-html.modern-ui-v3[data-theme="light"] .swap-btn,
-html.modern-ui-v3[data-theme="light"] .order-btn,
-html.modern-ui-v3[data-theme="light"] .filter-add-btn,
-html.modern-ui-v3[data-theme="light"] .category-manager-stats button {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.75) !important;
+html[data-theme="light"] .type-selector button {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+  font-weight: 500 !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .category-manager-actions button:hover,
-html.modern-ui-v3[data-theme="light"] .channel-manager-actions button:hover,
-html.modern-ui-v3[data-theme="light"] .type-selector button:hover,
-html.modern-ui-v3[data-theme="light"] .import-btn:hover,
-html.modern-ui-v3[data-theme="light"] .change-file-btn:hover,
-html.modern-ui-v3[data-theme="light"] .add-backup-btn:hover,
-html.modern-ui-v3[data-theme="light"] .confirm-btn:hover,
-html.modern-ui-v3[data-theme="light"] .swap-btn:hover,
-html.modern-ui-v3[data-theme="light"] .order-btn:hover:not(:disabled),
-html.modern-ui-v3[data-theme="light"] .filter-add-btn:hover,
-html.modern-ui-v3[data-theme="light"] .category-manager-stats button:hover {
-  background: rgba(0, 0, 0, 0.06) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
+html[data-theme="light"] .type-selector button:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .category-manager-actions button.active-toggle,
-html.modern-ui-v3[data-theme="light"] .channel-manager-actions button.active-toggle,
-html.modern-ui-v3[data-theme="light"] .type-selector button.active {
+html[data-theme="light"] .type-selector button.active {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+}
+
+html[data-theme="light"] .source-form .import-btn,
+html[data-theme="light"] .source-form .change-file-btn,
+html[data-theme="light"] .source-form .add-backup-btn,
+html[data-theme="light"] .source-form .confirm-btn,
+html[data-theme="light"] .source-form .swap-btn,
+html[data-theme="light"] .category-manager-actions button,
+html[data-theme="light"] .channel-manager-actions button,
+html[data-theme="light"] .order-btn,
+html[data-theme="light"] .filter-add-btn,
+html[data-theme="light"] .category-manager-stats button {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+  font-weight: 500 !important;
+}
+
+html[data-theme="light"] .source-form .import-btn {
+  border-style: dashed !important;
+}
+
+html[data-theme="light"] .source-form .import-btn:hover,
+html[data-theme="light"] .source-form .change-file-btn:hover,
+html[data-theme="light"] .source-form .add-backup-btn:hover,
+html[data-theme="light"] .source-form .confirm-btn:hover,
+html[data-theme="light"] .source-form .swap-btn:hover,
+html[data-theme="light"] .category-manager-actions button:hover,
+html[data-theme="light"] .channel-manager-actions button:hover,
+html[data-theme="light"] .order-btn:hover:not(:disabled),
+html[data-theme="light"] .filter-add-btn:hover,
+html[data-theme="light"] .category-manager-stats button:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .category-manager-actions button.active-toggle,
+html[data-theme="light"] .channel-manager-actions button.active-toggle {
   background: color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, rgba(0, 0, 0, 0.04)) !important;
   color: var(--accent-primary, #00d4ff) !important;
   border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(0, 0, 0, 0.1)) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .filter-words-panel {
+html[data-theme="light"] .filter-words-panel {
   background: rgba(0, 0, 0, 0.01) !important;
   border-top-color: rgba(0, 0, 0, 0.06) !important;
   border-bottom-color: rgba(0, 0, 0, 0.06) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .filter-word-tag {
+html[data-theme="light"] .filter-word-tag {
   background: rgba(0, 0, 0, 0.04) !important;
   border-color: rgba(0, 0, 0, 0.08) !important;
   color: rgba(0, 0, 0, 0.8) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .form-details {
-  background: rgba(0, 0, 0, 0.01) !important;
-  border-color: rgba(0, 0, 0, 0.06) !important;
-}
-html.modern-ui-v3[data-theme="light"] .form-details-summary {
-  background: rgba(0, 0, 0, 0.02) !important;
-  color: rgba(0, 0, 0, 0.8) !important;
-}
-html.modern-ui-v3[data-theme="light"] .form-details-summary:hover {
-  background: rgba(0, 0, 0, 0.04) !important;
-}
-html.modern-ui-v3[data-theme="light"] .form-details-content {
-  border-top-color: rgba(0, 0, 0, 0.06) !important;
+html[data-theme="light"] .source-form .hint,
+html[data-theme="light"] .source-form .form-hint,
+html[data-theme="light"] .source-form .section-description {
+  color: #64748b !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .category-manager-footer,
-html.modern-ui-v3[data-theme="light"] .channel-manager-footer,
-html.modern-ui-v3[data-theme="light"] .form-actions {
+html[data-theme="light"] .source-form .or-divider::before,
+html[data-theme="light"] .source-form .or-divider::after {
+  background: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .source-form .or-divider span {
+  color: #64748b !important;
+  font-weight: 500 !important;
+}
+
+html[data-theme="light"] .source-form .form-details {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+}
+html[data-theme="light"] .source-form .form-details-summary {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  font-weight: 600 !important;
+}
+html[data-theme="light"] .source-form .form-details-summary:hover {
+  background: #e2e8f0 !important;
+}
+html[data-theme="light"] .source-form .form-details-content {
+  border-top-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .source-form .backup-item {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+html[data-theme="light"] .source-form .backup-val {
+  color: #1e293b !important;
+}
+
+html[data-theme="light"] .source-form .epg-url-display {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .source-form .password-toggle-btn {
+  color: #64748b !important;
+}
+
+html[data-theme="light"] .source-form .password-toggle-btn:hover {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .category-manager-footer,
+html[data-theme="light"] .channel-manager-footer,
+html[data-theme="light"] .source-form .form-actions {
   border-top-color: rgba(0, 0, 0, 0.08) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .cancel-btn {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.7) !important;
+html[data-theme="light"] .source-form .cancel-btn {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+  font-weight: 600 !important;
 }
-html.modern-ui-v3[data-theme="light"] .cancel-btn:hover {
-  background: rgba(0, 0, 0, 0.06) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+html[data-theme="light"] .source-form .cancel-btn:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+html[data-theme="light"] .source-form .save-btn {
+  background: #2563eb !important;
+  border: 1px solid #2563eb !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+}
+
+html[data-theme="light"] .source-form .save-btn:hover:not(:disabled) {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
 }
 
 /* Failover Groups and Playlist Editor Inner Layout overrides */

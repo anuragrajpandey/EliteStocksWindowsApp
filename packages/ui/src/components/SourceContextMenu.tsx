@@ -11,6 +11,7 @@ interface SourceContextMenuProps {
     onManageVodCategories?: (sourceId: string, sourceName: string) => void;
     onEditSource?: (sourceId: string) => void;
     onEditEpg?: (sourceId: string, sourceName: string) => void;
+    onCreateCategoryFolder?: (sourceId: string, sourceName: string) => void;
 }
 
 export function SourceContextMenu({
@@ -22,6 +23,7 @@ export function SourceContextMenu({
     onManageVodCategories,
     onEditSource,
     onEditEpg,
+    onCreateCategoryFolder,
 }: SourceContextMenuProps) {
     const menuRef = useRef<HTMLDivElement>(null);
     const [adjustedPosition, setAdjustedPosition] = useState(position);
@@ -94,6 +96,11 @@ export function SourceContextMenu({
             {onManageCategories && (
                 <div className="context-menu-item" onClick={() => { onManageCategories(sourceId, sourceName); onClose(); }}>
                     Manage Categories
+                </div>
+            )}
+            {onCreateCategoryFolder && (
+                <div className="context-menu-item" onClick={() => { onCreateCategoryFolder(sourceId, sourceName); onClose(); }}>
+                    Create Category Folder
                 </div>
             )}
             {onManageVodCategories && (

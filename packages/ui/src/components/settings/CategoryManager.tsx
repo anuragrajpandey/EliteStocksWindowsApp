@@ -45,9 +45,11 @@ interface CategoryManagerProps {
     sourceName: string;
     onClose: () => void;
     onChange?: () => void;
+    initialCreateFolder?: boolean;
+    initialBulkFolder?: { folder_id: string; name: string } | null;
 }
 
-export function CategoryManager({ sourceId, sourceName, onClose, onChange }: CategoryManagerProps) {
+export function CategoryManager({ sourceId, sourceName, onClose, onChange, initialCreateFolder, initialBulkFolder }: CategoryManagerProps) {
     const [categories, setCategories] = useState<Array<
         | { type: 'native'; id: string; name: string; enabled: boolean; displayOrder: number; folderId?: string | null; category: StoredCategory }
         | { type: 'link'; id: string; linkId: number; name: string; enabled: boolean; displayOrder: number; folderId?: string | null; link: any }
@@ -59,9 +61,21 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
     const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
     const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
-    const [isCreateOnlyModalOpen, setIsCreateOnlyModalOpen] = useState(false);
+    const [isCreateOnlyModalOpen, setIsCreateOnlyModalOpen] = useState(!!initialCreateFolder);
     const [createOnlyFolderName, setCreateOnlyFolderName] = useState('');
-    const [bulkFolderTarget, setBulkFolderTarget] = useState<CategoryFolder | null>(null);
+    const [bulkFolderTarget, setBulkFolderTarget] = useState<CategoryFolder | null>(() => {
+        if (initialBulkFolder) {
+            const playlistId = sourceId.startsWith('playlist:') ? sourceId.replace('playlist:', '') : sourceId;
+            return {
+                folder_id: initialBulkFolder.folder_id,
+                playlist_id: playlistId,
+                name: initialBulkFolder.name,
+                display_order: 0,
+                created_at: Date.now()
+            };
+        }
+        return null;
+    });
     const [bulkLeftSearch, setBulkLeftSearch] = useState('');
     const [bulkRightSearch, setBulkRightSearch] = useState('');
     const [renamingFolder, setRenamingFolder] = useState<CategoryFolder | null>(null);
@@ -1072,59 +1086,80 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                     );
                 })()}
                 {/* Dedicated Create New Folder Modal */}
-                {isCreateOnlyModalOpen && (
-                    <div className="cm-folder-modal-overlay" onClick={() => setIsCreateOnlyModalOpen(false)}>
-                        <div className="cm-folder-modal" style={{ maxWidth: '420px' }} onClick={e => e.stopPropagation()}>
-                            <div className="cm-folder-modal-header">
-                                <h3>
-                                    <FolderIcon size={18} />
-                                    <span>Create New Folder</span>
-                                </h3>
-                                <button className="close-btn" onClick={() => setIsCreateOnlyModalOpen(false)}>✕</button>
-                            </div>
+                {isCreateOnlyModalOpen && (() => {
+                    const handleCancel = () => {
+                        setIsCreateOnlyModalOpen(false);
+                        if (initialCreateFolder && !bulkFolderTarget && !isDirty) {
+                            onClose();
+                        }
+                    };
 
-                            <div className="cm-folder-modal-body" style={{ gap: '16px' }}>
-                                <div className="cm-modal-subtext">
-                                    Enter a name for the new folder to be created in <strong>{sourceName}</strong>:
+                    const handleCreate = async () => {
+                        const name = createOnlyFolderName.trim();
+                        if (!name) return;
+                        const newFolderId = await createCategoryFolder(targetPlaylistId, name);
+                        setCreateOnlyFolderName('');
+                        setIsCreateOnlyModalOpen(false);
+                        if (newFolderId) {
+                            setBulkLeftSearch('');
+                            setBulkRightSearch('');
+                            setBulkFolderTarget({
+                                folder_id: newFolderId,
+                                playlist_id: targetPlaylistId,
+                                name: name,
+                                display_order: 999,
+                                created_at: Date.now()
+                            });
+                        }
+                    };
+
+                    return (
+                        <div className="cm-folder-modal-overlay" onClick={handleCancel}>
+                            <div className="cm-folder-modal" style={{ maxWidth: '420px' }} onClick={e => e.stopPropagation()}>
+                                <div className="cm-folder-modal-header">
+                                    <h3>
+                                        <FolderIcon size={18} />
+                                        <span>Create New Folder</span>
+                                    </h3>
+                                    <button className="close-btn" onClick={handleCancel}>✕</button>
                                 </div>
 
-                                <input
-                                    type="text"
-                                    className="cm-folder-create-input"
-                                    style={{ width: '100%', boxSizing: 'border-box', fontSize: '0.9rem', padding: '10px 14px' }}
-                                    placeholder="Folder name (e.g. USA, Sports, News)..."
-                                    value={createOnlyFolderName}
-                                    onChange={e => setCreateOnlyFolderName(e.target.value)}
-                                    onKeyDown={async e => {
-                                        if (e.key === 'Enter' && createOnlyFolderName.trim()) {
-                                            await createCategoryFolder(targetPlaylistId, createOnlyFolderName.trim());
-                                            setCreateOnlyFolderName('');
-                                            setIsCreateOnlyModalOpen(false);
-                                        }
-                                    }}
-                                    autoFocus
-                                />
-                            </div>
+                                <div className="cm-folder-modal-body" style={{ gap: '16px' }}>
+                                    <div className="cm-modal-subtext">
+                                        Enter a name for the new folder to be created in <strong>{sourceName}</strong>:
+                                    </div>
 
-                            <div className="category-manager-footer" style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                                <button className="cancel-btn" onClick={() => setIsCreateOnlyModalOpen(false)}>Cancel</button>
-                                <button
-                                    className="save-btn"
-                                    style={{ padding: '6px 18px' }}
-                                    disabled={!createOnlyFolderName.trim()}
-                                    onClick={async () => {
-                                        if (!createOnlyFolderName.trim()) return;
-                                        await createCategoryFolder(targetPlaylistId, createOnlyFolderName.trim());
-                                        setCreateOnlyFolderName('');
-                                        setIsCreateOnlyModalOpen(false);
-                                    }}
-                                >
-                                    Create Folder
-                                </button>
+                                    <input
+                                        type="text"
+                                        className="cm-folder-create-input"
+                                        style={{ width: '100%', boxSizing: 'border-box', fontSize: '0.9rem', padding: '10px 14px' }}
+                                        placeholder="Folder name (e.g. USA, Sports, News)..."
+                                        value={createOnlyFolderName}
+                                        onChange={e => setCreateOnlyFolderName(e.target.value)}
+                                        onKeyDown={async e => {
+                                            if (e.key === 'Enter' && createOnlyFolderName.trim()) {
+                                                await handleCreate();
+                                            }
+                                        }}
+                                        autoFocus
+                                    />
+                                </div>
+
+                                <div className="category-manager-footer" style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                                    <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
+                                    <button
+                                        className="save-btn"
+                                        style={{ padding: '6px 18px' }}
+                                        disabled={!createOnlyFolderName.trim()}
+                                        onClick={handleCreate}
+                                    >
+                                        Create Folder
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    );
+                })()}
 
                 {/* Bulk Add/Remove Categories in Folder Modal */}
                 {bulkFolderTarget && (() => {
@@ -1141,15 +1176,26 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                         !bulkRightSearch.trim() || c.name.toLowerCase().includes(bulkRightSearch.toLowerCase())
                     );
 
+                    const handleCloseBulkModal = async () => {
+                        setBulkFolderTarget(null);
+                        if (initialCreateFolder || initialBulkFolder) {
+                            if (isDirty) {
+                                await handleSave();
+                            } else {
+                                onClose();
+                            }
+                        }
+                    };
+
                     return (
-                        <div className="cm-folder-modal-overlay" onClick={() => setBulkFolderTarget(null)}>
+                        <div className="cm-folder-modal-overlay" onClick={handleCloseBulkModal}>
                             <div className="cm-folder-modal cm-bulk-modal" style={{ maxWidth: '840px' }} onClick={e => e.stopPropagation()}>
                                 <div className="cm-folder-modal-header">
                                     <h3>
                                         <FolderIcon size={18} />
                                         <span>Bulk Edit Categories in Folder: <strong>{bulkFolderTarget.name}</strong></span>
                                     </h3>
-                                    <button className="close-btn" onClick={() => setBulkFolderTarget(null)}>✕</button>
+                                    <button className="close-btn" onClick={handleCloseBulkModal}>✕</button>
                                 </div>
 
                                 <div className="cm-folder-modal-body">
@@ -1184,7 +1230,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                                                 onChange={e => setBulkLeftSearch(e.target.value)}
                                             />
 
-                                            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                            <div className="cm-bulk-scroll-list" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                                 {filteredInside.length > 0 ? (
                                                     filteredInside.map(cat => (
                                                         <div
@@ -1212,7 +1258,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                                         {/* Right Column: Available root categories */}
                                         <div className="cm-bulk-col" style={{ display: 'flex', flexDirection: 'column', background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', overflow: 'hidden' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>
+                                                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary, rgba(255,255,255,0.8))' }}>
                                                     📄 Available Root Categories ({outsideFolder.length})
                                                 </div>
                                                 {filteredOutside.length > 0 && bulkRightSearch.trim() && (
@@ -1238,7 +1284,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                                                 onChange={e => setBulkRightSearch(e.target.value)}
                                             />
 
-                                            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                            <div className="cm-bulk-scroll-list" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                                 {filteredOutside.length > 0 ? (
                                                     filteredOutside.map(cat => (
                                                         <div
@@ -1265,7 +1311,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange }: Cat
                                 </div>
 
                                 <div className="category-manager-footer" style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end' }}>
-                                    <button className="save-btn" style={{ padding: '6px 20px' }} onClick={() => setBulkFolderTarget(null)}>Done</button>
+                                    <button className="save-btn" style={{ padding: '6px 20px' }} onClick={handleCloseBulkModal}>Done</button>
                                 </div>
                             </div>
                         </div>

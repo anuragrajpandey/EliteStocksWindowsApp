@@ -662,7 +662,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
 
   // Source Context Menu additions
   const [sourceContextMenu, setSourceContextMenu] = useState<{ x: number, y: number, sourceId: string, sourceName: string } | null>(null);
-  const [managingCategorySource, setManagingCategorySource] = useState<{ id: string, name: string } | null>(null);
+  const [managingCategorySource, setManagingCategorySource] = useState<{ id: string, name: string; initialCreateFolder?: boolean; initialBulkFolder?: { folder_id: string; name: string } } | null>(null);
   const [epgEditorSource, setEpgEditorSource] = useState<{ id: string, name: string } | null>(null);
 
   // Favorites Context Menu additions
@@ -2010,6 +2010,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
           position={{ x: sourceContextMenu.x, y: sourceContextMenu.y }}
           onClose={() => setSourceContextMenu(null)}
           onManageCategories={(id, name) => setManagingCategorySource({ id, name })}
+          onCreateCategoryFolder={(id, name) => setManagingCategorySource({ id, name, initialCreateFolder: true })}
           onEditSource={(id) => {
             if (onEditSource) {
               onEditSource(id);
@@ -2101,6 +2102,13 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
           isPinned={pinnedFolders.includes(`${folderContextMenu.sourceId}:${folderContextMenu.folderId}`)}
           onPin={() => handlePinFolder(folderContextMenu.sourceId, folderContextMenu.folderId)}
           onUnpin={() => handleUnpinFolder(folderContextMenu.sourceId, folderContextMenu.folderId)}
+          onManageFolder={(folderId, folderName, sourceId, sourceName) => {
+            setManagingCategorySource({
+              id: sourceId,
+              name: sourceName,
+              initialBulkFolder: { folder_id: folderId, name: folderName }
+            });
+          }}
           onManageCategories={(sourceId, sourceName) => setManagingCategorySource({ id: sourceId, name: sourceName })}
         />
       )}
@@ -2162,6 +2170,8 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
           <CategoryManager
             sourceId={managingCategorySource.id}
             sourceName={managingCategorySource.name}
+            initialCreateFolder={managingCategorySource.initialCreateFolder}
+            initialBulkFolder={managingCategorySource.initialBulkFolder}
             onClose={() => setManagingCategorySource(null)}
             onChange={() => {
               // The DB sync finishes naturally, updating the live hook automatically down the road

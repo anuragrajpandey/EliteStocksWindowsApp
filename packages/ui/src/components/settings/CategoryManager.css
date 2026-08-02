@@ -634,4 +634,54 @@
 .cm-folder-create-input:focus {
   border-color: var(--accent-primary, #00d4ff);
 }
+
+/* ─── Theme-matched Scrollbars for Bulk Edit Categories in Folder ───────── */
+.cm-bulk-scroll-list,
+.cm-bulk-col,
+.cm-bulk-modal * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-hover, rgba(255, 255, 255, 0.25)) transparent;
+}
+
+.cm-bulk-scroll-list::-webkit-scrollbar,
+.cm-bulk-col::-webkit-scrollbar,
+.cm-bulk-modal *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.cm-bulk-scroll-list::-webkit-scrollbar-track,
+.cm-bulk-col::-webkit-scrollbar-track,
+.cm-bulk-modal *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cm-bulk-scroll-list::-webkit-scrollbar-thumb,
+.cm-bulk-col::-webkit-scrollbar-thumb,
+.cm-bulk-modal *::-webkit-scrollbar-thumb {
+  background: var(--surface-hover, rgba(255, 255, 255, 0.25));
+  border-radius: 4px;
+}
+
+.cm-bulk-scroll-list::-webkit-scrollbar-thumb:hover,
+.cm-bulk-col::-webkit-scrollbar-thumb:hover,
+.cm-bulk-modal *::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary, rgba(0, 212, 255, 0.6));
+}
+
+/* ── Light Theme Overrides for Bulk Edit Modal ── */
+[data-theme="light"] .cm-bulk-col,
+html.light-theme .cm-bulk-col,
+body.light-theme .cm-bulk-col {
+  background: var(--bg-secondary, rgba(0, 0, 0, 0.03)) !important;
+  border-color: var(--surface-border, rgba(0, 0, 0, 0.1)) !important;
+}
+
+[data-theme="light"] .cm-bulk-add-row,
+html.light-theme .cm-bulk-add-row,
+body.light-theme .cm-bulk-add-row {
+  background: var(--surface-hover, rgba(0, 0, 0, 0.03)) !important;
+  border-color: var(--surface-border, rgba(0, 0, 0, 0.08)) !important;
+  color: var(--text-primary, #1e293b) !important;
+}
 

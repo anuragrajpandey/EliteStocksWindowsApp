@@ -13,6 +13,7 @@ interface FolderContextMenuProps {
     onPin?: () => void;
     onUnpin?: () => void;
     onManageCategories?: (sourceId: string, sourceName: string) => void;
+    onManageFolder?: (folderId: string, folderName: string, sourceId: string, sourceName: string) => void;
 }
 
 export function FolderContextMenu({
@@ -26,6 +27,7 @@ export function FolderContextMenu({
     onPin,
     onUnpin,
     onManageCategories,
+    onManageFolder,
 }: FolderContextMenuProps) {
     const menuRef = useRef<HTMLDivElement>(null);
     const [adjustedPosition, setAdjustedPosition] = useState(position);
@@ -94,6 +96,11 @@ export function FolderContextMenu({
                         📌 Pin Folder to Top
                     </div>
                 )
+            )}
+            {onManageFolder && (
+                <div className="context-menu-item" onClick={() => { onManageFolder(folderId, folderName, sourceId, sourceName); onClose(); }}>
+                    📂 Manage Folder
+                </div>
             )}
             {onManageCategories && (
                 <div className="context-menu-item" onClick={() => { onManageCategories(sourceId, sourceName); onClose(); }}>
