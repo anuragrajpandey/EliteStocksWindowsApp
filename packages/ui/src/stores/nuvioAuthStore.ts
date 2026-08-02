@@ -68,8 +68,11 @@ interface NuvioAuthStore {
   updateSettings: (features: any) => Promise<void>;
   fetchHomeCatalogSettings: () => Promise<void>;
   updateHomeCatalogSettings: (settings: any) => Promise<void>;
-  syncNow: () => Promise<void>;
+  syncNow: (force?: boolean) => Promise<void>;
 }
+
+let activeSyncPromise: Promise<void> | null = null;
+let activeFetchProfilesPromise: Promise<void> | null = null;
 
 export const useNuvioAuthStore = create<NuvioAuthStore>()(
   persist(
@@ -151,26 +154,32 @@ export const useNuvioAuthStore = create<NuvioAuthStore>()(
       },
 
       fetchProfiles: async () => {
+        if (activeFetchProfilesPromise) return activeFetchProfilesPromise;
         const token = get().token;
         if (!token) return;
-        try {
-          const profiles = await fetchNuvioProfiles(token);
-          const sortedProfiles = profiles.sort((a, b) => a.profile_index - b.profile_index);
-          set({ profiles: sortedProfiles });
-          
-          // Update active profile copy if it still exists, otherwise leave null (UI shows picker)
-          const active = get().activeProfile;
-          if (active) {
-            const updatedActive = sortedProfiles.find((p) => p.profile_index === active.profile_index);
-            if (updatedActive) {
-              set({ activeProfile: updatedActive });
-            } else {
-              set({ activeProfile: null });
+        activeFetchProfilesPromise = (async () => {
+          try {
+            const profiles = await fetchNuvioProfiles(token);
+            const sortedProfiles = profiles.sort((a, b) => a.profile_index - b.profile_index);
+            set({ profiles: sortedProfiles });
+            
+            // Update active profile copy if it still exists, otherwise leave null (UI shows picker)
+            const active = get().activeProfile;
+            if (active) {
+              const updatedActive = sortedProfiles.find((p) => p.profile_index === active.profile_index);
+              if (updatedActive) {
+                set({ activeProfile: updatedActive });
+              } else {
+                set({ activeProfile: null });
+              }
             }
+          } catch (e: any) {
+            console.error('[NuvioAuthStore] Failed to fetch profiles:', e);
+          } finally {
+            activeFetchProfilesPromise = null;
           }
-        } catch (e: any) {
-          console.error('[NuvioAuthStore] Failed to fetch profiles:', e);
-        }
+        })();
+        return activeFetchProfilesPromise;
       },
 
       selectProfile: async (profileIndex, pin) => {
@@ -374,53 +383,64 @@ export const useNuvioAuthStore = create<NuvioAuthStore>()(
         }
       },
 
-      syncNow: async () => {
-        clearNuvioApiCache();
+      syncNow: async (force = false) => {
+        if (activeSyncPromise) return activeSyncPromise;
+        const lastSync = get().lastSyncTime;
+        if (!force && lastSync && Date.now() - lastSync < 60_000) {
+          return;
+        }
+        if (force) {
+          clearNuvioApiCache();
+        }
         const token = get().token;
         const profile = get().activeProfile;
         if (!token || !profile) return;
 
-        set({ isSyncing: true });
-        try {
-          // Pull profile settings
-          const profileSettings = await fetchNuvioProfileSettings(token, profile.profile_index);
-          set({ settings: profileSettings });
-          // Sync TMDB key locally if found
-          const tmdbKey = profileSettings?.features?.tmdb_settings?.apiKey;
-          if (tmdbKey && (window as any).storage) {
-            await (window as any).storage.updateSettings({ tmdbApiKey: tmdbKey });
-            window.dispatchEvent(new CustomEvent('ynotv:tmdb-key-changed'));
+        activeSyncPromise = (async () => {
+          set({ isSyncing: true });
+          try {
+            // Pull profile settings
+            const profileSettings = await fetchNuvioProfileSettings(token, profile.profile_index);
+            set({ settings: profileSettings });
+            // Sync TMDB key locally if found
+            const tmdbKey = profileSettings?.features?.tmdb_settings?.apiKey;
+            if (tmdbKey && (window as any).storage) {
+              await (window as any).storage.updateSettings({ tmdbApiKey: tmdbKey });
+              window.dispatchEvent(new CustomEvent('ynotv:tmdb-key-changed'));
+            }
+
+            // Pull home catalog settings
+            const homeSettings = await fetchNuvioHomeCatalogSettings(token, profile.profile_index);
+            set({ homeCatalogSettings: homeSettings });
+
+            // Import stores dynamically or trigger them directly if imported
+            // Pull Collections
+            const collections = await fetchNuvioCollections(token, profile.profile_index);
+            // Set in collections store
+            const { setCollections } = (await import('./nuvioCollectionStore')).useNuvioCollectionStore.getState();
+            setCollections(collections);
+
+            // Pull Plugins
+            const plugins = await fetchNuvioPlugins(token, profile.profile_index);
+            const { setPlugins } = (await import('./nuvioPluginStore')).useNuvioPluginStore.getState();
+            await setPlugins(plugins);
+
+            // Pull Nuvio Addons
+            const { pullAddons } = (await import('./nuvioAddonStore')).useNuvioAddonStore.getState();
+            const effectiveAddonProfileId =
+              profile.profile_index !== 1 && profile.uses_primary_addons ? 1 : profile.profile_index;
+            await pullAddons(token, effectiveAddonProfileId);
+
+            set({ lastSyncTime: Date.now(), error: null });
+          } catch (e: any) {
+            console.error('[NuvioAuthStore] Synchronization failed:', e);
+            set({ error: e.message || 'Sync failed' });
+          } finally {
+            set({ isSyncing: false });
+            activeSyncPromise = null;
           }
-
-          // Pull home catalog settings
-          const homeSettings = await fetchNuvioHomeCatalogSettings(token, profile.profile_index);
-          set({ homeCatalogSettings: homeSettings });
-
-          // Import stores dynamically or trigger them directly if imported
-          // Pull Collections
-          const collections = await fetchNuvioCollections(token, profile.profile_index);
-          // Set in collections store
-          const { setCollections } = (await import('./nuvioCollectionStore')).useNuvioCollectionStore.getState();
-          setCollections(collections);
-
-          // Pull Plugins
-          const plugins = await fetchNuvioPlugins(token, profile.profile_index);
-          const { setPlugins } = (await import('./nuvioPluginStore')).useNuvioPluginStore.getState();
-          await setPlugins(plugins);
-
-          // Pull Nuvio Addons
-          const { pullAddons } = (await import('./nuvioAddonStore')).useNuvioAddonStore.getState();
-          const effectiveAddonProfileId =
-            profile.profile_index !== 1 && profile.uses_primary_addons ? 1 : profile.profile_index;
-          await pullAddons(token, effectiveAddonProfileId);
-
-          set({ lastSyncTime: Date.now(), error: null });
-        } catch (e: any) {
-          console.error('[NuvioAuthStore] Synchronization failed:', e);
-          set({ error: e.message || 'Sync failed' });
-        } finally {
-          set({ isSyncing: false });
-        }
+        })();
+        return activeSyncPromise;
       },
     }),
     {

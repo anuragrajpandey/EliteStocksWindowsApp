@@ -64,12 +64,13 @@ function addonHasResource(addon: InstalledAddon, resource: string): boolean {
 }
 
 export async function fetchManifest(url: string): Promise<StremioManifest> {
-  const cached = MANIFEST_CACHE.get(url);
+  const manifestUrl = getManifestUrl(url);
+  const cached = MANIFEST_CACHE.get(manifestUrl);
   if (cached && Date.now() - cached.ts < CACHE_TTL) {
     return cached.manifest;
   }
-  const manifest = await fetchJson(url) as StremioManifest;
-  MANIFEST_CACHE.set(url, { manifest, ts: Date.now() });
+  const manifest = await fetchJson(manifestUrl) as StremioManifest;
+  MANIFEST_CACHE.set(manifestUrl, { manifest, ts: Date.now() });
   return manifest;
 }
 

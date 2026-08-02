@@ -877,7 +877,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
-                  onClick={() => authStore.syncNow()}
+                  onClick={() => authStore.syncNow(true)}
                   disabled={authStore.isSyncing}
                   style={{
 background: 'var(--surface-glow)',

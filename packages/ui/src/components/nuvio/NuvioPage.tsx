@@ -785,7 +785,7 @@ function NuvioPageContent({
     }
   }, [collectionStore.collections, nuvioView]);
 
-  // Fetch profiles on mount/token change
+  // Fetch profiles on mount/token change, reset library cache on profile switch
   useEffect(() => {
     if (token && authStore.profiles.length === 0) {
       authStore.fetchProfiles();
@@ -793,8 +793,14 @@ function NuvioPageContent({
     if (!token) {
       setLibrary([]);
       setLibraryLoaded(false);
+      deltaCursorRef.current = 0;
     }
   }, [token, authStore.profiles.length]);
+
+  useEffect(() => {
+    setLibraryLoaded(false);
+    deltaCursorRef.current = 0;
+  }, [profile?.profile_index]);
 
   // Load library when switching to library view or opening details view
   useEffect(() => {
@@ -951,57 +957,72 @@ function NuvioPageContent({
     return applyWatchProgressDelta(existingEntries, events);
   };
 
+  const inFlightLoadSyncedDataRef = useRef<Promise<void> | null>(null);
+
   const loadSyncedData = async (background = false) => {
     if (!token || !profile) return;
-    if (!background) setLoading(true);
-    try {
-      const libraryPromise = fetchNuvioLibrary(token, profile.profile_index, 500);
-
-      // Try delta sync first, fall back to full pull
-      let progressPromise: Promise<NuvioWatchProgressSyncEntry[]>;
-      if (deltaCursorRef.current === 0) {
-        // First load: try to initialize delta cursor
-        progressPromise = (async () => {
-          try {
-            const cursor = await fetchNuvioWatchProgressDeltaCursor(token!, profile.profile_index);
-            if (cursor > 0) {
-              deltaCursorRef.current = 0;
-              const entries = await loadWatchProgressDelta(profile.profile_index, []);
-              return entries;
-            }
-          } catch {}
-          // Fallback to full pull
-          return fetchNuvioWatchProgress(token!, profile.profile_index, null, 100);
-        })();
-      } else {
-        progressPromise = loadWatchProgressDelta(profile.profile_index, rawWatchProgress);
-      }
-
-      // Handle progress promise resolution as soon as it resolves
-      progressPromise.then((progress) => {
-        if (progress && progress.length > 0) {
-          setRawWatchProgress(progress);
-          setResolvedWatchProgress(progress.map(p => ({ ...p, name: `Content ID: ${p.content_id}` })));
-          resolveProgressMetadata(progress);
-        } else {
-          setRawWatchProgress([]);
-          setResolvedWatchProgress([]);
-        }
-      }).catch(e => console.error('[NuvioPage] Failed to fetch progress:', e));
-
-      // Handle library promise resolution as soon as it resolves
-      libraryPromise.then((lib) => {
-        setLibrary(lib || []);
-        setLibraryLoaded(true);
-      }).catch(e => console.error('[NuvioPage] Failed to fetch library:', e));
-
-      // Wait for both to complete to turn off loading state
-      await Promise.allSettled([progressPromise, libraryPromise]);
-    } catch (e) {
-      console.error('[NuvioPage] Failed to fetch synced progress/addons:', e);
-    } finally {
-      if (!background) setLoading(false);
+    // Match NuvioDesktop: If library data is already loaded in memory state, serve from memory unless background/forced
+    if (!background && libraryLoaded) {
+      return;
     }
+    if (inFlightLoadSyncedDataRef.current) {
+      return inFlightLoadSyncedDataRef.current;
+    }
+    if (!background) setLoading(true);
+    const task = (async () => {
+      try {
+        const libraryPromise = fetchNuvioLibrary(token, profile.profile_index, 500);
+
+        // Try delta sync first, fall back to full pull
+        let progressPromise: Promise<NuvioWatchProgressSyncEntry[]>;
+        if (deltaCursorRef.current === 0) {
+          // First load: try to initialize delta cursor
+          progressPromise = (async () => {
+            try {
+              const cursor = await fetchNuvioWatchProgressDeltaCursor(token!, profile.profile_index);
+              if (cursor > 0) {
+                deltaCursorRef.current = 0;
+                const entries = await loadWatchProgressDelta(profile.profile_index, []);
+                return entries;
+              }
+            } catch {}
+            // Fallback to full pull
+            return fetchNuvioWatchProgress(token!, profile.profile_index, null, 100);
+          })();
+        } else {
+          progressPromise = loadWatchProgressDelta(profile.profile_index, rawWatchProgress);
+        }
+
+        // Handle progress promise resolution as soon as it resolves
+        progressPromise.then((progress) => {
+          if (progress && progress.length > 0) {
+            setRawWatchProgress(progress);
+            setResolvedWatchProgress(progress.map(p => ({ ...p, name: `Content ID: ${p.content_id}` })));
+            resolveProgressMetadata(progress);
+          } else {
+            setRawWatchProgress([]);
+            setResolvedWatchProgress([]);
+          }
+        }).catch(e => console.error('[NuvioPage] Failed to fetch progress:', e));
+
+        // Handle library promise resolution as soon as it resolves
+        libraryPromise.then((lib) => {
+          setLibrary(lib || []);
+          setLibraryLoaded(true);
+        }).catch(e => console.error('[NuvioPage] Failed to fetch library:', e));
+
+        // Wait for both to complete to turn off loading state
+        await Promise.allSettled([progressPromise, libraryPromise]);
+      } catch (e) {
+        console.error('[NuvioPage] Failed to fetch synced progress/addons:', e);
+      } finally {
+        if (!background) setLoading(false);
+        inFlightLoadSyncedDataRef.current = null;
+      }
+    })();
+
+    inFlightLoadSyncedDataRef.current = task;
+    return task;
   };
 
   const resolveProgressMetadata = async (progressItems: NuvioWatchProgressSyncEntry[]) => {

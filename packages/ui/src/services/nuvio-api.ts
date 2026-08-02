@@ -180,7 +180,7 @@ export async function refreshNuvioSession(refreshToken: string): Promise<NuvioSe
 }
 
 // Core request implementation
-async function executeNuvioRequest<T>(
+async function executeNuvioRequestOnce<T>(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   path: string,
   body?: any,
@@ -192,7 +192,7 @@ async function executeNuvioRequest<T>(
     'apikey': getEffectiveNuvioKey(),
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'User-Agent': 'NuvioDesktop/0.1.10-alpha',
+    'User-Agent': 'NuvioDesktop/0.1.16-alpha',
   };
 
   if (token) {
@@ -226,7 +226,7 @@ async function executeNuvioRequest<T>(
   const res = await fetch(url, options);
   if (!res.ok) {
     const errorJson = await res.json().catch(() => ({}));
-    const msg = errorJson.msg || errorJson.error_description || errorJson.error?.message || `HTTP ${res.status} for ${path}`;
+    const msg = errorJson.msg || errorJson.error_description || errorJson.error?.message || `API HTTP ${res.status} for ${path}`;
     const err = new Error(msg) as any;
     err.status = res.status;
     throw err;
@@ -236,6 +236,56 @@ async function executeNuvioRequest<T>(
     return {} as T;
   }
   return JSON.parse(text) as T;
+}
+
+let lastRpcTimestamp = 0;
+const MIN_RPC_INTERVAL_MS = 500; // Minimum 500ms spacing between RPC calls to prevent 429 rate limit bursts
+let rpcQueueChain: Promise<any> = Promise.resolve();
+
+function enqueueRpcRequest<T>(fn: () => Promise<T>): Promise<T> {
+  const nextCall = rpcQueueChain.then(async () => {
+    const now = Date.now();
+    const elapsed = now - lastRpcTimestamp;
+    if (elapsed < MIN_RPC_INTERVAL_MS) {
+      await new Promise((resolve) => setTimeout(resolve, MIN_RPC_INTERVAL_MS - elapsed));
+    }
+    lastRpcTimestamp = Date.now();
+    return fn();
+  });
+  rpcQueueChain = nextCall.catch(() => {});
+  return nextCall;
+}
+
+async function executeNuvioRequest<T>(
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  path: string,
+  body?: any,
+  token?: string | null
+): Promise<T> {
+  const isRpc = path.includes('rpc/');
+  const runCall = async () => {
+    const maxRetries = 3;
+    let attempt = 0;
+    while (true) {
+      try {
+        return await executeNuvioRequestOnce<T>(method, path, body, token);
+      } catch (err: any) {
+        if (err?.status === 429 && attempt < maxRetries) {
+          attempt++;
+          const backoffMs = Math.min(1500 * Math.pow(2, attempt - 1) + Math.random() * 300, 6000);
+          console.warn(`[NuvioAPI] HTTP 429 Rate Limit for ${path}. Retrying in ${Math.round(backoffMs)}ms (attempt ${attempt}/${maxRetries})...`);
+          await new Promise((resolve) => setTimeout(resolve, backoffMs));
+          continue;
+        }
+        throw err;
+      }
+    }
+  };
+
+  if (isRpc) {
+    return enqueueRpcRequest(runCall);
+  }
+  return runCall();
 }
 
 interface CacheEntry {
