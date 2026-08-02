@@ -1737,6 +1737,73 @@ function useTmdbPresencePoster(
     };
   }, [activeView, playbackSourceView, showSettingsPopup, handleStop, setShowSettingsPopup, setActiveView]);
 
+  // Control volume up / down with mouse scroll wheel on the hero page
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      // Only active on the hero page (activeView === 'none')
+      if (activeView !== 'none') return;
+
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+
+      // 1. Don't intercept scroll if user is typing in text input, textarea, or editable element
+      const tagName = target.tagName;
+      if (
+        tagName === 'INPUT' ||
+        tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      // 2. Don't intercept scroll inside open modals, context menus, or dropdown popups
+      if (
+        target.closest(
+          '.modal, .modal-backdrop, .settings-modal, .playback-details-modal, .context-menu, .dropdown-menu, .layout-picker-dropdown, .keyboard-shortcuts-modal, .epg-editor-modal, .failover-manager-modal'
+        )
+      ) {
+        return;
+      }
+
+      // 3. Don't intercept scroll if an ancestor element is scrollable and has content to scroll vertically
+      let el: HTMLElement | null = target;
+      while (el && el !== document.body && el !== document.documentElement) {
+        const style = window.getComputedStyle(el);
+        const overflowY = style.overflowY;
+        const isScrollableStyle = overflowY === 'auto' || overflowY === 'scroll';
+        if (isScrollableStyle && el.scrollHeight > el.clientHeight) {
+          // Allow normal container scroll
+          return;
+        }
+        el = el.parentElement;
+      }
+
+      // Intercept scroll wheel on hero page
+      e.preventDefault();
+
+      // e.deltaY < 0 means scroll wheel up (increase volume)
+      // e.deltaY > 0 means scroll wheel down (decrease volume)
+      const step = e.deltaY < 0 ? 5 : -5;
+
+      setVolume((prevVol) => {
+        const newVol = Math.min(100, Math.max(0, prevVol + step));
+        if (newVol !== prevVol) {
+          Bridge.setVolume(newVol).catch(console.error);
+        }
+        return newVol;
+      });
+
+      // Show volume controls / now playing bar on mouse wheel adjustment
+      handleMouseMove();
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, [activeView, setVolume, handleMouseMove]);
+
   // ==========================================================================
   // Aspect Ratio — tracked separately for the hero screen
   // ==========================================================================
