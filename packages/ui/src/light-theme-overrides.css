@@ -654,7 +654,7 @@ html[data-theme="light"] .guide-channel-logo,
 html.modern-ui-v3[data-theme="light"] .guide-channel-logo {
   background: #ffffff !important;
   border: 1px solid #e2e8f0 !important;
-  border-radius: 6px !important;
+  border-radius: var(--channel-logo-radius, 6px) !important;
 }
 
 [data-theme="light"] .guide-channel-logo.logo-on-light,

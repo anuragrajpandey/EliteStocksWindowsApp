@@ -3519,6 +3519,16 @@ function useTmdbPresencePoster(
           if (settingsResult.data.epgBodyFontSize) {
             document.documentElement.style.setProperty('--epg-body-font-size', `${settingsResult.data.epgBodyFontSize}px`);
           }
+          if (settingsResult.data.channelLogoSize) {
+            document.documentElement.style.setProperty('--channel-logo-size', `${settingsResult.data.channelLogoSize}px`);
+          }
+          if (settingsResult.data.channelLogoRoundEdges === false) {
+            document.documentElement.style.setProperty('--channel-logo-radius', '0px');
+            document.documentElement.classList.add('logo-sharp-edges');
+          } else {
+            document.documentElement.style.removeProperty('--channel-logo-radius');
+            document.documentElement.classList.remove('logo-sharp-edges');
+          }
           if (settingsResult.data.uiScale) {
             document.documentElement.style.setProperty('--app-zoom', String(settingsResult.data.uiScale / 100));
             // Trigger EPG to re-measure availableWidth now that zoom is set.

@@ -585,6 +585,10 @@ export function Settings({
     setLogoCachePrefetch,
     sourceLogoDisplayOverrides,
     setSourceLogoDisplayOverride,
+    channelLogoSize,
+    setChannelLogoSize,
+    channelLogoRoundEdges,
+    setChannelLogoRoundEdges,
   } = useAppSettings();
 
   // Category settings state
@@ -2803,6 +2807,10 @@ export function Settings({
             onEpgPreferEpgLogosChange={handleEpgPreferEpgLogosChange}
             epgLogoDisplay={epgLogoDisplay}
             onEpgLogoDisplayChange={handleEpgLogoDisplayChange}
+            channelLogoSize={channelLogoSize}
+            onChannelLogoSizeChange={setChannelLogoSize}
+            channelLogoRoundEdges={channelLogoRoundEdges}
+            onChannelLogoRoundEdgesChange={setChannelLogoRoundEdges}
             sourceLogoDisplayOverrides={sourceLogoDisplayOverrides}
             onSetSourceLogoDisplayOverride={setSourceLogoDisplayOverride}
             epgMetadataBadgeResolution={epgMetadataBadgeResolution}

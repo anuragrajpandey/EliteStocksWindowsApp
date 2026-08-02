@@ -922,10 +922,10 @@ html, body, button, input, select, textarea {
 }
 
 .modern-ui .guide-channel-logo {
-  width: 42px;
-  height: 42px;
+  width: var(--channel-logo-size, 42px);
+  height: var(--channel-logo-size, 42px);
   background: rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
+  border-radius: var(--channel-logo-radius, 10px);
   border: none;
   box-shadow: none;
   padding: 3px;
@@ -942,9 +942,9 @@ html, body, button, input, select, textarea {
 
 /* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled */
 html.epg-rectangle-logos.modern-ui .guide-channel-logo {
-  width: 74px;
-  height: 38px;
-  border-radius: 8px;
+  width: calc(var(--channel-logo-size, 42px) * 1.76);
+  height: calc(var(--channel-logo-size, 42px) * 0.904);
+  border-radius: var(--channel-logo-radius, 8px);
   padding: 1px 5px;
   background: transparent;
 }

@@ -114,6 +114,10 @@ export interface AppSettings {
   epgDisableChannelFade: boolean;
   epgPreferEpgLogos: boolean;
   epgLogoDisplay: 'square' | 'rectangle';
+  channelLogoSize: number;
+  channelLogoRoundEdges: boolean;
+  setChannelLogoSize: (size: number) => void;
+  setChannelLogoRoundEdges: (enabled: boolean) => void;
   epgMetadataBadgeResolution: boolean;
   epgMetadataBadgeFps: boolean;
   epgMetadataBadgeFpsSuffix: boolean;
@@ -416,6 +420,8 @@ export function useAppSettings(): AppSettings {
   const [epgDisableChannelFade, setEpgDisableChannelFadeState] = useState(false);
   const [epgPreferEpgLogos, setEpgPreferEpgLogosState] = useState(false);
   const [epgLogoDisplay, setEpgLogoDisplayState] = useState<'square' | 'rectangle'>('square');
+  const [channelLogoSize, setChannelLogoSizeState] = useState<number>(cachedSettings?.channelLogoSize ?? 36);
+  const [channelLogoRoundEdges, setChannelLogoRoundEdgesState] = useState<boolean>(cachedSettings?.channelLogoRoundEdges ?? true);
   const [sourceLogoDisplayOverrides, setSourceLogoDisplayOverridesState] = useState<Record<string, 'square' | 'rectangle'>>(
     cachedSettings?.sourceLogoDisplayOverrides ?? {}
   );
@@ -716,6 +722,18 @@ export function useAppSettings(): AppSettings {
           setEpgDisableChannelFadeState(result.data.epgDisableChannelFade ?? false);
           setEpgPreferEpgLogosState(result.data.epgPreferEpgLogos ?? false);
           setEpgLogoDisplayState(result.data.epgLogoDisplay ?? 'square');
+          setChannelLogoSizeState(result.data.channelLogoSize ?? 36);
+          setChannelLogoRoundEdgesState(result.data.channelLogoRoundEdges ?? true);
+          if (result.data.channelLogoSize) {
+            document.documentElement.style.setProperty('--channel-logo-size', `${result.data.channelLogoSize}px`);
+          }
+          if (result.data.channelLogoRoundEdges === false) {
+            document.documentElement.style.setProperty('--channel-logo-radius', '0px');
+            document.documentElement.classList.add('logo-sharp-edges');
+          } else {
+            document.documentElement.style.removeProperty('--channel-logo-radius');
+            document.documentElement.classList.remove('logo-sharp-edges');
+          }
           setSourceLogoDisplayOverridesState(result.data.sourceLogoDisplayOverrides ?? {});
           setEpgMetadataBadgeResolutionState(result.data.epgMetadataBadgeResolution ?? true);
           setEpgMetadataBadgeFpsState(result.data.epgMetadataBadgeFps ?? true);
@@ -1705,6 +1723,32 @@ export function useAppSettings(): AppSettings {
     }
   }, []);
 
+  const setChannelLogoSize = useCallback((size: number) => {
+    setChannelLogoSizeState(size);
+    document.documentElement.style.setProperty('--channel-logo-size', `${size}px`);
+    if (window.storage) {
+      window.storage.debouncedUpdateSettings({ channelLogoSize: size });
+    }
+  }, []);
+
+  const setChannelLogoRoundEdges = useCallback(async (enabled: boolean) => {
+    setChannelLogoRoundEdgesState(enabled);
+    if (!enabled) {
+      document.documentElement.style.setProperty('--channel-logo-radius', '0px');
+      document.documentElement.classList.add('logo-sharp-edges');
+    } else {
+      document.documentElement.style.removeProperty('--channel-logo-radius');
+      document.documentElement.classList.remove('logo-sharp-edges');
+    }
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ channelLogoRoundEdges: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save channelLogoRoundEdges:', e);
+      }
+    }
+  }, []);
+
   const setSourceLogoDisplayOverride = useCallback(async (sourceId: string, display: 'square' | 'rectangle' | 'default') => {
     setSourceLogoDisplayOverridesState((prev) => {
       const next = { ...prev };
@@ -1911,6 +1955,10 @@ export function useAppSettings(): AppSettings {
     setEpgPreferEpgLogos,
     epgLogoDisplay,
     setEpgLogoDisplay,
+    channelLogoSize,
+    setChannelLogoSize,
+    channelLogoRoundEdges,
+    setChannelLogoRoundEdges,
     sourceLogoDisplayOverrides,
     setSourceLogoDisplayOverride,
     epgMetadataBadgeResolution,

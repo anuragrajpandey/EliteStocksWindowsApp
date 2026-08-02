@@ -1088,9 +1088,9 @@ html.epg-highlight-border-current .guide-channel-row.currently-playing::after {
 }
 
 .guide-channel-logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
+  width: var(--channel-logo-size, 36px);
+  height: var(--channel-logo-size, 36px);
+  border-radius: var(--channel-logo-radius, 6px);
   overflow: hidden;
   background: rgba(255, 255, 255, 0.08);
   display: flex;
@@ -1123,14 +1123,20 @@ html.epg-highlight-border-current .guide-channel-row.currently-playing::after {
 
 /* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled on document */
 html.epg-rectangle-logos .guide-channel-logo {
-  width: 66px;
-  height: 32px;
-  border-radius: 4px;
+  width: calc(var(--channel-logo-size, 36px) * 1.833);
+  height: calc(var(--channel-logo-size, 36px) * 0.888);
+  border-radius: var(--channel-logo-radius, 4px);
   padding: 1px 4px;
   background: transparent;
 }
 html.epg-rectangle-logos .guide-channel-logo.logo-on-light {
   background: rgba(255, 255, 255, 0.9);
+}
+
+/* Sharp edge override when round edges is disabled */
+html.logo-sharp-edges .guide-channel-logo,
+.logo-sharp-edges .guide-channel-logo {
+  border-radius: 0px !important;
 }
 
 /* No-padding overrides for standard & rectangle logos */

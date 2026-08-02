@@ -7,6 +7,10 @@ interface LogosTabProps {
   onEpgPreferEpgLogosChange: (enabled: boolean) => void;
   epgLogoDisplay: 'square' | 'rectangle';
   onEpgLogoDisplayChange: (display: 'square' | 'rectangle') => void;
+  channelLogoSize?: number;
+  onChannelLogoSizeChange?: (size: number) => void;
+  channelLogoRoundEdges?: boolean;
+  onChannelLogoRoundEdgesChange?: (enabled: boolean) => void;
   sourceLogoDisplayOverrides: Record<string, 'square' | 'rectangle'>;
   onSetSourceLogoDisplayOverride: (sourceId: string, display: 'square' | 'rectangle' | 'default') => void;
   logoCacheEnabled: boolean;
@@ -16,6 +20,13 @@ interface LogosTabProps {
   logoCacheTtlDays: number;
   onLogoCacheTtlDaysChange: (days: number) => void;
 }
+
+const LOGO_SIZE_PRESETS = [
+  { label: 'Small (28px)', value: 28 },
+  { label: 'Default (36px)', value: 36 },
+  { label: 'Large (48px)', value: 48 },
+  { label: 'XL (56px)', value: 56 },
+];
 
 const SIZE_PRESETS = [
   { label: '100 MB', value: 100 },
@@ -46,6 +57,10 @@ export function LogosTab({
   onEpgPreferEpgLogosChange,
   epgLogoDisplay,
   onEpgLogoDisplayChange,
+  channelLogoSize = 36,
+  onChannelLogoSizeChange = () => {},
+  channelLogoRoundEdges = true,
+  onChannelLogoRoundEdgesChange = () => {},
   sourceLogoDisplayOverrides,
   onSetSourceLogoDisplayOverride,
   logoCacheEnabled,
@@ -94,6 +109,12 @@ export function LogosTab({
   const maxBytes = logoCacheMaxMb > 0 ? logoCacheMaxMb * 1024 * 1024 : 0;
   const usagePercent = maxBytes > 0 ? Math.min(100, Math.round((usedBytes / maxBytes) * 100)) : 0;
 
+  // Compute dimensions & styles for live preview
+  const isRect = epgLogoDisplay === 'rectangle';
+  const previewWidth = isRect ? Math.round(channelLogoSize * 1.83) : channelLogoSize;
+  const previewHeight = isRect ? Math.round(channelLogoSize * 0.9) : channelLogoSize;
+  const previewRadius = channelLogoRoundEdges ? (isRect ? 6 : 8) : 0;
+
   return (
     <div className="settings-tab-content playback-tab-content">
       {/* ── Logo Display & Preferences ── */}
@@ -102,12 +123,160 @@ export function LogosTab({
           <h3>Logo Preferences</h3>
         </div>
         <p className="section-description">
-          Customize channel logo sources and display layout aspect ratio in the guide.
+          Customize channel logo scale, corner rounding, sources, and layout aspect ratio in the guide.
         </p>
 
         <div className="timeshift-settings">
+          {/* Logo Size Control */}
+          <div className="form-group" style={{ marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <div>
+                <span className="timeshift-toggle-label" style={{ display: 'block' }}>Logo Size</span>
+                <span className="timeshift-toggle-sub">Scale channel logos bigger or smaller across the guide and channel list.</span>
+              </div>
+              <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--accent-color, #00d4ff)', minWidth: '3.5rem', textAlign: 'right' }}>
+                {channelLogoSize}px
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '10px' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>20px</span>
+              <input
+                type="range"
+                min="20"
+                max="64"
+                step="2"
+                value={channelLogoSize}
+                onChange={(e) => onChannelLogoSizeChange(parseInt(e.target.value, 10))}
+                style={{ flex: 1, cursor: 'pointer' }}
+              />
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>64px</span>
+            </div>
+
+            <div className="timeshift-presets" style={{ gap: '6px' }}>
+              {LOGO_SIZE_PRESETS.map((preset) => (
+                <button
+                  key={preset.value}
+                  type="button"
+                  className={`timeshift-preset-btn ${channelLogoSize === preset.value ? 'active' : ''}`}
+                  onClick={() => onChannelLogoSizeChange(preset.value)}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Round Logo Edges Toggle */}
+          <div className="timeshift-toggle-row" style={{ marginBottom: '20px', paddingTop: '16px', borderTop: '1px solid var(--surface-border)' }}>
+            <div className="timeshift-toggle-info">
+              <span className="timeshift-toggle-label">Round Logo Edges</span>
+              <span className="timeshift-toggle-sub">Enable rounded corners for channel logo tiles, or disable for sharp square edges.</span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={channelLogoRoundEdges}
+                onChange={(e) => onChannelLogoRoundEdgesChange(e.target.checked)}
+              />
+              <span className="toggle-slider" />
+            </label>
+          </div>
+
+          {/* Interactive Live Preview Box */}
+          <div
+            style={{
+              marginBottom: '20px',
+              padding: '16px',
+              background: 'var(--bg-tertiary, #1e1e24)',
+              borderRadius: '8px',
+              border: '1px solid var(--surface-border)',
+            }}
+          >
+            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
+              Live Logo Style Preview
+            </div>
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+              {/* Sample Logo Tile 1 */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                <div
+                  style={{
+                    width: previewWidth,
+                    height: previewHeight,
+                    borderRadius: `${previewRadius}px`,
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: `${Math.max(10, Math.round(previewHeight * 0.4))}px`,
+                    color: '#ffffff',
+                    transition: 'all 0.2s ease',
+                    overflow: 'hidden',
+                  }}
+                >
+                  HBO
+                </div>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>Dark Tile</span>
+              </div>
+
+              {/* Sample Logo Tile 2 (Light tile) */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                <div
+                  style={{
+                    width: previewWidth,
+                    height: previewHeight,
+                    borderRadius: `${previewRadius}px`,
+                    background: 'rgba(255, 255, 255, 0.9)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: `${Math.max(10, Math.round(previewHeight * 0.38))}px`,
+                    color: '#111827',
+                    transition: 'all 0.2s ease',
+                    overflow: 'hidden',
+                  }}
+                >
+                  ESPN
+                </div>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>Light Tile</span>
+              </div>
+
+              {/* Sample Logo Tile 3 */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                <div
+                  style={{
+                    width: previewWidth,
+                    height: previewHeight,
+                    borderRadius: `${previewRadius}px`,
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: `${Math.max(10, Math.round(previewHeight * 0.4))}px`,
+                    color: '#38bdf8',
+                    transition: 'all 0.2s ease',
+                    overflow: 'hidden',
+                  }}
+                >
+                  CNN
+                </div>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>Colored Tile</span>
+              </div>
+
+              <div style={{ marginLeft: 'auto', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                Format: <strong>{isRect ? 'Rectangle' : 'Square'}</strong> ({previewWidth}px × {previewHeight}px), Corners: <strong>{channelLogoRoundEdges ? `${previewRadius}px Rounded` : 'Square (0px)'}</strong>
+              </div>
+            </div>
+          </div>
+
           {/* Prefer EPG channel logos globally */}
-          <div className="timeshift-toggle-row">
+          <div className="timeshift-toggle-row" style={{ paddingTop: '16px', borderTop: '1px solid var(--surface-border)' }}>
             <div className="timeshift-toggle-info">
               <span className="timeshift-toggle-label">Prefer EPG logos globally</span>
               <span className="timeshift-toggle-sub">When enabled, channels with EPG data will display the matched EPG channel's logo instead of the playlist's logo.</span>
