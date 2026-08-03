@@ -1,5 +1,55 @@
 # Changelog
 
+## v2.3.0
+
+## Added
+
+- **Category folders** - Group related categories into folders within an expanded source in the sidebar (e.g. countries, sports, 24/7 channels, etc). Reduces clutter and speeds up navigation. Right-click a source to create a folder and move categories into it. Folders can be pinned to stay visible while scrolling, just like pinned categories. Right-click a folder and select `Manage Folder` to edit it.
+- **OpenSubtitles integration** - Search and download subtitles directly from within the player via OpenSubtitles. Sign in under `Settings → Subtitles`.
+- **Simkl integration** - Scrobble Movies and Series to Simkl. Configure under `Settings → Simkl`.
+- **Discord Rich Presence** - Broadcasts the currently playing live channel, movie, or series episode to your Discord status. Enable under `Settings → Discord`. TMDB must be enabled for movie posters to appear during VOD playback.
+- **Play VOD Movies and Series in Popout or External Player** - Use the dropdown next to the Play button to select which player to use for VOD playback.
+- **Channel logo cache** - Logo caching can be enabled under `Settings → Live TV → Logos`.
+- **Channel logo display options and resizing** - Choose between square or wide rectangle logo shapes, adjust logo size, and toggle rounded edges under `Settings → Live TV → Logos`.
+- **Automatic dark logo detection** - Channel logos are automatically analysed to apply a light tile background when a dark logo is detected against a dark theme. Can be manually overridden in the EPG Editor as it might not detect every logo precisely.
+- **Logo Editor** - Quickly apply Light, Dark, or Automatic backgrounds and remove padding per category. Access by right-clicking a category in the sidebar and selecting `Logo Editor`.
+- **M3U catch-up playback and downloads** - Catch-up streams can now be played directly from the EPG guide history, and catch-up recordings can be downloaded for supported M3U playlists. May require padding to be set to `0`.
+- **DVR and custom recording titles** - Completed DVR recordings can be renamed directly in `DVR → Recordings`. Custom titles can also be set before recording.
+- **Embedded subtitle scaling and override settings** - Embedded ASS/SSA and WebVTT subtitles now respect player font scaling. An `Override Embedded Styles` option has been added under `Settings → Subtitles` with the following modes: `Yes`, `Force All`, `Scale Only`, and `No`.
+- **External subtitle loading** - Local subtitle files (`.srt`, `.vtt`, `.sub`, `.ass`, `.ssa`) can now be loaded from disk during playback.
+- **24-hour time format** - Toggle between 12-hour and 24-hour time formatting across the EPG, sports schedules, TV calendar, and DVR timers under `Settings → Live TV`.
+- **Keyboard shortcuts overlay and international layout support** - Press `/` to open the interactive Keyboard Shortcuts modal. Shortcut keybinding support has been expanded for non-English keyboard layouts.
+- **Mouse wheel volume control** - Player volume can now be adjusted by scrolling the mouse wheel over the video player.
+- **Metadata badge customisation in EPG** - Individual stream quality badges (Resolution, FPS, Audio) and the FPS suffix can be toggled on/off independently under `Settings → Live TV`.
+- **Media info overlay for VOD, Stremio, and Nuvio** - Movie and series details for the currently playing title are now shown in a clickable Episode/Movie Info pill overlay in the top-left of the player.
+- **Settings and Light Theme readability** - Full dynamic CSS variable adoption across settings tabs, improving readability for Light Theme.
+- **Enhanced backup and restore** - Import/Export has been expanded to include custom folders, layout preferences, and logo overrides.
+- **Volume numeric display** - The numeric volume level can be shown in the media bar by enabling `Show Volume %` under `Settings → UI → Player`.
+- **Transparent guide button in media bar** - A transparent guide button has been added to the media bar for quick access to the transparent EPG overlay in Live TV. Can also be opened using the hotkey (Default `Z`)
+- **Adjustable scrollbar size** - Scrollbar width can be customised under `Settings → UI → Override Scrollbar Width`.
+- **Live TV CC subtitle adjustments** - Closed caption subtitle size and position can now be adjusted via the subtitle overlay.
+- **Cyrillic and multi-language search** - Full search support for Cyrillic and non-Latin scripts across Channels, EPG, VOD, and Categories, including accent folding and transliteration (e.g. `"perviy"` matches `"Первый"`).
+- **Sports and athlete enhancements:**
+  - **Depth Charts tab** - Displays position groups and formation depth charts (Offence, Defence, Special Teams) with starter and backup rankings for NFL, NBA, MLB, NHL, and college sports.
+  - **Injury Report tab** - Real-time team injury reports with status badges (`OUT`, `QUESTIONABLE`, `PUP`, `IR`), body location, medical notes, and projected return dates.
+  - **Stat Leaders tab** - Statistical leaders across all major categories (passing, rushing, receiving, tackles, points, etc.) per team.
+  - **Universal Athlete Profile** - Click any player name or headshot to open a full overlay featuring bio, season stats, year-by-year history, and week-by-week game logs.
+  - **League Division and Standings views** - Added By Conference and By Division view toggles to the standings section.
+
+## Fixed
+
+- **VOD details page readability** - A gradient has been added to the VOD details page background to improve text legibility.
+- **Playback resume ignoring early progress** - Resume playback was previously skipped if watched progress was below 5%. Playback position will now be restored for any progress greater than 10 seconds.
+- **Subtitle track switching resetting style overrides** - Active subtitle style overrides will no longer reset when toggling between embedded subtitle tracks.
+- **SubSource ZIP subtitle extraction failures** - Resolved an issue causing SubSource ZIP subtitle files to fail during extraction.
+- **Expanded category trees collapsing unexpectedly** - Resolved a race condition that caused expanded category trees to collapse while navigating between views.
+- **Xtream VOD sync failing on null stream names** - Resolved a sync failure that occurred when Xtream VOD stream names contained null or non-string data.
+- **Nuvio Library not displaying all media** - The Library view has been switched to a grid layout to ensure all media is shown.
+- **Minimum window size reduced** - The minimum app window size has been lowered from 960×600 to 400×300.
+- **Light Theme contrast and readability** - The Light Theme has been reworked for consistent readability throughout the app.
+- **Nuvio rate limiting and excessive API requests** - Nuvio sync architecture has been updated to match NuvioDesktop, eliminating 429 rate limit errors and significantly reducing API request volume.
+- **Changed default UA to VLC** - Changed for better compatability with providers. 
+
 ## v2.2.3
 
 ### Added
