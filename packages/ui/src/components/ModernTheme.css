@@ -1,6 +1,42 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap');
 @import url('https://api.fontshare.com/v2/css?f[]=switzer@300,400,500,600,700&f[]=cabinet-grotesk@300,400,500,600,700,800&f[]=sentient@300,400,500,600,700&display=swap');
 
+/* Override font-display from CDN stylesheets (which use 'swap') to 'block'.
+ * font-display: swap causes FOUT (Flash of Unstyled Text) — the browser renders
+ * text with a fallback font first, then swaps when the real font loads. In the
+ * EPG's Virtuoso virtual list, newly rendered rows during scroll get the fallback
+ * temporarily, then swap, causing every visible row to jitter (resize/shake).
+ * font-display: block gives a short invisible period instead, eliminating the swap
+ * mid-scroll. These blocks don't re-download fonts; they only override display behavior. */
+@font-face {
+  font-family: 'Switzer';
+  src: local('Switzer');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Sentient';
+  src: local('Sentient');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: local('Cabinet Grotesk');
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Fraunces';
+  src: local('Fraunces');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+
 html, body, button, input, select, textarea {
   font-family: var(--font-family, 'Inter', system-ui, sans-serif);
 }

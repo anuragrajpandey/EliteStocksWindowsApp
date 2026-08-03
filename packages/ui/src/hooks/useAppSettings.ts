@@ -15,6 +15,7 @@ function getInitialSettingsFromStorage(): Record<string, any> | null {
 
 let cachedSettings: Record<string, any> | null = getInitialSettingsFromStorage();
 
+
 export interface AppSettings {
   // Layout persistence
   rememberLastChannels: boolean;
@@ -436,30 +437,51 @@ export function useAppSettings(): AppSettings {
   const [globalLiveTvUserAgent, setGlobalLiveTvUserAgentState] = useState('');
 
   // Global Font selection states
-  const [appFontFamily, setAppFontFamilyState] = useState<string>('inter');
-  const [appCustomFontBase64, setAppCustomFontBase64State] = useState<string>('');
-  const [appCustomFontFormat, setAppCustomFontFormatState] = useState<string>('');
-  const [appCustomFontName, setAppCustomFontNameState] = useState<string>('');
+  // Initialize from cachedSettings so all hook instances (ChannelLogo, MetadataBadge,
+  // etc.) start with the correct value synchronously. This prevents them from ever
+  // computing a different fontValue than the owner and inadvertently resetting the DOM.
+  const [appFontFamily, setAppFontFamilyState] = useState<string>(cachedSettings?.appFontFamily || 'inter');
+  const [appCustomFontBase64, setAppCustomFontBase64State] = useState<string>(cachedSettings?.appCustomFontBase64 || '');
+  const [appCustomFontFormat, setAppCustomFontFormatState] = useState<string>(cachedSettings?.appCustomFontFormat || '');
+  const [appCustomFontName, setAppCustomFontNameState] = useState<string>(cachedSettings?.appCustomFontName || '');
 
-  // Global Font apply effect
+  // Global Font apply effect.
+  // Multiple hook instances run this (ChannelLogo, MetadataBadge, App, etc.), but that
+  // is safe because:
+  // 1. All instances initialize appFontFamily from cachedSettings — they compute the
+  //    same fontValue on mount, so the DOM guard below prevents redundant writes.
+  // 2. Only the App-level instance ever calls setAppFontFamilyState with a NEW value
+  //    (via updateAppFont), so only that instance re-runs with a changed fontValue.
+  // 3. We compare against the current DOM value and bail out early if there's no change,
+  //    which eliminates the mid-scroll flip-flop without needing ownership tracking.
   useEffect(() => {
     const root = document.documentElement;
     if (!root) return;
 
     let fontValue = "'Inter', system-ui, sans-serif";
+    let fontFaceName: string | null = null;
     if (appFontFamily === 'switzer') {
       fontValue = "'Switzer', sans-serif";
+      fontFaceName = 'Switzer';
     } else if (appFontFamily === 'sentient') {
       fontValue = "'Sentient', serif";
+      fontFaceName = 'Sentient';
     } else if (appFontFamily === 'fraunces') {
       fontValue = "'Fraunces', serif";
+      fontFaceName = 'Fraunces';
     } else if (appFontFamily === 'cabinet-grotesk') {
       fontValue = "'Cabinet Grotesk', sans-serif";
+      fontFaceName = 'Cabinet Grotesk';
     } else if (appFontFamily === 'custom' && appCustomFontBase64) {
       fontValue = "'custom-uploaded-font', sans-serif";
     }
-    
-    root.style.setProperty('--font-family', fontValue);
+
+    // Guard: if the DOM already has this exact value, no work needed.
+    // This prevents secondary instances (ChannelLogo, MetadataBadge mounted in Virtuoso
+    // rows during EPG scroll) from redundantly re-applying the same font or, on the first
+    // render cycle before cachedSettings was available, writing 'Inter' over the real font.
+    const currentDomValue = root.style.getPropertyValue('--font-family');
+    const needsFontWrite = currentDomValue !== fontValue;
 
     let styleEl = document.getElementById('custom-theme-font-face') as HTMLStyleElement;
     if (appFontFamily === 'custom' && appCustomFontBase64) {
@@ -468,20 +490,26 @@ export function useAppSettings(): AppSettings {
         styleEl.id = 'custom-theme-font-face';
         document.head.appendChild(styleEl);
       }
-      let format = appCustomFontFormat || 'woff2';
-      styleEl.innerHTML = `
-        @font-face {
-          font-family: 'custom-uploaded-font';
-          src: url('${appCustomFontBase64}') format('${format}');
-          font-weight: 100 900;
-          font-style: normal;
-          font-display: swap;
-        }
-      `;
-    } else {
-      if (styleEl) {
-        styleEl.remove();
+      const format = appCustomFontFormat || 'woff2';
+      const newFace = `@font-face{font-family:'custom-uploaded-font';src:url('${appCustomFontBase64}')format('${format}');font-weight:100 900;font-style:normal;font-display:block;}`;
+      if (styleEl.innerHTML !== newFace) {
+        styleEl.innerHTML = newFace;
       }
+    } else {
+      if (styleEl) styleEl.remove();
+    }
+
+    if (!needsFontWrite) return;
+
+    // Pre-load the selected font before applying it to avoid any remaining FOUT.
+    if (fontFaceName && document.fonts) {
+      document.fonts.load(`400 1em '${fontFaceName}'`).then(() => {
+        root.style.setProperty('--font-family', fontValue);
+      }).catch(() => {
+        root.style.setProperty('--font-family', fontValue);
+      });
+    } else {
+      root.style.setProperty('--font-family', fontValue);
     }
   }, [appFontFamily, appCustomFontBase64, appCustomFontFormat]);
 

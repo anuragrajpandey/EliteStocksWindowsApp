@@ -160,28 +160,38 @@ export function NowPlayingBar({
 
   // Playback speed state
   const [speed, setSpeed] = useState<number>(1);
+  const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const speedMenuRef = useRef<HTMLDivElement>(null);
   const lastUrlRef = useRef<string | null>(null);
   const currentUrl = isVod ? vodInfo?.url : channel?.direct_url;
 
   useEffect(() => {
     if (currentUrl !== lastUrlRef.current) {
       setSpeed(1);
+      setShowSpeedMenu(false);
       lastUrlRef.current = currentUrl || null;
     }
   }, [currentUrl, isVod]);
 
-  const handleToggleSpeed = useCallback(() => {
-    let nextSpeed = 1.0;
-    if (speed === 1.0) {
-      nextSpeed = 1.5;
-    } else if (speed === 1.5) {
-      nextSpeed = 2.0;
-    } else {
-      nextSpeed = 1.0;
-    }
-    setSpeed(nextSpeed);
-    Bridge.setProperty('speed', nextSpeed).catch(console.error);
-  }, [speed]);
+  // Close playback speed menu on outside click
+  useEffect(() => {
+    if (!showSpeedMenu) return;
+    const handleClick = (e: MouseEvent) => {
+      if (speedMenuRef.current && !speedMenuRef.current.contains(e.target as Node)) {
+        setShowSpeedMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showSpeedMenu]);
+
+  const SPEED_OPTIONS = [1.0, 1.25, 1.5, 1.75, 2.0];
+
+  const handleSelectSpeed = useCallback((newSpeed: number) => {
+    setSpeed(newSpeed);
+    Bridge.setProperty('speed', newSpeed).catch(console.error);
+    setShowSpeedMenu(false);
+  }, []);
 
   // Source picker modal state
   const [showSourcePicker, setShowSourcePicker] = useState(false);
@@ -768,15 +778,30 @@ export function NowPlayingBar({
               {/* Right Group: Toggle Stats, Aspect Ratio, Speed, Audio, Subtitles, Source Picker, PiP, Fullscreen */}
               <div className="npb-clean-right">
                 {isVod && (
-                  <button
-                    className="npb-clean-btn npb-speed-btn"
-                    onClick={handleToggleSpeed}
-                    disabled={!canControl}
-                    title={`Playback Speed: ${speed}x`}
-                    style={{ fontWeight: 700, fontSize: '0.8rem', minWidth: '28px' }}
-                  >
-                    {speed === 1 ? '1x' : speed === 1.5 ? '1.5x' : '2x'}
-                  </button>
+                  <div style={{ position: 'relative' }} ref={speedMenuRef}>
+                    <button
+                      className={`npb-clean-btn npb-speed-btn${showSpeedMenu ? ' active' : ''}`}
+                      onClick={() => setShowSpeedMenu(v => !v)}
+                      disabled={!canControl}
+                      title={`Playback Speed: ${speed}x`}
+                      style={{ fontWeight: 700, fontSize: '0.8rem', minWidth: '28px' }}
+                    >
+                      {`${speed}x`}
+                    </button>
+                    {showSpeedMenu && (
+                      <div className="npb-aspect-menu npb-speed-menu">
+                        {SPEED_OPTIONS.map((s) => (
+                          <button
+                            key={s}
+                            className={`npb-aspect-item ${speed === s ? 'active' : ''}`}
+                            onClick={() => handleSelectSpeed(s)}
+                          >
+                            {`${s}x`}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 )}
 
                 {!isVod && !vodInfo && onToggleTransparentGuide && (
@@ -1281,15 +1306,28 @@ export function NowPlayingBar({
 
               {/* Playback speed controls (VOD only) */}
               {isVod && (
-                <div className="npb-controls npb-speed-controls">
+                <div className="npb-controls npb-speed-controls" style={{ position: 'relative' }} ref={speedMenuRef}>
                   <button
-                    className="npb-btn npb-speed-btn"
-                    onClick={handleToggleSpeed}
+                    className={`npb-btn npb-speed-btn${showSpeedMenu ? ' active' : ''}`}
+                    onClick={() => setShowSpeedMenu(v => !v)}
                     disabled={!canControl}
                     title={`Playback Speed: ${speed}x`}
                   >
-                    {speed === 1 ? '1x' : speed === 1.5 ? '1.5x' : '2x'}
+                    {`${speed}x`}
                   </button>
+                  {showSpeedMenu && (
+                    <div className="npb-aspect-menu npb-speed-menu">
+                      {SPEED_OPTIONS.map((s) => (
+                        <button
+                          key={s}
+                          className={`npb-aspect-item ${speed === s ? 'active' : ''}`}
+                          onClick={() => handleSelectSpeed(s)}
+                        >
+                          {`${s}x`}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
