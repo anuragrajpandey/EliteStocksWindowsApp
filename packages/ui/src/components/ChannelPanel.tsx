@@ -1271,6 +1271,22 @@ export function ChannelPanel({
     }
   }, [previewMuted]);
 
+  // Handle scroll wheel on the preview pane to adjust volume
+  const handlePreviewWheelVolume = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const delta = e.deltaY < 0 ? 5 : -5;
+    setPreviewVolume((prev) => {
+      const newVol = Math.min(100, Math.max(0, prev + delta));
+      Bridge.setProperty('volume', newVol).catch(console.error);
+      if (newVol > 0) {
+        setPreviewMuted(false);
+        Bridge.setProperty('mute', false).catch(console.error);
+      }
+      return newVol;
+    });
+  }, []);
+
   // Handle mute toggle for preview mini bar
   const handlePreviewMuteToggle = useCallback(() => {
     const newMuted = !previewMuted;
@@ -2000,6 +2016,7 @@ export function ChannelPanel({
         handlePreviewPaneMouseLeave();
       }}
       onMouseEnter={handlePreviewPaneMouseEnter}
+      onWheel={handlePreviewWheelVolume}
     >
       {/* Resizer Handle */}
       {!showMultiviewGrid && (
