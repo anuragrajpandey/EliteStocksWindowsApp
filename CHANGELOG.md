@@ -1,8 +1,8 @@
 # Changelog
 
-## v2.3.0
+## v2.3.1
 
-## Added
+### Added v2.3.0
 
 - **Category folders** - Group related categories into folders within an expanded source in the sidebar (e.g. countries, sports, 24/7 channels, etc). Reduces clutter and speeds up navigation. Right-click a source to create a folder and move categories into it. Folders can be pinned to stay visible while scrolling, just like pinned categories. Right-click a folder and select `Manage Folder` to edit it.
 - **OpenSubtitles integration** - Search and download subtitles directly from within the player via OpenSubtitles. Sign in under `Settings → Subtitles`.
@@ -36,7 +36,7 @@
   - **Universal Athlete Profile** - Click any player name or headshot to open a full overlay featuring bio, season stats, year-by-year history, and week-by-week game logs.
   - **League Division and Standings views** - Added By Conference and By Division view toggles to the standings section.
 
-## Fixed
+### Fixed v2.3.0
 
 - **VOD details page readability** - A gradient has been added to the VOD details page background to improve text legibility.
 - **Playback resume ignoring early progress** - Resume playback was previously skipped if watched progress was below 5%. Playback position will now be restored for any progress greater than 10 seconds.
@@ -49,6 +49,10 @@
 - **Light Theme contrast and readability** - The Light Theme has been reworked for consistent readability throughout the app.
 - **Nuvio rate limiting and excessive API requests** - Nuvio sync architecture has been updated to match NuvioDesktop, eliminating 429 rate limit errors and significantly reducing API request volume.
 - **Changed default UA to VLC** - Changed for better compatability with providers. 
+
+### Fixed in v2.3.1
+
+- **Using nondefault font caused font to swap back and forth** - Fixed an issue where using a font other than Inter caused the app to swap between Inter and chosen font when scrolling EPG.
 
 ## v2.2.3
 
