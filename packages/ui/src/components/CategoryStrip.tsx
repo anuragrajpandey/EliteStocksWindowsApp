@@ -338,6 +338,7 @@ function SidebarFolderHeader({
   onToggle,
   onContextMenu,
   style,
+  'data-folder-id': dataFolderId,
 }: {
   folder: CategoryFolder;
   isFolderExpanded: boolean;
@@ -346,6 +347,7 @@ function SidebarFolderHeader({
   onToggle: () => void;
   onContextMenu?: (e: React.MouseEvent) => void;
   style?: React.CSSProperties;
+  'data-folder-id'?: string;
 }) {
   return (
     <button
@@ -353,6 +355,7 @@ function SidebarFolderHeader({
       onClick={onToggle}
       onContextMenu={onContextMenu}
       style={style}
+      data-folder-id={dataFolderId}
     >
       <div className="folder-header-left">
         <ChevronIcon expanded={isFolderExpanded} size={12} />
@@ -738,13 +741,100 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
   );
 
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
+  // Track the most-recently expanded folder so we can scroll it into view
+  const lastExpandedFolderRef = useRef<string | null>(null);
 
   const toggleFolder = (folderId: string) => {
-    setExpandedFolders(prev => ({
-      ...prev,
-      [folderId]: !prev[folderId]
-    }));
+    setExpandedFolders(prev => {
+      const nowExpanded = !prev[folderId];
+      if (nowExpanded) {
+        lastExpandedFolderRef.current = folderId;
+      }
+      return {
+        ...prev,
+        [folderId]: nowExpanded
+      };
+    });
   };
+
+  const getStickyOffsetForElement = (targetEl: HTMLElement) => {
+    const sourceGroupEl = targetEl.closest('.category-source-group');
+    if (!sourceGroupEl) return 0;
+
+    let stickyOffset = 0;
+    const sourceHeader = sourceGroupEl.querySelector<HTMLElement>('.category-source-header');
+    if (sourceHeader) stickyOffset += sourceHeader.offsetHeight;
+
+    const stickyItems = Array.from(
+      sourceGroupEl.querySelectorAll<HTMLElement>(
+        '.category-folder-header.is-pinned, .category-item.nested.is-pinned'
+      )
+    );
+
+    for (const el of stickyItems) {
+      if (el === targetEl) continue;
+      if (el.compareDocumentPosition(targetEl) & Node.DOCUMENT_POSITION_FOLLOWING) {
+        stickyOffset += el.offsetHeight;
+      }
+    }
+
+    return stickyOffset;
+  };
+
+  const getNaturalTopInScrollContainer = (container: HTMLElement, targetEl: HTMLElement) => {
+    const previousPosition = targetEl.style.getPropertyValue('position');
+    const previousPositionPriority = targetEl.style.getPropertyPriority('position');
+    const previousTop = targetEl.style.getPropertyValue('top');
+    const previousTopPriority = targetEl.style.getPropertyPriority('top');
+
+    targetEl.style.setProperty('position', 'static', 'important');
+    targetEl.style.setProperty('top', 'auto', 'important');
+
+    const containerRect = container.getBoundingClientRect();
+    const targetRect = targetEl.getBoundingClientRect();
+    const naturalTop = container.scrollTop + targetRect.top - containerRect.top;
+
+    if (previousPosition) {
+      targetEl.style.setProperty('position', previousPosition, previousPositionPriority);
+    } else {
+      targetEl.style.removeProperty('position');
+    }
+    if (previousTop) {
+      targetEl.style.setProperty('top', previousTop, previousTopPriority);
+    } else {
+      targetEl.style.removeProperty('top');
+    }
+
+    return naturalTop;
+  };
+
+  // After a folder is expanded, reset the scroll so its header and first
+  // category are visible below the source header and pinned rows.
+  useLayoutEffect(() => {
+    const folderId = lastExpandedFolderRef.current;
+    if (!folderId) return;
+    lastExpandedFolderRef.current = null;
+
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    // Locate the folder header robustly (avoid querySelector escaping issues by
+    // comparing the attribute directly rather than building a selector string).
+    let headerEl: HTMLElement | null = null;
+    const headers = container.querySelectorAll<HTMLElement>('[data-folder-id]');
+    for (const h of Array.from(headers)) {
+      if (h.getAttribute('data-folder-id') === folderId) {
+        headerEl = h;
+        break;
+      }
+    }
+    if (!headerEl) return;
+
+    const stickyOffset = getStickyOffsetForElement(headerEl);
+    const naturalTop = getNaturalTopInScrollContainer(container, headerEl);
+
+    container.scrollTop = Math.max(0, naturalTop - stickyOffset);
+  }, [expandedFolders]);
 
   // Load all categories for link name mapping
   const allCategoriesList = useLiveQuery(
@@ -871,28 +961,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
       const containerRect = container.getBoundingClientRect();
       const elementRect = selectedEl.getBoundingClientRect();
       
-      const groupEl = selectedEl.closest('.category-source-group');
-      const headerEl = groupEl?.querySelector('.category-source-header') as HTMLElement | null;
-      const headerHeight = headerEl ? headerEl.offsetHeight : 0;
-      
-      let stickyOffset = headerHeight;
-      if (groupEl) {
-        const siblings = Array.from(groupEl.querySelectorAll('.category-item.nested'));
-        const selectedIdx = siblings.indexOf(selectedEl);
-        if (selectedIdx > 0) {
-          const pinnedAbove = siblings.slice(0, selectedIdx).filter(el => el.classList.contains('is-pinned'));
-          stickyOffset += pinnedAbove.length * 38;
-        }
-        // Pinned folder headers persist below the source header for the whole source,
-        // so account for any that sit above the selected item.
-        const selectedElRect = selectedEl.getBoundingClientRect();
-        const pinnedFolderHeaders = Array.from(groupEl.querySelectorAll('.category-folder-header.is-pinned'));
-        const pinnedFoldersAbove = pinnedFolderHeaders.filter(el => {
-          const r = el.getBoundingClientRect();
-          return r.bottom <= selectedElRect.top + 1;
-        });
-        stickyOffset += pinnedFoldersAbove.length * 34;
-      }
+      const stickyOffset = getStickyOffsetForElement(selectedEl);
       
       const viewTop = containerRect.top + stickyOffset;
       const viewBottom = containerRect.bottom;
@@ -1534,9 +1603,12 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                           )}
                           {(() => {
                             let pinStackTop = 40;
-                            const takePinTop = (minTop: number, step: number) => {
+                            // Only advance the pin stack for actually-pinned items so that
+                            // non-pinned expanded folder headers don't shift the top offsets
+                            // of pinned categories below them.
+                            const takePinTop = (minTop: number, step: number, isActuallyPinned = true) => {
                               const top = Math.max(minTop, pinStackTop);
-                              pinStackTop += step;
+                              if (isActuallyPinned) pinStackTop += step;
                               return `${top}px`;
                             };
                             const sourceFolders = (allCategoryFolders || [])
@@ -1635,17 +1707,18 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                                   const isFolderExpanded = !!expandedFolders[folder.folder_id] || searchQuery.trim().length > 0;
                                   const folderChannelCount = folderCats.reduce((sum, c) => sum + c.count, 0);
                                   const isPinnedFolder = isFolderPinned(folder.folder_id);
-                                  // For pinned folders, reserve their header slot in the stack.
-                                  // For expanded non-pinned folders, also compute top dynamically
-                                  // so they stack correctly below any pinned items above.
+                                  // Pinned folders reserve their slot in the sticky stack.
+                                  // Non-pinned expanded folders also get sticky (for within-source
+                                  // sticking) but do NOT advance pinStackTop — so pinned categories
+                                  // rendered after them retain the correct top offset.
                                   const folderHeaderTop = isPinnedFolder
-                                    ? takePinTop(40, 34)
-                                    : (isFolderExpanded ? takePinTop(40, 34) : undefined);
+                                    ? takePinTop(40, 34, true)
+                                    : (isFolderExpanded ? takePinTop(40, 34, false) : undefined);
                                   const folderHeaderStyle: React.CSSProperties | undefined =
                                     isPinnedFolder
-                                      ? { position: 'sticky', top: folderHeaderTop, zIndex: 96 }
+                                      ? { position: 'sticky', top: folderHeaderTop, zIndex: 96, '--category-folder-sticky-top': folderHeaderTop } as React.CSSProperties
                                       : isFolderExpanded
-                                        ? { position: 'sticky', top: folderHeaderTop, zIndex: 95 }
+                                        ? { position: 'sticky', top: folderHeaderTop, zIndex: 95, '--category-folder-sticky-top': folderHeaderTop } as React.CSSProperties
                                         : undefined;
 
                                   if (searchQuery.trim() && folderCats.length === 0) return null;
@@ -1659,6 +1732,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                                       onToggle={() => toggleFolder(folder.folder_id)}
                                       onContextMenu={folderContext(folder).onContextMenu}
                                       style={folderHeaderStyle}
+                                      data-folder-id={folder.folder_id}
                                     />
                                   );
 
@@ -1784,9 +1858,9 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                       }
 
                       let pinStackTop = 40;
-                      const takePinTop = (minTop: number, step: number) => {
+                      const takePinTop = (minTop: number, step: number, isActuallyPinned = true) => {
                         const top = Math.max(minTop, pinStackTop);
-                        pinStackTop += step;
+                        if (isActuallyPinned) pinStackTop += step;
                         return `${top}px`;
                       };
                       const renderLink = (link: PlaylistCategoryLink, isFolderChild: boolean) => {
@@ -1849,17 +1923,14 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                                   return sum + nativeCount + manualCount;
                                 }, 0);
                                 const isPinnedFolder = isFolderPinned(folder.folder_id);
-                                // For pinned folders, reserve their header slot in the stack.
-                                // For expanded non-pinned folders, also compute top dynamically
-                                // so they stack correctly below any pinned items above.
                                 const folderHeaderTop = isPinnedFolder
-                                  ? takePinTop(40, 34)
-                                  : (isFolderExpanded ? takePinTop(40, 34) : undefined);
+                                  ? takePinTop(40, 34, true)
+                                  : (isFolderExpanded ? takePinTop(40, 34, false) : undefined);
                                 const folderHeaderStyle: React.CSSProperties | undefined =
                                   isPinnedFolder
-                                    ? { position: 'sticky', top: folderHeaderTop, zIndex: 96 }
+                                    ? { position: 'sticky', top: folderHeaderTop, zIndex: 96, '--category-folder-sticky-top': folderHeaderTop } as React.CSSProperties
                                     : isFolderExpanded
-                                      ? { position: 'sticky', top: folderHeaderTop, zIndex: 95 }
+                                      ? { position: 'sticky', top: folderHeaderTop, zIndex: 95, '--category-folder-sticky-top': folderHeaderTop } as React.CSSProperties
                                       : undefined;
 
                                 if (searchQuery.trim() && fLinks.length === 0) return null;
@@ -1873,6 +1944,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                                     onToggle={() => toggleFolder(folder.folder_id)}
                                     onContextMenu={folderContext(folder).onContextMenu}
                                     style={folderHeaderStyle}
+                                    data-folder-id={folder.folder_id}
                                   />
                                 );
 

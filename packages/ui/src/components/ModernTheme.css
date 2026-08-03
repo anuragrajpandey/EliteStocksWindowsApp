@@ -2494,7 +2494,7 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 
 .modern-ui-v3 .category-folder-group.is-expanded .category-folder-header {
   position: sticky !important;
-  top: 40px !important;
+  top: var(--category-folder-sticky-top, 40px) !important;
   z-index: 95 !important;
   background: rgba(12, 14, 24, 0.98) !important;
   border-bottom: 1px solid rgba(0, 212, 255, 0.2) !important;
