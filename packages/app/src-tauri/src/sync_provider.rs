@@ -365,9 +365,26 @@ pub struct XtreamVodSyncResult {
     pub parsed_category_ids: Vec<String>,
 }
 
+// Some Xtream endpoints send JSON arrays (or null/other types) where a string
+// is expected. A single bad stream must not abort decoding of the whole list,
+// so coerce non-string values to an empty string instead of failing the parse.
+fn de_string_or_default<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let v = Option::<serde_json::Value>::deserialize(deserializer)?;
+    Ok(match v {
+        Some(serde_json::Value::String(s)) => s,
+        Some(serde_json::Value::Number(n)) => n.to_string(),
+        Some(serde_json::Value::Bool(b)) => b.to_string(),
+        _ => String::new(),
+    })
+}
+
 #[derive(Debug, Deserialize)]
 pub struct XtreamVodStream {
     pub stream_id: serde_json::Value,
+    #[serde(deserialize_with = "de_string_or_default")]
     pub name: String,
     pub title: Option<String>,
     pub year: Option<serde_json::Value>,
