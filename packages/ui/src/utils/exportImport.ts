@@ -27,6 +27,7 @@ export interface ExportData {
         displayOrder?: number;
         filterWords?: string[];
         alias?: string;
+        folderId?: string | null;
     }>;
     channelPreferences: Array<{
         streamId: string;
@@ -170,9 +171,17 @@ export interface ExportData {
     vodFavorites?: FavoriteItem[];
     // v8 additions (UI Layout and Widget Preferences)
     uiLayout?: Record<string, string>;
+    // v9 additions (Category Folders)
+    categoryFolders?: Array<{
+        folderId: string;
+        playlistId: string;
+        name: string;
+        displayOrder: number;
+        createdAt: number;
+    }>;
 }
 
-const EXPORT_VERSION = 8;
+const EXPORT_VERSION = 9;
 
 /**
  * Export all application data to a JSON file
@@ -203,10 +212,12 @@ export async function exportAllData(): Promise<{ success: boolean; filePath?: st
             // SQLite returns BOOLEAN as 0/1, handle both cases
             const enabled = cat.enabled as boolean | number | undefined;
             const isDisabled = enabled === false || enabled === 0;
+            const hasFolder = cat.folder_id && cat.folder_id.trim().length > 0;
             const hasCustomSettings = isDisabled ||
                 (cat.display_order !== undefined && cat.display_order !== 0) ||
                 (cat.filter_words && cat.filter_words.length > 0) ||
-                (cat.alias && cat.alias.trim().length > 0);
+                (cat.alias && cat.alias.trim().length > 0) ||
+                hasFolder;
             return hasCustomSettings;
         };
 
@@ -219,7 +230,8 @@ export async function exportAllData(): Promise<{ success: boolean; filePath?: st
                 enabled: cat.enabled,
                 displayOrder: cat.display_order,
                 filterWords: cat.filter_words,
-                alias: cat.alias
+                alias: cat.alias,
+                folderId: cat.folder_id
             }));
 
         // 4. Get Channel Preferences (enabled/disabled status and alias)
@@ -434,6 +446,15 @@ export async function exportAllData(): Promise<{ success: boolean; filePath?: st
         const playlistCategoryLinks = await db.playlistCategoryLinks.toArray();
         const playlistIndividualChannels = await db.playlistIndividualChannels.toArray();
 
+        // 13b. Get Category Folders (source/playlist folder containers)
+        const categoryFolders = (await db.categoryFolders.toArray()).map(f => ({
+            folderId: f.folder_id,
+            playlistId: f.playlist_id,
+            name: f.name,
+            displayOrder: f.display_order,
+            createdAt: f.created_at
+        }));
+
         // 14. Get VOD Favorites from localStorage
         let vodFavorites: FavoriteItem[] | undefined = undefined;
         try {
@@ -500,6 +521,7 @@ export async function exportAllData(): Promise<{ success: boolean; filePath?: st
             customPlaylists,
             playlistCategoryLinks,
             playlistIndividualChannels,
+            categoryFolders,
             vodFavorites,
             uiLayout
         };
@@ -609,7 +631,8 @@ export async function importAllData(): Promise<{ success: boolean; error?: strin
             db.sourcesMeta, db.programs, db.epgChannels,
             db.vodMovies, db.vodSeries, db.vodEpisodes,
             db.vodCategories, db.channelMetadata,
-            db.customPlaylists, db.playlistCategoryLinks, db.playlistIndividualChannels
+            db.customPlaylists, db.playlistCategoryLinks, db.playlistIndividualChannels,
+            db.categoryFolders
         ], async () => {
             const restoreStep = async (name: string, action: () => Promise<void>) => {
                 console.log(`[Import] Starting: ${name}...`);
@@ -662,6 +685,7 @@ export async function importAllData(): Promise<{ success: boolean; error?: strin
                     { name: 'customGroups', table: db.customGroups },
                     { name: 'failoverGroups', table: db.failoverGroups },
                     { name: 'customPlaylists', table: db.customPlaylists },
+                    { name: 'categoryFolders', table: db.categoryFolders },
                     { name: 'vodSeries', table: db.vodSeries },
                     { name: 'vodMovies', table: db.vodMovies },
                     { name: 'vodCategories', table: db.vodCategories },
@@ -789,7 +813,8 @@ export async function importAllData(): Promise<{ success: boolean; error?: strin
                         enabled: pref.enabled,
                         display_order: pref.displayOrder,
                         filter_words: pref.filterWords,
-                        alias: pref.alias
+                        alias: pref.alias,
+                        folder_id: pref.folderId ?? (pref as any).folder_id ?? null
                     } as StoredCategory));
 
                     await db.categories.bulkAdd(catStubs);
@@ -999,6 +1024,19 @@ export async function importAllData(): Promise<{ success: boolean; error?: strin
             await restoreStep('Playlist Category Links', async () => {
                 if (data.playlistCategoryLinks && data.playlistCategoryLinks.length > 0) {
                     await db.playlistCategoryLinks.bulkAdd(data.playlistCategoryLinks);
+                }
+            });
+
+            await restoreStep('Category Folders', async () => {
+                if (data.categoryFolders && data.categoryFolders.length > 0) {
+                    const folders = data.categoryFolders.map(f => ({
+                        folder_id: f.folderId,
+                        playlist_id: f.playlistId,
+                        name: f.name,
+                        display_order: f.displayOrder,
+                        created_at: f.createdAt
+                    }));
+                    await db.categoryFolders.bulkAdd(folders);
                 }
             });
 
