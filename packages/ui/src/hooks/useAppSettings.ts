@@ -117,8 +117,10 @@ export interface AppSettings {
   epgLogoDisplay: 'square' | 'rectangle';
   channelLogoSize: number;
   channelLogoRoundEdges: boolean;
+  channelLogoPadding: 'none' | 'padded';
   setChannelLogoSize: (size: number) => void;
   setChannelLogoRoundEdges: (enabled: boolean) => void;
+  setChannelLogoPadding: (padding: 'none' | 'padded') => void;
   epgMetadataBadgeResolution: boolean;
   epgMetadataBadgeFps: boolean;
   epgMetadataBadgeFpsSuffix: boolean;
@@ -421,8 +423,9 @@ export function useAppSettings(): AppSettings {
   const [epgDisableChannelFade, setEpgDisableChannelFadeState] = useState(false);
   const [epgPreferEpgLogos, setEpgPreferEpgLogosState] = useState(false);
   const [epgLogoDisplay, setEpgLogoDisplayState] = useState<'square' | 'rectangle'>('square');
-  const [channelLogoSize, setChannelLogoSizeState] = useState<number>(cachedSettings?.channelLogoSize ?? 36);
+  const [channelLogoSize, setChannelLogoSizeState] = useState<number>(cachedSettings?.channelLogoSize ?? 42);
   const [channelLogoRoundEdges, setChannelLogoRoundEdgesState] = useState<boolean>(cachedSettings?.channelLogoRoundEdges ?? true);
+  const [channelLogoPadding, setChannelLogoPaddingState] = useState<'none' | 'padded'>(cachedSettings?.channelLogoPadding ?? 'none');
   const [sourceLogoDisplayOverrides, setSourceLogoDisplayOverridesState] = useState<Record<string, 'square' | 'rectangle'>>(
     cachedSettings?.sourceLogoDisplayOverrides ?? {}
   );
@@ -750,11 +753,9 @@ export function useAppSettings(): AppSettings {
           setEpgDisableChannelFadeState(result.data.epgDisableChannelFade ?? false);
           setEpgPreferEpgLogosState(result.data.epgPreferEpgLogos ?? false);
           setEpgLogoDisplayState(result.data.epgLogoDisplay ?? 'square');
-          setChannelLogoSizeState(result.data.channelLogoSize ?? 36);
-          setChannelLogoRoundEdgesState(result.data.channelLogoRoundEdges ?? true);
-          if (result.data.channelLogoSize) {
-            document.documentElement.style.setProperty('--channel-logo-size', `${result.data.channelLogoSize}px`);
-          }
+          const loadedLogoSize = result.data.channelLogoSize ?? 42;
+          setChannelLogoSizeState(loadedLogoSize);
+          document.documentElement.style.setProperty('--channel-logo-size', `${loadedLogoSize}px`);
           if (result.data.channelLogoRoundEdges === false) {
             document.documentElement.style.setProperty('--channel-logo-radius', '0px');
             document.documentElement.classList.add('logo-sharp-edges');
@@ -762,6 +763,12 @@ export function useAppSettings(): AppSettings {
             document.documentElement.style.removeProperty('--channel-logo-radius');
             document.documentElement.classList.remove('logo-sharp-edges');
           }
+          if (result.data.channelLogoPadding === 'padded') {
+            document.documentElement.classList.add('logo-padded-tiles');
+          } else {
+            document.documentElement.classList.remove('logo-padded-tiles');
+          }
+          setChannelLogoPaddingState(result.data.channelLogoPadding ?? 'none');
           setSourceLogoDisplayOverridesState(result.data.sourceLogoDisplayOverrides ?? {});
           setEpgMetadataBadgeResolutionState(result.data.epgMetadataBadgeResolution ?? true);
           setEpgMetadataBadgeFpsState(result.data.epgMetadataBadgeFps ?? true);
@@ -1777,6 +1784,22 @@ export function useAppSettings(): AppSettings {
     }
   }, []);
 
+  const setChannelLogoPadding = useCallback(async (padding: 'none' | 'padded') => {
+    setChannelLogoPaddingState(padding);
+    if (padding === 'padded') {
+      document.documentElement.classList.add('logo-padded-tiles');
+    } else {
+      document.documentElement.classList.remove('logo-padded-tiles');
+    }
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ channelLogoPadding: padding });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save channelLogoPadding:', e);
+      }
+    }
+  }, []);
+
   const setSourceLogoDisplayOverride = useCallback(async (sourceId: string, display: 'square' | 'rectangle' | 'default') => {
     setSourceLogoDisplayOverridesState((prev) => {
       const next = { ...prev };
@@ -1987,6 +2010,8 @@ export function useAppSettings(): AppSettings {
     setChannelLogoSize,
     channelLogoRoundEdges,
     setChannelLogoRoundEdges,
+    channelLogoPadding,
+    setChannelLogoPadding,
     sourceLogoDisplayOverrides,
     setSourceLogoDisplayOverride,
     epgMetadataBadgeResolution,

@@ -430,6 +430,25 @@ fn extract_xtream_category_ids(
     }
 }
 
+fn is_valid_stream_icon(icon: &str) -> bool {
+    let trimmed = icon.trim();
+    if trimmed.is_empty() {
+        return false;
+    }
+    if trimmed.contains("image.tmdb.org/t/p/") {
+        let path = trimmed.trim_end_matches('/');
+        if path.ends_with("w600_and_h900_bestv2")
+            || path.ends_with("w500")
+            || path.ends_with("w185")
+            || path.ends_with("w342")
+            || path.ends_with("original")
+        {
+            return false;
+        }
+    }
+    true
+}
+
 #[derive(Debug, Deserialize)]
 pub struct XtreamVodStream {
     pub stream_id: serde_json::Value,
@@ -784,7 +803,7 @@ pub async fn sync_xtream_vod_movies(
         }
 
         if final_name.is_empty() {
-            let has_icon = stream.stream_icon.as_ref().map(|i| !i.trim().is_empty()).unwrap_or(false);
+            let has_icon = stream.stream_icon.as_ref().map(|i| is_valid_stream_icon(i)).unwrap_or(false);
             if !has_icon {
                 continue;
             } else {
@@ -982,7 +1001,7 @@ pub async fn sync_xtream_vod_series(
 
         if final_name.is_empty() {
             let has_cover = stream.cover.as_ref().map(|c| match c {
-                serde_json::Value::String(s) => !s.trim().is_empty(),
+                serde_json::Value::String(s) => is_valid_stream_icon(s),
                 _ => false,
             }).unwrap_or(false);
 

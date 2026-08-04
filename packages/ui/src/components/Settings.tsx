@@ -589,6 +589,8 @@ export function Settings({
     setChannelLogoSize,
     channelLogoRoundEdges,
     setChannelLogoRoundEdges,
+    channelLogoPadding,
+    setChannelLogoPadding,
   } = useAppSettings();
 
   // Category settings state
@@ -2811,6 +2813,8 @@ export function Settings({
             onChannelLogoSizeChange={setChannelLogoSize}
             channelLogoRoundEdges={channelLogoRoundEdges}
             onChannelLogoRoundEdgesChange={setChannelLogoRoundEdges}
+            channelLogoPadding={channelLogoPadding}
+            onChannelLogoPaddingChange={setChannelLogoPadding}
             sourceLogoDisplayOverrides={sourceLogoDisplayOverrides}
             onSetSourceLogoDisplayOverride={setSourceLogoDisplayOverride}
             epgMetadataBadgeResolution={epgMetadataBadgeResolution}

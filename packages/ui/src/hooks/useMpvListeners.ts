@@ -12,6 +12,8 @@ export interface MpvState {
     error: string | null;
     pausedForCache: boolean;
     coreIdle: boolean;
+    isAudioOnly: boolean;
+    setIsAudioOnly: React.Dispatch<React.SetStateAction<boolean>>;
     // Drag/seek refs exposed for NowPlayingBar
     volumeDraggingRef: React.MutableRefObject<boolean>;
     seekingRef: React.MutableRefObject<boolean>;
@@ -58,6 +60,7 @@ export function useMpvListeners(options: UseMpvListenersOptions = {}) {
     const [error, setError] = useState<string | null>(null);
     const [pausedForCache, setPausedForCache] = useState(false);
     const [coreIdle, setCoreIdle] = useState(true);
+    const [isAudioOnly, setIsAudioOnly] = useState(false);
 
     const volumeRef = useRef(volume);
     useEffect(() => {
@@ -159,6 +162,19 @@ export function useMpvListeners(options: UseMpvListenersOptions = {}) {
                 if (status.position !== undefined && !seekingRef.current) setPosition(status.position);
                 if (status.pausedForCache !== undefined) setPausedForCache(status.pausedForCache);
                 if (status.coreIdle !== undefined) setCoreIdle(status.coreIdle);
+                if (status.videoTrackId !== undefined) {
+                    if (status.videoTrackId === false || status.videoTrackId === 'no') {
+                        setIsAudioOnly(true);
+                    } else if (status.videoTrackId && status.videoTrackId !== 'no') {
+                        setIsAudioOnly(false);
+                    }
+                } else if (status.videoFormat !== undefined && status.videoFormat !== null && status.videoFormat !== '') {
+                    if (status.videoFormat === 'none') {
+                        setIsAudioOnly(true);
+                    } else {
+                        setIsAudioOnly(false);
+                    }
+                }
                 if (status.duration !== undefined) {
                     const dur = status.duration;
                     setDuration(prev => {
@@ -232,7 +248,7 @@ export function useMpvListeners(options: UseMpvListenersOptions = {}) {
 
     return {
         mpvReady, playing, volume, muted, position, duration, error,
-        pausedForCache, coreIdle,
+        pausedForCache, coreIdle, isAudioOnly, setIsAudioOnly,
         volumeDraggingRef, seekingRef,
         setError, setPlaying, setPosition, setVolume, setMuted,
         setDuration, setMpvReady,

@@ -255,6 +255,10 @@ struct MpvStatus {
     paused_for_cache: bool,
     #[serde(rename = "coreIdle")]
     core_idle: bool,
+    #[serde(rename = "videoFormat")]
+    video_format: Option<String>,
+    #[serde(rename = "videoTrackId")]
+    video_track_id: Option<Value>,
 }
 
 /// Send a JSON IPC command to MPV

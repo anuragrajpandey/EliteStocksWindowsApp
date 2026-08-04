@@ -39,7 +39,7 @@ import { useSearchHistory } from './hooks/useSearchHistory';
 import { RecordingIndicator } from './components/RecordingIndicator';
 import { DownloadIndicator } from './components/DownloadIndicator';
 import { Logo } from './components/Logo';
-import { useSelectedCategory, useChannelSearch, useProgramSearch, useChannels, useCurrentProgram, useSourceNameMap } from './hooks/useChannels';
+import { useSelectedCategory, useChannelSearch, useProgramSearch, useChannels, useCurrentProgram, useSourceNameMap, parseCategoryIds } from './hooks/useChannels';
 import { useActiveTmdbToken } from './hooks/useTmdbLists';
 import { getTmdbImageUrl, searchMovies, searchTvShows, getMovieDetails, getTvShowDetails } from './services/tmdb';
 import { cleanTitleForSearch } from './utils/cleanTitle';
@@ -68,6 +68,7 @@ import { getAdjacentEpisode, recordVodWatch, recordEpisodeWatch, getEpisodeProgr
 import type { StoredChannel } from './db';
 import { db } from './db';
 import { VideoErrorOverlay } from './components/VideoErrorOverlay';
+import { AudioVisualizer, type VisualizerMode } from './components/AudioVisualizer';
 import { StreamRetryOverlay } from './components/StreamRetryOverlay';
 import { FailoverOverlay } from './components/FailoverOverlay';
 import { ChannelLoadingOverlay } from './components/ChannelLoadingOverlay';
@@ -628,6 +629,7 @@ function App() {
     position,
     duration,
     error,
+    isAudioOnly,
     volumeDraggingRef,
     seekingRef,
     setError,
@@ -637,6 +639,21 @@ function App() {
     setDuration,
     setMuted,
   } = mpv;
+
+  const [audioVisualizerMode, setAudioVisualizerMode] = useState<VisualizerMode>(() => {
+    try {
+      return (localStorage.getItem('ynotv_audio_visualizer_mode') as VisualizerMode) || 'spectrum';
+    } catch {
+      return 'spectrum';
+    }
+  });
+
+  const handleSetAudioVisualizerMode = useCallback((mode: VisualizerMode) => {
+    setAudioVisualizerMode(mode);
+    try {
+      localStorage.setItem('ynotv_audio_visualizer_mode', mode);
+    } catch {}
+  }, []);
 
   const positionRef = useRef(position);
   const durationRef = useRef(duration);
@@ -3527,15 +3544,19 @@ function useTmdbPresencePoster(
           if (settingsResult.data.epgBodyFontSize) {
             document.documentElement.style.setProperty('--epg-body-font-size', `${settingsResult.data.epgBodyFontSize}px`);
           }
-          if (settingsResult.data.channelLogoSize) {
-            document.documentElement.style.setProperty('--channel-logo-size', `${settingsResult.data.channelLogoSize}px`);
-          }
+          const loadedAppLogoSize = settingsResult.data.channelLogoSize ?? 42;
+          document.documentElement.style.setProperty('--channel-logo-size', `${loadedAppLogoSize}px`);
           if (settingsResult.data.channelLogoRoundEdges === false) {
             document.documentElement.style.setProperty('--channel-logo-radius', '0px');
             document.documentElement.classList.add('logo-sharp-edges');
           } else {
             document.documentElement.style.removeProperty('--channel-logo-radius');
             document.documentElement.classList.remove('logo-sharp-edges');
+          }
+          if (settingsResult.data.channelLogoPadding === 'padded') {
+            document.documentElement.classList.add('logo-padded-tiles');
+          } else {
+            document.documentElement.classList.remove('logo-padded-tiles');
           }
           if (settingsResult.data.uiScale) {
             document.documentElement.style.setProperty('--app-zoom', String(settingsResult.data.uiScale / 100));
@@ -4330,6 +4351,17 @@ function useTmdbPresencePoster(
 
       {/* Background - transparent over mpv */}
       <div className="video-background">
+        {/* Fullscreen Audio Visualizer for Audio-Only Channels - ONLY when playing audio-only stream */}
+        {currentChannel && playing && activeView === 'none' && isAudioOnly && audioVisualizerMode !== 'off' && (
+          <AudioVisualizer
+            mode={audioVisualizerMode}
+            channel={currentChannel}
+            playing={playing}
+            programTitle={currentProgram?.title}
+            onModeChange={handleSetAudioVisualizerMode}
+          />
+        )}
+
         {!currentChannel && !error && !isRestoring && activeView !== 'guide' && activeView !== 'sports' && (
           <div className="placeholder">
             <Logo className="placeholder__logo" />
@@ -4610,6 +4642,9 @@ function useTmdbPresencePoster(
             : handleToggleTransparentGuide
         }
         guideTransparent={guideTransparent}
+        isAudioOnly={isAudioOnly}
+        audioVisualizerMode={audioVisualizerMode}
+        onSetAudioVisualizerMode={handleSetAudioVisualizerMode}
         onTogglePlay={handleTogglePlay}
         onStop={handleStop}
         onToggleMute={handleToggleMute}
@@ -4969,6 +5004,9 @@ function useTmdbPresencePoster(
         onChannelUp={handleChannelUp}
         onChannelDown={handleChannelDown}
         guideTransparent={guideTransparent}
+        isAudioOnly={isAudioOnly}
+        audioVisualizerMode={audioVisualizerMode}
+        onSetAudioVisualizerMode={handleSetAudioVisualizerMode}
 
         // Playback state & controls for Alternate View NowPlayingBar overlay
         mpvReady={mpvReady}

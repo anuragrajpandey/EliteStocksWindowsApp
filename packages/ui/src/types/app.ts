@@ -137,6 +137,7 @@ export interface AppSettings {
     sourceLogoDisplayOverrides?: Record<string, 'square' | 'rectangle'>;
     channelLogoSize?: number;
     channelLogoRoundEdges?: boolean;
+    channelLogoPadding?: 'none' | 'padded';
     epgMetadataBadgeResolution?: boolean;
     epgMetadataBadgeFps?: boolean;
     epgMetadataBadgeFpsSuffix?: boolean;
@@ -215,4 +216,6 @@ export interface MpvStatus {
     Idle?: boolean;
     pausedForCache?: boolean;
     coreIdle?: boolean;
+    videoFormat?: string | null;
+    videoTrackId?: any;
 }

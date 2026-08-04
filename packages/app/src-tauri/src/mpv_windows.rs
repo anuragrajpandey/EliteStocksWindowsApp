@@ -111,6 +111,10 @@ pub struct MpvStatus {
     pub paused_for_cache: bool,
     #[serde(rename = "coreIdle")]
     pub core_idle: bool,
+    #[serde(rename = "videoFormat")]
+    pub video_format: Option<String>,
+    #[serde(rename = "videoTrackId")]
+    pub video_track_id: Option<Value>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -430,6 +434,8 @@ async fn connect_ipc<R: Runtime>(
             duration: 0.0,
             paused_for_cache: false,
             core_idle: true,
+            video_format: None,
+            video_track_id: None,
         };
 
         loop {
@@ -468,6 +474,8 @@ async fn connect_ipc<R: Runtime>(
                                             "duration" => status.duration = data.as_f64().unwrap_or(0.0),
                                             "paused-for-cache" => status.paused_for_cache = data.as_bool().unwrap_or(false),
                                             "core-idle" => status.core_idle = data.as_bool().unwrap_or(false),
+                                            "vid" => status.video_track_id = Some(data.clone()),
+                                            "video-format" => status.video_format = data.as_str().map(|s| s.to_string()),
                                             "demuxer-cache-state" => {
                                                 // Emit timeshift-update event for frontend scrubber
                                                 if let Some(obj) = data.as_object() {
@@ -552,6 +560,8 @@ async fn connect_ipc<R: Runtime>(
     let _ = send_command_internal(state, "observe_property", vec![json!(6), json!("demuxer-cache-state")]).await;
     let _ = send_command_internal(state, "observe_property", vec![json!(7), json!("paused-for-cache")]).await;
     let _ = send_command_internal(state, "observe_property", vec![json!(8), json!("core-idle")]).await;
+    let _ = send_command_internal(state, "observe_property", vec![json!(9), json!("vid")]).await;
+    let _ = send_command_internal(state, "observe_property", vec![json!(10), json!("video-format")]).await;
 
     let _ = app.emit("mpv-ready", true);
     Ok(())

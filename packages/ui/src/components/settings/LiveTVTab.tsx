@@ -41,6 +41,8 @@ interface LiveTVTabProps {
   onChannelLogoSizeChange?: (size: number) => void;
   channelLogoRoundEdges?: boolean;
   onChannelLogoRoundEdgesChange?: (enabled: boolean) => void;
+  channelLogoPadding?: 'none' | 'padded';
+  onChannelLogoPaddingChange?: (padding: 'none' | 'padded') => void;
   sourceLogoDisplayOverrides: Record<string, 'square' | 'rectangle'>;
   onSetSourceLogoDisplayOverride: (sourceId: string, display: 'square' | 'rectangle' | 'default') => void;
   epgMetadataBadgeResolution: boolean;
@@ -155,10 +157,12 @@ export function LiveTVTab({
   onEpgPreferEpgLogosChange,
   epgLogoDisplay,
   onEpgLogoDisplayChange,
-  channelLogoSize = 36,
+  channelLogoSize = 42,
   onChannelLogoSizeChange = () => {},
   channelLogoRoundEdges = true,
   onChannelLogoRoundEdgesChange = () => {},
+  channelLogoPadding = 'none',
+  onChannelLogoPaddingChange = () => {},
   sourceLogoDisplayOverrides,
   onSetSourceLogoDisplayOverride,
   epgMetadataBadgeResolution,
@@ -938,6 +942,8 @@ export function LiveTVTab({
             onChannelLogoSizeChange={onChannelLogoSizeChange}
             channelLogoRoundEdges={channelLogoRoundEdges}
             onChannelLogoRoundEdgesChange={onChannelLogoRoundEdgesChange}
+            channelLogoPadding={channelLogoPadding}
+            onChannelLogoPaddingChange={onChannelLogoPaddingChange}
             sourceLogoDisplayOverrides={sourceLogoDisplayOverrides}
             onSetSourceLogoDisplayOverride={onSetSourceLogoDisplayOverride}
             logoCacheEnabled={logoCacheEnabled}

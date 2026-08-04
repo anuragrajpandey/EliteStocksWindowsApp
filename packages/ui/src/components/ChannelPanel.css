@@ -1088,8 +1088,8 @@ html.epg-highlight-border-current .guide-channel-row.currently-playing::after {
 }
 
 .guide-channel-logo {
-  width: var(--channel-logo-size, 36px);
-  height: var(--channel-logo-size, 36px);
+  width: var(--channel-logo-size, 42px);
+  height: var(--channel-logo-size, 42px);
   border-radius: var(--channel-logo-radius, 6px);
   overflow: hidden;
   background: rgba(255, 255, 255, 0.08);
@@ -1097,8 +1097,13 @@ html.epg-highlight-border-current .guide-channel-row.currently-playing::after {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  padding: 3px;
+  padding: 0;
   box-sizing: border-box;
+}
+
+html.logo-padded-tiles .guide-channel-logo,
+.logo-padded-tiles .guide-channel-logo {
+  padding: 3px !important;
 }
 
 .guide-channel-logo.logo-on-light {
@@ -1123,8 +1128,8 @@ html.epg-highlight-border-current .guide-channel-row.currently-playing::after {
 
 /* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled on document */
 html.epg-rectangle-logos .guide-channel-logo {
-  width: calc(var(--channel-logo-size, 36px) * 1.833);
-  height: calc(var(--channel-logo-size, 36px) * 0.888);
+  width: calc(var(--channel-logo-size, 42px) * 1.833);
+  height: calc(var(--channel-logo-size, 42px) * 0.888);
   border-radius: var(--channel-logo-radius, 4px);
   padding: 1px 4px;
   background: transparent;

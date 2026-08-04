@@ -964,7 +964,7 @@ html, body, button, input, select, textarea {
   border-radius: var(--channel-logo-radius, 10px);
   border: none;
   box-shadow: none;
-  padding: 3px;
+  padding: 0;
   box-sizing: border-box;
 }
 

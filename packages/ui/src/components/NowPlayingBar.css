@@ -324,6 +324,19 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
+.npb-visualizer-menu {
+  min-width: 170px;
+}
+
+.npb-menu-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #06b6d4;
+  padding: 4px 10px 2px;
+}
+
 .npb-aspect-item {
   background: none;
   border: none;

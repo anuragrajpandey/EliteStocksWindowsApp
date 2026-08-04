@@ -11,6 +11,8 @@ interface LogosTabProps {
   onChannelLogoSizeChange?: (size: number) => void;
   channelLogoRoundEdges?: boolean;
   onChannelLogoRoundEdgesChange?: (enabled: boolean) => void;
+  channelLogoPadding?: 'none' | 'padded';
+  onChannelLogoPaddingChange?: (padding: 'none' | 'padded') => void;
   sourceLogoDisplayOverrides: Record<string, 'square' | 'rectangle'>;
   onSetSourceLogoDisplayOverride: (sourceId: string, display: 'square' | 'rectangle' | 'default') => void;
   logoCacheEnabled: boolean;
@@ -22,8 +24,8 @@ interface LogosTabProps {
 }
 
 const LOGO_SIZE_PRESETS = [
-  { label: 'Small (28px)', value: 28 },
-  { label: 'Default (36px)', value: 36 },
+  { label: 'Small (32px)', value: 32 },
+  { label: 'Default (42px)', value: 42 },
   { label: 'Large (48px)', value: 48 },
   { label: 'XL (56px)', value: 56 },
 ];
@@ -57,10 +59,12 @@ export function LogosTab({
   onEpgPreferEpgLogosChange,
   epgLogoDisplay,
   onEpgLogoDisplayChange,
-  channelLogoSize = 36,
+  channelLogoSize = 42,
   onChannelLogoSizeChange = () => {},
   channelLogoRoundEdges = true,
   onChannelLogoRoundEdgesChange = () => {},
+  channelLogoPadding = 'none',
+  onChannelLogoPaddingChange = () => {},
   sourceLogoDisplayOverrides,
   onSetSourceLogoDisplayOverride,
   logoCacheEnabled,
@@ -181,6 +185,30 @@ export function LogosTab({
               />
               <span className="toggle-slider" />
             </label>
+          </div>
+
+          {/* Logo Tile Layout Toggle */}
+          <div className="timeshift-toggle-row" style={{ marginBottom: '20px', paddingTop: '16px', borderTop: '1px solid var(--surface-border)' }}>
+            <div className="timeshift-toggle-info">
+              <span className="timeshift-toggle-label">Logo Tile Layout</span>
+              <span className="timeshift-toggle-sub">Full-bleed edge-to-edge logos (Classic) or inset padded tiles.</span>
+            </div>
+            <div className="timeshift-presets" style={{ gap: '6px' }}>
+              <button
+                type="button"
+                className={`timeshift-preset-btn ${channelLogoPadding === 'none' ? 'active' : ''}`}
+                onClick={() => onChannelLogoPaddingChange('none')}
+              >
+                Full-Bleed (Classic)
+              </button>
+              <button
+                type="button"
+                className={`timeshift-preset-btn ${channelLogoPadding === 'padded' ? 'active' : ''}`}
+                onClick={() => onChannelLogoPaddingChange('padded')}
+              >
+                Padded Tile
+              </button>
+            </div>
           </div>
 
           {/* Interactive Live Preview Box */}

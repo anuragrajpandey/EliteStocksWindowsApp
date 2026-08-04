@@ -52,6 +52,9 @@ export async function batchUpsertLogoOverrides(
   const existingOverrides = await db.epgChannelOverrides.where('stream_id').anyOf(streamIds).toArray();
   const existingMap = new Map<string, EpgChannelOverride>(existingOverrides.map(o => [o.stream_id, o]));
 
+  const toPut: EpgChannelOverride[] = [];
+  const toDelete: string[] = [];
+
   for (const { streamId, logoBackground, logoPadding } of updates) {
     const existing = existingMap.get(streamId);
 
@@ -71,10 +74,10 @@ export async function batchUpsertLogoOverrides(
 
     if (!nextBg && !nextPad && !hasOtherOverrides) {
       if (existing) {
-        await db.epgChannelOverrides.delete(streamId);
+        toDelete.push(streamId);
       }
     } else {
-      await db.epgChannelOverrides.put({
+      toPut.push({
         stream_id: streamId,
         epg_channel_id: existing?.epg_channel_id,
         stream_icon: existing?.stream_icon,
@@ -83,6 +86,13 @@ export async function batchUpsertLogoOverrides(
         logo_padding: nextPad,
       });
     }
+  }
+
+  if (toDelete.length > 0) {
+    await db.epgChannelOverrides.bulkDelete(toDelete);
+  }
+  if (toPut.length > 0) {
+    await db.epgChannelOverrides.bulkPut(toPut);
   }
 
   const { dbEvents } = await import('../db/sqlite-adapter');

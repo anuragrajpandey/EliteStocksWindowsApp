@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { invoke } from '@tauri-apps/api/core';
 import type { StoredChannel } from '../db';
 import type { VodPlayInfo } from '../types/media';
-import { useCurrentProgram } from '../hooks/useChannels';
+import { useCurrentProgram, parseCategoryIds } from '../hooks/useChannels';
 import { useAppSettings } from '../hooks/useAppSettings';
 import { MetadataBadge } from './MetadataBadge';
 import { scheduleRecording, getDvrSettings, updatePlayingStream, detectScheduleConflicts, db, type DvrSchedule } from '../db';
@@ -12,6 +12,7 @@ import { useModal } from './Modal';
 import { type AspectRatioMode, getAspectRatioLabel, Bridge } from '../services/tauri-bridge';
 import { SourcePickerModal } from './SourcePickerModal';
 import type { StremioStream, StremioStreamBadge } from '../types/stremio';
+import type { VisualizerMode } from './AudioVisualizer';
 import './NowPlayingBar.css';
 
 interface NowPlayingBarProps {
@@ -77,6 +78,9 @@ interface NowPlayingBarProps {
   showVolumePercent?: boolean;
   onToggleTransparentGuide?: () => void;
   guideTransparent?: boolean;
+  isAudioOnly?: boolean;
+  audioVisualizerMode?: VisualizerMode;
+  onSetAudioVisualizerMode?: (mode: VisualizerMode) => void;
 }
 
 // Format seconds to "H:MM:SS" or "M:SS"
@@ -142,6 +146,9 @@ export function NowPlayingBar({
   showVolumePercent: propShowVolumePercent,
   onToggleTransparentGuide,
   guideTransparent = false,
+  isAudioOnly,
+  audioVisualizerMode = 'spectrum',
+  onSetAudioVisualizerMode,
 }: NowPlayingBarProps) {
   const { showVolumePercent: showVolumePercentSetting } = useAppSettings();
   const showVolumePercent = propShowVolumePercent ?? showVolumePercentSetting ?? false;
@@ -205,17 +212,24 @@ export function NowPlayingBar({
   const [showAspectMenu, setShowAspectMenu] = useState(false);
   const aspectMenuRef = useRef<HTMLDivElement>(null);
 
-  // Close aspect ratio menu on outside click
+  // Visualizer menu state
+  const [showVisualizerMenu, setShowVisualizerMenu] = useState(false);
+  const visualizerMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close aspect ratio menu & visualizer menu on outside click
   useEffect(() => {
-    if (!showAspectMenu) return;
+    if (!showAspectMenu && !showVisualizerMenu) return;
     const handleClick = (e: MouseEvent) => {
       if (aspectMenuRef.current && !aspectMenuRef.current.contains(e.target as Node)) {
         setShowAspectMenu(false);
       }
+      if (visualizerMenuRef.current && !visualizerMenuRef.current.contains(e.target as Node)) {
+        setShowVisualizerMenu(false);
+      }
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
-  }, [showAspectMenu]);
+  }, [showAspectMenu, showVisualizerMenu]);
 
   const isClean = playerControlDesign === 'clean';
   // When channel info overlay is enabled or clean design is active, hide channel details from the bar for live TV
@@ -854,6 +868,53 @@ export function NowPlayingBar({
                   </div>
                 )}
 
+                {onSetAudioVisualizerMode && (
+                  <div style={{ position: 'relative' }} ref={visualizerMenuRef}>
+                    <button
+                      className={`npb-clean-btn ${showVisualizerMenu ? 'active' : ''}`}
+                      onClick={() => setShowVisualizerMenu(v => !v)}
+                      title="Audio Visualizer Style"
+                    >
+                      <VisualizerIcon />
+                    </button>
+                    {showVisualizerMenu && (
+                      <div className="npb-aspect-menu npb-visualizer-menu">
+                        <div className="npb-menu-title">Audio Visualizer</div>
+                        <button
+                          className={`npb-aspect-item ${audioVisualizerMode === 'spectrum' ? 'active' : ''}`}
+                          onClick={() => { onSetAudioVisualizerMode('spectrum'); setShowVisualizerMenu(false); }}
+                        >
+                          📊 Spectrum Bars
+                        </button>
+                        <button
+                          className={`npb-aspect-item ${audioVisualizerMode === 'circular' ? 'active' : ''}`}
+                          onClick={() => { onSetAudioVisualizerMode('circular'); setShowVisualizerMenu(false); }}
+                        >
+                          ⭕ Circular Spectrum
+                        </button>
+                        <button
+                          className={`npb-aspect-item ${audioVisualizerMode === 'vectorscope' ? 'active' : ''}`}
+                          onClick={() => { onSetAudioVisualizerMode('vectorscope'); setShowVisualizerMenu(false); }}
+                        >
+                          🌀 Vectorscope
+                        </button>
+                        <button
+                          className={`npb-aspect-item ${audioVisualizerMode === 'vinyl' ? 'active' : ''}`}
+                          onClick={() => { onSetAudioVisualizerMode('vinyl'); setShowVisualizerMenu(false); }}
+                        >
+                          💿 Vinyl Station Card
+                        </button>
+                        <button
+                          className={`npb-aspect-item ${audioVisualizerMode === 'off' ? 'active' : ''}`}
+                          onClick={() => { onSetAudioVisualizerMode('off'); setShowVisualizerMenu(false); }}
+                        >
+                          🚫 Off (Blank Screen)
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <button
                   className={`npb-clean-btn${hasAudioDelay ? ' has-badge' : ''}`}
                   onClick={onShowAudioModal}
@@ -1304,6 +1365,55 @@ export function NowPlayingBar({
                 </div>
               )}
 
+              {/* Audio Visualizer controls */}
+              {onSetAudioVisualizerMode && (
+                <div className="npb-controls npb-aspect-controls" ref={visualizerMenuRef}>
+                  <button
+                    className={`npb-btn ${showVisualizerMenu ? 'active' : ''}`}
+                    onClick={() => setShowVisualizerMenu(v => !v)}
+                    disabled={!canControl}
+                    title="Audio Visualizer Style"
+                  >
+                    <VisualizerIcon />
+                  </button>
+                  {showVisualizerMenu && (
+                    <div className="npb-aspect-menu npb-visualizer-menu">
+                      <div className="npb-menu-title">Audio Visualizer</div>
+                      <button
+                        className={`npb-aspect-item ${audioVisualizerMode === 'spectrum' ? 'active' : ''}`}
+                        onClick={() => { onSetAudioVisualizerMode('spectrum'); setShowVisualizerMenu(false); }}
+                      >
+                        📊 Spectrum Bars
+                      </button>
+                      <button
+                        className={`npb-aspect-item ${audioVisualizerMode === 'circular' ? 'active' : ''}`}
+                        onClick={() => { onSetAudioVisualizerMode('circular'); setShowVisualizerMenu(false); }}
+                      >
+                        ⭕ Circular Spectrum
+                      </button>
+                      <button
+                        className={`npb-aspect-item ${audioVisualizerMode === 'vectorscope' ? 'active' : ''}`}
+                        onClick={() => { onSetAudioVisualizerMode('vectorscope'); setShowVisualizerMenu(false); }}
+                      >
+                        🌀 Vectorscope
+                      </button>
+                      <button
+                        className={`npb-aspect-item ${audioVisualizerMode === 'vinyl' ? 'active' : ''}`}
+                        onClick={() => { onSetAudioVisualizerMode('vinyl'); setShowVisualizerMenu(false); }}
+                      >
+                        💿 Vinyl Station Card
+                      </button>
+                      <button
+                        className={`npb-aspect-item ${audioVisualizerMode === 'off' ? 'active' : ''}`}
+                        onClick={() => { onSetAudioVisualizerMode('off'); setShowVisualizerMenu(false); }}
+                      >
+                        🚫 Off (Blank Screen)
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Playback speed controls (VOD only) */}
               {isVod && (
                 <div className="npb-controls npb-speed-controls" style={{ position: 'relative' }} ref={speedMenuRef}>
@@ -1602,6 +1712,19 @@ function TvIcon() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="8" width="18" height="13" rx="2" ry="2" />
       <polyline points="16 3 12 8 8 3" />
+    </svg>
+  );
+}
+
+function VisualizerIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 10v4" />
+      <path d="M6 6v12" />
+      <path d="M10 3v18" />
+      <path d="M14 8v8" />
+      <path d="M18 5v14" />
+      <path d="M22 11v2" />
     </svg>
   );
 }

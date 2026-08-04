@@ -18,6 +18,7 @@ import { PlaylistListModal } from './PlaylistListModal';
 
 import { useChannelSortOrder, useEpgView, useEpgVisibleHours, useEpgClockFormat, useUIStore } from '../stores/uiStore';
 import { NowPlayingBar } from './NowPlayingBar';
+import { AudioVisualizer, type VisualizerMode } from './AudioVisualizer';
 import type { StoredChannel, StoredProgram, WatchlistItem } from '../db';
 import { db } from '../db';
 
@@ -254,6 +255,9 @@ interface ChannelPanelProps {
   playerControlDesign?: 'default' | 'clean';
   showVolumePercent?: boolean;
   onToggleTransparentGuide?: () => void;
+  isAudioOnly?: boolean;
+  audioVisualizerMode?: VisualizerMode;
+  onSetAudioVisualizerMode?: (mode: VisualizerMode) => void;
 }
 
 export function ChannelPanel({
@@ -330,6 +334,9 @@ export function ChannelPanel({
   playerControlDesign = 'clean',
   showVolumePercent,
   onToggleTransparentGuide,
+  isAudioOnly,
+  audioVisualizerMode = 'spectrum',
+  onSetAudioVisualizerMode,
 }: ChannelPanelProps) {
   const epgView = useEpgView();
   const epgVisibleHours = useEpgVisibleHours();
@@ -1104,6 +1111,13 @@ export function ChannelPanel({
 
   // Selected channel for preview/info - stores the full channel object
   const [selectedChannel, setSelectedChannel] = useState<StoredChannel | null>(null);
+
+  const selectedCategoryName = useMemo(() => {
+    if (!selectedChannel) return undefined;
+    const catId = parseCategoryIds(selectedChannel.category_ids)[0] || categoryId;
+    const found = categories?.find(c => c.category_id === catId);
+    return found?.category_name;
+  }, [selectedChannel, categoryId, categories]);
 
   // States for Stalker EPG lazy loading and progress tracking
   const [visibleIndices, setVisibleIndices] = useState({ startIndex: 0, endIndex: 35 });
@@ -2041,6 +2055,20 @@ export function ChannelPanel({
       >
         {/* Glass border overlay */}
         <div className="video-glass-border" />
+
+        {/* Audio Visualizer Overlay for Audio-Only Channels in EPG Preview Pane - ONLY when playing audio-only stream */}
+        {isPlaying && currentChannel && (currentChannel.stream_id === selectedChannel?.stream_id) && isAudioOnly && audioVisualizerMode !== 'off' && (
+          <AudioVisualizer
+            mode={audioVisualizerMode}
+            channel={selectedChannel}
+            playing={!!isPlaying}
+            compact={true}
+            programTitle={selectedProgram?.title}
+            categoryName={selectedCategoryName}
+            onModeChange={onSetAudioVisualizerMode}
+          />
+        )}
+
         {/* The actual video is rendered by MPV "under" this transparent div */}
         {/* Only show placeholder when truly no channel is selected (not in watchlist/favorites mode with a selection) */}
         {!selectedChannel && !isWatchlistMode && categoryId !== '__favorites__' && categoryId !== '__recent__' && (
@@ -2251,6 +2279,9 @@ export function ChannelPanel({
           onTogglePip={onTogglePip}
           playerControlDesign={playerControlDesign}
           showVolumePercent={showVolumePercent}
+          isAudioOnly={isAudioOnly}
+          audioVisualizerMode={audioVisualizerMode}
+          onSetAudioVisualizerMode={onSetAudioVisualizerMode}
           onToggleTransparentGuide={onToggleTransparentGuide}
           guideTransparent={guideTransparent}
         />
