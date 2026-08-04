@@ -2057,7 +2057,7 @@ export function ChannelPanel({
         <div className="video-glass-border" />
 
         {/* Audio Visualizer Overlay for Audio-Only Channels in EPG Preview Pane - ONLY when playing audio-only stream */}
-        {isPlaying && currentChannel && (currentChannel.stream_id === selectedChannel?.stream_id) && isAudioOnly && audioVisualizerMode !== 'off' && (
+        {isPlaying && currentChannel && (currentChannel.stream_id === selectedChannel?.stream_id) && isAudioOnly && (
           <AudioVisualizer
             mode={audioVisualizerMode}
             channel={selectedChannel}

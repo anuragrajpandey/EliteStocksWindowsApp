@@ -63,6 +63,7 @@ export interface BulkCategory {
   display_order?: number;
   channel_count?: number;
   filter_words?: string; // JSON array as string
+  folder_id?: string | null;
 }
 
 export interface BulkProgram {

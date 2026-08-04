@@ -1629,6 +1629,7 @@ interface CustomizationBackup {
     alias?: string;
     display_order?: number;
     filter_words?: any;
+    folder_id?: string | null;
   }>;
   vodCategories: Array<{
     category_id: string;
@@ -1645,9 +1646,9 @@ export async function backupUserCustomizations(): Promise<void> {
       .whereRaw("(enabled = 0 OR enabled = 'false' OR is_favorite = 1 OR is_favorite = 'true' OR alias IS NOT NULL OR display_order IS NOT NULL OR fav_order IS NOT NULL)")
       .toArray();
 
-    // 2. Get customized categories: enabled=false, or customized alias/display_order/filter_words
+    // 2. Get customized categories: enabled=false, or customized alias/display_order/filter_words/folder_id
     const customizedCategories = await db.categories
-      .whereRaw("(enabled = 0 OR enabled = 'false' OR alias IS NOT NULL OR display_order IS NOT NULL OR filter_words IS NOT NULL)")
+      .whereRaw("(enabled = 0 OR enabled = 'false' OR alias IS NOT NULL OR display_order IS NOT NULL OR filter_words IS NOT NULL OR folder_id IS NOT NULL)")
       .toArray();
 
     // 3. Get customized VOD categories: enabled=false, or customized display_order
@@ -1669,7 +1670,8 @@ export async function backupUserCustomizations(): Promise<void> {
         enabled: c.enabled,
         alias: c.alias,
         display_order: c.display_order,
-        filter_words: c.filter_words
+        filter_words: c.filter_words,
+        folder_id: c.folder_id
       })),
       vodCategories: customizedVodCategories.map(c => ({
         category_id: c.category_id,
@@ -1700,12 +1702,16 @@ export async function restoreUserCustomizations(): Promise<void> {
       for (const cat of backup.categories) {
         const dbCat = await db.categories.get(cat.category_id);
         if (dbCat) {
-          await db.categories.update(cat.category_id, {
+          const updates: any = {
             enabled: cat.enabled,
             alias: cat.alias,
             display_order: cat.display_order,
             filter_words: cat.filter_words
-          });
+          };
+          if (cat.folder_id !== undefined) {
+            updates.folder_id = cat.folder_id;
+          }
+          await db.categories.update(cat.category_id, updates);
           changed = true;
         } else {
           remainingCategories.push(cat);

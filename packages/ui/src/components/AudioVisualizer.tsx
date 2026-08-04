@@ -415,8 +415,6 @@ export function AudioVisualizer({
     };
   }, [compact, mode]);
 
-  if (mode === 'off') return null;
-
   const channelName = channel?.name || 'Radio Station';
   const logoUrl = channel?.stream_icon;
 
@@ -456,7 +454,7 @@ export function AudioVisualizer({
   return (
     <div className={`ynotv-audio-visualizer ${compact ? 'compact-visualizer' : ''} mode-${mode} ${className}`}>
       {/* Background ambient glow */}
-      <div className="visualizer-backdrop-glow" />
+      {mode !== 'off' && <div className="visualizer-backdrop-glow" />}
 
       {/* Mode Quick Switcher Overlay — ONLY rendered in compact preview pane mode to keep Hero screen clean */}
       {compact && onModeChange && (
@@ -531,22 +529,24 @@ export function AudioVisualizer({
       )}
 
       {/* Station Details Card Overlay */}
-      <div className="visualizer-info-card">
-        {logoUrl && mode !== 'vinyl' && (
-          <img src={logoUrl} alt={channelName} className="visualizer-channel-logo" />
-        )}
-        <div className="visualizer-text-info">
-          {displayCategory && (
-            <div className="visualizer-channel-group">{displayCategory}</div>
+      {mode !== 'off' && (
+        <div className="visualizer-info-card">
+          {logoUrl && mode !== 'vinyl' && (
+            <img src={logoUrl} alt={channelName} className="visualizer-channel-logo" />
           )}
-          <div className="visualizer-channel-title">{channelName}</div>
-          {programTitle && (
-            <div className="visualizer-program-title">
-              <span className="visualizer-live-badge">LIVE AUDIO</span> {programTitle}
-            </div>
-          )}
+          <div className="visualizer-text-info">
+            {displayCategory && (
+              <div className="visualizer-channel-group">{displayCategory}</div>
+            )}
+            <div className="visualizer-channel-title">{channelName}</div>
+            {programTitle && (
+              <div className="visualizer-program-title">
+                <span className="visualizer-live-badge">LIVE AUDIO</span> {programTitle}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

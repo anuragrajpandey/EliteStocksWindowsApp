@@ -2497,7 +2497,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
     // Find new and existing categories
     const newCategoryIds = new Set(categories.map(c => c.category_id));
     const categoriesToAdd: Category[] = [];
-    const categoriesToUpdate: (Category & { enabled?: boolean; display_order?: number; filter_words?: string[] })[] = [];
+    const categoriesToUpdate: (Category & { enabled?: boolean; display_order?: number; filter_words?: string[]; folder_id?: string | null })[] = [];
 
     for (const cat of categories) {
       const existing = existingCategories.find(c => c.category_id === cat.category_id);
@@ -2516,6 +2516,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
             // Preserve user's manual order if defined, otherwise backfill from the parser
             display_order: existing.display_order ?? cat.display_order,
             filter_words: existing.filter_words,
+            folder_id: existing.folder_id,
           });
         }
       }
@@ -2571,6 +2572,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       filter_words: Array.isArray(cat.filter_words)
         ? JSON.stringify(cat.filter_words)
         : (cat.filter_words ?? null),
+      folder_id: cat.folder_id ?? null,
     });
 
     // Combine add and update (upsert handles both)

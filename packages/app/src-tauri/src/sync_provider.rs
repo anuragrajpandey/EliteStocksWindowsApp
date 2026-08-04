@@ -108,6 +108,7 @@ pub async fn sync_xtream_source(
             display_order: Some(index as i32),
             channel_count: None,
             filter_words: None,
+            folder_id: None,
         });
     }
 
@@ -620,6 +621,7 @@ pub async fn sync_m3u_source(
                         display_order: Some(display_order),
                         channel_count: None,
                         filter_words: None,
+                        folder_id: None,
                     });
                 }
 

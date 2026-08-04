@@ -14,6 +14,10 @@
   pointer-events: none;
 }
 
+.ynotv-audio-visualizer.mode-off {
+  background: transparent;
+}
+
 .visualizer-backdrop-glow {
   position: absolute;
   width: 60vw;

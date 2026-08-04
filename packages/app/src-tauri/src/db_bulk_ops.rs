@@ -107,6 +107,8 @@ pub struct BulkCategory {
     pub channel_count: Option<i32>,
     #[serde(default)]
     pub filter_words: Option<String>, // JSON array as string
+    #[serde(default)]
+    pub folder_id: Option<String>,
 }
 
 /// A single VOD Category to be inserted/updated
@@ -416,8 +418,8 @@ fn bulk_upsert_categories_inner(
     let mut stmt = tx.prepare(
         "INSERT INTO categories (
             category_id, source_id, category_name, parent_id, enabled,
-            display_order, channel_count, filter_words
-        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
+            display_order, channel_count, filter_words, folder_id
+        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)
         ON CONFLICT(category_id) DO UPDATE SET
             source_id = excluded.source_id,
             category_name = excluded.category_name,
@@ -425,7 +427,8 @@ fn bulk_upsert_categories_inner(
             enabled = COALESCE(categories.enabled, excluded.enabled),
             display_order = COALESCE(categories.display_order, excluded.display_order),
             channel_count = excluded.channel_count,
-            filter_words = COALESCE(categories.filter_words, excluded.filter_words)",
+            filter_words = COALESCE(categories.filter_words, excluded.filter_words),
+            folder_id = COALESCE(categories.folder_id, excluded.folder_id)",
     )?;
 
     let mut inserted = 0;
@@ -441,6 +444,7 @@ fn bulk_upsert_categories_inner(
             category.display_order,
             category.channel_count,
             category.filter_words,
+            category.folder_id,
         ])? {
             1 => inserted += 1,
             _ => updated += 1,
