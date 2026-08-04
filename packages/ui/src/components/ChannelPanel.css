@@ -1131,7 +1131,7 @@ html.epg-rectangle-logos .guide-channel-logo {
   width: calc(var(--channel-logo-size, 42px) * 1.833);
   height: calc(var(--channel-logo-size, 42px) * 0.888);
   border-radius: var(--channel-logo-radius, 4px);
-  padding: 1px 4px;
+  padding: 0;
   background: transparent;
 }
 html.epg-rectangle-logos .guide-channel-logo.logo-on-light {

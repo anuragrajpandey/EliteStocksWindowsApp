@@ -118,9 +118,11 @@ export interface AppSettings {
   channelLogoSize: number;
   channelLogoRoundEdges: boolean;
   channelLogoPadding: 'none' | 'padded';
+  logoLightBackgroundDetection: boolean;
   setChannelLogoSize: (size: number) => void;
   setChannelLogoRoundEdges: (enabled: boolean) => void;
   setChannelLogoPadding: (padding: 'none' | 'padded') => void;
+  setLogoLightBackgroundDetection: (enabled: boolean) => void;
   epgMetadataBadgeResolution: boolean;
   epgMetadataBadgeFps: boolean;
   epgMetadataBadgeFpsSuffix: boolean;
@@ -426,6 +428,7 @@ export function useAppSettings(): AppSettings {
   const [channelLogoSize, setChannelLogoSizeState] = useState<number>(cachedSettings?.channelLogoSize ?? 42);
   const [channelLogoRoundEdges, setChannelLogoRoundEdgesState] = useState<boolean>(cachedSettings?.channelLogoRoundEdges ?? true);
   const [channelLogoPadding, setChannelLogoPaddingState] = useState<'none' | 'padded'>(cachedSettings?.channelLogoPadding ?? 'none');
+  const [logoLightBackgroundDetection, setLogoLightBackgroundDetectionState] = useState<boolean>(cachedSettings?.logoLightBackgroundDetection ?? true);
   const [sourceLogoDisplayOverrides, setSourceLogoDisplayOverridesState] = useState<Record<string, 'square' | 'rectangle'>>(
     cachedSettings?.sourceLogoDisplayOverrides ?? {}
   );
@@ -769,6 +772,7 @@ export function useAppSettings(): AppSettings {
             document.documentElement.classList.remove('logo-padded-tiles');
           }
           setChannelLogoPaddingState(result.data.channelLogoPadding ?? 'none');
+          setLogoLightBackgroundDetectionState(result.data.logoLightBackgroundDetection ?? true);
           setSourceLogoDisplayOverridesState(result.data.sourceLogoDisplayOverrides ?? {});
           setEpgMetadataBadgeResolutionState(result.data.epgMetadataBadgeResolution ?? true);
           setEpgMetadataBadgeFpsState(result.data.epgMetadataBadgeFps ?? true);
@@ -1800,6 +1804,17 @@ export function useAppSettings(): AppSettings {
     }
   }, []);
 
+  const setLogoLightBackgroundDetection = useCallback(async (enabled: boolean) => {
+    setLogoLightBackgroundDetectionState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ logoLightBackgroundDetection: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save logoLightBackgroundDetection:', e);
+      }
+    }
+  }, []);
+
   const setSourceLogoDisplayOverride = useCallback(async (sourceId: string, display: 'square' | 'rectangle' | 'default') => {
     setSourceLogoDisplayOverridesState((prev) => {
       const next = { ...prev };
@@ -2012,6 +2027,8 @@ export function useAppSettings(): AppSettings {
     setChannelLogoRoundEdges,
     channelLogoPadding,
     setChannelLogoPadding,
+    logoLightBackgroundDetection,
+    setLogoLightBackgroundDetection,
     sourceLogoDisplayOverrides,
     setSourceLogoDisplayOverride,
     epgMetadataBadgeResolution,

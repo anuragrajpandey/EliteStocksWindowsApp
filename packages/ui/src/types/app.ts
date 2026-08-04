@@ -138,6 +138,7 @@ export interface AppSettings {
     channelLogoSize?: number;
     channelLogoRoundEdges?: boolean;
     channelLogoPadding?: 'none' | 'padded';
+    logoLightBackgroundDetection?: boolean;
     epgMetadataBadgeResolution?: boolean;
     epgMetadataBadgeFps?: boolean;
     epgMetadataBadgeFpsSuffix?: boolean;

@@ -13,6 +13,8 @@ interface LogosTabProps {
   onChannelLogoRoundEdgesChange?: (enabled: boolean) => void;
   channelLogoPadding?: 'none' | 'padded';
   onChannelLogoPaddingChange?: (padding: 'none' | 'padded') => void;
+  logoLightBackgroundDetection?: boolean;
+  onLogoLightBackgroundDetectionChange?: (enabled: boolean) => void;
   sourceLogoDisplayOverrides: Record<string, 'square' | 'rectangle'>;
   onSetSourceLogoDisplayOverride: (sourceId: string, display: 'square' | 'rectangle' | 'default') => void;
   logoCacheEnabled: boolean;
@@ -65,6 +67,8 @@ export function LogosTab({
   onChannelLogoRoundEdgesChange = () => {},
   channelLogoPadding = 'none',
   onChannelLogoPaddingChange = () => {},
+  logoLightBackgroundDetection = true,
+  onLogoLightBackgroundDetectionChange = () => {},
   sourceLogoDisplayOverrides,
   onSetSourceLogoDisplayOverride,
   logoCacheEnabled,
@@ -182,6 +186,22 @@ export function LogosTab({
                 type="checkbox"
                 checked={channelLogoRoundEdges}
                 onChange={(e) => onChannelLogoRoundEdgesChange(e.target.checked)}
+              />
+              <span className="toggle-slider" />
+            </label>
+          </div>
+
+          {/* Light Background Detection Toggle */}
+          <div className="timeshift-toggle-row" style={{ marginBottom: '20px', paddingTop: '16px', borderTop: '1px solid var(--surface-border)' }}>
+            <div className="timeshift-toggle-info">
+              <span className="timeshift-toggle-label">Auto Light Background Detection</span>
+              <span className="timeshift-toggle-sub">Automatically analyze logo luminance and render dark logos on a light tile background for high contrast. Turn off to opt out.</span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={logoLightBackgroundDetection}
+                onChange={(e) => onLogoLightBackgroundDetectionChange(e.target.checked)}
               />
               <span className="toggle-slider" />
             </label>

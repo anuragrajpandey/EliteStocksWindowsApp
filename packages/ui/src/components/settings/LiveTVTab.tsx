@@ -43,6 +43,8 @@ interface LiveTVTabProps {
   onChannelLogoRoundEdgesChange?: (enabled: boolean) => void;
   channelLogoPadding?: 'none' | 'padded';
   onChannelLogoPaddingChange?: (padding: 'none' | 'padded') => void;
+  logoLightBackgroundDetection?: boolean;
+  onLogoLightBackgroundDetectionChange?: (enabled: boolean) => void;
   sourceLogoDisplayOverrides: Record<string, 'square' | 'rectangle'>;
   onSetSourceLogoDisplayOverride: (sourceId: string, display: 'square' | 'rectangle' | 'default') => void;
   epgMetadataBadgeResolution: boolean;
@@ -163,6 +165,8 @@ export function LiveTVTab({
   onChannelLogoRoundEdgesChange = () => {},
   channelLogoPadding = 'none',
   onChannelLogoPaddingChange = () => {},
+  logoLightBackgroundDetection = true,
+  onLogoLightBackgroundDetectionChange = () => {},
   sourceLogoDisplayOverrides,
   onSetSourceLogoDisplayOverride,
   epgMetadataBadgeResolution,
@@ -944,6 +948,8 @@ export function LiveTVTab({
             onChannelLogoRoundEdgesChange={onChannelLogoRoundEdgesChange}
             channelLogoPadding={channelLogoPadding}
             onChannelLogoPaddingChange={onChannelLogoPaddingChange}
+            logoLightBackgroundDetection={logoLightBackgroundDetection}
+            onLogoLightBackgroundDetectionChange={onLogoLightBackgroundDetectionChange}
             sourceLogoDisplayOverrides={sourceLogoDisplayOverrides}
             onSetSourceLogoDisplayOverride={onSetSourceLogoDisplayOverride}
             logoCacheEnabled={logoCacheEnabled}

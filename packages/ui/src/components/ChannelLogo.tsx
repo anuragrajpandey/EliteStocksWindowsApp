@@ -39,7 +39,7 @@ export const ChannelLogo = memo(function ChannelLogo({
   padding = 'default',
   shape,
 }: ChannelLogoProps) {
-  const { logoCacheEnabled } = useAppSettings();
+  const { logoCacheEnabled, logoLightBackgroundDetection = true } = useAppSettings();
   const [autoLight, setAutoLight] = useState(false);
   const [failed, setFailed] = useState(false);
   const [effectiveSrc, setEffectiveSrc] = useState<string | undefined>(src || undefined);
@@ -70,7 +70,7 @@ export const ChannelLogo = memo(function ChannelLogo({
   }, [src, logoCacheEnabled]);
 
   const handleLoad = useCallback(() => {
-    if (background !== 'auto') return;
+    if (background !== 'auto' || !logoLightBackgroundDetection) return;
     const img = imgRef.current;
     if (!img || !src || handledSrc.current === src) return;
     handledSrc.current = src;
@@ -79,9 +79,9 @@ export const ChannelLogo = memo(function ChannelLogo({
         if (verdict === 'dark') setAutoLight(true);
       })
       .catch(() => {});
-  }, [src, background]);
+  }, [src, background, logoLightBackgroundDetection]);
 
-  const needsLight = background === 'light' ? true : background === 'dark' ? false : autoLight;
+  const needsLight = background === 'light' ? true : background === 'dark' ? false : (logoLightBackgroundDetection ? autoLight : false);
 
   const containerClass = [
     needsLight ? `${className} logo-on-light` : className,
