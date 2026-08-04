@@ -381,6 +381,55 @@ where
     })
 }
 
+fn extract_xtream_category_ids(
+    primary: &Option<serde_json::Value>,
+    secondary: &Option<serde_json::Value>,
+    source_id: &str,
+    prefix: &str,
+) -> Option<String> {
+    let mut ids = Vec::new();
+
+    let mut add_id = |s: &str| {
+        let s = s.trim();
+        if !s.is_empty() {
+            let formatted = format!("{}_{}_{}", source_id, prefix, s);
+            if !ids.contains(&formatted) {
+                ids.push(formatted);
+            }
+        }
+    };
+
+    let process_val = |val: &serde_json::Value, add_fn: &mut dyn FnMut(&str)| {
+        match val {
+            serde_json::Value::String(s) => add_fn(s),
+            serde_json::Value::Number(n) => add_fn(&n.to_string()),
+            serde_json::Value::Array(arr) => {
+                for item in arr {
+                    match item {
+                        serde_json::Value::String(s) => add_fn(s),
+                        serde_json::Value::Number(n) => add_fn(&n.to_string()),
+                        _ => {}
+                    }
+                }
+            }
+            _ => {}
+        }
+    };
+
+    if let Some(p) = primary {
+        process_val(p, &mut add_id);
+    }
+    if let Some(s) = secondary {
+        process_val(s, &mut add_id);
+    }
+
+    if ids.is_empty() {
+        Some("[]".to_string())
+    } else {
+        serde_json::to_string(&ids).ok()
+    }
+}
+
 #[derive(Debug, Deserialize)]
 pub struct XtreamVodStream {
     pub stream_id: serde_json::Value,
@@ -390,6 +439,7 @@ pub struct XtreamVodStream {
     pub year: Option<serde_json::Value>,
     pub stream_icon: Option<String>,
     pub category_id: Option<serde_json::Value>, // Sometimes comes as number
+    pub category_ids: Option<serde_json::Value>, // Array of numbers/strings
     pub container_extension: Option<String>,
     pub plot: Option<String>,
     pub cast: Option<String>,
@@ -409,6 +459,7 @@ pub struct XtreamSeriesStream {
     pub year: Option<serde_json::Value>,
     pub cover: Option<serde_json::Value>,
     pub category_id: Option<serde_json::Value>,
+    pub category_ids: Option<serde_json::Value>,
     pub plot: Option<serde_json::Value>, // Some APIs send empty plot as array or bool
     pub cast: Option<serde_json::Value>,
     pub director: Option<serde_json::Value>,
@@ -715,17 +766,31 @@ pub async fn sync_xtream_vod_movies(
             _ => continue,
         };
 
-        let cat_id_str = match &stream.category_id {
-            Some(serde_json::Value::String(s)) => s.clone(),
-            Some(serde_json::Value::Number(n)) => n.to_string(),
-            _ => "".to_string(),
-        };
+        let category_ids_json = extract_xtream_category_ids(
+            &stream.category_id,
+            &stream.category_ids,
+            &source_id,
+            "vod",
+        );
 
-        let category_ids_json = if !cat_id_str.is_empty() {
-            Some(format!("[\"{}_vod_{}\"]", source_id, cat_id_str))
-        } else {
-            Some("[]".to_string())
-        };
+        let mut final_name = stream.name.trim().to_string();
+        if final_name.is_empty() {
+            if let Some(ref t) = stream.title {
+                let t_str = t.trim();
+                if !t_str.is_empty() {
+                    final_name = t_str.to_string();
+                }
+            }
+        }
+
+        if final_name.is_empty() {
+            let has_icon = stream.stream_icon.as_ref().map(|i| !i.trim().is_empty()).unwrap_or(false);
+            if !has_icon {
+                continue;
+            } else {
+                final_name = format!("Untitled Movie ({})", stream_id_str);
+            }
+        }
 
         let ext = stream.container_extension.clone().unwrap_or_else(|| "mp4".to_string());
         let direct_url = format!(
@@ -746,7 +811,7 @@ pub async fn sync_xtream_vod_movies(
             stream_id: format!("{}_{}", source_id, stream_id_str),
             source_id: source_id.clone(),
             category_ids: category_ids_json,
-            name: stream.name,
+            name: final_name,
             tmdb_id: None,
             imdb_id: None,
             added: added_str,
@@ -898,17 +963,35 @@ pub async fn sync_xtream_vod_series(
             _ => continue,
         };
 
-        let cat_id_str = match &stream.category_id {
-            Some(serde_json::Value::String(s)) => s.clone(),
-            Some(serde_json::Value::Number(n)) => n.to_string(),
-            _ => "".to_string(),
-        };
+        let category_ids_json = extract_xtream_category_ids(
+            &stream.category_id,
+            &stream.category_ids,
+            &source_id,
+            "series",
+        );
 
-        let category_ids_json = if !cat_id_str.is_empty() {
-            Some(format!("[\"{}_series_{}\"]", source_id, cat_id_str))
-        } else {
-            Some("[]".to_string())
-        };
+        let mut final_name = stream.name.trim().to_string();
+        if final_name.is_empty() {
+            if let Some(ref t) = stream.title {
+                let t_str = t.trim();
+                if !t_str.is_empty() {
+                    final_name = t_str.to_string();
+                }
+            }
+        }
+
+        if final_name.is_empty() {
+            let has_cover = stream.cover.as_ref().map(|c| match c {
+                serde_json::Value::String(s) => !s.trim().is_empty(),
+                _ => false,
+            }).unwrap_or(false);
+
+            if !has_cover {
+                continue;
+            } else {
+                final_name = format!("Untitled Series ({})", series_id_str);
+            }
+        }
 
         let rating_str = stream.rating.map(|v| v.to_string());
         let year_str = stream.year.map(|v| v.to_string());
@@ -925,7 +1008,7 @@ pub async fn sync_xtream_vod_series(
             series_id: format!("{}_{}", source_id, series_id_str),
             source_id: source_id.clone(),
             category_ids: category_ids_json,
-            name: stream.name,
+            name: final_name,
             tmdb_id: None,
             imdb_id: None,
             added: added_str,
