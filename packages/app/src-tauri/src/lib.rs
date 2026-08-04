@@ -246,6 +246,8 @@ mod mpv_windows;
 #[cfg(target_os = "windows")]
 mod mpv_secondary;
 mod mpv_popout;
+mod audio_capture;
+use audio_capture::{start_audio_capture, stop_audio_capture};
 
 // Re-export the MPV state and functions based on platform
 #[cfg(target_os = "macos")]
@@ -4462,6 +4464,7 @@ pub fn run() {
         .plugin(tauri_plugin_process::init())
         // Manage platform-specific MPV state
         .manage(MpvState::new())
+        .manage(audio_capture::AudioCaptureState::new())
         .manage(std::sync::Arc::new(cast::CastManager::new()))
         .setup(|app| {
             app.manage(WindowStateTracker::default());
@@ -4642,6 +4645,9 @@ pub fn run() {
             }
         })
         .invoke_handler(tauri::generate_handler![
+            // Audio visualizer capture commands
+            start_audio_capture,
+            stop_audio_capture,
             // MPV commands
             init_mpv,
             mpv_load,

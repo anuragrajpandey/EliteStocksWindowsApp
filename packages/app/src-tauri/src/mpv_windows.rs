@@ -301,6 +301,11 @@ async fn try_spawn_mpv<R: Runtime>(app: &AppHandle<R>, state: &tauri::State<'_, 
     *state.pid.lock().unwrap() = pid;
     *state.child.lock().unwrap() = Some(child);
 
+    // Trigger per-process WASAPI audio capture targeting mpv.exe PID
+    if let Some(audio_state) = app.try_state::<crate::audio_capture::AudioCaptureState>() {
+        audio_state.start(app.clone(), pid);
+    }
+
     // Spawn a thread to monitor the process
     {
         let mut proc_handle = state.process.lock().unwrap();

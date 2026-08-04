@@ -892,12 +892,7 @@ export function NowPlayingBar({
                         >
                           ⭕ Circular Spectrum
                         </button>
-                        <button
-                          className={`npb-aspect-item ${audioVisualizerMode === 'vectorscope' ? 'active' : ''}`}
-                          onClick={() => { onSetAudioVisualizerMode('vectorscope'); setShowVisualizerMenu(false); }}
-                        >
-                          🌀 Vectorscope
-                        </button>
+
                         <button
                           className={`npb-aspect-item ${audioVisualizerMode === 'vinyl' ? 'active' : ''}`}
                           onClick={() => { onSetAudioVisualizerMode('vinyl'); setShowVisualizerMenu(false); }}
@@ -1391,12 +1386,7 @@ export function NowPlayingBar({
                       >
                         ⭕ Circular Spectrum
                       </button>
-                      <button
-                        className={`npb-aspect-item ${audioVisualizerMode === 'vectorscope' ? 'active' : ''}`}
-                        onClick={() => { onSetAudioVisualizerMode('vectorscope'); setShowVisualizerMenu(false); }}
-                      >
-                        🌀 Vectorscope
-                      </button>
+
                       <button
                         className={`npb-aspect-item ${audioVisualizerMode === 'vinyl' ? 'active' : ''}`}
                         onClick={() => { onSetAudioVisualizerMode('vinyl'); setShowVisualizerMenu(false); }}

@@ -1,9 +1,17 @@
 import React, { useEffect, useRef } from 'react';
+import { listen } from '@tauri-apps/api/event';
 import type { StoredChannel } from '../db';
 import { parseCategoryIds } from '../hooks/useChannels';
 import './AudioVisualizer.css';
 
-export type VisualizerMode = 'spectrum' | 'wave' | 'vinyl' | 'circular' | 'vectorscope' | 'off';
+export type VisualizerMode = 'spectrum' | 'wave' | 'vinyl' | 'circular' | 'off';
+
+interface AudioSpectrumPayload {
+  bins: number[];     // 64 logarithmic frequency magnitude bins [0.0..1.0]
+  wave: number[];     // 64 time-domain waveform points [-1.0..1.0]
+  stereo_l: number[]; // 64 left channel samples [-1.0..1.0]
+  stereo_r: number[]; // 64 right channel samples [-1.0..1.0]
+}
 
 interface AudioVisualizerProps {
   mode: VisualizerMode;
@@ -29,17 +37,21 @@ export function AudioVisualizer({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameRef = useRef<number | null>(null);
 
-  // Smooth fallback time clock for live radio streams that do not report duration/position
+  // Real audio spectrum data from Rust WASAPI capture
+  const audioDataRef = useRef<AudioSpectrumPayload | null>(null);
+  const lastAudioDataTimeRef = useRef<number>(0);
+
+  // Smooth fallback clock
   const localClockRef = useRef<number>(0);
   const lastFrameTimeRef = useRef<number>(performance.now());
 
-  // Physics state refs for smooth attack/decay & peak gravity (up to 120 bins for circular mode)
+  // Physics state refs for smooth attack/decay & peak gravity (up to 120 bins)
   const currentBarsRef = useRef<number[]>(new Array(120).fill(0));
   const peakYRef = useRef<number[]>(new Array(120).fill(0));
   const peakVelRef = useRef<number[]>(new Array(120).fill(0));
   const peakHoldRef = useRef<number[]>(new Array(120).fill(0));
 
-  // Reset the animation clock whenever playback (re)starts so the beat phase stays fresh
+  // Reset clock on play
   const prevPlayingRef = useRef(false);
   useEffect(() => {
     if (playing && !prevPlayingRef.current) {
@@ -47,6 +59,25 @@ export function AudioVisualizer({
     }
     prevPlayingRef.current = playing;
   }, [playing]);
+
+  // Subscribe to real audio spectrum data from Rust backend
+  useEffect(() => {
+    let unlistenFn: (() => void) | undefined;
+    const setupListener = async () => {
+      try {
+        unlistenFn = await listen<AudioSpectrumPayload>('audio-spectrum-data', (event) => {
+          audioDataRef.current = event.payload;
+          lastAudioDataTimeRef.current = performance.now();
+        });
+      } catch (err) {
+        console.warn('[AudioVisualizer] Could not setup audio-spectrum-data listener:', err);
+      }
+    };
+    setupListener();
+    return () => {
+      if (unlistenFn) unlistenFn();
+    };
+  }, []);
 
   useEffect(() => {
     if (mode === 'off' || mode === 'vinyl' || !canvasRef.current) return;
@@ -70,18 +101,22 @@ export function AudioVisualizer({
       if (playing) {
         localClockRef.current += dt;
       }
-
-      // Exact Audio Position Anchor
-      // NOTE: mpv `time-pos` is unreliable for live/cached radio streams (freezes near
-      // the live edge, jumps during timeshift re-buffer), so we drive the animation off
-      // our own monotonic clock that only advances while audio is actually playing.
       const audioTime = localClockRef.current;
 
       ctx.save();
       ctx.scale(dpr, dpr);
       ctx.clearRect(0, 0, width, height);
 
-      // Common rhythm signals (30% Bass, 40% Mid, 30% Treble distribution)
+      // Check if real WASAPI FFT audio data is fresh (received within last 500ms)
+      const hasRealAudio =
+        playing &&
+        audioDataRef.current !== null &&
+        now - lastAudioDataTimeRef.current < 500 &&
+        audioDataRef.current.bins.length > 0;
+
+      const realData = hasRealAudio ? audioDataRef.current! : null;
+
+      // Rhythm fallback simulation signals
       const beatPhase = (audioTime % 0.46875) / 0.46875;
       const kickPulse = Math.pow(Math.max(0, 1 - beatPhase), 4);
       const snarePhase = (audioTime % 0.9375) / 0.9375;
@@ -103,36 +138,36 @@ export function AudioVisualizer({
         for (let i = 0; i < barCount; i++) {
           let targetHeight = 0;
 
-          if (playing) {
+          if (realData) {
+            const binIdx = Math.floor((i / barCount) * realData.bins.length);
+            const val = realData.bins[binIdx] || 0;
+            targetHeight = Math.max(height * 0.03, val * (height * 0.88));
+          } else if (playing) {
             const normIndex = i / barCount;
             let bandAmp = 0;
-
-            // 30% Bass, 40% Mid, 30% Treble logarithmic frequency mapping
             if (normIndex < 0.30) {
               const bass = Math.abs(Math.sin(audioTime * 6.28 * 2.2 + i * 0.4));
               bandAmp = (bass * 0.35 + kickPulse * 0.65) * phraseSwell;
             } else if (normIndex < 0.70) {
               const vocal1 = Math.sin(audioTime * 6.28 * 3.4 + i * 0.65);
               const vocal2 = Math.cos(audioTime * 6.28 * 4.8 - i * 0.35);
-              const vocalCombine = (vocal1 + vocal2 + 2) / 4;
-              bandAmp = vocalCombine * (0.4 + snarePulse * 0.6) * phraseSwell;
+              bandAmp = ((vocal1 + vocal2 + 2) / 4) * (0.4 + snarePulse * 0.6) * phraseSwell;
             } else {
               const hiHat = Math.abs(Math.sin(audioTime * 6.28 * 12.5 + i * 1.2));
               bandAmp = hiHat * (0.3 + kickPulse * 0.5) * phraseSwell;
             }
-
             targetHeight = Math.max(height * 0.04, Math.min(1, bandAmp) * (height * 0.85));
           } else {
             targetHeight = height * 0.03;
           }
 
-          // Physics: Fast Attack (~20ms), Exponential Smooth Decay (0.86)
+          // Physics: Fast Attack (~15ms), Exponential Decay
           const curH = currentBarsRef.current[i] || 0;
           let newH = curH;
           if (targetHeight > curH) {
-            newH = curH + (targetHeight - curH) * 0.5;
+            newH = curH + (targetHeight - curH) * 0.65;
           } else {
-            newH = Math.max(targetHeight, curH * 0.86);
+            newH = Math.max(targetHeight, curH * 0.85);
           }
           currentBarsRef.current[i] = newH;
 
@@ -168,14 +203,12 @@ export function AudioVisualizer({
           ctx.fillRect(x, peakYPos, barWidth, compact ? 2 : 3);
         }
       } else if (mode === 'circular') {
-        // 360-degree Radial Circular Spectrum Mode
         const centerX = width / 2;
         const centerY = height / 2;
         const baseRadius = Math.min(width, height) * (compact ? 0.14 : 0.19);
         const maxRadius = Math.min(width, height) * (compact ? 0.36 : 0.43);
         const numBars = compact ? 64 : 96;
 
-        // Draw inner glow ring
         ctx.save();
         ctx.beginPath();
         ctx.arc(centerX, centerY, baseRadius - 2, 0, Math.PI * 2);
@@ -190,10 +223,14 @@ export function AudioVisualizer({
           const normIndex = i / numBars;
 
           let targetLength = 0;
-          if (playing) {
+          if (realData) {
+            const symIndex = normIndex < 0.5 ? normIndex * 2 : (1 - normIndex) * 2;
+            const binIdx = Math.floor(symIndex * realData.bins.length);
+            const val = realData.bins[binIdx] || 0;
+            targetLength = Math.max(4, val * (maxRadius - baseRadius));
+          } else if (playing) {
             let bandAmp = 0;
             const symIndex = normIndex < 0.5 ? normIndex * 2 : (1 - normIndex) * 2;
-
             if (symIndex < 0.30) {
               const bass = Math.abs(Math.sin(audioTime * 6.28 * 2.2 + i * 0.4));
               bandAmp = (bass * 0.3 + kickPulse * 0.7) * phraseSwell;
@@ -205,23 +242,20 @@ export function AudioVisualizer({
               const hiHat = Math.abs(Math.sin(audioTime * 6.28 * 12.5 + i * 1.2));
               bandAmp = hiHat * (0.35 + kickPulse * 0.45) * phraseSwell;
             }
-
             targetLength = Math.max(4, bandAmp * (maxRadius - baseRadius));
           } else {
             targetLength = 3;
           }
 
-          // Smooth physics attack & decay
           const curL = currentBarsRef.current[i] || 0;
           let newL = curL;
           if (targetLength > curL) {
-            newL = curL + (targetLength - curL) * 0.48;
+            newL = curL + (targetLength - curL) * 0.55;
           } else {
             newL = Math.max(targetLength, curL * 0.86);
           }
           currentBarsRef.current[i] = newL;
 
-          // HSL Rainbow spectrum color gradient
           const hue = (i / numBars) * 320;
           const saturation = 85 + (newL / (maxRadius - baseRadius)) * 15;
           const lightness = 50 + (newL / (maxRadius - baseRadius)) * 25;
@@ -240,7 +274,6 @@ export function AudioVisualizer({
           ctx.lineTo(endX, endY);
           ctx.stroke();
 
-          // Radial Peak dots with gravity decay
           const curPeak = peakYRef.current[i] || 0;
           const curHold = peakHoldRef.current[i] || 0;
           const curVel = peakVelRef.current[i] || 0;
@@ -268,36 +301,66 @@ export function AudioVisualizer({
           ctx.fill();
         }
       } else if (mode === 'wave') {
-        const waveConfigs = [
-          { color: 'rgba(6, 182, 212, 0.95)', ampMult: 0.32, freq: 0.016, speed: 3.5 },
-          { color: 'rgba(168, 85, 247, 0.75)', ampMult: 0.22, freq: 0.024, speed: -2.8 },
-          { color: 'rgba(236, 72, 153, 0.55)', ampMult: 0.15, freq: 0.035, speed: 5.2 },
-        ];
-
         const centerY = height / 2;
-        const rhythmAmp = playing ? (0.65 + 0.45 * Math.pow(Math.max(0, 1 - beatPhase), 3)) : 0.06;
 
-        waveConfigs.forEach(cfg => {
+        if (realData && realData.wave.length > 0) {
+          // Real PCM Waveform rendering
+          const wavePoints = realData.wave;
           ctx.beginPath();
-          ctx.strokeStyle = cfg.color;
-          ctx.lineWidth = compact ? 2 : 3.5;
+          ctx.strokeStyle = '#06b6d4';
+          ctx.lineWidth = compact ? 2.5 : 4;
+          ctx.shadowColor = '#06b6d4';
+          ctx.shadowBlur = compact ? 8 : 14;
 
-          const baseAmp = height * cfg.ampMult * rhythmAmp;
-
-          for (let x = 0; x <= width; x += compact ? 4 : 2) {
-            const yMod =
-              Math.sin(x * cfg.freq + audioTime * cfg.speed) *
-              Math.cos(x * cfg.freq * 0.5 + audioTime * (cfg.speed * 0.5));
-
-            const y = centerY + yMod * baseAmp;
-            if (x === 0) {
-              ctx.moveTo(x, y);
-            } else {
-              ctx.lineTo(x, y);
-            }
+          const sliceW = width / (wavePoints.length - 1);
+          for (let i = 0; i < wavePoints.length; i++) {
+            const x = i * sliceW;
+            const y = centerY + wavePoints[i] * (height * 0.42);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
           }
           ctx.stroke();
-        });
+
+          // Second ambient glow layer
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(168, 85, 247, 0.6)';
+          ctx.lineWidth = compact ? 1.5 : 2;
+          ctx.shadowBlur = 0;
+          for (let i = 0; i < wavePoints.length; i++) {
+            const x = i * sliceW;
+            const y = centerY + wavePoints[i] * (height * 0.35);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        } else {
+          // Synthetic wave fallback
+          const waveConfigs = [
+            { color: 'rgba(6, 182, 212, 0.95)', ampMult: 0.32, freq: 0.016, speed: 3.5 },
+            { color: 'rgba(168, 85, 247, 0.75)', ampMult: 0.22, freq: 0.024, speed: -2.8 },
+            { color: 'rgba(236, 72, 153, 0.55)', ampMult: 0.15, freq: 0.035, speed: 5.2 },
+          ];
+
+          const rhythmAmp = playing ? (0.65 + 0.45 * Math.pow(Math.max(0, 1 - beatPhase), 3)) : 0.06;
+
+          waveConfigs.forEach((cfg) => {
+            ctx.beginPath();
+            ctx.strokeStyle = cfg.color;
+            ctx.lineWidth = compact ? 2 : 3.5;
+
+            const baseAmp = height * cfg.ampMult * rhythmAmp;
+            for (let x = 0; x <= width; x += compact ? 4 : 2) {
+              const yMod =
+                Math.sin(x * cfg.freq + audioTime * cfg.speed) *
+                Math.cos(x * cfg.freq * 0.5 + audioTime * (cfg.speed * 0.5));
+
+              const y = centerY + yMod * baseAmp;
+              if (x === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+          });
+        }
       }
 
       ctx.restore();
@@ -357,7 +420,6 @@ export function AudioVisualizer({
   const channelName = channel?.name || 'Radio Station';
   const logoUrl = channel?.stream_icon;
 
-  // Clean category text string - prevents stray '[' or invalid JSON brackets from rendering
   const getCleanCategoryText = (): string => {
     if (
       categoryName &&

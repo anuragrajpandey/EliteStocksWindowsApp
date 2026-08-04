@@ -179,37 +179,42 @@
   transform: rotate(-30deg);
 }
 
-/* Station Information Card */
+/* Station Information Card (Top-Left Positioned) */
 .visualizer-info-card {
-  position: relative;
+  position: absolute;
+  top: 16px;
+  left: 16px;
   z-index: 5;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 14px 22px;
-  background: rgba(15, 23, 42, 0.72);
+  gap: 14px;
+  padding: 10px 16px;
+  background: rgba(15, 23, 42, 0.78);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 16px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(6, 182, 212, 0.15);
-  max-width: 85%;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(6, 182, 212, 0.12);
+  max-width: 60%;
+  pointer-events: auto;
 }
 
 .visualizer-channel-logo {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.08);
   padding: 4px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
 .visualizer-text-info {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   align-items: flex-start;
+  overflow: hidden;
 }
 
 .visualizer-channel-group {
@@ -218,22 +223,32 @@
   letter-spacing: 1px;
   text-transform: uppercase;
   color: #06b6d4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .visualizer-channel-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: #f8fafc;
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .visualizer-program-title {
-  font-size: 12px;
+  font-size: 11px;
   color: #94a3b8;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .visualizer-live-badge {
@@ -244,6 +259,7 @@
   padding: 2px 6px;
   border-radius: 4px;
   letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
 /* Compact Mode (Live TV Preview Pane) */
@@ -286,24 +302,27 @@
 .ynotv-audio-visualizer.compact-visualizer .vinyl-music-icon { font-size: 14px; }
 
 .ynotv-audio-visualizer.compact-visualizer .visualizer-info-card {
-  padding: 8px 14px;
-  gap: 10px;
+  top: 8px;
+  left: 8px;
+  padding: 6px 12px;
+  gap: 8px;
   border-radius: 10px;
-  max-width: 90%;
+  max-width: calc(100% - 150px);
 }
 
 .ynotv-audio-visualizer.compact-visualizer .visualizer-channel-logo {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   padding: 2px;
+  border-radius: 6px;
 }
 
 .ynotv-audio-visualizer.compact-visualizer .visualizer-channel-title {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .ynotv-audio-visualizer.compact-visualizer .visualizer-channel-group {
-  font-size: 9px;
+  font-size: 8px;
 }
 
 .ynotv-audio-visualizer.compact-visualizer .visualizer-program-title {
