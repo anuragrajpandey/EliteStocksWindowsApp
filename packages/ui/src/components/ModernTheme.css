@@ -1007,6 +1007,23 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.no-padding img {
   object-fit: cover !important;
 }
 
+/* Smart trim: auto-crop baked-in transparent padding so opaque content fills the tile */
+.modern-ui .guide-channel-logo.logo-smart-trim,
+html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim {
+  position: relative !important;
+}
+.modern-ui .guide-channel-logo.logo-smart-trim img,
+html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
+  position: absolute !important;
+  left: var(--smart-trim-x) !important;
+  top: var(--smart-trim-y) !important;
+  width: var(--smart-trim-w) !important;
+  height: var(--smart-trim-h) !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: fill !important;
+}
+
 /* Modern Scrollbar */
 .modern-ui .guide-channels::-webkit-scrollbar {
   width: 6px;

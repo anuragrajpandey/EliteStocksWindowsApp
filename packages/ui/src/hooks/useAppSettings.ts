@@ -118,10 +118,12 @@ export interface AppSettings {
   channelLogoSize: number;
   channelLogoRoundEdges: boolean;
   channelLogoPadding: 'none' | 'padded';
+  logoSmartTrim: boolean;
   logoLightBackgroundDetection: boolean;
   setChannelLogoSize: (size: number) => void;
   setChannelLogoRoundEdges: (enabled: boolean) => void;
   setChannelLogoPadding: (padding: 'none' | 'padded') => void;
+  setLogoSmartTrim: (enabled: boolean) => void;
   setLogoLightBackgroundDetection: (enabled: boolean) => void;
   epgMetadataBadgeResolution: boolean;
   epgMetadataBadgeFps: boolean;
@@ -428,6 +430,7 @@ export function useAppSettings(): AppSettings {
   const [channelLogoSize, setChannelLogoSizeState] = useState<number>(cachedSettings?.channelLogoSize ?? 42);
   const [channelLogoRoundEdges, setChannelLogoRoundEdgesState] = useState<boolean>(cachedSettings?.channelLogoRoundEdges ?? true);
   const [channelLogoPadding, setChannelLogoPaddingState] = useState<'none' | 'padded'>(cachedSettings?.channelLogoPadding ?? 'none');
+  const [logoSmartTrim, setLogoSmartTrimState] = useState<boolean>(cachedSettings?.logoSmartTrim ?? false);
   const [logoLightBackgroundDetection, setLogoLightBackgroundDetectionState] = useState<boolean>(cachedSettings?.logoLightBackgroundDetection ?? true);
   const [sourceLogoDisplayOverrides, setSourceLogoDisplayOverridesState] = useState<Record<string, 'square' | 'rectangle'>>(
     cachedSettings?.sourceLogoDisplayOverrides ?? {}
@@ -772,6 +775,7 @@ export function useAppSettings(): AppSettings {
             document.documentElement.classList.remove('logo-padded-tiles');
           }
           setChannelLogoPaddingState(result.data.channelLogoPadding ?? 'none');
+          setLogoSmartTrimState(result.data.logoSmartTrim ?? false);
           setLogoLightBackgroundDetectionState(result.data.logoLightBackgroundDetection ?? true);
           setSourceLogoDisplayOverridesState(result.data.sourceLogoDisplayOverrides ?? {});
           setEpgMetadataBadgeResolutionState(result.data.epgMetadataBadgeResolution ?? true);
@@ -1815,6 +1819,17 @@ export function useAppSettings(): AppSettings {
     }
   }, []);
 
+  const setLogoSmartTrim = useCallback(async (enabled: boolean) => {
+    setLogoSmartTrimState(enabled);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ logoSmartTrim: enabled });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save logoSmartTrim:', e);
+      }
+    }
+  }, []);
+
   const setSourceLogoDisplayOverride = useCallback(async (sourceId: string, display: 'square' | 'rectangle' | 'default') => {
     setSourceLogoDisplayOverridesState((prev) => {
       const next = { ...prev };
@@ -2027,6 +2042,8 @@ export function useAppSettings(): AppSettings {
     setChannelLogoRoundEdges,
     channelLogoPadding,
     setChannelLogoPadding,
+    logoSmartTrim,
+    setLogoSmartTrim,
     logoLightBackgroundDetection,
     setLogoLightBackgroundDetection,
     sourceLogoDisplayOverrides,

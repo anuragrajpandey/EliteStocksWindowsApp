@@ -591,6 +591,8 @@ export function Settings({
     setChannelLogoRoundEdges,
     channelLogoPadding,
     setChannelLogoPadding,
+    logoSmartTrim,
+    setLogoSmartTrim,
     logoLightBackgroundDetection,
     setLogoLightBackgroundDetection,
   } = useAppSettings();
@@ -2817,6 +2819,8 @@ export function Settings({
             onChannelLogoRoundEdgesChange={setChannelLogoRoundEdges}
             channelLogoPadding={channelLogoPadding}
             onChannelLogoPaddingChange={setChannelLogoPadding}
+            logoSmartTrim={logoSmartTrim}
+            onLogoSmartTrimChange={setLogoSmartTrim}
             logoLightBackgroundDetection={logoLightBackgroundDetection}
             onLogoLightBackgroundDetectionChange={setLogoLightBackgroundDetection}
             sourceLogoDisplayOverrides={sourceLogoDisplayOverrides}

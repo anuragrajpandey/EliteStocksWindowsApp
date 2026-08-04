@@ -1158,6 +1158,21 @@ html.epg-rectangle-logos .guide-channel-logo.no-padding img {
   height: 100% !important;
   object-fit: cover !important;
 }
+
+/* Smart trim: auto-crop baked-in transparent padding so opaque content fills the tile */
+.guide-channel-logo.logo-smart-trim {
+  position: relative !important;
+}
+.guide-channel-logo.logo-smart-trim img {
+  position: absolute !important;
+  left: var(--smart-trim-x) !important;
+  top: var(--smart-trim-y) !important;
+  width: var(--smart-trim-w) !important;
+  height: var(--smart-trim-h) !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: fill !important;
+}
 html.epg-rectangle-logos .logo-placeholder {
   font-size: 0.8rem;
   width: 66px;

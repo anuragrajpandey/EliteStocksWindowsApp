@@ -13,6 +13,8 @@ interface LogosTabProps {
   onChannelLogoRoundEdgesChange?: (enabled: boolean) => void;
   channelLogoPadding?: 'none' | 'padded';
   onChannelLogoPaddingChange?: (padding: 'none' | 'padded') => void;
+  logoSmartTrim?: boolean;
+  onLogoSmartTrimChange?: (enabled: boolean) => void;
   logoLightBackgroundDetection?: boolean;
   onLogoLightBackgroundDetectionChange?: (enabled: boolean) => void;
   sourceLogoDisplayOverrides: Record<string, 'square' | 'rectangle'>;
@@ -67,6 +69,8 @@ export function LogosTab({
   onChannelLogoRoundEdgesChange = () => {},
   channelLogoPadding = 'none',
   onChannelLogoPaddingChange = () => {},
+  logoSmartTrim = false,
+  onLogoSmartTrimChange = () => {},
   logoLightBackgroundDetection = true,
   onLogoLightBackgroundDetectionChange = () => {},
   sourceLogoDisplayOverrides,
@@ -105,6 +109,11 @@ export function LogosTab({
       await loadStats();
       try {
         localStorage.removeItem('ynotv.logo-luminance.v1');
+      } catch (e) {
+        // Ignore localStorage clear errors
+      }
+      try {
+        localStorage.removeItem('ynotv.logo-contentbox.v1');
       } catch (e) {
         // Ignore localStorage clear errors
       }
@@ -202,6 +211,22 @@ export function LogosTab({
                 type="checkbox"
                 checked={logoLightBackgroundDetection}
                 onChange={(e) => onLogoLightBackgroundDetectionChange(e.target.checked)}
+              />
+              <span className="toggle-slider" />
+            </label>
+          </div>
+
+          {/* Smart Trim Logos Toggle */}
+          <div className="timeshift-toggle-row" style={{ marginBottom: '20px', paddingTop: '16px', borderTop: '1px solid var(--surface-border)' }}>
+            <div className="timeshift-toggle-info">
+              <span className="timeshift-toggle-label">Smart Trim Logos</span>
+              <span className="timeshift-toggle-sub">Automatically crop each logo's baked-in transparent padding so it fills the tile edge-to-edge, without cutting off any content. Disables Full-Bleed cropping.</span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={logoSmartTrim}
+                onChange={(e) => onLogoSmartTrimChange(e.target.checked)}
               />
               <span className="toggle-slider" />
             </label>
