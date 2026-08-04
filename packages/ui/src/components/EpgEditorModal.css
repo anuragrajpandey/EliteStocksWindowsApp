@@ -172,7 +172,17 @@
   align-items: center;
 }
 
-.epg-editor-logo-row .epg-editor-input { flex: 1; }
+.epg-editor-logo-row .epg-editor-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.epg-editor-logo-preview-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
 
 .epg-editor-logo-preview {
   width: 48px;

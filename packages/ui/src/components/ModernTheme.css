@@ -977,14 +977,18 @@ html, body, button, input, select, textarea {
 }
 
 /* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled */
-html.epg-rectangle-logos.modern-ui .guide-channel-logo {
+html.epg-rectangle-logos.modern-ui .guide-channel-logo,
+.modern-ui .guide-channel-logo.logo-shape-rectangle,
+html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-rectangle {
   width: calc(var(--channel-logo-size, 42px) * 1.76);
   height: calc(var(--channel-logo-size, 42px) * 0.904);
   border-radius: var(--channel-logo-radius, 8px);
   padding: 0;
   background: transparent;
 }
-html.epg-rectangle-logos.modern-ui .guide-channel-logo.logo-on-light {
+html.epg-rectangle-logos.modern-ui .guide-channel-logo.logo-on-light,
+.modern-ui .guide-channel-logo.logo-shape-rectangle.logo-on-light,
+html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-rectangle.logo-on-light {
   background: rgba(255, 255, 255, 0.92);
 }
 

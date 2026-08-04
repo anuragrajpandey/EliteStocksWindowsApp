@@ -655,7 +655,7 @@ export class SqliteTable<T, TKey> {
     async update(key: TKey, changes: Partial<T>): Promise<number> {
         return writeLock.run(async () => {
             const db = await this.getDb();
-            const keys = Object.keys(changes);
+            const keys = Object.keys(changes).filter(k => (changes as any)[k] !== undefined);
             if (keys.length === 0) return 0;
 
             const tableJsonFields = JSON_FIELDS[this.tableName] || [];
@@ -686,7 +686,12 @@ export class SqliteTable<T, TKey> {
             }
 
             const setClause = keys.map((k, i) => `${k} = $${i + 1}`).join(', ');
-            const values = Object.values(processedChanges);
+            // IMPORTANT: derive values from the (possibly filtered) keys so the SQL
+            // placeholders and bound values stay aligned. Using Object.values(processedChanges)
+            // here would re-include undefined entries that were filtered out above,
+            // shifting every subsequent column to the wrong value (e.g. folder_id
+            // would be written with the display_order value).
+            const values = keys.map(k => processedChanges[k]);
 
             // Add key to values
             values.push(key);

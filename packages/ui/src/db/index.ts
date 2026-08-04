@@ -1702,15 +1702,13 @@ export async function restoreUserCustomizations(): Promise<void> {
       for (const cat of backup.categories) {
         const dbCat = await db.categories.get(cat.category_id);
         if (dbCat) {
-          const updates: any = {
-            enabled: cat.enabled,
-            alias: cat.alias,
-            display_order: cat.display_order,
-            filter_words: cat.filter_words
-          };
-          if (cat.folder_id !== undefined) {
-            updates.folder_id = cat.folder_id;
-          }
+          const updates: any = {};
+          if (cat.enabled !== undefined) updates.enabled = cat.enabled;
+          if (cat.alias !== undefined) updates.alias = cat.alias;
+          if (cat.display_order !== undefined) updates.display_order = cat.display_order;
+          if (cat.filter_words !== undefined) updates.filter_words = cat.filter_words;
+          if (cat.folder_id !== undefined) updates.folder_id = cat.folder_id;
+
           await db.categories.update(cat.category_id, updates);
           changed = true;
         } else {
@@ -1735,15 +1733,15 @@ export async function restoreUserCustomizations(): Promise<void> {
 
       if (channelsToRestore.length > 0) {
         console.log(`[Restore] Restoring customizations for ${channelsToRestore.length} channels`);
-        await Promise.all(channelsToRestore.map(ch => 
-          db.channels.update(ch.stream_id, {
-            enabled: ch.enabled,
-            is_favorite: ch.is_favorite,
-            alias: ch.alias,
-            fav_order: ch.fav_order,
-            display_order: ch.display_order
-          })
-        ));
+        await Promise.all(channelsToRestore.map(ch => {
+          const updates: any = {};
+          if (ch.enabled !== undefined) updates.enabled = ch.enabled;
+          if (ch.is_favorite !== undefined) updates.is_favorite = ch.is_favorite;
+          if (ch.alias !== undefined) updates.alias = ch.alias;
+          if (ch.fav_order !== undefined) updates.fav_order = ch.fav_order;
+          if (ch.display_order !== undefined) updates.display_order = ch.display_order;
+          return db.channels.update(ch.stream_id, updates);
+        }));
         changed = true;
       }
       backup.channels = remainingChannels;
@@ -1755,10 +1753,10 @@ export async function restoreUserCustomizations(): Promise<void> {
       for (const cat of backup.vodCategories) {
         const dbCat = await db.vodCategories.get(cat.category_id);
         if (dbCat) {
-          await db.vodCategories.update(cat.category_id, {
-            enabled: cat.enabled,
-            display_order: cat.display_order
-          });
+          const updates: any = {};
+          if (cat.enabled !== undefined) updates.enabled = cat.enabled;
+          if (cat.display_order !== undefined) updates.display_order = cat.display_order;
+          await db.vodCategories.update(cat.category_id, updates);
           changed = true;
         } else {
           remainingVodCategories.push(cat);

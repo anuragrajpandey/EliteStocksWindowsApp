@@ -5,6 +5,9 @@ import { db } from '../db';
 import type { StoredChannel, StoredCategory } from '../db';
 import { ChannelLogo } from './ChannelLogo';
 import { useEpgClockFormat } from '../stores/uiStore';
+import { useAppSettings } from '../hooks/useAppSettings';
+
+
 import {
   getChannelOverride,
   upsertChannelOverride,
@@ -207,6 +210,11 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
   );
   const [channel, setChannel] = useState<StoredChannel | undefined>(initialChannel);
   const resolvedSourceId = channel?.source_id ?? sourceId;
+
+  const { epgLogoDisplay, sourceLogoDisplayOverrides } = useAppSettings();
+  const sourceDisplayOverride = channel?.source_id ? sourceLogoDisplayOverrides?.[channel.source_id] : undefined;
+  const logoShape = (sourceDisplayOverride || epgLogoDisplay) as 'square' | 'rectangle';
+
 
   // ── Channel tab state ──
   const [rawChannel, setRawChannel] = useState<StoredChannel | null>(null);
@@ -819,12 +827,13 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                     onChange={e => setLogoUrl(e.target.value)}
                     placeholder="https://..."
                   />
-                  <div style={{ width: 40, height: 40, flexShrink: 0 }}>
+                  <div className="epg-editor-logo-preview-wrapper">
                     <ChannelLogo
                       src={logoUrl || undefined}
                       name={channel?.name || ''}
                       background={logoBackground}
                       padding={logoPadding}
+                      shape={logoShape}
                       lazy={false}
                     />
                   </div>

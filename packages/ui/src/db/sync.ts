@@ -2659,6 +2659,15 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
     });
     debugLog('Channels and categories stored successfully', 'sync');
 
+    // Restore user customizations (folder assignments, favorites, enabled state, etc.)
+    // as soon as channels/categories exist, BEFORE EPG sync — a later EPG failure
+    // must not leave categories un-restored (empty folders) after a cache clear.
+    try {
+      await restoreUserCustomizations();
+    } catch (err) {
+      console.error('[Sync] Failed to restore user customizations:', err);
+    }
+
     // Fetch EPG if enabled (skip for VOD-only sources)
     let programCount = 0;
     const shouldLoadEpg = !source.vod_only && (source.auto_load_epg ?? (source.type === 'xtream'));
@@ -2741,13 +2750,6 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       await db.checkpoint('TRUNCATE');
     } catch (err) {
       console.error(`[Sync] TRUNCATE checkpoint failed for ${source.name}:`, err);
-    }
-
-    // Restore user customizations if we had a backup
-    try {
-      await restoreUserCustomizations();
-    } catch (err) {
-      console.error('[Sync] Failed to restore user customizations:', err);
     }
 
     return {
