@@ -1,5 +1,28 @@
 # Changelog
 
+## v2.3.2
+
+### Please also read changelogs for v2.3.0-v2.3.1 if you haven't
+
+### Added
+
+- **Audio visualiser for live audio and radio** - A real-time audio spectrum visualiser is now displayed in the player controls and Now Playing bar for radio stations and audio-only streams.
+- **Smart Trim Logos** - Automatically crops baked-in transparent padding from channel logos so they fill the tile edge-to-edge without clipping any content. Enable under `Settings → Live TV → Logos → Smart Trim Logos`. Corrected dimensions are cached per logo for instant rendering on subsequent loads.
+- **Logo background detection toggle** - An option to opt out of automatic logo background detection has been added under `Settings → Live TV → Logos → Auto Background Detection`.
+- **VOD and TV Series trailers** - A dedicated `Trailer` button is now available on Movie and TV Series detail pages. Requires TMDB to be enabled.
+- **Logo configuration caching** - Parsed logo aspect ratios and trimmed bounding boxes are now cached, eliminating redundant layout metric calculations on category loads.
+- **SubSource and OpenSubtitles IMDb/TMDb matching** - Subtitle searches now prioritise exact IMDb/TMDb ID lookups for the currently playing title across both SubSource and OpenSubtitles, falling back to text search only when an exact match is not found.
+- **Provider TMDb ID syncing** - Xtream playlist sync now extracts and stores provider TMDb IDs in the database, improving accuracy for subtitle search, scrobbling, plot lookups, and movie extras.
+
+### Fixed
+
+- **Sports API 403 errors** - Resolved Forbidden errors affecting the Sports API.
+- **Channel info overlay logo appearing cropped** - Fixed a bug causing some logos to appear cropped rather than fitted correctly within the channel info overlay.
+- **Xtream VOD multi-category support** - Resolved an issue where VOD movies and series were only syncing to a single category, resulting in genre categories showing no content. Fallback handling has been added for streams with null or empty names.
+- **Category Folders not included in Import/Export and cleared by cache wipe** - Category Folders are now included in backup import/export files. Clearing the cache will no longer remove custom Category Folders.
+- **Per-source logo shape override not applying** - Setting a square or rectangle logo shape for an individual source now correctly overrides the global setting in both directions across channel rows and search results.
+- **Slow category switching with large playlists** - Category loading has been reworked for a faster response when switching between categories in large playlists.
+
 ## v2.3.1
 
 ### Added v2.3.0
