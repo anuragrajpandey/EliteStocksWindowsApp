@@ -11,6 +11,41 @@ import { useAppSettings } from './useAppSettings';
 import { getCachedSettings } from '../services/settings-cache';
 import type { Source } from '@ynotv/core';
 import { buildSearchQueryClauses, getSearchVariants } from '../utils/searchNormalization';
+import { dbEvents } from '../db/sqlite-adapter';
+
+// Reverse index: category_id -> stream_ids in table scan (rowid) order.
+// Built once per channels-table change so category swaps use indexed IN
+// queries instead of scanning every channel with `category_ids LIKE '%"x"%'`,
+// which is slow on large databases.
+let categoryStreamIndex = new Map<string, string[]>();
+let categoryStreamIndexPromise: Promise<Map<string, string[]>> | null = null;
+let categoryIndexBuiltFor = -1;
+let channelsVersion = 0;
+dbEvents.subscribe('channels', () => { channelsVersion++; });
+
+async function ensureCategoryStreamIndex(): Promise<Map<string, string[]>> {
+  if (categoryIndexBuiltFor === channelsVersion) {
+    return categoryStreamIndex;
+  }
+  if (!categoryStreamIndexPromise) {
+    categoryStreamIndexPromise = (async () => {
+      const rows = await db.channels.toCollection().select(['stream_id', 'category_ids']).toArray();
+      const index = new Map<string, string[]>();
+      for (const ch of rows) {
+        for (const id of parseCategoryIds(ch.category_ids)) {
+          const list = index.get(id);
+          if (list) list.push(ch.stream_id);
+          else index.set(id, [ch.stream_id]);
+        }
+      }
+      categoryStreamIndex = index;
+      categoryIndexBuiltFor = channelsVersion;
+      categoryStreamIndexPromise = null;
+      return categoryStreamIndex;
+    })();
+  }
+  return categoryStreamIndexPromise;
+}
 
 // Hook to get enabled source IDs (for filtering data from disabled sources)
 // Returns null during loading to avoid hiding all data
@@ -510,10 +545,22 @@ export function useChannels(categoryId: string | null, sortOrder: 'alphabetical'
           }
           orderingIsFixed = true; // order comes from customGroupChannels.display_order
         } else {
-          // Channels in this category - uses index
+          // Channels in this category
           const category = await db.categories.get(categoryId);
           if (category) {
-            results = await db.channels.where('category_ids').equals(categoryId).toArray();
+            const index = await ensureCategoryStreamIndex();
+            const orderedIds = index.get(categoryId) || [];
+            const fetched: StoredChannel[] = [];
+            const FETCH_CHUNK = 500;
+            for (let i = 0; i < orderedIds.length; i += FETCH_CHUNK) {
+              const chunk = orderedIds.slice(i, i + FETCH_CHUNK);
+              const rows = await db.channels.where('stream_id').anyOf(chunk).toArray();
+              fetched.push(...rows);
+            }
+            // anyOf returns PK order; restore table scan (insertion) order
+            const pos = new Map(orderedIds.map((id, i) => [id, i]));
+            fetched.sort((a, b) => (pos.get(a.stream_id) ?? 0) - (pos.get(b.stream_id) ?? 0));
+            results = fetched;
             if (enabledSourceIds) {
               results = results.filter(ch => enabledSourceIds.has(ch.source_id));
             }
@@ -751,7 +798,10 @@ export function useChannelCount() {
 
 // Hook to get channel count for a category
 export function useCategoryChannelCount(categoryId: string) {
-  const count = useLiveQuery(() => db.channels.where('category_ids').equals(categoryId).count(), [categoryId]);
+  const count = useLiveQuery(async () => {
+    const index = await ensureCategoryStreamIndex();
+    return (index.get(categoryId) || []).length;
+  }, [categoryId]);
   return count ?? 0;
 }
 
