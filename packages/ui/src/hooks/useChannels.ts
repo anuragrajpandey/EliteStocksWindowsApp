@@ -570,17 +570,28 @@ export function useChannels(categoryId: string | null, sortOrder: 'alphabetical'
       // Apply logo overrides from epg_channel_overrides so the guide shows
       // the user-set channel icon without needing a full sync.
       try {
-        const overrides = await db.epgChannelOverrides.toArray();
         const logoMap = new Map<string, string>();
         const logoBgMap = new Map<string, string>();
         const logoPaddingMap = new Map<string, string>();
         const epgIdMap = new Map<string, string>();
-        
-        for (const o of overrides) {
-          if (o.stream_icon) logoMap.set(o.stream_id, o.stream_icon);
-          if (o.logo_background) logoBgMap.set(o.stream_id, o.logo_background);
-          if (o.logo_padding) logoPaddingMap.set(o.stream_id, o.logo_padding);
-          if (o.epg_channel_id) epgIdMap.set(o.stream_id, o.epg_channel_id);
+
+        // Load overrides only for this category's channels (indexed IN query)
+        // instead of scanning the whole epg_channel_overrides table on every
+        // category swap.
+        const OVERRIDES_CHUNK = 500;
+        for (let i = 0; i < results.length; i += OVERRIDES_CHUNK) {
+          const chunkStreamIds = results.slice(i, i + OVERRIDES_CHUNK).map(ch => ch.stream_id);
+          const overrides = await db.epgChannelOverrides
+            .where('stream_id')
+            .anyOf(chunkStreamIds)
+            .select(['stream_id', 'stream_icon', 'logo_background', 'logo_padding', 'epg_channel_id'])
+            .toArray();
+          for (const o of overrides) {
+            if (o.stream_icon) logoMap.set(o.stream_id, o.stream_icon);
+            if (o.logo_background) logoBgMap.set(o.stream_id, o.logo_background);
+            if (o.logo_padding) logoPaddingMap.set(o.stream_id, o.logo_padding);
+            if (o.epg_channel_id) epgIdMap.set(o.stream_id, o.epg_channel_id);
+          }
         }
 
         let epgIconMap = new Map<string, string>();
@@ -1176,17 +1187,27 @@ export function useChannelSearch(
 
       // Apply logo overrides from epg_channel_overrides and epgPreferEpgLogos setting
       try {
-        const overrides = await db.epgChannelOverrides.toArray();
         const logoMap = new Map<string, string>();
         const logoBgMap = new Map<string, string>();
         const logoPaddingMap = new Map<string, string>();
         const epgIdMap = new Map<string, string>();
-        
-        for (const o of overrides) {
-          if (o.stream_icon) logoMap.set(o.stream_id, o.stream_icon);
-          if (o.logo_background) logoBgMap.set(o.stream_id, o.logo_background);
-          if (o.logo_padding) logoPaddingMap.set(o.stream_id, o.logo_padding);
-          if (o.epg_channel_id) epgIdMap.set(o.stream_id, o.epg_channel_id);
+
+        // Load overrides only for the search results (indexed IN query)
+        // instead of scanning the whole epg_channel_overrides table on every search.
+        const OVERRIDES_CHUNK = 500;
+        for (let i = 0; i < filteredChannels.length; i += OVERRIDES_CHUNK) {
+          const chunkStreamIds = filteredChannels.slice(i, i + OVERRIDES_CHUNK).map(ch => ch.stream_id);
+          const overrides = await db.epgChannelOverrides
+            .where('stream_id')
+            .anyOf(chunkStreamIds)
+            .select(['stream_id', 'stream_icon', 'logo_background', 'logo_padding', 'epg_channel_id'])
+            .toArray();
+          for (const o of overrides) {
+            if (o.stream_icon) logoMap.set(o.stream_id, o.stream_icon);
+            if (o.logo_background) logoBgMap.set(o.stream_id, o.logo_background);
+            if (o.logo_padding) logoPaddingMap.set(o.stream_id, o.logo_padding);
+            if (o.epg_channel_id) epgIdMap.set(o.stream_id, o.epg_channel_id);
+          }
         }
 
         let epgIconMap = new Map<string, string>();
