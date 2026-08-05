@@ -55,6 +55,18 @@ function getCached(url: string): LogoVerdict | undefined {
   return loadPersisted()[url];
 }
 
+/**
+ * Synchronously read the cached luminance verdict for a URL (memory +
+ * persisted localStorage). Returns the verdict, or `undefined` if it hasn't
+ * been classified yet. Use this to seed state before first render so
+ * already-classified logos are shown with the correct tile on first paint,
+ * avoiding a dark-then-light flash while scrolling.
+ */
+export function getCachedLogoVerdict(url?: string | null): LogoVerdict | undefined {
+  if (!url) return undefined;
+  return getCached(url);
+}
+
 function setCached(url: string, verdict: LogoVerdict) {
   memoryCache.set(url, verdict);
   const map = loadPersisted();

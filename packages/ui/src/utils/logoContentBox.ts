@@ -25,7 +25,13 @@ export interface LogoContentBox {
   b: number;
 }
 
+export interface LogoDims {
+  w: number;
+  h: number;
+}
+
 const STORAGE_KEY = 'ynotv.logo-contentbox.v1';
+const DIMS_STORAGE_KEY = 'ynotv.logo-dims.v1';
 const MAX_PERSISTED = 10000;
 const MAX_CONCURRENT_FETCHES = 8;
 const MAX_ANALYSIS_DIM = 160;
@@ -33,12 +39,17 @@ const ALPHA_THRESHOLD = 24;
 const SAFETY_MARGIN = 0.02;
 
 const memoryCache = new LRUCache<string, LogoContentBox | null>({ maxSize: 5000 });
+const dimsMemoryCache = new LRUCache<string, LogoDims>({ maxSize: 5000 });
 const inFlight = new Map<string, Promise<LogoContentBox | null>>();
 let pendingFetches = 0;
 
 let persisted: Record<string, LogoContentBox | null> = {};
 let persistedLoaded = false;
 let persistTimer: ReturnType<typeof setTimeout> | null = null;
+
+let dimsPersisted: Record<string, LogoDims> = {};
+let dimsPersistedLoaded = false;
+let dimsPersistTimer: ReturnType<typeof setTimeout> | null = null;
 
 function loadPersisted(): Record<string, LogoContentBox | null> {
   if (persistedLoaded) return persisted;
@@ -99,6 +110,58 @@ function setCached(url: string, box: LogoContentBox | null) {
     }
     map[url] = box;
     schedulePersist();
+  }
+}
+
+function loadDimsPersisted(): Record<string, LogoDims> {
+  if (dimsPersistedLoaded) return dimsPersisted;
+  dimsPersistedLoaded = true;
+  try {
+    const raw = localStorage.getItem(DIMS_STORAGE_KEY);
+    dimsPersisted = raw ? JSON.parse(raw) : {};
+  } catch {
+    dimsPersisted = {};
+  }
+  return dimsPersisted;
+}
+
+function scheduleDimsPersist() {
+  if (dimsPersistTimer) return;
+  dimsPersistTimer = setTimeout(() => {
+    dimsPersistTimer = null;
+    try {
+      localStorage.setItem(DIMS_STORAGE_KEY, JSON.stringify(dimsPersisted));
+    } catch {
+      // Storage full or unavailable — keep in-memory only
+    }
+  }, 2000);
+}
+
+/**
+ * Synchronously read the cached natural image dimensions for a URL (memory +
+ * persisted localStorage). Returns `undefined` if not known yet. Lets the
+ * smart-trim layout apply the cached correction before the image has decoded.
+ */
+export function getCachedLogoDims(url?: string | null): LogoDims | undefined {
+  if (!url) return undefined;
+  const mem = dimsMemoryCache.get(url);
+  if (mem) return mem;
+  return loadDimsPersisted()[url];
+}
+
+function setCachedDims(url: string, dims: LogoDims) {
+  dimsMemoryCache.set(url, dims);
+  const map = loadDimsPersisted();
+  const prev = map[url];
+  if (!prev || prev.w !== dims.w || prev.h !== dims.h) {
+    if (Object.keys(map).length >= MAX_PERSISTED) {
+      const keys = Object.keys(map);
+      for (let i = 0; i < Math.floor(keys.length * 0.25); i++) {
+        delete map[keys[i]];
+      }
+    }
+    map[url] = dims;
+    scheduleDimsPersist();
   }
 }
 
@@ -163,7 +226,7 @@ function computeContentBox(img: HTMLImageElement): LogoContentBox | null {
  * Fetch logo bytes via the Tauri fetch proxy (bypasses CORS) and analyze them
  * from a same-origin blob URL. Falls back gracefully.
  */
-async function analyzeFromUrl(url: string): Promise<LogoContentBox | null> {
+async function analyzeFromUrl(url: string): Promise<{ box: LogoContentBox | null; w: number; h: number } | null> {
   if (pendingFetches >= MAX_CONCURRENT_FETCHES) return null;
   if (typeof window === 'undefined' || !window.fetchProxy?.fetchBinary) return null;
 
@@ -179,7 +242,7 @@ async function analyzeFromUrl(url: string): Promise<LogoContentBox | null> {
     const objectUrl = URL.createObjectURL(blob);
     try {
       const img = await loadImage(objectUrl);
-      return computeContentBox(img);
+      return { box: computeContentBox(img), w: img.naturalWidth, h: img.naturalHeight };
     } finally {
       URL.revokeObjectURL(objectUrl);
     }
@@ -202,26 +265,48 @@ export async function getLogoContentBox(
   loadedImg?: HTMLImageElement
 ): Promise<LogoContentBox | null> {
   const cached = getCached(url);
-  if (cached !== undefined) return cached;
+  if (cached !== undefined) {
+    // Ensure dimensions are cached alongside an existing content box so the
+    // layout can apply trim before the image decodes on future mounts.
+    if (loadedImg && loadedImg.complete && loadedImg.naturalWidth > 0) {
+      const existingDims = getCachedLogoDims(url);
+      if (!existingDims || existingDims.w !== loadedImg.naturalWidth || existingDims.h !== loadedImg.naturalHeight) {
+        setCachedDims(url, { w: loadedImg.naturalWidth, h: loadedImg.naturalHeight });
+      }
+    }
+    return cached;
+  }
 
   const existing = inFlight.get(url);
   if (existing) return existing;
 
   const promise = (async () => {
     let box: LogoContentBox | null = null;
+    let w = 0;
+    let h = 0;
 
     if (loadedImg && loadedImg.complete && loadedImg.naturalWidth > 0) {
       try {
         box = computeContentBox(loadedImg);
+        w = loadedImg.naturalWidth;
+        h = loadedImg.naturalHeight;
       } catch {
         box = null; // cross-origin tainted canvas — fall back to proxy
       }
     }
 
     if (box === null) {
-      box = await analyzeFromUrl(url);
+      const res = await analyzeFromUrl(url);
+      if (res) {
+        box = res.box;
+        w = res.w;
+        h = res.h;
+      }
     }
 
+    if (box !== null && w > 0 && h > 0) {
+      setCachedDims(url, { w, h });
+    }
     setCached(url, box);
     inFlight.delete(url);
     return box;

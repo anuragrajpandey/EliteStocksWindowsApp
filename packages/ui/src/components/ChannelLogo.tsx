@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { classifyLogo } from '../utils/logoLuminance';
-import { getLogoContentBox, getCachedLogoContentBox, LogoContentBox } from '../utils/logoContentBox';
+import { classifyLogo, getCachedLogoVerdict } from '../utils/logoLuminance';
+import { getLogoContentBox, getCachedLogoContentBox, getCachedLogoDims, LogoContentBox } from '../utils/logoContentBox';
 import { getCachedLogoUrl } from '../services/logoCache';
 import { useAppSettings } from '../hooks/useAppSettings';
 
@@ -42,7 +42,14 @@ export const ChannelLogo = memo(function ChannelLogo({
   shape,
 }: ChannelLogoProps) {
   const { logoCacheEnabled, logoLightBackgroundDetection = true, logoSmartTrim = false } = useAppSettings();
-  const [autoLight, setAutoLight] = useState(false);
+  // Seed the light tile from cache synchronously so already-classified logos
+  // render correctly on first paint instead of flashing dark then flipping
+  // light as the async luminance analysis resolves.
+  const [autoLight, setAutoLight] = useState<boolean>(() =>
+    background === 'auto' && logoLightBackgroundDetection && src
+      ? getCachedLogoVerdict(src) === 'dark'
+      : false
+  );
   const [failed, setFailed] = useState(false);
   const [effectiveSrc, setEffectiveSrc] = useState<string | undefined>(src || undefined);
   const [contentBox, setContentBox] = useState<LogoContentBox | null>(
@@ -56,7 +63,7 @@ export const ChannelLogo = memo(function ChannelLogo({
 
   // Reset state and resolve cached logo URL whenever the logo URL or setting changes
   useEffect(() => {
-    setAutoLight(false);
+    setAutoLight(background === 'auto' && logoLightBackgroundDetection && src ? (getCachedLogoVerdict(src) === 'dark') : false);
     setFailed(false);
     // Seed synchronously from cache so already-corrected logos don't flash
     // untrimmed before the async analysis resolves.
@@ -77,7 +84,7 @@ export const ChannelLogo = memo(function ChannelLogo({
     return () => {
       isMounted = false;
     };
-  }, [src, logoCacheEnabled, logoSmartTrim]);
+  }, [src, logoCacheEnabled, logoSmartTrim, background, logoLightBackgroundDetection]);
 
   // Resolve the content box and bump a load tick so trim is recomputed from the
   // loaded image. The tick matters because the cached box is a stable object
@@ -120,13 +127,26 @@ export const ChannelLogo = memo(function ChannelLogo({
     const img = imgRef.current;
     const box = contentBox;
     const container = containerRef.current;
-    if (!img || !box || !container || !img.naturalWidth || !img.naturalHeight) {
+    // Use the decoded image when available, otherwise fall back to cached
+    // dimensions so cached logos render trimmed on first paint instead of
+    // snapping from untrimmed once the image decodes.
+    let nW = 0;
+    let nH = 0;
+    if (img && img.naturalWidth && img.naturalHeight) {
+      nW = img.naturalWidth;
+      nH = img.naturalHeight;
+    } else {
+      const dims = getCachedLogoDims(src);
+      if (dims && dims.w && dims.h) {
+        nW = dims.w;
+        nH = dims.h;
+      }
+    }
+    if (!box || !container || !nW || !nH) {
       lastVarsRef.current = '';
       setTrimVars(null);
       return;
     }
-    const nW = img.naturalWidth;
-    const nH = img.naturalHeight;
     const cw = (box.r - box.l) * nW;
     const ch = (box.b - box.t) * nH;
     if (!cw || !ch) return;
@@ -149,7 +169,7 @@ export const ChannelLogo = memo(function ChannelLogo({
       lastVarsRef.current = key;
       setTrimVars(next);
     }
-  }, [contentBox]);
+  }, [contentBox, src]);
 
   useLayoutEffect(() => {
     if (!logoSmartTrim || !effectiveSrc || !contentBox) {
