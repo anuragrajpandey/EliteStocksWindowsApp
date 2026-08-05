@@ -992,6 +992,20 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-rectangle.logo-on-l
   background: rgba(255, 255, 255, 0.92);
 }
 
+/* Per-source square override when the global setting is rectangle - must beat the same specificity above */
+html.epg-rectangle-logos.modern-ui .guide-channel-logo.logo-shape-square,
+html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-square {
+  width: var(--channel-logo-size, 42px);
+  height: var(--channel-logo-size, 42px);
+  border-radius: var(--channel-logo-radius, 8px);
+  padding: 0;
+  background: transparent;
+}
+html.epg-rectangle-logos.modern-ui .guide-channel-logo.logo-shape-square.logo-on-light,
+html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-square.logo-on-light {
+  background: rgba(255, 255, 255, 0.92);
+}
+
 /* No-padding overrides for modern UI and rectangle channel logos */
 .modern-ui .guide-channel-logo.no-padding,
 html.epg-rectangle-logos.modern-ui .guide-channel-logo.no-padding,

@@ -173,6 +173,7 @@ export const ChannelLogo = memo(function ChannelLogo({
     needsLight ? `${className} logo-on-light` : className,
     padding === 'none' && !smartTrimActive ? 'no-padding' : '',
     shape === 'rectangle' ? 'logo-shape-rectangle' : '',
+    shape === 'square' ? 'logo-shape-square' : '',
     smartTrimActive ? 'logo-smart-trim' : '',
   ].filter(Boolean).join(' ');
 

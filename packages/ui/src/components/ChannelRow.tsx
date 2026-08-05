@@ -195,6 +195,7 @@ export const ChannelRow = memo(function ChannelRow({
           className="guide-channel-logo"
           background={channel.logo_background as 'auto' | 'light' | 'dark' | undefined}
           padding={channel.logo_padding as 'default' | 'none' | undefined}
+          shape={channel.logo_display as 'square' | 'rectangle' | undefined}
         />
         <div className="guide-channel-name-container">
           <span className="guide-channel-name" title={channel.alias || channel.name}>
