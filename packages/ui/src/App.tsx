@@ -2462,6 +2462,10 @@ function useTmdbPresencePoster(
       const playerReuse = result?.data?.externalPlayerReuse ?? false;
       const playerArgs = result?.data?.externalPlayerArgs || '';
       if (!playerPath) {
+        if (info.url.startsWith('http://') || info.url.startsWith('https://')) {
+          window.open(info.url, '_blank');
+          return;
+        }
         console.warn('[App] External player path not configured');
         return;
       }
@@ -2521,6 +2525,8 @@ function useTmdbPresencePoster(
   // ==========================================================================
   const handlePlayVodRef = useRef(handlePlayVod);
   useEffect(() => { handlePlayVodRef.current = handlePlayVod; }, [handlePlayVod]);
+  const handlePlayVodWrapperRef = useRef(handlePlayVodWrapper);
+  useEffect(() => { handlePlayVodWrapperRef.current = handlePlayVodWrapper; }, [handlePlayVodWrapper]);
   const setActiveViewRef = useRef(setActiveView);
   useEffect(() => { setActiveViewRef.current = setActiveView; }, [setActiveView]);
   const setDurationRef = useRef(setDuration);
@@ -2760,21 +2766,24 @@ function useTmdbPresencePoster(
   // ==========================================================================
   useEffect(() => {
     const handler = async (e: Event) => {
-      const { url, title, backdropUrl, logoUrl } = (e as CustomEvent).detail;
+      const { url, title, backdropUrl, logoUrl, targetMode } = (e as CustomEvent).detail;
       if (!url) return;
       const currentView = activeViewRef.current;
       if (currentView === 'movies' || currentView === 'series' || currentView === 'stremio' || currentView === 'dvr' || currentView === 'nuvio') {
         setPlaybackSourceView(currentView);
       }
-      setActiveViewRef.current?.('none');
-      await handlePlayVodRef.current({
+      const effectiveMode = targetMode || vodPlayerModeRef.current;
+      if (effectiveMode === 'embedded') {
+        setActiveViewRef.current?.('none');
+      }
+      await handlePlayVodWrapperRef.current?.({
         url,
         title: title || '',
         type: 'movie',
         source_id: 'trailer',
         backdropUrl,
         logoUrl,
-      });
+      }, undefined, targetMode);
     };
     window.addEventListener('ynotv:play-url', handler);
     return () => window.removeEventListener('ynotv:play-url', handler);

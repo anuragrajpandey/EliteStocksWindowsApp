@@ -16,6 +16,8 @@ import type { StoredMovie } from '../../db';
 import { resolvePlayUrl } from '../../services/stream-resolver';
 import { useDownloadStore } from '../../stores/downloadStore';
 import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
+import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
+import { useLazyVodTrailer } from '../../hooks/useLazyVodTrailer';
 import { SplitPlayButton, type VodPlayerMode } from './SplitPlayButton';
 import './MovieDetail.css';
 
@@ -73,6 +75,27 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
       setCopying(false);
     }
   }, [movie]);
+
+  // Active TMDB Token & Trailer logic
+  const activeTmdbToken = useActiveTmdbToken();
+  const hasTmdbKey = Boolean(activeTmdbToken && activeTmdbToken.trim() !== '');
+  const { trailerUrl, loading: trailerLoading } = useLazyVodTrailer(hasTmdbKey ? movie : null, 'movie', activeTmdbToken);
+
+  const handlePlayTrailer = useCallback((targetMode?: VodPlayerMode) => {
+    if (!trailerUrl) {
+      alert('No trailer available for this movie');
+      return;
+    }
+    window.dispatchEvent(new CustomEvent('ynotv:play-url', {
+      detail: {
+        url: trailerUrl,
+        title: `${movie.title || movie.name} - Trailer`,
+        backdropUrl,
+        logoUrl,
+        targetMode: targetMode || vodPlayerMode || 'embedded',
+      },
+    }));
+  }, [trailerUrl, movie, backdropUrl, logoUrl, vodPlayerMode]);
 
   // Load RPDB settings for poster
   const { apiKey: rpdbApiKey } = useRpdbSettings();
@@ -298,6 +321,22 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
                   </svg>
                   {copying ? 'Resolving...' : copied ? 'Copied URL!' : 'Copy Stream URL'}
                 </button>
+              )}
+
+              {hasTmdbKey && (
+                <SplitPlayButton
+                  label={trailerLoading ? 'Resolving...' : 'Trailer'}
+                  icon={
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" style={{ marginRight: '4px' }}>
+                      <polygon points="23 7 16 12 23 17 23 7" />
+                      <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                    </svg>
+                  }
+                  currentMode={vodPlayerMode}
+                  onSelectMode={onSelectVodPlayerMode}
+                  onPlay={handlePlayTrailer}
+                  disabled={trailerLoading || (!trailerUrl && !trailerLoading)}
+                />
               )}
             </div>
           </div>

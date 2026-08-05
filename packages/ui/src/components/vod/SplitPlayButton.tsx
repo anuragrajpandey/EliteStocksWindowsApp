@@ -18,6 +18,8 @@ export interface SplitPlayButtonProps {
   size?: 'normal' | 'large' | 'small';
   /** Disabled state */
   disabled?: boolean;
+  /** Custom icon override */
+  icon?: React.ReactNode;
 }
 
 export function SplitPlayButton({
@@ -28,6 +30,7 @@ export function SplitPlayButton({
   className = '',
   size = 'normal',
   disabled = false,
+  icon,
 }: SplitPlayButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -95,9 +98,13 @@ export function SplitPlayButton({
           disabled={disabled}
           title={`${label} (${modeLabels[currentMode]} Player)`}
         >
-          <svg viewBox="0 0 24 24" fill="currentColor" className="split-play-btn__play-icon">
-            <path d="M8 5v14l11-7z" />
-          </svg>
+          {icon ? (
+            icon
+          ) : (
+            <svg viewBox="0 0 24 24" fill="currentColor" className="split-play-btn__play-icon">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          )}
           <span className="split-play-btn__label">
             {label}
             <span className="split-play-btn__mode-tag">· {modeLabels[currentMode]}</span>

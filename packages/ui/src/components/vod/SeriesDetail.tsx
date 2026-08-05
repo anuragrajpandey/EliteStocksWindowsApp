@@ -21,7 +21,9 @@ import type { VodPlayInfo } from '../../types/media';
 import { resolvePlayUrl } from '../../services/stream-resolver';
 import { useDownloadStore } from '../../stores/downloadStore';
 import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
-import { SetPlayerDropdown, type VodPlayerMode } from './SplitPlayButton';
+import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
+import { useLazyVodTrailer } from '../../hooks/useLazyVodTrailer';
+import { SetPlayerDropdown, SplitPlayButton, type VodPlayerMode } from './SplitPlayButton';
 import './SeriesDetail.css';
 
 export interface SeriesDetailProps {
@@ -355,6 +357,27 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
     [series.source_id]
   );
 
+  // Active TMDB Token & Trailer logic
+  const activeTmdbToken = useActiveTmdbToken();
+  const hasTmdbKey = Boolean(activeTmdbToken && activeTmdbToken.trim() !== '');
+  const { trailerUrl, loading: trailerLoading } = useLazyVodTrailer(hasTmdbKey ? series : null, 'series', activeTmdbToken);
+
+  const handlePlayTrailer = useCallback((targetMode?: VodPlayerMode) => {
+    if (!trailerUrl) {
+      alert('No trailer available for this series');
+      return;
+    }
+    window.dispatchEvent(new CustomEvent('ynotv:play-url', {
+      detail: {
+        url: trailerUrl,
+        title: `${series.title || series.name} - Trailer`,
+        backdropUrl,
+        logoUrl,
+        targetMode: targetMode || vodPlayerMode || 'embedded',
+      },
+    }));
+  }, [trailerUrl, series, backdropUrl, logoUrl, vodPlayerMode]);
+
   // Use clean title if available, otherwise fall back to name
   const displayTitle = series.title || series.name;
 
@@ -509,8 +532,8 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
               </div>
             )}
 
-            {/* Header Action Buttons (Set Player & Favorite) */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '16px' }}>
+            {/* Header Action Buttons (Set Player & Favorite & Trailer) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
               <SetPlayerDropdown
                 currentMode={vodPlayerMode}
                 onSelectMode={onSelectVodPlayerMode}
@@ -526,6 +549,22 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                 </svg>
                 {isFav ? 'Remove Favorite' : 'Add to Favorite'}
               </button>
+
+              {hasTmdbKey && (
+                <SplitPlayButton
+                  label={trailerLoading ? 'Resolving...' : 'Trailer'}
+                  icon={
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" style={{ marginRight: '4px' }}>
+                      <polygon points="23 7 16 12 23 17 23 7" />
+                      <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                    </svg>
+                  }
+                  currentMode={vodPlayerMode}
+                  onSelectMode={onSelectVodPlayerMode}
+                  onPlay={handlePlayTrailer}
+                  disabled={trailerLoading || (!trailerUrl && !trailerLoading)}
+                />
+              )}
             </div>
           </div>
         </div>
