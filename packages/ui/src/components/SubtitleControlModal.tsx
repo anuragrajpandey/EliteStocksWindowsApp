@@ -23,6 +23,8 @@ import {
 } from '../services/opensubtitles';
 import { useToastStore } from '../stores/toastStore';
 import { cleanTitleForSearch } from '../utils/cleanTitle';
+import { db } from '../db';
+import { fetchVodProviderTmdbId } from '../db/sync';
 import './SubtitleControlModal.css';
 
 interface Track {
@@ -46,6 +48,8 @@ interface SubtitleControlModalProps {
   episodeNum?: number;
   tmdbId?: number | string;
   imdbId?: string;
+  vodSourceId?: string;
+  vodMediaId?: string;
 }
 
 type ViewState = 'tracks' | 'movies' | 'subtitles' | 'zip-files';
@@ -207,6 +211,8 @@ export function SubtitleControlModal({
   episodeNum,
   tmdbId,
   imdbId,
+  vodSourceId,
+  vodMediaId,
 }: SubtitleControlModalProps) {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -342,6 +348,42 @@ export function SubtitleControlModal({
     }
   };
 
+  // Resolve TMDb/IMDb ids for subtitle matching. Prefers ids already passed in
+  // from the playback session, then falls back to the cached DB record, then to
+  // the provider's get_vod_info tmdb_id (exact match).
+  const resolveVodIds = useCallback(async (): Promise<{ tmdbId?: number; imdbId?: string }> => {
+    const out: { tmdbId?: number; imdbId?: string } = {};
+
+    if (tmdbId !== undefined && tmdbId !== null && tmdbId !== '') {
+      const n = parseInt(String(tmdbId).replace(/[^0-9]/g, ''), 10);
+      if (!isNaN(n) && n > 0) out.tmdbId = n;
+    }
+    if (imdbId) out.imdbId = String(imdbId).trim().replace(/^tt/, '');
+    if (out.tmdbId || out.imdbId) return out;
+
+    // Playback session didn't carry ids - look them up. Only handles movies
+    // (mediaId is the vodMovies primary key). Episodes would need series-level lookup.
+    if (vodMediaId && vodSourceId && !vodMediaId.includes('_ep_')) {
+      try {
+        const movie = await db.vodMovies.get(vodMediaId);
+        if (movie?.tmdb_id) out.tmdbId = movie.tmdb_id;
+        if (movie?.imdb_id) out.imdbId = String(movie.imdb_id).trim().replace(/^tt/, '');
+        if (!out.tmdbId) {
+          const sourcesResult = await window.storage?.getSources();
+          const source = sourcesResult?.data?.find((s) => String(s.id) === String(vodSourceId));
+          if (source) {
+            const providerTmdb = await fetchVodProviderTmdbId(source, vodMediaId);
+            if (providerTmdb) out.tmdbId = providerTmdb;
+          }
+        }
+      } catch (e) {
+        console.warn('[SubtitleModal] Failed to resolve vod ids:', e);
+      }
+    }
+
+    return out;
+  }, [tmdbId, imdbId, vodMediaId, vodSourceId]);
+
   const doAutoSearch = async (
     title: string,
     year?: string,
@@ -360,8 +402,9 @@ export function SubtitleControlModal({
 
     const cleanTitle = cleanTitleForSearch(title);
     const cleanYearStr = year ? String(year).replace(/[^0-9]/g, '') : undefined;
-    const imdb = imdbId ? String(imdbId) : undefined;
-    console.log('[SubtitleModal] Auto-searching SubSource:', { original: title, clean: cleanTitle, year: cleanYearStr, season, lang: targetLang, imdb });
+    const resolved = await resolveVodIds();
+    const imdb = resolved.imdbId ? String(resolved.imdbId) : undefined;
+    console.log('[SubtitleModal] Auto-searching SubSource:', { original: title, clean: cleanTitle, year: cleanYearStr, season, lang: targetLang, imdb, tmdb: resolved.tmdbId });
     setSearching(true);
     setSearchError('');
     setEpisodeFilter(null);
@@ -392,7 +435,7 @@ export function SubtitleControlModal({
       setMovies(result.movies);
 
       // Pick the best match: exact TMDb/IMDb id → matching season → first result
-      const targetMovie = pickSubSourceTarget(result.movies, season, tmdbId, imdbId);
+      const targetMovie = pickSubSourceTarget(result.movies, season, resolved.tmdbId, resolved.imdbId);
       console.log('[SubtitleModal] Selected target movie:', targetMovie?.title, targetMovie?.movieId);
 
       if (!targetMovie) {
@@ -642,8 +685,10 @@ export function SubtitleControlModal({
 
     const cleanTitle = cleanTitleForSearch(title);
 
-    const rawImdb = imdbId ? String(imdbId).trim().replace(/^tt/, '') : undefined;
-    const rawTmdb = tmdbId ? parseInt(String(tmdbId).replace(/[^0-9]/g, ''), 10) : undefined;
+    const resolved = await resolveVodIds();
+
+    const rawImdb = resolved.imdbId ? String(resolved.imdbId).trim().replace(/^tt/, '') : undefined;
+    const rawTmdb = resolved.tmdbId ? parseInt(String(resolved.tmdbId).replace(/[^0-9]/g, ''), 10) : undefined;
     const validTmdb = (rawTmdb && !isNaN(rawTmdb) && rawTmdb > 0) ? rawTmdb : undefined;
     const mediaType = (season && season > 0) || (episode && episode > 0) ? 'episode' : 'movie';
 

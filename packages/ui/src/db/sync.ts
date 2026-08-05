@@ -3537,6 +3537,40 @@ export async function syncSeriesEpisodes(source: Source, seriesId: string): Prom
   return storedEpisodes.length;
 }
 
+/**
+ * fetchVodProviderTmdbId - Fetch provider tmdb_id for a movie via get_vod_info
+ * and persist it back to DB. Currently only Xtream exposes this field.
+ * Returns the tmdb_id, or null if unavailable.
+ */
+export async function fetchVodProviderTmdbId(source: Source, movieId: string): Promise<number | null> {
+  try {
+    source = await resolveSourceUserAgent(source);
+  } catch {
+    return null;
+  }
+
+  if (source.type !== 'xtream' || !source.username || !source.password) {
+    return null;
+  }
+
+  try {
+    const client = new XtreamClient(
+      { baseUrl: source.url, username: source.username, password: source.password },
+      source.id
+    );
+    const info = await client.getVodInfo(movieId);
+    const tmdbId = info?.tmdb_id ? Number(info.tmdb_id) : null;
+    if (tmdbId && !isNaN(tmdbId)) {
+      await db.vodMovies.update(movieId, { tmdb_id: tmdbId });
+      return tmdbId;
+    }
+  } catch (err) {
+    console.warn(`[fetchVodProviderTmdbId] Failed to fetch provider tmdb_id for ${movieId}:`, err);
+  }
+
+  return null;
+}
+
 // Exported VOD sync wrapper with backup URL failover support
 export async function syncVodForSource(source: Source): Promise<VodSyncResult> {
   source = await resolveSourceUserAgent(source);

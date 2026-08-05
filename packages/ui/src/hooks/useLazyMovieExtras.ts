@@ -13,6 +13,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { db, type StoredMovie } from '../db';
 import { getTmdb, getTmdbImageUrl, searchMovies, getMovieDetails, getMovieCredits, formatLanguageCode, formatCountryCode } from '../services/tmdb';
+import { fetchVodProviderTmdbId } from '../db/sync';
 import { cleanTitleForSearch } from '../utils/cleanTitle';
 
 export interface CastMember {
@@ -82,6 +83,24 @@ export function useLazyMovieExtras(
         let newLanguage: string | null = null;
 
         // Resolve TMDB ID if missing
+        if (!foundTmdbId) {
+          // Prefer the provider-supplied tmdb_id from get_vod_info (exact match)
+          try {
+            if (window.storage && movie.source_id) {
+              const sourcesResult = await window.storage.getSources();
+              const source = sourcesResult.data?.find(s => String(s.id) === String(movie.source_id));
+              if (source) {
+                const providerTmdbId = await fetchVodProviderTmdbId(source, movie.stream_id);
+                if (!cancelled && providerTmdbId) {
+                  foundTmdbId = providerTmdbId;
+                }
+              }
+            }
+          } catch (e) {
+            console.warn('[useLazyMovieExtras] Provider tmdb_id fetch failed:', e);
+          }
+        }
+
         if (!foundTmdbId) {
           try {
             const results = await searchMovies(apiKey, searchQuery, year ? parseInt(year) : undefined);

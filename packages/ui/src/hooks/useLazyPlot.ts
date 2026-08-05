@@ -12,6 +12,7 @@ import { useState, useEffect, useRef } from 'react';
 import { db, type StoredMovie, type StoredSeries } from '../db';
 import { getMovieDetails, getTvShowDetails, searchMovies, searchTvShows } from '../services/tmdb';
 import { getTvShowMetadataWithCast } from '../services/tvmaze';
+import { fetchVodProviderTmdbId } from '../db/sync';
 import { type MediaItem, isMovie } from '../types/media';
 import { cleanTitleForSearch } from '../utils/cleanTitle';
 
@@ -162,6 +163,24 @@ export function useLazyPlot(
 
         // If no tmdb_id but we have a title, search TMDB
         if (!foundTmdbId) {
+          // Prefer the provider-supplied tmdb_id from get_vod_info (exact match)
+          if (isMovie(item)) {
+            try {
+              if (window.storage && item.source_id) {
+                const sourcesResult = await window.storage.getSources();
+                const source = sourcesResult.data?.find((s) => String(s.id) === String(item.source_id));
+                if (source) {
+                  const providerTmdbId = await fetchVodProviderTmdbId(source, item.stream_id);
+                  if (!cancelled && providerTmdbId) {
+                    foundTmdbId = providerTmdbId;
+                  }
+                }
+              }
+            } catch (providerErr) {
+              console.warn('[useLazyPlot] Provider tmdb_id fetch failed:', providerErr);
+            }
+          }
+
           console.log('[useLazyPlot] Searching TMDB for:', searchQuery, year ? `(${year})` : '');
 
           try {

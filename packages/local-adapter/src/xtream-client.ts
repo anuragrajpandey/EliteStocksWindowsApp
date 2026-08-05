@@ -360,6 +360,23 @@ export class XtreamClient {
   // Series
   // ===========================================================================
 
+  async getVodInfo(vodId: string): Promise<any> {
+    const rawVodId = vodId.replace(`${this.sourceId}_vod_`, '').replace(`${this.sourceId}_`, '');
+    const url = this.buildApiUrl('get_vod_info') + `&vod_id=${rawVodId}`;
+    const data = await this.fetchJson<any>(url);
+
+    if (!data || typeof data !== 'object') return null;
+    const rawData = data as any;
+    if (rawData.user_info && rawData.user_info.auth === 0) {
+      throw new Error('Xtream Codes authentication failed');
+    }
+    if ((data as any).error) {
+      throw new Error((data as any).error);
+    }
+    // info holds the provider metadata (including tmdb_id) for the movie
+    return rawData.info || null;
+  }
+
   async getSeriesCategories(): Promise<Category[]> {
     const url = this.buildApiUrl('get_series_categories');
     const rawData = await this.fetchJson<any>(url);

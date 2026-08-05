@@ -74,7 +74,7 @@ import { FailoverOverlay } from './components/FailoverOverlay';
 import { ChannelLoadingOverlay } from './components/ChannelLoadingOverlay';
 import { CastButton } from './components/CastButton';
 import { CastOverlay } from './components/CastOverlay';
-import { syncSource, syncVodForSource, isEpgStale, isVodStale, syncAllStaleGlobalEpgLinks } from './db/sync';
+import { syncSource, syncVodForSource, isEpgStale, isVodStale, syncAllStaleGlobalEpgLinks, fetchVodProviderTmdbId } from './db/sync';
 import { bulkOps } from './services/bulk-ops';
 import { Bridge, type AspectRatioMode, applyAspectRatio, rewriteTsToM3u8 } from './services/tauri-bridge';
 import { resolvePlayUrl } from './services/stream-resolver';
@@ -3100,12 +3100,16 @@ function useTmdbPresencePoster(
 
     if (playing && duration > 0) {
       // Playback active (either starting or resuming)
-      const currentPercent = (position / duration) * 100;
-      
-      // Determine media details
-      let title = vodInfo.title || 'Unknown Video';
+      // Resolve media ids before scrobbling so we can prefer the exact TMDb id
+      // (now fetched from the provider via get_vod_info) when an IMDb id is absent.
+      (async () => {
+        const currentPercent = (position / duration) * 100;
+
+        // Determine media details
+        let title = vodInfo.title || 'Unknown Video';
       let year = vodInfo.year;
       let imdbId: string | undefined = undefined;
+      let tmdbId: number | undefined = vodInfo.tmdbId ? parseInt(String(vodInfo.tmdbId).replace(/[^0-9]/g, ''), 10) : undefined;
       let type: 'movie' | 'series' = vodInfo.type === 'series' ? 'series' : 'movie';
       let season: number | undefined = undefined;
       let episode: number | undefined = undefined;
@@ -3143,10 +3147,37 @@ function useTmdbPresencePoster(
         }
       }
 
+      // Resolve the TMDb id for native VOD when the playback session didn't carry one.
+      // The provider's get_vod_info tmdb_id is an exact match and gets cached to DB
+      // on the detail page, so prefer the DB record, falling back to the provider.
+      if (!tmdbId) {
+        try {
+          if (type === 'movie' && vodInfo.mediaId && vodInfo.source_id) {
+            const movie = await db.vodMovies.get(vodInfo.mediaId);
+            if (movie?.tmdb_id) {
+              tmdbId = movie.tmdb_id;
+            } else {
+              const sourcesResult = await window.storage?.getSources();
+              const source = sourcesResult?.data?.find((s) => String(s.id) === String(vodInfo.source_id));
+              if (source) {
+                const providerTmdb = await fetchVodProviderTmdbId(source, vodInfo.mediaId);
+                if (providerTmdb) tmdbId = providerTmdb;
+              }
+            }
+          } else if (type === 'series' && vodInfo.seriesId) {
+            const series = await db.vodSeries.get(vodInfo.seriesId);
+            if (series?.tmdb_id) tmdbId = series.tmdb_id;
+          }
+        } catch (e) {
+          console.warn('[Scrobbler] Failed to resolve TMDb id:', e);
+        }
+      }
+
       const mediaInfo = {
         title,
         year,
         imdbId,
+        tmdbId,
         type,
         season,
         episode,
@@ -3168,6 +3199,8 @@ function useTmdbPresencePoster(
         console.log('[Scrobbler] 30s scrobble update interval firing at progress:', progress);
         scrobbler.updateScrobble(progress).catch(console.error);
       }, 30000);
+
+    })();
 
     } else if (!playing && scrobblingMediaRef.current) {
       // Playback paused, or the media ended naturally (e.g. autoplay advancing to
@@ -4789,6 +4822,8 @@ function useTmdbPresencePoster(
             (vodInfo?.stremioId && vodInfo.stremioId.startsWith('tt') ? vodInfo.stremioId.split(/[:_]/)[0] : undefined) ||
             (vodInfo?.mediaId && vodInfo.mediaId.startsWith('tt') ? vodInfo.mediaId.split(/[:_]/)[0] : undefined)
           }
+          vodSourceId={vodInfo?.source_id}
+          vodMediaId={vodInfo?.mediaId}
         />
       ) : (
         <TrackSelectionModal

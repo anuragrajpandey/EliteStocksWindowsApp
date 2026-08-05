@@ -136,6 +136,7 @@ export interface PlaybackMediaInfo {
   title: string;
   year?: string;
   imdbId?: string; // e.g. "tt1234567"
+  tmdbId?: number; // TMDb id (preferred when available)
   type: 'movie' | 'series';
   season?: number;
   episode?: number;
@@ -499,17 +500,19 @@ class ScrobblerService {
       };
 
       const imdbClean = media.imdbId && media.imdbId.startsWith('tt') ? media.imdbId : undefined;
+      const tmdbClean = media.tmdbId && Number.isFinite(media.tmdbId) && media.tmdbId > 0 ? media.tmdbId : undefined;
+      const ids = imdbClean || tmdbClean ? { imdb: imdbClean, tmdb: tmdbClean } : undefined;
 
       if (media.type === 'movie') {
         payload.movie = {
           title: media.title,
           year: media.year ? parseInt(media.year) : undefined,
-          ids: imdbClean ? { imdb: imdbClean } : undefined,
+          ids,
         };
       } else {
         payload.show = {
           title: media.title,
-          ids: imdbClean ? { imdb: imdbClean } : undefined,
+          ids,
         };
         payload.episode = {
           season: media.season ?? 1,
@@ -557,15 +560,18 @@ class ScrobblerService {
 
     const clientId = buildCredentials.simklClientId || DEFAULT_SIMKL_CLIENT_ID;
     const imdbClean = media.imdbId && media.imdbId.startsWith('tt') ? media.imdbId : undefined;
+    const tmdbClean = media.tmdbId && Number.isFinite(media.tmdbId) && media.tmdbId > 0 ? media.tmdbId : undefined;
 
-    // Metadata guard: Ensure at least valid IMDb ID or valid title metadata exists
-    if (!imdbClean && (!media.title || media.title === 'Unknown Video')) {
-      logWarn('[Simkl] Skipping scrobble: missing valid IMDb ID or title metadata.');
+    // Metadata guard: Ensure at least a valid IMDb/TMDb ID or valid title metadata exists
+    if (!imdbClean && !tmdbClean && (!media.title || media.title === 'Unknown Video')) {
+      logWarn('[Simkl] Skipping scrobble: missing valid IMDb/TMDb ID or title metadata.');
       return;
     }
 
     // Simkl accepts progress with up to 2 decimal places
     const progress = Math.round(Math.min(100, Math.max(0, media.progressPercent)) * 100) / 100;
+
+    const ids = imdbClean || tmdbClean ? { imdb: imdbClean, tmdb: tmdbClean } : undefined;
 
     let payload: any = {};
     if (media.type === 'movie') {
@@ -574,7 +580,7 @@ class ScrobblerService {
         movie: {
           title: media.title,
           year: media.year ? parseInt(String(media.year), 10) : undefined,
-          ids: imdbClean ? { imdb: imdbClean } : undefined,
+          ids,
         },
       };
     } else {
@@ -583,7 +589,7 @@ class ScrobblerService {
         show: {
           title: media.title,
           year: media.year ? parseInt(String(media.year), 10) : undefined,
-          ids: imdbClean ? { imdb: imdbClean } : undefined,
+          ids,
         },
         episode: {
           season: media.season ?? 1,
@@ -682,12 +688,23 @@ class ScrobblerService {
       if (!Array.isArray(items)) return;
 
       const matching = items.find((item: any) => {
-        const imdbId = item.movie?.ids?.imdb || item.show?.ids?.imdb;
-        if (imdbId !== media.imdbId) return false;
-        if (media.type === 'movie') return item.type === 'movie';
-        return item.type === 'episode'
-          && item.episode?.season === media.season
-          && item.episode?.number === media.episode;
+        if (media.type === 'movie') {
+          if (item.type !== 'movie') return false;
+          const itemImdb = item.movie?.ids?.imdb;
+          const itemTmdb = item.movie?.ids?.tmdb;
+          if (media.imdbId && itemImdb && itemImdb === media.imdbId) return true;
+          if (media.tmdbId && itemTmdb != null && Number(itemTmdb) === media.tmdbId) return true;
+          if (!media.imdbId && !media.tmdbId) return item.movie?.title === media.title;
+          return false;
+        }
+        if (item.type !== 'episode') return false;
+        if (item.episode?.season !== media.season || item.episode?.number !== media.episode) return false;
+        const itemImdb = item.show?.ids?.imdb;
+        const itemTmdb = item.show?.ids?.tmdb;
+        if (media.imdbId && itemImdb && itemImdb === media.imdbId) return true;
+        if (media.tmdbId && itemTmdb != null && Number(itemTmdb) === media.tmdbId) return true;
+        if (!media.imdbId && !media.tmdbId) return item.show?.title === media.title;
+        return false;
       });
 
       if (matching) {
