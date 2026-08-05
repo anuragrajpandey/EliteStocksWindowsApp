@@ -304,6 +304,8 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
         posterUrl: series.cover || (series as any).stream_icon || (series as any).poster || undefined,
         backdropUrl: backdropUrl || undefined,
         logoUrl: logoUrl || undefined,
+        tmdbId: series.tmdb_id,
+        imdbId: series.imdb_id,
       }, targetMode);
     },
     [series, onPlayEpisode, lazyPlot, episodeProgress, episodeExtras, backdropUrl, logoUrl]

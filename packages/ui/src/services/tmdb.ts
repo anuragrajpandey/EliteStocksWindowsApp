@@ -146,6 +146,16 @@ export interface TmdbTvDetails extends TmdbTvResult {
   status: string;
   tagline: string;
   episode_run_time: number[];
+  seasons?: Array<{
+    id: number;
+    season_number: number;
+    name: string;
+    overview: string;
+    air_date: string | null;
+    episode_count: number;
+    poster_path: string | null;
+    vote_average: number;
+  }>;
   external_ids?: {
     imdb_id: string | null;
   };

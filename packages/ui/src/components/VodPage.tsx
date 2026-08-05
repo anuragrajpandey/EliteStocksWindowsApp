@@ -556,6 +556,8 @@ export function VodPage({ type, onPlay, onClose, vodPlayerMode, onSelectVodPlaye
         type: 'movie',
         source_id: movie.source_id,
         mediaId: movie.stream_id,  // Add media ID for progress tracking
+        tmdbId: movie.tmdb_id,
+        imdbId: movie.imdb_id,
       }, targetMode);
     } else {
       setSelectedItem(item);
@@ -788,6 +790,8 @@ export function VodPage({ type, onPlay, onClose, vodPlayerMode, onSelectVodPlaye
               posterUrl: movie.stream_icon || (movie as any).cover || (movie as any).poster || undefined,
               backdropUrl: backdropUrl || undefined,
               logoUrl: logoUrl || undefined,
+              tmdbId: movie.tmdb_id,
+              imdbId: movie.imdb_id,
             }, targetMode);
           }}
           apiKey={tmdbApiKey}

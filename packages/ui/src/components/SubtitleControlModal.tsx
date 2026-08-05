@@ -18,8 +18,10 @@ import {
   downloadOpenSubtitlesSubtitle,
   ensureValidOpenSubtitlesToken,
   type OpenSubtitlesSubtitle,
+  type OpenSubtitlesSearchResult,
 } from '../services/opensubtitles';
 import { useToastStore } from '../stores/toastStore';
+import { cleanTitleForSearch } from '../utils/cleanTitle';
 import './SubtitleControlModal.css';
 
 interface Track {
@@ -46,22 +48,6 @@ interface SubtitleControlModalProps {
 }
 
 type ViewState = 'tracks' | 'movies' | 'subtitles' | 'zip-files';
-
-/** Strip quality tags like 4K, UHD, HDR from titles before searching. */
-function cleanTitleForSearch(title: string): string {
-  return title
-    .replace(/\b4K\b/gi, '')
-    .replace(/\bUHD\b/gi, '')
-    .replace(/\bHDR\b/gi, '')
-    .replace(/\bHD\b/gi, '')
-    .replace(/\bSD\b/gi, '')
-    .replace(/\b2160p\b/gi, '')
-    .replace(/\b1080p\b/gi, '')
-    .replace(/\b720p\b/gi, '')
-    .replace(/\b480p\b/gi, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
 
 /** Try to extract an episode number (1-99) from releaseInfo strings like ["S01E04","WEB-DL"]. */
 function extractEpisodeFromReleaseInfo(releaseInfo: string[]): number | null {
@@ -604,20 +590,30 @@ export function SubtitleControlModal({
     const targetLang = langCode || searchLang;
     if (targetLang === 'off') return;
 
-    const cleanTitle = cleanTitleForSearch(title);
-    const cleanYearStr = year ? String(year).replace(/[^0-9]/g, '') : '';
-    const parsedYear = cleanYearStr ? parseInt(cleanYearStr, 10) : undefined;
+    // Extract year from title if not explicitly provided (e.g. "Mortal Kombat II (2026)")
+    let extractedYearStr = year ? String(year).replace(/[^0-9]/g, '') : '';
+    if (!extractedYearStr && title) {
+      const yearMatch = title.match(/[\(\[\{]?\b(19\d{2}|20\d{2})\b[\)\]\}]?/);
+      if (yearMatch) {
+        extractedYearStr = yearMatch[1];
+      }
+    }
+    const parsedYear = extractedYearStr ? parseInt(extractedYearStr, 10) : undefined;
     const finalYear = (parsedYear && !isNaN(parsedYear)) ? parsedYear : undefined;
+
+    const cleanTitle = cleanTitleForSearch(title);
 
     const rawImdb = imdbId ? String(imdbId).trim().replace(/^tt/, '') : undefined;
     const rawTmdb = tmdbId ? parseInt(String(tmdbId).replace(/[^0-9]/g, ''), 10) : undefined;
     const validTmdb = (rawTmdb && !isNaN(rawTmdb) && rawTmdb > 0) ? rawTmdb : undefined;
+    const mediaType = (season && season > 0) || (episode && episode > 0) ? 'episode' : 'movie';
 
     console.log('[SubtitleModal] Searching OpenSubtitles:', {
       cleanTitle,
       year: finalYear,
       season,
       episode,
+      type: mediaType,
       lang: targetLang,
       imdbId: rawImdb,
       tmdbId: validTmdb,
@@ -629,18 +625,36 @@ export function SubtitleControlModal({
     setOpenSubtitlesSubtitles([]);
 
     try {
-      const res = await searchOpenSubtitles(token, {
-        query: cleanTitle,
-        seasonNumber: season,
-        episodeNumber: episode,
-        languages: targetLang,
-        year: finalYear,
-        imdbId: rawImdb,
-        tmdbId: validTmdb,
-      });
+      let res: OpenSubtitlesSearchResult | null = null;
 
-      if (!res.success) {
-        const msg = res.error || 'OpenSubtitles search failed';
+      // 1. If IMDb ID or TMDb ID is available, search by ID first (without text query) for exact matching
+      if (rawImdb || validTmdb) {
+        res = await searchOpenSubtitles(token, {
+          seasonNumber: season,
+          episodeNumber: episode,
+          type: mediaType,
+          languages: targetLang,
+          imdbId: rawImdb,
+          tmdbId: validTmdb,
+        });
+      }
+
+      // 2. If ID search produced no subtitles (or no ID was available), fall back to clean title text search
+      if (!res || !res.success || !res.subtitles || res.subtitles.length === 0) {
+        if (cleanTitle) {
+          res = await searchOpenSubtitles(token, {
+            query: cleanTitle,
+            seasonNumber: season,
+            episodeNumber: episode,
+            type: mediaType,
+            languages: targetLang,
+            year: finalYear,
+          });
+        }
+      }
+
+      if (!res || !res.success) {
+        const msg = res?.error || 'OpenSubtitles search failed';
         setSearchError(msg);
         useToastStore.getState().addToast(msg, 'error');
         return;

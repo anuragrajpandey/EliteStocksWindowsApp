@@ -224,6 +224,8 @@ function VodEpisodesSection({
                     posterUrl: vodInfo?.posterUrl,
                     backdropUrl: vodInfo?.backdropUrl,
                     logoUrl: vodInfo?.logoUrl,
+                    tmdbId: vodInfo?.tmdbId,
+                    imdbId: vodInfo?.imdbId,
                   };
                   onClose();
                   onPlayVodInfo(playInfo);

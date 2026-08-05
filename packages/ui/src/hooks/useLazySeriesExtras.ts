@@ -11,7 +11,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { db, type StoredSeries } from '../db';
-import { getTmdb, getTmdbImageUrl, searchTvShows } from '../services/tmdb';
+import { getTmdb, getTmdbImageUrl, getTvShowDetails, searchTvShows } from '../services/tmdb';
 import { getShowEpisodes, getTvShowMetadata } from '../services/tvmaze';
 import { cleanTitleForSearch } from '../utils/cleanTitle';
 
@@ -72,6 +72,7 @@ export function useLazySeriesExtras(
 
         let foundTmdbId: number | null = series.tmdb_id || null;
         let newLogo: string | null = null;
+        let newImdbId: string | null = null;
         const newExtras = new Map<string, EpisodeExtra>();
 
         // ── TMDB path ────────────────────────────────────────────────
@@ -106,7 +107,8 @@ export function useLazySeriesExtras(
             // Fetch season details for each season to get episode metadata
             if (!cancelled) {
               try {
-                const showDetails = await tmdb.tvShows.details(foundTmdbId);
+                const showDetails = await getTvShowDetails(apiKey, foundTmdbId);
+                newImdbId = showDetails.external_ids?.imdb_id || null;
                 if (!cancelled && showDetails.seasons) {
                   for (const season of showDetails.seasons) {
                     if (cancelled) break;
@@ -136,6 +138,10 @@ export function useLazySeriesExtras(
             // Cache tmdb_id to DB if found during search
             if (!cancelled && foundTmdbId && !series.tmdb_id) {
               await db.vodSeries.update(series.series_id, { tmdb_id: foundTmdbId });
+            }
+            // Cache imdb_id from TMDB external_ids
+            if (!cancelled && newImdbId && !series.imdb_id) {
+              await db.vodSeries.update(series.series_id, { imdb_id: newImdbId });
             }
           }
         }

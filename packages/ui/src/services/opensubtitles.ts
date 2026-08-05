@@ -311,7 +311,7 @@ export async function ensureValidOpenSubtitlesToken(
 
 /* ─── Search Subtitles ─── */
 export interface OpenSubtitlesSearchParams {
-  query: string;
+  query?: string;
   seasonNumber?: number;
   episodeNumber?: number;
   type?: 'movie' | 'episode' | 'all';
@@ -330,21 +330,35 @@ export async function searchOpenSubtitles(
   if (!activeToken) {
     return { success: false, error: 'Login required to search OpenSubtitles' };
   }
-  if (!params.query.trim()) {
-    return { success: false, error: 'Search query is required' };
+  if (!params.query?.trim() && !params.imdbId && !params.tmdbId) {
+    return { success: false, error: 'Search query or ID is required' };
   }
 
   try {
-    const queryParams: Record<string, string | number | undefined> = {
-      query: params.query.trim(),
-    };
+    const queryParams: Record<string, string | number | undefined> = {};
+
+    if (params.query && params.query.trim()) {
+      queryParams.query = params.query.trim();
+    }
 
     if (params.languages) queryParams.languages = params.languages;
     if (params.type) queryParams.type = params.type;
     if (params.seasonNumber && params.seasonNumber > 0) queryParams.season_number = params.seasonNumber;
     if (params.episodeNumber && params.episodeNumber > 0) queryParams.episode_number = params.episodeNumber;
-    if (params.tmdbId && params.tmdbId > 0) queryParams.tmdb_id = params.tmdbId;
-    if (params.imdbId) queryParams.imdb_id = String(params.imdbId).replace(/^tt/, '');
+
+    // ID searches are mutually exclusive per the OS API. Prefer TMDb ID, fall back to IMDb ID.
+    // For TV episodes our IDs are show-level, so use the parent_* params (docs: "Use imdb_id for movie
+    // or episode. Use parent_imdb_id for TV Shows").
+    const isEpisode = params.type === 'episode';
+    const useTmdb = !!(params.tmdbId && params.tmdbId > 0);
+    const useImdb = !useTmdb && !!params.imdbId;
+    if (useTmdb) {
+      queryParams[isEpisode ? 'parent_tmdb_id' : 'tmdb_id'] = params.tmdbId as number;
+    } else if (useImdb) {
+      // Strip 'tt' prefix and any leading zeroes (per OS API guidelines).
+      const imdb = String(params.imdbId).replace(/^tt/, '').replace(/^0+/, '');
+      queryParams[isEpisode ? 'parent_imdb_id' : 'imdb_id'] = imdb;
+    }
     if (params.year && params.year > 0) queryParams.year = params.year;
 
     log('SEARCH', 'Query params:', queryParams);

@@ -2948,7 +2948,7 @@ function useTmdbPresencePoster(
     prevPlayingRef.current = playing;
 
     if (prevPlaying && !playing && vodInfo?.type === 'series' && duration > 0 && (position >= duration - 5 || position / duration >= 0.90)) {
-      const { seriesId, seasonNum, episodeNum, episodeId, title, source_id, year, plot, backdropUrl, logoUrl, mediaId } = vodInfo;
+      const { seriesId, seasonNum, episodeNum, episodeId, title, source_id, year, plot, backdropUrl, logoUrl, mediaId, tmdbId, imdbId } = vodInfo;
       
       // Always mark the ended episode as completed (100% watched)
       const currentEpId = episodeId || (mediaId && mediaId.includes('_ep_') ? mediaId.split('_ep_')[1] : null);
@@ -3038,6 +3038,8 @@ function useTmdbPresencePoster(
                 episodeId: nextEpisode.id,
                 backdropUrl,
                 logoUrl,
+                tmdbId,
+                imdbId,
               });
             } else {
               console.log('[AutoPlay] No next episode found (reached end of series)');
@@ -3309,6 +3311,8 @@ function useTmdbPresencePoster(
             seasonNum: prevEpisode.season_num,
             episodeNum: prevEpisode.episode_num,
             episodeId: prevEpisode.id,
+            tmdbId: vodInfo.tmdbId,
+            imdbId: vodInfo.imdbId,
           });
           return;
         }
@@ -3436,6 +3440,8 @@ function useTmdbPresencePoster(
             seasonNum: nextEpisode.season_num,
             episodeNum: nextEpisode.episode_num,
             episodeId: nextEpisode.id,
+            tmdbId: vodInfo.tmdbId,
+            imdbId: vodInfo.imdbId,
           });
           return;
         }
