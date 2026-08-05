@@ -49,16 +49,15 @@ export const ChannelLogo = memo(function ChannelLogo({
     () => (logoSmartTrim && src ? (getCachedLogoContentBox(src) ?? null) : null)
   );
   const [trimVars, setTrimVars] = useState<Record<string, string> | null>(null);
+  const [loadedTick, setLoadedTick] = useState(0);
   const imgRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const handledSrc = useRef<string | null>(null);
   const lastVarsRef = useRef<string>('');
 
   // Reset state and resolve cached logo URL whenever the logo URL or setting changes
   useEffect(() => {
     setAutoLight(false);
     setFailed(false);
-    handledSrc.current = null;
     // Seed synchronously from cache so already-corrected logos don't flash
     // untrimmed before the async analysis resolves.
     setContentBox(logoSmartTrim && src ? (getCachedLogoContentBox(src) ?? null) : null);
@@ -80,48 +79,54 @@ export const ChannelLogo = memo(function ChannelLogo({
     };
   }, [src, logoCacheEnabled, logoSmartTrim]);
 
-  // Analyze opaque content bounds for smart trim. Runs on image load (handleLoad)
-  // or when the setting is toggled on while logos are already rendered.
-  const analyzeContentBox = useCallback((img: HTMLImageElement, url: string) => {
+  // Resolve the content box and bump a load tick so trim is recomputed from the
+  // loaded image. The tick matters because the cached box is a stable object
+  // reference — a bare setContentBox(cached) would be a no-op and skip render.
+  const analyzeAndReapply = useCallback((img: HTMLImageElement, url: string) => {
     if (!logoSmartTrim || !url) return;
     getLogoContentBox(url, img)
       .then((box) => {
         if (box) setContentBox(box);
+        setLoadedTick((t) => t + 1);
       })
       .catch(() => {});
   }, [logoSmartTrim]);
 
   const handleLoad = useCallback(() => {
+    if (!src || !effectiveSrc) return;
     const img = imgRef.current;
-    if (!img || !src || handledSrc.current === src) return;
-    handledSrc.current = src;
-    if (background === 'auto' && logoLightBackgroundDetection) {
+    if (background === 'auto' && logoLightBackgroundDetection && img) {
       classifyLogo(src, img)
         .then((verdict) => {
           if (verdict === 'dark') setAutoLight(true);
         })
         .catch(() => {});
     }
-    analyzeContentBox(img, src);
-  }, [src, background, logoLightBackgroundDetection, analyzeContentBox]);
+    if (img) analyzeAndReapply(img, src);
+  }, [src, effectiveSrc, background, logoLightBackgroundDetection, analyzeAndReapply]);
 
   useEffect(() => {
-    if (contentBox !== null || failed) return;
+    if (!logoSmartTrim || contentBox !== null || failed) return;
     const img = imgRef.current;
     if (!img || !img.complete || !img.naturalWidth || !src) return;
-    analyzeContentBox(img, src);
-  }, [logoSmartTrim, src, contentBox, failed, analyzeContentBox]);
+    analyzeAndReapply(img, src);
+  }, [logoSmartTrim, src, contentBox, failed, analyzeAndReapply]);
 
   // Compute the zoomed size/position so the opaque content fills the tile
   // edge-to-edge without cropping, and keep it in sync with tile resizes.
+  // Clears any stale trim when the image isn't ready yet so we never render a
+  // wrongly-zoomed logo.
   const applyTrim = useCallback(() => {
     const img = imgRef.current;
     const box = contentBox;
     const container = containerRef.current;
-    if (!img || !box || !container) return;
+    if (!img || !box || !container || !img.naturalWidth || !img.naturalHeight) {
+      lastVarsRef.current = '';
+      setTrimVars(null);
+      return;
+    }
     const nW = img.naturalWidth;
     const nH = img.naturalHeight;
-    if (!nW || !nH) return;
     const cw = (box.r - box.l) * nW;
     const ch = (box.b - box.t) * nH;
     if (!cw || !ch) return;
@@ -158,7 +163,7 @@ export const ChannelLogo = memo(function ChannelLogo({
     const ro = new ResizeObserver(applyTrim);
     ro.observe(container);
     return () => ro.disconnect();
-  }, [logoSmartTrim, effectiveSrc, contentBox, applyTrim]);
+  }, [logoSmartTrim, effectiveSrc, contentBox, loadedTick, applyTrim]);
 
   const needsLight = background === 'light' ? true : background === 'dark' ? false : (logoLightBackgroundDetection ? autoLight : false);
 
