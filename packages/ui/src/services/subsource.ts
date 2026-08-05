@@ -6,7 +6,7 @@
  * Base: https://api.subsource.net/api/v1
  *
  * Flow:
- *   1. Search movies: GET /movies/search?searchType=text&q={query}
+ *   1. Search movies: GET /movies/search?searchType=text&q={query} or searchType=imdb&imdb={ttId}
  *   2. List subtitles: GET /subtitles?movieId={id}&language={lang}
  *   3. Download: GET /subtitles/{id}/download (returns ZIP)
  */
@@ -185,27 +185,55 @@ async function apiFetch(
 }
 
 /* ─── movie search ─── */
+
+/** Normalize an IMDb reference (bare "tt" id or full IMDb URL) into a "tt"-prefixed id. */
+export function toSubSourceImdb(imdbId?: string | number): string | undefined {
+  if (imdbId === undefined || imdbId === null) return undefined;
+  const s = String(imdbId).trim();
+  if (!s) return undefined;
+  const urlMatch = s.match(/title\/(tt\d+)/i);
+  if (urlMatch) return urlMatch[1];
+  const idMatch = s.match(/tt\d+/i);
+  if (idMatch) return idMatch[0];
+  if (/^\d+$/.test(s)) return `tt${s}`;
+  return undefined;
+}
+
+/**
+ * Search movies/TV shows on SubSource.
+ * If an IMDb id is provided, uses the API's IMDb search (searchType=imdb) which is the most reliable
+ * match. Otherwise falls back to a text query (searchType=text).
+ */
 export async function searchSubSourceMovies(
   apiKey: string,
   query: string,
   year?: string,
   type?: 'movie' | 'series' | 'all',
-  season?: number
+  season?: number,
+  imdbId?: string | number
 ): Promise<SubSourceMovieResult> {
   if (!apiKey) {
     return { success: false, error: 'No API key configured' };
   }
 
-  log('SEARCH_MOVIES', { query, year, type, season });
+  const normalizedImdb = toSubSourceImdb(imdbId);
+  log('SEARCH_MOVIES', { query, year, type, season, imdbId: normalizedImdb });
 
   try {
-    const response = await apiFetch('/movies/search', apiKey, {
-      searchType: 'text',
-      q: query,
+    const params: Record<string, string | number | undefined> = {
       year: year ? parseInt(year, 10) || undefined : undefined,
       type: type || 'all',
       season: season !== undefined && season > 0 ? season : undefined,
-    });
+    };
+    if (normalizedImdb) {
+      params.searchType = 'imdb';
+      params.imdb = normalizedImdb;
+    } else {
+      params.searchType = 'text';
+      params.q = query;
+    }
+
+    const response = await apiFetch('/movies/search', apiKey, params);
 
     if (!response.ok) {
       return { success: false, error: `HTTP ${response.status}: ${response.statusText}` };

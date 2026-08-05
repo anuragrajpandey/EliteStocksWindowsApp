@@ -9,6 +9,7 @@ import {
   decompressZipEntry,
   toSubSourceLang,
   fromSubSourceLang,
+  toSubSourceImdb,
   type SubSourceMovie,
   type SubSourceSubtitle,
   type ZipEntry,
@@ -56,6 +57,43 @@ function extractEpisodeFromReleaseInfo(releaseInfo: string[]): number | null {
     if (m) return parseInt(m[1], 10);
   }
   return null;
+}
+
+/**
+ * Pick the best matching SubSource movie from search results.
+ * Preference: exact TMDb/IMDb id match → matching season (series) → first result.
+ */
+function pickSubSourceTarget(
+  movies: SubSourceMovie[],
+  season: number | undefined,
+  tmdbId?: number | string,
+  imdbId?: string | number
+): SubSourceMovie | null {
+  if (!movies || movies.length === 0) return null;
+
+  const targetTmdb = tmdbId === undefined || tmdbId === null ? undefined : String(tmdbId);
+  const targetImdb = toSubSourceImdb(imdbId);
+
+  // 1. Exact id match against the result's tmdbId/imdbId
+  const idMatch = movies.find((m) => {
+    if (targetTmdb && m.tmdbId !== undefined && m.tmdbId !== null && String(m.tmdbId) === targetTmdb) {
+      return true;
+    }
+    if (targetImdb && toSubSourceImdb(m.imdbId) === targetImdb) {
+      return true;
+    }
+    return false;
+  });
+  if (idMatch) return idMatch;
+
+  // 2. Series + exact season
+  if (season !== undefined && season > 0) {
+    const seasonMatch = movies.find((m) => m.type === 'tvseries' && m.season === season);
+    if (seasonMatch) return seasonMatch;
+  }
+
+  // 3. First result
+  return movies[0];
 }
 
 /* Module-level cache so auto-search results persist across modal open/close */
@@ -322,14 +360,23 @@ export function SubtitleControlModal({
 
     const cleanTitle = cleanTitleForSearch(title);
     const cleanYearStr = year ? String(year).replace(/[^0-9]/g, '') : undefined;
-    console.log('[SubtitleModal] Auto-searching SubSource:', { original: title, clean: cleanTitle, year: cleanYearStr, season, lang: targetLang });
+    const imdb = imdbId ? String(imdbId) : undefined;
+    console.log('[SubtitleModal] Auto-searching SubSource:', { original: title, clean: cleanTitle, year: cleanYearStr, season, lang: targetLang, imdb });
     setSearching(true);
     setSearchError('');
     setEpisodeFilter(null);
     setAvailableEpisodes([]);
 
     try {
-      const result = await searchSubSourceMovies(key, cleanTitle, cleanYearStr, 'all', season);
+      // 1. Prefer an exact IMDb lookup when we have an id (most reliable match)
+      let result = await searchSubSourceMovies(key, cleanTitle, cleanYearStr, 'all', season, imdb);
+
+      // 2. If the IMDb lookup returned nothing, fall back to a clean-title text search
+      if ((!result.success || !result.movies || result.movies.length === 0) && imdb) {
+        console.log('[SubtitleModal] IMDb search empty, falling back to text search');
+        result = await searchSubSourceMovies(key, cleanTitle, cleanYearStr, 'all', season);
+      }
+
       console.log('[SubtitleModal] Auto-search result:', result);
 
       if (!result.success) {
@@ -344,21 +391,13 @@ export function SubtitleControlModal({
 
       setMovies(result.movies);
 
-      // For series with season info, try to match the exact season
-      let targetMovie: SubSourceMovie | null = null;
-      if (season !== undefined && season > 0) {
-        const seasonMatch = result.movies.find(
-          (m) => m.type === 'tvseries' && m.season === season
-        );
-        if (seasonMatch) {
-          targetMovie = seasonMatch;
-          console.log('[SubtitleModal] Matched season:', season, '→', seasonMatch.title);
-        }
-      }
+      // Pick the best match: exact TMDb/IMDb id → matching season → first result
+      const targetMovie = pickSubSourceTarget(result.movies, season, tmdbId, imdbId);
+      console.log('[SubtitleModal] Selected target movie:', targetMovie?.title, targetMovie?.movieId);
 
-      // Fallback to first result if no season match
       if (!targetMovie) {
-        targetMovie = result.movies[0];
+        setSearchError('No suitable match found for auto-search.');
+        return;
       }
 
       setSelectedMovie(targetMovie);
@@ -771,18 +810,7 @@ export function SubtitleControlModal({
       if (newProvider === 'opensubtitles' && openSubtitlesToken) {
         doOpenSubtitlesSearch(searchQuery, vodYear, seasonNum, episodeNum, searchLang);
       } else if (newProvider === 'subsource' && apiKey) {
-        const cleanQuery = cleanTitleForSearch(searchQuery.trim());
-        setSearching(true);
-        searchSubSourceMovies(apiKey, cleanQuery, vodYear, 'all', seasonNum)
-          .then((result) => {
-            if (result.success && result.movies && result.movies.length > 0) {
-              setMovies(result.movies);
-              setViewState('movies');
-            } else if (!result.success) {
-              setSearchError(result.error || 'SubSource search failed');
-            }
-          })
-          .finally(() => setSearching(false));
+        await doAutoSearch(searchQuery, vodYear, seasonNum, undefined, searchLang);
       }
     }
   };
