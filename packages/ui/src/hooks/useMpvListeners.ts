@@ -88,6 +88,7 @@ export function useMpvListeners(options: UseMpvListenersOptions = {}) {
     
     const suppressStatusUpdates = useCallback((durationMs: number) => {
         suppressStatusUntilRef.current = Date.now() + durationMs;
+        setIsAudioOnly(false);
     }, []);
     const timeshiftSettingsRef = useRef({
         enabled: options.timeshiftEnabled,

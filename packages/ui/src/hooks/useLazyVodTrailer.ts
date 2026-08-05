@@ -123,3 +123,31 @@ export function useLazyVodTrailer(
 
   return { trailerUrl, loading };
 }
+
+export function useTrailerPlayerMode(): [import('../components/vod/SplitPlayButton').VodPlayerMode, (mode: import('../components/vod/SplitPlayButton').VodPlayerMode) => void] {
+  const [mode, setModeState] = useState<import('../components/vod/SplitPlayButton').VodPlayerMode>('embedded');
+
+  useEffect(() => {
+    async function load() {
+      if (!window.storage) return;
+      try {
+        const res = await window.storage.getSettings();
+        if (res.data?.trailerPlayerMode) {
+          setModeState(res.data.trailerPlayerMode as import('../components/vod/SplitPlayButton').VodPlayerMode);
+        }
+      } catch (e) {
+        console.warn('[useTrailerPlayerMode] Failed to load trailerPlayerMode:', e);
+      }
+    }
+    load();
+  }, []);
+
+  const setMode = (newMode: import('../components/vod/SplitPlayButton').VodPlayerMode) => {
+    setModeState(newMode);
+    if (window.storage) {
+      window.storage.updateSettings({ trailerPlayerMode: newMode }).catch(console.error);
+    }
+  };
+
+  return [mode, setMode];
+}

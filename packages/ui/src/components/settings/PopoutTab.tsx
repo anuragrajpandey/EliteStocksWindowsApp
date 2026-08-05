@@ -9,7 +9,7 @@ interface PopoutTabProps {
   popoutAlwaysOnTop: boolean;
   onPopoutAlwaysOnTopChange: (onTop: boolean) => void;
   popoutHwdecEnabled?: boolean;
-  onPopoutHwdecEnabledChange?: (enabled: boolean) => void;
+  onPopoutHwdecEnabledChange?: (enabled: boolean) => Promise<void> | void;
   popoutMpvParamsEnabled: boolean;
   onPopoutMpvParamsEnabledChange: (enabled: boolean) => void;
   popoutMpvParams: string;
@@ -18,8 +18,6 @@ interface PopoutTabProps {
   onExternalPlayerPathChange: (path: string) => void;
   externalPlayerReuse: boolean;
   onExternalPlayerReuseChange: (reuse: boolean) => void;
-  mpvDisableWhitelist: boolean;
-  onMpvDisableWhitelistChange: (disabled: boolean) => Promise<void>;
 }
 
 export function PopoutTab({
@@ -37,8 +35,6 @@ export function PopoutTab({
   onExternalPlayerPathChange,
   externalPlayerReuse,
   onExternalPlayerReuseChange,
-  mpvDisableWhitelist,
-  onMpvDisableWhitelistChange,
 }: PopoutTabProps) {
   const [localParams, setLocalParams] = useState(popoutMpvParams);
   const [hasChanges, setHasChanges] = useState(false);
@@ -191,24 +187,9 @@ export function PopoutTab({
             </label>
           </div>
 
-          <div className="timeshift-toggle-row">
-            <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Disable Parameter Whitelist</span>
-              <span className="timeshift-toggle-sub">
-                Allows any MPV parameter to be passed, including potentially unsafe ones. Use with caution.
-              </span>
-            </div>
-            <label className="toggle-switch">
-              <input
-                type="checkbox"
-                checked={mpvDisableWhitelist}
-                onChange={(e) => onMpvDisableWhitelistChange(e.target.checked)}
-              />
-              <span className="toggle-slider"></span>
-            </label>
-          </div>
 
-          <div className="timeshift-toggle-row" style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '12px', opacity: isPopoutHwdecOverridden ? 0.75 : 1 }}>
+
+          <div className="timeshift-toggle-row" style={{ opacity: isPopoutHwdecOverridden ? 0.75 : 1 }}>
             <div className="timeshift-toggle-info">
               <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 Enable Hardware Video Acceleration (--hwdec=auto)
@@ -235,7 +216,7 @@ export function PopoutTab({
             </label>
           </div>
 
-          <div className="timeshift-toggle-row" style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '12px' }}>
+          <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
               <span className="timeshift-toggle-label">Enable additional MPV parameters</span>
               <span className="timeshift-toggle-sub">

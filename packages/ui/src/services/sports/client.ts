@@ -4,13 +4,40 @@
  * HTTP client for making requests to ESPN API
  */
 
-import { fetch } from '@tauri-apps/plugin-http';
+import { fetch as tauriFetch } from '@tauri-apps/plugin-http';
 import { ESPN_API_BASE } from './config';
 
 export async function fetchJson<T>(url: string): Promise<T | null> {
   try {
     console.log('[ESPN API] Fetching:', url);
-    const response = await fetch(url, { method: 'GET' });
+    // ESPN API endpoints return Access-Control-Allow-Origin: * (CORS enabled).
+    // Using Tauri's plugin-http routes requests through Rust reqwest whose User-Agent/TLS fingerprint
+    // is blocked with 403 Forbidden by ESPN's Akamai WAF. Native fetch uses the Webview engine.
+    let response: Response;
+    const getNativeFetch = () =>
+      typeof window !== 'undefined' && typeof window.fetch === 'function'
+        ? window.fetch.bind(window)
+        : globalThis.fetch;
+
+    try {
+      response = await getNativeFetch()(url, { method: 'GET' });
+    } catch (nativeErr) {
+      console.warn('[ESPN API] Native fetch failed, trying Tauri HTTP plugin:', nativeErr);
+      response = await tauriFetch(url, { method: 'GET' });
+    }
+
+    if (!response.ok && response.status === 403) {
+      console.warn(`[ESPN API] Received 403 with primary fetch, trying fallback for: ${url}`);
+      try {
+        const fallbackResponse = await tauriFetch(url, { method: 'GET' });
+        if (fallbackResponse.ok) {
+          response = fallbackResponse;
+        }
+      } catch {
+        // ignore fallback errors
+      }
+    }
+
     if (!response.ok) {
       console.warn(`[ESPN API] Request failed: ${response.status} ${url}`);
       return null;

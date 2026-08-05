@@ -429,7 +429,6 @@ export function Settings({
 
   // Playback settings state
   const [mpvParams, setMpvParams] = useState<string>('');
-  const [mpvDisableWhitelist, setMpvDisableWhitelist] = useState(false);
   const [mpvHwdecEnabled, setMpvHwdecEnabled] = useState(true);
   const [timeshiftEnabled, setTimeshiftEnabled] = useState(true);
   const [timeshiftCacheBytes, setTimeshiftCacheBytes] = useState(268_435_456);
@@ -843,7 +842,6 @@ export function Settings({
         savedLayoutState?: SavedLayoutState;
         startupView?: 'none' | 'guide' | 'movies' | 'series' | 'dvr' | 'sports' | 'calendar' | 'stremio' | 'nuvio';
         mpvParams?: string;
-        mpvDisableWhitelist?: boolean;
         mpvHwdecEnabled?: boolean;
         timeshiftEnabled?: boolean;
         timeshiftCacheBytes?: number;
@@ -1071,7 +1069,6 @@ export function Settings({
 
       // Load playback settings
       setMpvParams(settings.mpvParams ?? '');
-      setMpvDisableWhitelist(settings.mpvDisableWhitelist ?? false);
       setMpvHwdecEnabled(settings.mpvHwdecEnabled ?? true);
       setTimeshiftEnabled(settings.timeshiftEnabled ?? true);
       setTimeshiftCacheBytes(settings.timeshiftCacheBytes ?? 268_435_456);
@@ -1363,12 +1360,6 @@ export function Settings({
     }
   };
 
-  const handleMpvDisableWhitelistChange = async (disabled: boolean) => {
-    setMpvDisableWhitelist(disabled);
-    if (window.storage) {
-      await window.storage.updateSettings({ mpvDisableWhitelist: disabled });
-    }
-  };
 
   const handleMpvHwdecEnabledChange = async (enabled: boolean) => {
     setMpvHwdecEnabled(enabled);
@@ -2703,11 +2694,9 @@ export function Settings({
           <PlaybackTab
             initialSubTab={(pendingSubTabFromParent || pendingSubTab) as 'mpv' | 'reconnect' | 'cast' | 'popout' | 'skipintro' | 'catchup' | undefined}
             mpvParams={mpvParams}
-            mpvDisableWhitelist={mpvDisableWhitelist}
             mpvHwdecEnabled={mpvHwdecEnabled}
             onMpvHwdecEnabledChange={handleMpvHwdecEnabledChange}
             onMpvParamsChange={handleMpvParamsChange}
-            onMpvDisableWhitelistChange={handleMpvDisableWhitelistChange}
             streamWatchdogSeconds={streamWatchdogSeconds}
             streamMaxRetries={streamMaxRetries}
             onStreamWatchdogSecondsChange={handleStreamWatchdogSecondsChange}

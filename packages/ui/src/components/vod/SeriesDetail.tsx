@@ -22,7 +22,7 @@ import { resolvePlayUrl } from '../../services/stream-resolver';
 import { useDownloadStore } from '../../stores/downloadStore';
 import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
 import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
-import { useLazyVodTrailer } from '../../hooks/useLazyVodTrailer';
+import { useLazyVodTrailer, useTrailerPlayerMode } from '../../hooks/useLazyVodTrailer';
 import { SetPlayerDropdown, SplitPlayButton, type VodPlayerMode } from './SplitPlayButton';
 import './SeriesDetail.css';
 
@@ -361,22 +361,24 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
   const activeTmdbToken = useActiveTmdbToken();
   const hasTmdbKey = Boolean(activeTmdbToken && activeTmdbToken.trim() !== '');
   const { trailerUrl, loading: trailerLoading } = useLazyVodTrailer(hasTmdbKey ? series : null, 'series', activeTmdbToken);
+  const [trailerPlayerMode, setTrailerPlayerMode] = useTrailerPlayerMode();
 
   const handlePlayTrailer = useCallback((targetMode?: VodPlayerMode) => {
     if (!trailerUrl) {
       alert('No trailer available for this series');
       return;
     }
+    const modeToUse = targetMode || trailerPlayerMode;
     window.dispatchEvent(new CustomEvent('ynotv:play-url', {
       detail: {
         url: trailerUrl,
         title: `${series.title || series.name} - Trailer`,
         backdropUrl,
         logoUrl,
-        targetMode: targetMode || vodPlayerMode || 'embedded',
+        targetMode: modeToUse,
       },
     }));
-  }, [trailerUrl, series, backdropUrl, logoUrl, vodPlayerMode]);
+  }, [trailerUrl, series, backdropUrl, logoUrl, trailerPlayerMode]);
 
   // Use clean title if available, otherwise fall back to name
   const displayTitle = series.title || series.name;
@@ -559,8 +561,8 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                       <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                     </svg>
                   }
-                  currentMode={vodPlayerMode}
-                  onSelectMode={onSelectVodPlayerMode}
+                  currentMode={trailerPlayerMode}
+                  onSelectMode={setTrailerPlayerMode}
                   onPlay={handlePlayTrailer}
                   disabled={trailerLoading || (!trailerUrl && !trailerLoading)}
                 />

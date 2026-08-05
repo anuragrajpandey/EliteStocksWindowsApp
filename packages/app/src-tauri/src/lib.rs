@@ -568,107 +568,27 @@ async fn get_mpv_params_from_store<R: Runtime>(app: &AppHandle<R>) -> Vec<String
 // MPV Security Allowlist
 // ============================================================================
 
-const ALLOWED_MPV_KEYS: &[&str] = &[
-    "hwdec", "hwdec-codecs", "vo", "ao", "profile", "audio-device",
-    "audio-spdif", "audio-channels", "volume", "volume-max", "audio-exclusive",
-    "cache", "cache-secs", "cache-pause", "demuxer-max-bytes", "demuxer-max-back-bytes",
-    "demuxer-readahead-secs", "force-seekable",
-    "gpu-api", "gpu-context", "opengl-glfinish",
-    "sub-font", "sub-font-size", "sub-color", "sub-border-color", "sub-border-size",
-    "sub-shadow-color", "sub-shadow-offset", "sub-margin-y", "sub-align-x", "sub-align-y",
-    "sub-ass-override", "sub-scale", "sub-ass-scale-with-window", "sub-pos", "sub-back-color",
-    "sub-border-style", "sub-use-media-style", "sub-ass-force-style", "sub-ass-force-margins",
-    "sub-ass-style-overrides", "sub-visibility", "sub-delay", "sub-speed",
-    "osd-font", "osd-font-size", "osd-color", "osd-border-color", "osd-border-size",
-    "osd-shadow-color", "osd-shadow-offset", "osd-margin-x", "osd-margin-y",
-    "slang", "alang", 
-    "vd-lavc-dr", "vd-lavc-threads", "ad-lavc-threads",
-    "video-sync", "interpolation", "tscale",
-    "deinterlace",
-    "scale", "cscale", "dscale", "dither-depth", "correct-downscaling", "linear-downscaling",
-    "sigmoid-upscaling", "deband",
-    "hr-seek-framedrop", "keep-open",
-    "network-timeout", "stream-buffer-size", "http-proxy",
-    // TimeShift/Dumping parameters
-    "stream-record", "capture", "dump-stream", "recorder-muxer", "record-file",
-    // YouTube support (MPV 0.40+: configured via --script-opts=ytdl_hook-ytdl_path=...)
-    // The ytdl_hook-ytdl_path key itself lives in script-opts; we auto-inject it
-    // after sanitisation so it never needs to be in the user allowlist.
-    "ytdl", "ytdl-format",
-];
-
-const BLOCKED_MPV_KEYS: &[&str] = &[
-    "script", "scripts", 
-    "config", "config-dir", "no-config",
-    "input-ipc-server", "input-conf",
-    "log-file", "dump-stats",
-    "ytdl-raw-options", "lavfi-complex",
-    "sub-file", "audio-file", "external-file",
-];
-
-pub fn sanitize_mpv_args(args: Vec<String>, allow_all: bool) -> Vec<String> {
-    // If user disabled the whitelist, accept all well-formed arguments
-    if allow_all {
-        let mut valid_args = Vec::new();
-        for arg in args {
-            if arg.starts_with("--") {
-                valid_args.push(arg);
-            } else {
-                log::warn!("SECURITY ALERT: Dropped malformed MPV argument (must start with --): {}", arg);
-            }
-        }
-        return valid_args;
-    }
-
-    let mut safe_args = Vec::new();
-    
+pub fn sanitize_mpv_args(args: Vec<String>) -> Vec<String> {
+    let mut valid_args = Vec::new();
     for arg in args {
         if !arg.starts_with("--") {
-            log::warn!("SECURITY ALERT: Dropped malformed MPV argument (must start with --): {}", arg);
+            log::warn!("Dropped malformed MPV argument (must start with --): {}", arg);
             continue;
         }
-        
+
         let without_dashes = &arg[2..];
         let mut parts = without_dashes.splitn(2, '=');
         let key = parts.next().unwrap_or("");
         let value = parts.next();
-        
-        // Special handling for script-opts and its variants (append, add, etc): allow only stats-* options
-        if key == "script-opts" || key.starts_with("script-opts-") || key == "script-opt" {
-            if let Some(val) = value {
-                let opts: Vec<&str> = val.split(',').collect();
-                let all_stats = opts.iter().all(|opt| {
-                    let opt_key = opt.splitn(2, '=').next().unwrap_or("").trim();
-                    !opt_key.is_empty() && opt_key.starts_with("stats-")
-                });
-                if all_stats && !opts.is_empty() {
-                    safe_args.push(arg);
-                } else {
-                    log::warn!("SECURITY ALERT: Blocked script-opts with non-stats keys: {}", arg);
-                }
-            } else {
-                log::warn!("SECURITY ALERT: Blocked script-opts without value: {}", arg);
-            }
+
+        if key == "vo" && value == Some("direct3d") {
+            log::warn!("Blocked incompatible MPV argument: vo=direct3d (causes embedding failure)");
             continue;
         }
-        
-        if BLOCKED_MPV_KEYS.contains(&key) {
-            log::warn!("SECURITY ALERT: Blocked blacklisted MPV argument: {}", key);
-            continue;
-        }
-        
-        if ALLOWED_MPV_KEYS.contains(&key) {
-            if key == "vo" && value == Some("direct3d") {
-                log::warn!("SECURITY ALERT: Blocked incompatible MPV argument: vo=direct3d (causes embedding failure)");
-                continue;
-            }
-            safe_args.push(arg);
-        } else {
-            log::warn!("SECURITY ALERT: Dropped unrecognized/untrusted MPV argument: {}", key);
-        }
+
+        valid_args.push(arg);
     }
-    
-    safe_args
+    valid_args
 }
 
 /// Check if MPV arguments already contain a ytdl hook path override.
@@ -806,29 +726,19 @@ async fn init_mpv<R: Runtime>(app: AppHandle<R>, args: Vec<String>) -> Result<()
     // Load custom MPV parameters from settings
     let mut custom_params = get_mpv_params_from_store(&app).await;
 
-    // Check if user disabled the parameter whitelist
-    let disable_whitelist = read_store_setting(&app, "mpvDisableWhitelist")
-        .and_then(|v| v.as_bool())
-        .unwrap_or(false);
-    if disable_whitelist {
-        log::warn!("[MPV] SECURITY: User has disabled the MPV parameter whitelist. All parameters will be accepted.");
-    }
-
     // Merge frontend-provided args (for timeshift settings from loaded state)
-    // Frontend args are added after store params so they take precedence
     if !args.is_empty() {
         debug!("[MPV] Merging {} frontend-provided args", args.len());
         for arg in &args {
             debug!("[MPV]   Frontend arg: {}", arg);
-            // Remove any existing arg with same prefix to avoid duplicates
             let prefix = arg.split('=').next().unwrap_or(arg);
             custom_params.retain(|p| !p.starts_with(prefix));
             custom_params.push(arg.clone());
         }
     }
 
-    // Apply the Security Allowlist Firewall (unless disabled by user)
-    let safe_custom_params = sanitize_mpv_args(custom_params, disable_whitelist);
+    // Apply MPV argument sanitization
+    let safe_custom_params = sanitize_mpv_args(custom_params);
 
     debug!("[MPV] Final params for MPV:");
     for (i, param) in safe_custom_params.iter().enumerate() {
@@ -1135,16 +1045,12 @@ async fn mpv_get_params_debug<R: Runtime>(app: AppHandle<R>) -> Result<serde_jso
     use serde_json::json;
 
     let raw_params = get_mpv_params_from_store(&app).await;
-    let disable_whitelist = read_store_setting(&app, "mpvDisableWhitelist")
-        .and_then(|v| v.as_bool())
-        .unwrap_or(false);
-    let safe_params = sanitize_mpv_args(raw_params.clone(), disable_whitelist);
+    let safe_params = sanitize_mpv_args(raw_params.clone());
 
     let result = json!({
         "raw_loaded": raw_params,
         "sanitized": safe_params,
         "dropped_count": raw_params.len().saturating_sub(safe_params.len()),
-        "whitelist_disabled": disable_whitelist,
     });
 
     debug!("[MPV Debug] Params debug: {:?}", result);
@@ -1377,12 +1283,7 @@ async fn popout_open<R: Runtime>(
         raw_params.insert(0, "--vo=gpu".to_string());
     }
 
-    // Check whitelist disable setting (reuse main MPV setting)
-    let disable_whitelist = read_store_setting(&app, "mpvDisableWhitelist")
-        .and_then(|v| v.as_bool())
-        .unwrap_or(false);
-
-    let safe_params = sanitize_mpv_args(raw_params, disable_whitelist);
+    let safe_params = sanitize_mpv_args(raw_params);
     mpv_popout::spawn_and_load(&app, url, always_on_top, safe_params).await
 }
 
@@ -1477,12 +1378,8 @@ async fn popout_get_params_debug<R: Runtime>(app: AppHandle<R>) -> Result<serde_
         .map(|s| s.to_string())
         .collect();
 
-    let disable_whitelist = read_store_setting(&app, "mpvDisableWhitelist")
-        .and_then(|v| v.as_bool())
-        .unwrap_or(false);
-
     let safe_params = if enabled {
-        sanitize_mpv_args(raw_params.clone(), disable_whitelist)
+        sanitize_mpv_args(raw_params.clone())
     } else {
         vec![]
     };
@@ -1492,7 +1389,6 @@ async fn popout_get_params_debug<R: Runtime>(app: AppHandle<R>) -> Result<serde_
         "raw_loaded": raw_params,
         "sanitized": safe_params,
         "dropped_count": if enabled { raw_params.len().saturating_sub(safe_params.len()) } else { 0 },
-        "whitelist_disabled": disable_whitelist,
     });
 
     debug!("[Popout Debug] Params debug: {:?}", result);

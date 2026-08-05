@@ -13,9 +13,7 @@ export type PlaybackSubTabId = 'mpv' | 'reconnect' | 'cast' | 'popout' | 'skipin
 interface PlaybackTabProps {
   initialSubTab?: PlaybackSubTabId;
   mpvParams: string;
-  mpvDisableWhitelist: boolean;
   onMpvParamsChange: (params: string) => Promise<void>;
-  onMpvDisableWhitelistChange: (disabled: boolean) => Promise<void>;
   streamWatchdogSeconds: number;
   streamMaxRetries: number;
   onStreamWatchdogSecondsChange: (seconds: number) => Promise<void>;
@@ -23,7 +21,7 @@ interface PlaybackTabProps {
   castEnabled?: boolean;
   onCastEnabledChange?: (enabled: boolean) => Promise<void>;
   mpvHwdecEnabled?: boolean;
-  onMpvHwdecEnabledChange?: (enabled: boolean) => void;
+  onMpvHwdecEnabledChange?: (enabled: boolean) => Promise<void> | void;
   castRewriteTs?: boolean;
   onCastRewriteTsChange?: (enabled: boolean) => Promise<void>;
   useEventBasedReconnect: boolean;
@@ -80,11 +78,9 @@ const DEFAULT_MPV_PARAMS = `--hwdec=auto
 export function PlaybackTab({
   initialSubTab,
   mpvParams,
-  mpvDisableWhitelist,
   mpvHwdecEnabled,
   onMpvHwdecEnabledChange,
   onMpvParamsChange,
-  onMpvDisableWhitelistChange,
   streamWatchdogSeconds,
   streamMaxRetries,
   onStreamWatchdogSecondsChange,
@@ -177,7 +173,7 @@ export function PlaybackTab({
 
   const confirmSaveWithRestart = async () => {
     if (pendingHwdec !== null) {
-      onMpvHwdecEnabledChange?.(pendingHwdec);
+      await onMpvHwdecEnabledChange?.(pendingHwdec);
       setPendingHwdec(null);
     }
     if (hasChanges) {
@@ -194,7 +190,7 @@ export function PlaybackTab({
 
   const confirmSaveWithoutRestart = async () => {
     if (pendingHwdec !== null) {
-      onMpvHwdecEnabledChange?.(pendingHwdec);
+      await onMpvHwdecEnabledChange?.(pendingHwdec);
       setPendingHwdec(null);
     }
     if (hasChanges) {
@@ -368,25 +364,7 @@ export function PlaybackTab({
                 </div>
               </div>
 
-               <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--surface-border)' }}>
-                <div className="timeshift-toggle-row" style={{ marginBottom: '12px' }}>
-                  <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label">Disable Parameter Whitelist</span>
-                    <span className="timeshift-toggle-sub">
-                      Allows any MPV parameter to be passed, including potentially unsafe ones. Use with caution.
-                    </span>
-                  </div>
-                  <label className="toggle-switch">
-                    <input
-                      type="checkbox"
-                      checked={mpvDisableWhitelist}
-                      onChange={(e) => onMpvDisableWhitelistChange(e.target.checked)}
-                    />
-                    <span className="toggle-slider" />
-                  </label>
-                </div>
 
-              </div>
 
               <div style={{ marginTop: '20px', borderTop: '1px solid var(--surface-border)', paddingTop: '16px' }}>
                 <button
@@ -632,8 +610,6 @@ export function PlaybackTab({
             onExternalPlayerPathChange={onExternalPlayerPathChange}
             externalPlayerReuse={externalPlayerReuse}
             onExternalPlayerReuseChange={onExternalPlayerReuseChange}
-            mpvDisableWhitelist={mpvDisableWhitelist}
-            onMpvDisableWhitelistChange={onMpvDisableWhitelistChange}
           />
         )}
 

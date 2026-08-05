@@ -868,7 +868,7 @@ export function NowPlayingBar({
                   </div>
                 )}
 
-                {onSetAudioVisualizerMode && (
+                {isAudioOnly && onSetAudioVisualizerMode && (
                   <div style={{ position: 'relative' }} ref={visualizerMenuRef}>
                     <button
                       className={`npb-clean-btn ${showVisualizerMenu ? 'active' : ''}`}
@@ -1361,7 +1361,7 @@ export function NowPlayingBar({
               )}
 
               {/* Audio Visualizer controls */}
-              {onSetAudioVisualizerMode && (
+              {isAudioOnly && onSetAudioVisualizerMode && (
                 <div className="npb-controls npb-aspect-controls" ref={visualizerMenuRef}>
                   <button
                     className={`npb-btn ${showVisualizerMenu ? 'active' : ''}`}

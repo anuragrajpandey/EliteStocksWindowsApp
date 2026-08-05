@@ -145,7 +145,7 @@ export function LogosTab({
 
         <div className="timeshift-settings">
           {/* Logo Size Control */}
-          <div className="form-group" style={{ marginBottom: '20px' }}>
+          <div className="form-group" style={{ marginBottom: '14px', paddingBottom: '14px', borderBottom: '1px solid var(--surface-border)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <div>
                 <span className="timeshift-toggle-label" style={{ display: 'block' }}>Logo Size</span>
@@ -185,7 +185,7 @@ export function LogosTab({
           </div>
 
           {/* Round Logo Edges Toggle */}
-          <div className="timeshift-toggle-row" style={{ marginBottom: '20px', paddingTop: '16px', borderTop: '1px solid var(--surface-border)' }}>
+          <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
               <span className="timeshift-toggle-label">Round Logo Edges</span>
               <span className="timeshift-toggle-sub">Enable rounded corners for channel logo tiles, or disable for sharp square edges.</span>
@@ -201,7 +201,7 @@ export function LogosTab({
           </div>
 
           {/* Light Background Detection Toggle */}
-          <div className="timeshift-toggle-row" style={{ marginBottom: '20px', paddingTop: '16px', borderTop: '1px solid var(--surface-border)' }}>
+          <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
               <span className="timeshift-toggle-label">Auto Light Background Detection</span>
               <span className="timeshift-toggle-sub">Automatically analyze logo luminance and render dark logos on a light tile background for high contrast. Turn off to opt out.</span>
@@ -217,7 +217,7 @@ export function LogosTab({
           </div>
 
           {/* Smart Trim Logos Toggle */}
-          <div className="timeshift-toggle-row" style={{ marginBottom: '20px', paddingTop: '16px', borderTop: '1px solid var(--surface-border)' }}>
+          <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
               <span className="timeshift-toggle-label">Smart Trim Logos</span>
               <span className="timeshift-toggle-sub">Automatically crop each logo's baked-in transparent padding so it fills the tile edge-to-edge, without cutting off any content. Disables Full-Bleed cropping.</span>
@@ -233,7 +233,7 @@ export function LogosTab({
           </div>
 
           {/* Logo Tile Layout Toggle */}
-          <div className="timeshift-toggle-row" style={{ marginBottom: '20px', paddingTop: '16px', borderTop: '1px solid var(--surface-border)' }}>
+          <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
               <span className="timeshift-toggle-label">Logo Tile Layout</span>
               <span className="timeshift-toggle-sub">Full-bleed edge-to-edge logos (Classic) or inset padded tiles.</span>
@@ -259,6 +259,7 @@ export function LogosTab({
           {/* Interactive Live Preview Box */}
           <div
             style={{
+              marginTop: '16px',
               marginBottom: '20px',
               padding: '16px',
               background: 'var(--bg-tertiary, #1e1e24)',
@@ -349,7 +350,7 @@ export function LogosTab({
           </div>
 
           {/* Prefer EPG channel logos globally */}
-          <div className="timeshift-toggle-row" style={{ paddingTop: '16px', borderTop: '1px solid var(--surface-border)' }}>
+          <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
               <span className="timeshift-toggle-label">Prefer EPG logos globally</span>
               <span className="timeshift-toggle-sub">When enabled, channels with EPG data will display the matched EPG channel's logo instead of the playlist's logo.</span>
