@@ -4753,6 +4753,29 @@ html[data-theme="light"] .cm-folder-modal-body {
   color: #334155 !important;
 }
 
+/* Streaming Service Catalog Category Pills (Light Theme) */
+[data-theme="light"] .stremio-service-category-pill,
+html[data-theme="light"] .stremio-service-category-pill {
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .stremio-service-category-pill:hover,
+html[data-theme="light"] .stremio-service-category-pill:hover {
+  background: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .stremio-service-category-pill.active,
+html[data-theme="light"] .stremio-service-category-pill.active {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25) !important;
+}
+
 
 
 

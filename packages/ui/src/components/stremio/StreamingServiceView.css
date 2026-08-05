@@ -104,9 +104,9 @@
 
 .stremio-service-category-pill {
   flex-shrink: 0;
-  background: var(--surface-color, rgba(255, 255, 255, 0.04));
-  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.06));
-  color: var(--text-muted, rgba(255, 255, 255, 0.5));
+  background: var(--surface-color, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.1));
+  color: var(--text-muted, rgba(255, 255, 255, 0.7));
   padding: 8px 18px;
   border-radius: 30px;
   font-size: 0.85rem;
@@ -116,15 +116,16 @@
 }
 
 .stremio-service-category-pill:hover {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.08));
-  color: var(--text-primary, #fff);
+  background: var(--surface-hover, rgba(255, 255, 255, 0.14));
+  color: var(--text-primary, #ffffff);
 }
 
 .stremio-service-category-pill.active {
-  background: var(--text-primary, #fff);
-  color: var(--bg-primary, #0c0d14);
-  border-color: var(--text-primary, #fff);
-  font-weight: 600;
+  background: #ffffff !important;
+  color: #0c0d14 !important;
+  border-color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
 }
 
 /* Body and Sections */
