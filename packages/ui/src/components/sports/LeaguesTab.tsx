@@ -1,13 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useEpgClockFormat } from '../../stores/uiStore';
 import type { SportsEvent, SportsLeague, SportsTeam } from '@ynotv/core';
 import {
   getAvailableLeagues,
   getLeagueEvents,
   getLeagueTeams,
-  getLeagueStandings,
   getLeagueStandingsGrouped,
-  getLeagueStandingsByDivision,
   getGolfRankings,
   getTennisRankings,
   getRacingStandings,
@@ -21,6 +19,7 @@ import {
 import { TeamDetail } from './TeamDetail';
 import { GameDetail } from './GameDetail';
 import { useSportsSettingsStore } from '../../stores/sportsSettingsStore';
+import { useSportsFavoritesStore } from '../../stores/sportsFavoritesStore';
 
 interface LeaguesTabProps {
   onSearchChannels?: (channelName: string) => void;
@@ -60,6 +59,41 @@ const SPORT_GRADIENTS: Record<string, string> = {
   'rugby-league': 'linear-gradient(135deg, #f97316, #9a3412)',
 };
 
+const FALLBACK_DIVISIONS: Record<string, Record<string, string>> = {
+  nfl: {
+    BUF: 'AFC East', MIA: 'AFC East', NE: 'AFC East', NYJ: 'AFC East',
+    BAL: 'AFC North', CIN: 'AFC North', CLE: 'AFC North', PIT: 'AFC North',
+    HOU: 'AFC South', IND: 'AFC South', JAX: 'AFC South', JAC: 'AFC South', TEN: 'AFC South',
+    DEN: 'AFC West', KC: 'AFC West', LV: 'AFC West', LVR: 'AFC West', LAC: 'AFC West',
+    DAL: 'NFC East', NYG: 'NFC East', PHI: 'NFC East', WAS: 'NFC East', WSH: 'NFC East',
+    CHI: 'NFC North', DET: 'NFC North', GB: 'NFC North', MIN: 'NFC North',
+    ATL: 'NFC South', CAR: 'NFC South', NO: 'NFC South', TB: 'NFC South',
+    ARI: 'NFC West', LAR: 'NFC West', SF: 'NFC West', SEA: 'NFC West',
+  },
+  nba: {
+    BOS: 'Atlantic Division', BKN: 'Atlantic Division', NYK: 'Atlantic Division', PHI: 'Atlantic Division', TOR: 'Atlantic Division',
+    CHI: 'Central Division', CLE: 'Central Division', DET: 'Central Division', IND: 'Central Division', MIL: 'Central Division',
+    ATL: 'Southeast Division', CHA: 'Southeast Division', MIA: 'Southeast Division', ORL: 'Southeast Division', WAS: 'Southeast Division',
+    DEN: 'Northwest Division', MIN: 'Northwest Division', OKC: 'Northwest Division', POR: 'Northwest Division', UTA: 'Northwest Division',
+    GSW: 'Pacific Division', LAC: 'Pacific Division', LAL: 'Pacific Division', PHX: 'Pacific Division', SAC: 'Pacific Division',
+    DAL: 'Southwest Division', HOU: 'Southwest Division', MEM: 'Southwest Division', NOP: 'Southwest Division', SAS: 'Southwest Division',
+  },
+  mlb: {
+    BAL: 'AL East', BOS: 'AL East', NYY: 'AL East', TB: 'AL East', TOR: 'AL East',
+    CWS: 'AL Central', CLE: 'AL Central', DET: 'AL Central', KC: 'AL Central', MIN: 'AL Central',
+    HOU: 'AL West', LAA: 'AL West', OAK: 'AL West', ATH: 'AL West', SEA: 'AL West', TEX: 'AL West',
+    ATL: 'NL East', MIA: 'NL East', NYM: 'NL East', PHI: 'NL East', WAS: 'NL East',
+    CHC: 'NL Central', CIN: 'NL Central', MIL: 'NL Central', PIT: 'NL Central', STL: 'NL Central',
+    ARI: 'NL West', COL: 'NL West', LAD: 'NL West', SD: 'NL West', SF: 'NL West',
+  },
+  nhl: {
+    BOS: 'Atlantic Division', BUF: 'Atlantic Division', DET: 'Atlantic Division', FLA: 'Atlantic Division', MTL: 'Atlantic Division', OTT: 'Atlantic Division', TB: 'Atlantic Division', TOR: 'Atlantic Division',
+    CAR: 'Metropolitan Division', CBJ: 'Metropolitan Division', NJD: 'Metropolitan Division', NYI: 'Metropolitan Division', NYR: 'Metropolitan Division', PHI: 'Metropolitan Division', PIT: 'Metropolitan Division', WSH: 'Metropolitan Division',
+    ARI: 'Central Division', CHI: 'Central Division', COL: 'Central Division', DAL: 'Central Division', MIN: 'Central Division', NSH: 'Central Division', STL: 'Central Division', WPG: 'Central Division', UTA: 'Central Division',
+    ANA: 'Pacific Division', CGY: 'Pacific Division', EDM: 'Pacific Division', LAK: 'Pacific Division', SJS: 'Pacific Division', SEA: 'Pacific Division', VAN: 'Pacific Division', VGK: 'Pacific Division',
+  },
+};
+
 const getSportDisplayName = (sport: string) => {
   return SPORT_DISPLAY_NAMES[sport] || (sport.charAt(0).toUpperCase() + sport.slice(1));
 };
@@ -67,6 +101,248 @@ const getSportDisplayName = (sport: string) => {
 const getSportGradient = (sport: string) => {
   return SPORT_GRADIENTS[sport] || 'linear-gradient(135deg, #818cf8, #3730a3)';
 };
+
+function groupTeamsByDivision(teams: SportsTeam[], leagueId?: string): Map<string, SportsTeam[]> {
+  const groups = new Map<string, SportsTeam[]>();
+
+  for (const team of teams) {
+    let divName = 'All Teams';
+    const teamAny = team as any;
+    const summary = teamAny.standingSummary;
+
+    if (summary) {
+      const match = summary.match(/in\s+([A-Za-z0-9\s]+)$/i);
+      if (match && match[1]) {
+        divName = match[1].trim();
+      }
+    }
+
+    if (divName === 'All Teams' && leagueId && FALLBACK_DIVISIONS[leagueId]) {
+      const abbrev = (teamAny.abbreviation || team.shortName || '').toUpperCase();
+      if (abbrev && FALLBACK_DIVISIONS[leagueId][abbrev]) {
+        divName = FALLBACK_DIVISIONS[leagueId][abbrev];
+      }
+    }
+
+    if (!groups.has(divName)) {
+      groups.set(divName, []);
+    }
+    groups.get(divName)!.push(team);
+  }
+
+  return groups;
+}
+
+interface DateRailProps {
+  selectedDate: Date;
+  onSelectDate: (date: Date) => void;
+}
+
+function HorizontalDateRail({ selectedDate, onSelectDate }: DateRailProps) {
+  const [baseDate, setBaseDate] = useState<Date>(() => new Date(selectedDate));
+
+  const isSameDay = (d1: Date, d2: Date) => {
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
+  };
+
+  const handlePrevWeek = () => {
+    const prev = new Date(baseDate);
+    prev.setDate(prev.getDate() - 7);
+    setBaseDate(prev);
+    onSelectDate(prev);
+  };
+
+  const handleNextWeek = () => {
+    const next = new Date(baseDate);
+    next.setDate(next.getDate() + 7);
+    setBaseDate(next);
+    onSelectDate(next);
+  };
+
+  const handleJumpToday = () => {
+    const today = new Date();
+    setBaseDate(today);
+    onSelectDate(today);
+  };
+
+  const days: Date[] = [];
+  for (let i = -3; i <= 3; i++) {
+    const d = new Date(baseDate);
+    d.setDate(d.getDate() + i);
+    days.push(d);
+  }
+
+  const isTodayActive = isSameDay(selectedDate, new Date());
+
+  const formattedTitle = selectedDate.toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  return (
+    <div className="horizontal-date-rail-container">
+      <div className="horizontal-date-rail">
+        <button
+          className="date-rail-nav-btn"
+          onClick={handlePrevWeek}
+          title="Previous week"
+        >
+          ‹
+        </button>
+
+        <div className="date-rail-pills">
+          {days.map((day) => {
+            const active = isSameDay(day, selectedDate);
+            const dayName = day.toLocaleDateString(undefined, { weekday: 'short' });
+            const dayNum = day.getDate();
+
+            return (
+              <button
+                key={day.toISOString()}
+                className={`date-rail-pill${active ? ' active' : ''}`}
+                onClick={() => onSelectDate(day)}
+              >
+                <span className="date-rail-day-name">{dayName}</span>
+                <span className="date-rail-day-num">{dayNum}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <button
+          className="date-rail-nav-btn"
+          onClick={handleNextWeek}
+          title="Next week"
+        >
+          ›
+        </button>
+
+        {!isTodayActive && (
+          <button className="date-rail-today-btn" onClick={handleJumpToday}>
+            Today
+          </button>
+        )}
+      </div>
+
+      <div className="date-rail-title">{formattedTitle}</div>
+    </div>
+  );
+}
+
+interface LeagueGameCardProps {
+  event: SportsEvent;
+  isIndividualSport: boolean;
+  onChannelClick?: (channelName: string) => void;
+  onClick?: () => void;
+}
+
+function LeagueGameCard({ event, isIndividualSport, onChannelClick, onClick }: LeagueGameCardProps) {
+  const epgClockFormat = useEpgClockFormat();
+  const isLive = event.status === 'live';
+  const isFinished = event.status === 'finished';
+
+  const networkName = event.channels && event.channels.length > 0 ? event.channels[0].name : null;
+
+  if (isIndividualSport) {
+    return (
+      <div className="league-game-card individual" onClick={onClick}>
+        <div className="game-card-main">
+          <div className="game-card-individual-info">
+            <span className="game-card-event-title">{event.title}</span>
+            {event.venue && <span className="game-card-venue">{event.venue}</span>}
+          </div>
+        </div>
+
+        <div className="game-card-right">
+          <div className="game-card-time">
+            {event.startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}
+          </div>
+          {networkName && <span className="game-card-network-badge-btn">{networkName}</span>}
+        </div>
+      </div>
+    );
+  }
+
+  const homeWinning = (event.homeScore ?? 0) > (event.awayScore ?? 0);
+  const awayWinning = (event.awayScore ?? 0) > (event.homeScore ?? 0);
+
+  const awayAbbrev = (event.awayTeam as any).abbreviation || event.awayTeam.name.slice(0, 3).toUpperCase();
+  const homeAbbrev = (event.homeTeam as any).abbreviation || event.homeTeam.name.slice(0, 3).toUpperCase();
+  const awayRecord = (event as any).awayRecord || '0-0';
+  const homeRecord = (event as any).homeRecord || '0-0';
+
+  return (
+    <div className={`league-game-card${isLive ? ' live' : ''}`} onClick={onClick}>
+      <div className="game-card-teams-area">
+        {/* Away Team */}
+        <div className={`game-card-team away${isFinished && awayWinning ? ' winner' : ''}`}>
+          {event.awayTeam.logo ? (
+            <img src={event.awayTeam.logo} alt="" className="game-card-logo" />
+          ) : (
+            <div className="game-card-logo-placeholder">{awayAbbrev.slice(0, 3).toUpperCase()}</div>
+          )}
+          <div className="game-card-team-info">
+            <span className="game-card-team-name">{awayAbbrev}</span>
+            <span className="game-card-team-record">{awayRecord}</span>
+          </div>
+          <span className="game-card-score">{event.awayScore ?? 0}</span>
+        </div>
+
+        {/* Versus / Divider */}
+        <div className="game-card-divider">
+          {isLive ? (
+            <span className="game-card-live-pill">
+              <span className="live-dot" />
+              {event.period || event.timeElapsed || 'LIVE'}
+            </span>
+          ) : (
+            <span className="game-card-vs">vs</span>
+          )}
+        </div>
+
+        {/* Home Team */}
+        <div className={`game-card-team home${isFinished && homeWinning ? ' winner' : ''}`}>
+          <span className="game-card-score">{event.homeScore ?? 0}</span>
+          <div className="game-card-team-info">
+            <span className="game-card-team-name">{homeAbbrev}</span>
+            <span className="game-card-team-record">{homeRecord}</span>
+          </div>
+          {event.homeTeam.logo ? (
+            <img src={event.homeTeam.logo} alt="" className="game-card-logo" />
+          ) : (
+            <div className="game-card-logo-placeholder">{homeAbbrev.slice(0, 3).toUpperCase()}</div>
+          )}
+        </div>
+      </div>
+
+      {/* Right Side: Start Time & Network Badge */}
+      <div className="game-card-right">
+        <span className="game-card-time">
+          {formatEventTime(event.startTime, epgClockFormat !== '24h')}
+        </span>
+        {networkName ? (
+          <button
+            className="game-card-network-badge-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onChannelClick?.(networkName);
+            }}
+            title={`Search channels for ${networkName}`}
+          >
+            {networkName}
+          </button>
+        ) : (
+          <span className="game-card-network-placeholder">TBD</span>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function SportIcon({ sport, size = 20 }: { sport: string; size?: number }) {
   switch (sport.toLowerCase()) {
@@ -186,6 +462,11 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
   const [activeSport, setActiveSport] = useState<string>('');
   const [selectedScheduleDate, setSelectedScheduleDate] = useState<Date | null>(null);
+  const [teamSearchQuery, setTeamSearchQuery] = useState<string>('');
+
+  const favorites = useSportsFavoritesStore((s) => s.favorites);
+  const addFavorite = useSportsFavoritesStore((s) => s.addFavorite);
+  const removeFavorite = useSportsFavoritesStore((s) => s.removeFavorite);
 
   const isUFC = selectedLeague?.id === 'ufc';
   const isGolf = selectedLeague?.id === 'pga' || selectedLeague?.id === 'lpga';
@@ -211,26 +492,8 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
   }, [loaded, enabledLeagues]);
 
   useEffect(() => {
-    if (leagues.length > 0) {
-      const grouped = leagues.reduce((acc, league) => {
-        const sport = league.sport || 'Other';
-        if (!acc[sport]) acc[sport] = [];
-        acc[sport].push(league);
-        return acc;
-      }, {} as Record<string, SportsLeague[]>);
-
-      const sportOrder = ['football', 'basketball', 'baseball', 'hockey', 'soccer'];
-      const sortedSports = Object.keys(grouped).sort((a, b) => {
-        const aIdx = sportOrder.indexOf(a);
-        const bIdx = sportOrder.indexOf(b);
-        return (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx);
-      });
-
-      if (sortedSports.length > 0 && (!activeSport || !sortedSports.includes(activeSport))) {
-        setActiveSport(sortedSports[0]);
-      }
-    } else {
-      setActiveSport('');
+    if (leagues.length > 0 && (!activeSport || !leagues.some(l => l.sport === activeSport))) {
+      setActiveSport(leagues[0].sport || 'football');
     }
   }, [leagues, activeSport]);
 
@@ -238,6 +501,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
     if (selectedLeague) {
       setLoading(true);
       setSelectedScheduleDate(null);
+      setTeamSearchQuery('');
       // For individual sports, default to schedule (events)
       setActiveView(isIndividualSport ? 'schedule' : 'teams');
       
@@ -254,69 +518,91 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
     }
   }, [selectedLeague, isIndividualSport]);
 
-  const handleDateChange = useCallback(async (date: Date | null) => {
+  const handleDateChange = useCallback((date: Date | null) => {
     if (!selectedLeague) return;
     setSelectedScheduleDate(date);
     setLoading(true);
-    try {
-      const events = await getLeagueEvents(selectedLeague.id, date || undefined);
-      setLeagueEvents(events);
-    } finally {
-      setLoading(false);
-    }
+
+    getLeagueEvents(selectedLeague.id, date || undefined)
+      .then(setLeagueEvents)
+      .finally(() => setLoading(false));
   }, [selectedLeague]);
 
-  const handleViewChange = useCallback(async (view: LeagueView) => {
+  const handleViewChange = useCallback((view: LeagueView) => {
     if (!selectedLeague) return;
-    
     setActiveView(view);
-    setLoading(true);
 
-    try {
-      if (view === 'schedule') {
-        const events = await getLeagueEvents(selectedLeague.id, selectedScheduleDate || undefined);
-        setLeagueEvents(events);
-      } else if (view === 'standings') {
-        if (isGolf) {
-          // Golf Rankings - World Golf Rankings
-          const rankings = await getGolfRankings(selectedLeague.id as 'pga' | 'lpga');
-          setGolfRankings(rankings);
-        } else if (isTennis) {
-          // Tennis Rankings - ATP/WTA
-          const rankings = await getTennisRankings(selectedLeague.id as 'atp' | 'wta');
-          setTennisRankings(rankings);
-        } else if (isRacing) {
-          // Racing Standings - Driver standings
-          const standings = await getRacingStandings(selectedLeague.id as 'f1' | 'nascar' | 'indycar');
-          setRacingStandings(standings);
-        } else {
-          // Team sports standings
-          const groups = await getLeagueStandingsGrouped(selectedLeague.id);
-          setLeagueStandingsGroups(groups);
-          setLeagueStandings(groups.flatMap(g => g.teams));
-        }
+    if (view === 'schedule' && leagueEvents.length === 0) {
+      setLoading(true);
+      getLeagueEvents(selectedLeague.id, selectedScheduleDate || undefined)
+        .then(setLeagueEvents)
+        .finally(() => setLoading(false));
+    } else if (view === 'standings') {
+      if (isGolf && golfRankings.length === 0) {
+        setLoading(true);
+        getGolfRankings(selectedLeague.id as any)
+          .then(setGolfRankings)
+          .finally(() => setLoading(false));
+      } else if (isTennis && tennisRankings.length === 0) {
+        setLoading(true);
+        getTennisRankings(selectedLeague.id as any)
+          .then(setTennisRankings)
+          .finally(() => setLoading(false));
+      } else if (isRacing && racingStandings.length === 0) {
+        setLoading(true);
+        getRacingStandings(selectedLeague.id as any)
+          .then(setRacingStandings)
+          .finally(() => setLoading(false));
+      } else if (!isIndividualSport && leagueStandings.length === 0 && leagueStandingsGroups.length === 0) {
+        setLoading(true);
+        getLeagueStandingsGrouped(selectedLeague.id)
+          .then((groups) => {
+            setLeagueStandingsGroups(groups);
+            setLeagueStandings(groups.flatMap(g => g.teams));
+          })
+          .finally(() => setLoading(false));
       }
-    } finally {
-      setLoading(false);
     }
-  }, [selectedLeague, isIndividualSport, isUFC, isGolf, isTennis, isRacing, selectedScheduleDate]);
+  }, [selectedLeague, leagueEvents.length, leagueStandings.length, leagueStandingsGroups.length, golfRankings.length, tennisRankings.length, racingStandings.length, isGolf, isTennis, isRacing, isIndividualSport, selectedScheduleDate]);
+
+  const filteredTeams = useMemo(() => {
+    if (!teamSearchQuery.trim()) return leagueTeams;
+    const q = teamSearchQuery.toLowerCase();
+    return leagueTeams.filter(
+      (t) =>
+        t.name.toLowerCase().includes(q) ||
+        t.shortName?.toLowerCase().includes(q) ||
+        (t as any).abbreviation?.toLowerCase().includes(q) ||
+        (t as any).location?.toLowerCase().includes(q)
+    );
+  }, [leagueTeams, teamSearchQuery]);
+
+  const teamGroups = useMemo(() => {
+    return groupTeamsByDivision(filteredTeams, selectedLeague?.id);
+  }, [filteredTeams, selectedLeague]);
+
+  const leaguesBySport = useMemo(() => {
+    const grouped = leagues.reduce((acc, league) => {
+      const sport = league.sport || 'Other';
+      if (!acc[sport]) acc[sport] = [];
+      acc[sport].push(league);
+      return acc;
+    }, {} as Record<string, SportsLeague[]>);
+
+    const sportOrder = ['football', 'basketball', 'baseball', 'hockey', 'soccer'];
+    const sortedSports = Object.keys(grouped).sort((a, b) => {
+      const aIdx = sportOrder.indexOf(a);
+      const bIdx = sportOrder.indexOf(b);
+      return (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx);
+    });
+
+    return { grouped, sortedSports };
+  }, [leagues]);
 
   const handleChannelClick = (channelName: string) => {
     if (onSearchChannels) {
       onSearchChannels(channelName);
     }
-  };
-
-  const handleClose = () => {
-    setSelectedLeague(null);
-    setSelectedScheduleDate(null);
-    setLeagueTeams([]);
-    setLeagueEvents([]);
-    setLeagueStandings([]);
-    setLeagueStandingsGroups([]);
-    setGolfRankings([]);
-    setTennisRankings([]);
-    setRacingStandings([]);
   };
 
   if (selectedTeam) {
@@ -325,459 +611,360 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
         team={selectedTeam}
         onClose={() => setSelectedTeam(null)}
         onChannelClick={handleChannelClick}
+        onPlayChannel={onPlayChannel}
       />
     );
   }
 
   if (selectedEvent) {
     return (
-      <>
-        <LeagueDetail
-          league={selectedLeague!}
-          teams={leagueTeams}
-          events={leagueEvents}
-          standings={leagueStandings}
-          standingsGroups={leagueStandingsGroups}
-          golfRankings={golfRankings}
-          tennisRankings={tennisRankings}
-          racingStandings={racingStandings}
-          loading={loading}
-          activeView={activeView}
-          selectedDate={selectedScheduleDate}
-          onViewChange={handleViewChange}
-          onDateChange={handleDateChange}
-          onClose={handleClose}
-          onTeamSelect={setSelectedTeam}
-          onChannelClick={handleChannelClick}
-          onEventSelect={setSelectedEvent}
-          onPlayChannel={onPlayChannel}
-        />
-        <GameDetail
-          event={selectedEvent}
-          onClose={() => setSelectedEvent(null)}
-          onChannelClick={handleChannelClick}
-          onPlayChannel={onPlayChannel}
-        />
-      </>
-    );
-  }
-
-  if (selectedLeague) {
-    return (
-      <LeagueDetail
-        league={selectedLeague}
-        teams={leagueTeams}
-        events={leagueEvents}
-        standings={leagueStandings}
-        standingsGroups={leagueStandingsGroups}
-        golfRankings={golfRankings}
-        tennisRankings={tennisRankings}
-        racingStandings={racingStandings}
-        loading={loading}
-        activeView={activeView}
-        selectedDate={selectedScheduleDate}
-        onViewChange={handleViewChange}
-        onDateChange={handleDateChange}
-        onClose={handleClose}
-        onTeamSelect={setSelectedTeam}
+      <GameDetail
+        event={selectedEvent}
+        onClose={() => setSelectedEvent(null)}
         onChannelClick={handleChannelClick}
-        onEventSelect={setSelectedEvent}
+        onPlayChannel={onPlayChannel}
       />
     );
   }
 
-  const groupedLeagues = leagues.reduce((acc, league) => {
-    const sport = league.sport || 'Other';
-    if (!acc[sport]) acc[sport] = [];
-    acc[sport].push(league);
-    return acc;
-  }, {} as Record<string, SportsLeague[]>);
-
-  const sportOrder = ['football', 'basketball', 'baseball', 'hockey', 'soccer'];
-
-  return (
-    <div className="sports-leagues-layout">
-      {/* Left Sidebar: Sport selection list */}
-      <aside className="sports-leagues-sidebar">
-        {Object.entries(groupedLeagues)
-          .sort(([a], [b]) => {
-            const aIdx = sportOrder.indexOf(a);
-            const bIdx = sportOrder.indexOf(b);
-            return (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx);
-          })
-          .map(([sport, sportLeagues]) => {
-            const isActive = activeSport === sport;
-            return (
-              <button
-                key={sport}
-                className={`sports-leagues-sidebar-item ${isActive ? 'active' : ''}`}
-                onClick={() => setActiveSport(sport)}
-              >
-                <div 
-                  className="sports-leagues-sidebar-icon"
-                  style={{ background: getSportGradient(sport) }}
-                >
-                  <SportIcon sport={sport} size={18} />
-                </div>
-                <span className="sports-leagues-sidebar-name">
-                  {getSportDisplayName(sport)}
-                </span>
-                <span className="sports-leagues-sidebar-badge">
-                  {sportLeagues.length}
-                </span>
-              </button>
-            );
-          })}
-      </aside>
-
-      {/* Right Content Pane: Leagues listing for selected sport */}
-      <main className="sports-leagues-content">
-        <div className="sports-leagues-content-header">
-          <div 
-            className="sports-leagues-content-icon"
-            style={{ background: getSportGradient(activeSport) }}
-          >
-            <SportIcon sport={activeSport} size={24} />
-          </div>
-          <div>
-            <h2 className="sports-leagues-content-title">
-              {getSportDisplayName(activeSport)} Leagues
-            </h2>
-            <p className="sports-leagues-content-subtitle">
-              Select a league to view teams, schedule, and standings
-            </p>
-          </div>
-        </div>
-
-        <div className="sports-leagues-grid-layout">
-          {(groupedLeagues[activeSport] || []).map((league) => (
-            <button
-              key={league.id}
-              className="sports-leagues-item-btn"
-              onClick={() => setSelectedLeague(league)}
-            >
-              <div className="sports-leagues-item-info">
-                <span className="sports-leagues-name">{league.name}</span>
-                <span className="sports-leagues-sub">{league.sport.toUpperCase()}</span>
-              </div>
-              <svg className="sports-leagues-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            </button>
-          ))}
-        </div>
-      </main>
-    </div>
-  );
-}
-
-interface LeagueDetailProps {
-  league: SportsLeague;
-  teams: SportsTeam[];
-  events: SportsEvent[];
-  standings: StandingTeam[];
-  standingsGroups: StandingGroup[];
-  golfRankings: GolfRanking[];
-  tennisRankings: TennisRanking[];
-  racingStandings: RacingStanding[];
-  loading: boolean;
-  activeView: LeagueView;
-  selectedDate?: Date | null;
-  onViewChange: (view: LeagueView) => void;
-  onDateChange?: (date: Date | null) => void;
-  onClose: () => void;
-  onTeamSelect: (team: SportsTeam) => void;
-  onChannelClick?: (channelName: string) => void;
-  onEventSelect?: (event: SportsEvent) => void;
-  onPlayChannel?: (channel: import('../../db').StoredChannel) => void;
-}
-
-function LeagueDetail({
-  league,
-  teams,
-  events,
-  standings,
-  standingsGroups,
-  golfRankings,
-  tennisRankings,
-  racingStandings,
-  loading,
-  activeView,
-  selectedDate,
-  onViewChange,
-  onDateChange,
-  onClose,
-  onTeamSelect,
-  onChannelClick,
-  onEventSelect,
-  onPlayChannel,
-}: LeagueDetailProps) {
-  const isUFC = league.id === 'ufc';
-  const isGolf = league.id === 'pga' || league.id === 'lpga';
-  const isTennis = league.id === 'atp' || league.id === 'wta';
-  const isRacing = league.id === 'f1' || league.id === 'nascar' || league.id === 'indycar';
-  const isIndividualSport = INDIVIDUAL_SPORTS.includes(league.id);
-
-  const [standingsMode, setStandingsMode] = useState<'conference' | 'division'>(() => {
-    try {
-      const saved = localStorage.getItem(`sports_standings_mode_${league.id}`) || localStorage.getItem('sports_standings_mode');
-      return (saved === 'division' || saved === 'conference') ? saved : 'conference';
-    } catch {
-      return 'conference';
-    }
-  });
-  const [selectedDivision, setSelectedDivision] = useState<string>('all');
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(`sports_standings_mode_${league.id}`) || localStorage.getItem('sports_standings_mode');
-      if (saved === 'division' || saved === 'conference') {
-        setStandingsMode(saved as 'conference' | 'division');
-      }
-    } catch {
-      // ignore
-    }
-  }, [league.id]);
-
-  const handleStandingsModeChange = (mode: 'conference' | 'division') => {
-    setStandingsMode(mode);
-    setSelectedDivision('all');
-    try {
-      localStorage.setItem(`sports_standings_mode_${league.id}`, mode);
-      localStorage.setItem('sports_standings_mode', mode);
-    } catch {
-      // ignore
-    }
-  };
-
-  const divisionGroups = getLeagueStandingsByDivision(league.id, standingsGroups);
-  const hasDivisions = divisionGroups.length > 0 && divisionGroups.some(g => g.name !== standingsGroups[0]?.name);
-
   return (
     <div className="sports-tab-content">
-      <div className="sports-league-header">
-        <button className="sports-back-link" onClick={onClose}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-          Back to Leagues
-        </button>
-        <div className="sports-league-info">
-          <div>
-            <h2 className="sports-league-detail-name">{league.name}</h2>
-            <span className="sports-league-detail-sport">{league.sport}</span>
+      {!selectedLeague ? (
+        <div className="sports-leagues-layout">
+          {/* Left Sidebar: Sport Tabs */}
+          <div className="sports-leagues-sidebar">
+            {leaguesBySport.sortedSports.map((sport) => {
+              const count = leaguesBySport.grouped[sport]?.length || 0;
+              const isActive = activeSport === sport;
+              return (
+                <button
+                  key={sport}
+                  className={`sports-leagues-sidebar-item${isActive ? ' active' : ''}`}
+                  onClick={() => setActiveSport(sport)}
+                >
+                  <div
+                    className="sports-leagues-sidebar-icon"
+                    style={{ background: getSportGradient(sport) }}
+                  >
+                    <SportIcon sport={sport} size={16} />
+                  </div>
+                  <span className="sports-leagues-sidebar-name">{getSportDisplayName(sport)}</span>
+                  <span className="sports-leagues-sidebar-badge">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Right Panel: Leagues Grid */}
+          <div className="sports-leagues-content">
+            <div className="sports-leagues-content-header">
+              <div
+                className="sports-leagues-content-icon"
+                style={{ background: getSportGradient(activeSport) }}
+              >
+                <SportIcon sport={activeSport} size={24} />
+              </div>
+              <div>
+                <h3 className="sports-leagues-content-title">{getSportDisplayName(activeSport)}</h3>
+                <p className="sports-leagues-content-subtitle">
+                  {(leaguesBySport.grouped[activeSport] || []).length}{' '}
+                  {(leaguesBySport.grouped[activeSport] || []).length === 1 ? 'league' : 'leagues'} available
+                </p>
+              </div>
+            </div>
+
+            <div className="sports-leagues-grid-layout">
+              {(leaguesBySport.grouped[activeSport] || []).map((league) => (
+                <button
+                  key={league.id}
+                  className="sports-leagues-item-btn"
+                  onClick={() => setSelectedLeague(league)}
+                >
+                  <div className="sports-leagues-item-info">
+                    <span className="sports-leagues-name">{league.name}</span>
+                    <span className="sports-leagues-sub">
+                      {league.country || getSportDisplayName(league.sport)}
+                    </span>
+                  </div>
+                  <svg
+                    className="sports-leagues-chevron"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className="sports-league-nav">
-        {!isIndividualSport && (
-          <button
-            className={`sports-league-nav-btn ${activeView === 'teams' ? 'active' : ''}`}
-            onClick={() => onViewChange('teams')}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-            Teams
-          </button>
-        )}
-        <button
-          className={`sports-league-nav-btn ${activeView === 'schedule' ? 'active' : ''}`}
-          onClick={() => onViewChange('schedule')}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-          </svg>
-          {isIndividualSport ? 'Events' : 'Schedule'}
-        </button>
-        {!isUFC && (
-          <button
-            className={`sports-league-nav-btn ${activeView === 'standings' ? 'active' : ''}`}
-            onClick={() => onViewChange('standings')}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="8" y1="6" x2="21" y2="6" />
-              <line x1="8" y1="12" x2="21" y2="12" />
-              <line x1="8" y1="18" x2="21" y2="18" />
-              <line x1="3" y1="6" x2="3.01" y2="6" />
-              <line x1="3" y1="12" x2="3.01" y2="12" />
-              <line x1="3" y1="18" x2="3.01" y2="18" />
-            </svg>
-            {isIndividualSport ? 'Rankings' : 'Standings'}
-          </button>
-        )}
-      </div>
-
-      {loading ? (
-        <div className="sports-loading">
-          <div className="sports-spinner" />
-          <span>Loading...</span>
-        </div>
       ) : (
-        <>
-          {activeView === 'teams' && (
-            <section className="sports-section">
-              <h3 className="sports-section-title">All Teams ({teams.length})</h3>
-              <div className="sports-teams-grid">
-                {teams.map((team) => (
-                  <button
-                    key={team.id}
-                    className="sports-team-card"
-                    onClick={() => onTeamSelect(team)}
-                  >
-                    {team.logo && (
-                      <img src={team.logo} alt={team.name} className="sports-team-card-logo" />
-                    )}
-                    <div className="sports-team-card-info">
-                      <span className="sports-team-card-name">{team.name}</span>
-                      {team.shortName && (
-                        <span className="sports-team-card-country">{team.shortName}</span>
+        <div className="sports-league-detail-view">
+          <div className="sports-league-header">
+            <button
+              className="sports-back-link"
+              onClick={() => {
+                setSelectedLeague(null);
+                setLeagueEvents([]);
+                setLeagueTeams([]);
+                setLeagueStandings([]);
+                setLeagueStandingsGroups([]);
+                setGolfRankings([]);
+                setTennisRankings([]);
+                setRacingStandings([]);
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              Back to All Leagues
+            </button>
+
+            <div className="sports-league-info">
+              <div
+                className="sports-leagues-content-icon"
+                style={{ background: getSportGradient(selectedLeague.sport), width: 52, height: 52 }}
+              >
+                <SportIcon sport={selectedLeague.sport} size={28} />
+              </div>
+              <div>
+                <h2 className="sports-league-detail-name">{selectedLeague.name}</h2>
+                <span className="sports-league-detail-country">
+                  {selectedLeague.country || getSportDisplayName(selectedLeague.sport)}
+                </span>
+              </div>
+            </div>
+
+            <div className="sports-league-nav" style={{ marginTop: 20 }}>
+              {!isIndividualSport && (
+                <button
+                  className={`sports-league-nav-btn ${activeView === 'teams' ? 'active' : ''}`}
+                  onClick={() => handleViewChange('teams')}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                  Teams
+                </button>
+              )}
+              <button
+                className={`sports-league-nav-btn ${activeView === 'schedule' ? 'active' : ''}`}
+                onClick={() => handleViewChange('schedule')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                {isIndividualSport ? 'Schedule' : 'Games'}
+              </button>
+              {!isUFC && (
+                <button
+                  className={`sports-league-nav-btn ${activeView === 'standings' ? 'active' : ''}`}
+                  onClick={() => handleViewChange('standings')}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                  </svg>
+                  {isIndividualSport ? 'Rankings' : 'Standings'}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="sports-loading">
+              <div className="sports-spinner" />
+              <span>Loading...</span>
+            </div>
+          ) : (
+            <>
+              {activeView === 'teams' && (
+                <section className="sports-section">
+                  <div className="league-teams-top-bar">
+                    <div className="league-teams-search-box">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      </svg>
+                      <input
+                        type="text"
+                        className="league-teams-search-input"
+                        placeholder="Search teams by name or location..."
+                        value={teamSearchQuery}
+                        onChange={(e) => setTeamSearchQuery(e.target.value)}
+                      />
+                      {teamSearchQuery && (
+                        <button className="league-teams-search-clear" onClick={() => setTeamSearchQuery('')}>
+                          ✕
+                        </button>
                       )}
                     </div>
-                  </button>
-                ))}
-              </div>
-            </section>
-          )}
+                    <span className="league-teams-count-badge">
+                      {filteredTeams.length} {filteredTeams.length === 1 ? 'team' : 'teams'}
+                    </span>
+                  </div>
 
-          {activeView === 'schedule' && (
-            <section className="sports-section">
-              <div className="league-schedule-top-bar">
-                <h3 className="sports-section-title">
-                  {isIndividualSport ? 'Tournaments & Events' : 'Games'}
-                </h3>
-                {onDateChange && (
-                  <div className="league-schedule-date-controls">
-                    <select
-                      className="league-date-select"
-                      value={selectedDate ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}` : 'default'}
-                      onChange={(e) => {
-                        if (e.target.value === 'default') {
-                          onDateChange(null);
-                        } else {
-                          const [y, m, d] = e.target.value.split('-').map(Number);
-                          onDateChange(new Date(y, m - 1, d));
-                        }
-                      }}
-                    >
-                      <option value="default">Default Schedule</option>
-                      {Array.from({ length: 14 }, (_, i) => {
-                        const d = new Date();
-                        d.setDate(d.getDate() + i);
-                        const valStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-                        const isToday = i === 0;
-                        const label = isToday
-                          ? `Today (${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })})`
-                          : d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-                        return (
-                          <option key={valStr} value={valStr}>
-                            {label}
-                          </option>
-                        );
-                      })}
-                    </select>
+                  {Array.from(teamGroups.entries()).map(([divName, divTeams]) => (
+                    <div key={divName} className="league-division-group">
+                      <h4 className="league-division-title">{divName}</h4>
+                      <div className="sports-teams-grid-v2">
+                        {divTeams.map((team) => {
+                          const teamAny = team as any;
+                          const isFav = favorites.some((f) => f.id === team.id);
+                          const primaryColor = teamAny.color ? `#${teamAny.color.replace('#', '')}` : '#6366f1';
 
-                    <div className="league-custom-date-wrapper">
-                      <span className="league-date-label">Custom Date:</span>
-                      <input
-                        type="date"
-                        className="league-date-input"
-                        value={selectedDate ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}` : ''}
-                        onChange={(e) => {
-                          if (e.target.value) {
-                            const [y, m, d] = e.target.value.split('-').map(Number);
-                            onDateChange(new Date(y, m - 1, d));
-                          } else {
-                            onDateChange(null);
-                          }
-                        }}
-                      />
+                          return (
+                            <div
+                              key={team.id}
+                              className={`sports-team-card-v2${isFav ? ' favorite' : ''}`}
+                              style={{ borderLeftColor: primaryColor }}
+                              onClick={() => setSelectedTeam(team)}
+                            >
+                              <div className="team-card-v2-main">
+                                {team.logo ? (
+                                  <img src={team.logo} alt={team.name} className="sports-team-card-logo" />
+                                ) : (
+                                  <div className="sports-team-card-logo-placeholder" style={{ backgroundColor: primaryColor }}>
+                                    {(teamAny.abbreviation || team.name.slice(0, 3)).toUpperCase()}
+                                  </div>
+                                )}
+                                <div className="sports-team-card-info">
+                                  <span className="sports-team-card-name">{team.name}</span>
+                                  {teamAny.standingSummary ? (
+                                    <span className="sports-team-card-sub">{teamAny.standingSummary}</span>
+                                  ) : team.shortName ? (
+                                    <span className="sports-team-card-sub">{team.shortName}</span>
+                                  ) : null}
+                                </div>
+                              </div>
+
+                              <button
+                                className={`sports-team-card-star${isFav ? ' active' : ''}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (isFav) {
+                                    removeFavorite(team.id);
+                                  } else {
+                                    addFavorite({
+                                      id: team.id,
+                                      name: team.name,
+                                      shortName: team.shortName,
+                                      location: teamAny.location,
+                                      abbreviation: teamAny.abbreviation,
+                                      color: teamAny.color,
+                                      alternateColor: teamAny.alternateColor,
+                                      logo: team.logo,
+                                      leagueId: selectedLeague.id,
+                                    } as any);
+                                  }
+                                }}
+                                title={isFav ? 'Remove from favorite teams' : 'Add to favorite teams'}
+                              >
+                                ★
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-
-              {events.length > 0 ? (
-                <div className="sports-events-list">
-                  {events.slice(0, 50).map(event => (
-                    <LeagueEventRow
-                      key={event.id}
-                      event={event}
-                      isIndividualSport={isIndividualSport}
-                      onChannelClick={onChannelClick}
-                      onClick={() => onEventSelect?.(event)}
-                    />
                   ))}
-                </div>
-              ) : (
-                <div className="sports-empty">
-                  <p>No events scheduled for selected date</p>
-                </div>
-              )}
-            </section>
-          )}
-
-          {activeView === 'standings' && !isIndividualSport && (
-            <section className="sports-section">
-              <div className="sports-standings-top-bar">
-                <h3 className="sports-section-title">Standings</h3>
-                {hasDivisions && (
-                  <div className="sports-standings-toggle-group">
-                    <button
-                      className={`sports-standings-toggle-btn ${standingsMode === 'conference' ? 'active' : ''}`}
-                      onClick={() => handleStandingsModeChange('conference')}
-                    >
-                      By Conference
-                    </button>
-                    <button
-                      className={`sports-standings-toggle-btn ${standingsMode === 'division' ? 'active' : ''}`}
-                      onClick={() => handleStandingsModeChange('division')}
-                    >
-                      By Division
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {hasDivisions && standingsMode === 'division' && (
-                <div className="sports-standings-division-pills">
-                  <button
-                    className={`sports-standings-pill ${selectedDivision === 'all' ? 'active' : ''}`}
-                    onClick={() => setSelectedDivision('all')}
-                  >
-                    All Divisions
-                  </button>
-                  {divisionGroups.map((group) => (
-                    <button
-                      key={group.name}
-                      className={`sports-standings-pill ${selectedDivision === group.name ? 'active' : ''}`}
-                      onClick={() => setSelectedDivision(group.name)}
-                    >
-                      {group.name}
-                    </button>
-                  ))}
-                </div>
+                </section>
               )}
 
-              {(() => {
-                const activeGroups = (standingsMode === 'division' && hasDivisions) ? divisionGroups : standingsGroups;
-                const filteredGroups = selectedDivision === 'all'
-                  ? activeGroups
-                  : activeGroups.filter(g => g.name === selectedDivision);
+              {activeView === 'schedule' && (
+                <section className="sports-section">
+                  <HorizontalDateRail
+                    selectedDate={selectedScheduleDate || new Date()}
+                    onSelectDate={(d) => handleDateChange(d)}
+                  />
 
-                if (filteredGroups.length > 0) {
-                  return (
-                    <div className="sports-standings-groups">
-                      {filteredGroups.map((group) => (
-                        <div key={group.name} className="sports-standings-group">
-                          <h4 className="sports-standings-conference">{group.name}</h4>
+                  {leagueEvents.length > 0 ? (
+                    <div className="league-game-cards-list">
+                      {leagueEvents.slice(0, 50).map((event) => (
+                        <LeagueGameCard
+                          key={event.id}
+                          event={event}
+                          isIndividualSport={isIndividualSport}
+                          onChannelClick={handleChannelClick}
+                          onClick={() => setSelectedEvent(event)}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="sports-empty">
+                      <p>No games or events scheduled for this date</p>
+                    </div>
+                  )}
+                </section>
+              )}
+
+              {activeView === 'standings' && !isIndividualSport && (
+                <section className="sports-section">
+                  <h3 className="sports-section-title">Standings</h3>
+                  {(() => {
+                    const activeGroups = leagueStandingsGroups.length > 0 ? leagueStandingsGroups : [];
+                    const isPreseason = activeGroups.every((g) => g.teams.every((t) => t.wins === 0 && t.losses === 0)) ||
+                      (leagueStandings.length > 0 && leagueStandings.every((t) => t.wins === 0 && t.losses === 0));
+
+                    return (
+                      <>
+                        {isPreseason && (
+                          <div className="standings-preseason-banner">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                              <circle cx="12" cy="12" r="10" />
+                              <line x1="12" y1="16" x2="12" y2="12" />
+                              <circle cx="12" cy="8" r="0.5" fill="currentColor" />
+                            </svg>
+                            <span>Preseason / Offseason — Official standings will update as games count</span>
+                          </div>
+                        )}
+
+                        {activeGroups.length > 0 ? (
+                          <div className="sports-standings-groups">
+                            {activeGroups.map((group) => (
+                              <div key={group.name} className="sports-standings-group">
+                                <h4 className="sports-standings-conference">{group.name}</h4>
+                                <div className="sports-standings-table">
+                                  <div className="sports-standings-header">
+                                    <span>#</span>
+                                    <span>Team</span>
+                                    <span>W</span>
+                                    <span>L</span>
+                                    <span>PCT</span>
+                                  </div>
+                                  {group.teams.map((team, idx) => (
+                                    <div key={team.id} className={`sports-standings-row${idx === 0 || team.rank === 1 ? ' leader-row' : ''}`}>
+                                      <span>{team.rank}</span>
+                                      <button
+                                        className="sports-standings-team"
+                                        onClick={() => setSelectedTeam({ id: team.id, name: team.name, shortName: team.shortName, logo: team.logo, leagueId: selectedLeague.id })}
+                                      >
+                                        {team.logo && (
+                                          <img src={team.logo} alt="" className="sports-standings-logo" />
+                                        )}
+                                        {team.name}
+                                      </button>
+                                      <span>{team.wins}</span>
+                                      <span>{team.losses}</span>
+                                      <span>{team.winPercent}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : leagueStandings.length > 0 ? (
                           <div className="sports-standings-table">
                             <div className="sports-standings-header">
                               <span>#</span>
@@ -786,12 +973,12 @@ function LeagueDetail({
                               <span>L</span>
                               <span>PCT</span>
                             </div>
-                            {group.teams.map((team) => (
-                              <div key={team.id} className="sports-standings-row">
-                                <span>{team.rank}</span>
+                            {leagueStandings.map((team, idx) => (
+                              <div key={team.id} className={`sports-standings-row${idx === 0 ? ' leader-row' : ''}`}>
+                                <span>{idx + 1}</span>
                                 <button
                                   className="sports-standings-team"
-                                  onClick={() => onTeamSelect({ id: team.id, name: team.name, shortName: team.shortName, logo: team.logo, leagueId: league.id })}
+                                  onClick={() => setSelectedTeam({ id: team.id, name: team.name, shortName: team.shortName, logo: team.logo, leagueId: selectedLeague.id })}
                                 >
                                   {team.logo && (
                                     <img src={team.logo} alt="" className="sports-standings-logo" />
@@ -804,292 +991,20 @@ function LeagueDetail({
                               </div>
                             ))}
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }
-
-                if (standings.length > 0) {
-                  return (
-                    <div className="sports-standings-table">
-                      <div className="sports-standings-header">
-                        <span>#</span>
-                        <span>Team</span>
-                        <span>W</span>
-                        <span>L</span>
-                        <span>PCT</span>
-                      </div>
-                      {standings.map((team, idx) => (
-                        <div key={team.id} className="sports-standings-row">
-                          <span>{idx + 1}</span>
-                          <button
-                            className="sports-standings-team"
-                            onClick={() => onTeamSelect({ id: team.id, name: team.name, shortName: team.shortName, logo: team.logo, leagueId: league.id })}
-                          >
-                            {team.logo && (
-                              <img src={team.logo} alt="" className="sports-standings-logo" />
-                            )}
-                            {team.name}
-                          </button>
-                          <span>{team.wins}</span>
-                          <span>{team.losses}</span>
-                          <span>{team.winPercent}</span>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }
-
-                return (
-                  <div className="sports-empty">
-                    <p>Standings not available</p>
-                  </div>
-                );
-              })()}
-            </section>
-          )}
-
-          {activeView === 'standings' && isGolf && (
-            <section className="sports-section">
-              <h3 className="sports-section-title">World Golf Rankings</h3>
-              {golfRankings.length > 0 ? (
-                <div className="sports-rankings-table">
-                  <div className="sports-rankings-header">
-                    <span>Rank</span>
-                    <span>Player</span>
-                    <span>Points</span>
-                    <span>Avg</span>
-                    <span>Events</span>
-                  </div>
-                  {golfRankings.slice(0, 50).map((ranking) => (
-                    <div key={ranking.athlete.id} className="sports-rankings-row">
-                      <span className="sports-rankings-rank">{ranking.rank}</span>
-                      <span className="sports-rankings-athlete">
-                        {ranking.athlete.flag && (
-                          <img src={ranking.athlete.flag} alt="" className="sports-rankings-flag" />
+                        ) : (
+                          <div className="sports-empty">
+                            <p>Standings not available</p>
+                          </div>
                         )}
-                        {ranking.athlete.name}
-                      </span>
-                      <span>{ranking.totalPoints.toLocaleString()}</span>
-                      <span>{ranking.avgPoints.toFixed(2)}</span>
-                      <span>{ranking.numEvents}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="sports-empty">
-                  <p>Rankings not available</p>
-                </div>
+                      </>
+                    );
+                  })()}
+                </section>
               )}
-            </section>
+            </>
           )}
-
-          {activeView === 'standings' && isTennis && (
-            <section className="sports-section">
-              <h3 className="sports-section-title">{league.name} Rankings</h3>
-              {tennisRankings.length > 0 ? (
-                <div className="sports-rankings-table">
-                  <div className="sports-rankings-header">
-                    <span>Rank</span>
-                    <span>Player</span>
-                    <span>Points</span>
-                    <span>Trend</span>
-                  </div>
-                  {tennisRankings.slice(0, 50).map((ranking) => (
-                    <div key={ranking.athlete.id} className="sports-rankings-row">
-                      <span className="sports-rankings-rank">{ranking.rank}</span>
-                      <span className="sports-rankings-athlete">
-                        {ranking.athlete.flag && (
-                          <img src={ranking.athlete.flag} alt="" className="sports-rankings-flag" />
-                        )}
-                        {ranking.athlete.name}
-                      </span>
-                      <span>{ranking.points.toLocaleString()}</span>
-                      <span className={`sports-rankings-trend ${ranking.previousRank && ranking.rank < ranking.previousRank ? 'up' : ranking.previousRank && ranking.rank > ranking.previousRank ? 'down' : 'same'}`}>
-                        {ranking.previousRank ? (ranking.rank < ranking.previousRank ? '▲' : ranking.rank > ranking.previousRank ? '▼' : '-') : 'NEW'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="sports-empty">
-                  <p>Rankings not available</p>
-                </div>
-              )}
-            </section>
-          )}
-
-          {activeView === 'standings' && isRacing && (
-            <section className="sports-section">
-              <h3 className="sports-section-title">Driver Standings</h3>
-              {racingStandings.length > 0 ? (
-                <div className="sports-rankings-table">
-                  <div className="sports-rankings-header">
-                    <span>Rank</span>
-                    <span>Driver</span>
-                    <span>Team</span>
-                    <span>Wins</span>
-                    <span>Points</span>
-                  </div>
-                  {racingStandings.map((standing) => (
-                    <div key={standing.driver.id} className="sports-rankings-row">
-                      <span className="sports-rankings-rank">{standing.rank}</span>
-                      <span className="sports-rankings-driver">
-                        {standing.driver.headshot && (
-                          <img src={standing.driver.headshot} alt="" className="sports-rankings-headshot" />
-                        )}
-                        {standing.driver.name}
-                      </span>
-                      <span className="sports-rankings-team">{standing.driver.team}</span>
-                      <span>{standing.wins}</span>
-                      <span className="sports-rankings-points">{standing.points}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="sports-empty">
-                  <p>Standings not available</p>
-                </div>
-              )}
-            </section>
-          )}
-        </>
+        </div>
       )}
-    </div>
-  );
-}
-
-interface LeagueEventRowProps {
-  event: SportsEvent;
-  isIndividualSport: boolean;
-  onChannelClick?: (channelName: string) => void;
-  onClick?: () => void;
-}
-
-function LeagueEventRow({ event, isIndividualSport, onChannelClick, onClick }: LeagueEventRowProps) {
-  const epgClockFormat = useEpgClockFormat();
-  const isLive = event.status === 'live';
-  const isFinished = event.status === 'finished';
-  
-  // For individual sports, show event differently
-  if (isIndividualSport) {
-    return (
-      <div className="sports-event-row" onClick={onClick}>
-        <div className="sports-event-row-time">
-          <span className="sports-event-date">
-            {event.startTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-          </span>
-          <span className="sports-event-time">
-            {event.startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}
-          </span>
-        </div>
-
-        <div className="sports-event-row-match individual-sport">
-          <span className="sports-event-name">{event.title}</span>
-          {event.venue && (
-            <span className="sports-event-venue">{event.venue}</span>
-          )}
-        </div>
-
-        <div className="sports-event-row-status">
-          {isLive && (
-            <span className="sports-event-status-live">Live</span>
-          )}
-          {isFinished && (
-            <span className="sports-event-status-final">Final</span>
-          )}
-        </div>
-
-        <div className="sports-event-row-channels">
-          {event.channels.length > 0 ? (
-            <button
-              className="sports-channel-btn-small"
-              onClick={(e) => {
-                e.stopPropagation();
-                onChannelClick?.(event.channels[0].name);
-              }}
-            >
-              {event.channels[0].name}
-            </button>
-          ) : (
-            <span className="sports-no-channel">-</span>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // Team sports display
-  const homeWinning = (event.homeScore ?? 0) > (event.awayScore ?? 0);
-  const awayWinning = (event.awayScore ?? 0) > (event.homeScore ?? 0);
-
-  return (
-    <div className="sports-event-row" onClick={onClick}>
-      <div className="sports-event-row-time">
-        <span className="sports-event-date">
-          {event.startTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-        </span>
-        <span className="sports-event-time">
-          {event.startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}
-        </span>
-      </div>
-
-      <div className="sports-event-row-match">
-        <div className={`sports-event-team away ${isFinished && awayWinning ? 'winner' : ''}`}>
-          {event.awayTeam.logo && (
-            <img src={event.awayTeam.logo} alt="" className="sports-team-logo-small" />
-          )}
-          <span className="sports-event-team-name">{event.awayTeam.shortName || event.awayTeam.name}</span>
-          {event.awayScore !== undefined && (
-            <span className="sports-score-inline">{event.awayScore}</span>
-          )}
-        </div>
-        <div className="sports-event-row-divider">
-          {isLive ? (
-            <span className="sports-event-live-badge">
-              <span className="sports-event-live-dot" />
-              {event.period || event.timeElapsed || 'LIVE'}
-            </span>
-          ) : (
-            <span className="sports-event-vs">vs</span>
-          )}
-        </div>
-        <div className={`sports-event-team home ${isFinished && homeWinning ? 'winner' : ''}`}>
-          {event.homeTeam.logo && (
-            <img src={event.homeTeam.logo} alt="" className="sports-team-logo-small" />
-          )}
-          <span className="sports-event-team-name">{event.homeTeam.shortName || event.homeTeam.name}</span>
-          {event.homeScore !== undefined && (
-            <span className="sports-score-inline">{event.homeScore}</span>
-          )}
-        </div>
-      </div>
-
-      <div className="sports-event-row-status">
-        {isLive && (
-          <span className="sports-event-status-live">Live</span>
-        )}
-        {isFinished && (
-          <span className="sports-event-status-final">Final</span>
-        )}
-      </div>
-
-      <div className="sports-event-row-channels">
-        {event.channels.length > 0 ? (
-          <button
-            className="sports-channel-btn-small"
-            onClick={(e) => {
-              e.stopPropagation();
-              onChannelClick?.(event.channels[0].name);
-            }}
-          >
-            {event.channels[0].name}
-          </button>
-        ) : (
-          <span className="sports-no-channel">-</span>
-        )}
-      </div>
     </div>
   );
 }

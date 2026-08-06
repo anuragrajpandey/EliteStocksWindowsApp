@@ -498,13 +498,19 @@ function mapTennisEvent(event: ESPNEvent, sportKey: string, config: SportConfig)
 }
 
 export function mapESPNTeam(team: ESPTeam, leagueId: string): SportsTeam {
+  const teamAny = team as any;
   return {
     id: team.id,
     name: team.displayName,
-    shortName: team.abbreviation,
+    shortName: team.shortDisplayName || team.abbreviation,
     logo: team.logos?.[0]?.href || team.logo,
     leagueId,
-  };
+    location: team.location,
+    abbreviation: team.abbreviation,
+    color: teamAny.color,
+    alternateColor: teamAny.alternateColor,
+    standingSummary: teamAny.standingSummary,
+  } as any;
 }
 
 export function getSportConfig(sportKey: string): SportConfig | undefined {
