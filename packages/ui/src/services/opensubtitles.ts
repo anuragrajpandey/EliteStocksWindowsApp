@@ -154,6 +154,9 @@ async function apiFetch(
   }
 }
 
+/* ─── subtitle decoding ─── */
+import { decodeSubtitleBytes } from '../utils/subtitleEncoding';
+
 /* ─── Login ─── */
 export async function loginOpenSubtitles(
   username: string,
@@ -306,7 +309,11 @@ export async function ensureValidOpenSubtitlesToken(
     log('ENSURE_TOKEN', 'Failed to retrieve credentials from OS vault:', err);
   }
 
-  return { token: existingToken, user: subtitleSettings.openSubtitlesUser || null };
+  // No credentials stored, or re-login failed. Do NOT silently return the stale token
+  // we already know is unauthorized (401/403) — signal failure so callers don't retry
+  // the same bad token and cause an infinite 401 loop.
+  log('ENSURE_TOKEN', 'Re-authentication failed. No fresh token available.');
+  return { token: '', user: subtitleSettings.openSubtitlesUser || null };
 }
 
 /* ─── Search Subtitles ─── */
@@ -383,6 +390,9 @@ export async function searchOpenSubtitles(
           apiKey: customApiKey,
           params: queryParams,
         });
+      } else {
+        log('SEARCH', 'Auto re-login failed. Aborting search; user must re-login.');
+        return { success: false, error: 'OpenSubtitles session expired. Please re-login in Settings → Subtitles.' };
       }
     }
 
@@ -485,6 +495,9 @@ export async function downloadOpenSubtitlesSubtitle(
           apiKey: customApiKey,
           body: { file_id: fileId },
         });
+      } else {
+        log('DOWNLOAD', 'Auto re-login failed. Aborting download; user must re-login.');
+        return { success: false, error: 'OpenSubtitles session expired. Please re-login in Settings → Subtitles.' };
       }
     }
 
@@ -512,18 +525,25 @@ export async function downloadOpenSubtitlesSubtitle(
     log('DOWNLOAD', `Fetching subtitle content from: ${downloadLink}`);
 
     let content = '';
-    if (window.fetchProxy) {
+    if (window.fetchProxy && typeof (window.fetchProxy as any).fetchBinary === 'function') {
+      // Fetch raw bytes so we can charset-detect (OpenSubtitles files aren't always UTF-8)
+      const binRes = await (window.fetchProxy as any).fetchBinary(downloadLink);
+      if (binRes.error || !binRes.data) {
+        throw new Error(binRes.error || 'Failed to download subtitle content');
+      }
+      content = decodeSubtitleBytes(binRes.data as Uint8Array);
+    } else if (window.fetchProxy) {
       const proxyRes = await window.fetchProxy.fetch(downloadLink);
       if (proxyRes.error || !proxyRes.data) {
         throw new Error(proxyRes.error || 'Failed to download subtitle content');
       }
-      content = proxyRes.data.text;
+      content = decodeSubtitleBytes(new TextEncoder().encode(proxyRes.data.text));
     } else {
       const fetchRes = await fetch(downloadLink);
       if (!fetchRes.ok) {
         throw new Error(`Failed to download subtitle content (HTTP ${fetchRes.status})`);
       }
-      content = await fetchRes.text();
+      content = decodeSubtitleBytes(new Uint8Array(await fetchRes.arrayBuffer()));
     }
 
     if (!content || !content.trim()) {

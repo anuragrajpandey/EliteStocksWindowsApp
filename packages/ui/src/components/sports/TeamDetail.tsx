@@ -188,9 +188,10 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
           )}
 
           {(() => {
+            const now = new Date();
             const nextGame = (upcoming && upcoming.length > 0)
-              ? upcoming[0]
-              : (details?.nextEvent && new Date(details.nextEvent.startTime) >= new Date())
+              ? upcoming.find(e => e.status === 'scheduled' && new Date(e.startTime).getTime() > now.getTime())
+              : (details?.nextEvent && details.nextEvent.status === 'scheduled' && new Date(details.nextEvent.startTime).getTime() > now.getTime())
                 ? details.nextEvent
                 : undefined;
 

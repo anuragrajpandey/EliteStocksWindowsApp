@@ -188,9 +188,19 @@ async function fetchSingleTeamData(teamId: string, leagueId: string): Promise<Te
         getTeamSchedule(teamId, leagueId).catch(() => ({ upcoming: [], past: [] })),
       ]);
 
-      const nextGameFromSchedule = schedule?.upcoming?.[0];
+      const now = new Date();
+      const nextGameFromSchedule = schedule?.upcoming?.find(
+        (e) => e.status === 'scheduled' && new Date(e.startTime).getTime() > now.getTime()
+      );
       if (details) {
-        details.nextEvent = nextGameFromSchedule || details.nextEvent;
+        if (nextGameFromSchedule) {
+          details.nextEvent = nextGameFromSchedule;
+        } else if (
+          details.nextEvent &&
+          (details.nextEvent.status !== 'scheduled' || new Date(details.nextEvent.startTime).getTime() <= now.getTime())
+        ) {
+          details.nextEvent = undefined;
+        }
       }
       return details;
     } finally {
@@ -519,6 +529,7 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
   // Map favorite teams to active live/upcoming games from polling feed or team nextEvent details
   const teamGameMap = useMemo(() => {
     const map: Record<string, { liveEvent?: SportsEvent; nextEvent?: SportsEvent }> = {};
+    const now = new Date();
 
     favorites.forEach((team) => {
       const liveEv = liveEvents.find(
@@ -526,11 +537,19 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
       );
 
       const upcomingEv = liveEvents.find(
-        (e) => (e.homeTeam.id === team.id || e.awayTeam.id === team.id) && !isEventLiveOrPastStart(e)
+        (e) =>
+          (e.homeTeam.id === team.id || e.awayTeam.id === team.id) &&
+          e.status === 'scheduled' &&
+          new Date(e.startTime).getTime() > now.getTime()
       );
 
       const cachedDetails = teamCache[team.id];
-      const fallbackNext = cachedDetails?.nextEvent;
+      const fallbackNext =
+        cachedDetails?.nextEvent &&
+        cachedDetails.nextEvent.status === 'scheduled' &&
+        new Date(cachedDetails.nextEvent.startTime).getTime() > now.getTime()
+          ? cachedDetails.nextEvent
+          : undefined;
 
       map[team.id] = {
         liveEvent: liveEv,
@@ -644,7 +663,6 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
   // "Your Teams Today" events (live or scheduled for today across favorite teams)
   const todayFavoriteGames = useMemo(() => {
     const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
 
     const matches: Array<{ team: FavoriteTeam; event: SportsEvent; isLive: boolean }> = [];
@@ -659,8 +677,9 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
       } else if (
         nextEvent &&
         !seenEventIds.has(nextEvent.id) &&
-        nextEvent.startTime >= startOfDay &&
-        nextEvent.startTime <= endOfDay
+        nextEvent.status === 'scheduled' &&
+        new Date(nextEvent.startTime).getTime() > now.getTime() &&
+        new Date(nextEvent.startTime) <= endOfDay
       ) {
         seenEventIds.add(nextEvent.id);
         matches.push({ team, event: nextEvent, isLive: false });

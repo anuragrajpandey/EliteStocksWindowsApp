@@ -218,7 +218,7 @@ function getTrackLanguage(track: any): string {
       if (subParts.length >= 5) {
         return normalizeLangCode(subParts[4]);
       }
-    } else if (base.startsWith('subsource__')) {
+    } else if (base.startsWith('subsource__') || base.startsWith('opensubtitles__')) {
       const subParts = base.split('__');
       if (subParts.length >= 3) {
         return normalizeLangCode(subParts[2]);
@@ -641,6 +641,10 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
   const healthLoadGraceUntilRef = useRef(0);
   const hasAutoSelectedSubRef = useRef(false);
   const hasAutoSelectedAudioRef = useRef(false);
+  // Sticky: once auto-selection has completed at least once for a stream, later
+  // track-count changes (e.g. the user manually adding a subtitle mid-playback)
+  // must NOT reset the auto-select state and fight the manual selection.
+  const subAutoSelectEverCompletedRef = useRef(false);
   const lastSubTracksCountRef = useRef(0);
   const lastAudioTracksCountRef = useRef(0);
   const autoSelectTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -654,7 +658,9 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
   // Tracks whether we're currently playing a stalker_portal VOD over HLS (.m3u8).
   // Used to apply seek-time subtitle cleanup exclusive to that context.
   const isStalkerVodRef = useRef(false);
-
+  // Holds the subtitle track id that was active before a stalker VOD seek, so we
+  // can restore it (instead of clobbering the user's choice) on playback-restart.
+  const stalkerSubTrackIdRef = useRef<number | null>(null);
   // Cleanup autoSelectTimer on unmount
   useEffect(() => {
     return () => {
@@ -1643,6 +1649,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
     }
     hasAutoSelectedSubRef.current = false;
     hasAutoSelectedAudioRef.current = false;
+    subAutoSelectEverCompletedRef.current = false;
     lastSubTracksCountRef.current = 0;
     lastAudioTracksCountRef.current = 0;
     isStalkerVodRef.current = false;
@@ -1743,6 +1750,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
       await Bridge.setSubtitleTrack(0);
       if (subTracks.length > 0 || autoSelectAttemptsRef.current >= 5) {
         hasAutoSelectedSubRef.current = true;
+        subAutoSelectEverCompletedRef.current = true;
       }
       return;
     }
@@ -1782,11 +1790,32 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
       logInfo(`[Playback] Auto-selecting subtitle track: ${bestTrack.id} language: ${defaultLanguage} external: ${bestTrack.external} title: ${bestTrack.title}`);
       await Bridge.setSubtitleTrack(bestTrack.id);
       hasAutoSelectedSubRef.current = true;
+      subAutoSelectEverCompletedRef.current = true;
     } else if (subTracks.length > 0) {
-      // If sub tracks exist but none matched default language, apply full subtitle settings
-      // so any active MPV subtitle (e.g. auto-selected CC/ASS track) gets proper sizing, scaling & ASS overrides.
-      await applySubtitleSettings();
+      // No language match. If there's an unambiguous EMBEDDED subtitle track
+      // (single track, or one explicitly flagged default/forced) select it so
+      // embedded subs actually load for users with a default language set.
+      // We deliberately skip external tracks here so we never force a foreign
+      // subtitle the user didn't ask for. Otherwise just apply full subtitle
+      // settings so any active MPV subtitle gets proper styling.
+      const fallback =
+        subTracks.find((t: any) => !t.external && t.default === true) ||
+        subTracks.find((t: any) => {
+          if (t.external) return false;
+          const title = (t.title || '').toLowerCase();
+          return title.includes('default') || title.includes('forced') || title.includes('forçado');
+        }) ||
+        (subTracks.length === 1 && !subTracks[0].external ? subTracks[0] : null);
+
+      if (fallback) {
+        logInfo(`[Playback] No ${defaultLanguage} match (${subTracks.length} tracks); falling back to embedded subtitle track: ${fallback.id} title: ${fallback.title}`);
+        await Bridge.setSubtitleTrack(fallback.id);
+      } else {
+        // Apply full subtitle settings so any active MPV subtitle (e.g. auto-selected CC/ASS track) gets proper sizing, scaling & ASS overrides.
+        await applySubtitleSettings();
+      }
       hasAutoSelectedSubRef.current = true;
+      subAutoSelectEverCompletedRef.current = true;
     }
   }, []);
 
@@ -1803,23 +1832,42 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
     let disposed = false;
 
     import('@tauri-apps/api/event').then(({ listen }) => {
-      listen('mpv-seek', () => {
+      listen('mpv-seek', async () => {
         if (!isStalkerVodRef.current) return;
         logInfo('[Subtitle] Stalker VOD seek detected — disabling subs during seek');
+        // Remember the user's currently selected subtitle track so we can restore
+        // exactly that one after the seek (instead of clobbering it with auto-select).
+        try {
+          const trackList = await Bridge.getTrackList();
+          const selected = (trackList as any[]).find((t: any) => t.type === 'sub' && t.selected);
+          stalkerSubTrackIdRef.current = selected ? selected.id : 0;
+        } catch {
+          stalkerSubTrackIdRef.current = null;
+        }
         Bridge.setSubtitleTrack(0).catch(() => {});
       }).then((fn) => {
         if (disposed) fn();
         else unlistenSeek = fn;
       });
 
-      listen('mpv-playback-restart', () => {
+      listen('mpv-playback-restart', async () => {
         if (!isStalkerVodRef.current) return;
-        logInfo('[Subtitle] Stalker VOD playback-restart — re-running subtitle auto-select');
-        // Reset the auto-select flag so the polling loop immediately re-selects
-        // the correct single subtitle track.
-        hasAutoSelectedSubRef.current = false;
-        lastSubTracksCountRef.current = 0;
-        autoSelectSubtitle().catch(() => {});
+        const restoreId = stalkerSubTrackIdRef.current;
+        stalkerSubTrackIdRef.current = null;
+
+        if (restoreId !== null && restoreId !== undefined && restoreId > 0) {
+          // Restore the user's selection — fixes duplicate CC/WebVTT rendering while
+          // respecting the track they had enabled before the seek.
+          logInfo(`[Subtitle] Stalker VOD playback-restart — restoring subtitle track ${restoreId}`);
+          await Bridge.setSubtitleTrack(restoreId).catch(() => {});
+          hasAutoSelectedSubRef.current = true;
+        } else {
+          // Nothing was selected before the seek — re-run default-language auto-select.
+          logInfo('[Subtitle] Stalker VOD playback-restart — re-running subtitle auto-select');
+          hasAutoSelectedSubRef.current = false;
+          lastSubTracksCountRef.current = 0;
+          await autoSelectSubtitle().catch(() => {});
+        }
       }).then((fn) => {
         if (disposed) fn();
         else unlistenRestart = fn;
@@ -1887,8 +1935,13 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
 
         if (subTracks.length !== lastSubTracksCountRef.current) {
           logInfo(`[Playback] Subtitle track count changed from ${lastSubTracksCountRef.current} to ${subTracks.length}. Resetting auto-select state.`);
-          hasAutoSelectedSubRef.current = false;
           lastSubTracksCountRef.current = subTracks.length;
+          // Only retry auto-selection while we're still waiting for the initial
+          // track set. Once selection has completed once, count changes come from
+          // the user adding/removing subtitles and must not fight their choice.
+          if (!subAutoSelectEverCompletedRef.current) {
+            hasAutoSelectedSubRef.current = false;
+          }
         }
 
         if (audioTracks.length !== lastAudioTracksCountRef.current) {
@@ -2235,6 +2288,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
       
       hasAutoSelectedSubRef.current = false;
       hasAutoSelectedAudioRef.current = false;
+      subAutoSelectEverCompletedRef.current = false;
       lastSubTracksCountRef.current = 0;
       lastAudioTracksCountRef.current = 0;
       startAutoSelectPolling();
@@ -2434,6 +2488,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
     }
     hasAutoSelectedSubRef.current = false;
     hasAutoSelectedAudioRef.current = false;
+    subAutoSelectEverCompletedRef.current = false;
     lastSubTracksCountRef.current = 0;
     lastAudioTracksCountRef.current = 0;
 

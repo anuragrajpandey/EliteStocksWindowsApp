@@ -13,6 +13,8 @@
 
 const API_BASE = 'https://api.subsource.net/api/v1';
 
+import { decodeSubtitleBytes } from '../utils/subtitleEncoding';
+
 /* ─── debug logging ─── */
 function log(stage: string, ...args: any[]) {
   console.log(`[SubSource][${stage}]`, ...args);
@@ -550,7 +552,6 @@ export function getZipEntries(zipData: Uint8Array): ZipEntry[] {
 }
 
 export async function decompressZipEntry(zipData: Uint8Array, entry: ZipEntry): Promise<string | null> {
-  const decoder = new TextDecoder();
   const { fileName, compressionMethod, compressedSize, uncompressedSize, dataStart } = entry;
 
   log('ZIP', `extracting: "${fileName}" method=${compressionMethod} compSize=${compressedSize} uncompSize=${uncompressedSize}`);
@@ -560,7 +561,7 @@ export async function decompressZipEntry(zipData: Uint8Array, entry: ZipEntry): 
 
   if (compressionMethod === 0) {
     // Stored (no compression)
-    const text = decoder.decode(compressed);
+    const text = decodeSubtitleBytes(compressed);
     log('ZIP', `extracted stored file (${text.length} chars)`);
     return text;
   }
@@ -569,7 +570,7 @@ export async function decompressZipEntry(zipData: Uint8Array, entry: ZipEntry): 
     // Deflated – try pako.inflateRaw first
     try {
       const decompressedBytes = pako.inflateRaw(compressed);
-      const text = decoder.decode(decompressedBytes);
+      const text = decodeSubtitleBytes(decompressedBytes);
       if (text) {
         log('ZIP', `extracted deflated file via pako.inflateRaw (${text.length} chars)`);
         return text;
@@ -602,7 +603,7 @@ export async function decompressZipEntry(zipData: Uint8Array, entry: ZipEntry): 
         pos += chunk.length;
       }
 
-      const text = decoder.decode(result);
+      const text = decodeSubtitleBytes(result);
       if (text) {
         log('ZIP', `extracted deflated file via DecompressionStream (${text.length} chars)`);
         return text;
@@ -614,7 +615,7 @@ export async function decompressZipEntry(zipData: Uint8Array, entry: ZipEntry): 
     // Try pako.inflate (zlib format)
     try {
       const decompressedBytes = pako.inflate(compressed);
-      const text = decoder.decode(decompressedBytes);
+      const text = decodeSubtitleBytes(decompressedBytes);
       if (text) {
         log('ZIP', `extracted deflated file via pako.inflate (${text.length} chars)`);
         return text;

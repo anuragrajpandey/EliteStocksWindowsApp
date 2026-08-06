@@ -146,8 +146,8 @@ export async function getTeamSchedule(teamId: string, leagueId: string): Promise
   const allEvents = data.events.map(e => mapESPNEvent(e, leagueId));
 
   return {
-    upcoming: allEvents.filter(e => e.startTime >= now),
-    past: allEvents.filter(e => e.startTime < now).reverse(),
+    upcoming: allEvents.filter(e => e.status === 'scheduled' && e.startTime.getTime() > now.getTime()),
+    past: allEvents.filter(e => e.status === 'finished' || e.startTime.getTime() <= now.getTime()).reverse(),
   };
 }
 
@@ -209,7 +209,7 @@ export async function getTeamDetails(teamId: string, leagueId: string, includeRo
     logo: team.logos?.[0]?.href,
     record: parseTeamRecord(team.record),
     standingSummary: team.standingSummary,
-    nextEvent: team.nextEvent?.[0] && new Date(team.nextEvent[0].date) >= new Date() ? mapESPNEvent(team.nextEvent[0], leagueId) : undefined,
+    nextEvent: team.nextEvent?.[0] && new Date(team.nextEvent[0].date).getTime() > Date.now() && team.nextEvent[0].status?.type?.state === 'pre' ? mapESPNEvent(team.nextEvent[0], leagueId) : undefined,
     athletes: (team.athletes || []).map(a => ({
       id: a.id,
       name: a.displayName,

@@ -553,6 +553,37 @@ export function SubtitleControlModal({
     }
   };
 
+  /**
+   * Add an external subtitle file to mpv and then EXPLICITLY select the
+   * newly-added track. We can't rely on mpv honoring the sub-add "select"
+   * flag (it sometimes just registers the track without activating it), so
+   * we poll track-list until the external track appears and then enable it.
+   */
+  const addExternalSubtitleFile = async (filePath: string) => {
+    await Bridge.addSubtitleFile(filePath);
+
+    const normPath = (p: string) => p.replace(/\\/g, '/').toLowerCase();
+    const needle = normPath(filePath);
+
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const trackList = await Bridge.getTrackList().catch(() => []);
+      const extTrack = (trackList as any[]).find(
+        (t: any) =>
+          t.type === 'sub' &&
+          t.external &&
+          t['external-filename'] &&
+          normPath(String(t['external-filename'])) === needle
+      );
+      if (extTrack) {
+        await Bridge.setSubtitleTrack(extTrack.id).catch(() => {});
+        await loadTracks();
+        return;
+      }
+      await new Promise((r) => setTimeout(r, 150));
+    }
+    await loadTracks();
+  };
+
   const handleDelayChange = useCallback(async (value: number) => {
     setDelay(value);
     try { await Bridge.setSubtitleDelay(value); } catch (e) { console.error(e); }
@@ -819,8 +850,7 @@ export function SubtitleControlModal({
       await writeTextFile(relPath, res.content, { baseDir: BaseDirectory.AppLocalData });
       console.log('[SubtitleModal] Saved OpenSubtitles file to:', filePath);
 
-      await Bridge.addSubtitleFile(filePath);
-      await loadTracks();
+      await addExternalSubtitleFile(filePath);
       setViewState('tracks');
     } catch (e: any) {
       console.error('[SubtitleModal] OpenSubtitles download exception:', e);
@@ -1026,12 +1056,11 @@ export function SubtitleControlModal({
       await writeTextFile(relPath, content, { baseDir: BaseDirectory.AppLocalData });
       console.log('[SubtitleModal] Saved SRT to:', filePath);
 
-      // Load into MPV (using the default 'select' flag so the user's manual load takes action immediately)
-      await Bridge.addSubtitleFile(filePath);
+      // Load into MPV and explicitly select the track so it renders immediately
+      await addExternalSubtitleFile(filePath);
       console.log('[SubtitleModal] Added subtitle to MPV');
 
       // Refresh tracks
-      await loadTracks();
       setViewState('tracks');
       
       // Reset ZIP state
@@ -1112,8 +1141,7 @@ export function SubtitleControlModal({
 
       if (selected && typeof selected === 'string') {
         console.log('[SubtitleModal] Selected local subtitle file:', selected);
-        await Bridge.addSubtitleFile(selected);
-        await loadTracks();
+        await addExternalSubtitleFile(selected);
         setViewState('tracks');
       }
     } catch (e: any) {
@@ -1176,10 +1204,22 @@ export function SubtitleControlModal({
   const activeTrack = allSubTracks.find(t => t.id === selectedId);
   const selectedTrackLang = selectedId === 0 ? 'off' : (activeTrack ? getTrackLanguage(activeTrack) : 'off');
 
-  // Filter subtitle tracks for Column 2 based on selected language
-  const filteredSubTracks = allSubTracks.filter(
-    track => getTrackLanguage(track) === normalizeLangCode(searchLang)
-  );
+  // Filter subtitle tracks for Column 2 based on selected language.
+  // When subtitles are "off" list every loaded track. App-downloaded external
+  // tracks (opensubtitles__/subsource__/stremio__) are ALWAYS shown so a
+  // downloaded subtitle never disappears from the list just because the active
+  // language filter (e.g. the default language) differs from its own language.
+  const filteredSubTracks = searchLang === 'off'
+    ? allSubTracks
+    : allSubTracks.filter(track => {
+        const extFile = track.external && track['external-filename']
+          ? (track['external-filename'].split(/[/\\]/).pop() || '')
+          : '';
+        if (extFile.startsWith('opensubtitles__') || extFile.startsWith('subsource__') || extFile.startsWith('stremio__')) {
+          return true;
+        }
+        return getTrackLanguage(track) === normalizeLangCode(searchLang);
+      });
 
   // Filter subtitles by episode if filter is active
   const filteredSubtitles = episodeFilter !== null
@@ -1276,40 +1316,37 @@ export function SubtitleControlModal({
                 <button className="subtitle-load-local-action-btn" onClick={handleLoadLocalFile}>
                   <span>📂 Load Subtitle File from Disk…</span>
                 </button>
-                {searchLang === 'off' ? (
-                  <button
-                    className={`subtitle-track-btn ${selectedId === 0 ? 'active' : ''}`}
-                    onClick={handleDisable}
-                  >
-                    <div className="subtitle-track-variant-wrapper">
-                      <div className="subtitle-track-variant-title">
-                        None
-                      </div>
-                      <div className="subtitle-track-variant-origin">
-                        Subtitles disabled
-                      </div>
+                <button
+                  className={`subtitle-track-btn ${selectedId === 0 ? 'active' : ''}`}
+                  onClick={handleDisable}
+                >
+                  <div className="subtitle-track-variant-wrapper">
+                    <div className="subtitle-track-variant-title">
+                      None
                     </div>
-                    {selectedId === 0 && <span className="subtitle-active-dot"></span>}
-                  </button>
-                ) : (
-                  <>
-                    {filteredSubTracks.map((track) => {
-                      const info = track.external && track['external-filename']
-                        ? parseExternalTrack(track['external-filename'])
-                        : { label: track.title || `Track ${track.id}`, origin: 'Embedded' };
-                      
-                      return (
-                        <button
-                          key={track.id}
-                          className={`subtitle-track-btn ${selectedId === track.id ? 'active' : ''}`}
-                          onClick={() => handleSelect(track.id)}
-                        >
-                          <div className="subtitle-track-variant-wrapper">
-                            <div className="subtitle-track-variant-title">
-                              {info.label}
-                            </div>
-                            <div className="subtitle-track-variant-origin">
-                              {info.origin}
+                    <div className="subtitle-track-variant-origin">
+                      Subtitles disabled
+                    </div>
+                  </div>
+                  {selectedId === 0 && <span className="subtitle-active-dot"></span>}
+                </button>
+                {filteredSubTracks.map((track) => {
+                  const info = track.external && track['external-filename']
+                    ? parseExternalTrack(track['external-filename'])
+                    : { label: track.title || `Track ${track.id}`, origin: 'Embedded' };
+                  
+                  return (
+                    <button
+                      key={track.id}
+                      className={`subtitle-track-btn ${selectedId === track.id ? 'active' : ''}`}
+                      onClick={() => handleSelect(track.id)}
+                    >
+                      <div className="subtitle-track-variant-wrapper">
+                        <div className="subtitle-track-variant-title">
+                          {info.label}
+                        </div>
+                        <div className="subtitle-track-variant-origin">
+                          {info.origin}
                             </div>
                           </div>
                           <span className="subtitle-track-meta">
@@ -1331,10 +1368,8 @@ export function SubtitleControlModal({
                         </button>
                       );
                     })}
-                    {filteredSubTracks.length === 0 && (
-                      <div className="subtitle-empty">No subtitles loaded for this language</div>
-                    )}
-                  </>
+                {filteredSubTracks.length === 0 && (
+                  <div className="subtitle-empty">No subtitles loaded for this language</div>
                 )}
               </div>
             )}
