@@ -21,6 +21,7 @@ import { NowPlayingBar } from './NowPlayingBar';
 import { AudioVisualizer, type VisualizerMode } from './AudioVisualizer';
 import type { StoredChannel, StoredProgram, WatchlistItem } from '../db';
 import { db } from '../db';
+import { matchesSearch } from '../utils/searchNormalization';
 
 function formatSeekTime(seconds: number): string {
   if (!isFinite(seconds) || seconds < 0) return '0:00';
@@ -30,6 +31,19 @@ function formatSeekTime(seconds: number): string {
   if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
+
+const ALPHABET_LETTERS = ['#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
+function getChannelFirstLetter(name: string): string {
+  if (!name) return '#';
+  const normalized = name.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const match = normalized.match(/[a-zA-Z0-9]/);
+  if (!match) return '#';
+  const char = match[0].toUpperCase();
+  if (/^[A-Z]$/.test(char)) return char;
+  return '#';
+}
+
 import { syncSource, applyGlobalEpgToSource, type SyncResult } from '../db/sync';
 import { VideoErrorOverlay } from './VideoErrorOverlay';
 import { StreamRetryOverlay, type RetryState } from './StreamRetryOverlay';
@@ -353,6 +367,49 @@ export function ChannelPanel({
   // This prevents loading 40k+ channels in the background which causes UI lag
   const shouldSkipGrid = !visible || isSearchMode || isWatchlistMode;
   const channels = useChannels(categoryId, channelSortOrder, { skip: shouldSkipGrid });
+
+  // Channel Search Filter
+  const [channelSearchQuery, setChannelSearchQuery] = useState('');
+  const [channelSearchFocused, setChannelSearchFocused] = useState(false);
+
+  useEffect(() => {
+    setChannelSearchQuery('');
+  }, [categoryId]);
+
+  const filteredChannels = useMemo(() => {
+    if (!channelSearchQuery.trim()) return channels;
+    return channels.filter((ch) =>
+      matchesSearch(ch.name, channelSearchQuery) ||
+      (ch.alias && matchesSearch(ch.alias, channelSearchQuery)) ||
+      (ch.channel_num != null && matchesSearch(String(ch.channel_num), channelSearchQuery))
+    );
+  }, [channels, channelSearchQuery]);
+
+  // Alphabet A-Z Quick Jumper (for Alphabetical Sort Order)
+  const [showAlphabetMenu, setShowAlphabetMenu] = useState(false);
+
+  const availableAlphabetLetters = useMemo(() => {
+    if (channelSortOrder !== 'alphabetical') return new Set<string>();
+    const set = new Set<string>();
+    for (const ch of filteredChannels) {
+      const name = ch.alias || ch.name;
+      set.add(getChannelFirstLetter(name));
+    }
+    return set;
+  }, [filteredChannels, channelSortOrder]);
+
+  const handleJumpToLetter = useCallback((letter: string) => {
+    const index = filteredChannels.findIndex((ch) => {
+      const name = ch.alias || ch.name;
+      return getChannelFirstLetter(name) === letter;
+    });
+
+    if (index !== -1 && virtuosoRef.current) {
+      blockAutoScrollRef.current = true;
+      virtuosoRef.current.scrollToIndex({ index, align: 'start', behavior: 'auto' });
+    }
+  }, [filteredChannels]);
+
   const categories = useCategories();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [availableWidth, setAvailableWidth] = useState(800);
@@ -1125,20 +1182,20 @@ export function ChannelPanel({
 
   const shouldFetchShortEpgForVisibleRange = useMemo(() => {
     if (isSearchMode || isWatchlistMode || shortEpgSourceIds.size === 0) return false;
-    return channels.some((channel) => shortEpgSourceIds.has(channel.source_id));
-  }, [channels, shortEpgSourceIds, isSearchMode, isWatchlistMode]);
+    return filteredChannels.some((channel) => shortEpgSourceIds.has(channel.source_id));
+  }, [filteredChannels, shortEpgSourceIds, isSearchMode, isWatchlistMode]);
 
   const shouldTrackVisibleRange = epgLazyLoadingEnabled || shouldFetchShortEpgForVisibleRange;
 
   // Get stream IDs for programs lookup
   // Include selectedChannel (from currentChannel prop) in case it's from a different category/source
   const streamIds = useMemo(() => {
-    let activeChannels = channels;
+    let activeChannels = filteredChannels;
     if (epgLazyLoadingEnabled && !isSearchMode && !isWatchlistMode) {
       const buffer = 15; // 15 channels buffer above/below for smooth scrolling
       const start = Math.max(0, visibleIndices.startIndex - buffer);
-      const end = Math.min(channels.length, visibleIndices.endIndex + buffer);
-      activeChannels = channels.slice(start, end);
+      const end = Math.min(filteredChannels.length, visibleIndices.endIndex + buffer);
+      activeChannels = filteredChannels.slice(start, end);
     }
 
     const ids = activeChannels.map((ch) => ch.stream_id);
@@ -1146,7 +1203,7 @@ export function ChannelPanel({
       ids.push(selectedChannel.stream_id);
     }
     return ids;
-  }, [channels, selectedChannel?.stream_id, visibleIndices, epgLazyLoadingEnabled, isSearchMode, isWatchlistMode]);
+  }, [filteredChannels, selectedChannel?.stream_id, visibleIndices, epgLazyLoadingEnabled, isSearchMode, isWatchlistMode]);
 
   // Fetch programs (either ALL at once or lazy-loaded by time window)
   const rangePrograms = useProgramsInRange(streamIds, loadStart, loadEnd, { skip: !layoutSettingsLoaded || !epgLazyLoadingEnabled });
@@ -1155,7 +1212,7 @@ export function ChannelPanel({
 
   // Trigger on-demand short EPG fetch for visible Stalker channels
   useEffect(() => {
-    if (!visible || !shouldFetchShortEpgForVisibleRange || !channels || channels.length === 0 || !window.storage) {
+    if (!visible || !shouldFetchShortEpgForVisibleRange || !filteredChannels || filteredChannels.length === 0 || !window.storage) {
       setEpgSyncStatus(null);
       return;
     }
@@ -1166,8 +1223,8 @@ export function ChannelPanel({
     const timer = setTimeout(async () => {
       // Get the range of channels currently visible + buffer of 5 channels
       const start = Math.max(0, visibleIndices.startIndex - 5);
-      const end = Math.min(channels.length, visibleIndices.endIndex + 5);
-      const visibleChannels = channels.slice(start, end);
+      const end = Math.min(filteredChannels.length, visibleIndices.endIndex + 5);
+      const visibleChannels = filteredChannels.slice(start, end);
 
       if (visibleChannels.length === 0) return;
 
@@ -1710,7 +1767,7 @@ export function ChannelPanel({
   // Handle auto-scrolling to keep the selected channel near the middle/visible
   useEffect(() => {
     if (!visible) return;
-    if (!selectedChannel || !channels.length || !virtuosoRef.current) return;
+    if (!selectedChannel || !filteredChannels.length || !virtuosoRef.current) return;
     if (isSearchMode || isWatchlistMode) return;
 
     if (blockAutoScrollRef.current) {
@@ -1718,7 +1775,7 @@ export function ChannelPanel({
       return;
     }
 
-    const index = channels.findIndex((c) => c.stream_id === selectedChannel.stream_id);
+    const index = filteredChannels.findIndex((c) => c.stream_id === selectedChannel.stream_id);
     if (index === -1) return;
 
     const { startIndex, endIndex } = visibleRangeRef.current;
@@ -1733,7 +1790,7 @@ export function ChannelPanel({
 
     if (index >= endIndex - PADDING) {
       virtuosoRef.current.scrollToIndex({
-        index: Math.min(channels.length - 1, index + PADDING),
+        index: Math.min(filteredChannels.length - 1, index + PADDING),
         align: 'end',
         behavior: 'smooth',
       });
@@ -1744,7 +1801,7 @@ export function ChannelPanel({
         behavior: 'smooth',
       });
     }
-  }, [selectedChannel?.stream_id, channels.length, isSearchMode, isWatchlistMode, visible]);
+  }, [selectedChannel?.stream_id, filteredChannels.length, isSearchMode, isWatchlistMode, visible]);
 
   // Update last channel ID when selected channel changes
   useEffect(() => {
@@ -2400,7 +2457,8 @@ export function ChannelPanel({
                   }}
                   title="Show playlist name for each channel"
                 >
-                  {showWatchlistPlaylistName ? '📋' : '📄'} Show Source
+                  <span style={{ flexShrink: 0 }}>{showWatchlistPlaylistName ? '📋' : '📄'}</span>
+                  <span className="btn-label">Show Source</span>
                 </button>
               </>
             ) : isSearchMode ? (
@@ -2418,7 +2476,36 @@ export function ChannelPanel({
             ) : (
               <>
                 <span className="guide-current-time">{formatTime(currentTime)}</span>
-                <span className="guide-channel-count">{channels.length} channels</span>
+                {!epgHiddenButtons.includes('channel-search') && (
+                  <div className="channel-search-container">
+                    <div className={`channel-search-input-wrapper ${channelSearchFocused ? 'focused' : ''}`}>
+                      <svg className="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      </svg>
+                      <input
+                        type="text"
+                        className="channel-search-input"
+                        placeholder="Search channels..."
+                        value={channelSearchQuery}
+                        onChange={(e) => setChannelSearchQuery(e.target.value)}
+                        onFocus={() => setChannelSearchFocused(true)}
+                        onBlur={() => setChannelSearchFocused(false)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Escape') {
+                            setChannelSearchQuery('');
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
+                      />
+                      {channelSearchQuery && (
+                        <button className="search-clear-btn" onClick={() => setChannelSearchQuery('')} title="Clear search">
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
                 {categoryId === '__favorites__' && (
                   <>
                     <button
@@ -2426,7 +2513,8 @@ export function ChannelPanel({
                       onClick={() => setManagingFavorites(true)}
                       title="Manage favorites order"
                     >
-                      ⭐ Manage Favorites
+                      <span style={{ flexShrink: 0 }}>⭐</span>
+                      <span className="btn-label">Manage Favorites</span>
                     </button>
                     <button
                       className={`guide-manage-channels-btn ${showFavPlaylistName ? 'active-toggle' : ''}`}
@@ -2437,7 +2525,8 @@ export function ChannelPanel({
                       }}
                       title="Show playlist name for each channel"
                     >
-                      {showFavPlaylistName ? '📋' : '📄'} Show Source
+                      <span style={{ flexShrink: 0 }}>{showFavPlaylistName ? '📋' : '📄'}</span>
+                      <span className="btn-label">Show Source</span>
                     </button>
                   </>
                 )}
@@ -2451,7 +2540,8 @@ export function ChannelPanel({
                     }}
                     title="Show playlist name for each channel"
                   >
-                    {showRecentPlaylistName ? '📋' : '📄'} Show Source
+                    <span style={{ flexShrink: 0 }}>{showRecentPlaylistName ? '📋' : '📄'}</span>
+                    <span className="btn-label">Show Source</span>
                   </button>
                 )}
                 {isCustomCategory && categoryId !== '__favorites__' && categoryId !== '__recent__' && (
@@ -2464,7 +2554,8 @@ export function ChannelPanel({
                     }}
                     title="Show playlist name for each channel"
                   >
-                    {showCustomPlaylistName ? '📋' : '📄'} Show Source
+                    <span style={{ flexShrink: 0 }}>{showCustomPlaylistName ? '📋' : '📄'}</span>
+                    <span className="btn-label">Show Source</span>
                   </button>
                 )}
                 {canManageChannels && (
@@ -2473,14 +2564,14 @@ export function ChannelPanel({
                       <button
                         className="guide-manage-channels-btn"
                         onClick={isCustomGroup ? () => setManagingCustomGroup({ id: categoryId!, name: customGroupName }) : handleManageChannels}
-                        title={isCustomGroup ? "Manage custom group" : "Manage channels in this category"}
+                        title={isCustomGroup ? "Manage Custom Group" : "Manage Channels"}
                       >
                         {isCustomGroup ? (
                           <>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                               <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                             </svg>
-                            <span>Manage Custom Group</span>
+                            <span className="btn-label">Manage Custom Group</span>
                           </>
                         ) : (
                           <>
@@ -2488,7 +2579,7 @@ export function ChannelPanel({
                               <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
                               <polyline points="17 2 12 7 7 2" />
                             </svg>
-                            <span>Manage Channels</span>
+                            <span className="btn-label">Manage Channels</span>
                           </>
                         )}
                       </button>
@@ -2500,19 +2591,19 @@ export function ChannelPanel({
                             className="guide-refresh-source-btn"
                             onClick={handleRefreshSource}
                             disabled={syncingSourceId === sourceId}
-                            title="Refresh source data"
+                            title="Refresh Source"
                           >
                             {syncingSourceId === sourceId ? (
                               <>
                                 <span className="sync-spinner">⟳</span>
-                                {syncStatusMsg || 'Refreshing...'}
+                                <span className="btn-label">{syncStatusMsg || 'Refreshing...'}</span>
                               </>
                             ) : (
                               <>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
                                   <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
                                 </svg>
-                                Refresh Source
+                                <span className="btn-label">Refresh Source</span>
                               </>
                             )}
                           </button>
@@ -2521,13 +2612,13 @@ export function ChannelPanel({
                           <button
                             className="guide-epg-shift-btn"
                             onClick={() => setShowEpgShiftModal(true)}
-                            title="Adjust EPG time offset"
+                            title="EPG Shift"
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
                               <circle cx="12" cy="12" r="10"/>
                               <polyline points="12 6 12 12 16 14"/>
                             </svg>
-                            {currentEpgOffset === 0 ? 'EPG Shift' : `Shift ${currentEpgOffset > 0 ? '+' : ''}${currentEpgOffset}h`}
+                            <span className="btn-label">{currentEpgOffset === 0 ? 'EPG Shift' : `Shift ${currentEpgOffset > 0 ? '+' : ''}${currentEpgOffset}h`}</span>
                           </button>
                         )}
                         {!epgHiddenButtons.includes('playlist-editor') && (
@@ -2536,7 +2627,7 @@ export function ChannelPanel({
                             onClick={() => setShowPlaylistListModal(true)}
                             title="Playlist Editor"
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
                               <line x1="8" y1="6" x2="21" y2="6"></line>
                               <line x1="8" y1="12" x2="21" y2="12"></line>
                               <line x1="8" y1="18" x2="21" y2="18"></line>
@@ -2544,21 +2635,21 @@ export function ChannelPanel({
                               <line x1="3" y1="12" x2="3.01" y2="12"></line>
                               <line x1="3" y1="18" x2="3.01" y2="18"></line>
                             </svg>
-                            Playlist Editor
+                            <span className="btn-label">Playlist Editor</span>
                           </button>
                         )}
                         {!epgHiddenButtons.includes('failover-group') && (
                           <button
                             className="guide-epg-shift-btn"
                             onClick={() => setShowFailoverGroupModal(true)}
-                            title="Manage failover groups"
+                            title="Failover Group"
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
                               <path d="M12 2L2 7l10 5 10-5-10-5z"/>
                               <path d="M2 17l10 5 10-5"/>
                               <path d="M2 12l10 5 10-5"/>
                             </svg>
-                            Failover Group
+                            <span className="btn-label">Failover Group</span>
                           </button>
                         )}
                         {epgSyncStatus && epgSyncStatus.total > 0 && (
@@ -2575,6 +2666,50 @@ export function ChannelPanel({
             )}
           </div>
           <div className="guide-header-right">
+            {/* A-Z Alphabet Jumper Menu (shown only when channelSortOrder === 'alphabetical') */}
+            {channelSortOrder === 'alphabetical' && !isSearchMode && !isWatchlistMode && !epgHiddenButtons.includes('alphabet-jumper') && (
+              <div
+                className="epg-alphabet-dropdown-container"
+                onMouseEnter={() => setShowAlphabetMenu(true)}
+                onMouseLeave={() => setShowAlphabetMenu(false)}
+              >
+                <button
+                  className={`guide-nav-btn ${showAlphabetMenu ? 'active' : ''}`}
+                  onClick={() => setShowAlphabetMenu((prev) => !prev)}
+                  title="Jump to letter (#-Z)"
+                  style={{
+                    padding: '0 8px',
+                    width: 'auto',
+                    marginRight: '8px',
+                  }}
+                >
+                  <span style={{ fontSize: '11px', fontWeight: 600 }}>A-Z</span>
+                </button>
+                {showAlphabetMenu && (
+                  <div className="epg-alphabet-menu">
+                    {ALPHABET_LETTERS.map((letter) => {
+                      const isAvailable = availableAlphabetLetters.has(letter);
+                      return (
+                        <button
+                          key={letter}
+                          className={`epg-alphabet-item ${!isAvailable ? 'disabled' : ''}`}
+                          onClick={() => {
+                            if (isAvailable) {
+                              handleJumpToLetter(letter);
+                              setShowAlphabetMenu(false);
+                            }
+                          }}
+                          disabled={!isAvailable}
+                          title={isAvailable ? `Jump to ${letter}` : `No channels starting with ${letter}`}
+                        >
+                          {letter}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
             {/* Popout/External mode toggle: cycles off → popout → external */}
             {onTogglePopoutMode && (
               <button
@@ -2926,9 +3061,9 @@ export function ChannelPanel({
           ) : (
             /* Normal EPG Grid View */
             <Virtuoso
-              key={`channel-list-${categoryId ?? 'all'}-${favoritesVersion}`}
+              key={`channel-list-${categoryId ?? 'all'}-${favoritesVersion}-${channelSearchQuery}`}
               ref={virtuosoRef}
-              data={channels}
+              data={filteredChannels}
               className="guide-channels"
               rangeChanged={(range) => {
                 visibleRangeRef.current = range;
@@ -2972,7 +3107,7 @@ export function ChannelPanel({
               components={{
                 EmptyPlaceholder: () => (
                   <div className="guide-empty">
-                    <h3>No Channels</h3>
+                    <h3>{channelSearchQuery ? 'No Channels Found' : 'No Channels'}</h3>
                   </div>
                 ),
               }}

@@ -29,6 +29,8 @@ const NAV_ITEMS = [
 ];
 
 const EPG_BUTTONS = [
+  { id: 'channel-search', label: 'Channel Search Filter' },
+  { id: 'alphabet-jumper', label: 'Alphabet Jumper (A-Z)' },
   { id: 'manage-channels', label: 'Manage Channels' },
   { id: 'refresh-source', label: 'Refresh Source' },
   { id: 'epg-shift', label: 'EPG Shift' },

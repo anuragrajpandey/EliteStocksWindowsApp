@@ -8275,6 +8275,17 @@ html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg .blob-4 {
   background: radial-gradient(circle, var(--custom-blob-4, rgba(118, 255, 3, 0.3)) 0%, transparent 70%) !important;
 }
 
+/* V3 Liquid Glass Background — static render (low GPU).
+   The bulbs keep their exact visual (colored glows, blur) but are drawn once
+   and cached by the compositor instead of being re-blurred every frame by the
+   continuous float animations. This removes the idle 10-15% GPU cost. */
+.livetv-liquid-glass-bg .glass-blob,
+.livetv-liquid-glass-bg::before,
+.livetv-liquid-glass-bg::after {
+  animation: none !important;
+  will-change: auto !important; /* De-promote layering; no per-frame re-blur */
+}
+
 /* ==========================================================================
    THEME OPTIMIZATION OVERRIDES
    ========================================================================== */

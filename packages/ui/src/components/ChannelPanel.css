@@ -721,49 +721,106 @@
   color: var(--text-muted, rgba(255, 255, 255, 0.5));
 }
 
-/* Manage Channels Button */
-.guide-manage-channels-btn {
-  padding: 4px 12px;
-  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.2));
-  background: var(--surface-color, rgba(255, 255, 255, 0.08));
-  color: var(--text-secondary, rgba(255, 255, 255, 0.8));
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  transition: all 0.15s ease;
+/* Channel Search Filter in Header */
+.channel-search-container {
   display: flex;
   align-items: center;
-  gap: 4px;
 }
 
-.guide-manage-channels-btn:hover {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.15));
-  border-color: var(--accent-primary, rgba(255, 255, 255, 0.35));
-  color: var(--text-primary, white);
-}
-
-/* Refresh Source Button */
-.guide-refresh-source-btn {
-  padding: 4px 12px;
-  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.2));
-  background: var(--surface-color, rgba(255, 255, 255, 0.08));
-  color: var(--text-secondary, rgba(255, 255, 255, 0.8));
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  transition: all 0.15s ease;
+.channel-search-input-wrapper {
   display: flex;
   align-items: center;
   gap: 6px;
-  white-space: nowrap;
+  width: 170px;
+  padding: 4px 8px;
+  box-sizing: border-box;
+  background: var(--surface-color, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.12));
+  border-radius: 6px;
+  transition: all 0.2s ease;
 }
 
-.guide-refresh-source-btn:hover:not(:disabled) {
+.channel-search-input-wrapper:hover {
+  background: var(--surface-hover, rgba(255, 255, 255, 0.1));
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.channel-search-input-wrapper.focused {
+  background: var(--surface-hover, rgba(255, 255, 255, 0.12));
+  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent);
+}
+
+.channel-search-input-wrapper .search-icon {
+  color: var(--text-muted, rgba(255, 255, 255, 0.4));
+  flex-shrink: 0;
+}
+
+.channel-search-input-wrapper.focused .search-icon {
+  color: var(--accent-primary, #00d4ff);
+}
+
+.channel-search-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary, white);
+  font-size: 0.82rem;
+  font-family: inherit;
+  padding: 0;
+}
+
+.channel-search-input::placeholder {
+  color: var(--text-muted, rgba(255, 255, 255, 0.35));
+}
+
+/* Manage Channels Button */
+/* Manage Channels, Refresh Source, EPG Shift & Action Buttons */
+.guide-manage-channels-btn,
+.guide-refresh-source-btn,
+.guide-epg-shift-btn {
+  padding: 6px 8px;
+  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.2));
+  background: var(--surface-color, rgba(255, 255, 255, 0.08));
+  color: var(--text-secondary, rgba(255, 255, 255, 0.8));
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.guide-manage-channels-btn:hover,
+.guide-refresh-source-btn:hover:not(:disabled),
+.guide-epg-shift-btn:hover {
   background: var(--surface-hover, rgba(255, 255, 255, 0.15));
   border-color: var(--accent-primary, rgba(255, 255, 255, 0.35));
   color: var(--text-primary, white);
+  padding: 6px 10px;
+}
+
+.guide-header-left button .btn-label {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, margin 0.2s ease;
+  margin-left: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.guide-header-left button:hover .btn-label {
+  max-width: 180px;
+  opacity: 1;
+  margin-left: 6px;
 }
 
 .guide-refresh-source-btn:disabled {
@@ -781,33 +838,73 @@
   to { transform: rotate(360deg); }
 }
 
-/* EPG Shift Button */
-.guide-epg-shift-btn {
-  padding: 4px 12px;
-  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.2));
-  background: var(--surface-color, rgba(255, 255, 255, 0.08));
-  color: var(--text-secondary, rgba(255, 255, 255, 0.8));
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-.guide-epg-shift-btn:hover {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.15));
-  border-color: var(--accent-primary, rgba(255, 255, 255, 0.35));
-  color: var(--text-primary, white);
-}
-
 .guide-header-right {
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+/* EPG Alphabet A-Z Dropdown Menu */
+.epg-alphabet-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.epg-alphabet-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: #161622 !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(7, 30px);
+  gap: 4px;
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
+  width: 252px;
+  box-sizing: border-box;
+}
+
+/* Invisible bridge so hovering from button to menu doesn't trigger mouseleave */
+.epg-alphabet-menu::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 0;
+  right: 0;
+  height: 12px;
+}
+
+.epg-alphabet-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  width: 30px;
+  border-radius: 5px;
+  border: none;
+  background: #242436;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.epg-alphabet-item:hover:not(:disabled) {
+  background: var(--accent-primary, #00d4ff);
+  color: #000000;
+}
+
+.epg-alphabet-item.disabled,
+.epg-alphabet-item:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 /* Navigation Controls */
@@ -938,7 +1035,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 /* Scrollbar */
