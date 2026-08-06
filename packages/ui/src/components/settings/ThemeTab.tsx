@@ -1435,7 +1435,7 @@ export function ThemeTab({
                     
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px dashed var(--surface-border)' }}>
                       <label style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500, cursor: 'pointer' }} htmlFor="toggle-glass-blobs">
-                        Show Moving Background Bulbs
+                        Show Background Bulbs
                       </label>
                       <input
                         id="toggle-glass-blobs"
@@ -1452,7 +1452,7 @@ export function ThemeTab({
                     </div>
 
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.3 }}>
-                      Customize the four glowing ambient bulbs moving in the background in the V3 UI.
+                      Customize the four glowing ambient bulbs displayed in the background in the V3 UI.
                     </p>
 
                     {(customThemeConfig.showGlassBlobs ?? true) && (

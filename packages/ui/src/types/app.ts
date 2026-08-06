@@ -148,7 +148,6 @@ export interface AppSettings {
     logoCacheMaxMb?: number;
     logoCacheTtlDays?: number;
     logoCachePrefetch?: boolean;
-    disableThemeBlobs?: boolean;
     disableThemeBackdropBlur?: boolean;
     epgLazyLoadingEnabled?: boolean;
     disableEpgTransitions?: boolean;

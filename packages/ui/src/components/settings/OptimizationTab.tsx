@@ -6,8 +6,6 @@ export function OptimizationTab() {
   const {
     hardwareAcceleration,
     setHardwareAcceleration,
-    disableThemeBlobs,
-    setDisableThemeBlobs,
     disableThemeBackdropBlur,
     setDisableThemeBackdropBlur,
     epgLazyLoadingEnabled,
@@ -87,20 +85,6 @@ export function OptimizationTab() {
         </p>
 
         <div className="tmdb-form" style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div>
-            <label className="genre-checkbox" style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', maxWidth: '450px' }}>
-              <input
-                type="checkbox"
-                checked={disableThemeBlobs}
-                onChange={(e) => setDisableThemeBlobs(e.target.checked)}
-              />
-              <span className="genre-name" style={{ fontWeight: 600, fontSize: '0.95rem' }}>Disable Background Animations (Glass Blobs)</span>
-            </label>
-            <p className="form-hint" style={{ marginTop: '0.4rem', marginLeft: '26px', opacity: 0.8, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-              Hides the animated floating glass blobs and ambient background glows. This is the most effective way to eliminate idle GPU load for themes.
-            </p>
-          </div>
-
           <div>
             <label className="genre-checkbox" style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', maxWidth: '450px' }}>
               <input

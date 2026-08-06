@@ -107,7 +107,6 @@ export interface AppSettings {
 
   // Theme Optimization
   hardwareAcceleration: boolean;
-  disableThemeBlobs: boolean;
   disableThemeBackdropBlur: boolean;
   epgLazyLoadingEnabled: boolean;
   disableEpgTransitions: boolean;
@@ -207,7 +206,6 @@ export interface AppSettings {
     setExternalPlayerReuse: (reuse: boolean) => void;
     updateAppFont: (family: string, base64?: string, format?: string, name?: string) => Promise<void> | void;
     setSavedCustomThemes: (themes: CustomThemeConfig[]) => void;
-    setDisableThemeBlobs: (disabled: boolean) => void;
     setHardwareAcceleration: (enabled: boolean) => void;
     setDisableThemeBackdropBlur: (disabled: boolean) => void;
     setEpgLazyLoadingEnabled: (enabled: boolean) => void;
@@ -419,7 +417,6 @@ export function useAppSettings(): AppSettings {
 
   // Theme Optimization settings
   const [hardwareAcceleration, setHardwareAccelerationState] = useState(true);
-  const [disableThemeBlobs, setDisableThemeBlobsState] = useState(false);
   const [disableThemeBackdropBlur, setDisableThemeBackdropBlurState] = useState(false);
   const [epgLazyLoadingEnabled, setEpgLazyLoadingEnabledState] = useState(false);
   const [disableEpgTransitions, setDisableEpgTransitionsState] = useState(false);
@@ -571,14 +568,6 @@ export function useAppSettings(): AppSettings {
   }, [theme, customThemeConfig]);
 
   // Apply optimization settings
-  useEffect(() => {
-    if (disableThemeBlobs) {
-      document.documentElement.classList.add('disable-theme-blobs');
-    } else {
-      document.documentElement.classList.remove('disable-theme-blobs');
-    }
-  }, [disableThemeBlobs]);
-
   useEffect(() => {
     if (disableThemeBackdropBlur) {
       document.documentElement.classList.add('disable-theme-backdrop-blur');
@@ -751,7 +740,6 @@ export function useAppSettings(): AppSettings {
 
           // Load Optimization settings
           setHardwareAccelerationState(result.data.hardwareAcceleration ?? true);
-          setDisableThemeBlobsState(result.data.disableThemeBlobs ?? false);
           setDisableThemeBackdropBlurState(result.data.disableThemeBackdropBlur ?? false);
           setEpgLazyLoadingEnabledState(result.data.epgLazyLoadingEnabled ?? false);
           setDisableEpgTransitionsState(result.data.disableEpgTransitions ?? false);
@@ -1585,17 +1573,6 @@ export function useAppSettings(): AppSettings {
     }
   }, []);
 
-  const setDisableThemeBlobs = useCallback(async (disabled: boolean) => {
-    setDisableThemeBlobsState(disabled);
-    if (window.storage) {
-      try {
-        await window.storage.updateSettings({ disableThemeBlobs: disabled });
-      } catch (e) {
-        console.error('[useAppSettings] Failed to save disableThemeBlobs:', e);
-      }
-    }
-  }, []);
-
   const setDisableThemeBackdropBlur = useCallback(async (disabled: boolean) => {
     setDisableThemeBackdropBlurState(disabled);
     if (window.storage) {
@@ -2018,12 +1995,10 @@ export function useAppSettings(): AppSettings {
     setExternalPlayerArgs,
     externalPlayerReuse,
     setExternalPlayerReuse,
-    disableThemeBlobs,
-    setDisableThemeBlobs,
-    hardwareAcceleration,
-    setHardwareAcceleration,
     disableThemeBackdropBlur,
     setDisableThemeBackdropBlur,
+    hardwareAcceleration,
+    setHardwareAcceleration,
     epgLazyLoadingEnabled,
     setEpgLazyLoadingEnabled,
     disableEpgTransitions,

@@ -166,7 +166,6 @@ const SETTINGS_SEARCH_INDEX: SettingsSearchResult[] = [
   // --- Optimization ---
   { id: 'optimization-tab', label: 'Optimization', tabId: 'optimization', tabLabel: 'Optimization', section: 'Optimization' },
   { id: 'opt-hw-accel', label: 'Enable GPU Hardware Acceleration', description: 'Offload UI compositing and rendering to GPU for lower CPU usage.', tabId: 'optimization', tabLabel: 'Optimization', section: 'Hardware Acceleration' },
-  { id: 'opt-theme-blobs', label: 'Disable Background Animations (Glass Blobs)', description: 'Hide floating background glass blobs to reduce idle GPU usage.', tabId: 'optimization', tabLabel: 'Optimization', section: 'Theme Optimization' },
   { id: 'opt-theme-blur', label: 'Disable Glass Backdrop Blur', description: 'Remove backdrop blur from UI components to reduce GPU usage.', tabId: 'optimization', tabLabel: 'Optimization', section: 'Theme Optimization' },
   { id: 'opt-epg-lazy-load', label: 'Enable EPG Lazy Loading', description: 'Only load EPG programs for the visible time window to reduce lag.', tabId: 'optimization', tabLabel: 'Optimization', section: 'EPG Optimization' },
   { id: 'opt-epg-transitions', label: 'Disable EPG Card Shadows & Transitions', description: 'Disable transition animations and drop shadows on guide cards to reduce GPU usage.', tabId: 'optimization', tabLabel: 'Optimization', section: 'EPG Optimization' },
