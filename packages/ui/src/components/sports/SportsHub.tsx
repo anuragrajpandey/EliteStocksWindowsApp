@@ -547,7 +547,13 @@ export function SportsHub({
         case 'leagues':
           return <LeaguesTab onSearchChannels={handleSearchChannels} onPlayChannel={onPlayChannel} />;
         case 'favorites':
-          return <FavoritesTab onSearchChannels={handleSearchChannels} onPlayChannel={onPlayChannel} />;
+          return (
+            <FavoritesTab
+              onSearchChannels={handleSearchChannels}
+              onPlayChannel={onPlayChannel}
+              onSetTab={(tab) => setActiveTab(tab)}
+            />
+          );
         case 'news':
           return <NewsTab onSearchChannels={handleSearchChannels} />;
         case 'leaders':

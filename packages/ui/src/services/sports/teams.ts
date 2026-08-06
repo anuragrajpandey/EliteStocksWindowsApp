@@ -151,10 +151,11 @@ export async function getTeamSchedule(teamId: string, leagueId: string): Promise
   };
 }
 
-export async function getTeamDetails(teamId: string, leagueId: string): Promise<TeamDetails | null> {
+export async function getTeamDetails(teamId: string, leagueId: string, includeRoster: boolean = true): Promise<TeamDetails | null> {
   const config = SPORT_CONFIG[leagueId];
   if (!config) return null;
 
+  const rosterParam = includeRoster ? '?enable=roster' : '';
   const data = await fetchJson<{
     team: {
       id: string;
@@ -191,7 +192,7 @@ export async function getTeamDetails(teamId: string, leagueId: string): Promise<
         college?: { name: string };
       }>;
     };
-  }>(`${buildTeamUrl(config.sport, config.league, teamId)}?enable=roster`);
+  }>(`${buildTeamUrl(config.sport, config.league, teamId)}${rosterParam}`);
 
   if (!data?.team) return null;
 
