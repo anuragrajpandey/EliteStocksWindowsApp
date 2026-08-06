@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
+import { invoke } from '@tauri-apps/api/core';
 import { useAppSettings } from '../../hooks/useAppSettings';
 import './SourcesTab.css'; // Import shared tooltip styles
 
@@ -8,6 +9,7 @@ interface UITabProps {
     startupWidth?: number;
     startupHeight?: number;
     dontSaveWindowSizeOnClose?: boolean;
+    minimizeToTray?: boolean;
     modernUiEnabled?: boolean | string;
     collapseSourceCategoriesOnStartup?: boolean;
     overlayAutohideTimer?: number;
@@ -31,6 +33,7 @@ interface UITabProps {
     startupWidth?: number;
     startupHeight?: number;
     dontSaveWindowSizeOnClose?: boolean;
+    minimizeToTray?: boolean;
     modernUiEnabled?: boolean | string;
     collapseSourceCategoriesOnStartup?: boolean;
     overlayAutohideTimer?: number;
@@ -276,6 +279,35 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                     type="checkbox"
                     checked={settings.collapseSourceCategoriesOnStartup ?? false}
                     onChange={(e) => onSettingsChange({ ...settings, collapseSourceCategoriesOnStartup: e.target.checked })}
+                  />
+                  <span className="toggle-slider" />
+                </label>
+              </div>
+
+              {/* Minimize to Tray */}
+              <div className="timeshift-toggle-row">
+                <div className="timeshift-toggle-info">
+                  <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    Minimize to tray when closing
+                    <div className="epg-tooltip">
+                      <span className="epg-tooltip-icon">?</span>
+                      <div className="epg-tooltip-content">
+                        When enabled, closing the window hides it to the system tray so playback and recordings can keep running. Use the tray icon to reopen or fully quit.
+                      </div>
+                    </div>
+                  </span>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={settings.minimizeToTray ?? false}
+                    onChange={(e) => {
+                      const enabled = e.target.checked;
+                      onSettingsChange({ ...settings, minimizeToTray: enabled });
+                      invoke('set_minimize_to_tray', { enabled }).catch((err) =>
+                        console.error('[Tray] Failed to update minimize-to-tray flag:', err)
+                      );
+                    }}
                   />
                   <span className="toggle-slider" />
                 </label>

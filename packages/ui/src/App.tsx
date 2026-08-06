@@ -3801,6 +3801,13 @@ function useTmdbPresencePoster(
         if (!window.storage) return;
         const result = await window.storage.getSettings();
         const settings = result.data || {};
+
+        // Seed the Rust minimize-to-tray flag so close-to-tray works before the
+        // user ever opens Settings in this session.
+        if (typeof settings.minimizeToTray === 'boolean') {
+          invoke('set_minimize_to_tray', { enabled: settings.minimizeToTray }).catch(() => {});
+        }
+
         const requestedWidth = settings.startupWidth || 1920;
         const requestedHeight = settings.startupHeight || 1080;
 

@@ -395,6 +395,7 @@ export function Settings({
     startupWidth?: number;
     startupHeight?: number;
     dontSaveWindowSizeOnClose?: boolean;
+    minimizeToTray?: boolean;
     modernUiEnabled?: boolean | string;
     collapseSourceCategoriesOnStartup?: boolean;
     overlayAutohideTimer?: number;
@@ -404,6 +405,7 @@ export function Settings({
     showVolumePercent?: boolean;
   }>({
     modernUiEnabled: 'v3',
+    minimizeToTray: false,
     collapseSourceCategoriesOnStartup: false,
     overlayAutohideTimer: 3,
     overlayOnClickOnly: false,
@@ -837,6 +839,7 @@ export function Settings({
         startupWidth?: number;
         startupHeight?: number;
         dontSaveWindowSizeOnClose?: boolean;
+        minimizeToTray?: boolean;
         rememberLastChannels?: boolean;
         reopenLastOnStartup?: boolean;
         savedLayoutState?: SavedLayoutState;
@@ -1026,6 +1029,7 @@ export function Settings({
         startupWidth: settings.startupWidth,
         startupHeight: settings.startupHeight,
         dontSaveWindowSizeOnClose: settings.dontSaveWindowSizeOnClose ?? false,
+        minimizeToTray: settings.minimizeToTray ?? false,
         modernUiEnabled: loadedModernUi,
         collapseSourceCategoriesOnStartup: settings.collapseSourceCategoriesOnStartup ?? false,
         overlayAutohideTimer: settings.overlayAutohideTimer ?? 3,
@@ -2226,6 +2230,7 @@ export function Settings({
     startupWidth?: number;
     startupHeight?: number;
     dontSaveWindowSizeOnClose?: boolean;
+    minimizeToTray?: boolean;
     modernUiEnabled?: boolean | string;
     collapseSourceCategoriesOnStartup?: boolean;
     overlayAutohideTimer?: number;

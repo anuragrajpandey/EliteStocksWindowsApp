@@ -262,6 +262,10 @@ use mpv_popout::PopoutMpvState;
 mod dvr;
 use dvr::{DvrState, models::*};
 
+// System tray + minimize-to-tray support (desktop only)
+#[cfg(desktop)]
+mod tray;
+
 // Bulk database operations module
 mod db_bulk_ops;
 mod sync_provider;
@@ -4457,6 +4461,12 @@ pub fn run() {
             // Register ExternalPlayerState for single-instance reuse
             app.manage(ExternalPlayerState::new());
 
+            // Set up the system tray + minimize-to-tray flag (desktop only)
+            #[cfg(desktop)]
+            if let Err(e) = tray::setup(app.handle()) {
+                error!("[Tray] Failed to set up system tray: {}", e);
+            }
+
             // Register TmdbCacheState as managed state so the cache is shared
             // across all TMDB commands instead of being re-created each call.
             match app.path().app_cache_dir() {
@@ -4503,7 +4513,15 @@ pub fn run() {
         // and track the last unmaximized size/position.
         .on_window_event(|window, event| {
             match event {
-                tauri::WindowEvent::CloseRequested { .. } => {
+                tauri::WindowEvent::CloseRequested { api, .. } => {
+                    // If minimize-to-tray is enabled, hide instead of closing so
+                    // playback/recordings can keep running in the background.
+                    #[cfg(desktop)]
+                    if tray::minimize_to_tray_enabled(&window.app_handle()) {
+                        api.prevent_close();
+                        let _ = window.hide();
+                        return;
+                    }
                     discord_rp::shutdown(&window.app_handle());
                     save_window_state(&window.app_handle());
                 }
@@ -4635,6 +4653,8 @@ pub fn run() {
             open_file_location,
             open_log_folder,
             run_cleanup_now,
+            // Tray / minimize-to-tray commands
+            tray::set_minimize_to_tray,
             // TMDB cache commands
             get_tmdb_cache_stats,
             update_tmdb_movies_cache,
@@ -4694,8 +4714,62 @@ pub fn run() {
             prefetch_logos,
             prune_logo_cache
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application")
+        .run(|app_handle, event| {
+            use tauri::RunEvent;
+            match event {
+                RunEvent::ExitRequested { api, .. } => {
+                    handle_exit_requested(app_handle, api);
+                }
+                _ => {}
+            }
+        });
+}
+
+/// Ask before quitting if a recording is currently in progress.
+///
+/// If no recording is active we let the exit proceed normally. Otherwise we
+/// prevent the exit and show a dialog so the user can either keep the app open
+/// (and keep recording) or stop the recording and quit.
+fn handle_exit_requested(app_handle: &tauri::AppHandle, api: tauri::ExitRequestApi) {
+    use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind, MessageDialogResult};
+
+    let recording_active = app_handle
+        .try_state::<DvrState>()
+        .map(|dvr| !dvr.recorder.get_active_recordings().is_empty())
+        .unwrap_or(false);
+
+    if !recording_active {
+        return;
+    }
+
+    api.prevent_exit();
+    info!("[ExitGuard] Recording in progress; asking user before quitting.");
+
+    const KEEP: &str = "Keep recording & stay open";
+    const STOP: &str = "Stop recording & quit";
+
+    let app = app_handle.clone();
+    app.dialog()
+        .message("A recording is currently in progress. Keep it running by staying open, or stop the recording and quit.")
+        .title("Recording in progress")
+        .kind(MessageDialogKind::Warning)
+        .buttons(MessageDialogButtons::OkCancelCustom(KEEP.into(), STOP.into()))
+        .show_with_result(move |result| {
+            let stop_and_quit = matches!(&result, MessageDialogResult::Custom(c) if c == STOP);
+            if stop_and_quit {
+                // The dialog callback runs on a background thread, so blocking here is fine.
+                if let Some(state) = app.try_state::<DvrState>() {
+                    let dvr = state.inner().clone();
+                    tauri::async_runtime::block_on(dvr.stop());
+                }
+                let app = app.clone();
+                let _ = app
+                    .clone()
+                    .run_on_main_thread(move || app.exit(0));
+            }
+        });
 }
 
 // ============================================================================
