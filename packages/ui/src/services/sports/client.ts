@@ -172,3 +172,8 @@ export function buildPlayByPlayUrl(sport: string, league: string, eventId: strin
 export function buildUFCRankingsUrl(): string {
   return `${ESPN_API_BASE}/mma/ufc/rankings`;
 }
+
+export function buildCoreLeagueUrl(sport: string, league: string): string {
+  // Compact league object (with logos) from ESPN's core API
+  return `https://sports.core.api.espn.com/v2/sports/${sport}/leagues/${league}`;
+}

@@ -114,6 +114,7 @@ export {
   buildGameSummaryUrl,
   buildPlayByPlayUrl,
   buildUFCRankingsUrl,
+  buildCoreLeagueUrl,
 } from './client';
 
 // Mappers
@@ -201,4 +202,5 @@ export {
   getAvailableCategories,
   getLeaguesByCategory,
   getLeaguesBySport,
+  getLeagueLogos,
 } from './utils';

@@ -6905,14 +6905,12 @@
 }
 
 .sports-leagues-content-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: transparent;
   flex-shrink: 0;
 }
 
@@ -9580,11 +9578,10 @@
 .sports-league-card-icon-badge {
   width: 52px;
   height: 52px;
-  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  background: transparent;
   flex-shrink: 0;
 }
 

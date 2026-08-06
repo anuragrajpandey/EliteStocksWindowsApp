@@ -94,7 +94,41 @@ export function getAvailableSports(): string[] {
 }
 
 import { SPORT_CONFIG } from './config';
-import type { SportsLeague } from './types';
+import { fetchJson, buildCoreLeagueUrl } from './client';
+import type { SportsLeague, CoreLeagueResponse } from './types';
+
+/**
+ * Fetch official league logos from ESPN's core API.
+ *
+ * Each league object exposes a `logos` array with a full-color "default"
+ * variant and a white "dark" variant (for dark backgrounds). The app is
+ * dark-themed, so we prefer the dark variant and fall back to the first logo.
+ *
+ * @returns a map of leagueId -> logo href for every league that has one
+ */
+export async function getLeagueLogos(leagueIds?: string[]): Promise<Record<string, string>> {
+  const ids = leagueIds && leagueIds.length > 0 ? leagueIds : Object.keys(SPORT_CONFIG);
+  const results: Record<string, string> = {};
+
+  await Promise.all(
+    ids.map(async (leagueId) => {
+      const config = SPORT_CONFIG[leagueId];
+      if (!config) return;
+
+      const data = await fetchJson<CoreLeagueResponse>(
+        buildCoreLeagueUrl(config.sport, config.league),
+        { ttlMs: 60 * 60 * 1000, suppressWarns: true } // logos rarely change, cache for an hour
+      );
+      if (!data?.logos?.length) return;
+
+      const dark = data.logos.find((l) => l.rel?.includes('dark'));
+      const href = (dark ?? data.logos[0])?.href;
+      if (href) results[leagueId] = href;
+    })
+  );
+
+  return results;
+}
 
 export function getAvailableLeagues(): { id: string; name: string; sport: string; }[] {
   return Object.entries(SPORT_CONFIG).map(([key, config]) => ({

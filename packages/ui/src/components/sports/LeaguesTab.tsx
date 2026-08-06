@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useEpgClockFormat } from '../../stores/uiStore';
 import type { SportsEvent, SportsLeague, SportsTeam } from '@ynotv/core';
 import {
@@ -10,6 +10,7 @@ import {
   getGolfRankings,
   getTennisRankings,
   getRacingStandings,
+  getLeagueLogos,
   type StandingTeam,
   type StandingGroup,
   type GolfRanking,
@@ -750,8 +751,31 @@ function SportIcon({ sport, size = 20 }: { sport: string; size?: number }) {
   }
 }
 
-function LeagueIcon({ leagueId, sport, size = 32 }: { leagueId: string; sport: string; size?: number }) {
+function LeagueIcon({ leagueId, sport, size = 48, logo }: { leagueId: string; sport: string; size?: number; logo?: string }) {
   const idPrefix = useMemo(() => `league-${leagueId}-${Math.random().toString(36).substr(2, 4)}`, [leagueId]);
+  const [logoFailed, setLogoFailed] = useState(false);
+
+  // Prefer the official ESPN league logo when available, sitting standalone with normalized size
+  if (logo && !logoFailed) {
+    return (
+      <img
+        src={logo}
+        alt=""
+        width={size}
+        height={size}
+        style={{
+          width: size,
+          height: size,
+          maxWidth: '100%',
+          maxHeight: '100%',
+          objectFit: 'contain',
+          display: 'block',
+          filter: 'drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45))',
+        }}
+        onError={() => setLogoFailed(true)}
+      />
+    );
+  }
 
   switch (leagueId.toLowerCase()) {
     case 'nfl':
@@ -857,6 +881,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
   const [leagues, setLeagues] = useState<SportsLeague[]>([]);
   const [selectedLeague, setSelectedLeague] = useState<SportsLeague | null>(null);
   const [leagueEvents, setLeagueEvents] = useState<SportsEvent[]>([]);
+  const [leagueLogos, setLeagueLogos] = useState<Record<string, string>>({});
   const [leagueTeams, setLeagueTeams] = useState<SportsTeam[]>([]);
   const [leagueStandings, setLeagueStandings] = useState<StandingTeam[]>([]);
   const [leagueStandingsGroups, setLeagueStandingsGroups] = useState<StandingGroup[]>([]);
@@ -899,6 +924,24 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
       setLeagues(allLeagues);
     }
   }, [loaded, enabledLeagues]);
+
+  // Fetch official league logos from ESPN once the (enabled) league list is known.
+  // Gated on `loaded` so we only fetch for the final filtered list, and keyed on
+  // the joined ids to avoid refetching/flashing when the same set re-renders.
+  const logosFetchedFor = useRef('');
+  useEffect(() => {
+    if (!loaded || leagues.length === 0) return;
+    const ids = leagues.map(l => l.id).join(',');
+    if (logosFetchedFor.current === ids) return;
+    logosFetchedFor.current = ids;
+    let cancelled = false;
+    getLeagueLogos(leagues.map(l => l.id)).then((logos) => {
+      if (!cancelled) setLeagueLogos(logos);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [leagues, loaded]);
 
   useEffect(() => {
     if (leagues.length > 0 && (!activeSport || !leagues.some(l => l.sport === activeSport))) {
@@ -1117,11 +1160,8 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                 onClick={() => setSelectedLeague(league)}
               >
                 <div className="sports-league-card-hero-left">
-                  <div
-                    className="sports-league-card-icon-badge"
-                    style={{ background: getSportGradient(league.sport) }}
-                  >
-                    <LeagueIcon leagueId={league.id} sport={league.sport} size={32} />
+                  <div className="sports-league-card-icon-badge">
+                    <LeagueIcon leagueId={league.id} sport={league.sport} size={48} logo={leagueLogos[league.id]} />
                   </div>
                   <div className="sports-league-card-hero-info">
                     <span className="sports-league-card-hero-name">{league.name}</span>
@@ -1164,11 +1204,8 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
             </button>
 
             <div className="sports-league-info">
-              <div
-                className="sports-leagues-content-icon"
-                style={{ background: getSportGradient(selectedLeague.sport), width: 56, height: 56 }}
-              >
-                <LeagueIcon leagueId={selectedLeague.id} sport={selectedLeague.sport} size={32} />
+              <div className="sports-leagues-content-icon">
+                <LeagueIcon leagueId={selectedLeague.id} sport={selectedLeague.sport} size={56} logo={leagueLogos[selectedLeague.id]} />
               </div>
               <div>
                 <h2 className="sports-league-detail-name">{selectedLeague.name}</h2>

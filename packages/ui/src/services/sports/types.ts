@@ -167,6 +167,22 @@ export interface ESPNLeague {
   slug: string;
 }
 
+// Core API league types (sports.core.api.espn.com)
+export interface CoreLeagueLogo {
+  href: string;
+  rel?: string[];
+  width?: number;
+  height?: number;
+}
+
+export interface CoreLeagueResponse {
+  id: string;
+  slug?: string;
+  name?: string;
+  displayName?: string;
+  logos?: CoreLeagueLogo[];
+}
+
 // Sport Configuration
 export interface SportConfig {
   sport: string;
