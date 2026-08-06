@@ -209,6 +209,28 @@ function normalizeLangCode(code?: string): string {
   return fromSubSourceLang(toSubSourceLang(code));
 }
 
+/**
+ * Detect closed-caption / teletext subtitle tracks (CEA-608/708, teletext,
+ * "cc1".."cc4", "closed caption"). These are auxiliary accessibility tracks and
+ * must never be auto-selected — the user enables them explicitly.
+ */
+function isClosedCaptionTrack(track: any): boolean {
+  if (!track) return false;
+  const title = (track.title || '').toLowerCase();
+  const codec = (track.codec || '').toLowerCase();
+  if (
+    /\bcc[1-4]\b|^cc$|closed captions?|cea-?608|cea-?708|eia-?608|eia-?708|teletext|dvb_subtitle|dvb_teletext|scte-?2[07]|\[cc\]|\(cc\)/.test(title)
+  ) {
+    return true;
+  }
+  if (
+    /eia_?608|cea_?608|eia_?708|cea_?708|teletext|dvb_subtitle|dvb_teletext|cc_dec|scte_?2[07]/.test(codec)
+  ) {
+    return true;
+  }
+  return false;
+}
+
 function getTrackLanguage(track: any): string {
   if (track.external && track['external-filename']) {
     const parts = track['external-filename'].split(/[/\\]/);
@@ -1745,6 +1767,9 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
 
     const subTracks = providedSubTracks || (await Bridge.getTrackList()).filter((t: any) => t.type === 'sub');
 
+    // Closed-caption/teletext tracks are opt-in only — never auto-select them.
+    const selectableSubTracks = subTracks.filter((t: any) => !isClosedCaptionTrack(t));
+
     if (rawDefaultLanguage === 'off') {
       logInfo(`[Playback] Subtitle language set to off. Disabling subtitles. (found ${subTracks.length} tracks, attempt ${autoSelectAttemptsRef.current})`);
       await Bridge.setSubtitleTrack(0);
@@ -1759,7 +1784,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
     if (!defaultLanguage) return;
 
     // Filter tracks matching target language
-    const matchingTracks = subTracks.filter((t: any) => getTrackLanguage(t) === defaultLanguage);
+    const matchingTracks = selectableSubTracks.filter((t: any) => getTrackLanguage(t) === defaultLanguage);
 
     // Separate forced tracks (skip them if non-forced alternatives exist)
     const forcedTracks: any[] = [];
@@ -1796,16 +1821,17 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
       // (single track, or one explicitly flagged default/forced) select it so
       // embedded subs actually load for users with a default language set.
       // We deliberately skip external tracks here so we never force a foreign
-      // subtitle the user didn't ask for. Otherwise just apply full subtitle
+      // subtitle the user didn't ask for. CC/teletext tracks are excluded too —
+      // closed captions are opt-in only. Otherwise just apply full subtitle
       // settings so any active MPV subtitle gets proper styling.
       const fallback =
-        subTracks.find((t: any) => !t.external && t.default === true) ||
-        subTracks.find((t: any) => {
+        selectableSubTracks.find((t: any) => !t.external && t.default === true) ||
+        selectableSubTracks.find((t: any) => {
           if (t.external) return false;
           const title = (t.title || '').toLowerCase();
           return title.includes('default') || title.includes('forced') || title.includes('forçado');
         }) ||
-        (subTracks.length === 1 && !subTracks[0].external ? subTracks[0] : null);
+        (selectableSubTracks.length === 1 && !selectableSubTracks[0].external ? selectableSubTracks[0] : null);
 
       if (fallback) {
         logInfo(`[Playback] No ${defaultLanguage} match (${subTracks.length} tracks); falling back to embedded subtitle track: ${fallback.id} title: ${fallback.title}`);

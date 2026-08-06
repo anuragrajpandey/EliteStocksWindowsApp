@@ -554,6 +554,9 @@ export const Bridge = {
     async setSubtitleTrack(id: number) {
         const res = await invoke('mpv_set_subtitle', { id });
         if (id > 0) {
+            // Force rendering on. A user-supplied --sub-visibility=no in custom
+            // mpv parameters would otherwise silently hide every selected subtitle.
+            await invoke('mpv_set_property', { name: 'sub-visibility', value: true }).catch(() => {});
             try {
                 if (window.storage) {
                     const result = await window.storage.getSettings();
@@ -599,6 +602,8 @@ export const Bridge = {
                     await invoke('mpv_set_property', { name: 'sub-align-x', value: alignX }).catch(() => {});
                 }
             } catch (e) {}
+        } else {
+            await invoke('mpv_set_property', { name: 'sub-visibility', value: false }).catch(() => {});
         }
         return res;
     },

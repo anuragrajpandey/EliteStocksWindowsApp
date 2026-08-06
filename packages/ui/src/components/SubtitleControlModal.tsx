@@ -272,6 +272,13 @@ export function SubtitleControlModal({
     logSub('tracks', `${tag} -> ${subs.length} sub track(s)\n${lines.join('\n')}`);
   };
 
+  const debugLogSubState = async (tag: string) => {
+    const sid = await Bridge.getProperty('sid').catch(() => 'ERR');
+    const vis = await Bridge.getProperty('sub-visibility').catch(() => 'ERR');
+    const enabled = await Bridge.getProperty('sub-enabled').catch(() => 'ERR');
+    logSub('state', `${tag}: sid=${JSON.stringify(sid)} sub-visibility=${JSON.stringify(vis)} sub-enabled=${JSON.stringify(enabled)}`);
+  };
+
   const loadedRef = useRef(false);
   const autoSearchRef = useRef(false);
 
@@ -559,6 +566,7 @@ export function SubtitleControlModal({
       await Bridge.setSubtitleTrack(trackId);
       setSelectedId(trackId);
       await debugLogSubTracks(`after setSubtitleTrack(${trackId})`);
+      await debugLogSubState('after select');
     } catch (e) {
       console.error('Failed to set subtitle track:', e);
       logSub('select', `ERROR setting track #${trackId}: ${e}`);
@@ -570,6 +578,7 @@ export function SubtitleControlModal({
     try {
       await Bridge.setSubtitleTrack(0);
       setSelectedId(0);
+      await debugLogSubState('after disable');
     } catch (e) {
       console.error('Failed to disable subtitles:', e);
     }
@@ -620,6 +629,7 @@ export function SubtitleControlModal({
       logSub('load', `match found -> track #${found.id}, selecting via setSubtitleTrack`);
       await Bridge.setSubtitleTrack(found.id).catch((e) => logSub('load', `ERROR setSubtitleTrack(${found.id}): ${e}`));
       await debugLogSubTracks('after external track selection');
+      await debugLogSubState('after external selection');
     } else {
       logSub('load', 'NO matching external track found in 10 polls — track added but not selected');
     }
