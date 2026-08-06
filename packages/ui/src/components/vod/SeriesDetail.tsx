@@ -22,8 +22,8 @@ import { resolvePlayUrl } from '../../services/stream-resolver';
 import { useDownloadStore } from '../../stores/downloadStore';
 import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
 import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
-import { useLazyVodTrailer, useTrailerPlayerMode } from '../../hooks/useLazyVodTrailer';
-import { SetPlayerDropdown, SplitPlayButton, type VodPlayerMode } from './SplitPlayButton';
+import { useLazyVodTrailer, useTrailerPlayerMode, useTrailerSource } from '../../hooks/useLazyVodTrailer';
+import { SetPlayerDropdown, SplitPlayButton, TrailerSourceToggle, type VodPlayerMode } from './SplitPlayButton';
 import './SeriesDetail.css';
 
 export interface SeriesDetailProps {
@@ -360,25 +360,33 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
   // Active TMDB Token & Trailer logic
   const activeTmdbToken = useActiveTmdbToken();
   const hasTmdbKey = Boolean(activeTmdbToken && activeTmdbToken.trim() !== '');
-  const { trailerUrl, loading: trailerLoading } = useLazyVodTrailer(hasTmdbKey ? series : null, 'series', activeTmdbToken);
+  const { sourceTrailerUrl, tmdbTrailerUrl, loading: trailerLoading } = useLazyVodTrailer(series, 'series', activeTmdbToken);
   const [trailerPlayerMode, setTrailerPlayerMode] = useTrailerPlayerMode();
+  const [trailerSource, setTrailerSource] = useTrailerSource();
+
+  const hasSourceTrailer = Boolean(sourceTrailerUrl);
+  const hasTmdbTrailer = Boolean(tmdbTrailerUrl);
+  const hasBothTrailers = hasSourceTrailer && hasTmdbTrailer;
+  const effectiveTrailerUrl = trailerSource === 'tmdb'
+    ? (tmdbTrailerUrl || sourceTrailerUrl)
+    : (sourceTrailerUrl || tmdbTrailerUrl);
 
   const handlePlayTrailer = useCallback((targetMode?: VodPlayerMode) => {
-    if (!trailerUrl) {
+    if (!effectiveTrailerUrl) {
       alert('No trailer available for this series');
       return;
     }
     const modeToUse = targetMode || trailerPlayerMode;
     window.dispatchEvent(new CustomEvent('ynotv:play-url', {
       detail: {
-        url: trailerUrl,
+        url: effectiveTrailerUrl,
         title: `${series.title || series.name} - Trailer`,
         backdropUrl,
         logoUrl,
         targetMode: modeToUse,
       },
     }));
-  }, [trailerUrl, series, backdropUrl, logoUrl, trailerPlayerMode]);
+  }, [effectiveTrailerUrl, series, backdropUrl, logoUrl, trailerPlayerMode]);
 
   // Use clean title if available, otherwise fall back to name
   const displayTitle = series.title || series.name;
@@ -552,20 +560,25 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                 {isFav ? 'Remove Favorite' : 'Add to Favorite'}
               </button>
 
-              {hasTmdbKey && (
-                <SplitPlayButton
-                  label={trailerLoading ? 'Resolving...' : 'Trailer'}
-                  icon={
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" style={{ marginRight: '4px' }}>
-                      <polygon points="23 7 16 12 23 17 23 7" />
-                      <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                    </svg>
-                  }
-                  currentMode={trailerPlayerMode}
-                  onSelectMode={setTrailerPlayerMode}
-                  onPlay={handlePlayTrailer}
-                  disabled={trailerLoading || (!trailerUrl && !trailerLoading)}
-                />
+              {(hasTmdbKey || hasSourceTrailer || trailerLoading) && (
+                <>
+                  <SplitPlayButton
+                    label={trailerLoading ? 'Resolving...' : trailerSource === 'tmdb' ? 'Trailer (TMDB)' : 'Trailer'}
+                    icon={
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" style={{ marginRight: '4px' }}>
+                        <polygon points="23 7 16 12 23 17 23 7" />
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                      </svg>
+                    }
+                    currentMode={trailerPlayerMode}
+                    onSelectMode={setTrailerPlayerMode}
+                    onPlay={handlePlayTrailer}
+                    disabled={trailerLoading || (!effectiveTrailerUrl && !trailerLoading)}
+                  />
+                  {hasBothTrailers && (
+                    <TrailerSourceToggle current={trailerSource} onSelect={setTrailerSource} />
+                  )}
+                </>
               )}
             </div>
           </div>

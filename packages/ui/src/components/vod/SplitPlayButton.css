@@ -330,3 +330,43 @@
 .set-player-dropdown-btn__chevron.active {
   transform: rotate(180deg);
 }
+
+/* Trailer Source Toggle */
+.trailer-source-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  padding: 3px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.trailer-source-toggle__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.trailer-source-toggle__btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.trailer-source-toggle__btn.active {
+  color: #ffffff;
+  background: rgba(37, 99, 235, 0.35);
+  box-shadow: 0 1px 6px rgba(37, 99, 235, 0.35);
+}

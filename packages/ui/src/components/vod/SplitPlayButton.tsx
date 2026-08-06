@@ -213,6 +213,44 @@ export interface SetPlayerDropdownProps {
   className?: string;
 }
 
+export type TrailerSource = 'source' | 'tmdb';
+
+export interface TrailerSourceToggleProps {
+  current: TrailerSource;
+  onSelect: (source: TrailerSource) => void;
+  className?: string;
+}
+
+/**
+ * A small pill toggle letting the user pick which trailer to play when both the
+ * IPTV source and TMDB provide one for the item.
+ */
+export function TrailerSourceToggle({
+  current,
+  onSelect,
+  className = '',
+}: TrailerSourceToggleProps) {
+  return (
+    <div className={`trailer-source-toggle ${className}`}>
+      <button
+        type="button"
+        className={`trailer-source-toggle__btn ${current === 'source' ? 'active' : ''}`}
+        onClick={() => onSelect('source')}
+        title="Use trailer from the IPTV source"
+      >
+        Source
+      </button>
+      <button
+        type="button"
+        className={`trailer-source-toggle__btn ${current === 'tmdb' ? 'active' : ''}`}
+        onClick={() => onSelect('tmdb')}
+        title="Use trailer from TMDB"
+      >
+        TMDB
+      </button>
+    </div>
+  );
+}
 export function SetPlayerDropdown({
   currentMode = 'embedded',
   onSelectMode,

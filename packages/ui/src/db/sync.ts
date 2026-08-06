@@ -3571,6 +3571,84 @@ export async function fetchVodProviderTmdbId(source: Source, movieId: string): P
   return null;
 }
 
+/**
+ * Fetch provider-supplied trailer metadata (tmdb_id + youtube_trailer) for a
+ * VOD movie or series via get_vod_info / get_series_info. This works without a
+ * TMDB API key and is the source-preferred trailer.
+ *
+ * Returns { tmdbId, youtubeTrailer }, both null if the provider doesn't expose
+ * them or the source isn't Xtream.
+ */
+export interface ProviderTrailerInfo {
+  tmdbId: number | null;
+  youtubeTrailer: string | null;
+}
+
+export async function fetchVodProviderTrailerInfo(
+  source: Source,
+  type: 'movie' | 'series',
+  id: string
+): Promise<ProviderTrailerInfo> {
+  const empty: ProviderTrailerInfo = { tmdbId: null, youtubeTrailer: null };
+  try {
+    source = await resolveSourceUserAgent(source);
+  } catch {
+    return empty;
+  }
+
+  if (source.type !== 'xtream' || !source.username || !source.password) {
+    return empty;
+  }
+
+  try {
+    const client = new XtreamClient(
+      { baseUrl: source.url, username: source.username, password: source.password },
+      source.id
+    );
+
+    let info: any = null;
+    if (type === 'movie') {
+      info = await client.getVodInfo(id);
+    } else {
+      info = await client.getSeriesInfoMeta(id);
+    }
+
+    if (!info) return empty;
+
+    const rawTmdb = info.tmdb_id ?? info.tmdb;
+    const tmdbId = rawTmdb ? Number(rawTmdb) : null;
+    const rawTrailer = info.youtube_trailer;
+
+    const result: ProviderTrailerInfo = {
+      tmdbId: tmdbId && !isNaN(tmdbId) ? tmdbId : null,
+      youtubeTrailer:
+        rawTrailer && typeof rawTrailer === 'string' && rawTrailer.trim() ? rawTrailer.trim() : null,
+    };
+
+    // Persist what we can back to the DB so detail pages don't re-fetch.
+    try {
+      if (type === 'movie') {
+        const updates: any = {};
+        if (result.tmdbId && !isNaN(result.tmdbId)) updates.tmdb_id = result.tmdbId;
+        if (result.youtubeTrailer) updates.youtube_trailer = result.youtubeTrailer;
+        if (Object.keys(updates).length > 0) await db.vodMovies.update(id, updates);
+      } else if (type === 'series') {
+        const updates: any = {};
+        if (result.tmdbId && !isNaN(result.tmdbId)) updates.tmdb_id = result.tmdbId;
+        if (result.youtubeTrailer) updates.youtube_trailer = result.youtubeTrailer;
+        if (Object.keys(updates).length > 0) await db.vodSeries.update(id, updates);
+      }
+    } catch (dbErr) {
+      console.warn('[fetchVodProviderTrailerInfo] Failed to persist provider trailer info:', dbErr);
+    }
+
+    return result;
+  } catch (err) {
+    console.warn(`[fetchVodProviderTrailerInfo] Failed for ${type} ${id}:`, err);
+    return empty;
+  }
+}
+
 // Exported VOD sync wrapper with backup URL failover support
 export async function syncVodForSource(source: Source): Promise<VodSyncResult> {
   source = await resolveSourceUserAgent(source);
