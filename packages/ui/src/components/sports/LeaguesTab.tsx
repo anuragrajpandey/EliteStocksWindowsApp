@@ -871,6 +871,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
   const [selectedScheduleDate, setSelectedScheduleDate] = useState<Date | null>(null);
   const [teamSearchQuery, setTeamSearchQuery] = useState<string>('');
   const [standingsMode, setStandingsMode] = useState<'division' | 'conference'>('division');
+  const [teamsLayout, setTeamsLayout] = useState<'columns' | 'grid' | 'stacked'>('columns');
 
   const favorites = useSportsFavoritesStore((s) => s.favorites);
   const addFavorite = useSportsFavoritesStore((s) => s.addFavorite);
@@ -1248,75 +1249,258 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                         </button>
                       )}
                     </div>
+                    <div className="league-teams-layout-toggles">
+                      <button 
+                        className={`league-teams-layout-btn${teamsLayout === 'stacked' ? ' active' : ''}`}
+                        onClick={() => setTeamsLayout('stacked')}
+                        title="Stacked Vertical List"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="3" y1="6" x2="21" y2="6" />
+                          <line x1="3" y1="12" x2="21" y2="12" />
+                          <line x1="3" y1="18" x2="21" y2="18" />
+                        </svg>
+                        List
+                      </button>
+                      <button 
+                        className={`league-teams-layout-btn${teamsLayout === 'columns' ? ' active' : ''}`}
+                        onClick={() => setTeamsLayout('columns')}
+                        title="Division Columns Board"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="3" width="5" height="18" rx="1" />
+                          <rect x="11" y="3" width="5" height="18" rx="1" />
+                          <rect x="19" y="3" width="5" height="18" rx="1" />
+                        </svg>
+                        Columns
+                      </button>
+                      <button 
+                        className={`league-teams-layout-btn${teamsLayout === 'grid' ? ' active' : ''}`}
+                        onClick={() => setTeamsLayout('grid')}
+                        title="Cards Grid"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="3" width="7" height="7" rx="1" />
+                          <rect x="14" y="3" width="7" height="7" rx="1" />
+                          <rect x="3" y="14" width="7" height="7" rx="1" />
+                          <rect x="14" y="14" width="7" height="7" rx="1" />
+                        </svg>
+                        Grid
+                      </button>
+                    </div>
+
                     <span className="league-teams-count-badge">
                       {filteredTeams.length} {filteredTeams.length === 1 ? 'team' : 'teams'}
                     </span>
                   </div>
 
-                  {Array.from(teamGroups.entries()).map(([divName, divTeams]) => (
-                    <div key={divName} className="league-division-group">
-                      <h4 className="league-division-title">{divName}</h4>
-                      <div className="sports-teams-grid-v2">
-                        {divTeams.map((team) => {
-                          const teamAny = team as any;
-                          const isFav = favorites.some((f) => f.id === team.id);
-                          const primaryColor = teamAny.color ? `#${teamAny.color.replace('#', '')}` : '#6366f1';
+                  {/* Mode 1: Stacked Vertical List (Default) */}
+                  {teamsLayout === 'stacked' && (
+                    <div className="league-divisions-stacked-container">
+                      {Array.from(teamGroups.entries()).map(([divName, divTeams]) => (
+                        <div key={divName} className="league-division-group">
+                          <h4 className="league-division-title">{divName}</h4>
+                          <div className="sports-teams-stacked-list">
+                            {divTeams.map((team) => {
+                              const teamAny = team as any;
+                              const isFav = favorites.some((f) => f.id === team.id);
+                              const primaryColor = teamAny.color ? `#${teamAny.color.replace('#', '')}` : '#6366f1';
 
-                          return (
-                            <div
-                              key={team.id}
-                              className={`sports-team-card-v2${isFav ? ' favorite' : ''}`}
-                              style={{ borderLeftColor: primaryColor }}
-                              onClick={() => setSelectedTeam(team)}
-                            >
-                              <div className="team-card-v2-main">
-                                {team.logo ? (
-                                  <img src={team.logo} alt={team.name} className="sports-team-card-logo" />
-                                ) : (
-                                  <div className="sports-team-card-logo-placeholder" style={{ backgroundColor: primaryColor }}>
-                                    {(teamAny.abbreviation || team.name.slice(0, 3)).toUpperCase()}
+                              return (
+                                <div
+                                  key={team.id}
+                                  className={`sports-team-row-stacked${isFav ? ' favorite' : ''}`}
+                                  style={{ borderLeftColor: primaryColor }}
+                                  onClick={() => setSelectedTeam(team)}
+                                >
+                                  <div className="team-row-stacked-left">
+                                    {team.logo ? (
+                                      <img src={team.logo} alt={team.name} className="sports-team-row-logo" />
+                                    ) : (
+                                      <div className="sports-team-row-logo-placeholder" style={{ backgroundColor: primaryColor }}>
+                                        {(teamAny.abbreviation || team.name.slice(0, 3)).toUpperCase()}
+                                      </div>
+                                    )}
+                                    <div className="sports-team-row-info">
+                                      <span className="sports-team-row-name">{team.name}</span>
+                                      {teamAny.location && <span className="sports-team-row-location">{teamAny.location}</span>}
+                                    </div>
                                   </div>
-                                )}
-                                <div className="sports-team-card-info">
-                                  <span className="sports-team-card-name">{team.name}</span>
-                                  {teamAny.standingSummary ? (
-                                    <span className="sports-team-card-sub">{teamAny.standingSummary}</span>
-                                  ) : team.shortName ? (
-                                    <span className="sports-team-card-sub">{team.shortName}</span>
-                                  ) : null}
-                                </div>
-                              </div>
 
-                              <button
-                                className={`sports-team-card-star${isFav ? ' active' : ''}`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (isFav) {
-                                    removeFavorite(team.id);
-                                  } else {
-                                    addFavorite({
-                                      id: team.id,
-                                      name: team.name,
-                                      shortName: team.shortName,
-                                      location: teamAny.location,
-                                      abbreviation: teamAny.abbreviation,
-                                      color: teamAny.color,
-                                      alternateColor: teamAny.alternateColor,
-                                      logo: team.logo,
-                                      leagueId: selectedLeague.id,
-                                    } as any);
-                                  }
-                                }}
-                                title={isFav ? 'Remove from favorite teams' : 'Add to favorite teams'}
-                              >
-                                ★
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
+                                  <div className="team-row-stacked-right">
+                                    {teamAny.standingSummary && (
+                                      <span className="sports-team-row-summary">{teamAny.standingSummary}</span>
+                                    )}
+                                    <button
+                                      className={`sports-team-card-star${isFav ? ' active' : ''}`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (isFav) {
+                                          removeFavorite(team.id);
+                                        } else {
+                                          addFavorite({
+                                            id: team.id,
+                                            name: team.name,
+                                            shortName: team.shortName,
+                                            location: teamAny.location,
+                                            abbreviation: teamAny.abbreviation,
+                                            color: teamAny.color,
+                                            alternateColor: teamAny.alternateColor,
+                                            logo: team.logo,
+                                            leagueId: selectedLeague.id,
+                                          } as any);
+                                        }
+                                      }}
+                                      title={isFav ? 'Remove from favorite teams' : 'Add to favorite teams'}
+                                    >
+                                      ★
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
+
+                  {/* Mode 2: Division Columns Board */}
+                  {teamsLayout === 'columns' && (
+                    <div className="league-divisions-board">
+                      {Array.from(teamGroups.entries()).map(([divName, divTeams]) => (
+                        <div key={divName} className="league-division-column-panel">
+                          <div className="league-division-column-header">
+                            <h4>{divName}</h4>
+                            <span className="league-division-team-count">{divTeams.length}</span>
+                          </div>
+                          <div className="league-division-column-teams">
+                            {divTeams.map((team, idx) => {
+                              const teamAny = team as any;
+                              const isFav = favorites.some((f) => f.id === team.id);
+                              const primaryColor = teamAny.color ? `#${teamAny.color.replace('#', '')}` : '#6366f1';
+
+                              return (
+                                <div
+                                  key={team.id}
+                                  className={`sports-team-column-card${isFav ? ' favorite' : ''}`}
+                                  style={{ borderLeftColor: primaryColor }}
+                                  onClick={() => setSelectedTeam(team)}
+                                >
+                                  <span className="team-column-rank">{idx + 1}</span>
+                                  {team.logo ? (
+                                    <img src={team.logo} alt={team.name} className="sports-team-card-logo" />
+                                  ) : (
+                                    <div className="sports-team-card-logo-placeholder" style={{ backgroundColor: primaryColor }}>
+                                      {(teamAny.abbreviation || team.name.slice(0, 3)).toUpperCase()}
+                                    </div>
+                                  )}
+                                  <div className="sports-team-card-info">
+                                    <span className="sports-team-card-name">{team.name}</span>
+                                    {team.shortName && <span className="sports-team-card-sub">{team.shortName}</span>}
+                                  </div>
+                                  <button
+                                    className={`sports-team-card-star${isFav ? ' active' : ''}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (isFav) {
+                                        removeFavorite(team.id);
+                                      } else {
+                                        addFavorite({
+                                          id: team.id,
+                                          name: team.name,
+                                          shortName: team.shortName,
+                                          location: teamAny.location,
+                                          abbreviation: teamAny.abbreviation,
+                                          color: teamAny.color,
+                                          alternateColor: teamAny.alternateColor,
+                                          logo: team.logo,
+                                          leagueId: selectedLeague.id,
+                                        } as any);
+                                      }
+                                    }}
+                                    title={isFav ? 'Remove from favorite teams' : 'Add to favorite teams'}
+                                  >
+                                    ★
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Mode 3: Cards Grid */}
+                  {teamsLayout === 'grid' && (
+                    <div className="league-divisions-grid-container">
+                      {Array.from(teamGroups.entries()).map(([divName, divTeams]) => (
+                        <div key={divName} className="league-division-group">
+                          <h4 className="league-division-title">{divName}</h4>
+                          <div className="sports-teams-grid-v2">
+                            {divTeams.map((team) => {
+                              const teamAny = team as any;
+                              const isFav = favorites.some((f) => f.id === team.id);
+                              const primaryColor = teamAny.color ? `#${teamAny.color.replace('#', '')}` : '#6366f1';
+
+                              return (
+                                <div
+                                  key={team.id}
+                                  className={`sports-team-card-v2${isFav ? ' favorite' : ''}`}
+                                  style={{ borderLeftColor: primaryColor }}
+                                  onClick={() => setSelectedTeam(team)}
+                                >
+                                  <div className="team-card-v2-main">
+                                    {team.logo ? (
+                                      <img src={team.logo} alt={team.name} className="sports-team-card-logo" />
+                                    ) : (
+                                      <div className="sports-team-card-logo-placeholder" style={{ backgroundColor: primaryColor }}>
+                                        {(teamAny.abbreviation || team.name.slice(0, 3)).toUpperCase()}
+                                      </div>
+                                    )}
+                                    <div className="sports-team-card-info">
+                                      <span className="sports-team-card-name">{team.name}</span>
+                                      {teamAny.standingSummary ? (
+                                        <span className="sports-team-card-sub">{teamAny.standingSummary}</span>
+                                      ) : team.shortName ? (
+                                        <span className="sports-team-card-sub">{team.shortName}</span>
+                                      ) : null}
+                                    </div>
+                                  </div>
+
+                                  <button
+                                    className={`sports-team-card-star${isFav ? ' active' : ''}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (isFav) {
+                                        removeFavorite(team.id);
+                                      } else {
+                                        addFavorite({
+                                          id: team.id,
+                                          name: team.name,
+                                          shortName: team.shortName,
+                                          location: teamAny.location,
+                                          abbreviation: teamAny.abbreviation,
+                                          color: teamAny.color,
+                                          alternateColor: teamAny.alternateColor,
+                                          logo: team.logo,
+                                          leagueId: selectedLeague.id,
+                                        } as any);
+                                      }
+                                    }}
+                                    title={isFav ? 'Remove from favorite teams' : 'Add to favorite teams'}
+                                  >
+                                    ★
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </section>
               )}
 
