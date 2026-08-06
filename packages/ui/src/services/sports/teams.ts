@@ -253,7 +253,44 @@ function parseTeamRecord(recordData?: { items?: Array<{ type: string; summary: s
   };
 }
 
+const TEAMS_CACHE_KEY_PREFIX = 'sports_teams_cache_v2_';
+const TEAMS_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+function getCachedTeams(leagueId: string): SportsTeam[] | null {
+  try {
+    if (typeof window === 'undefined') return null;
+    const raw = localStorage.getItem(TEAMS_CACHE_KEY_PREFIX + leagueId);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.data)) {
+        return parsed.data;
+      }
+    }
+  } catch {
+    // Ignore storage parse errors
+  }
+  return null;
+}
+
+function saveCachedTeams(leagueId: string, teams: SportsTeam[]) {
+  try {
+    if (typeof window === 'undefined') return;
+    const payload = {
+      data: teams,
+      timestamp: Date.now(),
+    };
+    localStorage.setItem(TEAMS_CACHE_KEY_PREFIX + leagueId, JSON.stringify(payload));
+  } catch {
+    // Ignore storage write errors
+  }
+}
+
 export async function getLeagueTeams(leagueId: string): Promise<SportsTeam[]> {
+  const cached = getCachedTeams(leagueId);
+  if (cached && cached.length > 0) {
+    return cached;
+  }
+
   const config = SPORT_CONFIG[leagueId];
   if (!config) return [];
 
@@ -263,7 +300,7 @@ export async function getLeagueTeams(leagueId: string): Promise<SportsTeam[]> {
         teams?: Array<{ team?: ESPTeam }>;
       }>;
     }>;
-  }>(buildTeamsUrl(config.sport, config.league));
+  }>(buildTeamsUrl(config.sport, config.league), { ttlMs: TEAMS_CACHE_TTL_MS });
 
   const teams: SportsTeam[] = [];
 
@@ -278,6 +315,10 @@ export async function getLeagueTeams(leagueId: string): Promise<SportsTeam[]> {
         }
       }
     }
+  }
+
+  if (teams.length > 0) {
+    saveCachedTeams(leagueId, teams);
   }
 
   console.log('[ESPN API] League teams:', teams.length, 'for', leagueId);

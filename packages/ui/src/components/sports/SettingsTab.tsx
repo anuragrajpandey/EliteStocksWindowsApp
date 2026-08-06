@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSportsSettingsStore, getLeaguesByCategory } from '../../stores/sportsSettingsStore';
+import { clearLeagueLogosCache } from '../../services/sports/utils';
 
 interface SettingsTabProps {}
 
 export function SettingsTab({}: SettingsTabProps) {
+  const [clearedLogosMessage, setClearedLogosMessage] = useState(false);
   const {
     enabledLeagues,
     toggleLeagueAll,
@@ -73,6 +75,26 @@ export function SettingsTab({}: SettingsTabProps) {
                 />
                 <span className="sports-settings-toggle-slider"></span>
               </label>
+            </div>
+
+            <div className="sports-settings-league-item" style={{ paddingTop: 10, borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
+              <div>
+                <span className="sports-settings-league-name">Cached Sports Logos</span>
+                <p style={{ margin: '2px 0 0 0', fontSize: '0.775rem', color: 'rgba(255, 255, 255, 0.5)' }}>
+                  Logos are stored permanently offline. Clear cache if logos appear outdated or corrupted.
+                </p>
+              </div>
+              <button
+                className="sports-settings-reset"
+                style={{ padding: '6px 12px', fontSize: '0.8rem', flexShrink: 0 }}
+                onClick={() => {
+                  clearLeagueLogosCache();
+                  setClearedLogosMessage(true);
+                  setTimeout(() => setClearedLogosMessage(false), 3000);
+                }}
+              >
+                {clearedLogosMessage ? '✓ Cache Cleared' : 'Clear Logo Cache'}
+              </button>
             </div>
           </div>
         </div>

@@ -751,6 +751,41 @@ function SportIcon({ sport, size = 20 }: { sport: string; size?: number }) {
   }
 }
 
+function TeamLogo({ logo, name, abbreviation, primaryColor, size = 36, className = "sports-team-card-logo" }: {
+  logo?: string;
+  name: string;
+  abbreviation?: string;
+  primaryColor?: string;
+  size?: number;
+  className?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  if (logo && !failed) {
+    return (
+      <img
+        src={logo}
+        alt={name}
+        className={className}
+        style={{ width: size, height: size, objectFit: 'contain' }}
+        onError={() => setFailed(true)}
+      />
+    );
+  }
+
+  const initials = (abbreviation || name.slice(0, 3)).toUpperCase();
+  const bg = primaryColor ? (primaryColor.startsWith('#') ? primaryColor : `#${primaryColor}`) : '#6366f1';
+
+  return (
+    <div
+      className="sports-team-card-logo-placeholder"
+      style={{ width: size, height: size, backgroundColor: bg, fontSize: size * 0.35, flexShrink: 0 }}
+    >
+      {initials}
+    </div>
+  );
+}
+
 function LeagueIcon({ leagueId, sport, size = 48, logo }: { leagueId: string; sport: string; size?: number; logo?: string }) {
   const idPrefix = useMemo(() => `league-${leagueId}-${Math.random().toString(36).substr(2, 4)}`, [leagueId]);
   const [logoFailed, setLogoFailed] = useState(false);
@@ -1351,13 +1386,13 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                                   onClick={() => setSelectedTeam(team)}
                                 >
                                   <div className="team-row-stacked-left">
-                                    {team.logo ? (
-                                      <img src={team.logo} alt={team.name} className="sports-team-row-logo" />
-                                    ) : (
-                                      <div className="sports-team-row-logo-placeholder" style={{ backgroundColor: primaryColor }}>
-                                        {(teamAny.abbreviation || team.name.slice(0, 3)).toUpperCase()}
-                                      </div>
-                                    )}
+                                    <TeamLogo
+                                      logo={team.logo}
+                                      name={team.name}
+                                      abbreviation={teamAny.abbreviation}
+                                      primaryColor={primaryColor}
+                                      size={32}
+                                    />
                                     <div className="sports-team-row-info">
                                       <span className="sports-team-row-name">{team.name}</span>
                                       {teamAny.location && <span className="sports-team-row-location">{teamAny.location}</span>}
@@ -1425,13 +1460,13 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                                   onClick={() => setSelectedTeam(team)}
                                 >
                                   <span className="team-column-rank">{idx + 1}</span>
-                                  {team.logo ? (
-                                    <img src={team.logo} alt={team.name} className="sports-team-card-logo" />
-                                  ) : (
-                                    <div className="sports-team-card-logo-placeholder" style={{ backgroundColor: primaryColor }}>
-                                      {(teamAny.abbreviation || team.name.slice(0, 3)).toUpperCase()}
-                                    </div>
-                                  )}
+                                  <TeamLogo
+                                    logo={team.logo}
+                                    name={team.name}
+                                    abbreviation={teamAny.abbreviation}
+                                    primaryColor={primaryColor}
+                                    size={32}
+                                  />
                                   <div className="sports-team-card-info">
                                     <span className="sports-team-card-name">{team.name}</span>
                                     {team.shortName && <span className="sports-team-card-sub">{team.shortName}</span>}
@@ -1489,13 +1524,13 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                                   onClick={() => setSelectedTeam(team)}
                                 >
                                   <div className="team-card-v2-main">
-                                    {team.logo ? (
-                                      <img src={team.logo} alt={team.name} className="sports-team-card-logo" />
-                                    ) : (
-                                      <div className="sports-team-card-logo-placeholder" style={{ backgroundColor: primaryColor }}>
-                                        {(teamAny.abbreviation || team.name.slice(0, 3)).toUpperCase()}
-                                      </div>
-                                    )}
+                                    <TeamLogo
+                                      logo={team.logo}
+                                      name={team.name}
+                                      abbreviation={teamAny.abbreviation}
+                                      primaryColor={primaryColor}
+                                      size={36}
+                                    />
                                     <div className="sports-team-card-info">
                                       <span className="sports-team-card-name">{team.name}</span>
                                       {teamAny.standingSummary ? (

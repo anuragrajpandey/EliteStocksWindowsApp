@@ -106,18 +106,74 @@ import type { SportsLeague, CoreLeagueResponse } from './types';
  *
  * @returns a map of leagueId -> logo href for every league that has one
  */
+export const LEAGUE_LOGOS_CACHE_KEY = 'sports_league_logos_cache_v3';
+
+export function getCachedLeagueLogos(): Record<string, string> {
+  try {
+    if (typeof window === 'undefined') return {};
+    const raw = localStorage.getItem(LEAGUE_LOGOS_CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.data === 'object') {
+        return parsed.data;
+      }
+    }
+  } catch {
+    // Ignore storage parse errors
+  }
+  return {};
+}
+
+export function saveCachedLeagueLogos(logos: Record<string, string>) {
+  try {
+    if (typeof window === 'undefined') return;
+    const payload = {
+      data: logos,
+      timestamp: Date.now(),
+    };
+    localStorage.setItem(LEAGUE_LOGOS_CACHE_KEY, JSON.stringify(payload));
+  } catch {
+    // Ignore storage write errors
+  }
+}
+
+export function clearLeagueLogosCache(): void {
+  try {
+    if (typeof window === 'undefined') return;
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('sports_teams_cache_') || key.startsWith('sports_league_logos_') || key.startsWith('sports_logo_'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach((key) => localStorage.removeItem(key));
+    console.log('[Sports Cache] Cleared all permanent sports logo and team caches');
+  } catch (err) {
+    console.error('Failed to clear logos cache:', err);
+  }
+}
+
 export async function getLeagueLogos(leagueIds?: string[]): Promise<Record<string, string>> {
   const ids = leagueIds && leagueIds.length > 0 ? leagueIds : Object.keys(SPORT_CONFIG);
-  const results: Record<string, string> = {};
+  const cached = getCachedLeagueLogos();
+
+  // If all requested league logos are already present in persistent cache, return immediately
+  const missingIds = ids.filter((id) => !cached[id]);
+  if (missingIds.length === 0) {
+    return cached;
+  }
+
+  const results: Record<string, string> = { ...cached };
 
   await Promise.all(
-    ids.map(async (leagueId) => {
+    missingIds.map(async (leagueId) => {
       const config = SPORT_CONFIG[leagueId];
       if (!config) return;
 
       const data = await fetchJson<CoreLeagueResponse>(
         buildCoreLeagueUrl(config.sport, config.league),
-        { ttlMs: 60 * 60 * 1000, suppressWarns: true } // logos rarely change, cache for an hour
+        { ttlMs: 365 * 24 * 60 * 60 * 1000, suppressWarns: true }
       );
       if (!data?.logos?.length) return;
 
@@ -127,6 +183,7 @@ export async function getLeagueLogos(leagueIds?: string[]): Promise<Record<strin
     })
   );
 
+  saveCachedLeagueLogos(results);
   return results;
 }
 
