@@ -22,6 +22,8 @@ import {
   type OpenSubtitlesSearchResult,
 } from '../services/opensubtitles';
 import { useToastStore } from '../stores/toastStore';
+import { useSubtitleDebugStore } from '../stores/subtitleDebugStore';
+import { SubtitleDiagnosticsModal } from './SubtitleDiagnosticsModal';
 import { cleanTitleForSearch } from '../utils/cleanTitle';
 import { db } from '../db';
 import { fetchVodProviderTmdbId } from '../db/sync';
@@ -253,6 +255,22 @@ export function SubtitleControlModal({
   // Episode filter
   const [episodeFilter, setEpisodeFilter] = useState<number | null>(null);
   const [availableEpisodes, setAvailableEpisodes] = useState<number[]>([]);
+
+  // Diagnostics
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const logSub = useSubtitleDebugStore((s) => s.logSub);
+
+  const debugLogSubTracks = async (tag: string) => {
+    const trackList = await Bridge.getTrackList().catch(() => []);
+    const subs = (trackList as any[]).filter((t) => t.type === 'sub');
+    const lines = subs.map((t) => {
+      const sel = t.selected ? 'SELECTED' : 'not-selected';
+      const kind = t.external ? 'EXT' : 'EMB';
+      const file = t['external-filename'] || '(embedded)';
+      return `  #${t.id} [${sel}][${kind}] codec=${t.codec || '?'} lang=${t.lang || t.title || '?'} file=${file}`;
+    });
+    logSub('tracks', `${tag} -> ${subs.length} sub track(s)\n${lines.join('\n')}`);
+  };
 
   const loadedRef = useRef(false);
   const autoSearchRef = useRef(false);
@@ -536,15 +554,19 @@ export function SubtitleControlModal({
   };
 
   const handleSelect = async (trackId: number) => {
+    logSub('select', `selecting track #${trackId}`);
     try {
       await Bridge.setSubtitleTrack(trackId);
       setSelectedId(trackId);
+      await debugLogSubTracks(`after setSubtitleTrack(${trackId})`);
     } catch (e) {
       console.error('Failed to set subtitle track:', e);
+      logSub('select', `ERROR setting track #${trackId}: ${e}`);
     }
   };
 
   const handleDisable = async () => {
+    logSub('select', 'disabling subtitles (sid=0)');
     try {
       await Bridge.setSubtitleTrack(0);
       setSelectedId(0);
@@ -560,26 +582,46 @@ export function SubtitleControlModal({
    * we poll track-list until the external track appears and then enable it.
    */
   const addExternalSubtitleFile = async (filePath: string) => {
+    logSub('load', `sub-add file: ${filePath}`);
     await Bridge.addSubtitleFile(filePath);
 
     const normPath = (p: string) => p.replace(/\\/g, '/').toLowerCase();
     const needle = normPath(filePath);
+    logSub('load', `needle (normalized path): ${needle}`);
 
+    let found: any = null;
     for (let attempt = 0; attempt < 10; attempt++) {
       const trackList = await Bridge.getTrackList().catch(() => []);
-      const extTrack = (trackList as any[]).find(
+      const subTracks = (trackList as any[]).filter(
+        (t: any) => t.type === 'sub' && t.external
+      );
+      const extTrack = subTracks.find(
         (t: any) =>
-          t.type === 'sub' &&
-          t.external &&
           t['external-filename'] &&
           normPath(String(t['external-filename'])) === needle
       );
+      if (attempt === 0 || attempt === 9 || extTrack) {
+        logSub(
+          'load',
+          `poll #${attempt + 1}: ${subTracks.length} external sub track(s): ` +
+            (subTracks.length
+              ? subTracks.map((t) => `#${t.id} file=${t['external-filename']}`).join(' | ')
+              : '(none)')
+        );
+      }
       if (extTrack) {
-        await Bridge.setSubtitleTrack(extTrack.id).catch(() => {});
-        await loadTracks();
-        return;
+        found = extTrack;
+        break;
       }
       await new Promise((r) => setTimeout(r, 150));
+    }
+
+    if (found) {
+      logSub('load', `match found -> track #${found.id}, selecting via setSubtitleTrack`);
+      await Bridge.setSubtitleTrack(found.id).catch((e) => logSub('load', `ERROR setSubtitleTrack(${found.id}): ${e}`));
+      await debugLogSubTracks('after external track selection');
+    } else {
+      logSub('load', 'NO matching external track found in 10 polls — track added but not selected');
     }
     await loadTracks();
   };
@@ -849,6 +891,7 @@ export function SubtitleControlModal({
       await mkdir('subtitles', { baseDir: BaseDirectory.AppLocalData, recursive: true }).catch(() => {});
       await writeTextFile(relPath, res.content, { baseDir: BaseDirectory.AppLocalData });
       console.log('[SubtitleModal] Saved OpenSubtitles file to:', filePath);
+      logSub('os-download', `saved: ${filePath} (${(res.content?.length || 0)} chars)`);
 
       await addExternalSubtitleFile(filePath);
       setViewState('tracks');
@@ -1055,6 +1098,7 @@ export function SubtitleControlModal({
       await mkdir('subtitles', { baseDir: BaseDirectory.AppLocalData, recursive: true }).catch(() => {});
       await writeTextFile(relPath, content, { baseDir: BaseDirectory.AppLocalData });
       console.log('[SubtitleModal] Saved SRT to:', filePath);
+      logSub('subsource-download', `saved: ${filePath} (${(content?.length || 0)} chars)`);
 
       // Load into MPV and explicitly select the track so it renders immediately
       await addExternalSubtitleFile(filePath);
@@ -1141,6 +1185,7 @@ export function SubtitleControlModal({
 
       if (selected && typeof selected === 'string') {
         console.log('[SubtitleModal] Selected local subtitle file:', selected);
+        logSub('local-load', `selected: ${selected}`);
         await addExternalSubtitleFile(selected);
         setViewState('tracks');
       }
@@ -1245,7 +1290,16 @@ export function SubtitleControlModal({
         <div className="subtitle-modal-header">
           <div className="subtitle-modal-header-top">
             <h3>Subtitles</h3>
-            <button className="subtitle-modal-close" onClick={onClose}>×</button>
+            <div className="subtitle-modal-header-actions">
+              <button
+                className="subtitle-diagnostics-open"
+                onClick={() => setShowDiagnostics(true)}
+                title="Open subtitle diagnostics log (copy/paste for support)"
+              >
+                Diagnostics
+              </button>
+              <button className="subtitle-modal-close" onClick={onClose}>×</button>
+            </div>
           </div>
           <div className="subtitle-header-search">
             <input
@@ -1789,6 +1843,7 @@ export function SubtitleControlModal({
           </div>
         </div>
       </div>
+      <SubtitleDiagnosticsModal isOpen={showDiagnostics} onClose={() => setShowDiagnostics(false)} />
     </div>
   );
 }

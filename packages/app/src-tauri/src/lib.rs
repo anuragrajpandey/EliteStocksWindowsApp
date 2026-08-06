@@ -943,6 +943,33 @@ async fn mpv_remove_subtitle<R: Runtime>(app: AppHandle<R>, file_path: String) -
 }
 
 #[tauri::command]
+async fn mpv_get_log<R: Runtime>(app: AppHandle<R>, tail: Option<usize>) -> Result<serde_json::Value, String> {
+    let tail = tail.unwrap_or(400);
+    #[cfg(target_os = "macos")]
+    {
+        Ok(serde_json::json!({ "log": "", "path": "(mpv log not available on macOS)" }))
+    }
+    #[cfg(target_os = "windows")]
+    {
+        mpv_windows::get_mpv_log(&app, tail).await
+    }
+}
+
+#[tauri::command]
+async fn mpv_set_verbose_logging<R: Runtime>(app: AppHandle<R>, enabled: bool) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        let _ = app;
+        let _ = enabled;
+        Ok(())
+    }
+    #[cfg(target_os = "windows")]
+    {
+        mpv_windows::set_verbose_logging(&app, enabled).await
+    }
+}
+
+#[tauri::command]
 async fn mpv_set_properties<R: Runtime>(
     app: AppHandle<R>,
     properties: Vec<(String, serde_json::Value)>,
@@ -4581,6 +4608,8 @@ pub fn run() {
             mpv_set_subtitle,
             mpv_add_subtitle,
             mpv_remove_subtitle,
+            mpv_get_log,
+            mpv_set_verbose_logging,
             mpv_set_property,
             mpv_set_properties,
             mpv_get_property,

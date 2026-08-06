@@ -260,6 +260,8 @@ async fn try_spawn_mpv<R: Runtime>(app: &AppHandle<R>, state: &tauri::State<'_, 
         "--input-default-bindings=no".into(),
         "--no-input-cursor".into(),
         "--cursor-autohide=no".into(),
+        "--msg-level=all=warn".into(),
+        format!("--log-file={}", get_mpv_log_path(app)),
     ];
 
     // If SOCKS5 proxy is configured, pass it to MPV
@@ -728,7 +730,10 @@ pub async fn set_subtitle_track<R: Runtime>(app: &AppHandle<R>, id: i64) -> Resu
 
 pub async fn add_subtitle_file<R: Runtime>(app: &AppHandle<R>, file_path: String, flag: Option<String>) -> Result<(), String> {
     let state = app.state::<MpvState>();
-    let f = flag.unwrap_or_else(|| "select".to_string());
+    let f = match flag {
+        Some(s) if !s.is_empty() => s,
+        _ => "select".to_string(),
+    };
     send_command_internal(&state, "sub-add", vec![json!(file_path), json!(f)]).await.map(|_| ())
 }
 
@@ -875,4 +880,62 @@ pub async fn kill_mpv<R: Runtime>(app: &AppHandle<R>) {
         let mut pid = state.pid.lock().unwrap();
         *pid = 0;
     }
+}
+
+/// Absolute path (forward-slash) of the mpv --log-file used for diagnostics.
+pub fn get_mpv_log_path<R: Runtime>(app: &AppHandle<R>) -> String {
+    let dir = app
+        .path()
+        .app_data_dir()
+        .unwrap_or_else(|_| std::env::temp_dir());
+    let _ = std::fs::create_dir_all(&dir);
+    dir.join("mpv.log")
+        .to_string_lossy()
+        .replace('\\', "/")
+}
+
+/// Return the tail of the current mpv log file for the Diagnostics panel.
+/// Scans a wide window then keeps only subtitle-relevant lines so that
+/// verbose ffmpeg/vo chatter doesn't push the sub-add/decoder/sid events out.
+pub async fn get_mpv_log<R: Runtime>(app: &AppHandle<R>, tail: usize) -> Result<Value, String> {
+    let path = get_mpv_log_path(app);
+    let content = std::fs::read_to_string(&path).unwrap_or_default();
+    let scan = tail.max(8000);
+    let lines: Vec<&str> = content
+        .lines()
+        .rev()
+        .take(scan)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .rev()
+        .collect();
+    let keywords = [
+        "sub", "sid", "ass", "osd", "track", "refresh", "fontselect", "srt", "vtt", "subrip",
+        "mov_text",
+    ];
+    let mut kept: Vec<String> = Vec::new();
+    for line in lines {
+        let lower = line.to_lowercase();
+        if keywords.iter().any(|k| lower.contains(k)) {
+            kept.push(line.to_string());
+        }
+    }
+    if kept.len() > 2000 {
+        kept = kept[kept.len() - 2000..].to_vec();
+    }
+    Ok(json!({ "log": kept.join("\n"), "path": path, "filtered": true }))
+}
+
+/// Enable/disable verbose mpv logging at runtime (msg-level all=v / all=warn).
+/// Call before reproducing so libass/demuxer/sub activity is captured in the log file.
+pub async fn set_verbose_logging<R: Runtime>(app: &AppHandle<R>, enabled: bool) -> Result<(), String> {
+    let state = app.state::<MpvState>();
+    let level = if enabled { "all=v" } else { "all=warn" };
+    send_command_internal(
+        &state,
+        "set_property",
+        vec![json!("msg-level"), json!(level)],
+    )
+    .await
+    .map(|_| ())
 }

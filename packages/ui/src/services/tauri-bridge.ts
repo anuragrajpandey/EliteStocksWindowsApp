@@ -607,6 +607,14 @@ export const Bridge = {
         return invoke('mpv_add_subtitle', { filePath, flag });
     },
 
+    async getMpvLog(tail?: number): Promise<{ log: string; path: string }> {
+        return invoke('mpv_get_log', { tail: tail ?? 400 });
+    },
+
+    async setMpvVerboseLogging(enabled: boolean) {
+        return invoke('mpv_set_verbose_logging', { enabled });
+    },
+
     async removeSubtitleFile(filePath: string) {
         return invoke('mpv_remove_subtitle', { filePath });
     },
