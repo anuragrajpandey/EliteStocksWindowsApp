@@ -49,7 +49,7 @@ export async function getAthleteDetails(
           draft?: { displayText?: string };
           injuries?: Array<{ status?: string; comment?: string }>;
         };
-      }>(`https://site.api.espn.com/apis/common/v3/sports/${config.sport}/${config.league}/athletes/${athleteId}`),
+      }>(`https://site.web.api.espn.com/apis/common/v3/sports/${config.sport}/${config.league}/athletes/${athleteId}`),
 
       fetchJson<{
         statistics?: {

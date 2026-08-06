@@ -617,7 +617,7 @@ export async function getTeamDepthChart(teamId: string, leagueId: string): Promi
           }
         >;
       }>;
-    }>(`https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.league}/teams/${teamId}/depthcharts`);
+    }>(`https://site.web.api.espn.com/apis/site/v2/sports/${config.sport}/${config.league}/teams/${teamId}/depthcharts`);
 
     const results: DepthChartGroup[] = [];
 
@@ -745,7 +745,7 @@ export async function getTeamNews(teamId: string, leagueId: string): Promise<Tea
         images?: Array<{ url: string }>;
         links?: { web?: { href: string } };
       }>;
-    }>(`https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.league}/news?team=${teamId}`);
+    }>(`https://site.web.api.espn.com/apis/site/v2/sports/${config.sport}/${config.league}/news?team=${teamId}`);
 
     return (data?.articles || []).map(art => ({
       id: art.id,
@@ -804,7 +804,7 @@ export async function getTeamLeaders(teamId: string, leagueId: string): Promise<
             };
           }>;
         }>;
-      }>(leadersUrl),
+      }>(leadersUrl, { suppressWarns: true }),
     ]);
 
     if (!leadersData?.categories || leadersData.categories.length === 0) {
@@ -858,7 +858,7 @@ export async function getTeamLeaders(teamId: string, leagueId: string): Promise<
                 headshot?: { href?: string };
                 position?: { abbreviation?: string; displayName?: string };
               };
-            }>(`https://site.api.espn.com/apis/common/v3/sports/${config.sport}/${config.league}/athletes/${id}`);
+            }>(`https://site.web.api.espn.com/apis/common/v3/sports/${config.sport}/${config.league}/athletes/${id}`);
 
             if (bioRes?.athlete) {
               const ath = bioRes.athlete;

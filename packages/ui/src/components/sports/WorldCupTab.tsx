@@ -69,9 +69,9 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
 
     const loadAllData = async () => {
       try {
-        const scoreboardUrl = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260611-20260720&limit=200';
+        const scoreboardUrl = 'https://site.web.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260611-20260720&limit=200';
         const standingsUrl = 'https://site.web.api.espn.com/apis/v2/sports/soccer/fifa.world/standings';
-        const teamsUrl = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/teams?limit=100';
+        const teamsUrl = 'https://site.web.api.espn.com/apis/site/v2/sports/soccer/fifa.world/teams?limit=100';
 
         const [scoreboardData, standingsData, teamsData] = await Promise.all([
           fetchJson<any>(scoreboardUrl),

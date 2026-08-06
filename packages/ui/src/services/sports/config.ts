@@ -6,7 +6,7 @@
 
 import type { SportConfig } from './types';
 
-export const ESPN_API_BASE = 'https://site.api.espn.com/apis/site/v2/sports';
+export const ESPN_API_BASE = 'https://site.web.api.espn.com/apis/site/v2/sports';
 
 export const SPORT_CONFIG: Record<string, SportConfig> = {
   // Football
