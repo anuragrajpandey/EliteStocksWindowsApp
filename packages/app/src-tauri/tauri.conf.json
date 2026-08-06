@@ -19,7 +19,8 @@
         "height": 1080,
         "decorations": false,
         "transparent": true,
-        "acceptFirstMouse": true
+        "acceptFirstMouse": true,
+        "dragDropEnabled": false
       }
     ],
     "security": {

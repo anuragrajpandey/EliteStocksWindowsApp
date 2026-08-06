@@ -199,6 +199,11 @@
     border: 1px solid transparent;
     transition: background 0.15s, border-color 0.15s;
     user-select: none;
+    cursor: grab;
+}
+
+.group-channel-item:active {
+    cursor: grabbing;
 }
 
 .group-channel-item:hover {

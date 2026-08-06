@@ -4,6 +4,23 @@ import { db, type StoredChannel, type StoredCategory } from '../db';
 import { buildSearchQueryClauses } from '../utils/searchNormalization';
 import { addChannelsToGroup, removeChannelsFromGroup, reorderGroupChannels, renameCustomGroup } from '../services/custom-groups';
 import './CustomGroupManager.css';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface CustomGroupManagerProps {
     groupId: string;
@@ -12,6 +29,57 @@ interface CustomGroupManagerProps {
 }
 
 type GroupChannel = StoredChannel & { displayOrder: number };
+
+function SortableGroupChannelItem(props: {
+    ch: GroupChannel;
+    displaySource: boolean;
+    getChannelSourceCategory: (ch: GroupChannel) => string;
+    handleRemove: (streamId: string) => void;
+}) {
+    const { ch, displaySource, getChannelSourceCategory, handleRemove } = props;
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: ch.stream_id });
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.4 : 1,
+        zIndex: isDragging ? 99 : 1,
+        touchAction: 'none',
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+            className={`group-channel-item${isDragging ? ' dragging' : ''}`}
+        >
+            {ch.stream_icon
+                ? <img src={ch.stream_icon} className="cgm-ch-logo" alt="" />
+                : <span className="cgm-ch-logo-placeholder">📺</span>
+            }
+            <div className="cgm-ch-info">
+                <span className="cgm-ch-name">{ch.name}</span>
+                {displaySource && (
+                    <span className="cgm-ch-source">{getChannelSourceCategory(ch)}</span>
+                )}
+            </div>
+            <button
+                className="remove-btn"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={() => handleRemove(ch.stream_id)}
+            >✕</button>
+        </div>
+    );
+}
 
 function parseCategoryIds(raw: string | string[] | number[] | undefined): string[] {
     if (!raw) return [];
@@ -263,99 +331,33 @@ function TreeView({ sourcesAndCategories, searchQuery, expandedNodes, toggleNode
 // 2. We attach pointermove/pointerup to the *container* div (not individual items)
 // 3. We compute target index from the mouse Y position vs each item's bounding rect
 
-interface SortableListProps<T> {
-    items: T[];
-    getKey: (item: T) => string;
-    onReorder: (newItems: T[]) => void;
-    renderItem: (item: T, index: number, handleProps: React.HTMLAttributes<HTMLSpanElement>) => React.ReactNode;
-}
-
-function SortableList<T>({ items, getKey, onReorder, renderItem }: SortableListProps<T>) {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const draggingIdx = useRef<number | null>(null);
-    const [overIdx, setOverIdx] = useState<number | null>(null);
-    const [fromIdx, setFromIdx] = useState<number | null>(null);
-
-    const getIndexFromY = (clientY: number): number => {
-        if (!containerRef.current) return 0;
-        const children = Array.from(containerRef.current.children) as HTMLElement[];
-        for (let i = 0; i < children.length; i++) {
-            const rect = children[i].getBoundingClientRect();
-            if (clientY < rect.top + rect.height / 2) return i;
-        }
-        return children.length - 1;
-    };
-
-    const handlePointerDown = (e: React.PointerEvent, index: number) => {
-        if (e.button !== 0) return;
-        // Capture on the handle span
-        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-        draggingIdx.current = index;
-        setFromIdx(index);
-        setOverIdx(index);
-    };
-
-    const handleContainerPointerMove = (e: React.PointerEvent) => {
-        if (draggingIdx.current === null) return;
-        e.preventDefault();
-        const idx = getIndexFromY(e.clientY);
-        setOverIdx(idx);
-    };
-
-    const handleContainerPointerUp = (e: React.PointerEvent) => {
-        if (draggingIdx.current === null) return;
-        const from = draggingIdx.current;
-        const to = overIdx ?? from;
-        draggingIdx.current = null;
-        setFromIdx(null);
-        setOverIdx(null);
-        if (from !== to) {
-            const next = [...items];
-            const [moved] = next.splice(from, 1);
-            next.splice(to, 0, moved);
-            onReorder(next);
-        }
-    };
-
-    const handleContainerPointerLeave = () => {
-        // Don't cancel drag on leave — pointer capture handles keeping events
-    };
-
-    return (
-        <div
-            ref={containerRef}
-            className="channel-list-container"
-            onPointerMove={handleContainerPointerMove}
-            onPointerUp={handleContainerPointerUp}
-            onPointerLeave={handleContainerPointerLeave}
-        >
-            {items.map((item, index) => {
-                const key = getKey(item);
-                const isDragging = fromIdx === index;
-                const isDragOver = overIdx === index && fromIdx !== null && fromIdx !== index;
-                const handleProps: React.HTMLAttributes<HTMLSpanElement> = {
-                    onPointerDown: (e: React.PointerEvent<HTMLSpanElement>) => handlePointerDown(e, index),
-                    style: { cursor: 'grab', touchAction: 'none' },
-                };
-                return (
-                    <div
-                        key={key}
-                        className="group-channel-item"
-                        data-dragging={isDragging ? 'true' : undefined}
-                        data-dragover={isDragOver ? 'true' : undefined}
-                        style={{ opacity: isDragging ? 0.4 : 1 }}
-                    >
-                        {renderItem(item, index, handleProps)}
-                    </div>
-                );
-            })}
-        </div>
-    );
-}
-
 // ── Main CustomGroupManager ───────────────────────────────────────────────────
 
 export function CustomGroupManager({ groupId, groupName, onClose }: CustomGroupManagerProps) {
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id || !groupChannels) return;
+
+        const oldIndex = groupChannels.findIndex((ch) => ch.stream_id === active.id);
+        const newIndex = groupChannels.findIndex((ch) => ch.stream_id === over.id);
+
+        if (oldIndex === -1 || newIndex === -1) return;
+
+        const next = arrayMove(groupChannels, oldIndex, newIndex);
+        handleReorder(next);
+    };
+
     const [searchQuery, setSearchQuery] = useState('');
     const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({});
     const [groupChannels, setGroupChannels] = useState<GroupChannel[]>([]);
@@ -514,27 +516,30 @@ export function CustomGroupManager({ groupId, groupName, onClose }: CustomGroupM
                         </div>
                         {groupChannels.length === 0 && !loading
                             ? <div className="cgm-empty" style={{ padding: '20px 16px' }}>Click channels on the right to add them.</div>
-                            : <SortableList
-                                items={groupChannels}
-                                getKey={c => c.stream_id}
-                                onReorder={handleReorder}
-                                renderItem={(ch, _index, handleProps) => (
-                                    <>
-                                        <span className="drag-handle" {...handleProps}>⋮⋮</span>
-                                        {ch.stream_icon
-                                            ? <img src={ch.stream_icon} className="cgm-ch-logo" alt="" />
-                                            : <span className="cgm-ch-logo-placeholder">📺</span>
-                                        }
-                                        <div className="cgm-ch-info">
-                                            <span className="cgm-ch-name">{ch.name}</span>
-                                            {displaySource && (
-                                                <span className="cgm-ch-source">{getChannelSourceCategory(ch)}</span>
-                                            )}
+                            : (
+                                <DndContext
+                                    sensors={sensors}
+                                    collisionDetection={closestCenter}
+                                    onDragEnd={handleDragEnd}
+                                >
+                                    <SortableContext
+                                        items={groupChannels.map((ch) => ch.stream_id)}
+                                        strategy={verticalListSortingStrategy}
+                                    >
+                                        <div className="group-channels-list">
+                                            {groupChannels.map((ch) => (
+                                                <SortableGroupChannelItem
+                                                    key={ch.stream_id}
+                                                    ch={ch}
+                                                    displaySource={displaySource}
+                                                    getChannelSourceCategory={getChannelSourceCategory}
+                                                    handleRemove={handleRemove}
+                                                />
+                                            ))}
                                         </div>
-                                        <button className="remove-btn" onClick={() => handleRemove(ch.stream_id)}>✕</button>
-                                    </>
-                                )}
-                            />
+                                    </SortableContext>
+                                </DndContext>
+                            )
                         }
                     </div>
 
@@ -565,7 +570,7 @@ export function CustomGroupManager({ groupId, groupName, onClose }: CustomGroupM
                 </div>
 
                 <div className="custom-group-manager-footer">
-                    <span className="cgm-footer-hint">Click + to add · ✓ to remove · drag ⋮⋮ to reorder</span>
+                    <span className="cgm-footer-hint">Click + to add · ✓ to remove · drag items to reorder</span>
                     <button className="close-done-btn" onClick={onClose}>Done</button>
                 </div>
 

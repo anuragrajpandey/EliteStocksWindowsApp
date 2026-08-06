@@ -162,6 +162,12 @@
     background: rgba(255, 255, 255, 0.02);
     border-radius: 8px;
     transition: all 0.2s;
+    cursor: grab;
+    user-select: none;
+}
+
+.pll-item:active {
+    cursor: grabbing;
 }
 
 .pll-item:hover {
@@ -202,7 +208,6 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    cursor: pointer;
 }
 
 .pll-item-name {
@@ -349,10 +354,6 @@
 .pll-real-source-item {
     border-left: 2px solid rgba(255, 255, 255, 0.15) !important;
     background: rgba(255, 255, 255, 0.01);
-}
-
-.pll-item-info.readonly {
-    cursor: default;
 }
 
 .source-type-badge {

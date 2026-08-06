@@ -23,6 +23,23 @@ import { useAppSettings } from '../../hooks/useAppSettings';
 import { useSourceVersion } from '../../contexts/SourceVersionContext';
 import type { GlobalEpgLink } from '../../types/app';
 import { decompressEpgDescription } from '../../utils/compression';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 export type SourcesSubTabId = 'source' | 'epg' | 'refresh' | 'global_ua';
 
@@ -223,6 +240,180 @@ const ClockIcon = ({ size = 12 }: { size?: number }) => (
     <polyline points="12 6 12 12 16 14" />
   </svg>
 );
+
+interface SortableSourceItemProps {
+  source: Source;
+  meta: any;
+  syncingSourceId: string | null;
+  vodSyncingSourceId: string | null;
+  syncStatusMsg: string | null;
+  isDeleting: boolean;
+  isExpiryWarning: (dateStr?: string) => boolean;
+  formatExpiryDate: (dateStr: string) => string;
+  formatTimeAgo: (date: Date | null) => string;
+  handleToggleEnabled: (id: string) => void;
+  handleSourceSync: (id: string) => void;
+  handleSourceVodSync: (id: string) => void;
+  setCategoryManagerSource: (src: { id: string; name: string }) => void;
+  handleEdit: (source: Source) => void;
+  handleDeleteClick: (id: string, name: string) => void;
+}
+
+function SortableSourceItem(props: SortableSourceItemProps) {
+  const {
+    source,
+    meta,
+    syncingSourceId,
+    vodSyncingSourceId,
+    syncStatusMsg,
+    isDeleting,
+    isExpiryWarning,
+    formatExpiryDate,
+    formatTimeAgo,
+    handleToggleEnabled,
+    handleSourceSync,
+    handleSourceVodSync,
+    setCategoryManagerSource,
+    handleEdit,
+    handleDeleteClick,
+  } = props;
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: source.id });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 99 : 1,
+    touchAction: 'none',
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`source-item${isDragging ? ' dragging' : ''}${source.enabled !== false ? ' source-enabled' : ' source-disabled'}`}
+    >
+      <div className="source-info">
+        <div className="source-header">
+          <div className="source-name-type">
+            <span className="source-name">{source.name}</span>
+            <span className="source-type" data-source-type={source.type}>{source.type.toUpperCase()}</span>
+            <label className="source-toggle" onPointerDown={(e) => e.stopPropagation()}>
+              <input
+                type="checkbox"
+                checked={source.enabled !== false}
+                onChange={() => handleToggleEnabled(source.id)}
+                title={source.enabled !== false ? 'Enabled' : 'Disabled'}
+              />
+              <span className="toggle-label">
+                {source.enabled !== false ? 'Enabled' : 'Disabled'}
+              </span>
+            </label>
+          </div>
+          <span className="last-sync-time">
+            {formatTimeAgo(meta?.last_synced ? new Date(meta.last_synced) : null)}
+          </span>
+        </div>
+
+        <div className="source-details">
+          {meta && (
+            <>
+              {meta.channel_count > 0 && (
+                <span className="stat-chip stat-chip--count">
+                  <TvIcon size={11} />
+                  <span>{meta.channel_count.toLocaleString()} channels</span>
+                </span>
+              )}
+              {((meta.vod_movie_count ?? 0) + (meta.vod_series_count ?? 0)) > 0 && (
+                <span className="stat-chip stat-chip--count">
+                  <FilmIcon size={11} />
+                  <span>{(meta.vod_movie_count ?? 0).toLocaleString()} movies</span>
+                  {(meta.vod_series_count ?? 0) > 0 && (
+                    <span className="stat-chip-divider" />
+                  )}
+                  {(meta.vod_series_count ?? 0) > 0 && (
+                    <span>{(meta.vod_series_count ?? 0).toLocaleString()} series</span>
+                  )}
+                </span>
+              )}
+            </>
+          )}
+
+          {(source.type === 'xtream' || (source as any).xtream_catchup) && meta && meta.active_cons && meta.max_connections && (
+            <span className="stat-chip stat-chip--count">
+              <LinkIcon size={11} />
+              <span>{meta.active_cons}/{meta.max_connections} connections</span>
+            </span>
+          )}
+
+          {meta && meta.expiry_date && (
+            <span className={`stat-chip stat-chip--expiry${isExpiryWarning(meta.expiry_date) ? ' stat-chip--expiry-warn' : ''}`}>
+              <ClockIcon size={11} />
+              <span>Exp {formatExpiryDate(meta.expiry_date)}</span>
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="source-actions" onPointerDown={(e) => e.stopPropagation()}>
+        <button
+          className="src-btn src-btn--primary"
+          onClick={() => handleSourceSync(source.id)}
+          disabled={syncingSourceId === source.id || !source.enabled}
+          title="Sync channels for this source only"
+        >
+          {syncingSourceId === source.id ? <><SpinnerIcon size={13} /> {syncStatusMsg || 'Syncing…'}</> : 'Sync Channels'}
+        </button>
+
+        {(source.type === 'xtream' || source.type === 'stalker') && !source.live_tv_only && (
+          <button
+            className="src-btn src-btn--secondary"
+            onClick={() => handleSourceVodSync(source.id)}
+            disabled={vodSyncingSourceId === source.id || !source.enabled}
+            title="Sync movies & series for this source only"
+          >
+            {vodSyncingSourceId === source.id ? <><SpinnerIcon size={13} /> Syncing…</> : 'Sync VOD'}
+          </button>
+        )}
+
+        <button
+          className="src-btn src-btn--secondary"
+          onClick={() => setCategoryManagerSource({ id: source.id, name: source.name })}
+          title="Manage categories for this source"
+        >
+          Categories
+        </button>
+
+        <button
+          className="action-icon-btn"
+          onClick={() => handleEdit(source)}
+          title="Edit Source"
+        >
+          <SettingsIcon size={16} />
+        </button>
+
+        <button
+          className="action-icon-btn delete"
+          onClick={() => handleDeleteClick(source.id, source.name)}
+          disabled={isDeleting}
+          title="Delete Source"
+        >
+          {isDeleting ? <SpinnerIcon size={16} /> : <TrashIcon size={16} />}
+        </button>
+      </div>
+    </li>
+  );
+}
 
 export function SourcesTab({
   initialSubTab,
@@ -1253,68 +1444,40 @@ export function SourcesTab({
     return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
   }
 
-  // --- Drag and Drop Handlers ---
+  // --- @dnd-kit Drag and Drop Handlers for Sources ---
+  const sourceSensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
-  const getIndexFromClientY = (clientY: number): number => {
-    if (!listRef.current) return 0;
-    const children = Array.from(listRef.current.children) as HTMLElement[];
-    for (let i = 0; i < children.length; i++) {
-      const rect = children[i].getBoundingClientRect();
-      if (clientY < rect.top + rect.height / 2) return i;
-    }
-    return Math.max(0, children.length - 1);
-  };
+  const handleSourceDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
 
-  const handleHandlePointerDown = (e: React.PointerEvent, index: number) => {
-    if (e.button !== 0) return; // Only left click
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    dragFromIdx.current = index;
-    setDragOverIdx(index);
-  };
+    const oldIndex = sortedSources.findIndex((s) => s.id === active.id);
+    const newIndex = sortedSources.findIndex((s) => s.id === over.id);
 
-  const handleContainerPointerMove = (e: React.PointerEvent) => {
-    if (dragFromIdx.current === null) return;
-    e.preventDefault();
-    setDragOverIdx(getIndexFromClientY(e.clientY));
-  };
+    if (oldIndex === -1 || newIndex === -1) return;
 
-  const handleContainerPointerUp = async (e: React.PointerEvent) => {
-    if (dragFromIdx.current === null) return;
-    const from = dragFromIdx.current;
-    const to = getIndexFromClientY(e.clientY);
-
-    dragFromIdx.current = null;
-    setDragOverIdx(null);
-
-    if (from === to) return;
-
-    // Execute reorder
-    const newSources = [...sortedSources];
-    const [moved] = newSources.splice(from, 1);
-    newSources.splice(to, 0, moved);
+    const newSources = arrayMove(sortedSources, oldIndex, newIndex);
 
     if (!window.storage) return;
 
-    // Fast optimistic UI update could go here if we had local state for sources,
-    // but we use the props passed down from Settings.tsx.
-    // Instead, we just sequentially save them.
     for (let i = 0; i < newSources.length; i++) {
       const sourceToSave = newSources[i];
-      // Only execute DB write if the physical order actually changed to prevent 
-      // pointless SQLite write saturation
       if (sourceToSave.display_order !== i) {
         await window.storage.saveSource({ ...sourceToSave, display_order: i });
       }
     }
 
-    // Refresh immediately
     onSourcesChange();
-    incrementVersion(); // Tell downstream components (like CategoryStrip) that the source array order changed
-  };
-
-  const handleContainerPointerCancel = () => {
-    dragFromIdx.current = null;
-    setDragOverIdx(null);
+    incrementVersion();
   };
 
 
@@ -1428,152 +1591,42 @@ export function SourcesTab({
             <p className="hint">Add an M3U playlist or Xtream account to get started</p>
           </div>
         ) : (
-          <ul
-            className="sources-list sortable-list"
-            ref={listRef}
-            onPointerMove={handleContainerPointerMove}
-            onPointerUp={handleContainerPointerUp}
-            onPointerCancel={handleContainerPointerCancel}
+          <DndContext
+            sensors={sourceSensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleSourceDragEnd}
           >
-            {sortedSources.map((source, index) => {
-              const meta = syncStatus.find(s => s.source_id === source.id);
-              const isDragging = dragFromIdx.current === index;
-              const isDragOver = dragOverIdx === index && dragFromIdx.current !== null && dragFromIdx.current !== index;
-
-              return (
-                <li
-                  key={source.id}
-                  className={`source-item${isDragging ? ' dragging' : ''}${isDragOver ? ' drag-over' : ''}${source.enabled !== false ? ' source-enabled' : ' source-disabled'}`}
-                >
-                  <span
-                    className="drag-handle"
-                    style={{ touchAction: 'none' }}
-                    onPointerDown={e => handleHandlePointerDown(e, index)}
-                    title="Drag to reorder"
-                  >
-                    ⋮⋮
-                  </span>
-                  <div className="source-info">
-                    <div className="source-header">
-                      <div className="source-name-type">
-                        <span className="source-name">{source.name}</span>
-                        <span className="source-type" data-source-type={source.type}>{source.type.toUpperCase()}</span>
-                        <label className="source-toggle">
-                          <input
-                            type="checkbox"
-                            checked={source.enabled !== false}
-                            onChange={() => handleToggleEnabled(source.id)}
-                            title={source.enabled !== false ? 'Enabled' : 'Disabled'}
-                          />
-                          <span className="toggle-label">
-                            {source.enabled !== false ? 'Enabled' : 'Disabled'}
-                          </span>
-                        </label>
-                      </div>
-                      {/* Last Sync Time - compact in corner */}
-                      <span className="last-sync-time">
-                        {formatTimeAgo(meta?.last_synced ? new Date(meta.last_synced) : null)}
-                      </span>
-                    </div>
-
-                    <div className="source-details">
-                      {/* Channel/Movie counts inline */}
-                      {meta && (
-                        <>
-                          {meta.channel_count > 0 && (
-                            <span className="stat-chip stat-chip--count">
-                              <TvIcon size={11} />
-                              <span>{meta.channel_count.toLocaleString()} channels</span>
-                            </span>
-                          )}
-                          {((meta.vod_movie_count ?? 0) + (meta.vod_series_count ?? 0)) > 0 && (
-                            <span className="stat-chip stat-chip--count">
-                              <FilmIcon size={11} />
-                              <span>{(meta.vod_movie_count ?? 0).toLocaleString()} movies</span>
-                              {(meta.vod_series_count ?? 0) > 0 && (
-                                <span className="stat-chip-divider" />
-                              )}
-                              {(meta.vod_series_count ?? 0) > 0 && (
-                                <span>{(meta.vod_series_count ?? 0).toLocaleString()} series</span>
-                              )}
-                            </span>
-                          )}
-                        </>
-                      )}
-
-                      {/* Connection stats for Xtream or M3U with Xtream Catchup */}
-                      {(source.type === 'xtream' || (source as any).xtream_catchup) && meta && meta.active_cons && meta.max_connections && (
-                        <span className="stat-chip stat-chip--count">
-                          <LinkIcon size={11} />
-                          <span>{meta.active_cons}/{meta.max_connections} connections</span>
-                        </span>
-                      )}
-
-                      {/* Expiry — red only when expired or within 30 days */}
-                      {meta && meta.expiry_date && (
-                        <span className={`stat-chip stat-chip--expiry${isExpiryWarning(meta.expiry_date) ? ' stat-chip--expiry-warn' : ''}`}>
-                          <ClockIcon size={11} />
-                          <span>Exp {formatExpiryDate(meta.expiry_date)}</span>
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="source-actions">
-                    {/* Primary: Sync Channels */}
-                    <button
-                      className="src-btn src-btn--primary"
-                      onClick={() => handleSourceSync(source.id)}
-                      disabled={syncingSourceId === source.id || !source.enabled}
-                      title="Sync channels for this source only"
-                    >
-                      {syncingSourceId === source.id ? <><SpinnerIcon size={13} /> {syncStatusMsg || 'Syncing…'}</> : 'Sync Channels'}
-                    </button>
-
-                    {/* Secondary: Sync VOD */}
-                    {(source.type === 'xtream' || source.type === 'stalker') && !source.live_tv_only && (
-                      <button
-                        className="src-btn src-btn--secondary"
-                        onClick={() => handleSourceVodSync(source.id)}
-                        disabled={vodSyncingSourceId === source.id || !source.enabled}
-                        title="Sync movies & series for this source only"
-                      >
-                        {vodSyncingSourceId === source.id ? <><SpinnerIcon size={13} /> Syncing…</> : 'Sync VOD'}
-                      </button>
-                    )}
-
-                    {/* Secondary: Categories */}
-                    <button
-                      className="src-btn src-btn--secondary"
-                      onClick={() => setCategoryManagerSource({ id: source.id, name: source.name })}
-                      title="Manage categories for this source"
-                    >
-                      Categories
-                    </button>
-
-                    {/* Icon: Edit */}
-                    <button
-                      className="action-icon-btn"
-                      onClick={() => handleEdit(source)}
-                      title="Edit Source"
-                    >
-                      <SettingsIcon size={16} />
-                    </button>
-
-                    {/* Icon: Delete */}
-                    <button
-                      className="action-icon-btn delete"
-                      onClick={() => handleDeleteClick(source.id, source.name)}
-                      disabled={isDeleting}
-                      title="Delete Source"
-                    >
-                      {isDeleting ? <SpinnerIcon size={16} /> : <TrashIcon size={16} />}
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+            <SortableContext
+              items={sortedSources.map((s) => s.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <ul className="sources-list sortable-list">
+                {sortedSources.map((source) => {
+                  const meta = syncStatus.find(s => s.source_id === source.id);
+                  return (
+                    <SortableSourceItem
+                      key={source.id}
+                      source={source}
+                      meta={meta}
+                      syncingSourceId={syncingSourceId}
+                      vodSyncingSourceId={vodSyncingSourceId}
+                      syncStatusMsg={syncStatusMsg}
+                      isDeleting={isDeleting}
+                      isExpiryWarning={isExpiryWarning}
+                      formatExpiryDate={formatExpiryDate}
+                      formatTimeAgo={formatTimeAgo}
+                      handleToggleEnabled={handleToggleEnabled}
+                      handleSourceSync={handleSourceSync}
+                      handleSourceVodSync={handleSourceVodSync}
+                      setCategoryManagerSource={setCategoryManagerSource}
+                      handleEdit={handleEdit}
+                      handleDeleteClick={handleDeleteClick}
+                    />
+                  );
+                })}
+              </ul>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 

@@ -23,6 +23,23 @@ import {
 } from '../services/playlist-editor';
 import { useModal } from './Modal';
 import './PlaylistEditorModal.css';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface PlaylistEditorModalProps {
   playlistId: string;
@@ -365,25 +382,46 @@ function CategoryBlockCard({
 
   const visibleChannelsCount = combinedChannels.filter(c => showHidden || c.enabled !== false).length;
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging: isSortableDragging,
+  } = useSortable({ id: block.id });
+
+  const sortableStyle: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isSortableDragging || isDragging ? 0.4 : 1,
+    zIndex: isSortableDragging || isDragging ? 99 : 1,
+  };
+
   return (
     <div 
-      className={`ple-block-card-wrapper${isDragging ? ' dragging' : ''}${isDragOver ? ' drag-over' : ''}${isMarked ? ' marked' : ''}${block.type === 'native' && block.category.enabled === false ? ' ple-hidden-item' : ''}`}
+      ref={setNodeRef}
+      style={sortableStyle}
+      className={`ple-block-card-wrapper${isSortableDragging || isDragging ? ' dragging' : ''}${isDragOver ? ' drag-over' : ''}${isMarked ? ' marked' : ''}${block.type === 'native' && block.category.enabled === false ? ' ple-hidden-item' : ''}`}
       data-index={index}
     >
-      <div className="ple-block-card">
-        <button className="ple-block-expand-btn" onClick={() => setIsExpanded(!isExpanded)}>
+      <div
+        className="ple-block-card"
+        style={{ touchAction: 'none' }}
+        {...attributes}
+        {...listeners}
+      >
+        <button
+          className="ple-block-expand-btn"
+          onClick={() => setIsExpanded(!isExpanded)}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <span className="ple-chevron-small">{isExpanded ? '▼' : '▶'}</span>
         </button>
 
-        <span
-          className="ple-block-drag-handle"
-          style={{ touchAction: 'none' }}
-          onPointerDown={e => onPointerDown(e, index)}
-        >⋮⋮</span>
-
         <div className="ple-block-info">
           {isRenaming ? (
-            <div className="ple-inline-rename">
+            <div className="ple-inline-rename" onPointerDown={(e) => e.stopPropagation()}>
               <input
                 ref={renameInputRef}
                 className="ple-rename-input"
@@ -401,6 +439,7 @@ function CategoryBlockCard({
               <span
                 className="ple-block-title"
                 onClick={startRename}
+                onPointerDown={(e) => e.stopPropagation()}
                 title="Click to rename category"
               >
                 <FolderIcon /> {block.name} <EditIcon />
@@ -422,6 +461,7 @@ function CategoryBlockCard({
         {block.type === 'native' && (
           <button
             className={`ple-visibility-btn${block.category.enabled === false ? ' hidden-item' : ''}`}
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation();
               toggleCategoryEnabled();
@@ -444,6 +484,7 @@ function CategoryBlockCard({
                 val
               );
             }}
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
             title="Assign category to folder"
           >
@@ -456,6 +497,7 @@ function CategoryBlockCard({
 
         <button
           className={`ple-block-target-btn${isMarked ? ' marked' : ''}`}
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation();
             onMark();
@@ -466,7 +508,12 @@ function CategoryBlockCard({
         </button>
 
         {block.type === 'link' && onRemove && (
-          <button className="ple-remove-btn" onClick={onRemove} title="Remove category link">✕</button>
+          <button
+            className="ple-remove-btn"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={onRemove}
+            title="Remove category link"
+          >✕</button>
         )}
       </div>
 
@@ -500,14 +547,11 @@ function CategoryBlockCard({
                   return (
                     <div
                       key={ch.stream_id}
+                      style={{ touchAction: 'none' }}
+                      onPointerDown={e => handleManualPointerDown(e, idx)}
                       className={`ple-nested-channel-row reorderable${isChDragging ? ' dragging' : ''}${isChDragOver ? ' drag-over' : ''}${ch.enabled === false ? ' ple-hidden-item' : ''}`}
                       data-index={idx}
                     >
-                      <span
-                        className="ple-block-drag-handle"
-                        style={{ touchAction: 'none' }}
-                        onPointerDown={e => handleManualPointerDown(e, idx)}
-                      >⋮⋮</span>
                       {ch.stream_icon ? (
                         <img src={ch.stream_icon} className="ple-nested-ch-logo" alt="" />
                       ) : (
@@ -545,6 +589,81 @@ function CategoryBlockCard({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function SortableIndivChannelCard(props: {
+  ch: StoredChannel;
+  index: number;
+  sources: BrowseSource[];
+  playlistId: string;
+  showHidden: boolean;
+  toggleChannelEnabledGlobal: (streamId: string, currentEnabled: boolean) => void;
+}) {
+  const { ch, index, sources, playlistId, showHidden, toggleChannelEnabledGlobal } = props;
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: ch.stream_id });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 99 : 1,
+    touchAction: 'none',
+  };
+
+  const srcName = sources.find(s => s.id === ch.source_id)?.name || 'Source';
+
+  if (ch.enabled === false && !showHidden) return null;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`ple-indiv-card${isDragging ? ' dragging' : ''}${ch.enabled === false ? ' ple-hidden-item' : ''}`}
+      data-index={index}
+    >
+      <div className="ple-indiv-ch-info">
+        {ch.stream_icon ? (
+          <img src={ch.stream_icon} className="ple-indiv-ch-logo" alt="" />
+        ) : (
+          <span className="ple-indiv-ch-logo-placeholder"><TvIcon size={14} style={{ opacity: 0.6 }} /></span>
+        )}
+        <div className="ple-indiv-ch-meta">
+          <span className="ple-indiv-ch-name">{ch.name}</span>
+          <span className="ple-indiv-ch-sub">{srcName}</span>
+        </div>
+      </div>
+
+      <button
+        className={`ple-visibility-btn${ch.enabled === false ? ' hidden-item' : ''}`}
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleChannelEnabledGlobal(ch.stream_id, ch.enabled !== false);
+        }}
+        title={ch.enabled === false ? "Show channel" : "Hide channel"}
+      >
+        {ch.enabled === false ? <EyeSlashIcon /> : <EyeIcon />}
+      </button>
+
+      <button
+        className="ple-remove-btn"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={() => removeIndividualChannelFromPlaylist(playlistId, ch.stream_id)}
+        title="Remove channel"
+      >
+        ✕
+      </button>
     </div>
   );
 }
@@ -1095,47 +1214,28 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
     }
   };
 
-  // Right panel drag-reorder categories
-  const getCatIndexFromClientY = (clientY: number): number => {
-    if (!categoryListRef.current) return 0;
-    const children = Array.from(categoryListRef.current.children) as HTMLElement[];
-    for (let i = 0; i < children.length; i++) {
-      const rect = children[i].getBoundingClientRect();
-      if (clientY < rect.top + rect.height / 2) {
-        return parseInt(children[i].getAttribute('data-index') || '0', 10);
-      }
-    }
-    if (children.length > 0) {
-      const lastIdx = parseInt(children[children.length - 1].getAttribute('data-index') || '0', 10);
-      return lastIdx + 1;
-    }
-    return 0;
-  };
+  // --- @dnd-kit Drag and Drop Handlers for Playlist Editor ---
+  const pleSensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
-  const handleCatPointerDown = useCallback((e: React.PointerEvent, index: number) => {
-    if (e.button !== 0) return;
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    dragFromCatIdx.current = index;
-    setDragOverCatIdx(index);
-  }, []);
+  const handleCategoryDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !combinedBlocks) return;
 
-  const handleCatPointerMove = useCallback((e: React.PointerEvent) => {
-    if (dragFromCatIdx.current === null) return;
-    e.preventDefault();
-    setDragOverCatIdx(getCatIndexFromClientY(e.clientY));
-  }, []);
+    const oldIndex = combinedBlocks.findIndex((b) => b.id === active.id);
+    const newIndex = combinedBlocks.findIndex((b) => b.id === over.id);
 
-  const handleCatPointerUp = useCallback(async (e: React.PointerEvent) => {
-    if (dragFromCatIdx.current === null) return;
-    const from = dragFromCatIdx.current;
-    const to = getCatIndexFromClientY(e.clientY);
-    dragFromCatIdx.current = null;
-    setDragOverCatIdx(null);
-    if (from === to || !combinedBlocks) return;
+    if (oldIndex === -1 || newIndex === -1) return;
 
-    const next = [...combinedBlocks];
-    const [moved] = next.splice(from, 1);
-    next.splice(to, 0, moved);
+    const next = arrayMove(combinedBlocks, oldIndex, newIndex);
 
     try {
       for (let i = 0; i < next.length; i++) {
@@ -1149,66 +1249,24 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
     } catch (err) {
       console.error('Failed to reorder playlist categories:', err);
     }
-  }, [combinedBlocks]);
-
-  const handleCatPointerCancel = useCallback(() => {
-    dragFromCatIdx.current = null;
-    setDragOverCatIdx(null);
-  }, []);
-
-  // Right panel drag-reorder individual channels
-  const getIndivIndexFromClientY = (clientY: number): number => {
-    if (!indivListRef.current) return 0;
-    const children = Array.from(indivListRef.current.children) as HTMLElement[];
-    for (let i = 0; i < children.length; i++) {
-      const rect = children[i].getBoundingClientRect();
-      if (clientY < rect.top + rect.height / 2) {
-        return parseInt(children[i].getAttribute('data-index') || '0', 10);
-      }
-    }
-    if (children.length > 0) {
-      const lastIdx = parseInt(children[children.length - 1].getAttribute('data-index') || '0', 10);
-      return lastIdx + 1;
-    }
-    return 0;
   };
 
-  const handleIndivPointerDown = useCallback((e: React.PointerEvent, index: number) => {
-    if (e.button !== 0) return;
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    dragFromIndivIdx.current = index;
-    setDragOverIndivIdx(index);
-  }, []);
+  const handleIndivDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !individualChannels) return;
 
-  const handleIndivPointerMove = useCallback((e: React.PointerEvent) => {
-    if (dragFromIndivIdx.current === null) return;
-    e.preventDefault();
-    setDragOverIndivIdx(getIndivIndexFromClientY(e.clientY));
-  }, []);
+    const oldIndex = individualChannels.findIndex((ch) => ch.stream_id === active.id);
+    const newIndex = individualChannels.findIndex((ch) => ch.stream_id === over.id);
 
-  const handleIndivPointerUp = useCallback(async (e: React.PointerEvent) => {
-    if (dragFromIndivIdx.current === null) return;
-    const from = dragFromIndivIdx.current;
-    const to = getIndivIndexFromClientY(e.clientY);
-    dragFromIndivIdx.current = null;
-    setDragOverIndivIdx(null);
-    if (from === to || !flatIndividualMappings) return;
+    if (oldIndex === -1 || newIndex === -1) return;
 
-    const next = [...flatIndividualMappings];
-    const [moved] = next.splice(from, 1);
-    next.splice(to, 0, moved);
-
+    const next = arrayMove(individualChannels, oldIndex, newIndex);
     try {
-      await reorderPlaylistIndividualChannels(playlistId, next.map(m => m.stream_id));
+      await reorderPlaylistIndividualChannels(playlistId, next.map(ch => ch.stream_id));
     } catch (err) {
       console.error('Failed to reorder individual channels:', err);
     }
-  }, [flatIndividualMappings, playlistId]);
-
-  const handleIndivPointerCancel = useCallback(() => {
-    dragFromIndivIdx.current = null;
-    setDragOverIndivIdx(null);
-  }, []);
+  };
 
   const handleExport = async () => {
     try {
@@ -1582,76 +1640,123 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                 </div>
               ) : (
                 <div className="ple-contents-list">
-                  {/* Category Folders & Blocks */}
-                  {categoryFolders && categoryFolders.length > 0 ? (
-                    <>
-                      {categoryFolders.map((folder: CategoryFolder) => {
-                        const folderBlocks = (combinedBlocks || []).filter(b => {
-                          const fId = b.type === 'link' ? b.link.folder_id : b.category.folder_id;
-                          return fId === folder.folder_id;
-                        });
-                        const isCollapsed = !!collapsedFolders[folder.folder_id];
+                    <DndContext
+                      sensors={pleSensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleCategoryDragEnd}
+                    >
+                      <SortableContext
+                        items={(combinedBlocks || []).map((b) => b.id)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        {categoryFolders && categoryFolders.length > 0 ? (
+                          <>
+                            {categoryFolders.map((folder: CategoryFolder) => {
+                              const folderBlocks = (combinedBlocks || []).filter(b => {
+                                const fId = b.type === 'link' ? b.link.folder_id : b.category.folder_id;
+                                return fId === folder.folder_id;
+                              });
+                              const isCollapsed = !!collapsedFolders[folder.folder_id];
 
-                        return (
-                          <div key={folder.folder_id} className="ple-folder-card">
-                            <div className="ple-folder-card-header">
-                              <div className="ple-folder-header-left">
-                                <button
-                                  className="ple-block-expand-btn"
-                                  onClick={() => toggleFolderCollapse(folder.folder_id)}
-                                >
-                                  <span className="ple-chevron-small">{isCollapsed ? '▶' : '▼'}</span>
-                                </button>
-                                <FolderIcon size={16} />
-                                <span>{folder.name}</span>
-                                <span className="ple-original-title-hint">({folderBlocks.length} categories)</span>
-                              </div>
+                              return (
+                                <div key={folder.folder_id} className="ple-folder-card">
+                                  <div className="ple-folder-card-header">
+                                    <div className="ple-folder-header-left">
+                                      <button
+                                        className="ple-block-expand-btn"
+                                        onClick={() => toggleFolderCollapse(folder.folder_id)}
+                                      >
+                                        <span className="ple-chevron-small">{isCollapsed ? '▶' : '▼'}</span>
+                                      </button>
+                                      <FolderIcon size={16} />
+                                      <span>{folder.name}</span>
+                                      <span className="ple-original-title-hint">({folderBlocks.length} categories)</span>
+                                    </div>
 
-                              <div className="ple-folder-header-actions">
-                                <button
-                                  className="ple-folder-icon-btn"
-                                  onClick={() => {
-                                    showPrompt(
-                                      'Rename Folder',
-                                      'Enter new folder name:',
-                                      async (newName) => {
-                                        if (newName && newName.trim()) {
-                                          await renameCategoryFolder(folder.folder_id, newName.trim());
-                                        }
-                                      },
-                                      undefined,
-                                      'Folder name...',
-                                      folder.name
-                                    );
-                                  }}
-                                  title="Rename folder"
-                                >
-                                  <EditIcon size={12} />
-                                </button>
-                                <button
-                                  className="ple-folder-icon-btn delete"
-                                  onClick={() => {
-                                    showConfirm(
-                                      'Delete Folder',
-                                      `Are you sure you want to delete folder "${folder.name}"? Categories inside will return to the root level.`,
-                                      async () => {
-                                        await deleteCategoryFolder(folder.folder_id);
-                                      }
-                                    );
-                                  }}
-                                  title="Delete folder"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                            </div>
+                                    <div className="ple-folder-header-actions">
+                                      <button
+                                        className="ple-folder-icon-btn"
+                                        onClick={() => {
+                                          showPrompt(
+                                            'Rename Folder',
+                                            'Enter new folder name:',
+                                            async (newName) => {
+                                              if (newName && newName.trim()) {
+                                                await renameCategoryFolder(folder.folder_id, newName.trim());
+                                              }
+                                            },
+                                            undefined,
+                                            'Folder name...',
+                                            folder.name
+                                          );
+                                        }}
+                                        title="Rename folder"
+                                      >
+                                        <EditIcon size={12} />
+                                      </button>
+                                      <button
+                                        className="ple-folder-icon-btn delete"
+                                        onClick={() => {
+                                          showConfirm(
+                                            'Delete Folder',
+                                            `Are you sure you want to delete folder "${folder.name}"? Categories inside will return to the root level.`,
+                                            async () => {
+                                              await deleteCategoryFolder(folder.folder_id);
+                                            }
+                                          );
+                                        }}
+                                        title="Delete folder"
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
+                                  </div>
 
-                            {!isCollapsed && (
-                              <div className="ple-folder-card-body">
-                                {folderBlocks.length === 0 ? (
-                                  <div className="ple-folder-empty-hint">Folder is empty. Use the "Folder" dropdown on any category below to assign it to this folder.</div>
-                                ) : (
-                                  folderBlocks.map((block) => {
+                                  {!isCollapsed && (
+                                    <div className="ple-folder-card-body">
+                                      {folderBlocks.length === 0 ? (
+                                        <div className="ple-folder-empty-hint">Folder is empty. Use the "Folder" dropdown on any category below to assign it to this folder.</div>
+                                      ) : (
+                                        folderBlocks.map((block) => {
+                                          const origIndex = (combinedBlocks || []).findIndex(b => b.id === block.id);
+                                          const blockId = block.type === 'native' ? block.id : `link:${block.linkId}`;
+                                          const isMarked = markedCategoryId === blockId;
+                                          return (
+                                            <CategoryBlockCard
+                                              key={block.id}
+                                              playlistId={playlistId}
+                                              block={block}
+                                              sources={sources}
+                                              folders={categoryFolders}
+                                              index={origIndex}
+                                              isDragging={false}
+                                              isDragOver={false}
+                                              isMarked={isMarked}
+                                              onMark={() => setMarkedCategoryId(prev => prev === blockId ? null : blockId)}
+                                              onPointerDown={() => {}}
+                                              onRemove={block.type === 'link' ? () => removeCategoryFromPlaylist(block.linkId) : undefined}
+                                              showHidden={showHidden}
+                                            />
+                                          );
+                                        })
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+
+                            {/* Root Level Categories */}
+                            {(() => {
+                              const rootBlocks = (combinedBlocks || []).filter(b => {
+                                const fId = b.type === 'link' ? b.link.folder_id : b.category.folder_id;
+                                return !fId || !categoryFolders.some((f: CategoryFolder) => f.folder_id === fId);
+                              });
+                              if (rootBlocks.length === 0) return null;
+                              return (
+                                <div className="ple-section-category-links">
+                                  {categoryFolders.length > 0 && <h4 style={{ margin: '8px 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>Root Categories</h4>}
+                                  {rootBlocks.map((block) => {
                                     const origIndex = (combinedBlocks || []).findIndex(b => b.id === block.id);
                                     const blockId = block.type === 'native' ? block.id : `link:${block.linkId}`;
                                     const isMarked = markedCategoryId === blockId;
@@ -1663,167 +1768,83 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                                         sources={sources}
                                         folders={categoryFolders}
                                         index={origIndex}
-                                        isDragging={dragFromCatIdx.current === origIndex}
-                                        isDragOver={dragOverCatIdx === origIndex && dragFromCatIdx.current !== null && dragFromCatIdx.current !== origIndex}
+                                        isDragging={false}
+                                        isDragOver={false}
                                         isMarked={isMarked}
                                         onMark={() => setMarkedCategoryId(prev => prev === blockId ? null : blockId)}
-                                        onPointerDown={handleCatPointerDown}
+                                        onPointerDown={() => {}}
                                         onRemove={block.type === 'link' ? () => removeCategoryFromPlaylist(block.linkId) : undefined}
                                         showHidden={showHidden}
                                       />
                                     );
-                                  })
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-
-                      {/* Root Level Categories */}
-                      {(() => {
-                        const rootBlocks = (combinedBlocks || []).filter(b => {
-                          const fId = b.type === 'link' ? b.link.folder_id : b.category.folder_id;
-                          return !fId || !categoryFolders.some((f: CategoryFolder) => f.folder_id === fId);
-                        });
-                        if (rootBlocks.length === 0) return null;
-                        return (
-                          <div className="ple-section-category-links">
-                            {categoryFolders.length > 0 && <h4 style={{ margin: '8px 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>Root Categories</h4>}
-                            {rootBlocks.map((block) => {
-                              const origIndex = (combinedBlocks || []).findIndex(b => b.id === block.id);
-                              const blockId = block.type === 'native' ? block.id : `link:${block.linkId}`;
-                              const isMarked = markedCategoryId === blockId;
-                              return (
-                                <CategoryBlockCard
-                                  key={block.id}
-                                  playlistId={playlistId}
-                                  block={block}
-                                  sources={sources}
-                                  folders={categoryFolders}
-                                  index={origIndex}
-                                  isDragging={dragFromCatIdx.current === origIndex}
-                                  isDragOver={dragOverCatIdx === origIndex && dragFromCatIdx.current !== null && dragFromCatIdx.current !== origIndex}
-                                  isMarked={isMarked}
-                                  onMark={() => setMarkedCategoryId(prev => prev === blockId ? null : blockId)}
-                                  onPointerDown={handleCatPointerDown}
-                                  onRemove={block.type === 'link' ? () => removeCategoryFromPlaylist(block.linkId) : undefined}
-                                  showHidden={showHidden}
-                                />
+                                  })}
+                                </div>
                               );
-                            })}
-                          </div>
-                        );
-                      })()}
-                    </>
-                  ) : (
-                    combinedBlocks && combinedBlocks.length > 0 && (
-                      <div
-                        className="ple-section-category-links"
-                        ref={categoryListRef}
-                        onPointerMove={handleCatPointerMove}
-                        onPointerUp={handleCatPointerUp}
-                        onPointerCancel={handleCatPointerCancel}
-                      >
-                        {combinedBlocks.map((block, index) => {
-                          const isDragging = dragFromCatIdx.current === index;
-                          const isDragOver = dragOverCatIdx === index && dragFromCatIdx.current !== null && dragFromCatIdx.current !== index;
-                          const blockId = block.type === 'native' ? block.id : `link:${block.linkId}`;
-                          const isMarked = markedCategoryId === blockId;
+                            })()}
+                          </>
+                        ) : (
+                          combinedBlocks && combinedBlocks.length > 0 && (
+                            <div className="ple-section-category-links">
+                              {combinedBlocks.map((block, index) => {
+                                const blockId = block.type === 'native' ? block.id : `link:${block.linkId}`;
+                                const isMarked = markedCategoryId === blockId;
 
-                          return (
-                            <CategoryBlockCard
-                              key={block.id}
-                              playlistId={playlistId}
-                              block={block}
-                              sources={sources}
-                              folders={categoryFolders}
-                              index={index}
-                              isDragging={isDragging}
-                              isDragOver={isDragOver}
-                              isMarked={isMarked}
-                              onMark={() => setMarkedCategoryId(prev => prev === blockId ? null : blockId)}
-                              onPointerDown={handleCatPointerDown}
-                              onRemove={block.type === 'link' ? () => removeCategoryFromPlaylist(block.linkId) : undefined}
-                              showHidden={showHidden}
-                            />
-                          );
-                        })}
-                      </div>
-                    )
-                  )}
+                                return (
+                                  <CategoryBlockCard
+                                    key={block.id}
+                                    playlistId={playlistId}
+                                    block={block}
+                                    sources={sources}
+                                    folders={categoryFolders}
+                                    index={index}
+                                    isDragging={false}
+                                    isDragOver={false}
+                                    isMarked={isMarked}
+                                    onMark={() => setMarkedCategoryId(prev => prev === blockId ? null : blockId)}
+                                    onPointerDown={() => {}}
+                                    onRemove={block.type === 'link' ? () => removeCategoryFromPlaylist(block.linkId) : undefined}
+                                    showHidden={showHidden}
+                                  />
+                                );
+                              })}
+                            </div>
+                          )
+                        )}
+                      </SortableContext>
+                    </DndContext>
 
                   {/* Individual Channels Section */}
                   {individualChannels && individualChannels.length > 0 && visibleIndivCount > 0 && (
-                    <div className="ple-indiv-section">
-                      <div className="ple-indiv-header">
-                        <h4><MovieIcon size={16} /> Individual Channels ({visibleIndivCount})</h4>
-                      </div>
-
-                      <div
-                        className="ple-indiv-list"
-                        ref={indivListRef}
-                        onPointerMove={handleIndivPointerMove}
-                        onPointerUp={handleIndivPointerUp}
-                        onPointerCancel={handleIndivPointerCancel}
+                    <DndContext
+                      sensors={pleSensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleIndivDragEnd}
+                    >
+                      <SortableContext
+                        items={(individualChannels || []).map((ch) => ch.stream_id)}
+                        strategy={verticalListSortingStrategy}
                       >
-                        {individualChannels.map((ch, index) => {
-                          const isDragging = dragFromIndivIdx.current === index;
-                          const isDragOver = dragOverIndivIdx === index && dragFromIndivIdx.current !== null && dragFromIndivIdx.current !== index;
-                          
-                          if (ch.enabled === false && !showHidden) {
-                            return null;
-                          }
+                        <div className="ple-indiv-section">
+                          <div className="ple-indiv-header">
+                            <h4><MovieIcon size={16} /> Individual Channels ({visibleIndivCount})</h4>
+                          </div>
 
-                          const srcName = sources.find(s => s.id === ch.source_id)?.name || 'Source';
-
-                          return (
-                            <div
-                              key={ch.stream_id}
-                              className={`ple-indiv-card${isDragging ? ' dragging' : ''}${isDragOver ? ' drag-over' : ''}${ch.enabled === false ? ' ple-hidden-item' : ''}`}
-                              data-index={index}
-                            >
-                              <span
-                                className="ple-block-drag-handle"
-                                style={{ touchAction: 'none' }}
-                                onPointerDown={e => handleIndivPointerDown(e, index)}
-                              >⋮⋮</span>
-
-                              <div className="ple-indiv-ch-info">
-                                {ch.stream_icon ? (
-                                  <img src={ch.stream_icon} className="ple-indiv-ch-logo" alt="" />
-                                ) : (
-                                  <span className="ple-indiv-ch-logo-placeholder"><TvIcon size={14} style={{ opacity: 0.6 }} /></span>
-                                )}
-                                <div className="ple-indiv-ch-meta">
-                                  <span className="ple-indiv-ch-name">{ch.name}</span>
-                                  <span className="ple-indiv-ch-sub">{srcName}</span>
-                                </div>
-                              </div>
-
-                              <button
-                                className={`ple-visibility-btn${ch.enabled === false ? ' hidden-item' : ''}`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleChannelEnabledGlobal(ch.stream_id, ch.enabled !== false);
-                                }}
-                                title={ch.enabled === false ? "Show channel" : "Hide channel"}
-                              >
-                                {ch.enabled === false ? <EyeSlashIcon /> : <EyeIcon />}
-                              </button>
-
-                              <button
-                                className="ple-remove-btn"
-                                onClick={() => removeIndividualChannelFromPlaylist(playlistId, ch.stream_id)}
-                                title="Remove channel"
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
+                          <div className="ple-indiv-list">
+                            {individualChannels.map((ch, index) => (
+                              <SortableIndivChannelCard
+                                key={ch.stream_id}
+                                ch={ch}
+                                index={index}
+                                sources={sources}
+                                playlistId={playlistId}
+                                showHidden={showHidden}
+                                toggleChannelEnabledGlobal={toggleChannelEnabledGlobal}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </SortableContext>
+                    </DndContext>
                   )}
                 </div>
               )}

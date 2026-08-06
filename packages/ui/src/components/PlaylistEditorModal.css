@@ -507,14 +507,16 @@
     border: 1px dashed var(--accent-primary, #00d4ff);
 }
 
-.ple-block-drag-handle {
-    color: var(--text-secondary, #aaa);
+.ple-block-card,
+.ple-nested-channel-row,
+.ple-indiv-card {
     cursor: grab;
-    font-size: 1.1rem;
     user-select: none;
 }
 
-.ple-block-drag-handle:active {
+.ple-block-card:active,
+.ple-nested-channel-row:active,
+.ple-indiv-card:active {
     cursor: grabbing;
 }
 

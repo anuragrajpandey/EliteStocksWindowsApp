@@ -23,6 +23,24 @@ import { buildSearchQueryClauses } from '../../utils/searchNormalization';
 import { TeamDetail } from './TeamDetail';
 import { GameDetail } from './GameDetail';
 
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
 interface FavoritesTabProps {
   onSearchChannels?: (channelName: string) => void;
   onPlayChannel?: (channel: StoredChannel) => void;
@@ -184,6 +202,270 @@ async function fetchSingleTeamData(teamId: string, leagueId: string): Promise<Te
   return promise;
 }
 
+/**
+ * Sortable Favorite Team Card Component using @dnd-kit
+ */
+interface SortableFavoriteCardProps {
+  team: FavoriteTeam;
+  details: TeamDetails | null;
+  liveEvent?: SportsEvent;
+  nextEvent?: SportsEvent;
+  isLive: boolean;
+  searchQuery: string;
+  isSearching: boolean;
+  streamsList: StoredChannel[] | null | undefined;
+  epgClockFormat: string;
+  onSelectTeam: (team: SportsTeam) => void;
+  onTogglePin: (teamId: string) => void;
+  onRemove: (teamId: string) => void;
+  onSearchClick: (query: string) => void;
+  onToggleInlineStreams: (cardKey: string, query: string) => void;
+  onStreamClick: (channel: StoredChannel) => void;
+}
+
+function SortableFavoriteCard(props: SortableFavoriteCardProps) {
+  const {
+    team,
+    details,
+    liveEvent,
+    nextEvent,
+    isLive,
+    searchQuery,
+    isSearching,
+    streamsList,
+    epgClockFormat,
+    onSelectTeam,
+    onTogglePin,
+    onRemove,
+    onSearchClick,
+    onToggleInlineStreams,
+    onStreamClick,
+  } = props;
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: team.id });
+
+  const primaryColor = details?.color ? `#${details.color}` : '#3b82f6';
+  const altColor = details?.alternateColor ? `#${details.alternateColor}` : '#1e293b';
+
+  const cardStyle: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 99 : 1,
+    '--team-color': primaryColor,
+    '--team-alt-color': altColor,
+  } as React.CSSProperties;
+
+  const cardKey = `fav-${team.id}`;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={cardStyle}
+      {...attributes}
+      {...listeners}
+      className={`favorite-scoreboard-card ${isLive ? 'is-live' : ''} ${team.isPinned ? 'is-pinned' : ''} ${isDragging ? 'is-dragging' : ''}`}
+    >
+      {/* Team Brand Accent Bar */}
+      <div className="favorite-card-color-strip" />
+
+      {/* Card Controls Header (Pin & Remove) */}
+      <div className="favorite-card-controls" onPointerDown={(e) => e.stopPropagation()}>
+        <button
+          className={`favorite-card-pin-btn ${team.isPinned ? 'active' : ''}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onTogglePin(team.id);
+          }}
+          title={team.isPinned ? 'Unpin team' : 'Pin team to top'}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill={team.isPinned ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+        </button>
+
+        <button
+          className="favorite-card-remove-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(team.id);
+          }}
+          title="Remove from favorites"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Team Info Header */}
+      <div className="favorite-card-header" onClick={() => onSelectTeam(team)}>
+        <div className="favorite-card-logo-container">
+          {team.logo ? (
+            <img src={team.logo} alt={team.name} className="favorite-card-logo" />
+          ) : (
+            <div className="favorite-card-logo-placeholder">{team.name.slice(0, 2).toUpperCase()}</div>
+          )}
+        </div>
+
+        <div className="favorite-card-title-group">
+          <div className="favorite-card-name-row">
+            <h3 className="favorite-card-team-name">{team.name}</h3>
+            {team.isPinned && <span className="favorite-pinned-badge">PINNED</span>}
+          </div>
+
+          <div className="favorite-card-stats-row">
+            {details?.standingSummary && (
+              <span className="favorite-card-standing">{details.standingSummary}</span>
+            )}
+            {details?.record?.overall && (
+              <span className="favorite-card-record">
+                {details.record.overall}
+                {details.record.winPercent !== undefined && ` (${(details.record.winPercent * 100).toFixed(0)}%)`}
+              </span>
+            )}
+            {!details && (
+              <span className="favorite-card-league">{team.shortName || team.country || 'Team'}</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Mini Scoreboard / Match Section */}
+      <div className="favorite-card-match-box" onClick={() => onSelectTeam(team)}>
+        {isLive && liveEvent ? (
+          <div className="favorite-card-live-box">
+            <div className="favorite-card-live-header">
+              <span className="favorite-live-pill">
+                <span className="live-count-dot" /> LIVE
+              </span>
+              {liveEvent.period && <span className="favorite-live-period">{liveEvent.period}</span>}
+            </div>
+
+            <div className="favorite-card-live-score-row">
+              <div className="favorite-card-score-team">
+                <span>{liveEvent.homeTeam.shortName || liveEvent.homeTeam.name}</span>
+                <span className="score">{liveEvent.homeScore ?? 0}</span>
+              </div>
+              <span className="favorite-card-score-vs">-</span>
+              <div className="favorite-card-score-team">
+                <span>{liveEvent.awayTeam.shortName || liveEvent.awayTeam.name}</span>
+                <span className="score">{liveEvent.awayScore ?? 0}</span>
+              </div>
+            </div>
+          </div>
+        ) : nextEvent ? (
+          <div className="favorite-card-next-box">
+            <div className="favorite-card-next-label">
+              <span>NEXT GAME</span>
+              <span className="favorite-card-next-time">
+                {formatEventDate(nextEvent.startTime)} • {formatEventTime(nextEvent.startTime, epgClockFormat !== '24h')}
+              </span>
+            </div>
+            <div className="favorite-card-next-matchup">
+              <span className="favorite-card-next-vs">
+                {nextEvent.homeTeam.id === team.id ? 'vs' : '@'}
+              </span>
+              <div className="favorite-card-next-opp">
+                {nextEvent.homeTeam.id === team.id ? (
+                  <>
+                    {nextEvent.awayTeam.logo && <img src={nextEvent.awayTeam.logo} alt="" className="favorite-next-logo" />}
+                    <span>{nextEvent.awayTeam.name}</span>
+                  </>
+                ) : (
+                  <>
+                    {nextEvent.homeTeam.logo && <img src={nextEvent.homeTeam.logo} alt="" className="favorite-next-logo" />}
+                    <span>{nextEvent.homeTeam.name}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="favorite-card-no-game-box">
+            <span>No upcoming game scheduled</span>
+          </div>
+        )}
+      </div>
+
+      {/* Actions Row: Search & List Streams Here */}
+      <div className="favorite-card-actions-row" onPointerDown={(e) => e.stopPropagation()}>
+        <button
+          className="favorite-action-text-btn search-btn"
+          title={`Search EPG for ${searchQuery}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSearchClick(searchQuery);
+          }}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          Search
+        </button>
+
+        <button
+          className={`favorite-action-text-btn list-btn ${streamsList && streamsList.length > 0 ? 'active' : ''}`}
+          title={streamsList ? 'Hide streams' : 'Find matching live streams'}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleInlineStreams(cardKey, searchQuery);
+          }}
+        >
+          {isSearching ? (
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="gc-spin">
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+          ) : (
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M12 2v4" />
+              <path d="m5 5 2.8 2.8" />
+              <path d="m19 5-2.8 2.8" />
+              <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z" />
+            </svg>
+          )}
+          List Streams Here
+        </button>
+      </div>
+
+      {/* Inline Streams Vertically Stacked List */}
+      {streamsList !== undefined && streamsList !== null && (
+        <div className="favorite-card-inline-streams" onPointerDown={(e) => e.stopPropagation()}>
+          {streamsList.length > 0 ? (
+            <div className="favorite-streams-vlist">
+              {streamsList.map((ch, idx) => (
+                <button
+                  key={`fav-ch-${ch.stream_id}-${idx}`}
+                  className="favorite-stream-pill-vertical"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onStreamClick(ch);
+                  }}
+                  title={ch.name}
+                >
+                  <span className="favorite-stream-play">▶</span>
+                  <span className="favorite-stream-name">{ch.name}</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="favorite-no-streams-text">No streams found in current playlists</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: FavoritesTabProps) {
   const favorites = useFavoriteTeams();
   const removeFavorite = useRemoveFavorite();
@@ -194,6 +476,18 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
   const [selectedTeam, setSelectedTeam] = useState<SportsTeam | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
 
+  // Configure @dnd-kit sensors: distance = 5px so clicks on cards/buttons aren't mistaken for drags
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   // Initialize state from window cache if available
   const [teamCache, setTeamCache] = useState<Record<string, TeamDetails | null>>(() => {
     const winCache = getWindowFavoritesCache();
@@ -203,10 +497,6 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
     });
     return initial;
   });
-
-  // Drag & drop state
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   // Inline stream search results & loading states per card key
   const [inlineStreams, setInlineStreams] = useState<Record<string, StoredChannel[] | null>>({});
@@ -281,7 +571,6 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
         if (isCancelled) break;
 
         const batch = teamsToFetch.slice(i, i + BATCH_SIZE);
-        console.log(`[FavoritesTab] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}: ${batch.map((b) => b.name).join(', ')}`);
 
         const results = await Promise.all(
           batch.map(async (fav) => {
@@ -395,6 +684,21 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
       return 0;
     });
   }, [favorites, teamGameMap]);
+
+  // @dnd-kit drag end handler
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = sortedFavorites.findIndex((t) => t.id === active.id);
+      const newIndex = sortedFavorites.findIndex((t) => t.id === over.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOrder = arrayMove(sortedFavorites, oldIndex, newIndex);
+        reorderFavorites(newOrder);
+      }
+    }
+  };
 
   if (selectedTeam) {
     return (
@@ -582,7 +886,7 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
         )}
       </section>
 
-      {/* Favorites Scoreboards Grid */}
+      {/* Favorites Scoreboards Grid with @dnd-kit */}
       <section className="sports-section favorites-grid-section">
         <div className="favorites-grid-header">
           <h2 className="sports-section-title">
@@ -593,277 +897,70 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
           </span>
         </div>
 
-        <div className="favorites-scoreboards-grid">
-          {sortedFavorites.map((team, index) => {
-            const details = teamCache[team.id];
-            const { liveEvent, nextEvent } = teamGameMap[team.id] || {};
-            const isLive = Boolean(liveEvent);
-            const cardKey = `fav-${team.id}`;
-
-            const activeGame = liveEvent || nextEvent;
-            const searchQuery = activeGame 
-              ? buildTeamSearchQuery(activeGame.homeTeam.name, activeGame.awayTeam.name)
-              : buildTeamSearchQuery(team.name);
-
-            const isSearching = searchingKeys[cardKey] || false;
-            const streamsList = inlineStreams[cardKey];
-
-            const primaryColor = details?.color ? `#${details.color}` : '#3b82f6';
-            const altColor = details?.alternateColor ? `#${details.alternateColor}` : '#1e293b';
-
-            const isDragging = draggedIndex === index;
-            const isDragOver = dragOverIndex === index;
-
-            return (
-              <div
-                key={team.id}
-                draggable
-                onDragStart={(e) => {
-                  setDraggedIndex(index);
-                  e.dataTransfer.effectAllowed = 'move';
-                  e.dataTransfer.setData('text/plain', String(index));
-                }}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.dataTransfer.dropEffect = 'move';
-                  if (dragOverIndex !== index) {
-                    setDragOverIndex(index);
-                  }
-                }}
-                onDragLeave={() => {
-                  setDragOverIndex(null);
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setDragOverIndex(null);
-                  if (draggedIndex === null || draggedIndex === index) return;
-                  const newFavs = [...sortedFavorites];
-                  const [moved] = newFavs.splice(draggedIndex, 1);
-                  newFavs.splice(index, 0, moved);
-                  reorderFavorites(newFavs);
-                  setDraggedIndex(null);
-                }}
-                onDragEnd={() => {
-                  setDraggedIndex(null);
-                  setDragOverIndex(null);
-                }}
-                className={`favorite-scoreboard-card ${isLive ? 'is-live' : ''} ${team.isPinned ? 'is-pinned' : ''} ${isDragging ? 'is-dragging' : ''} ${isDragOver ? 'drag-over' : ''}`}
-                style={
-                  {
-                    '--team-color': primaryColor,
-                    '--team-alt-color': altColor,
-                  } as React.CSSProperties
-                }
-              >
-                {/* Team Brand Accent Bar */}
-                <div className="favorite-card-color-strip" />
-
-                {/* Card Controls Header (Streamlined: Pin & Remove) */}
-                <div className="favorite-card-controls">
-                  <button
-                    className={`favorite-card-pin-btn ${team.isPinned ? 'active' : ''}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      togglePinFavorite(team.id);
-                    }}
-                    title={team.isPinned ? 'Unpin team' : 'Pin team to top'}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill={team.isPinned ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                  </button>
-
-                  <button
-                    className="favorite-card-remove-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeFavorite(team.id);
-                    }}
-                    title="Remove from favorites"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
-                </div>
-
-                {/* Team Info Header */}
-                <div className="favorite-card-header" onClick={() => setSelectedTeam(team)}>
-                  <div className="favorite-card-logo-container">
-                    {team.logo ? (
-                      <img src={team.logo} alt={team.name} className="favorite-card-logo" />
-                    ) : (
-                      <div className="favorite-card-logo-placeholder">{team.name.slice(0, 2).toUpperCase()}</div>
-                    )}
-                  </div>
-
-                  <div className="favorite-card-title-group">
-                    <div className="favorite-card-name-row">
-                      <h3 className="favorite-card-team-name">{team.name}</h3>
-                      {team.isPinned && <span className="favorite-pinned-badge">PINNED</span>}
-                    </div>
-
-                    <div className="favorite-card-stats-row">
-                      {details?.standingSummary && (
-                        <span className="favorite-card-standing">{details.standingSummary}</span>
-                      )}
-                      {details?.record?.overall && (
-                        <span className="favorite-card-record">
-                          {details.record.overall}
-                          {details.record.winPercent !== undefined && ` (${(details.record.winPercent * 100).toFixed(0)}%)`}
-                        </span>
-                      )}
-                      {!details && (
-                        <span className="favorite-card-league">{team.shortName || team.country || 'Team'}</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Mini Scoreboard / Match Section */}
-                <div className="favorite-card-match-box" onClick={() => setSelectedTeam(team)}>
-                  {isLive && liveEvent ? (
-                    <div className="favorite-card-live-box">
-                      <div className="favorite-card-live-header">
-                        <span className="favorite-live-pill">
-                          <span className="live-count-dot" /> LIVE
-                        </span>
-                        {liveEvent.period && <span className="favorite-live-period">{liveEvent.period}</span>}
-                      </div>
-
-                      <div className="favorite-card-live-score-row">
-                        <div className="favorite-card-score-team">
-                          <span>{liveEvent.homeTeam.shortName || liveEvent.homeTeam.name}</span>
-                          <span className="score">{liveEvent.homeScore ?? 0}</span>
-                        </div>
-                        <span className="favorite-card-score-vs">-</span>
-                        <div className="favorite-card-score-team">
-                          <span>{liveEvent.awayTeam.shortName || liveEvent.awayTeam.name}</span>
-                          <span className="score">{liveEvent.awayScore ?? 0}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ) : nextEvent ? (
-                    <div className="favorite-card-next-box">
-                      <div className="favorite-card-next-label">
-                        <span>NEXT GAME</span>
-                        <span className="favorite-card-next-time">
-                          {formatEventDate(nextEvent.startTime)} • {formatEventTime(nextEvent.startTime, epgClockFormat !== '24h')}
-                        </span>
-                      </div>
-                      <div className="favorite-card-next-matchup">
-                        <span className="favorite-card-next-vs">
-                          {nextEvent.homeTeam.id === team.id ? 'vs' : '@'}
-                        </span>
-                        <div className="favorite-card-next-opp">
-                          {nextEvent.homeTeam.id === team.id ? (
-                            <>
-                              {nextEvent.awayTeam.logo && <img src={nextEvent.awayTeam.logo} alt="" className="favorite-next-logo" />}
-                              <span>{nextEvent.awayTeam.name}</span>
-                            </>
-                          ) : (
-                            <>
-                              {nextEvent.homeTeam.logo && <img src={nextEvent.homeTeam.logo} alt="" className="favorite-next-logo" />}
-                              <span>{nextEvent.homeTeam.name}</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="favorite-card-no-game-box">
-                      <span>No upcoming game scheduled</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Actions Row: Search & List Streams Here */}
-                <div className="favorite-card-actions-row">
-                  <button
-                    className="favorite-action-text-btn search-btn"
-                    title={`Search EPG for ${searchQuery}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleChannelClick(searchQuery);
-                    }}
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="11" cy="11" r="8" />
-                      <path d="m21 21-4.35-4.35" />
-                    </svg>
-                    Search
-                  </button>
-
-                  <button
-                    className={`favorite-action-text-btn list-btn ${streamsList && streamsList.length > 0 ? 'active' : ''}`}
-                    title={streamsList ? 'Hide streams' : 'Find matching live streams'}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleInlineStreams(cardKey, searchQuery);
-                    }}
-                  >
-                    {isSearching ? (
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="gc-spin">
-                        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                      </svg>
-                    ) : (
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <path d="M12 2v4" />
-                        <path d="m5 5 2.8 2.8" />
-                        <path d="m19 5-2.8 2.8" />
-                        <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z" />
-                      </svg>
-                    )}
-                    List Streams Here
-                  </button>
-                </div>
-
-                {/* Inline Streams Vertically Stacked List */}
-                {streamsList !== undefined && streamsList !== null && (
-                  <div className="favorite-card-inline-streams">
-                    {streamsList.length > 0 ? (
-                      <div className="favorite-streams-vlist">
-                        {streamsList.map((ch, idx) => (
-                          <button
-                            key={`fav-ch-${ch.stream_id}-${idx}`}
-                            className="favorite-stream-pill-vertical"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStreamClick(ch);
-                            }}
-                            title={ch.name}
-                          >
-                            <span className="favorite-stream-play">▶</span>
-                            <span className="favorite-stream-name">{ch.name}</span>
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="favorite-no-streams-text">No streams found in current playlists</div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-
-          {/* Add Team Card */}
-          <button
-            className="sports-add-team-card"
-            onClick={() => onSetTab?.('leagues')}
-            title="Add a new team to favorites"
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={sortedFavorites.map((t) => t.id)}
+            strategy={rectSortingStrategy}
           >
-            <div className="sports-add-team-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
+            <div className="favorites-scoreboards-grid">
+              {sortedFavorites.map((team) => {
+                const details = teamCache[team.id];
+                const { liveEvent, nextEvent } = teamGameMap[team.id] || {};
+                const isLive = Boolean(liveEvent);
+                const cardKey = `fav-${team.id}`;
+
+                const activeGame = liveEvent || nextEvent;
+                const searchQuery = activeGame 
+                  ? buildTeamSearchQuery(activeGame.homeTeam.name, activeGame.awayTeam.name)
+                  : buildTeamSearchQuery(team.name);
+
+                const isSearching = searchingKeys[cardKey] || false;
+                const streamsList = inlineStreams[cardKey];
+
+                return (
+                  <SortableFavoriteCard
+                    key={team.id}
+                    team={team}
+                    details={details}
+                    liveEvent={liveEvent}
+                    nextEvent={nextEvent}
+                    isLive={isLive}
+                    searchQuery={searchQuery}
+                    isSearching={isSearching}
+                    streamsList={streamsList}
+                    epgClockFormat={epgClockFormat}
+                    onSelectTeam={setSelectedTeam}
+                    onTogglePin={togglePinFavorite}
+                    onRemove={removeFavorite}
+                    onSearchClick={handleChannelClick}
+                    onToggleInlineStreams={toggleInlineStreams}
+                    onStreamClick={handleStreamClick}
+                  />
+                );
+              })}
+
+              {/* Add Team Card */}
+              <button
+                className="sports-add-team-card"
+                onClick={() => onSetTab?.('leagues')}
+                title="Add a new team to favorites"
+              >
+                <div className="sports-add-team-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                </div>
+                <span className="sports-add-team-title">Add Favorite Team</span>
+                <span className="sports-add-team-desc">Browse NFL, NBA, MLB, Premier League & more</span>
+              </button>
             </div>
-            <span className="sports-add-team-title">Add Favorite Team</span>
-            <span className="sports-add-team-desc">Browse NFL, NBA, MLB, Premier League & more</span>
-          </button>
-        </div>
+          </SortableContext>
+        </DndContext>
       </section>
     </div>
   );

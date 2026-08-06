@@ -12,6 +12,23 @@ import {
 import { PlaylistEditorModal } from './PlaylistEditorModal';
 import { useModal } from './Modal';
 import './PlaylistListModal.css';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const PlaylistIcon = ({ size = 16 }: { size?: number }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={size} height={size} fill="currentColor" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '6px' }}>
@@ -54,6 +71,213 @@ const TrashIcon = ({ size = 14 }: { size?: number }) => (
     <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
   </svg>
 );
+
+interface ManagerItem {
+  id: string; // real source ID or 'playlist:uuid'
+  type: 'real' | 'playlist';
+  name: string;
+  playlistId?: string; // original UUID if playlist
+  sourceType?: string;
+}
+
+interface SortablePlaylistItemProps {
+  item: ManagerItem;
+  catCount: number;
+  indivCount: number;
+  playlist?: CustomPlaylist;
+  editingId: string | null;
+  editName: string;
+  editNameInputRef: React.RefObject<HTMLInputElement | null>;
+  setEditName: (name: string) => void;
+  handleEditKey: (e: React.KeyboardEvent) => void;
+  commitEdit: () => void;
+  startEdit: (playlist: CustomPlaylist) => void;
+  setEditingPlaylist: (p: { id: string; name: string }) => void;
+  handleRevert: (id: string, name: string) => void;
+  revertingId: string | null;
+  handleExport: (id: string, name: string) => void;
+  deleteConfirmId: string | null;
+  setDeleteConfirmId: (id: string | null) => void;
+  handleDelete: (id: string) => void;
+}
+
+function SortablePlaylistItem(props: SortablePlaylistItemProps) {
+  const {
+    item,
+    catCount,
+    indivCount,
+    playlist,
+    editingId,
+    editName,
+    editNameInputRef,
+    setEditName,
+    handleEditKey,
+    commitEdit,
+    startEdit,
+    setEditingPlaylist,
+    handleRevert,
+    revertingId,
+    handleExport,
+    deleteConfirmId,
+    setDeleteConfirmId,
+    handleDelete,
+  } = props;
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 99 : 1,
+    touchAction: 'none',
+  };
+
+  if (item.type === 'real') {
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        className={`pll-item pll-real-source-item${isDragging ? ' dragging' : ''}`}
+      >
+        <div className="pll-item-main">
+          <div className="pll-item-info readonly">
+            <span className="pll-item-name">{item.name}</span>
+            <span className="pll-item-count source-type-badge">
+              {catCount > 0 || indivCount > 0 ? (
+                <span className="pll-custom-additions-badge">
+                  +{catCount} category links · +{indivCount} individual channels
+                </span>
+              ) : (
+                "Media Source"
+              )}
+            </span>
+          </div>
+          
+          <div className="pll-item-actions" onPointerDown={(e) => e.stopPropagation()}>
+            <button
+              className="pll-action-btn"
+              onClick={() => setEditingPlaylist({ id: item.id, name: item.name })}
+              title="Edit Contents"
+            >
+              <EditIcon size={12} />Content
+            </button>
+            <button
+              className="pll-action-btn pll-danger"
+              onClick={() => handleRevert(item.id, item.name)}
+              title="Revert to Default"
+              disabled={revertingId !== null}
+            >
+              <RevertIcon size={12} />
+              {revertingId === item.id ? 'Reverting...' : 'Revert'}
+            </button>
+            {item.sourceType !== 'stalker' && (
+              <button
+                className="pll-action-btn"
+                onClick={() => handleExport(item.id, item.name)}
+                title="Export .m3u"
+              >
+                <ExportIcon size={12} />Export
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const plId = item.playlistId!;
+  if (!playlist) return null;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`pll-item${isDragging ? ' dragging' : ''}`}
+    >
+      {editingId === plId ? (
+        <div className="pll-edit-row" onPointerDown={(e) => e.stopPropagation()}>
+          <input
+            ref={editNameInputRef}
+            className="pll-edit-input"
+            value={editName}
+            onChange={e => setEditName(e.target.value)}
+            onKeyDown={handleEditKey}
+            onBlur={commitEdit}
+          />
+          <button className="pll-edit-ok" onClick={commitEdit}>✓</button>
+        </div>
+      ) : (
+        <div className="pll-item-main">
+          <div className="pll-item-info">
+            <span className="pll-item-name">{playlist.name}</span>
+            <span className="pll-item-count">
+              {catCount} category links · {indivCount} individual channels
+            </span>
+          </div>
+
+          <div className="pll-item-actions" onPointerDown={(e) => e.stopPropagation()}>
+            <button
+              className="pll-action-btn"
+              onClick={() => setEditingPlaylist({ id: plId, name: playlist.name })}
+              title="Edit Contents"
+            >
+              <EditIcon size={12} />Content
+            </button>
+            <button
+              className="pll-action-btn"
+              onClick={() => startEdit(playlist)}
+              title="Rename"
+            >
+              <RenameIcon size={12} />Rename
+            </button>
+            <button
+              className="pll-action-btn"
+              onClick={() => handleExport(playlist.playlist_id, playlist.name)}
+              title="Export .m3u"
+            >
+              <ExportIcon size={12} />Export
+            </button>
+
+            {deleteConfirmId === plId ? (
+              <>
+                <button
+                  className="pll-action-btn pll-confirm"
+                  onClick={() => handleDelete(plId)}
+                  title="Confirm delete"
+                >✓</button>
+                <button
+                  className="pll-action-btn"
+                  onClick={() => setDeleteConfirmId(null)}
+                  title="Cancel"
+                >✕</button>
+              </>
+            ) : (
+              <button
+                className="pll-action-btn pll-danger"
+                onClick={() => setDeleteConfirmId(plId)}
+                title="Delete"
+              >
+                <TrashIcon size={14} />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface PlaylistListModalProps {
   onClose: () => void;
@@ -207,42 +431,28 @@ export function PlaylistListModal({ onClose }: PlaylistListModalProps) {
     }
   }, [editingId]);
 
-  // Drag index calculation
-  const getIndexFromClientY = (clientY: number): number => {
-    if (!listRef.current) return 0;
-    const children = Array.from(listRef.current.children) as HTMLElement[];
-    for (let i = 0; i < children.length; i++) {
-      const rect = children[i].getBoundingClientRect();
-      if (clientY < rect.top + rect.height / 2) return i;
-    }
-    return Math.max(0, children.length - 1);
-  };
+  // --- @dnd-kit Drag and Drop Handlers for Custom Playlists ---
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
-  const handleHandlePointerDown = useCallback((e: React.PointerEvent, index: number) => {
-    if (e.button !== 0) return;
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    dragFromIdx.current = index;
-    setDragOverIdx(index);
-  }, []);
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !combinedItems) return;
 
-  const handleContainerPointerMove = useCallback((e: React.PointerEvent) => {
-    if (dragFromIdx.current === null) return;
-    e.preventDefault();
-    setDragOverIdx(getIndexFromClientY(e.clientY));
-  }, []);
+    const oldIndex = combinedItems.findIndex((item) => item.id === active.id);
+    const newIndex = combinedItems.findIndex((item) => item.id === over.id);
 
-  const handleContainerPointerUp = useCallback(async (e: React.PointerEvent) => {
-    if (dragFromIdx.current === null) return;
-    const from = dragFromIdx.current;
-    const to = getIndexFromClientY(e.clientY);
-    dragFromIdx.current = null;
-    setDragOverIdx(null);
-    if (from === to) return;
+    if (oldIndex === -1 || newIndex === -1) return;
 
-    const next = [...combinedItems];
-    const [moved] = next.splice(from, 1);
-    next.splice(to, 0, moved);
-
+    const next = arrayMove(combinedItems, oldIndex, newIndex);
     const orderedIds = next.map(item => item.id);
     try {
       // 1. Save unified sidebar order preference
@@ -260,12 +470,7 @@ export function PlaylistListModal({ onClose }: PlaylistListModalProps) {
     } catch (err) {
       console.error('Failed to save sidebar source order:', err);
     }
-  }, [combinedItems]);
-
-  const handleContainerPointerCancel = useCallback(() => {
-    dragFromIdx.current = null;
-    setDragOverIdx(null);
-  }, []);
+  };
 
   const handleCreate = async () => {
     const trimmed = newName.trim();
@@ -409,135 +614,49 @@ export function PlaylistListModal({ onClose }: PlaylistListModalProps) {
                 <p>No custom playlists or media sources found.</p>
               </div>
             ) : (
-              <div
-                className="pll-list"
-                ref={listRef}
-                onPointerMove={handleContainerPointerMove}
-                onPointerUp={handleContainerPointerUp}
-                onPointerCancel={handleContainerPointerCancel}
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
               >
-                {combinedItems.map((item: ManagerItem, index: number) => {
-                  const isDragging = dragFromIdx.current === index;
-                  const isDragOver = dragOverIdx === index && dragFromIdx.current !== null && dragFromIdx.current !== index;
-                  
-                  if (item.type === 'real') {
-                    const catCount = categoryLinkCounts?.get(item.id) || 0;
-                    const indivCount = individualCounts?.get(item.id) || 0;
-                    return (
-                      <div
-                        key={item.id}
-                        className={`pll-item pll-real-source-item${isDragging ? ' dragging' : ''}${isDragOver ? ' drag-over' : ''}`}
-                      >
-                        <div className="pll-item-main">
-                          <span
-                            className="pll-drag-handle"
-                            style={{ touchAction: 'none' }}
-                            onPointerDown={e => handleHandlePointerDown(e, index)}
-                          >⋮⋮</span>
-                          
-                          <div className="pll-item-info readonly">
-                            <span className="pll-item-name">{item.name}</span>
-                            <span className="pll-item-count source-type-badge">
-                              {catCount > 0 || indivCount > 0 ? (
-                                <span className="pll-custom-additions-badge">
-                                  +{catCount} category links · +{indivCount} individual channels
-                                </span>
-                              ) : (
-                                "Media Source"
-                              )}
-                            </span>
-                          </div>
-                          
-                          <div className="pll-item-actions">
-                            <button
-                              className="pll-action-btn"
-                              onClick={() => setEditingPlaylist({ id: item.id, name: item.name })}
-                              title="Edit Contents"
-                            >
-                              <EditIcon size={12} />Content
-                            </button>
-                            <button
-                              className="pll-action-btn pll-danger"
-                              onClick={() => handleRevert(item.id, item.name)}
-                              title="Revert to Default"
-                              disabled={revertingId !== null}
-                            >
-                              <RevertIcon size={12} />
-                              {revertingId === item.id ? 'Reverting...' : 'Revert'}
-                            </button>
-                            {item.sourceType !== 'stalker' && (
-                              <button
-                                className="pll-action-btn"
-                                onClick={() => handleExport(item.id, item.name)}
-                                title="Export .m3u"
-                              >
-                                <ExportIcon size={12} />Export
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  } else {
-                    const plId = item.playlistId!;
-                    const catCount = categoryLinkCounts?.get(plId) || 0;
-                    const indivCount = individualCounts?.get(plId) || 0;
-                    const playlist = playlists.find(p => p.playlist_id === plId);
-                    
-                    if (!playlist) return null;
+                <SortableContext
+                  items={combinedItems.map((item) => item.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="pll-list">
+                    {combinedItems.map((item: ManagerItem) => {
+                      const plId = item.playlistId || item.id;
+                      const catCount = categoryLinkCounts?.get(plId) || 0;
+                      const indivCount = individualCounts?.get(plId) || 0;
+                      const playlist = item.type === 'playlist' ? playlists.find(p => p.playlist_id === plId) : undefined;
 
-                    return (
-                      <div
-                        key={plId}
-                        className={`pll-item${isDragging ? ' dragging' : ''}${isDragOver ? ' drag-over' : ''}`}
-                      >
-                        {editingId === plId ? (
-                          <div className="pll-edit-row">
-                            <input
-                              ref={editNameInputRef}
-                              className="pll-edit-input"
-                              value={editName}
-                              onChange={e => setEditName(e.target.value)}
-                              onKeyDown={handleEditKey}
-                              onBlur={commitEdit}
-                            />
-                            <button className="pll-edit-ok" onClick={commitEdit}>✓</button>
-                          </div>
-                        ) : (
-                          <div className="pll-item-main">
-                            <span
-                              className="pll-drag-handle"
-                              style={{ touchAction: 'none' }}
-                              onPointerDown={e => handleHandlePointerDown(e, index)}
-                            >⋮⋮</span>
-                            
-                            <div className="pll-item-info" onClick={() => setEditingPlaylist({ id: plId, name: playlist.name })}>
-                              <span className="pll-item-name">{playlist.name}</span>
-                              <span className="pll-item-count">
-                                {catCount} category links · {indivCount} individual channels
-                              </span>
-                            </div>
-
-                            <div className="pll-item-actions">
-                              <button className="pll-action-btn" onClick={() => setEditingPlaylist({ id: plId, name: playlist.name })} title="Edit Contents"><EditIcon size={12} />Content</button>
-                              <button className="pll-action-btn" onClick={() => startEdit(playlist)} title="Rename"><RenameIcon size={12} />Rename</button>
-                              <button className="pll-action-btn" onClick={() => handleExport(playlist.playlist_id, playlist.name)} title="Export .m3u"><ExportIcon size={12} />Export</button>
-                              {deleteConfirmId === plId ? (
-                                <>
-                                  <button className="pll-action-btn pll-confirm" onClick={() => handleDelete(plId)} title="Confirm delete">✓</button>
-                                  <button className="pll-action-btn" onClick={() => setDeleteConfirmId(null)} title="Cancel">✕</button>
-                                </>
-                              ) : (
-                                <button className="pll-action-btn pll-danger" onClick={() => setDeleteConfirmId(plId)} title="Delete"><TrashIcon size={14} /></button>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  }
-                })}
-              </div>
+                      return (
+                        <SortablePlaylistItem
+                          key={item.id}
+                          item={item}
+                          catCount={catCount}
+                          indivCount={indivCount}
+                          playlist={playlist}
+                          editingId={editingId}
+                          editName={editName}
+                          editNameInputRef={editNameInputRef}
+                          setEditName={setEditName}
+                          handleEditKey={handleEditKey}
+                          commitEdit={commitEdit}
+                          startEdit={startEdit}
+                          setEditingPlaylist={setEditingPlaylist}
+                          handleRevert={handleRevert}
+                          revertingId={revertingId}
+                          handleExport={handleExport}
+                          deleteConfirmId={deleteConfirmId}
+                          setDeleteConfirmId={setDeleteConfirmId}
+                          handleDelete={handleDelete}
+                        />
+                      );
+                    })}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
           </div>
 

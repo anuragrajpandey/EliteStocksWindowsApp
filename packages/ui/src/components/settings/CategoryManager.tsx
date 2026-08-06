@@ -7,6 +7,80 @@ import { isCategorySortCustomized, setCategorySortCustomized } from '../../utils
 import { createCategoryFolder, renameCategoryFolder, deleteCategoryFolder, reorderCategoryFolders } from '../../services/playlist-editor';
 import { ChannelManager } from './ChannelManager';
 import './CategoryManager.css';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+type ManagedCategory = 
+    | { type: 'native'; id: string; name: string; enabled: boolean; displayOrder: number; folderId?: string | null; category: StoredCategory }
+    | { type: 'link'; id: string; linkId: number; name: string; enabled: boolean; displayOrder: number; folderId?: string | null; link: any };
+
+function SortableInsideFolderCategory(props: {
+    cat: ManagedCategory;
+    onRemove: (id: string) => void;
+}) {
+    const { cat, onRemove } = props;
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: cat.id });
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.4 : 1,
+        zIndex: isDragging ? 99 : 1,
+        touchAction: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '6px 10px',
+        background: 'rgba(255,255,255,0.04)',
+        borderRadius: '4px',
+        border: '1px solid rgba(255,255,255,0.06)',
+        fontSize: '0.82rem',
+        cursor: 'grab',
+        userSelect: 'none',
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+            className={`cm-bulk-inside-item${isDragging ? ' dragging' : ''}`}
+        >
+            <span style={{ fontWeight: 500 }}>{cat.name}</span>
+            <button
+                style={{ background: 'rgba(255,75,75,0.15)', border: '1px solid rgba(255,75,75,0.3)', color: '#ff4b4b', borderRadius: '4px', cursor: 'pointer', fontSize: '0.72rem', padding: '2px 8px', fontWeight: 600 }}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={() => onRemove(cat.id)}
+                title="Remove category from this folder"
+            >
+                ✕ Remove
+            </button>
+        </div>
+    );
+}
 
 const FolderIcon = ({ size = 16 }: { size?: number }) => (
     <svg 
@@ -351,6 +425,18 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
         dragFromIdx.current = null;
         setDragOverIdx(null);
     }, []);
+
+    // @dnd-kit sensors for Bulk Edit Categories in Folder
+    const bulkSensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     // Folder Pointer Drag Handlers
     const folderDragFromIdx = useRef<number | null>(null);
@@ -1176,6 +1262,29 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                         !bulkRightSearch.trim() || c.name.toLowerCase().includes(bulkRightSearch.toLowerCase())
                     );
 
+                    const handleBulkDragEnd = (event: DragEndEvent) => {
+                        const { active, over } = event;
+                        if (!over || active.id === over.id) return;
+
+                        const oldIndex = insideFolder.findIndex(c => c.id === active.id);
+                        const newIndex = insideFolder.findIndex(c => c.id === over.id);
+                        if (oldIndex === -1 || newIndex === -1) return;
+
+                        const reorderedInside = arrayMove(insideFolder, oldIndex, newIndex);
+
+                        setCategories(prevCats => {
+                            let insideIdx = 0;
+                            const next = prevCats.map(cat => {
+                                if (cat.folderId === folderId) {
+                                    return reorderedInside[insideIdx++];
+                                }
+                                return cat;
+                            });
+                            return next.map((cat, i) => ({ ...cat, displayOrder: i }));
+                        });
+                        setIsDirty(true);
+                    };
+
                     const handleCloseBulkModal = async () => {
                         setBulkFolderTarget(null);
                         if (initialCreateFolder || initialBulkFolder) {
@@ -1232,21 +1341,24 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
 
                                             <div className="cm-bulk-scroll-list" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                                 {filteredInside.length > 0 ? (
-                                                    filteredInside.map(cat => (
-                                                        <div
-                                                            key={cat.id}
-                                                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.06)', fontSize: '0.82rem' }}
+                                                    <DndContext
+                                                        sensors={bulkSensors}
+                                                        collisionDetection={closestCenter}
+                                                        onDragEnd={handleBulkDragEnd}
+                                                    >
+                                                        <SortableContext
+                                                            items={filteredInside.map(c => c.id)}
+                                                            strategy={verticalListSortingStrategy}
                                                         >
-                                                            <span style={{ fontWeight: 500 }}>{cat.name}</span>
-                                                            <button
-                                                                style={{ background: 'rgba(255,75,75,0.15)', border: '1px solid rgba(255,75,75,0.3)', color: '#ff4b4b', borderRadius: '4px', cursor: 'pointer', fontSize: '0.72rem', padding: '2px 8px', fontWeight: 600 }}
-                                                                onClick={() => handleAssignFolderSingle(cat.id, null)}
-                                                                title="Remove category from this folder"
-                                                            >
-                                                                ✕ Remove
-                                                            </button>
-                                                        </div>
-                                                    ))
+                                                            {filteredInside.map(cat => (
+                                                                <SortableInsideFolderCategory
+                                                                    key={cat.id}
+                                                                    cat={cat}
+                                                                    onRemove={(id) => handleAssignFolderSingle(id, null)}
+                                                                />
+                                                            ))}
+                                                        </SortableContext>
+                                                    </DndContext>
                                                 ) : (
                                                     <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', padding: '12px 0', textAlign: 'center' }}>
                                                         No categories in this folder.

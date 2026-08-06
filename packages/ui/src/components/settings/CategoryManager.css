@@ -669,6 +669,22 @@
   background: var(--accent-primary, rgba(0, 212, 255, 0.6));
 }
 
+.cm-bulk-inside-item {
+  cursor: grab;
+  user-select: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.cm-bulk-inside-item:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.cm-bulk-inside-item:active,
+.cm-bulk-inside-item.dragging {
+  cursor: grabbing;
+}
+
 /* ── Light Theme Overrides for Bulk Edit Modal ── */
 [data-theme="light"] .cm-bulk-col,
 html.light-theme .cm-bulk-col,
