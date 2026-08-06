@@ -626,15 +626,23 @@ export async function getTeamDepthChart(teamId: string, leagueId: string): Promi
       for (const [posKey, posObj] of Object.entries(group.positions || {})) {
         const posName = posObj.position?.displayName || posObj.position?.name || posKey.toUpperCase();
         const posAbbrev = posObj.position?.abbreviation || posKey.toUpperCase();
-        const athletes = (posObj.athletes || []).map((a, idx) => ({
-          id: a.id,
-          name: a.displayName,
-          shortName: a.shortName,
-          jersey: a.jersey,
-          rank: a.rank || idx + 1,
-          headshot: a.headshot?.href || `https://a.espncdn.com/i/headshots/${config.sport}/players/full/${a.id}.png`,
-          position: posAbbrev,
-        }));
+        const athletes = (posObj.athletes || []).map((a: any, idx) => {
+          const ath = a.athlete || a;
+          const athId = ath.id || a.id || '';
+          const athName = ath.displayName || ath.fullName || a.displayName || 'Athlete';
+          const athJersey = ath.jersey || a.jersey;
+          const athHeadshot = ath.headshot?.href || a.headshot?.href || undefined;
+
+          return {
+            id: athId || `pos-${idx}`,
+            name: athName,
+            shortName: ath.shortName || a.shortName,
+            jersey: athJersey,
+            rank: a.rank || idx + 1,
+            headshot: athHeadshot,
+            position: posAbbrev,
+          };
+        });
 
         positions.push({
           name: posKey,
@@ -844,7 +852,6 @@ export async function getTeamLeaders(teamId: string, leagueId: string): Promise<
       }
     }
 
-    // Resolve missing athlete names in parallel
     if (missingIds.size > 0) {
       await Promise.all(
         Array.from(missingIds).map(async (id) => {

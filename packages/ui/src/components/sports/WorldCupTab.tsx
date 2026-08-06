@@ -300,6 +300,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
         onClose={() => setSelectedTeam(null)}
         onChannelClick={onSearchChannels}
         onPlayChannel={onPlayChannel}
+        fromTab="Tournaments"
       />
     );
   }

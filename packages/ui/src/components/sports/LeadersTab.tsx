@@ -57,6 +57,7 @@ export function LeadersTab({ onSearchChannels, onPlayChannel }: LeadersTabProps)
         onClose={() => setSelectedTeam(null)}
         onChannelClick={onSearchChannels}
         onPlayChannel={onPlayChannel}
+        fromTab="Leaders"
       />
     );
   }

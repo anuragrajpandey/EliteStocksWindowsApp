@@ -726,6 +726,7 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
         onClose={() => setSelectedTeam(null)}
         onChannelClick={handleChannelClick}
         onPlayChannel={onPlayChannel}
+        fromTab="Favorites"
       />
     );
   }

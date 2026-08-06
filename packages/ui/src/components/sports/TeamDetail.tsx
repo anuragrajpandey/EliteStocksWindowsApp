@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
 import { useEpgClockFormat } from '../../stores/uiStore';
 import type { SportsEvent, SportsTeam } from '@ynotv/core';
 import { 
@@ -13,27 +13,155 @@ import {
   type TeamDetails,
   type TeamAthlete,
   type DepthChartGroup,
-  type DepthChartPosition,
-  type DepthChartAthlete,
   type TeamInjury,
   type TeamLeaderCategory,
-  type TeamLeader,
   type TeamNewsArticle,
 } from '../../services/sports';
 import { useAddFavorite, useRemoveFavorite, useIsFavorite } from '../../stores/sportsFavoritesStore';
 import { GameDetail } from './GameDetail';
 import { AthleteDetailModal } from './AthleteDetailModal';
 
+export interface BreadcrumbItem {
+  label: string;
+  onClick?: () => void;
+}
+
 interface TeamDetailProps {
   team: SportsTeam;
   onClose: () => void;
   onChannelClick?: (channelName: string) => void;
   onPlayChannel?: (channel: import('../../db').StoredChannel) => void;
+  breadcrumbs?: BreadcrumbItem[];
+  fromTab?: string;
+  onRootClick?: () => void;
 }
+
+const LEAGUE_INFO_MAP: Record<string, { sportName: string; leagueName: string }> = {
+  nfl: { sportName: 'Football', leagueName: 'NFL' },
+  cfb: { sportName: 'Football', leagueName: 'NCAA Football' },
+  mlb: { sportName: 'Baseball', leagueName: 'MLB' },
+  nba: { sportName: 'Basketball', leagueName: 'NBA' },
+  cbb: { sportName: 'Basketball', leagueName: 'NCAA Basketball' },
+  wnba: { sportName: 'Basketball', leagueName: 'WNBA' },
+  nhl: { sportName: 'Hockey', leagueName: 'NHL' },
+  ufc: { sportName: 'MMA', leagueName: 'UFC' },
+  f1: { sportName: 'Racing', leagueName: 'Formula 1' },
+  nascar: { sportName: 'Racing', leagueName: 'NASCAR' },
+  pga: { sportName: 'Golf', leagueName: 'PGA Tour' },
+  atp: { sportName: 'Tennis', leagueName: 'ATP Tennis' },
+  wta: { sportName: 'Tennis', leagueName: 'WTA Tennis' },
+  'premier-league': { sportName: 'Soccer', leagueName: 'Premier League' },
+  'la-liga': { sportName: 'Soccer', leagueName: 'La Liga' },
+  'serie-a': { sportName: 'Soccer', leagueName: 'Serie A' },
+  'bundesliga': { sportName: 'Soccer', leagueName: 'Bundesliga' },
+  'ligue-1': { sportName: 'Soccer', leagueName: 'Ligue 1' },
+  'champions-league': { sportName: 'Soccer', leagueName: 'UEFA Champions League' },
+  'europa-league': { sportName: 'Soccer', leagueName: 'UEFA Europa League' },
+  mls: { sportName: 'Soccer', leagueName: 'MLS' },
+  'world-cup': { sportName: 'Soccer', leagueName: 'FIFA World Cup' },
+};
 
 type TabId = 'schedule' | 'roster' | 'depth' | 'injuries' | 'leaders' | 'news';
 
-export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: TeamDetailProps) {
+export interface SeriesGroup {
+  id: string;
+  opponent: {
+    id: string;
+    name: string;
+    shortName?: string;
+    logo?: string;
+  };
+  isHome: boolean;
+  events: SportsEvent[];
+  startDate: Date;
+  endDate: Date;
+  wins: number;
+  losses: number;
+  draws: number;
+}
+
+function groupEventsIntoSeries(events: SportsEvent[], teamId: string): (SportsEvent | SeriesGroup)[] {
+  if (events.length === 0) return [];
+
+  const result: (SportsEvent | SeriesGroup)[] = [];
+  let currentSeries: SportsEvent[] = [];
+
+  const flushSeries = () => {
+    if (currentSeries.length === 0) return;
+    if (currentSeries.length === 1) {
+      result.push(currentSeries[0]);
+    } else {
+      const first = currentSeries[0];
+      const last = currentSeries[currentSeries.length - 1];
+      const isHome = first.homeTeam.id === teamId;
+      const opponent = isHome ? first.awayTeam : first.homeTeam;
+
+      let wins = 0;
+      let losses = 0;
+      let draws = 0;
+
+      for (const ev of currentSeries) {
+        if (ev.homeScore !== undefined && ev.awayScore !== undefined) {
+          const tScore = isHome ? ev.homeScore : ev.awayScore;
+          const oScore = isHome ? ev.awayScore : ev.homeScore;
+          if (tScore > oScore) wins++;
+          else if (tScore < oScore) losses++;
+          else draws++;
+        }
+      }
+
+      result.push({
+        id: `series-${first.id}-${last.id}`,
+        opponent,
+        isHome,
+        events: [...currentSeries],
+        startDate: first.startTime,
+        endDate: last.startTime,
+        wins,
+        losses,
+        draws,
+      });
+    }
+    currentSeries = [];
+  };
+
+  for (const event of events) {
+    if (currentSeries.length === 0) {
+      currentSeries.push(event);
+    } else {
+      const prev = currentSeries[currentSeries.length - 1];
+      const prevHome = prev.homeTeam.id === teamId;
+      const prevOpponentId = prevHome ? prev.awayTeam.id : prev.homeTeam.id;
+
+      const currHome = event.homeTeam.id === teamId;
+      const currOpponentId = currHome ? event.awayTeam.id : event.homeTeam.id;
+
+      if (prevOpponentId === currOpponentId && prevHome === currHome) {
+        currentSeries.push(event);
+      } else {
+        flushSeries();
+        currentSeries.push(event);
+      }
+    }
+  }
+
+  flushSeries();
+  return result;
+}
+
+function groupEventsByMonth(events: SportsEvent[]): Map<string, SportsEvent[]> {
+  const map = new Map<string, SportsEvent[]>();
+  for (const event of events) {
+    const monthKey = event.startTime.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    if (!map.has(monthKey)) {
+      map.set(monthKey, []);
+    }
+    map.get(monthKey)!.push(event);
+  }
+  return map;
+}
+
+export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel, breadcrumbs, fromTab, onRootClick }: TeamDetailProps) {
   const epgClockFormat = useEpgClockFormat();
   const [details, setDetails] = useState<TeamDetails | null>(null);
   const [upcoming, setUpcoming] = useState<SportsEvent[]>([]);
@@ -47,9 +175,29 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
   const [selectedAthleteId, setSelectedAthleteId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('schedule');
 
+  // Schedule view options
+  const [showFullSchedule, setShowFullSchedule] = useState(false);
+  const [chunkBySeries, setChunkBySeries] = useState(true);
+
   const isFavorite = useIsFavorite(team.id);
   const addFavorite = useAddFavorite();
   const removeFavorite = useRemoveFavorite();
+
+  const [loadingTab, setLoadingTab] = useState(false);
+
+  const activeBreadcrumbs = useMemo<BreadcrumbItem[]>(() => {
+    if (breadcrumbs && breadcrumbs.length > 0) return breadcrumbs;
+
+    const leagueId = (team.leagueId || 'nfl').toLowerCase();
+    const info = LEAGUE_INFO_MAP[leagueId] || { sportName: 'Sports', leagueName: leagueId.toUpperCase() };
+    const rootLabel = fromTab || 'Leagues';
+
+    return [
+      { label: rootLabel, onClick: onRootClick || onClose },
+      { label: info.leagueName, onClick: onClose },
+      { label: details?.name || team.name },
+    ];
+  }, [breadcrumbs, team.leagueId, team.name, fromTab, details?.name, onClose, onRootClick]);
 
   useEffect(() => {
     setLoading(true);
@@ -58,22 +206,39 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
     Promise.all([
       getTeamDetails(team.id, leagueId),
       getTeamSchedule(team.id, leagueId),
-      getTeamDepthChart(team.id, leagueId),
-      getTeamInjuries(team.id, leagueId),
-      getTeamLeaders(team.id, leagueId),
-      getTeamNews(team.id, leagueId),
     ])
-      .then(([detailsResult, scheduleResult, depthRes, injRes, leadersRes, newsRes]) => {
+      .then(([detailsResult, scheduleResult]) => {
         setDetails(detailsResult);
         setUpcoming(scheduleResult.upcoming);
         setPast(scheduleResult.past);
-        setDepthChart(depthRes);
-        setInjuries(injRes);
-        setLeaders(leadersRes);
-        setNews(newsRes);
       })
       .finally(() => setLoading(false));
   }, [team.id, team.leagueId]);
+
+  useEffect(() => {
+    const leagueId = team.leagueId || 'nfl';
+    if (activeTab === 'depth' && depthChart.length === 0) {
+      setLoadingTab(true);
+      getTeamDepthChart(team.id, leagueId)
+        .then(res => setDepthChart(res))
+        .finally(() => setLoadingTab(false));
+    } else if (activeTab === 'injuries' && injuries.length === 0) {
+      setLoadingTab(true);
+      getTeamInjuries(team.id, leagueId)
+        .then(res => setInjuries(res))
+        .finally(() => setLoadingTab(false));
+    } else if (activeTab === 'leaders' && leaders.length === 0) {
+      setLoadingTab(true);
+      getTeamLeaders(team.id, leagueId)
+        .then(res => setLeaders(res))
+        .finally(() => setLoadingTab(false));
+    } else if (activeTab === 'news' && news.length === 0) {
+      setLoadingTab(true);
+      getTeamNews(team.id, leagueId)
+        .then(res => setNews(res))
+        .finally(() => setLoadingTab(false));
+    }
+  }, [activeTab, team.id, team.leagueId, depthChart.length, injuries.length, leaders.length, news.length]);
 
   const handleToggleFavorite = useCallback(() => {
     if (isFavorite) {
@@ -85,6 +250,14 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
 
   const teamColor = details?.color || '00338d';
   const teamColorStyle = `#${teamColor}`;
+
+  const allEvents = useMemo(() => {
+    return [...past, ...upcoming].sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+  }, [past, upcoming]);
+
+  const monthlyEvents = useMemo(() => {
+    return groupEventsByMonth(allEvents);
+  }, [allEvents]);
 
   if (selectedEvent) {
     return (
@@ -99,12 +272,36 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
 
   return (
     <div className="sports-tab-content">
-      <button className="sports-back-link" onClick={onClose}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M19 12H5M12 19l-7-7 7-7" />
-        </svg>
-        Back
-      </button>
+      <nav className="sports-breadcrumbs" aria-label="Breadcrumbs">
+        {activeBreadcrumbs.map((item, idx) => {
+          const isLast = idx === activeBreadcrumbs.length - 1;
+          return (
+            <Fragment key={idx}>
+              {idx > 0 && (
+                <span className="sports-breadcrumb-separator">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </span>
+              )}
+              {item.onClick && !isLast ? (
+                <button className="sports-breadcrumb-link" onClick={item.onClick}>
+                  {idx === 0 && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ marginRight: '2px' }}>
+                      <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                  )}
+                  {item.label}
+                </button>
+              ) : (
+                <span className={`sports-breadcrumb-item ${isLast ? 'active' : ''}`}>
+                  {item.label}
+                </span>
+              )}
+            </Fragment>
+          );
+        })}
+      </nav>
 
       {loading ? (
         <div className="sports-loading">
@@ -150,51 +347,25 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
                 <div className="team-record-card overall">
                   <span className="team-record-label">Overall</span>
                   <span className="team-record-value">{details.record.overall}</span>
-                  {details.record.winPercent !== undefined && (
-                    <span className="team-record-percent">
-                      {(details.record.winPercent * 100).toFixed(1)}%
-                    </span>
-                  )}
                 </div>
-                <div className="team-record-card home">
-                  <span className="team-record-label">Home</span>
-                  <span className="team-record-value">{details.record.home}</span>
-                </div>
-                <div className="team-record-card away">
-                  <span className="team-record-label">Away</span>
-                  <span className="team-record-value">{details.record.away}</span>
-                </div>
+                {details.record.home && (
+                  <div className="team-record-card">
+                    <span className="team-record-label">Home</span>
+                    <span className="team-record-value">{details.record.home}</span>
+                  </div>
+                )}
+                {details.record.away && (
+                  <div className="team-record-card">
+                    <span className="team-record-label">Away</span>
+                    <span className="team-record-value">{details.record.away}</span>
+                  </div>
+                )}
               </div>
-
-              {Boolean(details.record.pointsFor || details.record.pointsAgainst) && (
-                <div className="team-stats-row">
-                  <div className="team-stat-item">
-                    <span className="team-stat-value">{details.record.pointsFor || 0}</span>
-                    <span className="team-stat-label">Points For</span>
-                  </div>
-                  <div className="team-stat-divider">
-                    <span className={details.record.pointDifferential && details.record.pointDifferential > 0 ? 'positive' : 'negative'}>
-                      {details.record.pointDifferential && details.record.pointDifferential > 0 ? '+' : ''}{details.record.pointDifferential || 0}
-                    </span>
-                    <span className="team-stat-label">Diff</span>
-                  </div>
-                  <div className="team-stat-item">
-                    <span className="team-stat-value">{details.record.pointsAgainst || 0}</span>
-                    <span className="team-stat-label">Points Against</span>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
           {(() => {
-            const now = new Date();
-            const nextGame = (upcoming && upcoming.length > 0)
-              ? upcoming.find(e => e.status === 'scheduled' && new Date(e.startTime).getTime() > now.getTime())
-              : (details?.nextEvent && details.nextEvent.status === 'scheduled' && new Date(details.nextEvent.startTime).getTime() > now.getTime())
-                ? details.nextEvent
-                : undefined;
-
+            const nextGame = upcoming[0];
             if (!nextGame) return null;
 
             return (
@@ -228,75 +399,158 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
             >
               Roster ({details?.athletes.length || 0})
             </button>
-            {depthChart.length > 0 && (
-              <button 
-                className={`team-tab ${activeTab === 'depth' ? 'active' : ''}`}
-                onClick={() => setActiveTab('depth')}
-              >
-                Depth Chart
-              </button>
-            )}
-            {injuries.length > 0 && (
-              <button 
-                className={`team-tab ${activeTab === 'injuries' ? 'active' : ''}`}
-                onClick={() => setActiveTab('injuries')}
-              >
-                Injuries ({injuries.length})
-              </button>
-            )}
-            {leaders.length > 0 && (
-              <button 
-                className={`team-tab ${activeTab === 'leaders' ? 'active' : ''}`}
-                onClick={() => setActiveTab('leaders')}
-              >
-                Leaders
-              </button>
-            )}
-            {news.length > 0 && (
-              <button 
-                className={`team-tab ${activeTab === 'news' ? 'active' : ''}`}
-                onClick={() => setActiveTab('news')}
-              >
-                News ({news.length})
-              </button>
-            )}
+            <button 
+              className={`team-tab ${activeTab === 'depth' ? 'active' : ''}`}
+              onClick={() => setActiveTab('depth')}
+            >
+              Depth Chart
+            </button>
+            <button 
+              className={`team-tab ${activeTab === 'injuries' ? 'active' : ''}`}
+              onClick={() => setActiveTab('injuries')}
+            >
+              Injuries {injuries.length > 0 ? `(${injuries.length})` : ''}
+            </button>
+            <button 
+              className={`team-tab ${activeTab === 'leaders' ? 'active' : ''}`}
+              onClick={() => setActiveTab('leaders')}
+            >
+              Leaders
+            </button>
+            <button 
+              className={`team-tab ${activeTab === 'news' ? 'active' : ''}`}
+              onClick={() => setActiveTab('news')}
+            >
+              News {news.length > 0 ? `(${news.length})` : ''}
+            </button>
           </div>
 
           <div className="team-tab-content">
+            {loadingTab ? (
+              <div className="sports-loading" style={{ minHeight: '200px' }}>
+                <div className="sports-spinner" />
+                <span>Loading info...</span>
+              </div>
+            ) : (
+              <>
             {activeTab === 'schedule' && (
               <>
-                {upcoming.length > 0 && (
-                  <section className="sports-section">
-                    <h3 className="sports-section-title">Upcoming ({upcoming.length})</h3>
-                    <div className="team-schedule-grid">
-                      {upcoming.map(event => (
-                        <TeamEventCard
-                          key={event.id}
-                          event={event}
-                          teamId={team.id}
-                          onClick={() => setSelectedEvent(event)}
-                          onChannelClick={onChannelClick}
-                        />
-                      ))}
-                    </div>
-                  </section>
-                )}
+                {!showFullSchedule ? (
+                  <>
+                    {upcoming.length > 1 && (
+                      <section className="sports-section">
+                        <h3 className="sports-section-title">Upcoming Schedule</h3>
+                        <div className="team-schedule-grid">
+                          {upcoming.slice(1, 6).map(event => (
+                            <TeamEventCard
+                              key={event.id}
+                              event={event}
+                              teamId={team.id}
+                              onClick={() => setSelectedEvent(event)}
+                              onChannelClick={onChannelClick}
+                            />
+                          ))}
+                        </div>
+                      </section>
+                    )}
 
-                {past.length > 0 && (
-                  <section className="sports-section">
-                    <h3 className="sports-section-title">Results ({past.length})</h3>
-                    <div className="team-schedule-grid">
-                      {past.slice(0, 10).map(event => (
-                        <TeamEventCard
-                          key={event.id}
-                          event={event}
-                          teamId={team.id}
-                          onClick={() => setSelectedEvent(event)}
-                          onChannelClick={onChannelClick}
-                        />
-                      ))}
+                    {past.length > 0 && (
+                      <section className="sports-section">
+                        <h3 className="sports-section-title">Recent Results</h3>
+                        <div className="team-schedule-grid">
+                          {past.slice(0, 5).map(event => (
+                            <TeamEventCard
+                              key={event.id}
+                              event={event}
+                              teamId={team.id}
+                              onClick={() => setSelectedEvent(event)}
+                              onChannelClick={onChannelClick}
+                            />
+                          ))}
+                        </div>
+                      </section>
+                    )}
+
+                    <div className="team-schedule-expand-bar">
+                      <button
+                        className="team-schedule-expand-btn"
+                        onClick={() => setShowFullSchedule(true)}
+                      >
+                        <span>View Full Schedule ({upcoming.length + past.length} Games)</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M6 9l6 6 6-6" />
+                        </svg>
+                      </button>
                     </div>
-                  </section>
+                  </>
+                ) : (
+                  <>
+                    <div className="team-schedule-top-controls">
+                      <h3 className="sports-section-title" style={{ margin: 0 }}>Full Season Schedule</h3>
+                      <div className="team-schedule-toggle-group">
+                        <button
+                          className={`team-schedule-toggle-btn${chunkBySeries ? ' active' : ''}`}
+                          onClick={() => setChunkBySeries(true)}
+                        >
+                          Group by Series
+                        </button>
+                        <button
+                          className={`team-schedule-toggle-btn${!chunkBySeries ? ' active' : ''}`}
+                          onClick={() => setChunkBySeries(false)}
+                        >
+                          All Games
+                        </button>
+                      </div>
+                    </div>
+
+                    {Array.from(monthlyEvents.entries()).map(([monthName, events]) => {
+                      const items = chunkBySeries
+                        ? groupEventsIntoSeries(events, team.id)
+                        : events;
+
+                      return (
+                        <div key={monthName} className="team-schedule-month-group">
+                          <h4 className="team-schedule-month-title">{monthName} ({events.length} Games)</h4>
+                          <div className="team-schedule-grid">
+                            {items.map((item) => {
+                              if ('events' in item) {
+                                return (
+                                  <SeriesCard
+                                    key={item.id}
+                                    series={item}
+                                    teamId={team.id}
+                                    onClick={(ev) => setSelectedEvent(ev)}
+                                    onChannelClick={onChannelClick}
+                                  />
+                                );
+                              }
+                              return (
+                                <TeamEventCard
+                                  key={item.id}
+                                  event={item}
+                                  teamId={team.id}
+                                  onClick={() => setSelectedEvent(item)}
+                                  onChannelClick={onChannelClick}
+                                />
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    <div className="team-schedule-expand-bar">
+                      <button
+                        className="team-schedule-expand-btn"
+                        onClick={() => setShowFullSchedule(false)}
+                      >
+                        <span>Collapse to Summary (10 Games)</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M18 15l-6-6-6 6" />
+                        </svg>
+                      </button>
+                    </div>
+                  </>
                 )}
 
                 {upcoming.length === 0 && past.length === 0 && (
@@ -317,6 +571,7 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
             {activeTab === 'depth' && (
               <TeamDepthChart
                 depthChart={depthChart}
+                roster={details?.athletes}
                 onAthleteClick={(id) => setSelectedAthleteId(id)}
               />
             )}
@@ -338,6 +593,8 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
             {activeTab === 'news' && (
               <TeamNews news={news} />
             )}
+            </>
+            )}
           </div>
         </>
       )}
@@ -353,10 +610,162 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel }: Tea
   );
 }
 
+function SeriesCard({
+  series,
+  teamId,
+  onClick,
+  onChannelClick,
+}: {
+  series: SeriesGroup;
+  teamId: string;
+  onClick?: (event: SportsEvent) => void;
+  onChannelClick?: (channelName: string) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  const startFormatted = series.startDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  const endFormatted = series.endDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  const dateRangeStr = startFormatted === endFormatted ? startFormatted : `${startFormatted} – ${endFormatted}`;
+
+  const totalFinished = series.wins + series.losses + series.draws;
+  const isFinished = totalFinished === series.events.length;
+  const seriesWon = series.wins > series.losses;
+  const seriesLost = series.losses > series.wins;
+
+  const seriesStatusClass = isFinished ? (seriesWon ? 'win' : seriesLost ? 'loss' : 'draw') : '';
+
+  return (
+    <div className={`team-series-card ${seriesStatusClass}`}>
+      <div className="series-card-header" onClick={() => setExpanded(!expanded)}>
+        <div className="series-card-header-left">
+          {series.opponent.logo && (
+            <img src={series.opponent.logo} alt="" className="series-opponent-logo" />
+          )}
+          <div className="series-opponent-info">
+            <span className="series-opponent-title">
+              {series.isHome ? 'vs' : '@'} {series.opponent.shortName || series.opponent.name}
+            </span>
+            <span className="series-date-range">
+              {dateRangeStr} • {series.events.length} Games
+            </span>
+          </div>
+        </div>
+
+        <div className="series-card-header-right">
+          {isFinished && (
+            <span className={`series-record-pill ${seriesStatusClass}`}>
+              {series.wins}-{series.losses}{series.draws > 0 ? `-${series.draws}` : ''}
+            </span>
+          )}
+          <button className="series-expand-btn">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className="series-games-list">
+          {series.events.map((event) => (
+            <SeriesGameRow
+              key={event.id}
+              event={event}
+              teamId={teamId}
+              onClick={() => onClick?.(event)}
+              onChannelClick={onChannelClick}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SeriesGameRow({
+  event,
+  teamId,
+  onClick,
+  onChannelClick,
+}: {
+  event: SportsEvent;
+  teamId: string;
+  onClick?: () => void;
+  onChannelClick?: (channelName: string) => void;
+}) {
+  const epgClockFormat = useEpgClockFormat();
+  const isHome = event.homeTeam.id === teamId;
+  const teamScore = isHome ? event.homeScore : event.awayScore;
+  const opponentScore = isHome ? event.awayScore : event.homeScore;
+  const isPast = event.startTime.getTime() < Date.now();
+  const isLive = event.status === 'live';
+
+  const getResultClass = () => {
+    if (teamScore === undefined || opponentScore === undefined) return '';
+    if (teamScore > opponentScore) return 'win';
+    if (teamScore < opponentScore) return 'loss';
+    return 'draw';
+  };
+
+  const resultClass = isPast ? getResultClass() : '';
+
+  return (
+    <div className={`series-game-row ${resultClass}`} onClick={onClick}>
+      <div className="series-game-row-date">
+        <span className="series-game-date">
+          {event.startTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+        </span>
+        <span className="series-game-time">
+          {event.startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}
+        </span>
+      </div>
+
+      <div className="series-game-row-center">
+        {isPast && teamScore !== undefined && opponentScore !== undefined ? (
+          <span className="series-game-score">
+            {teamScore} - {opponentScore}
+          </span>
+        ) : (
+          <span className="series-game-vs">{isHome ? 'vs' : '@'}</span>
+        )}
+      </div>
+
+      <div className="series-game-row-right">
+        {isLive ? (
+          <span className="team-schedule-live">LIVE</span>
+        ) : isPast && teamScore !== undefined && opponentScore !== undefined ? (
+          <span className={`team-schedule-card-result ${resultClass}`}>
+            {teamScore > opponentScore ? 'W' : teamScore < opponentScore ? 'L' : 'T'}
+          </span>
+        ) : null}
+        {event.channels && event.channels.length > 0 && (
+          <button
+            className="team-schedule-card-channel"
+            onClick={(e) => {
+              e.stopPropagation();
+              onChannelClick?.(event.channels[0].name);
+            }}
+          >
+            {event.channels[0].name}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 interface TeamEventCardProps {
   event: SportsEvent;
   teamId: string;
-  onClick: () => void;
+  onClick?: () => void;
   onChannelClick?: (channelName: string) => void;
 }
 
@@ -377,7 +786,7 @@ function TeamEventCard({ event, teamId, onClick, onChannelClick }: TeamEventCard
   };
 
   return (
-    <div className="team-schedule-card" onClick={onClick}>
+    <div className={`team-schedule-card ${isPast ? getResultClass() : ''}`} onClick={onClick}>
       <div className="team-schedule-card-header">
         <span className="team-schedule-card-date">
           {event.startTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
@@ -414,7 +823,7 @@ function TeamEventCard({ event, teamId, onClick, onChannelClick }: TeamEventCard
             {teamScore > opponentScore ? 'W' : teamScore < opponentScore ? 'L' : 'T'}
           </span>
         )}
-        {event.channels.length > 0 && (
+        {event.channels && event.channels.length > 0 && (
           <button
             className="team-schedule-card-channel"
             onClick={(e) => {
@@ -427,6 +836,24 @@ function TeamEventCard({ event, teamId, onClick, onChannelClick }: TeamEventCard
         )}
       </div>
     </div>
+  );
+}
+
+function AthleteAvatar({ src, name, className = 'team-roster-headshot' }: { src?: string; name: string; className?: string }) {
+  const [failed, setFailed] = useState(false);
+  const initials = name && name !== 'Athlete' ? name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : '?';
+
+  if (!src || failed) {
+    return <div className={`${className}-placeholder`}>{initials}</div>;
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name}
+      className={className}
+      onError={() => setFailed(true)}
+    />
   );
 }
 
@@ -450,80 +877,43 @@ function TeamRoster({ athletes, onAthleteClick }: TeamRosterProps) {
     return acc;
   }, {} as Record<string, TeamAthlete[]>);
 
-  const positionOrder = [
-    'Quarterback', 'Running Back', 'Wide Receiver', 'Tight End', 'Fullback',
-    'Offensive Tackle', 'Guard', 'Center',
-    'Defensive End', 'Defensive Tackle', 'Linebacker', 'Cornerback', 'Safety',
-    'Place Kicker', 'Punter', 'Long Snapper',
-    'Point Guard', 'Shooting Guard', 'Small Forward', 'Power Forward', 'Center',
-    'Goalkeeper', 'Defender', 'Midfielder', 'Forward',
-  ];
-
-  const sortedPositions = Object.keys(groupedByPosition).sort((a, b) => {
-    const aIdx = positionOrder.indexOf(a);
-    const bIdx = positionOrder.indexOf(b);
-    if (aIdx === -1 && bIdx === -1) return a.localeCompare(b);
-    if (aIdx === -1) return 1;
-    if (bIdx === -1) return -1;
-    return aIdx - bIdx;
-  });
-
-  if (athletes.length === 0) {
-    return (
-      <div className="sports-empty">
-        <p>No roster information available.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="team-roster">
       <div className="team-roster-filters">
-        <select 
-          value={selectedPosition} 
-          onChange={(e) => setSelectedPosition(e.target.value)}
-          className="team-roster-select"
+        <button 
+          className={`team-roster-filter-btn ${selectedPosition === 'all' ? 'active' : ''}`}
+          onClick={() => setSelectedPosition('all')}
         >
-          <option value="all">All Positions ({athletes.length})</option>
-          {positions.map(pos => (
-            <option key={pos} value={pos}>{pos} ({athletes.filter(a => a.position === pos).length})</option>
-          ))}
-        </select>
+          All ({athletes.length})
+        </button>
+        {positions.map(pos => (
+          <button 
+            key={pos}
+            className={`team-roster-filter-btn ${selectedPosition === pos ? 'active' : ''}`}
+            onClick={() => setSelectedPosition(pos)}
+          >
+            {pos}
+          </button>
+        ))}
       </div>
 
-      {sortedPositions.map(position => (
-        <div key={position} className="team-roster-group">
-          <h4 className="team-roster-group-title">{position}</h4>
+      {Object.entries(groupedByPosition).map(([pos, posAthletes]) => (
+        <div key={pos} className="team-roster-group">
+          <h4 className="team-roster-group-title">{pos}</h4>
           <div className="team-roster-list">
-            {groupedByPosition[position].map(athlete => (
-              <div
-                key={athlete.id}
+            {posAthletes.map(athlete => (
+              <div 
+                key={athlete.id} 
                 className="team-roster-player clickable"
                 onClick={() => onAthleteClick?.(athlete.id)}
               >
-                {athlete.headshot && (
-                  <img 
-                    src={athlete.headshot} 
-                    alt={athlete.name} 
-                    className="team-roster-headshot"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                )}
+                <AthleteAvatar src={athlete.headshot} name={athlete.name} className="team-roster-headshot" />
                 <div className="team-roster-player-info">
-                  {athlete.jersey && (
-                    <span className="team-roster-jersey">#{athlete.jersey}</span>
-                  )}
-                  <span className="team-roster-name">{athlete.name}</span>
-                  <div className="team-roster-details">
-                    {athlete.experience && <span>{athlete.experience}</span>}
-                    {athlete.experience && athlete.college && <span> • </span>}
-                    {athlete.college && <span>{athlete.college}</span>}
+                  <div className="team-roster-name-row">
+                    <span className="team-roster-name">{athlete.name}</span>
+                    {athlete.jersey && <span className="team-roster-jersey"> #{athlete.jersey}</span>}
                   </div>
-                </div>
-                <div className="team-roster-physical">
-                  {athlete.height && <span>{athlete.height}</span>}
-                  {athlete.height && athlete.weight && <span> / </span>}
-                  {athlete.weight && <span>{athlete.weight}</span>}
+                  <span className="team-roster-details">{athlete.position}</span>
                 </div>
               </div>
             ))}
@@ -534,138 +924,79 @@ function TeamRoster({ athletes, onAthleteClick }: TeamRosterProps) {
   );
 }
 
-function TeamDepthChart({
-  depthChart,
-  onAthleteClick,
-}: {
+interface TeamDepthChartProps {
   depthChart: DepthChartGroup[];
-  onAthleteClick: (athleteId: string) => void;
-}) {
-  const [activeGroup, setActiveGroup] = useState<string>(depthChart[0]?.id || '');
+  roster?: TeamAthlete[];
+  onAthleteClick?: (athleteId: string) => void;
+}
 
-  const currentGroup = depthChart.find(g => g.id === activeGroup) || depthChart[0];
+function TeamDepthChart({ depthChart, roster, onAthleteClick }: TeamDepthChartProps) {
+  const groupNames = depthChart.map(g => g.name);
+  const [selectedGroup, setSelectedGroup] = useState<string>('all');
 
-  if (!currentGroup) return null;
+  const rosterHeadshotMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const ath of roster || []) {
+      if (ath.headshot) {
+        map.set(ath.id, ath.headshot);
+      }
+    }
+    return map;
+  }, [roster]);
+
+  const visibleGroups = selectedGroup === 'all'
+    ? depthChart
+    : depthChart.filter(g => g.name === selectedGroup);
 
   return (
     <div className="team-depth-chart">
-      {depthChart.length > 1 && (
-        <div className="team-depth-pills">
-          {depthChart.map(g => (
+      {groupNames.length > 1 && (
+        <div className="team-roster-filters" style={{ marginBottom: '16px' }}>
+          <button
+            className={`team-roster-filter-btn ${selectedGroup === 'all' ? 'active' : ''}`}
+            onClick={() => setSelectedGroup('all')}
+          >
+            All Units
+          </button>
+          {groupNames.map(name => (
             <button
-              key={g.id}
-              className={`sports-standings-pill ${currentGroup.id === g.id ? 'active' : ''}`}
-              onClick={() => setActiveGroup(g.id)}
+              key={name}
+              className={`team-roster-filter-btn ${selectedGroup === name ? 'active' : ''}`}
+              onClick={() => setSelectedGroup(name)}
             >
-              {g.name}
+              {name}
             </button>
           ))}
         </div>
       )}
 
-      <div className="team-depth-grid">
-        {currentGroup.positions.map((pos: DepthChartPosition) => (
-          <div key={pos.name} className="team-depth-pos-card">
-            <div className="team-depth-pos-header">
-              <span className="team-depth-pos-title">{pos.displayName}</span>
-              <span className="team-depth-pos-abbrev">{pos.abbreviation}</span>
-            </div>
-            <div className="team-depth-players">
-              {pos.athletes.map((ath: DepthChartAthlete) => (
-                <button
-                  key={ath.id}
-                  className="team-depth-player-btn"
-                  onClick={() => onAthleteClick(ath.id)}
-                >
-                  <span className={`team-depth-rank ${ath.rank === 1 ? 'starter' : ''}`}>
-                    {ath.rank === 1 ? 'STARTER' : `#${ath.rank}`}
-                  </span>
-                  {ath.headshot && (
-                    <img src={ath.headshot} alt="" className="team-depth-avatar" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-                  )}
-                  <span className="team-depth-player-name">{ath.name}</span>
-                  {ath.jersey && <span className="team-depth-player-jersey">#{ath.jersey}</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function TeamInjuries({
-  injuries,
-  onAthleteClick,
-}: {
-  injuries: TeamInjury[];
-  onAthleteClick: (athleteId: string) => void;
-}) {
-  return (
-    <div className="team-injuries-list">
-      {injuries.map(inj => (
-        <div
-          key={inj.id}
-          className="team-injury-card clickable"
-          onClick={() => onAthleteClick(inj.athleteId)}
-        >
-          {inj.headshot && (
-            <img src={inj.headshot} alt="" className="team-injury-headshot" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-          )}
-          <div className="team-injury-info">
-            <div className="team-injury-header-line">
-              <span className="team-injury-name">{inj.athleteName}</span>
-              {inj.jersey && <span className="team-injury-jersey">#{inj.jersey}</span>}
-              {inj.position && <span className="team-injury-pos">{inj.position}</span>}
-              <span className={`team-injury-badge ${inj.status.toLowerCase().replace(/[^a-z]/g, '')}`}>
-                {inj.status}
-              </span>
-            </div>
-            {inj.location && (
-              <span className="team-injury-details">
-                Injury: {inj.location} {inj.type ? `(${inj.type})` : ''} {inj.returnDate ? `• Return Date: ${inj.returnDate}` : ''}
-              </span>
-            )}
-            {inj.comment && (
-              <p className="team-injury-comment">{inj.comment}</p>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function TeamLeaders({
-  leaders,
-  onAthleteClick,
-}: {
-  leaders: TeamLeaderCategory[];
-  onAthleteClick: (athleteId: string) => void;
-}) {
-  return (
-    <div className="team-leaders-grid">
-      {leaders.map(cat => (
-        <div key={cat.name} className="team-leader-card">
-          <h4 className="team-leader-title">{cat.displayName}</h4>
-          <div className="team-leader-players">
-            {cat.leaders.slice(0, 3).map((l: TeamLeader, idx: number) => (
-              <button
-                key={l.athleteId + idx}
-                className="team-leader-player-row"
-                onClick={() => onAthleteClick(l.athleteId)}
-              >
-                <span className="team-leader-rank">#{idx + 1}</span>
-                {l.headshot && (
-                  <img src={l.headshot} alt="" className="team-leader-avatar" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-                )}
-                <div className="team-leader-player-info">
-                  <span className="team-leader-name">{l.name}</span>
-                  {l.position && <span className="team-leader-pos">{l.position}</span>}
+      {visibleGroups.map(group => (
+        <div key={group.name} className="team-depth-group">
+          <h3 className="sports-section-title">{group.name}</h3>
+          <div className="team-depth-grid">
+            {group.positions.map(pos => (
+              <div key={pos.name} className="team-depth-pos-card">
+                <div className="team-depth-pos-header">
+                  <span className="team-depth-pos-title">{pos.name}</span>
                 </div>
-                <span className="team-leader-val">{l.valueDisplay}</span>
-              </button>
+                <div className="team-depth-players">
+                  {pos.athletes.map((athlete, idx) => {
+                    const headshotSrc = athlete.headshot || rosterHeadshotMap.get(athlete.id);
+                    return (
+                      <button
+                        key={athlete.id} 
+                        className="team-depth-player-btn"
+                        onClick={() => onAthleteClick?.(athlete.id)}
+                      >
+                        <span className={`team-depth-rank ${idx === 0 ? 'starter' : ''}`}>{idx + 1}</span>
+                        <AthleteAvatar src={headshotSrc} name={athlete.name} className="team-depth-avatar" />
+                        <span className="team-depth-name">{athlete.name}</span>
+                        {athlete.jersey && <span className="team-depth-player-jersey">#{athlete.jersey}</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -674,36 +1005,133 @@ function TeamLeaders({
   );
 }
 
-function TeamNews({ news }: { news: TeamNewsArticle[] }) {
+interface TeamInjuriesProps {
+  injuries: TeamInjury[];
+  onAthleteClick?: (athleteId: string) => void;
+}
+
+function TeamInjuries({ injuries, onAthleteClick }: TeamInjuriesProps) {
+  const getStatusClass = (status: string) => {
+    const s = status.toLowerCase();
+    if (s.includes('out') || s.includes('ir') || s.includes('disabled')) return 'out';
+    if (s.includes('questionable') || s.includes('day-to-day')) return 'questionable';
+    return 'probable';
+  };
+
+  return (
+    <div className="team-injuries-list">
+      {injuries.map(injury => (
+        <div 
+          key={injury.athleteId} 
+          className="team-injury-card clickable"
+          onClick={() => onAthleteClick?.(injury.athleteId)}
+        >
+          <AthleteAvatar src={injury.headshot} name={injury.athleteName} className="team-injury-headshot" />
+          <div className="team-injury-info">
+            <div className="team-injury-header-line">
+              <span className="team-injury-name">{injury.athleteName}</span>
+              {injury.jersey && <span className="team-injury-jersey">#{injury.jersey}</span>}
+              {injury.position && <span className="team-injury-pos">{injury.position}</span>}
+              <span className={`team-injury-badge ${getStatusClass(injury.status)}`}>
+                {injury.status}
+              </span>
+            </div>
+            {(injury.comment || injury.shortComment) && (
+              <p className="team-injury-comment">{injury.comment || injury.shortComment}</p>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+interface TeamLeadersProps {
+  leaders: TeamLeaderCategory[];
+  onAthleteClick?: (athleteId: string) => void;
+}
+
+function TeamLeaderCategoryCard({
+  category,
+  onAthleteClick,
+}: {
+  category: TeamLeaderCategory;
+  onAthleteClick?: (athleteId: string) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const visibleLeaders = expanded ? category.leaders : category.leaders.slice(0, 5);
+
+  return (
+    <div className="team-leader-card">
+      <h4 className="team-leader-title">{category.displayName}</h4>
+      <div className="team-leader-players">
+        {visibleLeaders.map((leader, idx) => (
+          <button
+            key={leader.athleteId} 
+            className="team-leader-player-row"
+            onClick={() => onAthleteClick?.(leader.athleteId)}
+          >
+            <span className="team-leader-rank">{idx + 1}</span>
+            <AthleteAvatar src={leader.headshot} name={leader.name} className="team-leader-avatar" />
+            <div className="team-leader-player-info">
+              <span className="team-leader-player-name">{leader.name}</span>
+              {leader.jersey && <span className="team-leader-jersey">#{leader.jersey}</span>}
+            </div>
+            <span className="team-leader-stat-val">{leader.valueDisplay}</span>
+          </button>
+        ))}
+      </div>
+
+      {category.leaders.length > 5 && (
+        <button
+          className="team-schedule-toggle-btn"
+          style={{ marginTop: '8px', alignSelf: 'center', width: '100%', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? 'Show Top 5' : `Show All (${category.leaders.length})`}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function TeamLeaders({ leaders, onAthleteClick }: TeamLeadersProps) {
+  return (
+    <div className="team-leaders-grid">
+      {leaders.map(cat => (
+        <TeamLeaderCategoryCard key={cat.name} category={cat} onAthleteClick={onAthleteClick} />
+      ))}
+    </div>
+  );
+}
+
+interface TeamNewsProps {
+  news: TeamNewsArticle[];
+}
+
+function TeamNews({ news }: TeamNewsProps) {
   return (
     <div className="team-news-grid">
-      {news.map(art => (
-        <a
-          key={art.id}
-          href={art.link}
-          target="_blank"
+      {news.map(article => (
+        <a 
+          key={article.id} 
+          href={article.link} 
+          target="_blank" 
           rel="noopener noreferrer"
           className="team-news-card"
         >
-          {art.imageUrl && (
-            <img src={art.imageUrl} alt="" className="team-news-thumb" />
+          {article.imageUrl && (
+            <img src={article.imageUrl} alt="" className="team-news-image" />
           )}
           <div className="team-news-content">
-            <h4 className="team-news-headline">{art.headline}</h4>
-            {art.description && (
-              <p className="team-news-desc">{art.description}</p>
+            <h4 className="team-news-headline">{article.headline}</h4>
+            {article.description && (
+              <p className="team-news-desc">{article.description}</p>
             )}
-            {art.published && (
-              <span className="team-news-date">
-                {new Date(art.published).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-              </span>
-            )}
+            <span className="team-news-published">{article.published}</span>
           </div>
         </a>
       ))}
     </div>
   );
 }
-
-export default TeamDetail;
-
