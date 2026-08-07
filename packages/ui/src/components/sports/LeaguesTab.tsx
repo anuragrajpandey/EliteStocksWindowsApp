@@ -20,6 +20,7 @@ import {
 } from '../../services/sports';
 import { TeamDetail } from './TeamDetail';
 import { GameDetail } from './GameDetail';
+import { SportsCalendarModal } from './SportsCalendarModal';
 import { useSportsSettingsStore } from '../../stores/sportsSettingsStore';
 import { useSportsFavoritesStore } from '../../stores/sportsFavoritesStore';
 
@@ -399,10 +400,15 @@ function groupTeamsByDivision(teams: SportsTeam[], leagueId?: string): Map<strin
 interface DateRailProps {
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
+  onOpenCalendar: () => void;
 }
 
-function HorizontalDateRail({ selectedDate, onSelectDate }: DateRailProps) {
+function HorizontalDateRail({ selectedDate, onSelectDate, onOpenCalendar }: DateRailProps) {
   const [baseDate, setBaseDate] = useState<Date>(() => new Date(selectedDate));
+
+  useEffect(() => {
+    setBaseDate(new Date(selectedDate));
+  }, [selectedDate]);
 
   const isSameDay = (d1: Date, d2: Date) => {
     return (
@@ -445,6 +451,7 @@ function HorizontalDateRail({ selectedDate, onSelectDate }: DateRailProps) {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
+    year: 'numeric',
   });
 
   return (
@@ -485,6 +492,20 @@ function HorizontalDateRail({ selectedDate, onSelectDate }: DateRailProps) {
           ›
         </button>
 
+        <button
+          className="date-rail-calendar-btn"
+          onClick={onOpenCalendar}
+          title="Pick a custom date from calendar"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+          <span>Pick Date</span>
+        </button>
+
         {!isTodayActive && (
           <button className="date-rail-today-btn" onClick={handleJumpToday}>
             Today
@@ -492,7 +513,19 @@ function HorizontalDateRail({ selectedDate, onSelectDate }: DateRailProps) {
         )}
       </div>
 
-      <div className="date-rail-title">{formattedTitle}</div>
+      <div
+        className="date-rail-title-container"
+        onClick={onOpenCalendar}
+        title="Click to select a custom date from calendar"
+      >
+        <span className="date-rail-title">{formattedTitle}</span>
+        <svg className="date-rail-title-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+      </div>
     </div>
   );
 }
@@ -929,6 +962,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
   const [activeSport, setActiveSport] = useState<string>('');
   const [selectedScheduleDate, setSelectedScheduleDate] = useState<Date | null>(null);
+  const [isCalendarOpen, setIsCalendarOpen] = useState<boolean>(false);
   const [teamSearchQuery, setTeamSearchQuery] = useState<string>('');
   const [standingsMode, setStandingsMode] = useState<'division' | 'conference'>('division');
   const [teamsLayout, setTeamsLayout] = useState<'columns' | 'grid' | 'stacked'>('columns');
@@ -1581,6 +1615,15 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                   <HorizontalDateRail
                     selectedDate={selectedScheduleDate || new Date()}
                     onSelectDate={(d) => handleDateChange(d)}
+                    onOpenCalendar={() => setIsCalendarOpen(true)}
+                  />
+
+                  <SportsCalendarModal
+                    isOpen={isCalendarOpen}
+                    selectedDate={selectedScheduleDate || new Date()}
+                    leagueName={selectedLeague?.name}
+                    onSelectDate={(d) => handleDateChange(d)}
+                    onClose={() => setIsCalendarOpen(false)}
                   />
 
                   {leagueEvents.length > 0 ? (
