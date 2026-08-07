@@ -4043,6 +4043,12 @@ struct WindowState {
     fullscreen: bool,
 }
 
+/// Windows reports a minimized window with a sentinel off-screen position
+/// (commonly -32000,-32000). Never persist or restore those coordinates.
+fn is_valid_saved_window_position(x: i32, y: i32) -> bool {
+    x > -10_000 && y > -10_000
+}
+
 fn window_state_path(app: &tauri::AppHandle) -> Option<std::path::PathBuf> {
     app.path()
         .app_data_dir()
@@ -4084,7 +4090,11 @@ fn save_window_state(app: &tauri::AppHandle) {
                 }
             }
 
-            if let Some(state) = unmaximized_state {
+            if let Some(state) = unmaximized_state.filter(|state| {
+                state.width >= 400
+                    && state.height >= 300
+                    && is_valid_saved_window_position(state.x, state.y)
+            }) {
                 saved_width = if dont_save_size { 0 } else { state.width };
                 saved_height = if dont_save_size { 0 } else { state.height };
                 saved_x = state.x;
@@ -4094,6 +4104,10 @@ fn save_window_state(app: &tauri::AppHandle) {
                 if let (Ok(physical_size), Ok(pos)) = (window.inner_size(), window.outer_position()) {
                     let scale_factor = window.scale_factor().unwrap_or(1.0);
                     let logical_size = physical_size.to_logical::<f64>(scale_factor);
+                    if !is_valid_saved_window_position(pos.x, pos.y) {
+                        warn!("[WindowState] Ignoring invalid restored position: ({}, {})", pos.x, pos.y);
+                        return;
+                    }
                     saved_width = if dont_save_size { 0 } else { logical_size.width.round() as u32 };
                     saved_height = if dont_save_size { 0 } else { logical_size.height.round() as u32 };
                     saved_x = pos.x;
@@ -4107,7 +4121,10 @@ fn save_window_state(app: &tauri::AppHandle) {
                 let logical_size = physical_size.to_logical::<f64>(scale_factor);
                 
                 // Sanity-check: ignore absurd values (minimised, off-screen, etc.)
-                if physical_size.width < 400 || physical_size.height < 300 {
+                if physical_size.width < 400
+                    || physical_size.height < 300
+                    || !is_valid_saved_window_position(pos.x, pos.y)
+                {
                     return;
                 }
 
@@ -4281,6 +4298,45 @@ fn restore_window_position(app: &tauri::AppHandle) {
         if let Ok(json) = std::fs::read_to_string(&path) {
             if let Ok(state) = serde_json::from_str::<WindowState>(&json) {
                 if let Some(window) = app.get_webview_window("main") {
+                    let valid_position = is_valid_saved_window_position(state.x, state.y);
+                    let valid_size = state.width >= 400 && state.height >= 300;
+
+                    let scale_factor = window.scale_factor().unwrap_or(1.0);
+                    let monitor = window.current_monitor().ok().flatten();
+                    let monitor_str = monitor
+                        .map(|m| format!("{}x{}", m.size().width, m.size().height))
+                        .unwrap_or_else(|| "unknown".to_string());
+
+                    info!(
+                        "[WindowState Diagnostics] SavedState: {}x{} at ({}, {}) | Maximized: {}, Fullscreen: {} | Monitor: {} | ScaleFactor: {} | Valid: {}",
+                        state.width, state.height, state.x, state.y, state.maximized, state.fullscreen, monitor_str, scale_factor, valid_position && valid_size
+                    );
+
+                    if !valid_position || !valid_size {
+                        // Recover from a state captured while Windows had the window
+                        // minimized (or otherwise invalid) instead of replaying the
+                        // bad geometry/fullscreen state on every launch.
+                        warn!(
+                            "[WindowState] Discarding invalid saved state: {}x{} at ({}, {})",
+                            state.width, state.height, state.x, state.y
+                        );
+                        let recovered = WindowState {
+                            width: state.width.max(400),
+                            height: state.height.max(300),
+                            x: 0,
+                            y: 0,
+                            maximized: false,
+                            fullscreen: false,
+                        };
+                        if let Ok(recovered_json) = serde_json::to_string(&recovered) {
+                            let _ = std::fs::write(&path, recovered_json);
+                        }
+                        let _ = window.unminimize();
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                        return;
+                    }
+
                     // Apply size first if available and if we are going to maximize or go fullscreen,
                     // so that the OS knows the correct restored (unmaximized) geometry.
                     if (state.maximized || state.fullscreen) && state.width != 0 && state.height != 0 {
@@ -4303,6 +4359,8 @@ fn restore_window_position(app: &tauri::AppHandle) {
                         let _ = window.set_fullscreen(true);
                         debug!("[WindowState] Restored fullscreen state");
                     }
+                    let _ = window.unminimize();
+                    let _ = window.show();
                 }
             }
         }
@@ -4564,7 +4622,10 @@ pub fn run() {
                             if let (Ok(physical_size), Ok(pos)) = (window.inner_size(), window.outer_position()) {
                                 let scale_factor = window.scale_factor().unwrap_or(1.0);
                                 let logical_size = physical_size.to_logical::<f64>(scale_factor);
-                                if physical_size.width >= 400 && physical_size.height >= 300 {
+                                if physical_size.width >= 400
+                                    && physical_size.height >= 300
+                                    && is_valid_saved_window_position(pos.x, pos.y)
+                                {
                                     let tracker = window.state::<WindowStateTracker>();
                                     let guard = tracker.last_unmaximized.lock();
                                     if let Ok(mut g) = guard {

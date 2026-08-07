@@ -3830,6 +3830,15 @@ function useTmdbPresencePoster(
           height = Math.min(maxHeight, Math.max(300, Math.floor(requestedHeight * fitScale)));
         }
 
+        console.log('[Startup Diagnostics]', {
+          monitorSize: monitor ? `${monitor.size.width}x${monitor.size.height}` : 'null',
+          scaleFactor,
+          requestedSize: `${requestedWidth}x${requestedHeight}`,
+          isMaximized,
+          isFullscreen,
+          resolvedSize: `${width}x${height}`,
+        });
+
         if (isMaximized || isFullscreen) {
           // If the window starts up maximized or fullscreen, keep the state and bypass size/unmaximize updates.
           return;
