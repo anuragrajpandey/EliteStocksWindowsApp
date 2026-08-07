@@ -23,7 +23,7 @@ import { useDownloadStore } from '../../stores/downloadStore';
 import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
 import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
 import { useLazyVodTrailer, useTrailerPlayerMode, useTrailerSource } from '../../hooks/useLazyVodTrailer';
-import { SetPlayerDropdown, SplitPlayButton, TrailerSourceToggle, type VodPlayerMode } from './SplitPlayButton';
+import { SetPlayerDropdown, SplitPlayButton, TrailerSplitButton, type VodPlayerMode } from './SplitPlayButton';
 import './SeriesDetail.css';
 
 export interface SeriesDetailProps {
@@ -561,24 +561,16 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
               </button>
 
               {(hasTmdbKey || hasSourceTrailer || trailerLoading) && (
-                <>
-                  <SplitPlayButton
-                    label={trailerLoading ? 'Resolving...' : trailerSource === 'tmdb' ? 'Trailer (TMDB)' : 'Trailer'}
-                    icon={
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" style={{ marginRight: '4px' }}>
-                        <polygon points="23 7 16 12 23 17 23 7" />
-                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                      </svg>
-                    }
-                    currentMode={trailerPlayerMode}
-                    onSelectMode={setTrailerPlayerMode}
-                    onPlay={handlePlayTrailer}
-                    disabled={trailerLoading || (!effectiveTrailerUrl && !trailerLoading)}
-                  />
-                  {hasBothTrailers && (
-                    <TrailerSourceToggle current={trailerSource} onSelect={setTrailerSource} />
-                  )}
-                </>
+                <TrailerSplitButton
+                  loading={trailerLoading}
+                  disabled={trailerLoading || (!effectiveTrailerUrl && !trailerLoading)}
+                  trailerSource={trailerSource}
+                  onSelectSource={setTrailerSource}
+                  hasBothSources={hasBothTrailers}
+                  playerMode={trailerPlayerMode}
+                  onSelectMode={setTrailerPlayerMode}
+                  onPlay={handlePlayTrailer}
+                />
               )}
             </div>
           </div>

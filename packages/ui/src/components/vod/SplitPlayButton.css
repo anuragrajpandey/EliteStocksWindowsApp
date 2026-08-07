@@ -370,3 +370,92 @@
   background: rgba(37, 99, 235, 0.35);
   box-shadow: 0 1px 6px rgba(37, 99, 235, 0.35);
 }
+
+/* ============================================================
+   TrailerSplitButton — two-section dropdown
+   ============================================================ */
+
+/* Wider dropdown to fit the two-section layout comfortably */
+.trailer-split-btn__dropdown {
+  min-width: 220px;
+}
+
+/* Thin horizontal rule between SOURCE and PLAYBACK sections */
+.trailer-split-btn__section-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 6px 8px;
+}
+
+/* Row of radio-style buttons inside a section */
+.trailer-split-btn__radio-group {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  padding: 2px 6px 6px;
+}
+
+/* Individual radio option pill */
+.trailer-split-btn__radio-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.82rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  justify-content: center;
+}
+
+.trailer-split-btn__radio-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.trailer-split-btn__radio-btn.selected {
+  background: rgba(37, 99, 235, 0.25);
+  border-color: rgba(37, 99, 235, 0.5);
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3) inset;
+}
+
+/* Filled/hollow radio dot */
+.trailer-split-btn__radio-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.trailer-split-btn__radio-btn.selected .trailer-split-btn__radio-dot {
+  background: #60a5fa;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
+}
+
+/* Small icon inside playback options */
+.trailer-split-btn__radio-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.15s ease;
+}
+
+.trailer-split-btn__radio-btn.selected .trailer-split-btn__radio-icon,
+.trailer-split-btn__radio-btn:hover .trailer-split-btn__radio-icon {
+  color: #60a5fa;
+}
