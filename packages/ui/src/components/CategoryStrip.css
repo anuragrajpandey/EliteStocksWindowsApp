@@ -346,6 +346,41 @@
   flex-shrink: 0;
 }
 
+/* Drag and Drop styles for LiveTV Category Sidebar */
+.category-strip.drag-hotkey-active .category-source-header,
+.category-strip.drag-hotkey-active .category-item,
+.category-strip.drag-hotkey-active .category-folder-header {
+  cursor: grab !important;
+  user-select: none !important;
+}
+
+.category-strip.drag-hotkey-active .category-source-header *,
+.category-strip.drag-hotkey-active .category-item *,
+.category-strip.drag-hotkey-active .category-folder-header * {
+  cursor: grab !important;
+  user-select: none !important;
+}
+
+.category-strip.drag-hotkey-active .category-source-header:active,
+.category-strip.drag-hotkey-active .category-item:active,
+.category-strip.drag-hotkey-active .category-folder-header:active,
+.sortable-sidebar-item.dragging .category-source-header,
+.sortable-sidebar-item.dragging .category-item,
+.sortable-sidebar-item.dragging .category-folder-header {
+  cursor: grabbing !important;
+}
+
+.sortable-sidebar-item {
+  position: relative;
+  user-select: none;
+}
+
+.sortable-sidebar-item.dragging {
+  opacity: 0.5;
+  z-index: 99;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
 /* Base styles for list bars */
 .category-list-bar {
   width: 100%;

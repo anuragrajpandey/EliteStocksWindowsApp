@@ -2,7 +2,7 @@ import { Fragment, createContext, useContext, useState, useEffect, useRef, useCa
 import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../hooks/useSqliteLiveQuery';
 import { useCategoriesBySource, useEnabledSources, type CategoryWithCount, type SourceWithCategories } from '../hooks/useChannels';
-import { db, getWatchlistCount, type CustomGroup, updateCategoryEnabled, updateCategoryAlias, type CustomPlaylist, type PlaylistCategoryLink, type CategoryFolder } from '../db';
+import { db, getWatchlistCount, type CustomGroup, updateCategoryEnabled, updateCategoryAlias, type CustomPlaylist, type PlaylistCategoryLink, type CategoryFolder, updateCategoriesBatch } from '../db';
 import { PlaylistEditorModal } from './PlaylistEditorModal';
 import type { Source } from '@ynotv/core';
 import { useSourceVersion } from '../contexts/SourceVersionContext';
@@ -23,9 +23,86 @@ import { PlaylistContextMenu } from './PlaylistContextMenu';
 import { EpgEditorModal } from './EpgEditorModal';
 import { LogoEditorModal } from './LogoEditorModal';
 import { clearRecentChannels } from '../utils/recentChannels';
-import { useCategorySortOrder, useIncludeAllChannelsToPlaylist } from '../stores/uiStore';
-import { isCategorySortCustomized } from '../utils/categorySortOverrides';
+import { useCategorySortOrder, useIncludeAllChannelsToPlaylist, useSidebarDragHotkey } from '../stores/uiStore';
+import { isCategorySortCustomized, setCategorySortCustomized } from '../utils/categorySortOverrides';
+import {
+  DndContext,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  sortableKeyboardCoordinates,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import './CategoryStrip.css';
+
+function SortableSidebarItem({ id, children, disabled, className = '' }: { id: string; children: React.ReactNode; disabled?: boolean; className?: string }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, disabled });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 99 : undefined,
+    touchAction: 'none',
+  };
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`sortable-sidebar-item ${className} ${isDragging ? 'dragging' : ''}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function SortableSourceHeader({
+  id,
+  disabled,
+  className = '',
+  onClick,
+  onContextMenu,
+  children
+}: {
+  id: string;
+  disabled?: boolean;
+  className?: string;
+  onClick?: (e: React.MouseEvent) => void;
+  onContextMenu?: (e: React.MouseEvent) => void;
+  children: React.ReactNode;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, disabled });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 99 : undefined,
+    touchAction: 'none',
+  };
+  return (
+    <button
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`sortable-sidebar-item ${className} ${isDragging ? 'dragging' : ''}`}
+      onClick={onClick}
+      onContextMenu={onContextMenu}
+    >
+      {children}
+    </button>
+  );
+}
 
 function parseCategoryIds(raw: string | string[] | number[] | undefined): string[] {
   if (!raw) return [];
@@ -1166,6 +1243,111 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
     return list;
   }, [filteredGroupedCategories, sources, customPlaylists, allPlaylistCategoryLinks, flatPlaylistIndividualCounts, totalPlaylistIndividualCounts, sidebarSourcesOrder, categoryChannelCounts, manualCategoryChannelCounts]);
 
+  const sidebarDragHotkey = useSidebarDragHotkey();
+  const [isDragKeyPressed, setIsDragKeyPressed] = useState(false);
+
+  useEffect(() => {
+    if (sidebarDragHotkey === 'None') {
+      setIsDragKeyPressed(true);
+      return;
+    }
+
+    const checkKey = (e: KeyboardEvent) => {
+      let active = false;
+      if (sidebarDragHotkey === 'Control') active = e.ctrlKey;
+      else if (sidebarDragHotkey === 'Alt') active = e.altKey;
+      else if (sidebarDragHotkey === 'Shift') active = e.shiftKey;
+      else if (sidebarDragHotkey === 'Meta') active = e.metaKey;
+      setIsDragKeyPressed(active);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => checkKey(e);
+    const handleKeyUp = (e: KeyboardEvent) => checkKey(e);
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [sidebarDragHotkey]);
+
+  const isDragActive = sidebarDragHotkey === 'None' || isDragKeyPressed;
+
+  const dndSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleSourceDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !combinedSources) return;
+
+    const oldIndex = combinedSources.findIndex((item: SidebarSourceItem) => item.id === active.id);
+    const newIndex = combinedSources.findIndex((item: SidebarSourceItem) => item.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const next: SidebarSourceItem[] = arrayMove(combinedSources, oldIndex, newIndex);
+    const orderedIds = next.map((item: SidebarSourceItem) => item.id);
+
+    try {
+      await db.prefs.put({
+        key: 'sidebar_sources_order',
+        value: JSON.stringify(orderedIds)
+      });
+
+      const playlistsOnly = next.filter((item: SidebarSourceItem) => item.type === 'playlist');
+      for (let i = 0; i < playlistsOnly.length; i++) {
+        if (playlistsOnly[i].playlistGroup) {
+          await db.customPlaylists.update(playlistsOnly[i].playlistGroup!.playlist_id, { display_order: i });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save sidebar source order:', err);
+    }
+  };
+
+  const handleCategoryDragEnd = async (sourceId: string, currentList: { id: string; type: 'native' | 'link'; nativeCat?: any; customLink?: any }[], event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !currentList) return;
+
+    const oldIndex = currentList.findIndex(c => c.id === active.id);
+    const newIndex = currentList.findIndex(c => c.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(currentList, oldIndex, newIndex);
+    try {
+      const nativeUpdates: { categoryId: string; displayOrder: number; folderId?: string | null }[] = [];
+      const linkItems: PlaylistCategoryLink[] = [];
+
+      reordered.forEach((catItem: { id: string; type: 'native' | 'link'; nativeCat?: any; customLink?: any }, idx: number) => {
+        if (catItem.type === 'native' && catItem.nativeCat) {
+          nativeUpdates.push({
+            categoryId: catItem.nativeCat.category_id,
+            displayOrder: idx,
+            folderId: catItem.nativeCat.folder_id || null,
+          });
+        } else if (catItem.type === 'link' && catItem.customLink) {
+          linkItems.push({
+            ...catItem.customLink,
+            display_order: idx,
+          });
+        }
+      });
+
+      if (nativeUpdates.length > 0) {
+        await updateCategoriesBatch(nativeUpdates);
+      }
+      if (linkItems.length > 0) {
+        await db.playlistCategoryLinks.bulkPut(linkItems);
+      }
+
+      setCategorySortCustomized(sourceId, true);
+    } catch (err) {
+      console.error('Failed to save category drag order:', err);
+    }
+  };
+
   const handleCreateGroup = () => {
     showPrompt(
       'Create Custom Group',
@@ -1362,7 +1544,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
   return (
     <CategoryStripVisibilityContext.Provider value={visible}>
     <>
-      <div className={`category-strip ${visible ? 'visible' : 'hidden'}`}>
+      <div className={`category-strip ${visible ? 'visible' : 'hidden'} ${isDragActive ? 'drag-hotkey-active' : ''}`}>
         {/* Resizer Handle */}
         <div
           className="category-strip-resizer"
@@ -1492,16 +1674,20 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
       </div>
 
       <div className="category-strip-scrollable" ref={scrollContainerRef}>
-        {combinedSources.map((item, index) => {
+        <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleSourceDragEnd}>
+          <SortableContext items={combinedSources.map(s => s.id)} strategy={verticalListSortingStrategy}>
+            {combinedSources.map((item, index) => {
           if (item.type === 'real' && item.realGroup) {
             const group = item.realGroup;
             const isExpanded = expandedSources[group.sourceId] || searchQuery.trim().length > 0;
             return (
               <div 
-                key={group.sourceId} 
+                key={item.id} 
                 className={`category-source-group ${isExpanded ? 'is-expanded' : ''}`}
               >
-                <button
+                <SortableSourceHeader
+                  id={item.id}
+                  disabled={!isDragActive}
                   className="category-source-header"
                   onClick={() => toggleSource(group.sourceId)}
                   onContextMenu={(e) => handleSourceContextMenu(e, group.sourceId, sources[group.sourceId] || 'Source')}
@@ -1513,7 +1699,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                     </div>
                   </div>
                   <span className="source-count">{item.count}</span>
-                </button>
+                </SortableSourceHeader>
 
                 {isExpanded && (
                   <div className="category-source-content">
@@ -1629,11 +1815,12 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                             }
 
                             const renderCatItem = (catItem: UnifiedSidebarCat, isFolderChild: boolean) => {
+                              let itemContent: React.ReactNode = null;
                               if (catItem.type === 'native' && catItem.nativeCat) {
                                 const category = catItem.nativeCat;
                                 const isPinned = pinnedCategories.includes(`${group.sourceId}:${category.category_id}`);
                                 const itemStyle = isPinned ? { position: 'sticky', top: takePinTop(40, 38), zIndex: isFolderChild ? 90 : 99 } as React.CSSProperties : undefined;
-                                return (
+                                itemContent = (
                                   <button
                                     key={category.category_id}
                                     className={`category-item nested ${isFolderChild ? 'folder-nested' : ''} ${selectedCategoryId === category.category_id ? 'selected' : ''} ${isPinned ? 'is-pinned' : ''}`}
@@ -1658,7 +1845,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                                 const link = catItem.customLink;
                                 const isPinned = pinnedCategories.includes(`${group.sourceId}:link:${link.id}`);
                                 const itemStyle = isPinned ? { position: 'sticky', top: takePinTop(40, 38) } as React.CSSProperties : undefined;
-                                return (
+                                itemContent = (
                                   <PlaylistCategoryLinkItem
                                     key={catItem.id}
                                     link={link}
@@ -1672,7 +1859,12 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                                   />
                                 );
                               }
-                              return null;
+                              if (!itemContent) return null;
+                              return (
+                                <SortableSidebarItem key={catItem.id} id={catItem.id} disabled={!isDragActive}>
+                                  {itemContent}
+                                </SortableSidebarItem>
+                              );
                             };
 
                             const isFolderPinned = (fId: string) => pinnedFolders.includes(`${group.sourceId}:${fId}`);
@@ -1701,68 +1893,61 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                             });
 
                             return (
-                              <>
-                                {sortedSourceFolders.map((folder: CategoryFolder) => {
-                                  const folderCats = folderMap.get(folder.folder_id) || [];
-                                  const isFolderExpanded = !!expandedFolders[folder.folder_id] || searchQuery.trim().length > 0;
-                                  const folderChannelCount = folderCats.reduce((sum, c) => sum + c.count, 0);
-                                  const isPinnedFolder = isFolderPinned(folder.folder_id);
-                                  // Pinned folders reserve their slot in the sticky stack.
-                                  // Non-pinned expanded folders also get sticky (for within-source
-                                  // sticking) but do NOT advance pinStackTop — so pinned categories
-                                  // rendered after them retain the correct top offset.
-                                  const folderHeaderTop = isPinnedFolder
-                                    ? takePinTop(40, 34, true)
-                                    : (isFolderExpanded ? takePinTop(40, 34, false) : undefined);
-                                  const folderHeaderStyle: React.CSSProperties | undefined =
-                                    isPinnedFolder
-                                      ? { position: 'sticky', top: folderHeaderTop, zIndex: 96, '--category-folder-sticky-top': folderHeaderTop } as React.CSSProperties
-                                      : isFolderExpanded
-                                        ? { position: 'sticky', top: folderHeaderTop, zIndex: 95, '--category-folder-sticky-top': folderHeaderTop } as React.CSSProperties
-                                        : undefined;
+                              <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={(e) => handleCategoryDragEnd(group.sourceId, list, e)}>
+                                <SortableContext items={list.map(c => c.id)} strategy={verticalListSortingStrategy}>
+                                  {sortedSourceFolders.map((folder: CategoryFolder) => {
+                                    const folderCats = folderMap.get(folder.folder_id) || [];
+                                    const isFolderExpanded = !!expandedFolders[folder.folder_id] || searchQuery.trim().length > 0;
+                                    const folderChannelCount = folderCats.reduce((sum, c) => sum + c.count, 0);
+                                    const isPinnedFolder = isFolderPinned(folder.folder_id);
+                                    const folderHeaderTop = isPinnedFolder
+                                      ? takePinTop(40, 34, true)
+                                      : (isFolderExpanded ? takePinTop(40, 34, false) : undefined);
+                                    const folderHeaderStyle: React.CSSProperties | undefined =
+                                      isPinnedFolder
+                                        ? { position: 'sticky', top: folderHeaderTop, zIndex: 96, '--category-folder-sticky-top': folderHeaderTop } as React.CSSProperties
+                                        : isFolderExpanded
+                                          ? { position: 'sticky', top: folderHeaderTop, zIndex: 95, '--category-folder-sticky-top': folderHeaderTop } as React.CSSProperties
+                                          : undefined;
 
-                                  if (searchQuery.trim() && folderCats.length === 0) return null;
+                                    if (searchQuery.trim() && folderCats.length === 0) return null;
 
-                                  const header = (
-                                    <SidebarFolderHeader
-                                      folder={folder}
-                                      isFolderExpanded={isFolderExpanded}
-                                      folderCount={folderChannelCount}
-                                      isPinned={isPinnedFolder}
-                                      onToggle={() => toggleFolder(folder.folder_id)}
-                                      onContextMenu={folderContext(folder).onContextMenu}
-                                      style={folderHeaderStyle}
-                                      data-folder-id={folder.folder_id}
-                                    />
-                                  );
-
-                                  // Pinned folders render the header + children as direct siblings of the source
-                                  // content (no wrapping div) so that:
-                                  // (a) the header stays stuck below the source header for the whole source, and
-                                  // (b) any pinned categories inside the folder use the scroll container as their
-                                  //     containing block — preventing the disappear/blank-space bug.
-                                  if (isPinnedFolder) {
-                                    return (
-                                      <Fragment key={folder.folder_id}>
-                                        {header}
-                                        {isFolderExpanded && folderCats.map(catItem => renderCatItem(catItem, true))}
-                                      </Fragment>
+                                    const header = (
+                                      <SidebarFolderHeader
+                                        folder={folder}
+                                        isFolderExpanded={isFolderExpanded}
+                                        folderCount={folderChannelCount}
+                                        isPinned={isPinnedFolder}
+                                        onToggle={() => toggleFolder(folder.folder_id)}
+                                        onContextMenu={folderContext(folder).onContextMenu}
+                                        style={folderHeaderStyle}
+                                        data-folder-id={folder.folder_id}
+                                      />
                                     );
-                                  }
 
-                                  return (
-                                    <div key={folder.folder_id} className={`category-folder-group ${isFolderExpanded ? 'is-expanded' : ''}`}>
-                                      {header}
-                                      {isFolderExpanded && (
-                                        <div className="category-folder-content">
-                                          {folderCats.map(catItem => renderCatItem(catItem, true))}
-                                        </div>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                                {rootCats.map(catItem => renderCatItem(catItem, false))}
-                              </>
+                                    if (isPinnedFolder) {
+                                      return (
+                                        <Fragment key={folder.folder_id}>
+                                          {header}
+                                          {isFolderExpanded && folderCats.map(catItem => renderCatItem(catItem, true))}
+                                        </Fragment>
+                                      );
+                                    }
+
+                                    return (
+                                      <div key={folder.folder_id} className={`category-folder-group ${isFolderExpanded ? 'is-expanded' : ''}`}>
+                                        {header}
+                                        {isFolderExpanded && (
+                                          <div className="category-folder-content">
+                                            {folderCats.map(catItem => renderCatItem(catItem, true))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                  {rootCats.map(catItem => renderCatItem(catItem, false))}
+                                </SortableContext>
+                              </DndContext>
                             );
                           })()}
                           
@@ -1810,10 +1995,12 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
 
             return (
               <div 
-                key={playlist.playlist_id} 
+                key={item.id} 
                 className={`category-source-group playlist-source-group ${isExpanded ? 'is-expanded' : ''}`}
               >
-                <button
+                <SortableSourceHeader
+                  id={item.id}
+                  disabled={!isDragActive}
                   className="category-source-header playlist-source-header"
                   onClick={() => handleTogglePlaylist(playlist.playlist_id)}
                   onContextMenu={(e) => handlePlaylistContextMenu(e, playlist.playlist_id, playlist.name)}
@@ -1825,95 +2012,100 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                     </div>
                   </div>
                   <span className="source-count">{item.count}</span>
-                </button>
+                </SortableSourceHeader>
 
-                {isExpanded && (
-                  <div className="category-source-content">
-                    {includeAllChannelsToPlaylist && (
-                      <button
-                        key={`__allsrc_pl_${playlist.playlist_id}`}
-                        className={`category-item nested ${selectedCategoryId === `__allsrc_pl_${playlist.playlist_id}` ? 'selected' : ''}`}
-                        onClick={() => onSelectCategory(`__allsrc_pl_${playlist.playlist_id}`)}
-                      >
-                        <ScrollingText className="category-name">All Channels</ScrollingText>
-                        <span className="category-count">{item.count}</span>
-                      </button>
-                    )}
-                    {(() => {
-                      const sourceFolders = (allCategoryFolders || [])
-                        .filter(f => f.playlist_id === playlist.playlist_id)
-                        .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
-                      const folderMap = new Map<string, PlaylistCategoryLink[]>();
-                      const rootLinks: PlaylistCategoryLink[] = [];
+                  {isExpanded && (
+                    <div className="category-source-content">
+                      {includeAllChannelsToPlaylist && (
+                        <button
+                          key={`__allsrc_pl_${playlist.playlist_id}`}
+                          className={`category-item nested ${selectedCategoryId === `__allsrc_pl_${playlist.playlist_id}` ? 'selected' : ''}`}
+                          onClick={() => onSelectCategory(`__allsrc_pl_${playlist.playlist_id}`)}
+                        >
+                          <ScrollingText className="category-name">All Channels</ScrollingText>
+                          <span className="category-count">{item.count}</span>
+                        </button>
+                      )}
+                      {(() => {
+                        const sourceFolders = (allCategoryFolders || [])
+                          .filter(f => f.playlist_id === playlist.playlist_id)
+                          .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
+                        const folderMap = new Map<string, PlaylistCategoryLink[]>();
+                        const rootLinks: PlaylistCategoryLink[] = [];
 
-                      for (const link of playlistLinks) {
-                        if (link.folder_id && sourceFolders.some((f: CategoryFolder) => f.folder_id === link.folder_id)) {
-                          if (!folderMap.has(link.folder_id)) {
-                            folderMap.set(link.folder_id, []);
+                        for (const link of playlistLinks) {
+                          if (link.folder_id && sourceFolders.some((f: CategoryFolder) => f.folder_id === link.folder_id)) {
+                            if (!folderMap.has(link.folder_id)) {
+                              folderMap.set(link.folder_id, []);
+                            }
+                            folderMap.get(link.folder_id)!.push(link);
+                          } else {
+                            rootLinks.push(link);
                           }
-                          folderMap.get(link.folder_id)!.push(link);
-                        } else {
-                          rootLinks.push(link);
                         }
-                      }
 
-                      let pinStackTop = 40;
-                      const takePinTop = (minTop: number, step: number, isActuallyPinned = true) => {
-                        const top = Math.max(minTop, pinStackTop);
-                        if (isActuallyPinned) pinStackTop += step;
-                        return `${top}px`;
-                      };
-                      const renderLink = (link: PlaylistCategoryLink, isFolderChild: boolean) => {
-                        const nativeCount = categoryChannelCounts.get(link.category_id) || 0;
-                        const manualCount = manualCategoryChannelCounts?.get(`${playlist.playlist_id}:link:${link.id}`) || 0;
-                        const count = nativeCount + manualCount;
-                        const name = link.custom_name || (categoryNamesMap.get(link.category_id) || link.category_id);
-                        const isPinned = pinnedCategories.includes(`${playlist.playlist_id}:link:${link.id}`);
-                        const itemStyle: React.CSSProperties | undefined = isFolderChild
-                          ? (isPinned ? { position: 'sticky', top: takePinTop(40, 38), zIndex: 90, paddingLeft: '32px' } : { paddingLeft: '32px' })
-                          : (isPinned ? { position: 'sticky', top: takePinTop(40, 38), zIndex: 99 } : undefined);
-                        return (
-                          <PlaylistCategoryLinkItem
-                            key={link.id}
-                            link={link}
-                            selectedCategoryId={selectedCategoryId}
-                            onSelectCategory={onSelectCategory}
-                            displayName={name}
-                            channelCount={count}
-                            isPinned={isPinned}
-                            onContextMenu={(e) => handleCategoryContextMenu(e, `link:${link.id}`, name, playlist.playlist_id, playlist.name)}
-                            style={itemStyle}
-                          />
-                        );
-                      };
-
-                          const isFolderPinned = (fId: string) => pinnedFolders.includes(`${playlist.playlist_id}:${fId}`);
-
-                          const sortedSourceFolders = [...sourceFolders].sort((a, b) => {
-                            const aPinned = isFolderPinned(a.folder_id);
-                            const bPinned = isFolderPinned(b.folder_id);
-                            if (aPinned && !bPinned) return -1;
-                            if (!aPinned && bPinned) return 1;
-                            return (a.display_order ?? 0) - (b.display_order ?? 0);
-                          });
-
-                          const folderContext = (folder: CategoryFolder) => ({
-                            onContextMenu: (e: React.MouseEvent) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setFolderContextMenu({
-                                x: e.clientX,
-                                y: e.clientY,
-                                folderId: folder.folder_id,
-                                folderName: folder.name,
-                                sourceId: playlist.playlist_id,
-                                sourceName: playlist.name,
-                              });
-                            },
-                          });
-
+                        let pinStackTop = 40;
+                        const takePinTop = (minTop: number, step: number, isActuallyPinned = true) => {
+                          const top = Math.max(minTop, pinStackTop);
+                          if (isActuallyPinned) pinStackTop += step;
+                          return `${top}px`;
+                        };
+                        const renderLink = (link: PlaylistCategoryLink, isFolderChild: boolean) => {
+                          const nativeCount = categoryChannelCounts.get(link.category_id) || 0;
+                          const manualCount = manualCategoryChannelCounts?.get(`${playlist.playlist_id}:link:${link.id}`) || 0;
+                          const count = nativeCount + manualCount;
+                          const name = link.custom_name || (categoryNamesMap.get(link.category_id) || link.category_id);
+                          const isPinned = pinnedCategories.includes(`${playlist.playlist_id}:link:${link.id}`);
+                          const itemStyle: React.CSSProperties | undefined = isFolderChild
+                            ? (isPinned ? { position: 'sticky', top: takePinTop(40, 38), zIndex: 90, paddingLeft: '32px' } : { paddingLeft: '32px' })
+                            : (isPinned ? { position: 'sticky', top: takePinTop(40, 38), zIndex: 99 } : undefined);
                           return (
-                            <>
+                            <SortableSidebarItem key={`link:${link.id}`} id={`link:${link.id}`} disabled={!isDragActive}>
+                              <PlaylistCategoryLinkItem
+                                key={link.id}
+                                link={link}
+                                selectedCategoryId={selectedCategoryId}
+                                onSelectCategory={onSelectCategory}
+                                displayName={name}
+                                channelCount={count}
+                                isPinned={isPinned}
+                                onContextMenu={(e) => handleCategoryContextMenu(e, `link:${link.id}`, name, playlist.playlist_id, playlist.name)}
+                                style={itemStyle}
+                              />
+                            </SortableSidebarItem>
+                          );
+                        };
+
+                        const isFolderPinned = (fId: string) => pinnedFolders.includes(`${playlist.playlist_id}:${fId}`);
+
+                        const sortedSourceFolders = [...sourceFolders].sort((a, b) => {
+                          const aPinned = isFolderPinned(a.folder_id);
+                          const bPinned = isFolderPinned(b.folder_id);
+                          if (aPinned && !bPinned) return -1;
+                          if (!aPinned && bPinned) return 1;
+                          return (a.display_order ?? 0) - (b.display_order ?? 0);
+                        });
+
+                        const folderContext = (folder: CategoryFolder) => ({
+                          onContextMenu: (e: React.MouseEvent) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setFolderContextMenu({
+                              x: e.clientX,
+                              y: e.clientY,
+                              folderId: folder.folder_id,
+                              folderName: folder.name,
+                              sourceId: playlist.playlist_id,
+                              sourceName: playlist.name,
+                            });
+                          },
+                        });
+
+                        const plCatList = playlistLinks.map(l => ({ id: `link:${l.id}`, type: 'link' as const, customLink: l }));
+
+                        return (
+                          <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={(e) => handleCategoryDragEnd(playlist.playlist_id, plCatList, e)}>
+                            <SortableContext items={plCatList.map(c => c.id)} strategy={verticalListSortingStrategy}>
                               {sortedSourceFolders.map((folder: CategoryFolder) => {
                                 const fLinks = folderMap.get(folder.folder_id) || [];
                                 const isFolderExpanded = !!expandedFolders[folder.folder_id] || searchQuery.trim().length > 0;
@@ -1948,11 +2140,6 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                                   />
                                 );
 
-                                // Pinned folders render the header + children as direct siblings of the source
-                                // content (no wrapping div) so that:
-                                // (a) the header stays stuck below the source header for the whole source, and
-                                // (b) any pinned categories inside the folder use the scroll container as their
-                                //     containing block — preventing the disappear/blank-space bug.
                                 if (isPinnedFolder) {
                                   return (
                                     <Fragment key={folder.folder_id}>
@@ -1974,40 +2161,43 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                                 );
                               })}
                               {rootLinks.map(link => renderLink(link, false))}
-                            </>
-                          );
-                    })()}
+                            </SortableContext>
+                          </DndContext>
+                        );
+                      })()}
 
-                    {individualCount > 0 && (
-                      <button
-                        className={`category-item nested playlist-indiv-item ${
-                          selectedCategoryId === `__plindiv_${playlist.playlist_id}` ? 'selected' : ''
-                        }`}
-                        onClick={() => onSelectCategory(`__plindiv_${playlist.playlist_id}`)}
-                      >
-                        <ScrollingText className="category-name">Individual Channels</ScrollingText>
-                        <span className="category-count">{individualCount}</span>
-                      </button>
-                    )}
-
-                    {playlistLinks.length === 0 && individualCount === 0 && (
-                      <div className="playlist-empty-hint">
-                        <span>Empty playlist</span>
-                        <button 
-                          className="playlist-edit-link"
-                          onClick={() => setEditingPlaylist({ id: playlist.playlist_id, name: playlist.name })}
+                      {individualCount > 0 && (
+                        <button
+                          className={`category-item nested playlist-indiv-item ${
+                            selectedCategoryId === `__plindiv_${playlist.playlist_id}` ? 'selected' : ''
+                          }`}
+                          onClick={() => onSelectCategory(`__plindiv_${playlist.playlist_id}`)}
                         >
-                          Edit Playlist
+                          <ScrollingText className="category-name">Individual Channels</ScrollingText>
+                          <span className="category-count">{individualCount}</span>
                         </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
+                      )}
+
+                      {playlistLinks.length === 0 && individualCount === 0 && (
+                        <div className="playlist-empty-hint">
+                          <span>Empty playlist</span>
+                          <button 
+                            className="playlist-edit-link"
+                            onClick={() => setEditingPlaylist({ id: playlist.playlist_id, name: playlist.name })}
+                          >
+                            Edit Playlist
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
           }
           return null;
         })}
+      </SortableContext>
+    </DndContext>
 
         {filteredGroupedCategories.length === 0 && (!customPlaylists || customPlaylists.length === 0) && (
           <div className="category-empty">

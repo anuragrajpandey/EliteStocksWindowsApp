@@ -86,6 +86,8 @@ interface UIState {
   setEpgClockFormat: (value: '12h' | '24h') => void;
   includeAllChannelsToPlaylist: boolean;
   setIncludeAllChannelsToPlaylist: (value: boolean) => void;
+  sidebarDragHotkey: 'Control' | 'Alt' | 'Shift' | 'Meta' | 'None';
+  setSidebarDragHotkey: (value: 'Control' | 'Alt' | 'Shift' | 'Meta' | 'None') => void;
 
   // Navigation tab visibility (shared reactive state)
   navHiddenTabs: string[];
@@ -217,6 +219,11 @@ export const useUIStore = create<UIState>((set) => ({
   setEpgClockFormat: (value) => set({ epgClockFormat: value }),
   includeAllChannelsToPlaylist: false,
   setIncludeAllChannelsToPlaylist: (value) => set({ includeAllChannelsToPlaylist: value }),
+  sidebarDragHotkey: (typeof window !== 'undefined' ? (localStorage.getItem('sidebar_drag_hotkey') as any) : null) || 'Control',
+  setSidebarDragHotkey: (value) => {
+    if (typeof window !== 'undefined') localStorage.setItem('sidebar_drag_hotkey', value);
+    set({ sidebarDragHotkey: value });
+  },
 
   // Navigation tab visibility
   navHiddenTabs: [],
@@ -428,6 +435,8 @@ export const useEpgClockFormat = () => useUIStore((s) => s.epgClockFormat);
 export const useSetEpgClockFormat = () => useUIStore((s) => s.setEpgClockFormat);
 export const useIncludeAllChannelsToPlaylist = () => useUIStore((s) => s.includeAllChannelsToPlaylist);
 export const useSetIncludeAllChannelsToPlaylist = () => useUIStore((s) => s.setIncludeAllChannelsToPlaylist);
+export const useSidebarDragHotkey = () => useUIStore((s) => s.sidebarDragHotkey);
+export const useSetSidebarDragHotkey = () => useUIStore((s) => s.setSidebarDragHotkey);
 
 // Sports Hub selectors
 export const useSportsSelectedTab = () => useUIStore((s) => s.sportsSelectedTab);

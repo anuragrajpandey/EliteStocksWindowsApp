@@ -1,4 +1,4 @@
-import { useSetChannelSortOrder, useSetCategorySortOrder, useSetIncludeAllChannelsToPlaylist } from '../../stores/uiStore';
+import { useSetChannelSortOrder, useSetCategorySortOrder, useSetIncludeAllChannelsToPlaylist, useSidebarDragHotkey, useSetSidebarDragHotkey } from '../../stores/uiStore';
 import './PlaybackTab.css'; // Reuse existing tab styles for toggle
 
 interface ChannelsTabProps {
@@ -64,6 +64,8 @@ export function ChannelsTab({
   const setChannelSortOrder = useSetChannelSortOrder();
   const setCategorySortOrder = useSetCategorySortOrder();
   const setIncludeAllChannelsToPlaylist = useSetIncludeAllChannelsToPlaylist();
+  const sidebarDragHotkey = useSidebarDragHotkey();
+  const setSidebarDragHotkey = useSetSidebarDragHotkey();
 
   async function handleSortOrderChange(order: 'alphabetical' | 'number' | 'provider') {
     onChannelSortOrderChange(order);
@@ -144,6 +146,26 @@ export function ChannelsTab({
             <p className="form-hint" style={{ marginTop: '0.75rem' }}>
               "Default" uses the order from your provider or any custom order set in Manage Categories.
               "Alphabetical" sorts all categories alphabetically (A-Z).
+            </p>
+
+            <div className="refresh-settings" style={{ marginTop: '16px' }}>
+              <div className="form-group inline">
+                <label>Sidebar Drag Reorder Hotkey</label>
+                <select
+                  value={sidebarDragHotkey}
+                  onChange={(e) => setSidebarDragHotkey(e.target.value as any)}
+                >
+                  <option value="Control">Ctrl Key (Default)</option>
+                  <option value="Alt">Alt / Option Key</option>
+                  <option value="Shift">Shift Key</option>
+                  <option value="Meta">Meta / Cmd Key</option>
+                  <option value="None">None (Always Draggable)</option>
+                </select>
+              </div>
+            </div>
+
+            <p className="form-hint" style={{ marginTop: '0.75rem' }}>
+              Select the modifier key to hold down while clicking and dragging to reorder sources and categories in the LiveTV sidebar.
             </p>
 
             <div className="timeshift-settings" style={{ marginTop: '20px' }}>
