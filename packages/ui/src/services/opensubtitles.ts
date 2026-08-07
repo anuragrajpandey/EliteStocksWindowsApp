@@ -72,6 +72,14 @@ export function getOpenSubtitlesApiKey(override?: string): string {
 }
 
 /* ─── low-level fetch ─── */
+interface ApiFetchResponse {
+  ok: boolean;
+  status: number;
+  statusText: string;
+  json(): Promise<any>;
+  text: string;
+}
+
 async function apiFetch(
   path: string,
   options: {
@@ -81,7 +89,7 @@ async function apiFetch(
     params?: Record<string, string | number | undefined>;
     body?: any;
   } = {}
-): Promise<{ ok: boolean; status: number; statusText: string; json(): Promise<any>; text: string }> {
+): Promise<ApiFetchResponse> {
   const apiKey = getOpenSubtitlesApiKey(options.apiKey);
   if (!apiKey) {
     throw new Error('OpenSubtitles API Consumer Key is missing. Build with VITE_OPENSUBTITLES_API_KEY.');
@@ -156,6 +164,46 @@ async function apiFetch(
 
 /* ─── subtitle decoding ─── */
 import { decodeSubtitleBytes } from '../utils/subtitleEncoding';
+
+/**
+ * Shared auto-retry wrapper used by search/download. Handles 401/403 by
+ * triggering a background re-login and retrying once with the fresh token, then
+ * retries once after 500ms on 5xx server errors.
+ */
+async function apiFetchWithRetry(
+  initialToken: string,
+  logStage: string,
+  doFetch: (token: string) => Promise<ApiFetchResponse>,
+  customApiKey?: string
+): Promise<{ res: ApiFetchResponse }> {
+  let activeToken = initialToken;
+  let res = await doFetch(activeToken);
+
+  // Auto-retry once on 401/403 (unauthorized/expired token) via background re-login
+  if ((res.status === 401 || res.status === 403) && window.storage) {
+    log(logStage, `HTTP ${res.status} returned. Triggering background re-login...`);
+    const stored = await window.storage.getSettings();
+    const ss = stored.data?.subtitleSettings;
+    const refreshed = await ensureValidOpenSubtitlesToken(ss, true);
+    if (refreshed.token) {
+      activeToken = refreshed.token;
+      log(logStage, 'Retrying with fresh token...');
+      res = await doFetch(activeToken);
+    } else {
+      log(logStage, 'Auto re-login failed. Aborting; user must re-login.');
+      throw new Error('OpenSubtitles session expired. Please re-login in Settings → Subtitles.');
+    }
+  }
+
+  // Auto-retry once on 5xx server error after 500ms delay
+  if (res.status >= 500) {
+    log(logStage, `Server error HTTP ${res.status}. Retrying in 500ms...`);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    res = await doFetch(activeToken);
+  }
+
+  return { res };
+}
 
 /* ─── Login ─── */
 export async function loginOpenSubtitles(
@@ -333,8 +381,7 @@ export async function searchOpenSubtitles(
   params: OpenSubtitlesSearchParams,
   customApiKey?: string
 ): Promise<OpenSubtitlesSearchResult> {
-  let activeToken = token;
-  if (!activeToken) {
+  if (!token) {
     return { success: false, error: 'Login required to search OpenSubtitles' };
   }
   if (!params.query?.trim() && !params.imdbId && !params.tmdbId) {
@@ -370,42 +417,17 @@ export async function searchOpenSubtitles(
 
     log('SEARCH', 'Query params:', queryParams);
 
-    let res = await apiFetch('/subtitles', {
-      token: activeToken,
-      apiKey: customApiKey,
-      params: queryParams,
-    });
-
-    // Auto-retry once on 401/403 (unauthorized/expired token) via background re-login
-    if ((res.status === 401 || res.status === 403) && window.storage) {
-      log('SEARCH', `HTTP ${res.status} returned. Triggering background re-login...`);
-      const stored = await window.storage.getSettings();
-      const ss = stored.data?.subtitleSettings;
-      const refreshed = await ensureValidOpenSubtitlesToken(ss, true);
-      if (refreshed.token) {
-        activeToken = refreshed.token;
-        log('SEARCH', 'Retrying search with fresh token...');
-        res = await apiFetch('/subtitles', {
+    const { res } = await apiFetchWithRetry(
+      token,
+      'SEARCH',
+      (activeToken) =>
+        apiFetch('/subtitles', {
           token: activeToken,
           apiKey: customApiKey,
           params: queryParams,
-        });
-      } else {
-        log('SEARCH', 'Auto re-login failed. Aborting search; user must re-login.');
-        return { success: false, error: 'OpenSubtitles session expired. Please re-login in Settings → Subtitles.' };
-      }
-    }
-
-    // Auto-retry once on 5xx server error after 500ms delay
-    if (res.status >= 500) {
-      log('SEARCH', `Server error HTTP ${res.status}. Retrying in 500ms...`);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      res = await apiFetch('/subtitles', {
-        token: activeToken,
-        apiKey: customApiKey,
-        params: queryParams,
-      });
-    }
+        }),
+      customApiKey
+    );
 
     const body = await res.json();
     if (!res.ok || !body.data) {
@@ -463,8 +485,7 @@ export async function downloadOpenSubtitlesSubtitle(
   fileId: number,
   customApiKey?: string
 ): Promise<OpenSubtitlesDownloadResult> {
-  let activeToken = token;
-  if (!activeToken) {
+  if (!token) {
     return { success: false, error: 'Login required to download subtitles' };
   }
   if (!fileId) {
@@ -473,45 +494,18 @@ export async function downloadOpenSubtitlesSubtitle(
 
   try {
     log('DOWNLOAD', `Requesting download link for fileId: ${fileId}`);
-    let res = await apiFetch('/download', {
-      method: 'POST',
-      token: activeToken,
-      apiKey: customApiKey,
-      body: { file_id: fileId },
-    });
-
-    // Auto-retry once on 401/403 (unauthorized/expired token) via background re-login
-    if ((res.status === 401 || res.status === 403) && window.storage) {
-      log('DOWNLOAD', `HTTP ${res.status} returned. Triggering background re-login...`);
-      const stored = await window.storage.getSettings();
-      const ss = stored.data?.subtitleSettings;
-      const refreshed = await ensureValidOpenSubtitlesToken(ss, true);
-      if (refreshed.token) {
-        activeToken = refreshed.token;
-        log('DOWNLOAD', 'Retrying download with fresh token...');
-        res = await apiFetch('/download', {
+    const { res } = await apiFetchWithRetry(
+      token,
+      'DOWNLOAD',
+      (activeToken) =>
+        apiFetch('/download', {
           method: 'POST',
           token: activeToken,
           apiKey: customApiKey,
           body: { file_id: fileId },
-        });
-      } else {
-        log('DOWNLOAD', 'Auto re-login failed. Aborting download; user must re-login.');
-        return { success: false, error: 'OpenSubtitles session expired. Please re-login in Settings → Subtitles.' };
-      }
-    }
-
-    // Auto-retry once on 5xx server error after 500ms delay
-    if (res.status >= 500) {
-      log('DOWNLOAD', `Server error HTTP ${res.status}. Retrying in 500ms...`);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      res = await apiFetch('/download', {
-        method: 'POST',
-        token: activeToken,
-        apiKey: customApiKey,
-        body: { file_id: fileId },
-      });
-    }
+        }),
+      customApiKey
+    );
 
     const body = await res.json();
     if (!res.ok || !body.link) {

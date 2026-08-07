@@ -2995,8 +2995,16 @@ export async function recordEpisodeWatch(
         console.log('[DB] Preserving existing duration:', effectiveDuration, '(new value was:', totalDuration + ')');
       }
 
-      // If existing record was already completed, keep it completed unless progress is explicitly reset to 0
-      if (existingRecord[0].completed === 1 && progressSeconds > 0) {
+      // If existing record was already completed, keep it completed when the user
+      // scrubs back into a mostly-watched episode (progress >= 50%). This avoids
+      // un-marking a finished episode on a brief rewatch of the ending, while still
+      // letting a genuine re-watch restarting from the beginning clear the flag.
+      const progressRatio = effectiveDuration > 0 ? progressSeconds / effectiveDuration : 0;
+      if (
+        existingRecord[0].completed === 1 &&
+        progressSeconds > 0 &&
+        progressRatio >= 0.5
+      ) {
         completed = 1;
       }
       

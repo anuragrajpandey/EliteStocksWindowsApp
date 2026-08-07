@@ -177,9 +177,8 @@ export async function classifyLogo(url: string, loadedImg?: HTMLImageElement): P
     // Conservative threshold: only genuinely dark logos get the light tile
     const verdict: LogoVerdict = lum === null ? 'light' : lum < 70 ? 'dark' : 'light';
     setCached(url, verdict);
-    inFlight.delete(url);
     return verdict;
-  })();
+  })().finally(() => inFlight.delete(url));
 
   inFlight.set(url, promise);
   return promise;
