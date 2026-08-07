@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import type { StoredMovie, StoredSeries } from '../db';
 import { fetchVodProviderTrailerInfo } from '../db/sync';
 import { cleanTitleForSearch } from '../utils/cleanTitle';
@@ -84,9 +84,10 @@ export function useLazyVodTrailer(
         // Even when a TMDB key is present, the provider's own trailer is preferred
         // because it's an exact, maintained match for their catalog entry.
         let providerTmdbId: number | null = null;
-        if (window.storage && item.source_id) {
+        const storage = window.storage;
+        if (storage && item.source_id) {
           try {
-            const sourcesResult = await window.storage.getSources();
+            const sourcesResult = await storage.getSources();
             const src = sourcesResult.data?.find((s) => String(s.id) === String(item.source_id));
             if (src) {
               const info = await fetchVodProviderTrailerInfo(src, type, itemIdForFetch);
@@ -189,12 +190,12 @@ export function useTrailerSource(): [TrailerSource, (source: TrailerSource) => v
     load();
   }, []);
 
-  const setPref = (pref: TrailerSource) => {
+  const setPref = useCallback((pref: TrailerSource) => {
     setSourcePref(pref);
     if (window.storage) {
       window.storage.updateSettings({ trailerSource: pref }).catch(console.error);
     }
-  };
+  }, []);
 
   return [sourcePref, setPref];
 }

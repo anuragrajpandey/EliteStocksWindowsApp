@@ -48,13 +48,10 @@ pub fn setup<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
         .menu(&menu)
         .on_menu_event(|app_handle, event| match event.id().as_ref() {
             "show" => show_main_window(app_handle),
-            "quit" => {
-                let _ = app_handle
-                    .state::<TrayState>()
-                    .minimize_to_tray
-                    .compare_exchange(true, false, Ordering::Relaxed, Ordering::Relaxed);
-                app_handle.exit(0);
-            }
+            // Do NOT touch `minimize_to_tray` here. The exit can be cancelled by the
+            // DVR exit-guard dialog ("Keep open"), which would leave the flag cleared
+            // against the user's setting. The flag is only mutated via set_minimize_to_tray.
+            "quit" => app_handle.exit(0),
             _ => {}
         })
         .on_tray_icon_event(|tray, event| {

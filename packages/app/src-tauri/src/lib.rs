@@ -4854,10 +4854,8 @@ fn handle_exit_requested(app_handle: &tauri::AppHandle, api: tauri::ExitRequestA
                     let dvr = state.inner().clone();
                     tauri::async_runtime::block_on(dvr.stop());
                 }
-                let app = app.clone();
-                let _ = app
-                    .clone()
-                    .run_on_main_thread(move || app.exit(0));
+                let a = app.clone();
+                let _ = a.run_on_main_thread(move || app.exit(0));
             }
         });
 }

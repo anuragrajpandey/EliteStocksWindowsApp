@@ -3616,11 +3616,13 @@ export async function fetchVodProviderTrailerInfo(
     if (!info) return empty;
 
     const rawTmdb = info.tmdb_id ?? info.tmdb;
-    const tmdbId = rawTmdb ? Number(rawTmdb) : null;
+    // Number('...') → NaN for garbage, and NaN is falsy, so the `|| null` collapses
+    // invalid/unset values in one step without a separate isNaN check.
+    const tmdbId = rawTmdb ? Number(rawTmdb) || null : null;
     const rawTrailer = info.youtube_trailer;
 
     const result: ProviderTrailerInfo = {
-      tmdbId: tmdbId && !isNaN(tmdbId) ? tmdbId : null,
+      tmdbId,
       youtubeTrailer:
         rawTrailer && typeof rawTrailer === 'string' && rawTrailer.trim() ? rawTrailer.trim() : null,
     };
@@ -3629,12 +3631,12 @@ export async function fetchVodProviderTrailerInfo(
     try {
       if (type === 'movie') {
         const updates: any = {};
-        if (result.tmdbId && !isNaN(result.tmdbId)) updates.tmdb_id = result.tmdbId;
+        if (result.tmdbId) updates.tmdb_id = result.tmdbId;
         if (result.youtubeTrailer) updates.youtube_trailer = result.youtubeTrailer;
         if (Object.keys(updates).length > 0) await db.vodMovies.update(id, updates);
       } else if (type === 'series') {
         const updates: any = {};
-        if (result.tmdbId && !isNaN(result.tmdbId)) updates.tmdb_id = result.tmdbId;
+        if (result.tmdbId) updates.tmdb_id = result.tmdbId;
         if (result.youtubeTrailer) updates.youtube_trailer = result.youtubeTrailer;
         if (Object.keys(updates).length > 0) await db.vodSeries.update(id, updates);
       }

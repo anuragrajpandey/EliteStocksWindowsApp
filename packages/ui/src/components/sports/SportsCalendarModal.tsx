@@ -88,6 +88,12 @@ export function SportsCalendarModal({
     const daysInCurrentMonth = new Date(year, month + 1, 0).getDate();
     const daysInPrevMonth = new Date(year, month, 0).getDate();
 
+    const leadingCells = firstDayOfWeek;
+    const totalInclusive = leadingCells + daysInCurrentMonth;
+    // Pad to a full number of weeks (at least 1, capped at a tidy 6-row grid).
+    const rowsNeeded = Math.max(1, Math.ceil(totalInclusive / 7));
+    const totalCells = rowsNeeded * 7;
+
     const cells: Array<{
       date: Date;
       isCurrentMonth: boolean;
@@ -112,7 +118,7 @@ export function SportsCalendarModal({
       });
     }
 
-    const remainingCells = 42 - cells.length;
+    const remainingCells = Math.max(0, totalCells - cells.length);
     for (let day = 1; day <= remainingCells; day++) {
       const nextDate = new Date(year, month + 1, day);
       cells.push({

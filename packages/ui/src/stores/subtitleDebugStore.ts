@@ -14,7 +14,9 @@ interface SubtitleDebugState {
 }
 
 const MAX_ENTRIES = 300;
-let nextId = 1;
+// Seed from wall-clock so a module reload (HMR) can't collide with a prior
+// session's IDs; still monotonically increasing within this stores's lifetime.
+let nextId = Date.now();
 
 export const useSubtitleDebugStore = create<SubtitleDebugState>((set) => ({
   entries: [],

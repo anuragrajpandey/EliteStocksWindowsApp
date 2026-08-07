@@ -141,6 +141,9 @@ export function clearLeagueLogosCache(): void {
   try {
     if (typeof window === 'undefined') return;
     const keysToRemove: string[] = [];
+    // Collect first, delete after. Iterating while removing would shift indices;
+    // also localStorage.length is re-read every iteration, so a concurrent tab
+    // mutation could cause key(i) to return null (which the `key &&` guard skips).
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && (key.startsWith('sports_teams_cache_') || key.startsWith('sports_league_logos_') || key.startsWith('sports_logo_'))) {
@@ -166,22 +169,28 @@ export async function getLeagueLogos(leagueIds?: string[]): Promise<Record<strin
 
   const results: Record<string, string> = { ...cached };
 
-  await Promise.all(
-    missingIds.map(async (leagueId) => {
-      const config = SPORT_CONFIG[leagueId];
-      if (!config) return;
+  // Fire the missing lookups in small batches to avoid hammering ESPN with one
+  // big Promise.all burst when many leagues are uncached (rate limiting / 403s).
+  const CHUNK_SIZE = 6;
+  const fetchOne = async (leagueId: string): Promise<void> => {
+    const config = SPORT_CONFIG[leagueId];
+    if (!config) return;
 
-      const data = await fetchJson<CoreLeagueResponse>(
-        buildCoreLeagueUrl(config.sport, config.league),
-        { ttlMs: 365 * 24 * 60 * 60 * 1000, suppressWarns: true }
-      );
-      if (!data?.logos?.length) return;
+    const data = await fetchJson<CoreLeagueResponse>(
+      buildCoreLeagueUrl(config.sport, config.league),
+      { ttlMs: 365 * 24 * 60 * 60 * 1000, suppressWarns: true }
+    );
+    if (!data?.logos?.length) return;
 
-      const dark = data.logos.find((l) => l.rel?.includes('dark'));
-      const href = (dark ?? data.logos[0])?.href;
-      if (href) results[leagueId] = href;
-    })
-  );
+    const dark = data.logos.find((l) => l.rel?.includes('dark'));
+    const href = (dark ?? data.logos[0])?.href;
+    if (href) results[leagueId] = href;
+  };
+
+  for (let i = 0; i < missingIds.length; i += CHUNK_SIZE) {
+    const chunk = missingIds.slice(i, i + CHUNK_SIZE);
+    await Promise.all(chunk.map(fetchOne));
+  }
 
   saveCachedLeagueLogos(results);
   return results;

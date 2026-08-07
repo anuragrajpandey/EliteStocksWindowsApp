@@ -246,6 +246,8 @@ async fn try_spawn_mpv<R: Runtime>(app: &AppHandle<R>, state: &tauri::State<'_, 
     };
 
     // Prepare arguments
+    // Truncate the diagnostics log each spawn so it can't grow without bound.
+    let _ = std::fs::remove_file(get_mpv_log_path(app));
     let mut args = vec![
         format!("--input-ipc-server={}", socket_path),
         format!("--wid={}", hwnd),
@@ -901,22 +903,15 @@ pub async fn get_mpv_log<R: Runtime>(app: &AppHandle<R>, tail: usize) -> Result<
     let path = get_mpv_log_path(app);
     let content = std::fs::read_to_string(&path).unwrap_or_default();
     let scan = tail.max(8000);
-    let lines: Vec<&str> = content
-        .lines()
-        .rev()
-        .take(scan)
-        .collect::<Vec<_>>()
-        .into_iter()
-        .rev()
-        .collect();
+    let all_lines: Vec<&str> = content.lines().collect();
+    let start = all_lines.len().saturating_sub(scan);
     let keywords = [
         "sub", "sid", "ass", "osd", "track", "refresh", "fontselect", "srt", "vtt", "subrip",
         "mov_text",
     ];
     let mut kept: Vec<String> = Vec::new();
-    for line in lines {
-        let lower = line.to_lowercase();
-        if keywords.iter().any(|k| lower.contains(k)) {
+    for line in &all_lines[start..] {
+        if keywords.iter().any(|k| line.to_ascii_lowercase().contains(k)) {
             kept.push(line.to_string());
         }
     }

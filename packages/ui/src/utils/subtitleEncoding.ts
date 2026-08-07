@@ -30,10 +30,18 @@ export function decodeSubtitleBytes(bytes: Uint8Array | ArrayBuffer | null | und
     }
   }
 
-  // 3. windows-1256 (Arabic) — prefer it only if decoding actually yields Arabic script
+  // 3. windows-1256 (Arabic) — prefer it only if decoding actually yields a
+  // meaningful amount of Arabic script. A lone stray byte in the Arabic range
+  // can come from a corrupted Latin-1/CP1252 file, so require a real proportion.
   try {
     const arabic = new TextDecoder('windows-1256').decode(data);
-    if (/[\u0600-\u06FF]/.test(arabic)) {
+    let arabicChars = 0;
+    let total = 0;
+    for (const ch of arabic) {
+      if (ch >= '\u0600' && ch <= '\u06FF') arabicChars++;
+      if (ch.trim()) total++;
+    }
+    if (total > 0 && arabicChars / total > 0.15) {
       return arabic;
     }
   } catch {
