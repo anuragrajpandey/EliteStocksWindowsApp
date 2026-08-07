@@ -3466,15 +3466,23 @@ export async function syncSeriesEpisodes(source: Source, seriesId: string): Prom
   }
 
   let seasons: any[] = [];
+  let xtreamSeriesInfo: any = null;
+  let xtreamClient: XtreamClient | null = null;
 
   try {
     if (source.type === 'xtream') {
       if (!source.username || !source.password) return 0;
-      const client = new XtreamClient(
+      xtreamClient = new XtreamClient(
         { baseUrl: source.url, username: source.username, password: source.password },
         source.id
       );
-      seasons = await client.getSeriesInfo(seriesId);
+      // Single get_series_info request that returns episodes AND series metadata
+      // (avoids a second round-trip for the tmdb_id backfill below).
+      const seriesData = await xtreamClient.getSeriesInfoWithMeta(seriesId);
+      if (seriesData) {
+        seasons = seriesData.seasons;
+        xtreamSeriesInfo = seriesData.info;
+      }
     } else if (source.type === 'stalker') {
       if (!source.mac) return 0;
       const client = new StalkerClient(
@@ -3532,6 +3540,23 @@ export async function syncSeriesEpisodes(source: Source, seriesId: string): Prom
 
   if (storedEpisodes.length > 0) {
     await db.vodEpisodes.bulkPut(storedEpisodes);
+  }
+
+  // Some providers blank the series-level tmdb_id in the get_series list but
+  // expose it via get_series_info.info.tmdb / info.tmdb_id (see
+  // XtreamClient.getSeriesInfoMeta). Backfill the series row so the
+  // plot/backdrop/extras hooks can resolve the correct TMDB series without
+  // searching on the pretext-prefixed name.
+  if (source.type === 'xtream' && xtreamSeriesInfo) {
+    const seriesRow = await db.vodSeries.get(seriesId);
+    if (seriesRow && !seriesRow.tmdb_id) {
+      try {
+        const tmdb = xtreamSeriesInfo.tmdb_id ? Number(xtreamSeriesInfo.tmdb_id) || null : null;
+        if (tmdb) await db.vodSeries.update(seriesId, { tmdb_id: tmdb });
+      } catch (metaErr) {
+        console.warn('[Sync episodes] Failed to backfill series tmdb_id:', metaErr);
+      }
+    }
   }
 
   return storedEpisodes.length;

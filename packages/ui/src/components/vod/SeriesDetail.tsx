@@ -13,10 +13,11 @@ import { useLazyPlot } from '../../hooks/useLazyPlot';
 import { useLazyCredits } from '../../hooks/useLazyCredits';
 import { useLazySeriesExtras } from '../../hooks/useLazySeriesExtras';
 import { useSeriesDetails, useSeriesEpisodeProgress } from '../../hooks/useVod';
+import { useLiveQuery } from '../../hooks/useSqliteLiveQuery';
 import { useRpdbSettings } from '../../hooks/useRpdbSettings';
 import { getRpdbPosterUrl } from '../../services/rpdb';
 import type { StoredSeries, StoredEpisode } from '../../db';
-import { recordVodWatch, recordEpisodeWatch, setVodEpisodeWatchedState } from '../../db';
+import { db, recordVodWatch, recordEpisodeWatch, setVodEpisodeWatchedState } from '../../db';
 import type { VodPlayInfo } from '../../types/media';
 import { resolvePlayUrl } from '../../services/stream-resolver';
 import { useDownloadStore } from '../../stores/downloadStore';
@@ -38,6 +39,15 @@ export interface SeriesDetailProps {
 }
 
 export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSeason, onCastClick, vodPlayerMode, onSelectVodPlayerMode }: SeriesDetailProps) {
+  const seriesProp = series;
+  // Read the latest series row from the DB so that enrichment written after
+  // episode sync (e.g. tmdb_id backfilled from get_series_info) propagates to
+  // the lazy metadata hooks, which re-run when series?.tmdb_id changes.
+  const liveSeries = useLiveQuery(async () => {
+    return db.vodSeries.get(seriesProp.series_id);
+  }, [seriesProp.series_id], undefined, 0, 'vodSeries');
+  series = liveSeries ?? seriesProp;
+
   const [selectedSeason, setSelectedSeason] = useState<number>(initialSeason ?? 1);
 
   // Fetch episodes

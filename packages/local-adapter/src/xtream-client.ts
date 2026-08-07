@@ -419,11 +419,54 @@ export class XtreamClient {
   }
 
   async getSeriesInfo(seriesId: string): Promise<Season[]> {
+    const rawData = await this.fetchSeriesInfoRaw(seriesId);
+    if (!rawData) return [];
+    return this.mapSeriesSeasons(rawData)
+  }
+
+  /**
+   * Fetch series info metadata (info.tmdb, info.youtube_trailer, etc.)
+   * from the provider's get_series_info response. The series-level info
+   * object is discarded by getSeriesInfo(), which only maps episodes.
+   */
+  async getSeriesInfoMeta(seriesId: string): Promise<any> {
+    const rawData = await this.fetchSeriesInfoRaw(seriesId);
+    if (!rawData) return null;
+    // info holds the provider metadata (including tmdb / youtube_trailer) for the series
+    const rawInfo = rawData.info;
+    if (!rawInfo) return null;
+    // Normalize the series TMDB ID so callers can always rely on `tmdb_id`.
+    // Providers often leave `tmdb_id` as an empty string `''` and instead ship
+    // the real ID in `info.tmdb`; use `||` (not `??`) so `''` falls through.
+    const rawTmdb = rawInfo.tmdb_id || rawInfo.tmdb;
+    const seriesTmdb = rawTmdb != null && !Number.isNaN(Number(rawTmdb)) ? Number(rawTmdb) : null;
+    if (seriesTmdb) rawInfo.tmdb_id = seriesTmdb;
+    return rawInfo;
+  }
+
+  /**
+   * Fetch series episodes AND normalized series metadata in a single
+   * get_series_info request. Avoids the double round-trip that calling
+   * getSeriesInfo() + getSeriesInfoMeta() separately would incur.
+   */
+  async getSeriesInfoWithMeta(seriesId: string): Promise<{ seasons: Season[]; info: any } | null> {
+    const rawData = await this.fetchSeriesInfoRaw(seriesId);
+    if (!rawData) return null;
+    const seasons = this.mapSeriesSeasons(rawData);
+    const rawInfo = rawData.info;
+    if (!rawInfo) return { seasons, info: null };
+    const rawTmdb = rawInfo.tmdb_id || rawInfo.tmdb;
+    const seriesTmdb = rawTmdb != null && !Number.isNaN(Number(rawTmdb)) ? Number(rawTmdb) : null;
+    if (seriesTmdb) rawInfo.tmdb_id = seriesTmdb;
+    return { seasons, info: rawInfo };
+  }
+
+  private async fetchSeriesInfoRaw(seriesId: string): Promise<XtreamSeriesInfo | null> {
     const rawSeriesId = seriesId.replace(`${this.sourceId}_`, '');
     const url = this.buildApiUrl('get_series_info') + `&series_id=${rawSeriesId}`;
     const data = await this.fetchJson<XtreamSeriesInfo>(url);
 
-    if (!data || typeof data !== 'object') return [];
+    if (!data || typeof data !== 'object') return null;
     const rawData = data as any;
     if (rawData.user_info && rawData.user_info.auth === 0) {
       throw new Error('Xtream Codes authentication failed');
@@ -431,12 +474,14 @@ export class XtreamClient {
     if ((data as any).error) {
       throw new Error((data as any).error);
     }
-    if (!data.episodes || typeof data.episodes !== 'object') return [];
+    return rawData;
+  }
 
+  private mapSeriesSeasons(rawData: any): Season[] {
+    if (!rawData.episodes || typeof rawData.episodes !== 'object') return [];
     // Episodes are grouped by season number
     const seasons: Season[] = [];
-
-    for (const [seasonNum, episodes] of Object.entries(data.episodes)) {
+    for (const [seasonNum, episodes] of Object.entries(rawData.episodes)) {
       const seasonEpisodes = this.ensureArray<XtreamEpisode>(episodes).map(ep => ({
         id: `${this.sourceId}_${ep.id}`,
         title: ep.title,
@@ -453,30 +498,7 @@ export class XtreamClient {
         episodes: seasonEpisodes,
       });
     }
-
     return seasons.sort((a, b) => a.season_number - b.season_number);
-  }
-
-  /**
-   * Fetch series info metadata (info.tmdb, info.youtube_trailer, etc.)
-   * from the provider's get_series_info response. The series-level info
-   * object is discarded by getSeriesInfo(), which only maps episodes.
-   */
-  async getSeriesInfoMeta(seriesId: string): Promise<any> {
-    const rawSeriesId = seriesId.replace(`${this.sourceId}_`, '');
-    const url = this.buildApiUrl('get_series_info') + `&series_id=${rawSeriesId}`;
-    const data = await this.fetchJson<any>(url);
-
-    if (!data || typeof data !== 'object') return null;
-    const rawData = data as any;
-    if (rawData.user_info && rawData.user_info.auth === 0) {
-      throw new Error('Xtream Codes authentication failed');
-    }
-    if ((data as any).error) {
-      throw new Error((data as any).error);
-    }
-    // info holds the provider metadata (including tmdb / youtube_trailer) for the series
-    return rawData.info || null;
   }
 
   // ===========================================================================
@@ -576,6 +598,7 @@ interface XtreamSeries {
 interface XtreamSeriesInfo {
   seasons: unknown[];
   episodes: Record<string, XtreamEpisode[]>;
+  info?: any;
 }
 
 interface XtreamEpisode {
