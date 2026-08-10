@@ -18,6 +18,7 @@ export interface HorizontalCarouselProps {
   progressData?: Map<string, number>; // Optional: media_id -> progress percent
   isRecentlyWatched?: boolean;
   episodeData?: Map<string, { seasonNum?: number; episodeNum?: number; episodeTitle?: string }>; // For series only
+  onPlayItem?: (item: StoredMovie | StoredSeries, seasonNum?: number, episodeNum?: number, episodeTitle?: string) => void;
 }
 
 export function HorizontalCarousel({
@@ -33,6 +34,7 @@ export function HorizontalCarousel({
   progressData,
   isRecentlyWatched = false,
   episodeData,
+  onPlayItem,
 }: HorizontalCarouselProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -44,59 +46,45 @@ export function HorizontalCarousel({
   // Limit items for performance
   const displayItems = maxItems ? items.slice(0, maxItems) : items;
 
-  // Update scroll button visibility
+  // Check scroll bounds
   const updateScrollButtons = useCallback(() => {
     const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const { scrollLeft, scrollWidth, clientWidth } = container;
-    setCanScrollLeft(scrollLeft > 0);
-    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
+    if (container) {
+      setCanScrollLeft(container.scrollLeft > 0);
+      setCanScrollRight(
+        container.scrollLeft < container.scrollWidth - container.clientWidth - 1
+      );
+    }
   }, []);
 
+  // Update on items change or load
   useEffect(() => {
     updateScrollButtons();
-    window.addEventListener('resize', updateScrollButtons);
-    return () => window.removeEventListener('resize', updateScrollButtons);
-  }, [updateScrollButtons, items.length]);
+  }, [items, loading, updateScrollButtons]);
 
-  // Scroll by amount
-  const scroll = useCallback((direction: 'left' | 'right') => {
+  const scroll = (direction: 'left' | 'right') => {
     const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const scrollAmount = container.clientWidth * 0.75;
-    const targetScroll = direction === 'left'
-      ? container.scrollLeft - scrollAmount
-      : container.scrollLeft + scrollAmount;
-
-    container.scrollTo({
-      left: targetScroll,
-      behavior: 'smooth',
-    });
-  }, []);
-
-  // Keyboard navigation
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowLeft') {
-      scroll('left');
-    } else if (e.key === 'ArrowRight') {
-      scroll('right');
+    if (container) {
+      const scrollAmount = container.clientWidth * 0.75;
+      container.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
     }
-  }, [scroll]);
+  };
 
-  // Hidden carousels render a minimal placeholder for Virtuoso
-  if (hidden || (displayItems.length === 0 && !loading)) {
-    return <div className="carousel carousel--empty" aria-hidden="true" />;
+  // Don't render empty carousel (unless loading)
+  if (!loading && items.length === 0) {
+    return null;
   }
 
   return (
-    <section className="carousel" onKeyDown={handleKeyDown}>
+    <section className={`carousel${hidden ? ' carousel--hidden' : ''}`}>
       <div className="carousel__header">
         <h2 className="carousel__title">{title}</h2>
-        <div className="carousel__nav">
+        <div className="carousel__controls">
           <button
-            className="carousel__nav-btn"
+            className="carousel__arrow carousel__arrow--left"
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
             aria-label="Scroll left"
@@ -106,12 +94,12 @@ export function HorizontalCarousel({
             </svg>
           </button>
           <button
-            className="carousel__nav-btn"
+            className="carousel__arrow carousel__arrow--right"
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
             aria-label="Scroll right"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg viewBox="0 0 24 24" fill="currentColor" strokeWidth="2">
               <path d="M9 18l6-6-6-6" />
             </svg>
           </button>
@@ -151,6 +139,10 @@ export function HorizontalCarousel({
                   episodeNum={episodeInfo?.episodeNum}
                   episodeTitle={episodeInfo?.episodeTitle}
                   sourceName={sourceName}
+                  onPlayDirect={onPlayItem ? (clickedItem) => {
+                    const epInfo = episodeData?.get(type === 'movie' ? (clickedItem as StoredMovie).stream_id : (clickedItem as StoredSeries).series_id);
+                    onPlayItem(clickedItem, epInfo?.seasonNum, epInfo?.episodeNum, epInfo?.episodeTitle);
+                  } : undefined}
                 />
               );
             })

@@ -30,6 +30,7 @@ export interface RecentViewProps {
   loading: boolean;
   onItemClick: (item: StoredMovie | StoredSeries, seasonNum?: number, episodeNum?: number, episodeTitle?: string) => void;
   onRemove?: (item: StoredMovie | StoredSeries) => void;
+  onPlayItem?: (item: StoredMovie | StoredSeries, seasonNum?: number, episodeNum?: number, episodeTitle?: string) => void;
 }
 
 export function RecentView({
@@ -38,6 +39,7 @@ export function RecentView({
   loading,
   onItemClick,
   onRemove,
+  onPlayItem,
 }: RecentViewProps) {
   const virtuosoRef = useRef<VirtuosoGridHandle>(null);
   const [visibleRange, setVisibleRange] = useState({ startIndex: 0, endIndex: 0 });
@@ -119,9 +121,17 @@ export function RecentView({
         episodeNum={episodeData?.episodeNum}
         episodeTitle={episodeData?.episodeTitle}
         sourceName={sourceName}
+        onPlayDirect={onPlayItem ? (clickedItem) => {
+          onPlayItem(
+            clickedItem,
+            episodeData?.seasonNum,
+            episodeData?.episodeNum,
+            episodeData?.episodeTitle
+          );
+        } : undefined}
       />
     );
-  }, [rawItems, type, progressMap, episodeDataMap, vodShowSourceBadge, sourceNameMap, onItemClick, onRemove]);
+  }, [rawItems, type, progressMap, episodeDataMap, vodShowSourceBadge, sourceNameMap, onItemClick, onRemove, onPlayItem]);
 
   console.log('[RecentView] Render check:', { loading, itemsLength: items.length, rawItemsLength: rawItems.length });
 

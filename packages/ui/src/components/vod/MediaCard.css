@@ -110,6 +110,19 @@
   backdrop-filter: blur(4px);
 }
 
+.media-card__play-icon--playable {
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.media-card__play-icon--playable:hover {
+  transform: scale(1.18);
+  background: rgba(229, 9, 20, 0.95);
+  box-shadow: 0 4px 16px rgba(229, 9, 20, 0.5);
+  color: #ffffff;
+}
+
 .media-card__play-icon svg {
   width: 20px;
   height: 20px;

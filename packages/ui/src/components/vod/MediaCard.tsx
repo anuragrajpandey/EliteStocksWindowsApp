@@ -23,9 +23,10 @@ export interface MediaCardProps {
   // Optional style for dynamic sizing (e.g., marquee animation)
   style?: React.CSSProperties;
   sourceName?: string;
+  onPlayDirect?: (item: StoredMovie | StoredSeries) => void;
 }
 
-export const MediaCard = memo(function MediaCard({ item, type, onClick, onRemove, size = 'medium', progressPercent, isRecentlyWatched, seasonNum, episodeNum, episodeTitle, isFavorited, onToggleFavorite, style, sourceName }: MediaCardProps) {
+export const MediaCard = memo(function MediaCard({ item, type, onClick, onRemove, size = 'medium', progressPercent, isRecentlyWatched, seasonNum, episodeNum, episodeTitle, isFavorited, onToggleFavorite, style, sourceName, onPlayDirect }: MediaCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [titleOverflows, setTitleOverflows] = useState(false);
@@ -74,6 +75,12 @@ export const MediaCard = memo(function MediaCard({ item, type, onClick, onRemove
   const handleClick = useCallback(() => {
     onClick?.(item);
   }, [item, onClick]);
+
+  const handleDirectPlay = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onPlayDirect?.(item);
+  }, [item, onPlayDirect]);
 
   const handleRemove = useCallback((e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click
@@ -141,7 +148,12 @@ export const MediaCard = memo(function MediaCard({ item, type, onClick, onRemove
 
         {/* Hover overlay */}
         <div className="media-card__overlay">
-          <div className="media-card__play-icon">
+          <div
+            className={`media-card__play-icon${onPlayDirect ? ' media-card__play-icon--playable' : ''}`}
+            onClick={onPlayDirect ? handleDirectPlay : undefined}
+            title={onPlayDirect ? 'Play' : undefined}
+            role={onPlayDirect ? 'button' : undefined}
+          >
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M8 5v14l11-7z" />
             </svg>

@@ -277,15 +277,31 @@ class ScrobblerService {
     return { success: false, error: 'Authorization failed' };
   }
 
-  async refreshTraktToken(): Promise<void> {
+  private refreshingTraktPromise: Promise<boolean> | null = null;
+
+  async refreshTraktToken(force: boolean = false): Promise<boolean> {
+    if (this.refreshingTraktPromise) {
+      return await this.refreshingTraktPromise;
+    }
+
+    this.refreshingTraktPromise = this.doRefreshTraktToken(force).finally(() => {
+      this.refreshingTraktPromise = null;
+    });
+
+    return await this.refreshingTraktPromise;
+  }
+
+  private async doRefreshTraktToken(force: boolean): Promise<boolean> {
     const settings = await this.getSettings();
     const refreshToken = settings.traktRefreshToken;
     const expiresAt = settings.traktTokenExpiresAt;
 
-    if (!refreshToken || !expiresAt) return;
+    if (!refreshToken) return false;
 
-    // Refresh if expiring within 48 hours
-    if (expiresAt - Date.now() > 2 * 24 * 60 * 60 * 1000) return;
+    // Refresh if forced OR if expiring within 48 hours
+    if (!force && expiresAt && (expiresAt - Date.now() > 2 * 24 * 60 * 60 * 1000)) {
+      return true;
+    }
 
     const { clientId, clientSecret } = getTraktCredentials();
 
@@ -315,12 +331,51 @@ class ScrobblerService {
           traktTokenExpiresAt: Date.now() + (data.expires_in * 1000),
         });
         logInfo('Trakt token refreshed successfully.');
+        return true;
       } else {
         logWarn('Trakt refresh request failed with status:', response.status);
+        if (response.status === 400 || response.status === 401 || response.status === 403) {
+          logWarn('Trakt refresh token is invalid or revoked. Logging out Trakt session.');
+          await this.logoutTrakt();
+        }
+        return false;
       }
     } catch (e) {
       logError('Failed to refresh Trakt token:', e);
+      return false;
     }
+  }
+
+  private async makeTraktAuthorizedRequest(url: string, options: any = {}): Promise<any> {
+    const settings = await this.getSettings();
+    if (!settings.traktEnabled || !settings.traktAccessToken) return null;
+
+    const { clientId } = getTraktCredentials();
+    const headers = {
+      'Authorization': `Bearer ${settings.traktAccessToken}`,
+      'trakt-api-version': '2',
+      'trakt-api-key': clientId,
+      'User-Agent': 'ynotv/1.0',
+      ...options.headers,
+    };
+
+    let response = await makeRequest(url, { ...options, headers });
+
+    // Handle 401 Unauthorized by attempting a forced token refresh and retrying once
+    if (response.status === 401) {
+      logWarn('Trakt API returned 401 Unauthorized. Attempting automatic token refresh...');
+      const refreshed = await this.refreshTraktToken(true);
+      if (refreshed) {
+        const newSettings = await this.getSettings();
+        if (newSettings.traktAccessToken) {
+          headers['Authorization'] = `Bearer ${newSettings.traktAccessToken}`;
+          logInfo('Retrying Trakt API request with refreshed token...');
+          response = await makeRequest(url, { ...options, headers });
+        }
+      }
+    }
+
+    return response;
   }
 
   async logoutTrakt(): Promise<void> {
@@ -488,13 +543,6 @@ class ScrobblerService {
     if (!settings.traktEnabled || !settings.traktScrobbleEnabled || !settings.traktAccessToken) return;
 
     try {
-      const { clientId } = getTraktCredentials();
-      const headers = {
-        'Authorization': `Bearer ${settings.traktAccessToken}`,
-        'trakt-api-version': '2',
-        'trakt-api-key': clientId,
-      };
-
       const payload: any = {
         progress: Math.min(100, Math.max(0, media.progressPercent)),
       };
@@ -522,11 +570,12 @@ class ScrobblerService {
 
       const url = `${TRAKT_API_URL}/scrobble/${action}`;
       logInfo(`Sending Trakt Scrobble (${action}) request...`);
-      const response = await makeRequest(url, {
+      const response = await this.makeTraktAuthorizedRequest(url, {
         method: 'POST',
-        headers,
         body: payload,
       });
+
+      if (!response) return;
 
       const responseText = await response.text().catch(() => '');
       let responseBody: any = null;
@@ -543,7 +592,7 @@ class ScrobblerService {
       } else {
         logInfo(`Trakt Scrobble (${action}) accepted:`, responseBody);
         if (action === 'stop') {
-          await this.logTraktPlaybackProgress(settings.traktAccessToken, clientId, media);
+          await this.logTraktPlaybackProgress(media);
         }
       }
     } catch (e) {
@@ -668,19 +717,14 @@ class ScrobblerService {
     }
   }
 
-  private async logTraktPlaybackProgress(token: string, clientId: string, media: PlaybackMediaInfo): Promise<void> {
+  private async logTraktPlaybackProgress(media: PlaybackMediaInfo): Promise<void> {
     try {
-      const response = await makeRequest(`${TRAKT_API_URL}/sync/playback`, {
+      const response = await this.makeTraktAuthorizedRequest(`${TRAKT_API_URL}/sync/playback`, {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'trakt-api-version': '2',
-          'trakt-api-key': clientId,
-        },
       });
 
-      if (!response.ok) {
-        logWarn('Trakt playback verification failed with status:', response.status);
+      if (!response || !response.ok) {
+        logWarn('Trakt playback verification failed with status:', response?.status);
         return;
       }
 
@@ -737,24 +781,18 @@ class ScrobblerService {
     const settings = await this.getSettings();
 
     if (settings.traktEnabled && settings.traktSyncEnabled && settings.traktAccessToken) {
-      const { clientId } = getTraktCredentials();
-      await this.syncTraktPlaybackProgress(settings.traktAccessToken, clientId);
+      await this.syncTraktPlaybackProgress();
     }
   }
 
-  private async syncTraktPlaybackProgress(token: string, clientId: string): Promise<void> {
+  private async syncTraktPlaybackProgress(): Promise<void> {
     try {
       logInfo('Syncing active continue-watching sessions from Trakt...');
-      const response = await makeRequest(`${TRAKT_API_URL}/sync/playback`, {
+      const response = await this.makeTraktAuthorizedRequest(`${TRAKT_API_URL}/sync/playback`, {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'trakt-api-version': '2',
-          'trakt-api-key': clientId,
-        },
       });
 
-      if (response.ok) {
+      if (response && response.ok) {
         const items = await response.json();
         if (Array.isArray(items)) {
           for (const item of items) {
@@ -806,21 +844,14 @@ class ScrobblerService {
     if (!settings.traktEnabled || !settings.traktAccessToken) return { items: [], hasMore: false };
 
     try {
-      const { clientId } = getTraktCredentials();
-      const headers = {
-        'Authorization': `Bearer ${settings.traktAccessToken}`,
-        'trakt-api-version': '2',
-        'trakt-api-key': clientId,
-      };
-
       const baseUrl = TRAKT_CATALOG_URLS[type];
       if (!baseUrl) return { items: [], hasMore: false };
       const url = `${baseUrl}&page=${page}`;
 
       logInfo(`Fetching Trakt ${type} catalog page ${page}...`);
-      const response = await makeRequest(url, { method: 'GET', headers });
+      const response = await this.makeTraktAuthorizedRequest(url, { method: 'GET' });
 
-      if (response.ok) {
+      if (response && response.ok) {
         let rawItems = await response.json();
         if (Array.isArray(rawItems)) {
           // For history, deduplicate shows keeping only the latest watched episode
@@ -936,18 +967,11 @@ class ScrobblerService {
     if (!settings.traktEnabled || !settings.traktAccessToken) return [];
 
     try {
-      const { clientId } = getTraktCredentials();
-      const headers = {
-        'Authorization': `Bearer ${settings.traktAccessToken}`,
-        'trakt-api-version': '2',
-        'trakt-api-key': clientId,
-      };
-
       const url = `${TRAKT_API_URL}/users/me/lists`;
       logInfo('Fetching Trakt user lists...');
-      const response = await makeRequest(url, { method: 'GET', headers });
+      const response = await this.makeTraktAuthorizedRequest(url, { method: 'GET' });
 
-      if (response.ok) {
+      if (response && response.ok) {
         const lists = await response.json();
         if (Array.isArray(lists)) {
           return lists.map((list: any) => ({
@@ -972,18 +996,11 @@ class ScrobblerService {
     if (!settings.traktEnabled || !settings.traktAccessToken) return { items: [], hasMore: false };
 
     try {
-      const { clientId } = getTraktCredentials();
-      const headers = {
-        'Authorization': `Bearer ${settings.traktAccessToken}`,
-        'trakt-api-version': '2',
-        'trakt-api-key': clientId,
-      };
-
       const url = `${TRAKT_API_URL}/users/me/lists/${listId}/items?limit=${TRAKT_PAGE_LIMIT}&page=${page}`;
       logInfo(`Fetching Trakt list catalog ${listId} page ${page}...`);
-      const response = await makeRequest(url, { method: 'GET', headers });
+      const response = await this.makeTraktAuthorizedRequest(url, { method: 'GET' });
 
-      if (response.ok) {
+      if (response && response.ok) {
         const rawItems = await response.json();
         if (Array.isArray(rawItems)) {
           const items = rawItems.map((item: any) => {

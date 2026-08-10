@@ -43,8 +43,8 @@ import {
   useSeriesSelectedSeason,
   useSetSeriesSelectedSeason,
 } from '../stores/uiStore';
-import type { StoredMovie, StoredSeries } from '../db';
-import { removeFromRecentlyWatched, recordVodWatch, db } from '../db';
+import type { StoredMovie, StoredSeries, StoredEpisode } from '../db';
+import { removeFromRecentlyWatched, recordVodWatch, recordEpisodeWatch, getEpisodeProgress, type EpisodeWatchHistory, db } from '../db';
 import { type MediaItem, type VodType, type VodPlayInfo } from '../types/media';
 import { type VodPlayerMode } from './vod/SplitPlayButton';
 import './VodPage.css';
@@ -70,6 +70,7 @@ interface HomeVirtuosoContext {
   onItemClick: (item: MediaItem) => void;
   onHeroPlay: (item: MediaItem, targetMode?: VodPlayerMode) => void;
   onRemoveFromRecentlyWatched?: (item: MediaItem) => void;
+  onPlayItem?: (item: MediaItem, seasonNum?: number, episodeNum?: number, episodeTitle?: string) => void;
   enabledStreamingServices: string[];
   onServiceClick: (service: string) => void;
   vodPlayerMode?: VodPlayerMode;
@@ -108,6 +109,7 @@ const CarouselRowContent = (
     type, 
     onItemClick, 
     onRemoveFromRecentlyWatched,
+    onPlayItem,
     enabledStreamingServices,
     onServiceClick
   } = context;
@@ -132,6 +134,7 @@ const CarouselRowContent = (
       progressData={row.progressData}
       isRecentlyWatched={row.isRecentlyWatched}
       episodeData={row.episodeData}
+      onPlayItem={onPlayItem}
     />
   );
 };
@@ -564,6 +567,133 @@ export function VodPage({ type, onPlay, onClose, vodPlayerMode, onSelectVodPlaye
     }
   }, [type, handlePlay]);
 
+  // Direct play from card play button (bypasses detail page)
+  const handleDirectPlayItem = useCallback(async (
+    item: MediaItem,
+    seasonNum?: number,
+    episodeNum?: number,
+    episodeTitle?: string,
+    targetMode?: VodPlayerMode
+  ) => {
+    if (item.source_id === 'tmdb' || item.source_id === 'cinemeta') {
+      handleRecentItemClick(item, seasonNum, episodeNum, episodeTitle);
+      return;
+    }
+
+    if (type === 'movie') {
+      const movie = item as StoredMovie;
+      void recordVodWatch(
+        movie.stream_id,
+        'movie',
+        movie.source_id,
+        movie.title || movie.name || 'Unknown',
+        movie.stream_icon
+      ).catch(console.error);
+
+      handlePlay({
+        url: movie.direct_url,
+        title: movie.title || movie.name,
+        year: movie.year || movie.release_date?.slice(0, 4),
+        plot: movie.plot,
+        type: 'movie',
+        source_id: movie.source_id,
+        mediaId: movie.stream_id,
+        tmdbId: movie.tmdb_id,
+        imdbId: movie.imdb_id,
+      }, targetMode);
+    } else {
+      const series = item as StoredSeries;
+      try {
+        const dbInstance = await (db as any).dbPromise;
+        const episodes: StoredEpisode[] = await dbInstance.select(
+          'SELECT * FROM vodEpisodes WHERE series_id = ? ORDER BY season_num, episode_num',
+          [series.series_id]
+        );
+
+        if (!episodes || episodes.length === 0) {
+          handleRecentItemClick(series, seasonNum, episodeNum, episodeTitle);
+          return;
+        }
+
+        const epHistory: EpisodeWatchHistory[] = await dbInstance.select(
+          'SELECT * FROM episode_history WHERE series_id = ?',
+          [series.series_id]
+        );
+        const epHistMap = new Map(epHistory.map(eh => [eh.episode_id, eh]));
+
+        let targetEp: StoredEpisode | undefined;
+        if (seasonNum !== undefined && episodeNum !== undefined) {
+          targetEp = episodes.find(e => e.season_num === seasonNum && e.episode_num === episodeNum);
+        }
+
+        if (!targetEp) {
+          for (const ep of episodes) {
+            const eh = epHistMap.get(ep.id);
+            const dur = eh?.total_duration ?? 0;
+            const pos = eh?.progress_seconds ?? 0;
+            const isCompleted = eh ? (eh.completed === 1 || (dur > 0 && pos / dur >= 0.90)) : false;
+            if (!isCompleted) {
+              targetEp = ep;
+              break;
+            }
+          }
+        }
+
+        if (!targetEp) {
+          targetEp = episodes[0];
+        }
+
+        const progress = epHistMap.get(targetEp.id);
+        const resumePosition = progress && (progress.progress_seconds ?? 0) > 10 ? (progress.progress_seconds ?? 0) : 0;
+        const epDuration = targetEp.duration || (targetEp.info?.duration ? Number(targetEp.info.duration) : 0) || 0;
+
+        void recordVodWatch(
+          series.series_id,
+          'series',
+          series.source_id,
+          series.title || series.name || 'Unknown',
+          series.cover || (series as any).stream_icon,
+          targetEp.season_num,
+          targetEp.episode_num,
+          targetEp.title || `Episode ${targetEp.episode_num}`
+        ).catch(console.error);
+
+        void recordEpisodeWatch(
+          targetEp.id,
+          series.series_id,
+          series.source_id,
+          targetEp.season_num,
+          targetEp.episode_num,
+          targetEp.title || `Episode ${targetEp.episode_num}`,
+          resumePosition,
+          epDuration
+        ).catch(console.error);
+
+        handlePlay({
+          url: targetEp.direct_url,
+          title: series.title || series.name,
+          year: series.year || series.release_date?.slice(0, 4),
+          plot: targetEp.plot || series.plot,
+          type: 'series',
+          episodeInfo: `S${targetEp.season_num} E${targetEp.episode_num}${targetEp.title ? ` · ${targetEp.title}` : ''}`,
+          source_id: series.source_id,
+          mediaId: `${series.series_id}_ep_${targetEp.id}`,
+          seriesId: series.series_id,
+          seasonNum: targetEp.season_num,
+          episodeNum: targetEp.episode_num,
+          episodeId: targetEp.id,
+          posterUrl: series.cover || (series as any).stream_icon || (series as any).poster || undefined,
+          backdropUrl: series.backdrop_path || undefined,
+          tmdbId: series.tmdb_id,
+          imdbId: series.imdb_id,
+        }, targetMode);
+      } catch (err) {
+        console.error('[VodPage] Direct play series episode failed:', err);
+        handleRecentItemClick(series, seasonNum, episodeNum, episodeTitle);
+      }
+    }
+  }, [type, handlePlay, handleRecentItemClick]);
+
   // Memoized context for Virtuoso to prevent unnecessary re-renders
   const homeVirtuosoContext = useMemo((): HomeVirtuosoContext => ({
     type,
@@ -573,11 +703,12 @@ export function VodPage({ type, onPlay, onClose, vodPlayerMode, onSelectVodPlaye
     onItemClick: handleItemClick,
     onHeroPlay: handleHeroPlay,
     onRemoveFromRecentlyWatched: handleRemoveFromRecentlyWatched,
+    onPlayItem: handleDirectPlayItem,
     enabledStreamingServices,
     onServiceClick: setSelectedService,
     vodPlayerMode,
     onSelectVodPlayerMode,
-  }), [type, featuredItems, heroLoading, handleItemClick, handleHeroPlay, handleRemoveFromRecentlyWatched, enabledStreamingServices, vodPlayerMode, onSelectVodPlayerMode]);
+  }), [type, featuredItems, heroLoading, handleItemClick, handleHeroPlay, handleRemoveFromRecentlyWatched, handleDirectPlayItem, enabledStreamingServices, vodPlayerMode, onSelectVodPlayerMode]);
 
   // Handle category selection - also close detail view, clear search and streaming service view
   const handleCategorySelect = useCallback((id: string | null) => {
@@ -732,6 +863,7 @@ export function VodPage({ type, onPlay, onClose, vodPlayerMode, onSelectVodPlaye
             loading={recentlyWatchedLoading}
             onItemClick={handleRecentItemClick}
             onRemove={handleRemoveFromRecentlyWatched}
+            onPlayItem={handleDirectPlayItem}
           />
         ) : selectedCategoryId === 'favorites' ? (
           <FavoritesView
