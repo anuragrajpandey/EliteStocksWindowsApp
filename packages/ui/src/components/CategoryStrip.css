@@ -766,7 +766,9 @@
 }
 
 .category-item.nested.is-pinned {
-  position: sticky !important;
+  /* position:sticky is now applied to the .sortable-sidebar-item wrapper div
+     via inline style so it has the full scroll container as its containing block.
+     Keeping it here on the inner button would trap sticky within the ~38px wrapper. */
   z-index: 90;
   background: rgba(20, 20, 25, 0.98);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);

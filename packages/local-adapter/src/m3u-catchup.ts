@@ -22,21 +22,6 @@ function pad(num: number, len: number = 2): string {
 }
 
 /**
- * Format a Date object to YYYYMMDDTHHMMSS string in UTC
- */
-function formatYmdTHMS(date: Date): string {
-  return (
-    date.getUTCFullYear().toString() +
-    pad(date.getUTCMonth() + 1) +
-    pad(date.getUTCDate()) +
-    'T' +
-    pad(date.getUTCHours()) +
-    pad(date.getUTCMinutes()) +
-    pad(date.getUTCSeconds())
-  );
-}
-
-/**
  * Build a resolved M3U catchup stream URL
  */
 export function buildM3uCatchupUrl(options: M3uCatchupOptions): string {
@@ -81,30 +66,39 @@ export function buildM3uCatchupUrl(options: M3uCatchupOptions): string {
     return `${directUrl}${sep}start=${startUtcSeconds}`;
   }
 
-  // Replace placeholders in template
+  // Replace placeholders in template.
+  // NOTE: dollar-prefixed `${...}` forms are replaced BEFORE their bare
+  // `{...}` counterparts so the `$` prefix is never left behind.
   let result = template;
 
+  // Program start / end time as Unix epoch seconds (standard catchup format).
+  // Playlists that need a date-based value instead can build one from the
+  // date component tokens below (e.g. `{Y}{m}{d}T{H}{M}{S}`).
+  result = result.replace(/\$\{start\}/gi, String(startUtcSeconds));
+  result = result.replace(/\{start\}/gi, String(startUtcSeconds));
+  result = result.replace(/\$\{end\}/gi, String(endUtcSeconds));
+  result = result.replace(/\{end\}/gi, String(endUtcSeconds));
+
   // Epoch timestamps
-  result = result.replace(/\{utc\}/gi, String(startUtcSeconds));
   result = result.replace(/\$\{utc\}/gi, String(startUtcSeconds));
-  result = result.replace(/\{utcend\}|\{utc_end\}|\{end_utc\}/gi, String(endUtcSeconds));
+  result = result.replace(/\{utc\}/gi, String(startUtcSeconds));
   result = result.replace(/\$\{utcend\}|\$\{utc_end\}|\$\{end_utc\}/gi, String(endUtcSeconds));
+  result = result.replace(/\{utcend\}|\{utc_end\}|\{end_utc\}/gi, String(endUtcSeconds));
 
   // Program duration
-  result = result.replace(/\{duration\}/gi, String(durationSeconds));
   result = result.replace(/\$\{duration\}/gi, String(durationSeconds));
+  result = result.replace(/\{duration\}/gi, String(durationSeconds));
+  result = result.replace(/\$\{duration_m\}|\$\{duration_min\}/gi, String(durationMinutes));
   result = result.replace(/\{duration_m\}|\{duration_min\}/gi, String(durationMinutes));
 
   // Time shift offset
   result = result.replace(/\{offset\}/gi, String(offsetSeconds));
 
   // EPG / Channel Identifier
-  result = result.replace(/\{catchup-id\}/gi, encodeURIComponent(epgChannelId));
   result = result.replace(/\$\{catchup-id\}/gi, encodeURIComponent(epgChannelId));
+  result = result.replace(/\{catchup-id\}/gi, encodeURIComponent(epgChannelId));
 
-  // ISO / Formatted Date Tokens (Start Time)
-  result = result.replace(/\{start\}/gi, formatYmdTHMS(startDate));
-  result = result.replace(/\$\{start\}/gi, formatYmdTHMS(startDate));
+  // ISO / Formatted Date component Tokens (Start Time)
   result = result.replace(/\{Y\}/g, startDate.getUTCFullYear().toString());
   result = result.replace(/\{m\}/g, pad(startDate.getUTCMonth() + 1));
   result = result.replace(/\{d\}/g, pad(startDate.getUTCDate()));
@@ -112,9 +106,7 @@ export function buildM3uCatchupUrl(options: M3uCatchupOptions): string {
   result = result.replace(/\{M\}/g, pad(startDate.getUTCMinutes()));
   result = result.replace(/\{S\}/g, pad(startDate.getUTCSeconds()));
 
-  // End Time Tokens
-  result = result.replace(/\{end\}/gi, formatYmdTHMS(endDate));
-  result = result.replace(/\$\{end\}/gi, formatYmdTHMS(endDate));
+  // End Time component Tokens
   result = result.replace(/\{EY\}/g, endDate.getUTCFullYear().toString());
   result = result.replace(/\{Em\}/g, pad(endDate.getUTCMonth() + 1));
   result = result.replace(/\{Ed\}/g, pad(endDate.getUTCDate()));

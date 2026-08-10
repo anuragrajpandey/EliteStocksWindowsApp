@@ -2520,7 +2520,204 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 .modern-ui-v3 .category-source-content .category-item.nested.is-pinned {
+  /* position:sticky is now on the .sortable-sidebar-item wrapper div (inline style).
+     Do not repeat it here or it would sticky the button within its 38px wrapper. */
+  z-index: 99 !important;
+  background: rgba(12, 14, 24, 0.98) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  margin: 0 !important;
+  height: 38px !important;
+  box-sizing: border-box !important;
+  padding: 10px 16px !important;
+}
+
+.modern-ui-v3 .category-source-content .category-item.nested.is-pinned.selected {
+  background: color-mix(in srgb, var(--accent-primary, #e50914) 15%, rgb(12, 14, 24)) !important;
+}
+
+.modern-ui-v3 .category-folder-header {
+  width: 100% !important;
+  height: 34px !important;
+  box-sizing: border-box !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: none !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+.modern-ui-v3 .category-folder-header:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #fff !important;
+}
+
+.modern-ui-v3 .category-folder-header.is-pinned {
   position: sticky !important;
+  z-index: 96 !important;
+  background: rgba(12, 14, 24, 0.98) !important;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.25) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.modern-ui-v3 .category-folder-header.is-pinned:hover {
+  background: rgba(25, 27, 44, 0.98) !important;
+  border-radius: 0 !important;
+  margin: 2px 8px !important;
+  width: calc(100% - 16px) !important;
+  box-sizing: border-box !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: 1px solid transparent !important;
+  border-bottom: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--text-secondary, #888) !important;
+  padding: 10px 12px !important;
+}
+
+.modern-ui-v3 .category-strip-top .category-list-bar:not(.custom-group-item):hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--text-primary, #fff) !important;
+  transform: none !important;
+  border-color: transparent !important;
+}
+
+.modern-ui-v3 .category-strip-top .category-list-bar:not(.custom-group-item).selected {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-primary, #ffffff) !important;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
+  position: relative !important;
+  padding-left: 16px !important;
+}
+
+.modern-ui-v3 .category-strip-top .category-list-bar:not(.custom-group-item).selected::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 3px !important;
+  height: 50% !important;
+  background: var(--accent-primary, #e50914) !important;
+  border-radius: 0 2px 2px 0 !important;
+  box-shadow: 0 0 8px var(--accent-primary, #e50914) !important;
+}
+
+.modern-ui-v3 .category-strip-top .category-list-bar:not(.custom-group-item).selected .category-count {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-primary, #fff) !important;
+}
+
+/* 8a2. LiveTV Custom Groups match the Top Categories clean look in V3 */
+.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item {
+  border-radius: 0 !important;
+  margin: 2px 8px !important;
+  width: calc(100% - 16px) !important;
+  box-sizing: border-box !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: 1px solid transparent !important;
+  border-bottom: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--text-secondary, #888) !important;
+  padding: 10px 12px !important;
+}
+
+.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--text-primary, #fff) !important;
+  transform: none !important;
+  border-color: transparent !important;
+}
+
+.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item.selected {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-primary, #ffffff) !important;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
+  position: relative !important;
+  padding-left: 16px !important;
+}
+
+.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item.selected::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 3px !important;
+  height: 50% !important;
+  background: var(--accent-primary, #e50914) !important;
+  border-radius: 0 2px 2px 0 !important;
+  box-shadow: 0 0 8px var(--accent-primary, #e50914) !important;
+}
+
+.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item.selected .category-count {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-primary, #fff) !important;
+}
+
+/* 8b. LiveTV source category items match VOD sidebar styling in V3 */
+.modern-ui-v3 .category-source-content .category-item.nested {
+  border-radius: 0 !important;
+  margin: 2px 0 !important;
+  width: 100% !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: 1px solid transparent !important;
+  border-bottom: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--text-secondary, #888) !important;
+  padding: 10px 16px !important;
+  font-size: var(--category-font-size, 13px) !important;
+}
+
+.modern-ui-v3 .category-source-content .category-item.nested:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--text-primary, #fff) !important;
+  transform: none !important;
+  border-color: transparent !important;
+}
+
+.modern-ui-v3 .category-source-content .category-item.nested.selected {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-primary, #ffffff) !important;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
+  position: relative !important;
+  padding-left: 20px !important;
+}
+
+.modern-ui-v3 .category-source-content .category-item.nested.selected::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 3px !important;
+  height: 50% !important;
+  background: var(--accent-primary, #e50914) !important;
+  border-radius: 0 2px 2px 0 !important;
+  box-shadow: 0 0 8px var(--accent-primary, #e50914) !important;
+}
+
+.modern-ui-v3 .category-source-content .category-item.nested.selected .category-count {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-primary, #fff) !important;
+}
+
+.modern-ui-v3 .category-source-content .category-item.nested.is-pinned {
+  /* position:sticky is now on the .sortable-sidebar-item wrapper div (inline style).
+     Do not repeat it here or it would sticky the button within its 38px wrapper. */
   z-index: 99 !important;
   background: rgba(12, 14, 24, 0.98) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
@@ -2569,11 +2766,6 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
   z-index: 95 !important;
   background: rgba(12, 14, 24, 0.98) !important;
   border-bottom: 1px solid rgba(0, 212, 255, 0.2) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35) !important;
-  backdrop-filter: blur(12px) !important;
-}
-
-.modern-ui-v3 .category-folder-group.is-expanded .category-folder-header:hover {
   background: rgba(25, 27, 44, 0.98) !important;
   color: #fff !important;
 }

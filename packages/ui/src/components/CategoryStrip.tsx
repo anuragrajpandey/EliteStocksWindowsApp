@@ -44,14 +44,22 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import './CategoryStrip.css';
 
-function SortableSidebarItem({ id, children, disabled, className = '' }: { id: string; children: React.ReactNode; disabled?: boolean; className?: string }) {
+function SortableSidebarItem({ id, children, disabled, className = '', stickyStyle }: { id: string; children: React.ReactNode; disabled?: boolean; className?: string; stickyStyle?: React.CSSProperties }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, disabled });
+  // IMPORTANT: position:sticky must live on THIS wrapper div, not on the inner
+  // child element. The wrapper is the block containing block — if sticky is set
+  // on the child instead, the child's scroll range is limited to the wrapper
+  // height (~38px) and it never actually sticks within the scroll container.
   const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
+    // Only apply transform while actively dragging. A static transform creates
+    // a new CSS containing block that would trap sticky positioning.
+    transform: isDragging ? CSS.Transform.toString(transform) : undefined,
     transition,
     opacity: isDragging ? 0.4 : 1,
     zIndex: isDragging ? 99 : undefined,
     touchAction: 'none',
+    // Merge sticky positioning when provided (pinned categories)
+    ...stickyStyle,
   };
   return (
     <div
@@ -1816,17 +1824,23 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
 
                             const renderCatItem = (catItem: UnifiedSidebarCat, isFolderChild: boolean) => {
                               let itemContent: React.ReactNode = null;
+                              let wrapperStickyStyle: React.CSSProperties | undefined;
                               if (catItem.type === 'native' && catItem.nativeCat) {
                                 const category = catItem.nativeCat;
                                 const isPinned = pinnedCategories.includes(`${group.sourceId}:${category.category_id}`);
-                                const itemStyle = isPinned ? { position: 'sticky', top: takePinTop(40, 38), zIndex: isFolderChild ? 90 : 99 } as React.CSSProperties : undefined;
+                                // Sticky must be on the SortableSidebarItem wrapper div (not the inner
+                                // button) — the wrapper is the containing block. If sticky were set on
+                                // the inner button, it would be confined to the wrapper's ~38px height
+                                // and could never actually stick while scrolling.
+                                if (isPinned) {
+                                  wrapperStickyStyle = { position: 'sticky', top: takePinTop(40, 38), zIndex: isFolderChild ? 90 : 99 };
+                                }
                                 itemContent = (
                                   <button
                                     key={category.category_id}
                                     className={`category-item nested ${isFolderChild ? 'folder-nested' : ''} ${selectedCategoryId === category.category_id ? 'selected' : ''} ${isPinned ? 'is-pinned' : ''}`}
                                     onClick={() => onSelectCategory(category.category_id)}
                                     onContextMenu={(e) => handleCategoryContextMenu(e, category.category_id, category.alias || category.category_name, group.sourceId, sources[group.sourceId] || 'Source')}
-                                    style={itemStyle}
                                   >
                                     <div className="nested-category-wrapper">
                                       {isPinned && (
@@ -1844,7 +1858,9 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                               } else if (catItem.type === 'link' && catItem.customLink) {
                                 const link = catItem.customLink;
                                 const isPinned = pinnedCategories.includes(`${group.sourceId}:link:${link.id}`);
-                                const itemStyle = isPinned ? { position: 'sticky', top: takePinTop(40, 38) } as React.CSSProperties : undefined;
+                                if (isPinned) {
+                                  wrapperStickyStyle = { position: 'sticky', top: takePinTop(40, 38), zIndex: isFolderChild ? 90 : 99 };
+                                }
                                 itemContent = (
                                   <PlaylistCategoryLinkItem
                                     key={catItem.id}
@@ -1855,13 +1871,12 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                                     channelCount={catItem.count}
                                     isPinned={isPinned}
                                     onContextMenu={(e) => handleCategoryContextMenu(e, `link:${link.id}`, catItem.name, group.sourceId, sources[group.sourceId] || 'Source')}
-                                    style={itemStyle}
                                   />
                                 );
                               }
                               if (!itemContent) return null;
                               return (
-                                <SortableSidebarItem key={catItem.id} id={catItem.id} disabled={!isDragActive}>
+                                <SortableSidebarItem key={catItem.id} id={catItem.id} disabled={!isDragActive} stickyStyle={wrapperStickyStyle}>
                                   {itemContent}
                                 </SortableSidebarItem>
                               );
@@ -2056,11 +2071,14 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                           const count = nativeCount + manualCount;
                           const name = link.custom_name || (categoryNamesMap.get(link.category_id) || link.category_id);
                           const isPinned = pinnedCategories.includes(`${playlist.playlist_id}:link:${link.id}`);
-                          const itemStyle: React.CSSProperties | undefined = isFolderChild
-                            ? (isPinned ? { position: 'sticky', top: takePinTop(40, 38), zIndex: 90, paddingLeft: '32px' } : { paddingLeft: '32px' })
-                            : (isPinned ? { position: 'sticky', top: takePinTop(40, 38), zIndex: 99 } : undefined);
+                          // Sticky must live on the wrapper div, not the inner component.
+                          const wrapperStickyStyle: React.CSSProperties | undefined = isPinned
+                            ? { position: 'sticky', top: takePinTop(40, 38), zIndex: isFolderChild ? 90 : 99 }
+                            : undefined;
+                          // paddingLeft only affects the inner item's visual indent, not stickiness.
+                          const innerStyle: React.CSSProperties | undefined = isFolderChild ? { paddingLeft: '32px' } : undefined;
                           return (
-                            <SortableSidebarItem key={`link:${link.id}`} id={`link:${link.id}`} disabled={!isDragActive}>
+                            <SortableSidebarItem key={`link:${link.id}`} id={`link:${link.id}`} disabled={!isDragActive} stickyStyle={wrapperStickyStyle}>
                               <PlaylistCategoryLinkItem
                                 key={link.id}
                                 link={link}
@@ -2070,7 +2088,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                                 channelCount={count}
                                 isPinned={isPinned}
                                 onContextMenu={(e) => handleCategoryContextMenu(e, `link:${link.id}`, name, playlist.playlist_id, playlist.name)}
-                                style={itemStyle}
+                                style={innerStyle}
                               />
                             </SortableSidebarItem>
                           );

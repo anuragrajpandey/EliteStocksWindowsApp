@@ -88,7 +88,7 @@ export interface Channel {
   provider_order?: number; // Position in provider response / M3U file (0-based)
   xtream_stream_id?: string; // Xtream stream_id extracted from M3U URL (for catchup)
   catchup_type?: string;     // M3U catchup type (e.g. "default", "append", "flussonic", "shift")
-  catchup_source?: string;   // M3U catchup source template URL (e.g. "http://...?start={utc}")
+  catchup_source?: string;   // M3U catchup source template URL (e.g. "http://.../replay.m3u8&start=${start}")
   catchup_days?: number;     // Number of catchup days available
 }
 

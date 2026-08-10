@@ -33,6 +33,19 @@ https://akariko-bck1.sankuria.sbs/stream/jp/fuji_tv/stream-output.m3u8?mode=hls
     expect(url).toBe('https://akariko-bck1.sankuria.sbs/stream/jp/fuji_tv/replay.m3u8?start=1750000000');
   });
 
+  it('should resolve ${start} placeholder as Unix epoch seconds', () => {
+    const startTimeMs = 1750000000000; // 2025-06-15T12:06:40.000Z
+    const url = buildM3uCatchupUrl({
+      catchupSource: 'https://example.com/replay.m3u8&start=${start}',
+      catchupType: 'default',
+      directUrl: 'https://example.com/live.m3u8?token=abc',
+      startTimeMs,
+      durationMinutes: 60,
+    });
+
+    expect(url).toBe('https://example.com/replay.m3u8&start=1750000000');
+  });
+
   it('should resolve catchup-source template with date specifiers ({Y}, {m}, {d}, {H}, {M}, {S})', () => {
     // 2026-07-26T12:30:00.000Z
     const startTimeMs = Date.UTC(2026, 6, 26, 12, 30, 0);
