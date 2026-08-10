@@ -269,7 +269,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                     <div className="epg-tooltip">
                       <span className="epg-tooltip-icon">?</span>
                       <div className="epg-tooltip-content">
-                        When enabled, source categories will be collapsed by default when the LiveTV Categories view loads.
+                        When enabled, source categories will be collapsed by default when the LiveTV and VOD Categories views load.
                       </div>
                     </div>
                   </span>

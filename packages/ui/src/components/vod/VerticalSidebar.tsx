@@ -8,7 +8,7 @@
  * - Back button
  */
 
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
 import './VerticalSidebar.css';
 
 // Chevron Icon for expand/collapse
@@ -104,15 +104,20 @@ export function VerticalSidebar({
     const [sources, setSources] = useState<Record<string, string>>({});
     const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
     const [isV3, setIsV3] = useState(false);
+    const isFirstLoad = useRef(true);
+    const prevSelectedIdRef = useRef(selectedId);
 
     useEffect(() => {
         setIsV3(document.documentElement.classList.contains('modern-ui-v3'));
     }, []);
 
-    // Fetch sources to resolve names and initialize expanded state
+    // Fetch sources to resolve names and initialize expanded state according to user setting
     useEffect(() => {
         async function fetchSources() {
             if (window.storage) {
+                const settingsResult = await window.storage.getSettings();
+                const collapseOnStartup = settingsResult.data?.collapseSourceCategoriesOnStartup ?? false;
+
                 const result = await window.storage.getSources();
                 if (result.data) {
                     const data = result.data;
@@ -122,12 +127,17 @@ export function VerticalSidebar({
                     }, {});
                     setSources(sourceMap);
 
-                    // Initialize expanded state for sources
+                    if (collapseOnStartup && isFirstLoad.current) {
+                        setExpandedSources({});
+                    }
+                    isFirstLoad.current = false;
+
+                    // Initialize expanded state for sources (collapsed if collapseOnStartup is true)
                     setExpandedSources(prev => {
                         const next = { ...prev };
                         data.forEach((s: any) => {
                             if (next[s.id] === undefined) {
-                                next[s.id] = true; // default expanded
+                                next[s.id] = !collapseOnStartup;
                             }
                         });
                         return next;
@@ -137,6 +147,20 @@ export function VerticalSidebar({
         }
         fetchSources();
     }, []);
+
+    // Auto-expand parent source ONLY when user selects a new category (selectedId changes)
+    useEffect(() => {
+        if (selectedId && selectedId !== prevSelectedIdRef.current && categories.length > 0) {
+            const selectedCat = categories.find(c => c.id === selectedId);
+            if (selectedCat?.source_id) {
+                setExpandedSources(prev => ({
+                    ...prev,
+                    [selectedCat.source_id!]: true
+                }));
+            }
+        }
+        prevSelectedIdRef.current = selectedId;
+    }, [selectedId, categories]);
 
     const toggleSource = (sourceId: string) => {
         setExpandedSources(prev => ({
@@ -344,38 +368,41 @@ export function VerticalSidebar({
             {/* Scrollable Bottom Section: Source Groups */}
             <div className="vertical-sidebar__scrollable">
                 {/* Categories grouped by Source */}
-                {groupedCategories.entries.map(([sourceId, sourceCats]) => (
-                    <div key={sourceId} className={`vertical-sidebar__source-group ${expandedSources[sourceId] ? 'is-expanded' : ''}`}>
-                        <button
-                            className="vertical-sidebar__source-header"
-                            onClick={() => toggleSource(sourceId)}
-                            onContextMenu={(e) => {
-                                e.preventDefault();
-                                onContextMenu?.(e, sourceId, sources[sourceId] || 'Unknown Source');
-                            }}
-                        >
-                            <div className="source-header-left">
-                                <ChevronIcon expanded={!!expandedSources[sourceId]} />
-                                <span className="source-name">{sources[sourceId] || 'Loading...'}</span>
-                            </div>
-                            <span className="source-count">{sourceCats.length}</span>
-                        </button>
+                {groupedCategories.entries.map(([sourceId, sourceCats]) => {
+                    const isExpanded = !!expandedSources[sourceId] || searchQuery.trim().length > 0;
+                    return (
+                        <div key={sourceId} className={`vertical-sidebar__source-group ${isExpanded ? 'is-expanded' : ''}`}>
+                            <button
+                                className="vertical-sidebar__source-header"
+                                onClick={() => toggleSource(sourceId)}
+                                onContextMenu={(e) => {
+                                    e.preventDefault();
+                                    onContextMenu?.(e, sourceId, sources[sourceId] || 'Unknown Source');
+                                }}
+                            >
+                                <div className="source-header-left">
+                                    <ChevronIcon expanded={isExpanded} />
+                                    <span className="source-name">{sources[sourceId] || 'Loading...'}</span>
+                                </div>
+                                <span className="source-count">{sourceCats.length}</span>
+                            </button>
 
-                        {expandedSources[sourceId] && (
-                            <div className="vertical-sidebar__source-content">
-                                {sourceCats.map((cat) => (
-                                    <button
-                                        key={cat.id}
-                                        className={`vertical-sidebar__item nested ${selectedId === cat.id ? 'active' : ''}`}
-                                        onClick={() => onSelect(cat.id)}
-                                    >
-                                        {cat.displayName}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                ))}
+                            {isExpanded && (
+                                <div className="vertical-sidebar__source-content">
+                                    {sourceCats.map((cat) => (
+                                        <button
+                                            key={cat.id}
+                                            className={`vertical-sidebar__item nested ${selectedId === cat.id ? 'active' : ''}`}
+                                            onClick={() => onSelect(cat.id)}
+                                        >
+                                            {cat.displayName}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
 
                 {/* Orphan Categories (if any) */}
                 {groupedCategories.orphans.map((cat) => (
