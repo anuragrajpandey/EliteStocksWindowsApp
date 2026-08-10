@@ -3029,6 +3029,46 @@ export async function recordEpisodeWatch(
     
     dbEvents.notify('episode_history', 'update');
     console.log('[DB] Episode watch recorded successfully');
+
+    // If this episode completed, advance series-level vod_history to the next episode if one exists
+    if (completed === 1 && seriesId && seasonNum > 0 && episodeNum > 0) {
+      try {
+        const nextEp = await getAdjacentEpisode(seriesId, seasonNum, episodeNum, 'next');
+        if (nextEp) {
+          const nextProgress = await getEpisodeProgress(nextEp.id);
+          const nextPos = nextProgress?.progress_seconds || 0;
+          const nextDur = nextProgress?.total_duration || 0;
+
+          // Fetch series title/poster if available in DB
+          const seriesRecord = await dbInstance.select(
+            'SELECT title, poster_url FROM vod_history WHERE media_id = ? AND media_type = ? LIMIT 1',
+            [seriesId, 'series']
+          );
+          const sTitle = seriesRecord?.[0]?.title || '';
+          const sPoster = seriesRecord?.[0]?.poster_url || undefined;
+
+          await recordVodWatch(
+            seriesId,
+            'series',
+            sourceId,
+            sTitle,
+            sPoster,
+            nextEp.season_num,
+            nextEp.episode_num,
+            nextEp.title || `Episode ${nextEp.episode_num}`
+          );
+
+          await updateVodWatchProgress(
+            seriesId,
+            'series',
+            nextPos,
+            nextDur
+          );
+        }
+      } catch (advErr) {
+        console.warn('[DB] Failed to auto-advance series history to next episode:', advErr);
+      }
+    }
   } catch (error) {
     console.error('[Episode History] Failed to record episode watch:', error);
     throw error;
@@ -3232,25 +3272,50 @@ export async function setVodEpisodeWatchedState(
         1  // totalDuration (progress/total = 100% -> completed)
       );
 
-      // 2. Update series-level watch history
-      await recordVodWatch(
-        seriesId,
-        'series',
-        sourceId,
-        seriesTitle,
-        seriesPoster,
-        seasonNum,
-        episodeNum,
-        episodeTitle
-      );
-      
-      // Update watch progress of series to 100% so it shows completed / full progress bar on home page
-      await updateVodWatchProgress(
-        seriesId,
-        'series',
-        1,
-        1
-      );
+      // 2. Look for the next episode to display in Continue Watching
+      const nextEp = await getAdjacentEpisode(seriesId, seasonNum, episodeNum, 'next');
+      if (nextEp) {
+        const nextProgress = await getEpisodeProgress(nextEp.id);
+        const nextPos = nextProgress?.progress_seconds || 0;
+        const nextDur = nextProgress?.total_duration || 0;
+
+        await recordVodWatch(
+          seriesId,
+          'series',
+          sourceId,
+          seriesTitle,
+          seriesPoster,
+          nextEp.season_num,
+          nextEp.episode_num,
+          nextEp.title || `Episode ${nextEp.episode_num}`
+        );
+
+        await updateVodWatchProgress(
+          seriesId,
+          'series',
+          nextPos,
+          nextDur
+        );
+      } else {
+        // Final episode of series completed
+        await recordVodWatch(
+          seriesId,
+          'series',
+          sourceId,
+          seriesTitle,
+          seriesPoster,
+          seasonNum,
+          episodeNum,
+          episodeTitle
+        );
+
+        await updateVodWatchProgress(
+          seriesId,
+          'series',
+          1,
+          1
+        );
+      }
     } else {
       // 1. Delete episode watch history
       await deleteEpisodeHistory(episodeId);

@@ -1180,28 +1180,94 @@ export function useRecentlyWatchedSeries(limit = 20) {
       // Create a map for quick lookup
       const seriesMap = new Map(seriesData.map(s => [s.series_id, s]));
 
-      // Order series according to watch history order with progress
-      const orderedSeries: RecentlyWatchedItem<StoredSeries>[] = history
-        .map(h => {
+      // Order series according to watch history order with dynamic next-episode resolution
+      const resolvedSeries = await Promise.all(
+        history.map(async (h) => {
           const seriesItem = seriesMap.get(h.media_id);
           if (!seriesItem) return null;
           if (enabledSourceIds && !enabledSourceIds.has(seriesItem.source_id)) return null;
-          const progressSeconds = h.progress_seconds ?? 0;
-          const totalDuration = h.total_duration ?? 0;
+
+          let displaySeason = h.season_num;
+          let displayEpisode = h.episode_num;
+          let displayTitle = h.episode_title;
+          let displayProgressSeconds = h.progress_seconds ?? 0;
+          let displayTotalDuration = h.total_duration ?? 0;
+
+          try {
+            // Get all episodes for this series ordered by season and episode
+            const episodes: StoredEpisode[] = await dbInstance.select(
+              'SELECT * FROM vodEpisodes WHERE series_id = ? ORDER BY season_num, episode_num',
+              [h.media_id]
+            );
+
+            // Get episode progress for this series
+            const episodeHistory: EpisodeWatchHistory[] = await dbInstance.select(
+              'SELECT * FROM episode_history WHERE series_id = ?',
+              [h.media_id]
+            );
+
+            if (episodes && episodes.length > 0) {
+              const epHistMap = new Map(episodeHistory.map(eh => [eh.episode_id, eh]));
+
+              // Find the first uncompleted episode, or if all completed, pick the last episode
+              let targetEp: StoredEpisode | null = null;
+              let targetHist: EpisodeWatchHistory | null = null;
+
+              for (const ep of episodes) {
+                const eh = epHistMap.get(ep.id);
+                const dur = eh?.total_duration ?? 0;
+                const pos = eh?.progress_seconds ?? 0;
+                const isEpCompleted = eh ? (
+                  eh.completed === 1 || 
+                  (dur > 0 && (pos / dur) >= 0.90)
+                ) : false;
+
+                if (!isEpCompleted) {
+                  targetEp = ep;
+                  targetHist = eh || null;
+                  break;
+                }
+              }
+
+              if (targetEp) {
+                displaySeason = targetEp.season_num;
+                displayEpisode = targetEp.episode_num;
+                displayTitle = targetEp.title || `Episode ${targetEp.episode_num}`;
+                displayProgressSeconds = targetHist?.progress_seconds ?? 0;
+                displayTotalDuration = targetHist?.total_duration ?? 0;
+              } else {
+                // All episodes completed - show final episode with 100% progress
+                const lastEp = episodes[episodes.length - 1];
+                const lastHist = epHistMap.get(lastEp.id);
+                displaySeason = lastEp.season_num;
+                displayEpisode = lastEp.episode_num;
+                displayTitle = lastEp.title || `Episode ${lastEp.episode_num}`;
+                displayProgressSeconds = lastHist?.progress_seconds || 1;
+                displayTotalDuration = lastHist?.total_duration || 1;
+              }
+            }
+          } catch (e) {
+            console.warn('[useRecentlyWatchedSeries] Failed to resolve next episode:', e);
+          }
+
+          const progressPercent = displayTotalDuration > 0
+            ? Math.min(100, Math.round((displayProgressSeconds / displayTotalDuration) * 100))
+            : 0;
+
           return {
             item: seriesItem,
-            progress_seconds: progressSeconds,
-            total_duration: totalDuration,
-            progress_percent: totalDuration > 0 
-              ? Math.round((progressSeconds / totalDuration) * 100) 
-              : 0,
+            progress_seconds: displayProgressSeconds,
+            total_duration: displayTotalDuration,
+            progress_percent: progressPercent,
             watched_at: h.watched_at,
-            season_num: h.season_num,
-            episode_num: h.episode_num,
-            episode_title: h.episode_title,
+            season_num: displaySeason,
+            episode_num: displayEpisode,
+            episode_title: displayTitle,
           };
         })
-        .filter((item): item is NonNullable<typeof item> => item !== null) as RecentlyWatchedItem<StoredSeries>[];
+      );
+
+      const orderedSeries = resolvedSeries.filter((item): item is NonNullable<typeof item> => item !== null) as RecentlyWatchedItem<StoredSeries>[];
 
       setSeries(orderedSeries);
     } catch (error) {
