@@ -99,6 +99,18 @@ export function FavoriteManager({ onClose, onChange }: FavoriteManagerProps) {
         }
     }, []);
 
+    const handleSortABC = useCallback(() => {
+        setFavorites(prev => {
+            const sorted = [...prev].sort((a, b) => {
+                const nameA = (a.alias || a.name || '').trim();
+                const nameB = (b.alias || b.name || '').trim();
+                return nameA.localeCompare(nameB, undefined, { sensitivity: 'base', numeric: true });
+            });
+            return sorted;
+        });
+        setIsDirty(true);
+    }, []);
+
     const handleSave = useCallback(async () => {
         setSaving(true);
         try {
@@ -125,8 +137,26 @@ export function FavoriteManager({ onClose, onChange }: FavoriteManagerProps) {
                     <button className="close-btn" onClick={onClose}>✕</button>
                 </div>
 
-                <div className="fav-manager-stats">
-                    {favorites.length} favorite{favorites.length !== 1 ? 's' : ''} · drag ⋮⋮ to reorder
+                <div className="fav-manager-stats" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span>{favorites.length} favorite{favorites.length !== 1 ? 's' : ''} · drag ⋮⋮ to reorder</span>
+                    <button
+                        onClick={handleSortABC}
+                        title="Sort favorites alphabetically (uses channel alias if set)"
+                        style={{
+                            padding: '3px 10px',
+                            fontSize: '0.8rem',
+                            background: 'var(--surface-color, rgba(255,255,255,0.08))',
+                            border: '1px solid var(--glass-border, rgba(255,255,255,0.15))',
+                            borderRadius: '4px',
+                            color: 'var(--text-primary, #fff)',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                        }}
+                    >
+                        🔤 Sort A-Z
+                    </button>
                 </div>
 
                 {loading

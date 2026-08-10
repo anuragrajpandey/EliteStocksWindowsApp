@@ -2476,36 +2476,6 @@ export function ChannelPanel({
             ) : (
               <>
                 <span className="guide-current-time">{formatTime(currentTime)}</span>
-                {!epgHiddenButtons.includes('channel-search') && (
-                  <div className="channel-search-container">
-                    <div className={`channel-search-input-wrapper ${channelSearchFocused ? 'focused' : ''}`}>
-                      <svg className="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                      </svg>
-                      <input
-                        type="text"
-                        className="channel-search-input"
-                        placeholder="Search channels..."
-                        value={channelSearchQuery}
-                        onChange={(e) => setChannelSearchQuery(e.target.value)}
-                        onFocus={() => setChannelSearchFocused(true)}
-                        onBlur={() => setChannelSearchFocused(false)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Escape') {
-                            setChannelSearchQuery('');
-                            (e.target as HTMLInputElement).blur();
-                          }
-                        }}
-                      />
-                      {channelSearchQuery && (
-                        <button className="search-clear-btn" onClick={() => setChannelSearchQuery('')} title="Clear search">
-                          ✕
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
                 {categoryId === '__favorites__' && (
                   <>
                     <button
@@ -2763,7 +2733,38 @@ export function ChannelPanel({
         {/* Time Scale - Hide in search mode and watchlist mode */}
         {!isSearchMode && !isWatchlistMode && (
           <div className="guide-time-header">
-            <div className="guide-time-header-spacer" style={{ width: 'var(--epg-channel-column-width, 264px)' }} />
+            <div className="guide-time-header-spacer" style={{ width: 'var(--epg-channel-column-width, 264px)' }}>
+              {!epgHiddenButtons.includes('channel-search') && (
+                <div className="channel-search-container">
+                  <div className={`channel-search-input-wrapper ${channelSearchFocused ? 'focused' : ''}`}>
+                    <svg className="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input
+                      type="text"
+                      className="channel-search-input"
+                      placeholder="Search channels..."
+                      value={channelSearchQuery}
+                      onChange={(e) => setChannelSearchQuery(e.target.value)}
+                      onFocus={() => setChannelSearchFocused(true)}
+                      onBlur={() => setChannelSearchFocused(false)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') {
+                          setChannelSearchQuery('');
+                          (e.target as HTMLInputElement).blur();
+                        }
+                      }}
+                    />
+                    {channelSearchQuery && (
+                      <button className="search-clear-btn" onClick={() => setChannelSearchQuery('')} title="Clear search">
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="guide-time-header-grid">
               {timeSlots.map((slot, i) => {
                 const position = getTimeSlotPosition(slot);

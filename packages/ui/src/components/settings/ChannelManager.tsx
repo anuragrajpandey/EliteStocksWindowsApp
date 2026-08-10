@@ -398,6 +398,19 @@ export function ChannelManager({ categoryId, categoryName, sourceId, onClose, on
         setIsDirty(true);
     }, [visibleChannels]);
 
+    // Sort channels alphabetically by display name (alias if available, otherwise original name)
+    const handleSortABC = useCallback(() => {
+        setChannels(chs => {
+            const sorted = [...chs].sort((a, b) => {
+                const nameA = (a.alias || a.name || '').trim();
+                const nameB = (b.alias || b.name || '').trim();
+                return nameA.localeCompare(nameB, undefined, { sensitivity: 'base', numeric: true });
+            });
+            return sorted.map((c, idx) => ({ ...c, display_order: idx }));
+        });
+        setIsDirty(true);
+    }, []);
+
     const enabledCount = channels.filter(c => c.enabled !== false).length;
     const totalCount = channels.length;
 
@@ -416,6 +429,13 @@ export function ChannelManager({ categoryId, categoryName, sourceId, onClose, on
                 <div className="channel-manager-actions">
                     <button onClick={handleSelectAll}>✓ Enable All</button>
                     <button onClick={handleSelectNone}>✗ Disable All</button>
+                    <div className="divider-vertical"></div>
+                    <button
+                        onClick={handleSortABC}
+                        title="Sort channels alphabetically (uses channel alias if set)"
+                    >
+                        🔤 Sort A-Z
+                    </button>
                     <div className="divider-vertical"></div>
                     <button
                         onClick={() => setHideDisabled(!hideDisabled)}

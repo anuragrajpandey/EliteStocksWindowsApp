@@ -580,6 +580,23 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
         setIsDirty(true);
     }, []);
 
+    // Sort categories alphabetically by name (alias if available, otherwise original name)
+    const handleSortABC = useCallback(() => {
+        setCategories(cats => {
+            const sorted = [...cats].sort((a, b) => {
+                const nameA = (a.name || '').trim();
+                const nameB = (b.name || '').trim();
+                return nameA.localeCompare(nameB, undefined, { sensitivity: 'base', numeric: true });
+            });
+            return sorted.map((c, idx) => ({ ...c, displayOrder: idx }));
+        });
+        if (targetPlaylistId) {
+            setCategorySortCustomized(targetPlaylistId, true);
+            setIsCustomized(true);
+        }
+        setIsDirty(true);
+    }, [targetPlaylistId]);
+
     // Save changes
     const handleSave = useCallback(async () => {
         try {
@@ -716,6 +733,13 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                 <div className="category-manager-actions" style={{ flexWrap: 'wrap', gap: '8px' }}>
                     <button onClick={handleSelectAll}>✓ Select All</button>
                     <button onClick={handleSelectNone}>✗ Select None</button>
+                    <div className="divider-vertical"></div>
+                    <button
+                        onClick={handleSortABC}
+                        title="Sort categories alphabetically (uses category alias if set)"
+                    >
+                        🔤 Sort A-Z
+                    </button>
                     <div className="divider-vertical"></div>
                     <button
                         onClick={() => setHideUnselected(!hideUnselected)}

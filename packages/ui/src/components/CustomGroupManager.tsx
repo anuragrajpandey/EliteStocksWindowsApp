@@ -471,6 +471,22 @@ export function CustomGroupManager({ groupId, groupName, onClose }: CustomGroupM
         if (e.key === 'Escape') setIsRenaming(false);
     };
 
+    const handleSortABC = useCallback(async () => {
+        if (groupChannels.length === 0) return;
+        const sorted = [...groupChannels].sort((a, b) => {
+            const nameA = (a.alias || a.name || '').trim();
+            const nameB = (b.alias || b.name || '').trim();
+            return nameA.localeCompare(nameB, undefined, { sensitivity: 'base', numeric: true });
+        });
+        const updated = sorted.map((c, idx) => ({ ...c, displayOrder: idx }));
+        setGroupChannels(updated);
+        try {
+            await reorderGroupChannels(groupId, updated.map(c => c.stream_id));
+        } catch (e) {
+            console.error('Failed to reorder group channels:', e);
+        }
+    }, [groupChannels, groupId]);
+
     return createPortal(
         <div className="custom-group-manager-overlay" onClick={onClose}>
             <div className="custom-group-manager-modal" onClick={e => e.stopPropagation()}>
@@ -503,6 +519,25 @@ export function CustomGroupManager({ groupId, groupName, onClose }: CustomGroupM
                         <div className="pane-header">
                             <span>In Group</span>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <button
+                                    className="cgm-sort-abc-btn"
+                                    onClick={handleSortABC}
+                                    title="Sort channels alphabetically (uses channel alias if set)"
+                                    style={{
+                                        padding: '2px 8px',
+                                        fontSize: '0.78rem',
+                                        background: 'var(--surface-color, rgba(255,255,255,0.08))',
+                                        border: '1px solid var(--glass-border, rgba(255,255,255,0.15))',
+                                        borderRadius: '4px',
+                                        color: 'var(--text-primary, #fff)',
+                                        cursor: 'pointer',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                    }}
+                                >
+                                    🔤 Sort A-Z
+                                </button>
                                 <label className="cgm-display-source-label" title="Show source and category for each channel">
                                     <input
                                         type="checkbox"

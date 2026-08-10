@@ -2659,6 +2659,11 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
     });
     debugLog('Channels and categories stored successfully', 'sync');
 
+    // Notify UI that categories, channels, and sourcesMeta updated so in-memory index & live queries refresh
+    dbEvents.notify('categories', 'update');
+    dbEvents.notify('channels', 'update');
+    dbEvents.notify('sourcesMeta', 'update');
+
     // Restore user customizations (folder assignments, favorites, enabled state, etc.)
     // as soon as channels/categories exist, BEFORE EPG sync — a later EPG failure
     // must not leave categories un-restored (empty folders) after a cache clear.
@@ -2739,6 +2744,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       source_id: source.id,
       last_synced: new Date().toISOString(),
     });
+    dbEvents.notify('sourcesMeta', 'update');
     debugLog('Source marked as synced after EPG step completed', 'sync');
 
     // Automatically align/fill programs for manually overridden channels in this source
