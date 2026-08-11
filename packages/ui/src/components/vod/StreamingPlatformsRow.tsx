@@ -51,7 +51,7 @@ export function StreamingPlatformsRow({ enabledServices, onServiceClick }: Strea
   return (
     <section className="carousel" style={{ height: 'auto', minHeight: 'auto', paddingBottom: '24px' }}>
       <div className="carousel__header">
-        <h2 className="carousel__title">Streaming Platforms</h2>
+        <h2 className="carousel__title">{i18n.t('vod:streamingPlatforms')}</h2>
         <div className="carousel__nav">
           <button
             className="carousel__nav-btn"

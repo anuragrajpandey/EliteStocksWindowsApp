@@ -5,6 +5,7 @@ import type { StremioMeta, StremioVideo } from '../../types/stremio';
 import { useStremioAddonStore } from '../../stores/stremioAddonStore';
 import { fetchMeta } from '../../services/stremio-addon';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { formatDate } from '../../utils/dateTime';
 import './StremioCalendar.css';
 
@@ -190,7 +191,7 @@ export function StremioCalendar({ onItemClick }: StremioCalendarProps) {
             : ''}
           {ep.video.title ? ` - ${ep.video.title}` : ''}
         </div>
-        {ep.watched && <div className="stremio-cal-ep-watched-label">Watched</div>}
+        {ep.watched && <div className="stremio-cal-ep-watched-label">{i18n.t('stremio:watchedLabel')}</div>}
       </div>
       <div className="stremio-cal-ep-date">{formatCalendarDate(ep.date)}</div>
     </div>
@@ -199,7 +200,7 @@ export function StremioCalendar({ onItemClick }: StremioCalendarProps) {
   return (
     <div className="stremio-calendar">
       <div className="stremio-calendar-header">
-        <h2 className="stremio-calendar-title">Calendar</h2>
+        <h2 className="stremio-calendar-title">{i18n.t('stremio:calendar')}</h2>
         <div className="stremio-cal-view-toggle">
           <button
             className={`stremio-cal-view-btn${viewMode === 'calendar' ? ' active' : ''}`}

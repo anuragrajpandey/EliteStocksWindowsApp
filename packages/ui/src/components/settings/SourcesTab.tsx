@@ -1776,7 +1776,7 @@ export function SourcesTab({
                       type="text"
                       value={formData.xtreamCatchupUsername}
                       onChange={(e) => setFormData({ ...formData, xtreamCatchupUsername: e.target.value })}
-                      placeholder="username"
+                      placeholder={i18n.t('settings:sources.usernamePlaceholder')}
                     />
                   </div>
                   <div className="form-group">
@@ -1785,7 +1785,7 @@ export function SourcesTab({
                       type="password"
                       value={formData.xtreamCatchupPassword}
                       onChange={(e) => setFormData({ ...formData, xtreamCatchupPassword: e.target.value })}
-                      placeholder="password"
+                      placeholder={i18n.t('settings:sources.passwordPlaceholder')}
                     />
                   </div>
                 </div>
@@ -1881,7 +1881,7 @@ export function SourcesTab({
                     type="text"
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    placeholder="username"
+                    placeholder={i18n.t('settings:sources.usernamePlaceholder')}
                   />
                 </div>
                 <div className="form-group">
@@ -1891,7 +1891,7 @@ export function SourcesTab({
                       type={showPassword ? 'text' : 'password'}
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      placeholder="password"
+                      placeholder={i18n.t('settings:sources.passwordPlaceholder')}
                     />
                     <button
                       type="button"
@@ -2380,7 +2380,7 @@ export function SourcesTab({
                 type="text"
                 value={formData.userAgent}
                 onChange={(e) => setFormData({ ...formData, userAgent: e.target.value })}
-                placeholder="Ex: VLC/3.0.18 LibVLC/3.0.18"
+                placeholder={i18n.t('settings:sources.uaPlaceholderEx')}
               />
               <span className="hint">{i18n.t('settings:sources.uaHint')}</span>
             </div>
@@ -2682,7 +2682,7 @@ export function SourcesTab({
                 type="text"
                 value={globalLiveTvUserAgent || ''}
                 onChange={(e) => setGlobalLiveTvUserAgent(e.target.value)}
-                placeholder="e.g. VLC/3.0.18 LibVLC/3.0.18"
+                placeholder={i18n.t('settings:sources.uaPlaceholderEg')}
                 style={{
                   padding: '10px 12px',
                   borderRadius: '6px',

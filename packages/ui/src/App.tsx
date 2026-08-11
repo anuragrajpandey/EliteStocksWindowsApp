@@ -4215,7 +4215,7 @@ function useTmdbPresencePoster(
                 ref={titleBarSearchRef}
                 type="text"
                 className="title-bar-search-input"
-                placeholder="Search..."
+                placeholder={i18n.t('common:searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => {
                   const value = e.target.value;

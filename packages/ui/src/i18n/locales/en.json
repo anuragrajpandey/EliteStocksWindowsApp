@@ -254,7 +254,12 @@
     "restoreDown": "Restore Down",
     "fullscreen": "Fullscreen",
     "reminderMinutesBefore": "Reminder: {{minutes}} min before",
-    "autoSwitchSecondsBefore": "Auto-switch {{seconds}}s before"
+    "autoSwitchSecondsBefore": "Auto-switch {{seconds}}s before",
+    "searchPlaceholder": "Search...",
+    "rec": "REC",
+    "live": "LIVE",
+    "ended": "ENDED",
+    "upcoming": "UPCOMING"
   },
   "nav": {
     "epgButtons": {
@@ -1014,7 +1019,11 @@
       "deleteConfirmPost": "?",
       "uaFallbackHintPre": "Leave empty to fallback to the current default client user agent (",
       "uaFallbackHintCode": "VLC/3.0.18 LibVLC/3.0.18",
-      "uaFallbackHintPost": ")."
+      "uaFallbackHintPost": ").",
+      "usernamePlaceholder": "username",
+      "passwordPlaceholder": "password",
+      "uaPlaceholderEx": "Ex: VLC/3.0.18 LibVLC/3.0.18",
+      "uaPlaceholderEg": "e.g. VLC/3.0.18 LibVLC/3.0.18"
     },
     "scrobbling": {
       "title": "Trakt",
@@ -1333,7 +1342,8 @@
       "disableAndRestart": "Yes, Disable & Restart",
       "disclaimer": "Note: Chromecast devices and local discovery (mDNS) bypass the proxy automatically to maintain normal local network communication.",
       "usernamePlaceholder": "Proxy username",
-      "passwordPlaceholder": "Proxy password"
+      "passwordPlaceholder": "Proxy password",
+      "serverPlaceholder": "e.g. 127.0.0.1:1080 or socks5h://127.0.0.1:1080"
     },
     "optimization": {
       "title": "Hardware Acceleration",
@@ -2074,7 +2084,11 @@
     "upcomingHighlights": "Upcoming Highlights",
     "noUpcomingMatches": "No upcoming matches scheduled.",
     "noMatchesCompleted": "No matches completed yet.",
-    "noTeamsData": "No teams data found."
+    "noTeamsData": "No teams data found.",
+    "nextGameLabel": "NEXT GAME",
+    "pinnedLabel": "PINNED",
+    "relatedNews": "Related News",
+    "tbd": "TBD"
   },
   "vod": {
     "itemCount_one": "{{count}} item",
@@ -2182,7 +2196,8 @@
     "posterSizeDecrease": "Decrease poster size",
     "posterSizeSmaller": "Smaller posters",
     "posterSizeIncrease": "Increase poster size",
-    "posterSizeLarger": "Larger posters"
+    "posterSizeLarger": "Larger posters",
+    "streamingPlatforms": "Streaming Platforms"
   },
   "dvr": {
     "title": "DVR & Downloads",
@@ -2576,7 +2591,14 @@
     "installScraperRepo": "Install Scraper Plugin Repository",
     "profileNotFound": "Profile not found.",
     "backToEpisodes": "Back to Episodes",
-    "viewMember": "View {{name}}"
+    "viewMember": "View {{name}}",
+    "searchVideos": "search videos",
+    "genresLabel": "GENRES",
+    "castLabel": "CAST",
+    "summaryLabel": "SUMMARY",
+    "recommendationsLabel": "RECOMMENDATIONS",
+    "pinRequired": "PIN required",
+    "scrapersLabel": "SCRAPERS"
   },
   "player": {
     "alignment": "Alignment",
@@ -2782,7 +2804,8 @@
     "closePopout": "Close popout",
     "popoutActive": "Popout Active",
     "disableAlwaysOnTop": "Disable Always on top",
-    "enableAlwaysOnTop": "Enable Always on top"
+    "enableAlwaysOnTop": "Enable Always on top",
+    "liveAudio": "LIVE AUDIO"
   },
   "stremio": {
     "account": "Account",
@@ -2946,7 +2969,13 @@
     "romance": "Romance",
     "profileNotFound": "Profile not found.",
     "backToEpisodes": "Back to Episodes",
-    "viewMember": "View {{name}}"
+    "viewMember": "View {{name}}",
+    "searchVideos": "search videos",
+    "genresLabel": "GENRES",
+    "castLabel": "CAST",
+    "summaryLabel": "SUMMARY",
+    "recommendationsLabel": "RECOMMENDATIONS",
+    "watchedLabel": "Watched"
   },
   "cast": {
     "disabledTitle": "Google Cast (disabled)",

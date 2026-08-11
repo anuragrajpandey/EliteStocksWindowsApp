@@ -884,7 +884,7 @@ export function NuvioDetailView({
 
           {effectiveMeta.genres && effectiveMeta.genres.length > 0 && (
             <div className="stremio-detail-section">
-              <div className="stremio-detail-section-label">GENRES</div>
+              <div className="stremio-detail-section-label">{i18n.t('nuvio:genresLabel')}</div>
               <div className="stremio-detail-tags">
                 {effectiveMeta.genres.map((g) => (
                   <span key={g} className="stremio-detail-tag">{g}</span>
@@ -895,7 +895,7 @@ export function NuvioDetailView({
 
           {(cast.length > 0 || castLoading) && (
             <div className="stremio-detail-section">
-              <div className="stremio-detail-section-label">CAST</div>
+              <div className="stremio-detail-section-label">{i18n.t('nuvio:castLabel')}</div>
               <div className="stremio-detail-cast-row">
                 {castLoading && cast.length === 0 ? (
                   <div className="stremio-detail-cast-loading">Loading cast...</div>
@@ -929,7 +929,7 @@ export function NuvioDetailView({
 
           {effectiveMeta.cast && effectiveMeta.cast.length > 0 && cast.length === 0 && !castLoading && (
             <div className="stremio-detail-section">
-              <div className="stremio-detail-section-label">CAST</div>
+              <div className="stremio-detail-section-label">{i18n.t('nuvio:castLabel')}</div>
               <div className="stremio-detail-tags">
                 {effectiveMeta.cast.slice(0, 10).map((c) => (
                   <span key={c} className="stremio-detail-tag" onClick={() => handleCastClick({ id: 0, name: c, character: '', photo: null })}>{c}</span>
@@ -940,7 +940,7 @@ export function NuvioDetailView({
 
           {effectiveMeta.description && (
             <div className="stremio-detail-section">
-              <div className="stremio-detail-section-label">SUMMARY</div>
+              <div className="stremio-detail-section-label">{i18n.t('nuvio:summaryLabel')}</div>
               <p className="stremio-detail-desc">{effectiveMeta.description}</p>
             </div>
           )}
@@ -997,7 +997,7 @@ export function NuvioDetailView({
           {/* Recommendations */}
           {(recommendations.length > 0 || recsLoading) && (
             <div className="stremio-detail-section stremio-detail-recs-section">
-              <div className="stremio-detail-section-label">RECOMMENDATIONS</div>
+              <div className="stremio-detail-section-label">{i18n.t('nuvio:recommendationsLabel')}</div>
               <div className="stremio-detail-recs-row">
                 {recsLoading && recommendations.length === 0 ? (
                   <div className="stremio-detail-cast-loading">Loading recommendations...</div>
@@ -1069,7 +1069,7 @@ export function NuvioDetailView({
                 </svg>
                 <input
                   type="text"
-                  placeholder="search videos"
+                  placeholder={i18n.t('nuvio:searchVideos')}
                   value={videoSearch}
                   onChange={(e) => setVideoSearch(e.target.value)}
                 />

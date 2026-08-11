@@ -507,7 +507,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
         <div key={match.id} className={`wc-bracket-node ${match.status}`} onClick={() => setSelectedEvent(match)}>
           <div className="wc-bracket-node-header">
             <span className="node-stage">{getStageLabel((match as any).seasonSlug)}</span>
-            {match.status === 'live' && <span className="node-live">LIVE</span>}
+            {match.status === 'live' && <span className="node-live">{t('statusLive')}</span>}
           </div>
           <div className="wc-bracket-node-teams">
             <div className={`wc-bracket-node-team ${isAwayWinner ? 'winner' : ''}`}>

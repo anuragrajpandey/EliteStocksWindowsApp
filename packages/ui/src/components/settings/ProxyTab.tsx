@@ -219,7 +219,7 @@ export function ProxyTab({
                 setServer(e.target.value);
                 setSaveStatus('idle');
               }}
-              placeholder="e.g. 127.0.0.1:1080 or socks5h://127.0.0.1:1080"
+              placeholder={i18n.t('settings:proxy.serverPlaceholder')}
               style={{ width: '100%' }}
             />
             <p className="form-hint">

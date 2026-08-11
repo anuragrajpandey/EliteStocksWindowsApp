@@ -254,7 +254,12 @@
     "restoreDown": "Restaurer",
     "fullscreen": "Plein écran",
     "reminderMinutesBefore": "Rappel : {{minutes}} min avant",
-    "autoSwitchSecondsBefore": "Bascule automatique {{seconds}}s avant"
+    "autoSwitchSecondsBefore": "Bascule automatique {{seconds}}s avant",
+    "searchPlaceholder": "Rechercher…",
+    "rec": "ENREG",
+    "live": "EN DIRECT",
+    "ended": "TERMINÉ",
+    "upcoming": "À VENIR"
   },
   "nav": {
     "epgButtons": {
@@ -1014,7 +1019,11 @@
       "deleteConfirmPost": " ?",
       "uaFallbackHintPre": "Laissez vide pour revenir au user-agent client par défaut (",
       "uaFallbackHintCode": "VLC/3.0.18 LibVLC/3.0.18",
-      "uaFallbackHintPost": ")."
+      "uaFallbackHintPost": ").",
+      "usernamePlaceholder": "nom d'utilisateur",
+      "passwordPlaceholder": "mot de passe",
+      "uaPlaceholderEx": "Ex : VLC/3.0.18 LibVLC/3.0.18",
+      "uaPlaceholderEg": "p. ex. VLC/3.0.18 LibVLC/3.0.18"
     },
     "scrobbling": {
       "title": "Trakt",
@@ -1333,7 +1342,8 @@
       "disableAndRestart": "Oui, désactiver et redémarrer",
       "disclaimer": "Remarque : les appareils Chromecast et la découverte locale (mDNS) contournent automatiquement le proxy pour maintenir une communication réseau locale normale.",
       "usernamePlaceholder": "Nom d’utilisateur du proxy",
-      "passwordPlaceholder": "Mot de passe du proxy"
+      "passwordPlaceholder": "Mot de passe du proxy",
+      "serverPlaceholder": "p. ex. 127.0.0.1:1080 ou socks5h://127.0.0.1:1080"
     },
     "optimization": {
       "title": "Accélération matérielle",
@@ -2074,7 +2084,11 @@
     "upcomingHighlights": "Temps forts à venir",
     "noUpcomingMatches": "Aucun match à venir programmé.",
     "noMatchesCompleted": "Aucun match terminé pour le moment.",
-    "noTeamsData": "Aucune donnée d'équipe trouvée."
+    "noTeamsData": "Aucune donnée d'équipe trouvée.",
+    "nextGameLabel": "PROCHAIN MATCH",
+    "pinnedLabel": "ÉPINGLÉ",
+    "relatedNews": "Actualités liées",
+    "tbd": "À DÉTERMINER"
   },
   "vod": {
     "itemCount_one": "{{count}} élément",
@@ -2182,7 +2196,8 @@
     "posterSizeDecrease": "Réduire la taille des affiches",
     "posterSizeSmaller": "Affiches plus petites",
     "posterSizeIncrease": "Augmenter la taille des affiches",
-    "posterSizeLarger": "Affiches plus grandes"
+    "posterSizeLarger": "Affiches plus grandes",
+    "streamingPlatforms": "Plateformes de streaming"
   },
   "dvr": {
     "title": "DVR et Téléchargements",
@@ -2576,7 +2591,14 @@
     "installScraperRepo": "Installer un référentiel de plugins scraper",
     "profileNotFound": "Profil introuvable.",
     "backToEpisodes": "Retour aux épisodes",
-    "viewMember": "Voir {{name}}"
+    "viewMember": "Voir {{name}}",
+    "searchVideos": "rechercher des vidéos",
+    "genresLabel": "GENRES",
+    "castLabel": "DISTRIBUTION",
+    "summaryLabel": "RÉSUMÉ",
+    "recommendationsLabel": "RECOMMANDATIONS",
+    "pinRequired": "PIN requis",
+    "scrapersLabel": "SCRAPEURS"
   },
   "player": {
     "alignment": "Alignement",
@@ -2782,7 +2804,8 @@
     "closePopout": "Fermer la fenêtre pop-out",
     "popoutActive": "Pop-out actif",
     "disableAlwaysOnTop": "Désactiver Toujours au premier plan",
-    "enableAlwaysOnTop": "Activer Toujours au premier plan"
+    "enableAlwaysOnTop": "Activer Toujours au premier plan",
+    "liveAudio": "AUDIO EN DIRECT"
   },
   "stremio": {
     "account": "Compte",
@@ -2946,7 +2969,13 @@
     "romance": "Romance",
     "profileNotFound": "Profil introuvable.",
     "backToEpisodes": "Retour aux épisodes",
-    "viewMember": "Voir {{name}}"
+    "viewMember": "Voir {{name}}",
+    "searchVideos": "rechercher des vidéos",
+    "genresLabel": "GENRES",
+    "castLabel": "DISTRIBUTION",
+    "summaryLabel": "RÉSUMÉ",
+    "recommendationsLabel": "RECOMMANDATIONS",
+    "watchedLabel": "Regardé"
   },
   "cast": {
     "disabledTitle": "Google Cast (désactivé)",

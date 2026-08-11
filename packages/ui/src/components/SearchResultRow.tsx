@@ -202,7 +202,7 @@ export const SearchResultRow = memo(function SearchResultRow({
           <div className="channel-recording-indicator">
             <div className="recording-indicator small">
               <div className="recording-dot pulse"></div>
-              <span className="recording-text">REC</span>
+              <span className="recording-text">{i18n.t('common:rec')}</span>
             </div>
           </div>
         )}
@@ -305,9 +305,9 @@ export const SearchResultRow = memo(function SearchResultRow({
                     {formatProgramDate(program.start)} {formatProgramTime(program.start)}
                   </div>
                   <div className="search-program-badge">
-                    {isLive && <span className="live-badge">LIVE</span>}
-                    {isPast && <span className="past-badge">ENDED</span>}
-                    {isFuture && <span className="future-badge">UPCOMING</span>}
+                    {isLive && <span className="live-badge">{i18n.t('common:live')}</span>}
+                    {isPast && <span className="past-badge">{i18n.t('common:ended')}</span>}
+                    {isFuture && <span className="future-badge">{i18n.t('common:upcoming')}</span>}
                   </div>
                 </div>
               </div>

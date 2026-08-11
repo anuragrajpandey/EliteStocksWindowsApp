@@ -187,7 +187,7 @@ export function AthleteDetailModal({ athleteId, leagueId = 'nfl', onClose }: Ath
 
                   {profile?.news && profile.news.length > 0 && (
                     <div className="athlete-news-section">
-                      <h4 className="athlete-section-subtitle">Related News</h4>
+                      <h4 className="athlete-section-subtitle">{i18n.t('sports:relatedNews')}</h4>
                       <div className="athlete-news-list">
                         {profile.news.slice(0, 3).map((art) => (
                           <a

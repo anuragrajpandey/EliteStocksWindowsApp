@@ -746,7 +746,7 @@ function SeriesGameRow({
 
       <div className="series-game-row-right">
         {isLive ? (
-          <span className="team-schedule-live">LIVE</span>
+          <span className="team-schedule-live">{i18n.t('sports:statusLive')}</span>
         ) : isPast && teamScore !== undefined && opponentScore !== undefined ? (
           <span className={`team-schedule-card-result ${resultClass}`}>
             {teamScore > opponentScore ? 'W' : teamScore < opponentScore ? 'L' : 'T'}
@@ -801,7 +801,7 @@ function TeamEventCard({ event, teamId, onClick, onChannelClick }: TeamEventCard
         <span className="team-schedule-card-time">
           {formatTime(event.startTime, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}
         </span>
-        {isLive && <span className="team-schedule-live">LIVE</span>}
+        {isLive && <span className="team-schedule-live">{i18n.t('sports:statusLive')}</span>}
       </div>
       
       <div className="team-schedule-card-match">

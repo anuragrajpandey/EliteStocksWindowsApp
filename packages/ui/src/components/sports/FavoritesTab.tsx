@@ -331,7 +331,7 @@ function SortableFavoriteCard(props: SortableFavoriteCardProps) {
         <div className="favorite-card-title-group">
           <div className="favorite-card-name-row">
             <h3 className="favorite-card-team-name">{team.name}</h3>
-            {team.isPinned && <span className="favorite-pinned-badge">PINNED</span>}
+            {team.isPinned && <span className="favorite-pinned-badge">{i18n.t('sports:pinnedLabel')}</span>}
           </div>
 
           <div className="favorite-card-stats-row">
@@ -377,14 +377,14 @@ function SortableFavoriteCard(props: SortableFavoriteCardProps) {
         ) : nextEvent ? (
           <div className="favorite-card-next-box">
             <div className="favorite-card-next-label">
-              <span>NEXT GAME</span>
+              <span>{i18n.t('sports:nextGameLabel')}</span>
               <span className="favorite-card-next-time">
                 {formatEventDate(nextEvent.startTime)} • {formatEventTime(nextEvent.startTime, epgClockFormat !== '24h')}
               </span>
             </div>
             <div className="favorite-card-next-matchup">
               <span className="favorite-card-next-vs">
-                {nextEvent.homeTeam.id === team.id ? 'vs' : '@'}
+                {nextEvent.homeTeam.id === team.id ? i18n.t('sports:vs') : '@'}
               </span>
               <div className="favorite-card-next-opp">
                 {nextEvent.homeTeam.id === team.id ? (

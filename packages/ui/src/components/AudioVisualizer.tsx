@@ -542,7 +542,7 @@ export function AudioVisualizer({
             <div className="visualizer-channel-title">{channelName}</div>
             {programTitle && (
               <div className="visualizer-program-title">
-                <span className="visualizer-live-badge">LIVE AUDIO</span> {programTitle}
+                <span className="visualizer-live-badge">{i18n.t('player:liveAudio')}</span> {programTitle}
               </div>
             )}
           </div>

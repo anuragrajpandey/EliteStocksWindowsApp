@@ -637,7 +637,7 @@ function LeagueGameCard({ event, isIndividualSport, onChannelClick, onClick }: L
             {networkName}
           </button>
         ) : (
-          <span className="game-card-network-placeholder">TBD</span>
+          <span className="game-card-network-placeholder">{t('tbd')}</span>
         )}
       </div>
     </div>

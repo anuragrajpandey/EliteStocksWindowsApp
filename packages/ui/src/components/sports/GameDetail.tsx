@@ -647,7 +647,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
                         <span className="ufc-detail-fight-weight">{match.subtitle}</span>
                       )}
                       {match.status === 'live' && (
-                        <span className="ufc-detail-fight-live-badge">LIVE</span>
+                        <span className="ufc-detail-fight-live-badge">{i18n.t('sports:statusLive')}</span>
                       )}
                       {isMainEvent && (
                         <span className="ufc-detail-fight-main-badge">{i18n.t('sports:mainEvent')}</span>
@@ -989,7 +989,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
                             </div>
                           )}
                           {match.status === 'live' && (
-                            <span className="tennis-match-live-badge">LIVE</span>
+                            <span className="tennis-match-live-badge">{i18n.t('sports:statusLive')}</span>
                           )}
                           {match.subtitle && (
                             <span className="tennis-match-status">{match.subtitle}</span>

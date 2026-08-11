@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import './RecordingIndicator.css';
 
 interface RecordingIndicatorProps {
@@ -16,7 +17,7 @@ export function RecordingIndicator({ size = 'small', variant = 'recording', clas
       title={isRecording ? t('recordingInProgress') : t('scheduledToRecord')}
     >
       <div className={`recording-dot ${isRecording ? 'pulse' : ''}`}></div>
-      <span className="recording-text">REC</span>
+      <span className="recording-text">{i18n.t('common:rec')}</span>
     </div>
   );
 }

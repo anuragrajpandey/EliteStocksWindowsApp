@@ -260,7 +260,7 @@ export function StremioLibrary({ onItemClick }: StremioLibraryProps) {
     <div className="stremio-library">
       <div className="stremio-library-header">
         <div className="stremio-library-title-group">
-          <h2 className="stremio-library-title">Library</h2>
+          <h2 className="stremio-library-title">{t('library')}</h2>
           <div className="stremio-library-tabs">
             <button
               className={`stremio-library-tab ${activeTab === 'watchlist' ? 'active' : ''}`}
@@ -429,10 +429,10 @@ export function StremioLibrary({ onItemClick }: StremioLibraryProps) {
                   <div className="stremio-meta-card-info">
                     <div className="stremio-meta-card-title">{entry.name}</div>
                     {hasNext ? (
-                      <div className="stremio-library-card-sub next">Next Episode</div>
+                      <div className="stremio-library-card-sub next">{t('nextEpisode')}</div>
                     ) : (
                       showProgress && (
-                        <div className="stremio-library-card-sub">{progressPercent}% watched</div>
+                        <div className="stremio-library-card-sub">{t('percentWatched', { percent: progressPercent })}</div>
                       )
                     )}
                   </div>

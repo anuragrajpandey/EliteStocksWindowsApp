@@ -2091,7 +2091,7 @@ function NuvioPageContent({
                   </div>
                   <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#fff' }}>{p.name}</span>
                   {p.pin_enabled && (
-                    <span style={{ fontSize: '0.72rem', color: 'rgba(255,200,0,0.6)', fontWeight: 500 }}>PIN required</span>
+                    <span style={{ fontSize: '0.72rem', color: 'rgba(255,200,0,0.6)', fontWeight: 500 }}>{i18n.t('nuvio:pinRequired')}</span>
                   )}
                 </div>
               ))}
@@ -3027,7 +3027,7 @@ function NuvioPageContent({
                             {/* Scrapers list */}
                             {repoScrapers.length > 0 && (
                               <div style={{ marginTop: '12px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.03)' }}>
-                                <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(255,255,255,0.35)', marginBottom: '6px' }}>SCRAPERS</div>
+                                <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(255,255,255,0.35)', marginBottom: '6px' }}>{i18n.t('nuvio:scrapersLabel')}</div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                   {repoScrapers.map((scraper) => (
                                     <div key={scraper.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.01)', padding: '6px 8px', borderRadius: '4px' }}>
