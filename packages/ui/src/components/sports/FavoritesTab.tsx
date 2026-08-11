@@ -10,6 +10,7 @@ import {
 import { useSportsSettingsStore } from '../../stores/sportsSettingsStore';
 import { useSportsPolling } from '../../hooks/useSportsPolling';
 import { useEpgClockFormat } from '../../stores/uiStore';
+import { useTranslation } from 'react-i18next';
 import { 
   getTeamDetails, 
   getTeamSchedule,
@@ -260,6 +261,8 @@ function SortableFavoriteCard(props: SortableFavoriteCardProps) {
     transition,
     isDragging,
   } = useSortable({ id: team.id });
+
+  useTranslation();
 
   const primaryColor = details?.color ? `#${details.color}` : '#3b82f6';
   const altColor = details?.alternateColor ? `#${details.alternateColor}` : '#1e293b';

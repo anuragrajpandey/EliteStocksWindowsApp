@@ -61,5 +61,23 @@
       "ui": "Interface"
     },
     "title": "Paramètres"
+  },
+  "time": {
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "neverSynced": "Jamais synchronisé",
+    "justNow": "À l'instant",
+    "minuteAgo_one": "il y a {{count}} minute",
+    "minuteAgo_other": "il y a {{count}} minutes",
+    "hourAgo_one": "il y a {{count}} heure",
+    "hourAgo_other": "il y a {{count}} heures",
+    "dayAgo_one": "il y a {{count}} jour",
+    "dayAgo_other": "il y a {{count}} jours",
+    "weekAgo_one": "il y a {{count}} semaine",
+    "weekAgo_other": "il y a {{count}} semaines",
+    "secAgo": "il y a {{count}} s",
+    "mAgo": "il y a {{count}} min",
+    "hAgo": "il y a {{count}} h",
+    "dAgo": "il y a {{count}} j"
   }
 }

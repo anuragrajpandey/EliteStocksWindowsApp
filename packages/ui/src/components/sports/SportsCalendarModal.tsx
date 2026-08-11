@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { formatDate } from '../../utils/dateTime';
 
 interface SportsCalendarModalProps {
@@ -230,7 +231,7 @@ export function SportsCalendarModal({
                 onClick={() => handleCellClick(cell.date)}
               >
                 <span className="day-number">{cell.dayNumber}</span>
-                {today && <span className="today-dot" title="Today" />}
+                {today && <span className="today-dot" title={i18n.t('time:today')} />}
               </button>
             );
           })}

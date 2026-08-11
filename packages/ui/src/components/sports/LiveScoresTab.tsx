@@ -8,6 +8,8 @@ import {
 import { useSportsSettingsStore } from '../../stores/sportsSettingsStore';
 import { useSportsPolling, formatLastUpdated } from '../../hooks/useSportsPolling';
 import { useSetSportsSelectedTab } from '../../stores/uiStore';
+import { useEpgClockFormat } from '../../stores/uiStore';
+import { useTranslation } from 'react-i18next';
 import { GameCard } from './GameCard';
 import { GameDetail } from './GameDetail';
 import { GameCardSkeleton } from './LoadingSkeleton';
@@ -29,6 +31,8 @@ export function LiveScoresTab({
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const setSelectedTab = useSetSportsSelectedTab();
+  const epgClockFormat = useEpgClockFormat();
+  useTranslation();
   
   const { liveLeagues, loaded, loadSettings } = useSportsSettingsStore();
 
@@ -97,7 +101,7 @@ export function LiveScoresTab({
             </span>
           ) : lastUpdated ? (
             <span className="live-last-updated">
-              Updated {formatLastUpdated(lastUpdated)}
+              Updated {formatLastUpdated(lastUpdated, epgClockFormat !== '24h')}
               {isPolling && <span className="live-polling-indicator" title="Auto-refreshing" />}
             </span>
           ) : null}

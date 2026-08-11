@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../utils/dateTime';
+import i18n from '../../i18n';
 import {
   getLeagueNews,
   getAvailableLeagues,
@@ -139,9 +140,9 @@ function NewsCard({ article }: NewsCardProps) {
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(hours / 24);
     
-    if (hours < 1) return 'Just now';
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
+    if (hours < 1) return i18n.t('time:justNow');
+    if (hours < 24) return i18n.t('time:hAgo', { count: hours });
+    if (days < 7) return i18n.t('time:dAgo', { count: days });
     return formatDate(date);
   };
 

@@ -61,5 +61,23 @@
       "ui": "UI"
     },
     "title": "Settings"
+  },
+  "time": {
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "neverSynced": "Never synced",
+    "justNow": "Just now",
+    "minuteAgo_one": "{{count}} minute ago",
+    "minuteAgo_other": "{{count}} minutes ago",
+    "hourAgo_one": "{{count}} hour ago",
+    "hourAgo_other": "{{count}} hours ago",
+    "dayAgo_one": "{{count}} day ago",
+    "dayAgo_other": "{{count}} days ago",
+    "weekAgo_one": "{{count}} week ago",
+    "weekAgo_other": "{{count}} weeks ago",
+    "secAgo": "{{count}}s ago",
+    "mAgo": "{{count}}m ago",
+    "hAgo": "{{count}}h ago",
+    "dAgo": "{{count}}d ago"
   }
 }

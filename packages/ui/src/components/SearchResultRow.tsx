@@ -10,6 +10,7 @@ import { normalizeBoolean } from '../utils/db-helpers';
 import type { RecordingInfo } from '../hooks/useActiveRecordings';
 import { useEpgClockFormat } from '../stores/uiStore';
 import { formatTime, formatDate } from '../utils/dateTime';
+import i18n from '../i18n';
 import { useTranslation } from 'react-i18next';
 import './ChannelPanel.css';
 
@@ -41,8 +42,8 @@ function formatProgramDate(date: Date | string): string {
   const isToday = d.toDateString() === now.toDateString();
   const isTomorrow = new Date(now.getTime() + 86400000).toDateString() === d.toDateString();
 
-  if (isToday) return 'Today';
-  if (isTomorrow) return 'Tomorrow';
+  if (isToday) return i18n.t('time:today');
+  if (isTomorrow) return i18n.t('time:tomorrow');
   return formatDate(d, { weekday: 'short', month: 'short', day: 'numeric' });
 }
 

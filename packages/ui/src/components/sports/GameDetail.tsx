@@ -8,6 +8,7 @@ import {
   type PlayerStatCategory,
 } from '../../services/sports';
 import { useEpgClockFormat } from '../../stores/uiStore';
+import { useTranslation } from 'react-i18next';
 
 interface GameDetailProps {
   event: SportsEvent;
@@ -21,6 +22,7 @@ type TabId = 'stats' | 'players' | 'scoring' | 'info';
 
 export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, variant = 'default' }: GameDetailProps) {
   const epgClockFormat = useEpgClockFormat();
+  useTranslation();
   const [summary, setSummary] = useState<GameSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>('stats');

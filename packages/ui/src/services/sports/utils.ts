@@ -1,4 +1,5 @@
 import { formatTime, formatDate } from '../../utils/dateTime';
+import i18n from '../../i18n';
 
 /**
  * Sports Utils
@@ -20,10 +21,10 @@ export function formatEventDate(date: Date): string {
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   if (date.toDateString() === today.toDateString()) {
-    return 'Today';
+    return i18n.t('time:today');
   }
   if (date.toDateString() === tomorrow.toDateString()) {
-    return 'Tomorrow';
+    return i18n.t('time:tomorrow');
   }
   return formatDate(date, {
     weekday: 'short',
@@ -36,7 +37,7 @@ export function formatEventDateTime(date: Date, hour12: boolean = true): string 
   return `${formatEventDate(date)} ${formatEventTime(date, hour12)}`;
 }
 
-export function formatLastUpdated(date: Date | null): string {
+export function formatLastUpdated(date: Date | null, hour12: boolean = true): string {
   if (!date) return '';
   
   const now = new Date();
@@ -44,13 +45,14 @@ export function formatLastUpdated(date: Date | null): string {
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
   
-  if (seconds < 10) return 'Just now';
-  if (seconds < 60) return `${seconds}s ago`;
-  if (minutes < 60) return `${minutes}m ago`;
+  if (seconds < 10) return i18n.t('time:justNow');
+  if (seconds < 60) return i18n.t('time:secAgo', { count: seconds });
+  if (minutes < 60) return i18n.t('time:mAgo', { count: minutes });
   
   return formatTime(date, {
     hour: '2-digit',
     minute: '2-digit',
+    hour12,
   });
 }
 
@@ -62,9 +64,9 @@ export function formatRelativeDate(date?: Date): string {
   const hours = Math.floor(diff / (1000 * 60 * 60));
   const days = Math.floor(hours / 24);
   
-  if (hours < 1) return 'Just now';
-  if (hours < 24) return `${hours}h ago`;
-  if (days < 7) return `${days}d ago`;
+  if (hours < 1) return i18n.t('time:justNow');
+  if (hours < 24) return i18n.t('time:hAgo', { count: hours });
+  if (days < 7) return i18n.t('time:dAgo', { count: days });
   return formatDate(date);
 }
 

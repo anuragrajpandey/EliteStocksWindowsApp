@@ -8,6 +8,7 @@ import { useUpcomingSports } from '../../hooks/useUpcomingSports';
 import { GameCard } from './GameCard';
 import { GameDetail } from './GameDetail';
 import { GameCardSkeleton } from './LoadingSkeleton';
+import { useTranslation } from 'react-i18next';
 import './LoadingSkeleton.css';
 
 interface UpcomingTabProps {
@@ -16,6 +17,7 @@ interface UpcomingTabProps {
 }
 
 export function UpcomingTab({ onSearchChannels, onPlayChannel }: UpcomingTabProps) {
+  useTranslation();
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
   const [daysAhead, setDaysAhead] = useState(3);
 

@@ -42,6 +42,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 import { formatTime, formatDate } from '../../utils/dateTime';
+import i18n from '../../i18n';
 
 export type SourcesSubTabId = 'source' | 'epg' | 'refresh' | 'global_ua';
 
@@ -163,7 +164,7 @@ function isExpiryWarning(dateString?: string): boolean {
 
 // Format time difference in human-readable format
 function formatTimeAgo(date: Date | null | undefined): string {
-  if (!date) return 'Never synced';
+  if (!date) return i18n.t('time:neverSynced');
 
   const now = new Date();
   const diffMs = now.getTime() - new Date(date).getTime();
@@ -172,12 +173,12 @@ function formatTimeAgo(date: Date | null | undefined): string {
   const diffHours = Math.floor(diffMinutes / 60);
   const diffDays = Math.floor(diffHours / 24);
 
-  if (diffSeconds < 60) return 'Just now';
-  if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
-  if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
-  if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+  if (diffSeconds < 60) return i18n.t('time:justNow');
+  if (diffMinutes < 60) return i18n.t('time:minuteAgo', { count: diffMinutes });
+  if (diffHours < 24) return i18n.t('time:hourAgo', { count: diffHours });
+  if (diffDays < 7) return i18n.t('time:dayAgo', { count: diffDays });
   const weeks = Math.floor(diffDays / 7);
-  return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
+  return i18n.t('time:weekAgo', { count: weeks });
 }
 
 const SettingsIcon = ({ size = 16 }: { size?: number }) => (
@@ -288,6 +289,8 @@ function SortableSourceItem(props: SortableSourceItemProps) {
     transition,
     isDragging,
   } = useSortable({ id: source.id });
+
+  useTranslation();
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -431,6 +434,7 @@ export function SourcesTab({
   onEpgSyncConcurrencyChange,
 }: SourcesTabProps) {
   const { incrementVersion } = useSourceVersion(); // Get version incrementer
+  useTranslation();
   const { globalLiveTvUserAgent, setGlobalLiveTvUserAgent } = useAppSettings();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -1435,15 +1439,15 @@ export function SourcesTab({
 
   // Format time since last sync
   function formatLastSynced(timestamp?: number): string {
-    if (!timestamp) return 'Never synced';
+    if (!timestamp) return i18n.t('time:neverSynced');
     const diffMs = Date.now() - timestamp;
     const diffMins = Math.floor(diffMs / 60000);
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffMins < 1) return i18n.t('time:justNow');
+    if (diffMins < 60) return i18n.t('time:minuteAgo', { count: diffMins });
     const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return i18n.t('time:hourAgo', { count: diffHours });
     const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+    return i18n.t('time:dayAgo', { count: diffDays });
   }
 
   // --- @dnd-kit Drag and Drop Handlers for Sources ---

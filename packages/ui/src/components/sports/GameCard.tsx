@@ -5,6 +5,7 @@ import { db } from '../../db';
 import type { StoredChannel } from '../../db';
 import { buildSearchQueryClauses } from '../../utils/searchNormalization';
 import { useSportsSelectedChannels, useSetSportsSelectedChannel, useEpgClockFormat } from '../../stores/uiStore';
+import { useTranslation } from 'react-i18next';
 import './styles/GameCard.css';
 
 /**
@@ -173,6 +174,7 @@ const inlineSearchCache = new Map<string, StoredChannel[]>();
 
 export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlayChannel, compact = false }: GameCardProps) {
   const epgClockFormat = useEpgClockFormat();
+  useTranslation();
   const isLive = event.status === 'live';
   const isFinished = event.status === 'finished';
   const isScheduled = event.status === 'scheduled';

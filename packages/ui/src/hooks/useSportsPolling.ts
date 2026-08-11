@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { formatTime } from '../utils/dateTime';
+import i18n from '../i18n';
 import type { SportsEvent } from '@ynotv/core';
 import { getLiveScores, getLiveScoresForLeagues, isEventLiveOrPastStart } from '../services/sports';
 import { DEFAULT_LIVE_LEAGUES } from '../services/sports/config';
@@ -531,7 +532,7 @@ function leaguesEqual(a: string[], b: string[]): boolean {
 }
 
 // Helper to format the last updated time
-export function formatLastUpdated(date: Date | null): string {
+export function formatLastUpdated(date: Date | null, hour12: boolean = true): string {
   if (!date) return '';
 
   const now = new Date();
@@ -539,12 +540,13 @@ export function formatLastUpdated(date: Date | null): string {
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
 
-  if (seconds < 10) return 'Just now';
-  if (seconds < 60) return `${seconds}s ago`;
-  if (minutes < 60) return `${minutes}m ago`;
+  if (seconds < 10) return i18n.t('time:justNow');
+  if (seconds < 60) return i18n.t('time:secAgo', { count: seconds });
+  if (minutes < 60) return i18n.t('time:mAgo', { count: minutes });
 
   return formatTime(date, {
     hour: '2-digit',
     minute: '2-digit',
+    hour12,
   });
 }

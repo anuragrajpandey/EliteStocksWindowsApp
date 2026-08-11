@@ -25,6 +25,7 @@
  */
 
 import { invoke } from '@tauri-apps/api/core';
+import i18n from '../i18n';
 
 /// Cache statistics
 export interface CacheStats {
@@ -304,19 +305,17 @@ export async function ensureFreshCache(
  */
 export function formatCacheAge(hours: number): string {
   if (hours < 1) {
-    return 'Just now';
-  } else if (hours === 1) {
-    return '1 hour ago';
+    return i18n.t('time:justNow');
   } else if (hours < 24) {
-    return `${hours} hours ago`;
+    return i18n.t('time:hourAgo', { count: Math.floor(hours) });
   } else if (hours < 48) {
-    return '1 day ago';
+    return i18n.t('time:dayAgo', { count: 1 });
   } else if (hours < 168) {
-    return `${Math.floor(hours / 24)} days ago`;
+    return i18n.t('time:dayAgo', { count: Math.floor(hours / 24) });
   } else if (hours < 336) {
-    return '1 week ago';
+    return i18n.t('time:weekAgo', { count: 1 });
   } else {
-    return `${Math.floor(hours / 168)} weeks ago`;
+    return i18n.t('time:weekAgo', { count: Math.floor(hours / 168) });
   }
 }
 
