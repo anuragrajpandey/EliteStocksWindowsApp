@@ -794,7 +794,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
 
     console.log('[Playback] Setting up progress save - initial position:', position);
 
-    const saveProgress = () => {
+    const saveProgress = async (): Promise<void> => {
       // Read current values from refs (always up to date)
       const currentVodInfo = vodInfoRef.current;
       const currentPosition = positionRef.current;
@@ -815,7 +815,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
       if (currentVodInfo.type === 'recording' && currentPosition > 0) {
         console.log('[Playback] Auto-saving progress for recording:', Math.floor(currentPosition), '/', Math.floor(currentDuration));
         if (currentVodInfo.recordingId) {
-          void updateDvrRecordingProgress(currentVodInfo.recordingId, Math.floor(currentPosition), Math.floor(currentDuration));
+          await updateDvrRecordingProgress(currentVodInfo.recordingId, Math.floor(currentPosition), Math.floor(currentDuration));
         } else {
           useDownloadStore.getState().saveDownloadProgress(currentVodInfo.url, Math.floor(currentPosition), Math.floor(currentDuration));
         }
@@ -835,7 +835,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
               const episodeId = parts[1];
               
               // Save series-level progress (for Recently Watched)
-              void updateVodWatchProgress(
+              const p1 = updateVodWatchProgress(
                 seriesId,
                 'series',
                 Math.floor(currentPosition),
@@ -843,7 +843,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
               );
               
               // Save episode-level progress (for episode resume)
-              void recordEpisodeWatch(
+              const p2 = recordEpisodeWatch(
                 episodeId,
                 seriesId,
                 currentVodInfo.source_id || '',
@@ -854,11 +854,12 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
                 Math.floor(currentDuration)
               );
               
+              await Promise.all([p1, p2]);
               console.log('[Playback] ✅ Auto-saved series progress at position:', Math.floor(currentPosition));
             }
           } else {
             // For movies or series without episode info
-            void updateVodWatchProgress(
+            await updateVodWatchProgress(
               mediaId,
               currentVodInfo.type as 'movie' | 'series',
               Math.floor(currentPosition),
@@ -878,16 +879,16 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
 
     // Save every 30 seconds while playing
     console.log('[Playback] Starting 30s progress save interval');
-    const saveInterval = setInterval(saveProgress, 30000);
+    const saveInterval = setInterval(() => { void saveProgress(); }, 30000);
     
     // Do an immediate save when starting
     console.log('[Playback] Doing immediate initial save');
-    saveProgress();
+    void saveProgress();
 
     // Save when user closes/refreshes the page - use synchronous approach
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       console.log('[Playback] beforeunload triggered - saving progress');
-      saveProgress();
+      void saveProgress();
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
 

@@ -29,14 +29,45 @@ function delay(ms: number) {
 }
 
 // Callback for app close event
-let onAppCloseCallback: (() => void) | null = null;
+let onAppCloseCallback: (() => void | Promise<void>) | null = null;
+let appCloseListenerUnlisten: UnlistenFn | null = null;
+
+/**
+ * Initialize global app close listener across all platforms (Windows, macOS, Linux).
+ * Listens for window close requested events and awaits state/progress save callbacks before exiting.
+ */
+export async function initAppCloseListener() {
+    if (appCloseListenerUnlisten) return;
+    try {
+        const appWindow = getCurrentWindow();
+        appCloseListenerUnlisten = await appWindow.onCloseRequested(async (event) => {
+            console.log('[Bridge] Close requested - calling save callbacks');
+            if (onAppCloseCallback) {
+                try {
+                    await onAppCloseCallback();
+                } catch (err) {
+                    console.error('[Bridge] Error during onAppCloseCallback:', err);
+                }
+            }
+            try {
+                await flushDebouncedSettings();
+            } catch (err) {
+                console.error('[Bridge] Failed to flush debounced settings on close:', err);
+            }
+        });
+        console.log('[Bridge] App close listener successfully registered');
+    } catch (e) {
+        console.error('[Bridge] Failed to register app close listener:', e);
+    }
+}
 
 /**
  * Register a callback to be called when the app is about to close
  * This allows components to save state before the app exits
  */
-export function registerOnAppClose(callback: () => void) {
+export function registerOnAppClose(callback: () => void | Promise<void>) {
     onAppCloseCallback = callback;
+    initAppCloseListener().catch(() => {});
 }
 
 /**
@@ -113,25 +144,6 @@ export async function initWindowSync() {
         console.log('[WindowSync] Focus listener attached');
     } catch (e) {
         console.error('[WindowSync] Failed to attach focus listener:', e);
-    }
-
-    // Listen for close request to allow saving progress
-    try {
-        windowSyncListeners.close = await appWindow.onCloseRequested(async (event) => {
-            console.log('[WindowSync] Close requested - calling save callback');
-            if (onAppCloseCallback) {
-                onAppCloseCallback();
-            }
-            try {
-                await flushDebouncedSettings();
-            } catch (err) {
-                console.error('[WindowSync] Failed to flush debounced settings on close:', err);
-            }
-            // Allow the window to close
-        });
-        console.log('[WindowSync] Close listener attached');
-    } catch (e) {
-        console.error('[WindowSync] Failed to attach close listener:', e);
     }
 }
 
