@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import i18n from '../../i18n';
+import i18n, { translateNativeError } from '../../i18n';
 import { exportAllData, importAllData } from '../../utils/exportImport';
 
 export function ImportExportTab() {
@@ -19,13 +19,13 @@ export function ImportExportTab() {
             if (result.success) {
                 setStatus({
                     type: 'success',
-                    message: `Export successful! Saved to ${result.filePath}`
+                    message: i18n.t('settings:importExport.exportSuccess', { filePath: result.filePath })
                 });
             } else if (result.error) {
-                setStatus({ type: 'error', message: result.error });
+                setStatus({ type: 'error', message: translateNativeError(result.error) || result.error });
             }
         } catch (error) {
-            setStatus({ type: 'error', message: String(error) });
+            setStatus({ type: 'error', message: translateNativeError(String(error)) || String(error) });
         } finally {
             setIsProcessing(false);
         }
@@ -41,10 +41,10 @@ export function ImportExportTab() {
                 // Show restart confirmation modal instead of native confirm
                 setShowRestartConfirm(true);
             } else if (result.error) {
-                setStatus({ type: 'error', message: result.error });
+                setStatus({ type: 'error', message: translateNativeError(result.error) || result.error });
             }
         } catch (error) {
-            setStatus({ type: 'error', message: String(error) });
+            setStatus({ type: 'error', message: translateNativeError(String(error)) || String(error) });
         } finally {
             setIsProcessing(false);
         }

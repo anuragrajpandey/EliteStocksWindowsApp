@@ -4,7 +4,7 @@ import './TVShowsManager.css';
 import { db, addTvEpisodeToWatchlist, clearAutoAddedEpisodesForShow, type AutoAddEpisode } from '../db';
 import { matchesSearch } from '../utils/searchNormalization';
 import { useTranslation } from 'react-i18next';
-import i18n from '../i18n';
+import i18n, { translateNativeError } from '../i18n';
 import { formatDate } from '../utils/dateTime';
 
 interface TrackedShow {
@@ -67,7 +67,7 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
         setSelectedShow(null);
       }
     } catch (e: any) {
-      alert(t('failedToRemove', { error: String(e) }));
+      alert(t('failedToRemove', { error: translateNativeError(String(e)) || String(e) }));
     } finally {
       setRemovingId(null);
     }

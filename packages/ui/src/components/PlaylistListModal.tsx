@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import i18n from '../i18n';
+import i18n, { translateNativeError } from '../i18n';
 import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../hooks/useSqliteLiveQuery';
 import { db, type CustomPlaylist } from '../db';
@@ -522,7 +522,7 @@ export function PlaylistListModal({ onClose }: PlaylistListModalProps) {
           showSuccess(t('revertSource'), t('revertSourceSuccess', { name: sourceName }));
         } catch (e) {
           console.error('Failed to revert source to default:', e);
-          showError(t('revertSource'), t('revertSourceFailed', { error: String(e) }));
+          showError(t('revertSource'), t('revertSourceFailed', { error: translateNativeError(String(e)) || String(e) }));
         } finally {
           setRevertingId(null);
         }
@@ -558,7 +558,7 @@ export function PlaylistListModal({ onClose }: PlaylistListModalProps) {
       }
     } catch (e) {
       console.error('Failed to export playlist:', e);
-      showError(t('exportPlaylist'), t('exportFailed', { error: String(e) }));
+      showError(t('exportPlaylist'), t('exportFailed', { error: translateNativeError(String(e)) || String(e) }));
     }
   };
 

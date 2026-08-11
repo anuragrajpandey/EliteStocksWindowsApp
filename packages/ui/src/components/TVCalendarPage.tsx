@@ -7,7 +7,7 @@ import { TVCalendarTab } from './settings/TVCalendarTab';
 import { db, addTvEpisodeToWatchlist, clearAutoAddedEpisodesForShow, type StoredChannel, type AutoAddEpisode } from '../db';
 import { useEpgClockFormat } from '../stores/uiStore';
 import { useTranslation } from 'react-i18next';
-import i18n from '../i18n';
+import i18n, { translateNativeError } from '../i18n';
 import { formatTime, formatDate } from '../utils/dateTime';
 
 const WEEKDAY_KEYS: Record<string, 'weekdaySun' | 'weekdayMon' | 'weekdayTue' | 'weekdayWed' | 'weekdayThu' | 'weekdayFri' | 'weekdaySat'> = {
@@ -402,7 +402,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
       setUpcomingEpisodes(filteredEpisodes);
     } catch (e: any) {
       console.error('[TVCalendarPage] Failed to load upcoming shows:', e);
-      setUpcomingError(e.toString());
+      setUpcomingError(translateNativeError(e.toString()) || e.toString());
     } finally {
       setUpcomingLoading(false);
     }

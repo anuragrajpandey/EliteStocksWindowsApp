@@ -1148,7 +1148,8 @@
       "disconnectConfirm": "Voulez-vous vraiment déconnecter votre compte Simkl ?",
       "codeExpired": "Le code a expiré. Veuillez recommencer.",
       "authStartFailed": "Échec du démarrage du flux d'authentification.",
-      "failedRequestPin": "Échec de la demande du code PIN Simkl ({{status}})"
+      "failedRequestPin": "Échec de la demande du code PIN Simkl ({{status}})",
+      "pollFailed": "Échec de la vérification du code PIN Simkl ({{status}})"
     },
     "strem": {
       "title": "Lecture Strem",
@@ -1940,6 +1941,14 @@
       "deleteSub": "Voulez-vous vraiment supprimer cette playlist personnalisée ? Cette action est irréversible.",
       "exportSuccess": "Playlist exportée avec succès !",
       "exportFailed": "Échec de l’exportation : {{error}}"
+    },
+    "importExport": {
+      "exportSuccess": "Export réussi ! Enregistré dans {{filePath}}",
+      "failedToReadFile": "Échec de la lecture du fichier",
+      "invalidBackupFormat": "Format de fichier de sauvegarde invalide",
+      "restoreFailed": "Échec de la restauration de {{name}} : {{detail}}",
+      "clearTableFailed": "Échec de la suppression de la table « {{table}} » : {{detail}}",
+      "restoreCustomGroupsFailed": "Échec de la restauration des groupes personnalisés : {{detail}}"
     }
   },
   "time": {
@@ -2903,7 +2912,12 @@
     "failedToPlayRecording": "Échec de la lecture de l’enregistrement",
     "unknownError": "Erreur inconnue",
     "failedToCastMedia": "Échec de la diffusion du média",
-    "noMediaSession": "Aucune session média"
+    "noMediaSession": "Aucune session média",
+    "mpvDiedStartup": "Le processus MPV n’a pas pu démarrer. Vérifiez que le MPV inclus est valide et n’est pas bloqué par l’antivirus.",
+    "mainWindowNotFound": "Fenêtre principale introuvable",
+    "mpvNotConnected": "MPV n’est pas connecté",
+    "mpvTimeout": "Délai dépassé",
+    "mpvChannelClosed": "Canal fermé"
   },
   "stremio": {
     "account": "Compte",
@@ -3093,7 +3107,8 @@
     "searching": "Recherche d'appareils…",
     "failedToConnect": "Échec de la connexion",
     "chromecast": "Chromecast",
-    "disconnectCast": "Déconnecter le Cast"
+    "disconnectCast": "Déconnecter le Cast",
+    "failedToLaunchReceiver": "Échec du lancement du récepteur média"
   },
   "subtitles": {
     "header": "Sous-titres",
@@ -3355,7 +3370,8 @@
     "uncategorized": "Non catégorisé",
     "unknownSource": "Source inconnue",
     "revertSourceTitle": "Restaurer la source",
-    "noCategories": "Aucune catégorie."
+    "noCategories": "Aucune catégorie.",
+    "playlistNotFound": "Playlist {{id}} introuvable"
   },
   "tvShows": {
     "title": "Calendrier TV",

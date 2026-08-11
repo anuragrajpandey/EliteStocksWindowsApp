@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import i18n from '../../i18n';
+import i18n, { translateNativeError } from '../../i18n';
 import { scrobbler } from '../../services/scrobbler';
 import '../Modal.css';
 import './PlaybackTab.css';
@@ -99,7 +99,7 @@ export function SimklTab() {
           } else if (pollRes.error) {
             clearTimers();
             setAuthState('error');
-            setErrorMessage(pollRes.error);
+            setErrorMessage(translateNativeError(pollRes.error) || pollRes.error);
           }
         } catch (e) {
           console.error('Simkl polling failed:', e);
@@ -107,7 +107,7 @@ export function SimklTab() {
       }, intervalSec * 1000);
     } catch (e: any) {
       console.error('Failed to initiate Simkl PIN auth:', e);
-      setErrorMessage(e.message || i18n.t('settings:simkl.authStartFailed'));
+      setErrorMessage(translateNativeError(e.message) || i18n.t('settings:simkl.authStartFailed'));
       setAuthState('error');
     }
   };
@@ -298,7 +298,7 @@ export function SimklTab() {
                 textAlign: 'center',
               }}>
                 <div style={{ fontWeight: 600, marginBottom: '8px' }}>
-                  {errorMessage || 'Authentication failed.'}
+                  {errorMessage || i18n.t('common:authenticationFailed')}
                 </div>
                 <button
                   className="sync-btn"

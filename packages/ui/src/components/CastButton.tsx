@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { translateNativeError } from '../i18n';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import './CastButton.css';
@@ -117,7 +118,7 @@ export function CastButton({ castEnabled, onCastCurrentStream, onCastEnabledChan
       });
     } catch (e: any) {
       console.error('[Cast] Connection failed:', e);
-      setErrorMsg(typeof e === 'string' ? e : e.message || t('failedToConnect'));
+      setErrorMsg(translateNativeError(typeof e === 'string' ? e : e.message) || t('failedToConnect'));
       setConnectingId(null);
     }
   };

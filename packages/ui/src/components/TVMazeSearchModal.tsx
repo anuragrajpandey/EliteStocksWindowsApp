@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { translateNativeError } from '../i18n';
 import './TVMazeSearchModal.css';
 
 interface ShowResult {
@@ -51,7 +52,7 @@ export function TVMazeSearchModal({ programTitle, channelName, channelId, onClos
       const res = await invoke<ShowResult[]>('search_tvmaze', { query: query.trim() });
       setResults(res.slice(0, 6));
     } catch (e: any) {
-      setError(e?.toString() || t('searchFailed'));
+      setError(translateNativeError(e?.toString()) || t('searchFailed'));
     } finally {
       setLoading(false);
     }
@@ -79,7 +80,7 @@ export function TVMazeSearchModal({ programTitle, channelName, channelId, onClos
       onClose();
     } catch (e: any) {
       console.error('[TVMaze] Add failed:', e);
-      setError(e?.toString() || t('failedToAddShort'));
+      setError(translateNativeError(e?.toString()) || t('failedToAddShort'));
     } finally {
       setAdding(null);
     }

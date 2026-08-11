@@ -1,4 +1,5 @@
 import { db, StoredChannel } from '../db';
+import i18n from '../i18n';
 
 // Helper to parse category IDs from JSON string or array
 function parseCategoryIds(categoryIdsJson: string | string[] | number[] | undefined): string[] {
@@ -72,7 +73,7 @@ export async function generateM3uForPlaylist(playlistId: string): Promise<string
     }
     
     if (!playlistName && !sourceMeta) {
-      throw new Error(`Playlist ${playlistId} not found`);
+      throw new Error(i18n.t('playlist:playlistNotFound', { id: playlistId }));
     }
   }
 

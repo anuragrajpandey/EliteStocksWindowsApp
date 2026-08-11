@@ -8,6 +8,7 @@ import {
     type PlaylistCategoryLink,
     type PlaylistIndividualChannel
 } from '../db';
+import i18n from '../i18n';
 import type { Source } from '@ynotv/core';
 import type { AppSettings } from '../types/app';
 import { Bridge } from '../services/tauri-bridge';
@@ -545,19 +546,19 @@ export async function exportAllData(): Promise<{ success: boolean; filePath?: st
  */
 export async function importAllData(): Promise<{ success: boolean; error?: string }> {
     try {
-        if (!window.storage) throw new Error('Storage API not available');
+        if (!window.storage) throw new Error(i18n.t('common:storageApiUnavailable'));
 
         // 1. Open File via Bridge
         const fileResult = await Bridge.openJsonFile();
         if (fileResult.canceled) return { success: false, error: 'Cancelled' };
 
-        if (!fileResult.data) throw new Error('Failed to read file');
+        if (!fileResult.data) throw new Error(i18n.t('settings:importExport.failedToReadFile'));
 
         const data: ExportData = JSON.parse(fileResult.data);
 
         // Basic validation
         if (!data.version || !data.sources || !data.settings) {
-            throw new Error('Invalid backup file format');
+            throw new Error(i18n.t('settings:importExport.invalidBackupFormat'));
         }
 
         // Note: We no longer use PRAGMA foreign_keys = OFF here.
@@ -641,7 +642,7 @@ export async function importAllData(): Promise<{ success: boolean; error?: strin
                     console.log(`[Import] Success: ${name}`);
                 } catch (e) {
                     console.error(`[Import] FAILURE: ${name}. Error:`, e);
-                    throw new Error(`Restoring ${name} failed: ${e instanceof Error ? e.message : String(e)}`);
+                    throw new Error(i18n.t('settings:importExport.restoreFailed', { name, detail: e instanceof Error ? e.message : String(e) }));
                 }
             };
 
@@ -706,7 +707,7 @@ export async function importAllData(): Promise<{ success: boolean; error?: strin
                         await t.table.clear();
                     } catch (err) {
                         console.error(`[Import] Failed to clear table: ${t.name}. Error:`, err);
-                        throw new Error(`Failed to clear table "${t.name}": ${err instanceof Error ? err.message : String(err)}`);
+                        throw new Error(i18n.t('settings:importExport.clearTableFailed', { table: t.name, detail: err instanceof Error ? err.message : String(err) }));
                     }
                 }
             });
@@ -1079,7 +1080,7 @@ export async function importAllData(): Promise<{ success: boolean; error?: strin
                 console.log('[Import] Success: Custom Groups');
             } catch (e) {
                 console.error('[Import] FAILURE: Custom Groups. Error:', e);
-                throw new Error(`Restoring Custom Groups failed: ${e instanceof Error ? e.message : String(e)}`);
+                throw new Error(i18n.t('settings:importExport.restoreCustomGroupsFailed', { detail: e instanceof Error ? e.message : String(e) }));
             }
         }
 

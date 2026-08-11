@@ -75,6 +75,11 @@ export function translateNativeError(msg: string | null | undefined): string {
   if (msg.startsWith('Download interrupted:')) return i18n.t('common:epgDownloadInterrupted');
   if (msg.startsWith('Stream parse EPG failed:')) return i18n.t('common:epgParseFailed');
   if (msg.startsWith('Stream parse EPG multi failed:')) return i18n.t('common:epgParseFailed');
+  if (msg.startsWith('mpv process (pid=')) return i18n.t('player:mpvDiedStartup');
+  if (msg.startsWith('Failed to launch media receiver:')) return i18n.t('cast:failedToLaunchReceiver');
+  if (msg.startsWith('Reconnect receiver channel failed:')) return i18n.t('cast:failedToConnect');
+  if (msg.startsWith('Reconnect heartbeat failed:')) return i18n.t('cast:failedToConnect');
+  if (msg.startsWith('Reconnect to ')) return i18n.t('cast:failedToConnect');
   switch (msg) {
     case 'Authentication failed':
       return i18n.t('common:authenticationFailed');
@@ -90,6 +95,14 @@ export function translateNativeError(msg: string | null | undefined): string {
       return i18n.t('player:noMediaSession');
     case 'Max retries exceeded for database operation':
       return i18n.t('common:epgMaxRetriesExceeded');
+    case 'Main window not found':
+      return i18n.t('player:mainWindowNotFound');
+    case 'IPC not connected':
+      return i18n.t('player:mpvNotConnected');
+    case 'Timeout':
+      return i18n.t('player:mpvTimeout');
+    case 'Channel closed':
+      return i18n.t('player:mpvChannelClosed');
     default:
       return msg;
   }

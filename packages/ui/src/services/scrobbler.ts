@@ -436,7 +436,7 @@ class ScrobblerService {
       });
 
       if (!response.ok) {
-        return { success: false, error: `Simkl PIN poll failed (${response.status})` };
+        return { success: false, error: i18n.t('settings:simkl.pollFailed', { status: response.status }) };
       }
 
       const data = await response.json();
