@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { db } from '../db';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import './ProgramContextMenu.css';
 
 interface CategoryContextMenuProps {
@@ -34,6 +36,7 @@ export function CategoryContextMenu({
     onUnpin,
     onOpenLogoEditor,
 }: CategoryContextMenuProps) {
+    useTranslation();
     const menuRef = useRef<HTMLDivElement>(null);
     const [adjustedPosition, setAdjustedPosition] = useState(position);
     
@@ -151,13 +154,13 @@ export function CategoryContextMenu({
                 style={{ left: `${adjustedPosition.x}px`, top: `${adjustedPosition.y}px`, minWidth: '220px' }}
             >
                 <div className="context-menu-header" style={{ padding: '8px 12px 4px', fontSize: '11px', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Add Category to Playlist
+                    {i18n.t('contextMenu.addCategoryToPlaylist')}
                 </div>
                 <div className="context-menu-separator" />
                 <div className="context-menu-scrollable-container">
                     {playlists.length === 0 && (
                         <div style={{ padding: '10px 16px', opacity: 0.5, fontSize: '0.85rem' }}>
-                            No playlists yet
+                            {i18n.t('contextMenu.noPlaylistsYet')}
                         </div>
                     )}
                     {playlists.map(playlist => (
@@ -193,7 +196,7 @@ export function CategoryContextMenu({
                                     letterSpacing: '0.5px',
                                     flexShrink: 0
                                 }}>
-                                    Source
+                                    {i18n.t('contextMenu.source')}
                                 </span>
                             )}
                         </div>
@@ -201,7 +204,7 @@ export function CategoryContextMenu({
                 </div>
                 <div className="context-menu-separator" />
                 <div className="context-menu-item context-menu-item-secondary" onClick={() => setCurrentView('main')}>
-                    ← Back
+                    ← {i18n.t('contextMenu.back')}
                 </div>
             </div>,
             document.body
@@ -220,38 +223,38 @@ export function CategoryContextMenu({
             {isPinned ? (
                 onUnpin && (
                     <div className="context-menu-item" onClick={() => { onUnpin(); onClose(); }}>
-                        📌 Unpin Category
+                        📌 {i18n.t('contextMenu.unpinCategory')}
                     </div>
                 )
             ) : (
                 onPin && (
                     <div className="context-menu-item" onClick={() => { onPin(); onClose(); }}>
-                        📌 Pin to Top
+                        📌 {i18n.t('contextMenu.pinToTop')}
                     </div>
                 )
             )}
             {onRenameCategory && (
                 <div className="context-menu-item" onClick={() => { onRenameCategory(categoryId, categoryName); onClose(); }}>
-                    Rename Category
+                    {i18n.t('contextMenu.renameCategory')}
                 </div>
             )}
             {onManageCategories && (
                 <div className="context-menu-item" onClick={() => { onManageCategories(sourceId, sourceName); onClose(); }}>
-                    Manage Categories
+                    {i18n.t('contextMenu.manageCategories')}
                 </div>
             )}
             {onHideCategory && (
                 <div className="context-menu-item" onClick={() => { onHideCategory(categoryId); onClose(); }}>
-                    Hide Category
+                    {i18n.t('contextMenu.hideCategory')}
                 </div>
             )}
             {onOpenLogoEditor && (
                 <div className="context-menu-item" onClick={() => { onOpenLogoEditor(categoryId, categoryName, sourceId); onClose(); }}>
-                    🖼️ Logo Editor
+                    🖼️ {i18n.t('contextMenu.logoEditor')}
                 </div>
             )}
             <div className="context-menu-item" onClick={() => setCurrentView('playlist_add')}>
-                Add to Playlist →
+                {i18n.t('contextMenu.addToPlaylist')} →
             </div>
         </div>,
         document.body

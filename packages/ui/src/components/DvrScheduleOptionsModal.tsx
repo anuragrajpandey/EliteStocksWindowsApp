@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import './DvrScheduleOptionsModal.css';
 
@@ -28,6 +29,7 @@ export function DvrScheduleOptionsModal({
   onConfirm,
   onCancel,
 }: DvrScheduleOptionsModalProps) {
+  const { t } = useTranslation('dvr');
   const [startPadding, setStartPadding] = useState(defaultStartPadding);
   const [endPadding, setEndPadding] = useState(defaultEndPadding);
   const [recurrence, setRecurrence] = useState('once');
@@ -93,34 +95,34 @@ export function DvrScheduleOptionsModal({
 
           {/* Title Edit */}
           <div className="dvr-options-form-group">
-            <label className="dvr-options-label">Recording Title</label>
+            <label className="dvr-options-label">{t('recordingTitle')}</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="dvr-options-text-input"
-              placeholder="Recording Title"
+              placeholder={t('recordingTitle')}
             />
           </div>
 
           {/* Recurrence Selection */}
           <div className="dvr-options-form-group">
-            <label className="dvr-options-label">Recurrence</label>
+            <label className="dvr-options-label">{t('recurrence')}</label>
             <select
               value={recurrence}
               onChange={(e) => setRecurrence(e.target.value)}
               className="dvr-options-select"
             >
-              <option value="once">Once</option>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="every">Every X Days</option>
+              <option value="once">{t('once')}</option>
+              <option value="daily">{t('daily')}</option>
+              <option value="weekly">{t('weekly')}</option>
+              <option value="every">{t('everyXDays')}</option>
             </select>
           </div>
 
           {recurrence === 'every' && (
             <div className="dvr-options-form-group">
-              <label className="dvr-options-label">Repeat Every (Days)</label>
+              <label className="dvr-options-label">{t('repeatEveryDays')}</label>
               <input
                 type="number"
                 min="1"
@@ -134,7 +136,7 @@ export function DvrScheduleOptionsModal({
 
           {/* Padding */}
           <div className="dvr-options-form-group">
-            <label className="dvr-options-label">Start Padding</label>
+            <label className="dvr-options-label">{t('startPadding')}</label>
             <div className="dvr-options-padding-control">
               <input
                 type="range"
@@ -146,11 +148,11 @@ export function DvrScheduleOptionsModal({
               />
               <span className="dvr-options-padding-value">{startPadding}s</span>
             </div>
-            <span className="dvr-options-hint">Record this many seconds before start time</span>
+            <span className="dvr-options-hint">{t('startPaddingHint')}</span>
           </div>
 
           <div className="dvr-options-form-group">
-            <label className="dvr-options-label">End Padding</label>
+            <label className="dvr-options-label">{t('endPadding')}</label>
             <div className="dvr-options-padding-control">
               <input
                 type="range"
@@ -162,7 +164,7 @@ export function DvrScheduleOptionsModal({
               />
               <span className="dvr-options-padding-value">{endPadding}s</span>
             </div>
-            <span className="dvr-options-hint">Record this many seconds after end time</span>
+            <span className="dvr-options-hint">{t('endPaddingHint')}</span>
           </div>
         </div>
 

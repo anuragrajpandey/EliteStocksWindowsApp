@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Bridge } from '../services/tauri-bridge';
 import { StoredChannel } from '../db';
 import './TrackSelectionModal.css';
@@ -28,6 +29,7 @@ interface TrackSelectionModalProps {
 }
 
 export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDelayChanged }: TrackSelectionModalProps) {
+  const { t } = useTranslation('player');
   const [tracks, setTracks] = useState<Track[]>([]);
   const [ccTracks, setCcTracks] = useState<CCTrack[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -499,24 +501,24 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
 
         <div className="track-modal-content">
           {loading ? (
-            <div className="track-modal-loading">Loading...</div>
+            <div className="track-modal-loading">{t('loading')}</div>
           ) : (
             <>
               {type === 'audio' && activeTab === 'tracks' && (
                 <div className="audio-sync-container">
-                  <span className="audio-sync-label">Audio Delay / Sync</span>
+                  <span className="audio-sync-label">{t('audioDelaySync')}</span>
                   <div className="audio-sync-controls">
                     <button 
                       className="audio-sync-btn audio-sync-btn-large" 
                       onClick={() => handleAudioDelayChange(-1.0)}
-                      title="Decrease delay by 1s (audio earlier)"
+                      title={t('decreaseDelay1sAudio')}
                     >
                       -1s
                     </button>
                     <button 
                       className="audio-sync-btn" 
                       onClick={() => handleAudioDelayChange(-0.1)}
-                      title="Decrease delay by 0.1s"
+                      title={t('decreaseDelay01s')}
                     >
                       -0.1s
                     </button>
@@ -526,14 +528,14 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
                     <button 
                       className="audio-sync-btn" 
                       onClick={() => handleAudioDelayChange(0.1)}
-                      title="Increase delay by 0.1s"
+                      title={t('increaseDelay01s')}
                     >
                       +0.1s
                     </button>
                     <button 
                       className="audio-sync-btn audio-sync-btn-large" 
                       onClick={() => handleAudioDelayChange(1.0)}
-                      title="Increase delay by 1s (audio later)"
+                      title={t('increaseDelay1sAudio')}
                     >
                       +1s
                     </button>
@@ -551,19 +553,19 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
 
               {type === 'subtitle' && activeTab === 'tracks' && (
                 <div className="audio-sync-container">
-                  <span className="audio-sync-label">Subtitle Delay / Sync</span>
+                  <span className="audio-sync-label">{t('subtitleDelaySync')}</span>
                   <div className="audio-sync-controls">
                     <button 
                       className="audio-sync-btn audio-sync-btn-large" 
                       onClick={() => handleSubDelayChange(-1.0)}
-                      title="Decrease delay by 1s (subtitles earlier)"
+                      title={t('decreaseDelay1sSubtitle')}
                     >
                       -1s
                     </button>
                     <button 
                       className="audio-sync-btn" 
                       onClick={() => handleSubDelayChange(-0.1)}
-                      title="Decrease delay by 0.1s"
+                      title={t('decreaseDelay01s')}
                     >
                       -0.1s
                     </button>
@@ -573,14 +575,14 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
                     <button 
                       className="audio-sync-btn" 
                       onClick={() => handleSubDelayChange(0.1)}
-                      title="Increase delay by 0.1s"
+                      title={t('increaseDelay01s')}
                     >
                       +0.1s
                     </button>
                     <button 
                       className="audio-sync-btn audio-sync-btn-large" 
                       onClick={() => handleSubDelayChange(1.0)}
-                      title="Increase delay by 1s (subtitles later)"
+                      title={t('increaseDelay1sSubtitle')}
                     >
                       +1s
                     </button>
@@ -600,7 +602,7 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
                 <div className="subtitle-settings-container">
                   <div className="subtitle-setting-row">
                     <div className="subtitle-setting-info">
-                      <span className="subtitle-setting-label">Font Size</span>
+                      <span className="subtitle-setting-label">{t('fontSize')}</span>
                       <span className="subtitle-setting-val">{subSize}pt</span>
                     </div>
                     <div className="subtitle-setting-control">
@@ -616,7 +618,7 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
 
                   <div className="subtitle-setting-row">
                     <div className="subtitle-setting-info">
-                      <span className="subtitle-setting-label">Vertical Position</span>
+                      <span className="subtitle-setting-label">{t('verticalPosition')}</span>
                       <span className="subtitle-setting-val">{subVerticalOffset}%</span>
                     </div>
                     <div className="subtitle-setting-control">
@@ -632,7 +634,7 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
 
                   <div className="subtitle-setting-row">
                     <div className="subtitle-setting-info">
-                      <span className="subtitle-setting-label">Alignment</span>
+                      <span className="subtitle-setting-label">{t('alignment')}</span>
                     </div>
                     <div className="subtitle-align-btns">
                       <button 
@@ -658,7 +660,7 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
 
                   <div className="subtitle-setting-row">
                     <div className="subtitle-setting-info">
-                      <span className="subtitle-setting-label">Text Color</span>
+                      <span className="subtitle-setting-label">{t('textColor')}</span>
                     </div>
                     <div className="subtitle-setting-color">
                       <input 
@@ -672,7 +674,7 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
 
                   <div className="subtitle-setting-row">
                     <div className="subtitle-setting-info">
-                      <span className="subtitle-setting-label">Background Box</span>
+                      <span className="subtitle-setting-label">{t('backgroundBox')}</span>
                     </div>
                     <label className="subtitle-toggle">
                       <input 
@@ -688,7 +690,7 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
                     <>
                       <div className="subtitle-setting-row">
                         <div className="subtitle-setting-info">
-                          <span className="subtitle-setting-label">Background Color</span>
+                          <span className="subtitle-setting-label">{t('backgroundColor')}</span>
                         </div>
                         <div className="subtitle-setting-color">
                           <input 
@@ -702,7 +704,7 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
 
                       <div className="subtitle-setting-row">
                         <div className="subtitle-setting-info">
-                          <span className="subtitle-setting-label">Background Opacity</span>
+                          <span className="subtitle-setting-label">{t('backgroundOpacity')}</span>
                           <span className="subtitle-setting-val">{subBackgroundOpacity}%</span>
                         </div>
                         <div className="subtitle-setting-control">
@@ -730,16 +732,16 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
                       >
                         <span className="track-name">
                           {device.description || device.name}
-                          {device.name === 'auto' && <span className="track-badge">Default</span>}
+                          {device.name === 'auto' && <span className="track-badge">{t('default')}</span>}
                         </span>
                       </li>
                     );
                   })}
                 </ul>
               ) : type === 'subtitle' && tracks.length === 0 && ccTracks.length === 0 ? (
-                <div className="track-modal-empty">No subtitle tracks available</div>
+                <div className="track-modal-empty">{t('noSubtitleTracks')}</div>
               ) : type === 'audio' && tracks.length === 0 ? (
-                <div className="track-modal-empty">No audio tracks available</div>
+                <div className="track-modal-empty">{t('noAudioTracks')}</div>
               ) : (
                 <>
                   {/* Regular Subtitle/Audio Tracks */}
@@ -754,7 +756,7 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
                             className={`track-item ${selectedId === 0 && !selectedCcId ? 'selected' : ''}`}
                             onClick={handleDisable}
                           >
-                            <span className="track-name">Disabled</span>
+                            <span className="track-name">{t('disabled')}</span>
                           </li>
                         )}
                         {tracks.map((track) => (
@@ -765,7 +767,7 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
                           >
                             <span className="track-name">
                               {track.title || `${type === 'audio' ? 'Audio' : 'Subtitle'} ${track.id}`}
-                              {track.default && <span className="track-badge">Default</span>}
+                              {track.default && <span className="track-badge">{t('default')}</span>}
                             </span>
                             <span className="track-info">
                               {track.lang && <span className="track-lang">{track.lang.toUpperCase()}</span>}
@@ -780,7 +782,7 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
                   {/* Closed Captioning Section (Subtitle only) */}
                   {type === 'subtitle' && ccTracks.length > 0 && (
                     <>
-                      <div className="track-section-title track-section-cc">Closed Captioning</div>
+                      <div className="track-section-title track-section-cc">{t('closedCaptioning')}</div>
                       <ul className="track-list">
                         {ccTracks.map((cc) => (
                           <li
@@ -804,7 +806,7 @@ export function TrackSelectionModal({ isOpen, type, onClose, channel, onAudioDel
         </div>
 
         <div className="track-modal-footer">
-          <button className="track-modal-btn" onClick={onClose}>Cancel</button>
+          <button className="track-modal-btn" onClick={onClose}>{t('cancel')}</button>
         </div>
       </div>
     </div>

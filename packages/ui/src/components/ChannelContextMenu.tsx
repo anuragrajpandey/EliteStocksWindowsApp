@@ -9,6 +9,8 @@ import { addChannelToFailoverGroup, createFailoverGroup } from '../services/fail
 import { addToRecentChannels } from '../utils/recentChannels';
 import { EpgEditorModal } from './EpgEditorModal';
 import { useEpgClockFormat } from '../stores/uiStore';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import './ProgramContextMenu.css'; // Reuse the same styles
 
 type MenuView = 'main' | 'quick' | 'custom' | 'group' | 'failover';
@@ -36,14 +38,14 @@ function formatTimeForInput(date: Date): string {
 }
 
 function formatDuration(minutes: number): string {
-    if (minutes <= 0) return '0 min';
+    if (minutes <= 0) return i18n.t('contextMenu.min', { count: 0 });
     const hrs = Math.floor(minutes / 60);
     const mins = minutes % 60;
     if (hrs === 0) {
-        return `${mins} min`;
+        return i18n.t('contextMenu.min', { count: mins });
     }
     if (mins === 0) {
-        return `${hrs} hr${hrs > 1 ? 's' : ''}`;
+        return i18n.t('contextMenu.hr', { count: hrs });
     }
     return `${hrs}h ${mins}m`;
 }
@@ -57,6 +59,7 @@ export function ChannelContextMenu({
     onPlayInPopout,
     onPlayInExternal,
 }: ChannelContextMenuProps) {
+    useTranslation();
     const epgClockFormat = useEpgClockFormat();
     const menuRef = useRef<HTMLDivElement>(null);
     const [currentView, setCurrentView] = useState<MenuView>('main');
@@ -208,8 +211,8 @@ export function ChannelContextMenu({
             if (streamUrl) {
                 await navigator.clipboard.writeText(streamUrl);
                 showModal({
-                    title: 'Copied',
-                    message: 'Stream URL copied to clipboard',
+                    title: i18n.t('contextMenu.copied'),
+                    message: i18n.t('contextMenu.streamUrlCopied'),
                     type: 'success',
                     confirmText: 'OK',
                     onConfirm: () => onClose(),
@@ -217,8 +220,8 @@ export function ChannelContextMenu({
                 });
             } else {
                 showModal({
-                    title: 'Error',
-                    message: 'Could not resolve stream URL',
+                    title: i18n.t('contextMenu.error'),
+                    message: i18n.t('contextMenu.couldNotResolveUrl'),
                     type: 'error',
                     confirmText: 'OK',
                     onConfirm: () => onClose(),
@@ -229,8 +232,8 @@ export function ChannelContextMenu({
             console.error('Failed to copy stream URL:', e);
             setMenuHidden(true);
             showModal({
-                title: 'Error',
-                message: e?.message || 'Failed to copy stream URL',
+                title: i18n.t('contextMenu.error'),
+                message: e?.message || i18n.t('contextMenu.failedCopyUrl'),
                 type: 'error',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),
@@ -285,16 +288,16 @@ export function ChannelContextMenu({
             setMenuHidden(true);
             if (maxConnections === 1 && isViewingConflict) {
                 showConfirm(
-                    '1 Connection Limit',
-                    "Your provider has a maximum of 1 connection and you're already viewing this source.",
+                    i18n.t('contextMenu.oneConnectionLimit'),
+                    i18n.t('contextMenu.oneConnectionLimitMsg'),
                     async () => {
                         try {
                             setScheduling(true);
                             await scheduleRecording(schedule);
                             const durationMins = Math.round((endTimestamp - startTimestamp) / 60);
                             showModal({
-                                title: 'Recording Scheduled',
-                                message: `${channel.name} scheduled for ${durationMins} minutes`,
+                                title: i18n.t('contextMenu.recordingScheduled'),
+                                message: i18n.t('contextMenu.scheduledForMinutes', { name: channel.name, count: durationMins }),
                                 type: 'success',
                                 confirmText: 'OK',
                                 onConfirm: () => onClose(),
@@ -302,8 +305,8 @@ export function ChannelContextMenu({
                             });
                         } catch (err: any) {
                             showModal({
-                                title: 'Scheduling Failed',
-                                message: err?.message || 'Failed to schedule recording',
+                                title: i18n.t('contextMenu.schedulingFailed'),
+                                message: err?.message || i18n.t('contextMenu.failedScheduleRecording'),
                                 type: 'error',
                                 confirmText: 'OK',
                                 onConfirm: () => onClose(),
@@ -314,13 +317,13 @@ export function ChannelContextMenu({
                         }
                     },
                     () => onClose(),
-                    'Ignore & Record',
+                    i18n.t('contextMenu.ignoreAndRecord'),
                     'OK'
                 );
             } else {
                 showModal({
-                    title: 'Scheduling Conflict',
-                    message: conflictResult.message || 'This program conflicts with an existing recording.',
+                    title: i18n.t('contextMenu.schedulingConflict'),
+                    message: conflictResult.message || i18n.t('contextMenu.programConflict'),
                     type: 'error',
                     confirmText: 'OK',
                     onConfirm: () => onClose(),
@@ -334,8 +337,8 @@ export function ChannelContextMenu({
         const durationMins = Math.round((endTimestamp - startTimestamp) / 60);
         setMenuHidden(true);
         showModal({
-            title: 'Recording Scheduled',
-            message: `${channel.name} scheduled for ${durationMins} minutes`,
+            title: i18n.t('contextMenu.recordingScheduled'),
+            message: i18n.t('contextMenu.scheduledForMinutes', { name: channel.name, count: durationMins }),
             type: 'success',
             confirmText: 'OK',
             onConfirm: () => onClose(),
@@ -368,14 +371,14 @@ export function ChannelContextMenu({
                 ? (parseInt(customHours) || 0) * 60 + (parseInt(customMinutes) || 0)
                 : durationMinutes;
             const endTimestamp = startTimestamp + (finalDuration * 60);
-            const titleToUse = quickTitle.trim() || `${channel.name} - Quick Record`;
+            const titleToUse = quickTitle.trim() || i18n.t('contextMenu.quickRecordTitle', { name: channel.name });
             await createRecording(startTimestamp, endTimestamp, titleToUse);
         } catch (error: any) {
             console.error('Failed to schedule recording:', error);
             setMenuHidden(true);
             showModal({
-                title: 'Scheduling Failed',
-                message: error?.message || 'Failed to schedule recording',
+                title: i18n.t('contextMenu.schedulingFailed'),
+                message: error?.message || i18n.t('contextMenu.failedScheduleRecording'),
                 type: 'error',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),
@@ -395,8 +398,8 @@ export function ChannelContextMenu({
             if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
                 setMenuHidden(true);
                 showModal({
-                    title: 'Invalid Input',
-                    message: 'Invalid date/time selected',
+                    title: i18n.t('contextMenu.invalidInput'),
+                    message: i18n.t('contextMenu.invalidDateTime'),
                     type: 'error',
                     confirmText: 'OK',
                     onConfirm: () => onClose(),
@@ -407,8 +410,8 @@ export function ChannelContextMenu({
             if (endDateTime <= startDateTime) {
                 setMenuHidden(true);
                 showModal({
-                    title: 'Invalid Input',
-                    message: 'End time must be after start time',
+                    title: i18n.t('contextMenu.invalidInput'),
+                    message: i18n.t('contextMenu.endAfterStart'),
                     type: 'error',
                     confirmText: 'OK',
                     onConfirm: () => onClose(),
@@ -424,7 +427,7 @@ export function ChannelContextMenu({
             // Load default paddings from settings
             const settings = await getDvrSettings();
 
-            const titleToUse = customTitle.trim() || `${channel.name} - Scheduled`;
+            const titleToUse = customTitle.trim() || i18n.t('contextMenu.scheduledTitle', { name: channel.name });
             await createRecording(
                 startTimestamp,
                 endTimestamp,
@@ -437,8 +440,8 @@ export function ChannelContextMenu({
             console.error('Failed to schedule recording:', error);
             setMenuHidden(true);
             showModal({
-                title: 'Scheduling Failed',
-                message: error?.message || 'Failed to schedule recording',
+                title: i18n.t('contextMenu.schedulingFailed'),
+                message: error?.message || i18n.t('contextMenu.failedScheduleRecording'),
                 type: 'error',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),
@@ -456,8 +459,8 @@ export function ChannelContextMenu({
             await addChannelsToGroup(groupId, [channel.stream_id]);
             setMenuHidden(true);
             showModal({
-                title: 'Added to Group',
-                message: `${channel.name} added to "${groupName}"`,
+                title: i18n.t('contextMenu.addedToGroup'),
+                message: i18n.t('contextMenu.addedToGroupMsg', { name: channel.name, group: groupName }),
                 type: 'success',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),
@@ -467,8 +470,8 @@ export function ChannelContextMenu({
             console.error('Failed to add channel to group:', e);
             setMenuHidden(true);
             showModal({
-                title: 'Failed',
-                message: e?.message || 'Could not add channel to group',
+                title: i18n.t('contextMenu.failed'),
+                message: e?.message || i18n.t('contextMenu.couldNotAddToGroup'),
                 type: 'error',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),
@@ -485,8 +488,8 @@ export function ChannelContextMenu({
             await addChannelToFailoverGroup(groupId, channel.stream_id);
             setMenuHidden(true);
             showModal({
-                title: 'Added to Failover Group',
-                message: `${channel.name} added to "${groupName}"`,
+                title: i18n.t('contextMenu.addedToFailoverGroup'),
+                message: i18n.t('contextMenu.addedToGroupMsg', { name: channel.name, group: groupName }),
                 type: 'success',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),
@@ -496,8 +499,8 @@ export function ChannelContextMenu({
             console.error('Failed to add channel to failover group:', e);
             setMenuHidden(true);
             showModal({
-                title: 'Failed',
-                message: e?.message || 'Could not add channel to failover group',
+                title: i18n.t('contextMenu.failed'),
+                message: e?.message || i18n.t('contextMenu.couldNotAddToFailover'),
                 type: 'error',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),
@@ -515,8 +518,8 @@ export function ChannelContextMenu({
             await addChannelToFailoverGroup(newGroupId, channel.stream_id);
             setMenuHidden(true);
             showModal({
-                title: 'Created & Added',
-                message: `Failover group "${trimmed}" created and ${channel.name} added`,
+                title: i18n.t('contextMenu.createdAndAdded'),
+                message: i18n.t('contextMenu.createdAndAddedMsg', { group: trimmed, name: channel.name }),
                 type: 'success',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),
@@ -526,8 +529,8 @@ export function ChannelContextMenu({
             console.error('Failed to create failover group:', e);
             setMenuHidden(true);
             showModal({
-                title: 'Failed',
-                message: e?.message || 'Could not create failover group',
+                title: i18n.t('contextMenu.failed'),
+                message: e?.message || i18n.t('contextMenu.couldNotCreateFailover'),
                 type: 'error',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),
@@ -541,8 +544,8 @@ export function ChannelContextMenu({
             await db.channels.update(channel.stream_id, { enabled: false });
             setMenuHidden(true);
             showModal({
-                title: 'Channel Hidden',
-                message: `${channel.name} has been hidden`,
+                title: i18n.t('contextMenu.channelHidden'),
+                message: i18n.t('contextMenu.channelHiddenMsg', { name: channel.name }),
                 type: 'success',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),
@@ -552,8 +555,8 @@ export function ChannelContextMenu({
             console.error('Failed to hide channel:', e);
             setMenuHidden(true);
             showModal({
-                title: 'Failed',
-                message: e?.message || 'Could not hide channel',
+                title: i18n.t('contextMenu.failed'),
+                message: e?.message || i18n.t('contextMenu.couldNotHideChannel'),
                 type: 'error',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),
@@ -564,8 +567,8 @@ export function ChannelContextMenu({
 
     function handleRenameChannel() {
         showPrompt(
-            'Rename Channel',
-            'Enter a new display name for this channel:',
+            i18n.t('contextMenu.renameChannel'),
+            i18n.t('contextMenu.renameChannelMsg'),
             async (newName) => {
                 const trimmed = newName.trim();
                 if (trimmed && trimmed !== (channel.alias || channel.name)) {
@@ -573,8 +576,8 @@ export function ChannelContextMenu({
                         await updateChannelAlias(channel.stream_id, trimmed);
                         setMenuHidden(true);
                         showModal({
-                            title: 'Channel Renamed',
-                            message: `${channel.name} is now displayed as "${trimmed}"`,
+                            title: i18n.t('contextMenu.channelRenamed'),
+                            message: i18n.t('contextMenu.channelRenamedMsg', { name: channel.name, alias: trimmed }),
                             type: 'success',
                             confirmText: 'OK',
                             onConfirm: () => onClose(),
@@ -585,8 +588,8 @@ export function ChannelContextMenu({
                         console.error('Failed to rename channel:', e);
                         setMenuHidden(true);
                         showModal({
-                            title: 'Failed',
-                            message: e?.message || 'Could not rename channel',
+                            title: i18n.t('contextMenu.failed'),
+                            message: e?.message || i18n.t('contextMenu.couldNotRenameChannel'),
                             type: 'error',
                             confirmText: 'OK',
                             onConfirm: () => onClose(),
@@ -598,10 +601,10 @@ export function ChannelContextMenu({
                 onClose();
             },
             () => onClose(),
-            'Channel name...',
+            i18n.t('contextMenu.channelNamePlaceholder'),
             channel.alias || channel.name,
-            'Rename',
-            'Cancel',
+            i18n.t('contextMenu.rename'),
+            i18n.t('common:cancel'),
             false
         );
     }
@@ -617,13 +620,13 @@ export function ChannelContextMenu({
                 style={getMenuStyle({ minWidth: '200px' })}
             >
                 <div className="context-menu-header">
-                    Add to Group
+                    {i18n.t('contextMenu.addToGroup')}
                 </div>
                 <div className="context-menu-separator" />
                 <div className="context-menu-scrollable-container">
                     {customGroups.length === 0 && (
                         <div style={{ padding: '10px 16px', opacity: 0.5, fontSize: '0.85rem' }}>
-                            No custom groups yet
+                            {i18n.t('contextMenu.noCustomGroupsYet')}
                         </div>
                     )}
                     {customGroups.map(group => (
@@ -639,7 +642,7 @@ export function ChannelContextMenu({
                 </div>
                 <div className="context-menu-separator" />
                 <div className="context-menu-item context-menu-item-secondary" onClick={() => setCurrentView('main')}>
-                    ← Back
+                    ← {i18n.t('contextMenu.back')}
                 </div>
                 <ModalComponent />
             </div>,
@@ -656,7 +659,7 @@ export function ChannelContextMenu({
                 style={getMenuStyle({ minWidth: '200px' })}
             >
                 <div className="context-menu-header">
-                    Add to Failover Group
+                    {i18n.t('contextMenu.addToFailoverGroup')}
                 </div>
                 <div className="context-menu-separator" />
                 <div className="context-menu-scrollable-container">
@@ -668,14 +671,14 @@ export function ChannelContextMenu({
                                 setTimeout(() => failoverNameInputRef.current?.focus(), 50);
                             }}
                         >
-                            Create New Failover Group
+                            {i18n.t('contextMenu.createNewFailoverGroup')}
                         </div>
                     ) : (
                         <div style={{ padding: '6px 12px', display: 'flex', gap: '6px', alignItems: 'center' }}>
                             <input
                                 ref={failoverNameInputRef}
                                 type="text"
-                                placeholder="Group name…"
+                                placeholder={i18n.t('contextMenu.groupNamePlaceholder')}
                                 value={newFailoverGroupName}
                                 onChange={e => setNewFailoverGroupName(e.target.value)}
                                 onKeyDown={e => {
@@ -711,7 +714,7 @@ export function ChannelContextMenu({
                                     fontFamily: 'inherit',
                                 }}
                             >
-                                Create
+                                {i18n.t('common:create')}
                             </button>
                             <button
                                 onClick={() => { setCreatingFailoverGroup(false); setNewFailoverGroupName(''); }}
@@ -726,14 +729,14 @@ export function ChannelContextMenu({
                                     fontFamily: 'inherit',
                                 }}
                             >
-                                Cancel
+                                {i18n.t('common:cancel')}
                             </button>
                         </div>
                     )}
                     <div className="context-menu-separator" />
                     {failoverGroups.length === 0 && !creatingFailoverGroup && (
                         <div style={{ padding: '10px 16px', opacity: 0.5, fontSize: '0.85rem' }}>
-                            No failover groups yet
+                            {i18n.t('contextMenu.noFailoverGroupsYet')}
                         </div>
                     )}
                     {failoverGroups.map(group => (
@@ -749,7 +752,7 @@ export function ChannelContextMenu({
                 </div>
                 <div className="context-menu-separator" />
                 <div className="context-menu-item context-menu-item-secondary" onClick={() => setCurrentView('main')}>
-                    ← Back
+                    ← {i18n.t('contextMenu.back')}
                 </div>
                 <ModalComponent />
             </div>,
@@ -771,18 +774,18 @@ export function ChannelContextMenu({
                 style={getMenuStyle({ minWidth: '220px' })}
             >
                 <div className="context-menu-header">
-                    Quick Record {channel.name}
+                    {i18n.t('contextMenu.quickRecord', { name: channel.name })}
                 </div>
                 <div className="context-menu-separator" />
                 <div className="custom-duration-section" style={{ paddingBottom: '4px' }}>
-                    <div className="custom-duration-label">Recording Title</div>
+                    <div className="custom-duration-label">{i18n.t('contextMenu.recordingTitle')}</div>
                     <input
                         type="text"
-                        value={quickTitle !== '' ? quickTitle : `${channel.name} - Quick Record`}
+                        value={quickTitle !== '' ? quickTitle : i18n.t('contextMenu.quickRecordTitle', { name: channel.name })}
                         onChange={(e) => setQuickTitle(e.target.value)}
                         className="datetime-input"
                         style={{ width: '100%', marginTop: '4px' }}
-                        placeholder={`${channel.name} - Quick Record`}
+                        placeholder={i18n.t('contextMenu.quickRecordTitle', { name: channel.name })}
                     />
                 </div>
                 <div className="context-menu-separator" />
@@ -798,13 +801,13 @@ export function ChannelContextMenu({
                                 setCustomMinutes('');
                             }}
                         >
-                            {mins < 60 ? `${mins} min` : `${mins / 60} hour${mins > 60 ? 's' : ''}`}
+                            {mins < 60 ? i18n.t('contextMenu.min', { count: mins }) : i18n.t('contextMenu.hour', { count: mins / 60 })}
                         </button>
                     ))}
                 </div>
                 <div className="context-menu-separator" />
                 <div className="custom-duration-section">
-                    <div className="custom-duration-label">Custom Duration</div>
+                    <div className="custom-duration-label">{i18n.t('contextMenu.customDuration')}</div>
                     <div className="custom-duration-inputs">
                         <div className="custom-input-group">
                             <input
@@ -815,7 +818,7 @@ export function ChannelContextMenu({
                                 onChange={handleCustomHoursChange}
                                 className="custom-duration-input"
                             />
-                            <span>hr</span>
+                            <span>{i18n.t('contextMenu.hrShort')}</span>
                         </div>
                         <div className="custom-input-group">
                             <input
@@ -827,7 +830,7 @@ export function ChannelContextMenu({
                                 onChange={handleCustomMinutesChange}
                                 className="custom-duration-input"
                             />
-                            <span>min</span>
+                            <span>{i18n.t('contextMenu.minShort')}</span>
                         </div>
                     </div>
                 </div>
@@ -838,10 +841,10 @@ export function ChannelContextMenu({
                         onClick={handleConfirmQuickRecord}
                         disabled={isRecordDisabled}
                     >
-                        {scheduling ? 'Starting...' : `Record ${formatDuration(finalDuration)}`}
+                        {scheduling ? i18n.t('contextMenu.starting') : i18n.t('contextMenu.recordDuration', { duration: formatDuration(finalDuration) })}
                     </button>
                     <button className="context-menu-btn context-menu-btn-secondary" onClick={onClose} disabled={scheduling}>
-                        Cancel
+                        {i18n.t('common:cancel')}
                     </button>
                 </div>
                 <ModalComponent />
@@ -858,23 +861,23 @@ export function ChannelContextMenu({
                 className="program-context-menu"
                 style={getMenuStyle({ minWidth: '260px' })}
             >
-                <div className="context-menu-header">Schedule Recording</div>
+                <div className="context-menu-header">{i18n.t('contextMenu.scheduleRecording')}</div>
                 <div className="context-menu-separator" />
 
                 <div className="datetime-section">
-                    <label className="datetime-label">Title</label>
+                    <label className="datetime-label">{i18n.t('contextMenu.title')}</label>
                     <input
                         type="text"
-                        value={customTitle !== '' ? customTitle : `${channel.name} - Scheduled`}
+                        value={customTitle !== '' ? customTitle : i18n.t('contextMenu.scheduledTitle', { name: channel.name })}
                         onChange={(e) => setCustomTitle(e.target.value)}
                         className="datetime-input"
                         style={{ width: '100%' }}
-                        placeholder={`${channel.name} - Scheduled`}
+                        placeholder={i18n.t('contextMenu.scheduledTitle', { name: channel.name })}
                     />
                 </div>
 
                 <div className="datetime-section">
-                    <label className="datetime-label">Start</label>
+                    <label className="datetime-label">{i18n.t('contextMenu.start')}</label>
                     <div className="datetime-inputs">
                         <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="datetime-input" />
                         {epgClockFormat === '24h' ? (
@@ -916,7 +919,7 @@ export function ChannelContextMenu({
                 </div>
 
                 <div className="datetime-section">
-                    <label className="datetime-label">End</label>
+                    <label className="datetime-label">{i18n.t('contextMenu.end')}</label>
                     <div className="datetime-inputs">
                         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="datetime-input" />
                         {epgClockFormat === '24h' ? (
@@ -958,23 +961,23 @@ export function ChannelContextMenu({
                 </div>
 
                 <div className="datetime-section">
-                    <label className="datetime-label">Recurrence</label>
+                    <label className="datetime-label">{i18n.t('contextMenu.recurrence')}</label>
                     <select
                         value={recurrence}
                         onChange={(e) => setRecurrence(e.target.value)}
                         className="datetime-input"
                         style={{ width: '100%', background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '4px' }}
                     >
-                        <option value="once">Once</option>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="every">Every X Days</option>
+                        <option value="once">{i18n.t('contextMenu.once')}</option>
+                        <option value="daily">{i18n.t('contextMenu.daily')}</option>
+                        <option value="weekly">{i18n.t('contextMenu.weekly')}</option>
+                        <option value="every">{i18n.t('contextMenu.everyXDays')}</option>
                     </select>
                 </div>
 
                 {recurrence === 'every' && (
                     <div className="datetime-section">
-                        <label className="datetime-label">Days</label>
+                        <label className="datetime-label">{i18n.t('contextMenu.days')}</label>
                         <input
                             type="number"
                             min="1"
@@ -993,10 +996,10 @@ export function ChannelContextMenu({
                         onClick={handleConfirmCustomRecord}
                         disabled={scheduling}
                     >
-                        {scheduling ? 'Scheduling...' : 'Schedule'}
+                        {scheduling ? i18n.t('contextMenu.scheduling') : i18n.t('contextMenu.schedule')}
                     </button>
                     <button className="context-menu-btn context-menu-btn-secondary" onClick={onClose} disabled={scheduling}>
-                        Cancel
+                        {i18n.t('common:cancel')}
                     </button>
                 </div>
                 <ModalComponent />
@@ -1068,7 +1071,7 @@ export function ChannelContextMenu({
                             className="context-menu-item"
                             onClick={() => handleSendToSlot(slotId)}
                         >
-                            Send to Viewer {slotId}
+                            {i18n.t('contextMenu.sendToViewer', { slot: slotId })}
                         </div>
                     ))}
                     <div className="context-menu-separator" />
@@ -1084,7 +1087,7 @@ export function ChannelContextMenu({
                             onClose();
                         }}
                     >
-                        Play in Popout
+                        {i18n.t('contextMenu.playInPopout')}
                     </div>
                     <div className="context-menu-separator" />
                 </>
@@ -1098,42 +1101,42 @@ export function ChannelContextMenu({
                             onClose();
                         }}
                     >
-                        Send to External Player
+                        {i18n.t('contextMenu.sendToExternalPlayer')}
                     </div>
                     <div className="context-menu-separator" />
                 </>
             )}
             <div className="context-menu-item" onClick={() => setCurrentView('custom')}>
-                Record...
+                {i18n.t('contextMenu.recordEllipsis')}
             </div>
             <div className="context-menu-item" onClick={() => setCurrentView('quick')}>
-                Quick Record
+                {i18n.t('contextMenu.quickRecordLabel')}
             </div>
             <div className="context-menu-separator" />
             <div className="context-menu-item" onClick={() => setCurrentView('group')}>
-                Add to Group →
+                {i18n.t('contextMenu.addToGroup')} →
             </div>
             <div className="context-menu-item" onClick={() => setCurrentView('failover')}>
-                Add to Failover Group →
+                {i18n.t('contextMenu.addToFailoverGroup')} →
             </div>
             <div className="context-menu-separator" />
             <div className="context-menu-item" onClick={handleCopyStreamUrl}>
-                Copy Stream URL
+                {i18n.t('contextMenu.copyStreamUrl')}
             </div>
             <div className="context-menu-item" onClick={() => { setShowEpgEditor(true); }}>
-                Edit EPG
+                {i18n.t('contextMenu.editEpg')}
             </div>
             <div className="context-menu-separator" />
             <div className="context-menu-item" onClick={handleRenameChannel}>
-                Rename Channel
+                {i18n.t('contextMenu.renameChannel')}
             </div>
             <div className="context-menu-separator" />
             <div className="context-menu-item" onClick={handleHideChannel}>
-                Hide Channel
+                {i18n.t('contextMenu.hideChannel')}
             </div>
             <div className="context-menu-separator" />
             <div className="context-menu-item context-menu-item-secondary" onClick={onClose}>
-                Cancel
+                {i18n.t('common:cancel')}
             </div>
             <ModalComponent />
         </div>,

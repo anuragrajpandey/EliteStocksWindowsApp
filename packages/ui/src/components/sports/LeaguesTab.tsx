@@ -406,7 +406,7 @@ interface DateRailProps {
 }
 
 function HorizontalDateRail({ selectedDate, onSelectDate, onOpenCalendar }: DateRailProps) {
-  useTranslation();
+  const { t } = useTranslation('sports');
   const [baseDate, setBaseDate] = useState<Date>(() => new Date(selectedDate));
 
   useEffect(() => {
@@ -463,7 +463,7 @@ function HorizontalDateRail({ selectedDate, onSelectDate, onOpenCalendar }: Date
         <button
           className="date-rail-nav-btn"
           onClick={handlePrevWeek}
-          title="Previous week"
+          title={t('previousWeek')}
         >
           ‹
         </button>
@@ -490,7 +490,7 @@ function HorizontalDateRail({ selectedDate, onSelectDate, onOpenCalendar }: Date
         <button
           className="date-rail-nav-btn"
           onClick={handleNextWeek}
-          title="Next week"
+          title={t('nextWeek')}
         >
           ›
         </button>
@@ -498,7 +498,7 @@ function HorizontalDateRail({ selectedDate, onSelectDate, onOpenCalendar }: Date
         <button
           className="date-rail-calendar-btn"
           onClick={onOpenCalendar}
-          title="Pick a custom date from calendar"
+          title={t('pickCustomDate')}
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -506,12 +506,12 @@ function HorizontalDateRail({ selectedDate, onSelectDate, onOpenCalendar }: Date
             <line x1="8" y1="2" x2="8" y2="6" />
             <line x1="3" y1="10" x2="21" y2="10" />
           </svg>
-          <span>Pick Date</span>
+          <span>{t('pickDate')}</span>
         </button>
 
         {!isTodayActive && (
           <button className="date-rail-today-btn" onClick={handleJumpToday}>
-            Today
+            {t('today')}
           </button>
         )}
       </div>
@@ -519,7 +519,7 @@ function HorizontalDateRail({ selectedDate, onSelectDate, onOpenCalendar }: Date
       <div
         className="date-rail-title-container"
         onClick={onOpenCalendar}
-        title="Click to select a custom date from calendar"
+        title={t('clickCustomDate')}
       >
         <span className="date-rail-title">{formattedTitle}</span>
         <svg className="date-rail-title-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -541,7 +541,7 @@ interface LeagueGameCardProps {
 }
 
 function LeagueGameCard({ event, isIndividualSport, onChannelClick, onClick }: LeagueGameCardProps) {
-  useTranslation();
+  const { t } = useTranslation('sports');
   const epgClockFormat = useEpgClockFormat();
   const isLive = event.status === 'live';
   const isFinished = event.status === 'finished';
@@ -950,6 +950,7 @@ function LeagueIcon({ leagueId, sport, size = 48, logo }: { leagueId: string; sp
 }
 
 export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps) {
+  const { t } = useTranslation('sports');
   const [leagues, setLeagues] = useState<SportsLeague[]>([]);
   const [selectedLeague, setSelectedLeague] = useState<SportsLeague | null>(null);
   const [leagueEvents, setLeagueEvents] = useState<SportsEvent[]>([]);
@@ -1245,7 +1246,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                 </div>
 
                 <div className="sports-league-card-hero-btn">
-                  <span>Explore</span>
+                  <span>{t('explore')}</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M5 12h14M12 5l7 7-7 7" />
                   </svg>
@@ -1334,7 +1335,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
           {loading ? (
             <div className="sports-loading">
               <div className="sports-spinner" />
-              <span>Loading...</span>
+              <span>{t('loading')}</span>
             </div>
           ) : (
             <>
@@ -1349,7 +1350,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                       <input
                         type="text"
                         className="league-teams-search-input"
-                        placeholder="Search teams by name or location..."
+                        placeholder={t('searchTeamsPlaceholder')}
                         value={teamSearchQuery}
                         onChange={(e) => setTeamSearchQuery(e.target.value)}
                       />
@@ -1363,31 +1364,31 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                       <button 
                         className={`league-teams-layout-btn${teamsLayout === 'stacked' ? ' active' : ''}`}
                         onClick={() => setTeamsLayout('stacked')}
-                        title="Stacked Vertical List"
+                        title={t('stackedList')}
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <line x1="3" y1="6" x2="21" y2="6" />
                           <line x1="3" y1="12" x2="21" y2="12" />
                           <line x1="3" y1="18" x2="21" y2="18" />
                         </svg>
-                        List
+                        {t('list')}
                       </button>
                       <button 
                         className={`league-teams-layout-btn${teamsLayout === 'columns' ? ' active' : ''}`}
                         onClick={() => setTeamsLayout('columns')}
-                        title="Division Columns Board"
+                        title={t('columnsBoard')}
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <rect x="3" y="3" width="5" height="18" rx="1" />
                           <rect x="11" y="3" width="5" height="18" rx="1" />
                           <rect x="19" y="3" width="5" height="18" rx="1" />
                         </svg>
-                        Columns
+                        {t('columns')}
                       </button>
                       <button 
                         className={`league-teams-layout-btn${teamsLayout === 'grid' ? ' active' : ''}`}
                         onClick={() => setTeamsLayout('grid')}
-                        title="Cards Grid"
+                        title={t('cardsGrid')}
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -1644,7 +1645,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                     </div>
                   ) : (
                     <div className="sports-empty">
-                      <p>No games or events scheduled for this date</p>
+                      <p>{t('noGamesScheduled')}</p>
                     </div>
                   )}
                 </section>
@@ -1685,7 +1686,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                               <line x1="12" y1="16" x2="12" y2="12" />
                               <circle cx="12" cy="8" r="0.5" fill="currentColor" />
                             </svg>
-                            <span>Preseason / Offseason — Official standings will update as games count</span>
+                            <span>{t('preseasonStandingsHint')}</span>
                           </div>
                         )}
 
@@ -1697,10 +1698,10 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                                 <div className="sports-standings-table">
                                   <div className="sports-standings-header">
                                     <span>#</span>
-                                    <span>Team</span>
-                                    <span>W</span>
-                                    <span>L</span>
-                                    <span>PCT</span>
+                                    <span>{t('team')}</span>
+                                    <span>{t('wins')}</span>
+                                    <span>{t('losses')}</span>
+                                    <span>{t('pct')}</span>
                                   </div>
                                   {group.teams.map((team, idx) => (
                                     <div key={team.id} className={`sports-standings-row${idx === 0 || team.rank === 1 ? ' leader-row' : ''}`}>
@@ -1727,10 +1728,10 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                           <div className="sports-standings-table">
                             <div className="sports-standings-header">
                               <span>#</span>
-                              <span>Team</span>
-                              <span>W</span>
-                              <span>L</span>
-                              <span>PCT</span>
+                              <span>{t('team')}</span>
+                              <span>{t('wins')}</span>
+                              <span>{t('losses')}</span>
+                              <span>{t('pct')}</span>
                             </div>
                             {leagueStandings.map((team, idx) => (
                               <div key={team.id} className={`sports-standings-row${idx === 0 ? ' leader-row' : ''}`}>
@@ -1752,7 +1753,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                           </div>
                         ) : (
                           <div className="sports-empty">
-                            <p>Standings not available</p>
+                            <p>{t('standingsNotAvailable')}</p>
                           </div>
                         )}
                       </>

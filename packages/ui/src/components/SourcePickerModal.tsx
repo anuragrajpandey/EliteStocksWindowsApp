@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import type { StremioStream, StremioStreamBadge, InstalledAddon } from '../types/stremio';
 import { fetchStreams } from '../services/stremio-addon';
@@ -34,6 +35,7 @@ export function SourcePickerModal({
   onSelect,
   onClose,
 }: SourcePickerModalProps) {
+  const { t } = useTranslation('player');
   const [streams, setStreams] = useState<StremioStream[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -162,7 +164,7 @@ export function SourcePickerModal({
               className="spm-refresh-btn"
               onClick={handleRefresh}
               disabled={loading}
-              title="Refresh streams"
+              title={t('refreshStreams')}
             >
               <svg
                 viewBox="0 0 24 24"
@@ -205,12 +207,12 @@ export function SourcePickerModal({
           {loading ? (
             <div className="spm-loading">
               <div className="spm-spinner" />
-              <span>Loading streams...</span>
+              <span>{t('loadingStreams')}</span>
             </div>
           ) : error ? (
             <div className="spm-empty">{error}</div>
           ) : filteredStreams.length === 0 ? (
-            <div className="spm-empty">No streams available.</div>
+            <div className="spm-empty">{t('noStreamsAvailable')}</div>
           ) : (
             <div className="spm-list">
               {filteredStreams.map((stream, idx) => {
@@ -243,7 +245,7 @@ export function SourcePickerModal({
                         {stream.fileIdx !== undefined && ` | fileIdx: ${stream.fileIdx}`}
                       </div>
                     )}
-                    {isActive && <div className="spm-item-active-tag">Currently Playing</div>}
+                    {isActive && <div className="spm-item-active-tag">{t('currentlyPlaying')}</div>}
                   </div>
                 );
               })}

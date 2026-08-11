@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { InstalledAddon } from '../../types/stremio';
 import { useStremioAuthStore } from '../../stores/stremioAuthStore';
 import {
@@ -27,6 +28,7 @@ interface StremioTopbarProps {
 }
 
 export function StremioTopbar({ addons, onOpenAddonManager, onOpenAccount }: StremioTopbarProps) {
+  const { t } = useTranslation('stremio');
   const { authKey, user } = useStremioAuthStore();
   const selectedAddonId = useStremioSelectedAddonId();
   const setSelectedAddonId = useSetStremioSelectedAddonId();
@@ -152,7 +154,7 @@ export function StremioTopbar({ addons, onOpenAddonManager, onOpenAccount }: Str
             <rect x="14" y="14" width="7" height="7" />
             <rect x="3" y="14" width="7" height="7" />
           </svg>
-          <span>Home</span>
+          <span>{t('home')}</span>
         </button>
 
         <button
@@ -163,7 +165,7 @@ export function StremioTopbar({ addons, onOpenAddonManager, onOpenAccount }: Str
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
-          <span>Discover</span>
+          <span>{t('discover')}</span>
         </button>
 
         <button
@@ -173,7 +175,7 @@ export function StremioTopbar({ addons, onOpenAddonManager, onOpenAccount }: Str
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="stremio-topbar-icon">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
           </svg>
-          <span>Library</span>
+          <span>{t('library')}</span>
         </button>
 
         <button
@@ -186,7 +188,7 @@ export function StremioTopbar({ addons, onOpenAddonManager, onOpenAccount }: Str
             <line x1="8" y1="2" x2="8" y2="6" />
             <line x1="3" y1="10" x2="21" y2="10" />
           </svg>
-          <span>Calendar</span>
+          <span>{t('calendar')}</span>
         </button>
 
         <button className="stremio-topbar-item stremio-topbar-addons-btn" onClick={onOpenAddonManager}>
@@ -194,7 +196,7 @@ export function StremioTopbar({ addons, onOpenAddonManager, onOpenAccount }: Str
             <circle cx="12" cy="12" r="3" />
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
           </svg>
-          <span>Manage Addons</span>
+          <span>{t('manageAddons')}</span>
         </button>
 
         <button
@@ -205,7 +207,7 @@ export function StremioTopbar({ addons, onOpenAddonManager, onOpenAccount }: Str
             <circle cx="12" cy="12" r="3" />
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
           </svg>
-          <span>Settings</span>
+          <span>{t('settings')}</span>
         </button>
 
         {authKey ? (
@@ -213,7 +215,7 @@ export function StremioTopbar({ addons, onOpenAddonManager, onOpenAccount }: Str
             <div className="stremio-topbar-avatar">
               {user?.fullname ? user.fullname.charAt(0).toUpperCase() : user?.email.charAt(0).toUpperCase() || 'U'}
             </div>
-            <span>Account</span>
+            <span>{t('account')}</span>
           </button>
         ) : (
           <button className="stremio-topbar-item stremio-topbar-account-btn" onClick={onOpenAccount}>
@@ -221,7 +223,7 @@ export function StremioTopbar({ addons, onOpenAddonManager, onOpenAccount }: Str
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>
-            <span>Log In</span>
+            <span>{t('logIn')}</span>
           </button>
         )}
       </div>
@@ -237,7 +239,7 @@ export function StremioTopbar({ addons, onOpenAddonManager, onOpenAccount }: Str
             <input
               className="stremio-topbar-search-input"
               type="text"
-              placeholder="Search"
+              placeholder={t('search')}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onFocus={() => setShowStremioHistory(true)}
@@ -279,7 +281,7 @@ export function StremioTopbar({ addons, onOpenAddonManager, onOpenAccount }: Str
                       e.stopPropagation();
                       stremioSearchHistory.removeFromHistory(item);
                     }}
-                    title="Remove"
+                    title={t('remove')}
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M18 6L6 18M6 6l12 12" />

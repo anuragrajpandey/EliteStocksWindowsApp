@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import './ProgramContextMenu.css';
 
 interface PlaylistContextMenuProps {
@@ -27,6 +29,7 @@ export function PlaylistContextMenu({
     onRename,
     onDelete,
 }: PlaylistContextMenuProps) {
+    useTranslation();
     const menuRef = useRef<HTMLDivElement>(null);
     const [adjustedPosition, setAdjustedPosition] = useState(position);
 
@@ -108,7 +111,7 @@ export function PlaylistContextMenu({
                     onClose();
                 }}
             >
-                Edit Contents
+                {i18n.t('contextMenu.editContents')}
             </div>
             {onManageCategories && (
                 <div
@@ -118,7 +121,7 @@ export function PlaylistContextMenu({
                         onClose();
                     }}
                 >
-                    Manage Categories
+                    {i18n.t('contextMenu.manageCategories')}
                 </div>
             )}
             {onCreateCategoryFolder && (
@@ -129,7 +132,7 @@ export function PlaylistContextMenu({
                         onClose();
                     }}
                 >
-                    Create Category Folder
+                    {i18n.t('contextMenu.createCategoryFolder')}
                 </div>
             )}
             <div
@@ -139,7 +142,7 @@ export function PlaylistContextMenu({
                     onClose();
                 }}
             >
-                Export .m3u
+                {i18n.t('contextMenu.exportM3u')}
             </div>
             <div
                 className="context-menu-item"
@@ -148,7 +151,7 @@ export function PlaylistContextMenu({
                     onClose();
                 }}
             >
-                Rename
+                {i18n.t('contextMenu.rename')}
             </div>
             <div
                 className="context-menu-item"
@@ -158,7 +161,7 @@ export function PlaylistContextMenu({
                 }}
                 style={{ color: 'var(--status-live)' }}
             >
-                Delete
+                {i18n.t('common:delete')}
             </div>
         </div>,
         document.body

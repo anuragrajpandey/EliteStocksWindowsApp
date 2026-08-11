@@ -1,5 +1,7 @@
 import { useRef, useLayoutEffect, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import './BackgroundContextMenu.css';
 
 interface BackgroundContextMenuProps {
@@ -45,6 +47,7 @@ export function BackgroundContextMenu({
   onAddCustomGroup,
   onClose,
 }: BackgroundContextMenuProps) {
+  useTranslation();
   const menuRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
@@ -100,7 +103,7 @@ export function BackgroundContextMenu({
     <div ref={menuRef} className="background-context-menu">
       {hasAnyWidget && (
         <>
-          <div className="context-menu-header">Active Widgets</div>
+          <div className="context-menu-header">{i18n.t('contextMenu.activeWidgets')}</div>
           {sportsWidget && (
             <div className="context-menu-item context-menu-item-info" style={{ justifyContent: 'space-between' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
@@ -108,12 +111,12 @@ export function BackgroundContextMenu({
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
-                Live Sports ({sportsWidget === 'autohide' ? 'Autohide' : 'Persistent'})
+                {i18n.t('contextMenu.liveSports', { mode: sportsWidget === 'autohide' ? i18n.t('contextMenu.autohide') : i18n.t('contextMenu.persistent') })}
               </span>
               <button 
                 className="context-menu-remove-btn" 
                 onClick={(e) => { e.stopPropagation(); onRemoveSports(); onClose(); }}
-                title="Stop Live Sports Overlay"
+                title={i18n.t('contextMenu.stopLiveSports')}
               >
                 ✕
               </button>
@@ -126,12 +129,12 @@ export function BackgroundContextMenu({
                   <polyline points="1 4 1 10 7 10" />
                   <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
                 </svg>
-                Recent Channels ({recentWidget})
+                {i18n.t('contextMenu.recentChannelsCount', { count: recentWidget })}
               </span>
               <button 
                 className="context-menu-remove-btn" 
                 onClick={(e) => { e.stopPropagation(); onRemoveRecent(); onClose(); }}
-                title="Stop Recent Channels"
+                title={i18n.t('contextMenu.stopRecentChannels')}
               >
                 ✕
               </button>
@@ -143,12 +146,12 @@ export function BackgroundContextMenu({
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
-                Favorites
+                {i18n.t('common:favorites')}
               </span>
               <button 
                 className="context-menu-remove-btn" 
                 onClick={(e) => { e.stopPropagation(); onRemoveFavorites(); onClose(); }}
-                title="Stop Favorites"
+                title={i18n.t('contextMenu.stopFavorites')}
               >
                 ✕
               </button>
@@ -160,12 +163,12 @@ export function BackgroundContextMenu({
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
-                What&apos;s Next
+                {i18n.t('contextMenu.whatsNext')}
               </span>
               <button 
                 className="context-menu-remove-btn" 
                 onClick={(e) => { e.stopPropagation(); onRemoveWhatsNext(); onClose(); }}
-                title="Stop What's Next"
+                title={i18n.t('contextMenu.stopWhatsNext')}
               >
                 ✕
               </button>
@@ -178,13 +181,13 @@ export function BackgroundContextMenu({
                   <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
                   <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
                 </svg>
-                Custom Group
+                {i18n.t('contextMenu.customGroup')}
               </span>
               {onRemoveCustomGroup && (
                 <button 
                   className="context-menu-remove-btn" 
                   onClick={(e) => { e.stopPropagation(); onRemoveCustomGroup(gid); onClose(); }}
-                  title="Stop Custom Group"
+                  title={i18n.t('contextMenu.stopCustomGroup')}
                 >
                   ✕
                 </button>
@@ -195,14 +198,14 @@ export function BackgroundContextMenu({
         </>
       )}
 
-      <div className="context-menu-header">Add Widget</div>
+      <div className="context-menu-header">{i18n.t('contextMenu.addWidget')}</div>
       {sportsWidget !== 'autohide' && (
         <div className="context-menu-item" onClick={() => { onAddSportsAutohide(); onClose(); }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
-          Live Sports Overlay (Autohide)
+          {i18n.t('contextMenu.liveSportsAutohide')}
         </div>
       )}
       {sportsWidget !== 'persistent' && (
@@ -211,7 +214,7 @@ export function BackgroundContextMenu({
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
-          Live Sports Overlay (Persistent)
+          {i18n.t('contextMenu.liveSportsPersistent')}
         </div>
       )}
       {!recentWidget && (
@@ -221,14 +224,14 @@ export function BackgroundContextMenu({
               <polyline points="1 4 1 10 7 10" />
               <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
             </svg>
-            Recent Channels (5)
+            {i18n.t('contextMenu.recentChannels5')}
           </div>
           <div className="context-menu-item" onClick={() => { onAddRecent10(); onClose(); }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="1 4 1 10 7 10" />
               <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
             </svg>
-            Recent Channels (10)
+            {i18n.t('contextMenu.recentChannels10')}
           </div>
         </>
       )}
@@ -237,7 +240,7 @@ export function BackgroundContextMenu({
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
           </svg>
-          Favorites
+          {i18n.t('common:favorites')}
         </div>
       )}
       {!whatsNextWidget && (
@@ -245,7 +248,7 @@ export function BackgroundContextMenu({
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="9 18 15 12 9 6" />
           </svg>
-          What&apos;s Next
+          {i18n.t('contextMenu.whatsNext')}
         </div>
       )}
       {/* Custom Group — always available; opens the picker */}
@@ -254,7 +257,7 @@ export function BackgroundContextMenu({
           <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
           <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
         </svg>
-        Custom Group…
+        {i18n.t('contextMenu.customGroupEllipsis')}
       </div>
     </div>,
     document.body

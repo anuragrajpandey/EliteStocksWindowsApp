@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import './DvrScheduleOptionsModal.css';
 
@@ -26,6 +27,7 @@ export function CatchupDownloadModal({
   onConfirm,
   onCancel,
 }: CatchupDownloadModalProps) {
+  const { t } = useTranslation('dvr');
   const [startPadding, setStartPadding] = useState(defaultStartPadding);
   const [endPadding, setEndPadding] = useState(defaultEndPadding);
 
@@ -82,7 +84,7 @@ export function CatchupDownloadModal({
 
           {/* Padding */}
           <div className="dvr-options-form-group">
-            <label className="dvr-options-label">Start Padding (Minutes)</label>
+            <label className="dvr-options-label">{t('startPaddingMinutes')}</label>
             <input
               type="number"
               min="0"
@@ -90,11 +92,11 @@ export function CatchupDownloadModal({
               onChange={(e) => setStartPadding(Math.max(0, parseInt(e.target.value, 10) || 0))}
               className="dvr-options-number-input"
             />
-            <span className="dvr-options-hint">Download this many minutes before scheduled start time</span>
+            <span className="dvr-options-hint">{t('startPaddingMinutesHint')}</span>
           </div>
 
           <div className="dvr-options-form-group">
-            <label className="dvr-options-label">End Padding (Minutes)</label>
+            <label className="dvr-options-label">{t('endPaddingMinutes')}</label>
             <input
               type="number"
               min="0"
@@ -102,7 +104,7 @@ export function CatchupDownloadModal({
               onChange={(e) => setEndPadding(Math.max(0, parseInt(e.target.value, 10) || 0))}
               className="dvr-options-number-input"
             />
-            <span className="dvr-options-hint">Download this many minutes after scheduled end time</span>
+            <span className="dvr-options-hint">{t('endPaddingMinutesHint')}</span>
           </div>
         </div>
 

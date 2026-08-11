@@ -75,7 +75,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
     if (homeStats.length === 0 && awayStats.length === 0) {
       return (
         <div className="game-detail-no-data">
-          <span>Team statistics not available for this game.</span>
+          <span>{i18n.t('sports:teamStatsUnavailable')}</span>
         </div>
       );
     }
@@ -86,7 +86,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
           <thead>
             <tr>
               <th>{event.awayTeam.shortName || event.awayTeam.name}</th>
-              <th>Stat</th>
+              <th>{i18n.t('sports:stat')}</th>
               <th>{event.homeTeam.shortName || event.homeTeam.name}</th>
             </tr>
           </thead>
@@ -116,7 +116,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
     if (homePlayerStats.length === 0 && awayPlayerStats.length === 0) {
       return (
         <div className="game-detail-no-data">
-          <span>Player statistics not available for this game.</span>
+          <span>{i18n.t('sports:playerStatsUnavailable')}</span>
         </div>
       );
     }
@@ -144,7 +144,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
                 <table className="game-detail-players-table">
                   <thead>
                     <tr>
-                      <th>Player</th>
+                      <th>{i18n.t('sports:player')}</th>
                       {category.labels.map((label, idx) => (
                         <th key={idx} title={category.descriptions?.[idx]}>{label}</th>
                       ))}
@@ -199,7 +199,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
     if (scoringPlays.length === 0) {
       return (
         <div className="game-detail-no-data">
-          <span>No scoring plays available for this game.</span>
+          <span>{i18n.t('sports:noScoringPlays')}</span>
         </div>
       );
     }
@@ -255,7 +255,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
       <div className="game-detail-info">
         {summary.venue && (
           <div className="game-detail-info-section">
-            <h4>Venue</h4>
+            <h4>{i18n.t('sports:venue')}</h4>
             <div className="game-detail-info-content">
               <span className="game-detail-info-venue-name">{summary.venue.name}</span>
               {summary.venue.city && (
@@ -287,7 +287,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
 
         {summary.broadcasts && summary.broadcasts.length > 0 && (
           <div className="game-detail-info-section">
-            <h4>Broadcast</h4>
+            <h4>{i18n.t('sports:broadcast')}</h4>
             <div className="game-detail-info-broadcasts">
               {summary.broadcasts.map((broadcast, idx) => (
                 <span key={idx} className="game-detail-info-broadcast">{broadcast}</span>
@@ -298,7 +298,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
 
         {event.channels.length > 0 && (
           <div className="game-detail-info-section">
-            <h4>Watch On</h4>
+            <h4>{i18n.t('sports:watchOn')}</h4>
             <div className="game-detail-channels">
               {event.channels.map((channel, idx) => (
                 <button
@@ -349,7 +349,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
       if (matchEvents.length === 0) {
         return (
           <div className="game-detail-no-data">
-            <span>Match events not available.</span>
+            <span>{i18n.t('sports:matchEventsUnavailable')}</span>
           </div>
         );
       }
@@ -397,7 +397,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
       if (homeStats.length === 0 && awayStats.length === 0) {
         return (
           <div className="game-detail-no-data">
-            <span>Lineups not available.</span>
+            <span>{i18n.t('sports:lineupsUnavailable')}</span>
           </div>
         );
       }
@@ -440,7 +440,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
         <div className="game-detail-info">
           {summary?.venue && (
             <div className="game-detail-info-section">
-              <h4>Venue</h4>
+              <h4>{i18n.t('sports:venue')}</h4>
               <div className="game-detail-info-content">
                 <span className="game-detail-info-venue-name">{summary.venue.name}</span>
                 {summary.venue.city && <span className="game-detail-info-venue-city">{summary.venue.city}</span>}
@@ -463,7 +463,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
           )}
           {event.channels.length > 0 && (
             <div className="game-detail-info-section">
-              <h4>Watch On</h4>
+              <h4>{i18n.t('sports:watchOn')}</h4>
               <div className="game-detail-channels">
                 {event.channels.map((ch, i) => (
                   <button key={i} className="game-detail-channel-btn" onClick={() => onChannelClick?.(ch.name)}>
@@ -772,7 +772,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
           ) : (
             <div className="racing-detail-content">
               <div className="game-detail-no-data">
-                <span>Race results not yet available.</span>
+                <span>{i18n.t('sports:raceResultsUnavailable')}</span>
               </div>
             </div>
           )}
@@ -873,7 +873,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
           ) : (
             <div className="golf-detail-content">
               <div className="game-detail-no-data">
-                <span>Leaderboard not yet available.</span>
+                <span>{i18n.t('sports:leaderboardUnavailable')}</span>
               </div>
             </div>
           )}
@@ -1004,7 +1004,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
           ) : (
             <div className="tennis-detail-content">
               <div className="game-detail-no-data">
-                <span>Matches not yet available.</span>
+                <span>{i18n.t('sports:matchesUnavailable')}</span>
               </div>
             </div>
           )}

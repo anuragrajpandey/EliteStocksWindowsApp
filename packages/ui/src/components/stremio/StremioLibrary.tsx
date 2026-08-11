@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useStremioLibraryStore, type LibraryItem } from '../../stores/stremioLibraryStore';
 import { useStremioWatchStore } from '../../stores/stremioWatchStore';
 import { useStremioAuthStore } from '../../stores/stremioAuthStore';
@@ -16,6 +17,7 @@ interface StremioLibraryProps {
 const REFRESH_INTERVAL_MS = 60 * 60 * 1000;
 
 export function StremioLibrary({ onItemClick }: StremioLibraryProps) {
+  const { t } = useTranslation('stremio');
   const library = useStremioLibraryStore((s) => s.library);
   const updateLibraryItem = useStremioLibraryStore((s) => s.updateLibraryItem);
   const addons = useStremioAddonStore((s) => s.enabledAddons);
@@ -279,7 +281,7 @@ export function StremioLibrary({ onItemClick }: StremioLibraryProps) {
           <input
             className="stremio-library-search"
             type="text"
-            placeholder="Search library..."
+            placeholder={t('searchLibrary')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -288,10 +290,10 @@ export function StremioLibrary({ onItemClick }: StremioLibraryProps) {
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
           >
-            <option value="All">All Types</option>
-            <option value="Movies">Movies</option>
-            <option value="Series">Series</option>
-            {activeTab === 'watchlist' && <option value="Other">Other</option>}
+            <option value="All">{t('allTypes')}</option>
+            <option value="Movies">{t('movies')}</option>
+            <option value="Series">{t('series')}</option>
+            {activeTab === 'watchlist' && <option value="Other">{t('other')}</option>}
           </select>
           <select
             className="stremio-library-select"
@@ -300,14 +302,14 @@ export function StremioLibrary({ onItemClick }: StremioLibraryProps) {
           >
             {activeTab === 'watchlist' ? (
               <>
-                <option value="added">Recently Added</option>
+                <option value="added">{t('recentlyAdded')}</option>
                 <option value="name">A-Z</option>
-                <option value="rating">IMDb Rating</option>
-                <option value="year">Release Year</option>
+                <option value="rating">{t('imdbRating')}</option>
+                <option value="year">{t('releaseYear')}</option>
               </>
             ) : (
               <>
-                <option value="recent">Recently Watched</option>
+                <option value="recent">{t('recentlyWatched')}</option>
                 <option value="name">A-Z</option>
               </>
             )}

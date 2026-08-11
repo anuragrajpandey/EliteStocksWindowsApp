@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Virtuoso } from 'react-virtuoso';
 import { useNuvioAuthStore } from '../../stores/nuvioAuthStore';
 import { useNuvioCollectionStore } from '../../stores/nuvioCollectionStore';
@@ -341,6 +342,7 @@ function NuvioPageContent({
   onCardMouseLeave: onCardMouseLeaveProp,
   onCardClick: onCardClickProp,
 }: NuvioPageProps) {
+  const { t } = useTranslation('nuvio');
   const compiledBadgeRules = useMemo(() => compileBadgeSources(nuvioBadgeSources), [nuvioBadgeSources]);
   const addonsStore = useNuvioAddonStore();
   const addons = addonsStore.enabledAddons;
@@ -387,7 +389,7 @@ function NuvioPageContent({
     e.preventDefault();
     setLoginError(null);
     if (!loginEmail || !loginPassword) {
-      setLoginError('Please fill in all fields.');
+      setLoginError(t('pleaseFillAllFields'));
       return;
     }
     try {
@@ -399,7 +401,7 @@ function NuvioPageContent({
       setLoginEmail('');
       setLoginPassword('');
     } catch (err: any) {
-      setLoginError(err.message || 'Authentication failed');
+      setLoginError(err.message || t('authFailed'));
     }
   };
 
@@ -1763,7 +1765,7 @@ function NuvioPageContent({
                 <rect x="14" y="14" width="7" height="7" />
                 <rect x="3" y="14" width="7" height="7" />
               </svg>
-              <span>Home</span>
+              <span>{t('home')}</span>
             </button>
 
             <button
@@ -1776,7 +1778,7 @@ function NuvioPageContent({
                 <line x1="8" y1="7" x2="16" y2="7" />
                 <line x1="8" y1="11" x2="14" y2="11" />
               </svg>
-              <span>Library</span>
+              <span>{t('library')}</span>
             </button>
 
             <button
@@ -1787,7 +1789,7 @@ function NuvioPageContent({
                 <circle cx="11" cy="11" r="8" />
                 <path d="m21 21-4.3-4.3" />
               </svg>
-              <span>Discover</span>
+              <span>{t('discover')}</span>
             </button>
 
             {/* Collections tab hidden — code kept for future implementation
@@ -1798,7 +1800,7 @@ function NuvioPageContent({
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="nuvio-topbar-icon">
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
               </svg>
-              <span>Collections</span>
+              <span>{t('collections')}</span>
             </button>
             */}
 
@@ -1810,7 +1812,7 @@ function NuvioPageContent({
                 <circle cx="12" cy="12" r="3" />
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
               </svg>
-              <span>Addons</span>
+              <span>{t('addons')}</span>
             </button>
 
             {/* Scrapers tab hidden — code kept for future implementation
@@ -1822,7 +1824,7 @@ function NuvioPageContent({
                 <polyline points="16 18 22 12 16 6" />
                 <polyline points="8 6 2 12 8 18" />
               </svg>
-              <span>Scrapers</span>
+              <span>{t('scrapers')}</span>
             </button>
             */}
 
@@ -1834,7 +1836,7 @@ function NuvioPageContent({
                 <circle cx="12" cy="12" r="3" />
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
               </svg>
-              <span>Settings</span>
+              <span>{t('settings')}</span>
             </button>
           </div>
         )}
@@ -1849,7 +1851,7 @@ function NuvioPageContent({
                 </svg>
                 <input
                   type="text"
-                  placeholder="Quick search..."
+                  placeholder={t('quickSearch')}
                   value={nuvioSearchQuery}
                   onChange={(e) => {
                     setNuvioSearchQuery(e.target.value);
@@ -1965,14 +1967,14 @@ function NuvioPageContent({
               <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <input
                   type="email"
-                  placeholder="Email Address"
+                  placeholder={t('emailAddress')}
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
                   className="nuvio-login-input"
                 />
                 <input
                   type="password"
-                  placeholder="Password"
+                  placeholder={t('password')}
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
                   className="nuvio-login-input"
@@ -2125,7 +2127,7 @@ function NuvioPageContent({
                         <line x1="19" y1="12" x2="5" y2="12" />
                         <polyline points="12 19 5 12 12 5" />
                       </svg>
-                      <span>Back</span>
+                      <span>{t('back')}</span>
                     </button>
 
                     {/* Metadata overlay */}
@@ -2161,7 +2163,7 @@ function NuvioPageContent({
                     {loadingFolderItems ? (
                       <div className="nuvio-folder-detail-loading">
                         <div className="spinner" style={{ width: '28px', height: '28px', borderRadius: '50%', border: '3px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, transparent)', borderTopColor: 'var(--accent-primary, #00d4ff)', animation: 'spin 1s linear infinite' }} />
-                        <span>Loading catalog items...</span>
+                        <span>{t('loadingCatalogItems')}</span>
                       </div>
                     ) : folderError ? (
                       <div className="nuvio-folder-detail-empty" style={{ flexDirection: 'column', gap: '12px', padding: '40px 24px' }}>
@@ -2234,7 +2236,7 @@ function NuvioPageContent({
                       <input
                         className="nuvio-catalog-filter-input"
                         type="text"
-                        placeholder="Filter catalogs..."
+                        placeholder={t('filterCatalogs')}
                         value={catalogFilter}
                         onChange={(e) => setCatalogFilter(e.target.value)}
                       />
@@ -2266,7 +2268,7 @@ function NuvioPageContent({
                           <button
                             className="stremio-row-nav-btn"
                             onClick={() => scrollContinueWatching('left')}
-                            aria-label="Scroll left"
+                            aria-label={t('scrollLeft')}
                             disabled={!cwCanScrollLeft}
                           >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
@@ -2274,7 +2276,7 @@ function NuvioPageContent({
                           <button
                             className="stremio-row-nav-btn"
                             onClick={() => scrollContinueWatching('right')}
-                            aria-label="Scroll right"
+                            aria-label={t('scrollRight')}
                             disabled={!cwCanScrollRight}
                           >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
@@ -2429,7 +2431,7 @@ function NuvioPageContent({
                           <button
                             className="stremio-row-nav-btn"
                             onClick={() => scrollNuvioServices('left')}
-                            aria-label="Scroll left"
+                            aria-label={t('scrollLeft')}
                             disabled={!spCanScrollLeft}
                           >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
@@ -2437,7 +2439,7 @@ function NuvioPageContent({
                           <button
                             className="stremio-row-nav-btn"
                             onClick={() => scrollNuvioServices('right')}
-                            aria-label="Scroll right"
+                            aria-label={t('scrollRight')}
                             disabled={!spCanScrollRight}
                           >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
@@ -2515,7 +2517,7 @@ function NuvioPageContent({
                                   <button
                                     className="stremio-row-nav-btn"
                                     onClick={() => scrollCollection(row.key, 'left')}
-                                    aria-label="Scroll left"
+                                    aria-label={t('scrollLeft')}
                                     disabled={!collectionScrollState[row.key]?.left}
                                   >
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
@@ -2523,7 +2525,7 @@ function NuvioPageContent({
                                   <button
                                     className="stremio-row-nav-btn"
                                     onClick={() => scrollCollection(row.key, 'right')}
-                                    aria-label="Scroll right"
+                                    aria-label={t('scrollRight')}
                                     disabled={!collectionScrollState[row.key]?.right}
                                   >
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
@@ -2736,9 +2738,9 @@ function NuvioPageContent({
                                   onChange={(e) => handleUpdateFolder(coll.id, folder.id, { tileShape: e.target.value })}
                                   onBlur={() => handleSaveCollections(editableCollections)}
                                 >
-                                  <option value="poster">Poster (2:3)</option>
-                                  <option value="landscape">Landscape (16:10)</option>
-                                  <option value="square">Square (1:1)</option>
+                                  <option value="poster">{t('poster')} (2:3)</option>
+                                  <option value="landscape">{t('landscape')} (16:10)</option>
+                                  <option value="square">{t('square')} (1:1)</option>
                                 </select>
                               </div>
                               <div>
@@ -2813,7 +2815,7 @@ function NuvioPageContent({
                                               <option key={c.id} value={c.id}>{c.name}</option>
                                             ))}
                                             {catalogOptions.length === 0 && (
-                                              <option value="top">Top</option>
+                                              <option value="top">{t('top')}</option>
                                             )}
                                           </select>
                                         </div>
@@ -2826,8 +2828,8 @@ function NuvioPageContent({
                                             onChange={(e) => handleUpdateSource(coll.id, folder.id, srcIdx, { type: e.target.value })}
                                             onBlur={() => handleSaveCollections(editableCollections)}
                                           >
-                                            <option value="movie">Movie</option>
-                                            <option value="series">Series</option>
+                                            <option value="movie">{t('movie')}</option>
+                                            <option value="series">{t('series')}</option>
                                           </select>
                                         </div>
                                         <div>
@@ -2835,7 +2837,7 @@ function NuvioPageContent({
                                           <input
                                             type="text"
                                             value={source.genre || ''}
-                                            placeholder="Optional"
+                                            placeholder={t('optional')}
                                             className="nuvio-input"
                                             style={{ width: '100%', fontSize: '0.72rem', padding: '5px' }}
                                             onChange={(e) => handleUpdateSource(coll.id, folder.id, srcIdx, { genre: e.target.value || null })}

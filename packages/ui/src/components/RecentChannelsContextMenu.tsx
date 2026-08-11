@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import './ProgramContextMenu.css';
 
 interface RecentChannelsContextMenuProps {
@@ -15,6 +17,7 @@ export function RecentChannelsContextMenu({
     onClearRecent,
     onHide,
 }: RecentChannelsContextMenuProps) {
+    useTranslation();
     const menuRef = useRef<HTMLDivElement>(null);
     const [adjustedPosition, setAdjustedPosition] = useState(position);
 
@@ -81,14 +84,14 @@ export function RecentChannelsContextMenu({
             style={{ left: `${adjustedPosition.x}px`, top: `${adjustedPosition.y}px` }}
         >
             <div className="context-menu-header" style={{ padding: '8px 12px 4px', fontSize: '11px', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Recently Viewed
+                {i18n.t('contextMenu.recentlyViewed')}
             </div>
             <div className="context-menu-item" onClick={() => { onClearRecent(); onClose(); }}>
-                🗑️ Clear Recent Channels
+                🗑️ {i18n.t('contextMenu.clearRecentChannels')}
             </div>
             {onHide && (
                 <div className="context-menu-item" onClick={() => { onHide(); onClose(); }}>
-                    🚫 Hide Category
+                    🚫 {i18n.t('contextMenu.hideCategory')}
                 </div>
             )}
         </div>,

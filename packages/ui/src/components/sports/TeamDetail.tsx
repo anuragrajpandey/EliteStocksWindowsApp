@@ -164,6 +164,7 @@ function groupEventsByMonth(events: SportsEvent[]): Map<string, SportsEvent[]> {
 }
 
 export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel, breadcrumbs, fromTab, onRootClick }: TeamDetailProps) {
+  const { t } = useTranslation('sports');
   const epgClockFormat = useEpgClockFormat();
   const [details, setDetails] = useState<TeamDetails | null>(null);
   const [upcoming, setUpcoming] = useState<SportsEvent[]>([]);
@@ -308,7 +309,7 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel, bread
       {loading ? (
         <div className="sports-loading">
           <div className="sports-spinner" />
-          <span>Loading team info...</span>
+          <span>{t('loadingTeamInfo')}</span>
         </div>
       ) : (
         <>
@@ -431,7 +432,7 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel, bread
             {loadingTab ? (
               <div className="sports-loading" style={{ minHeight: '200px' }}>
                 <div className="sports-spinner" />
-                <span>Loading info...</span>
+                <span>{t('loadingInfo')}</span>
               </div>
             ) : (
               <>
@@ -546,7 +547,7 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel, bread
                         className="team-schedule-expand-btn"
                         onClick={() => setShowFullSchedule(false)}
                       >
-                        <span>Collapse to Summary (10 Games)</span>
+                        <span>{t('collapseToSummary')}</span>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                           <path d="M18 15l-6-6-6 6" />
                         </svg>
@@ -557,7 +558,7 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel, bread
 
                 {upcoming.length === 0 && past.length === 0 && (
                   <div className="sports-empty">
-                    <p>No schedule available.</p>
+                    <p>{t('noScheduleAvailable')}</p>
                   </div>
                 )}
               </>

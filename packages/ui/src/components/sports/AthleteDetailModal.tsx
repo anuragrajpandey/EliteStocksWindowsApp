@@ -19,7 +19,7 @@ interface AthleteDetailModalProps {
 type TabId = 'overview' | 'stats' | 'gamelog';
 
 export function AthleteDetailModal({ athleteId, leagueId = 'nfl', onClose }: AthleteDetailModalProps) {
-  useTranslation();
+  const { t } = useTranslation('sports');
   const [profile, setProfile] = useState<AthleteProfileResponse | null>(null);
   const [gamelog, setGamelog] = useState<AthleteGameLogData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,11 +63,11 @@ export function AthleteDetailModal({ athleteId, leagueId = 'nfl', onClose }: Ath
         {loading ? (
           <div className="sports-loading" style={{ padding: '60px 0' }}>
             <div className="sports-spinner" />
-            <span>Loading player profile...</span>
+            <span>{t('loadingPlayerProfile')}</span>
           </div>
         ) : !bio ? (
           <div className="sports-empty" style={{ padding: '60px 0' }}>
-            <p>Player details unavailable.</p>
+            <p>{t('playerDetailsUnavailable')}</p>
           </div>
         ) : (
           <>
@@ -180,7 +180,7 @@ export function AthleteDetailModal({ athleteId, leagueId = 'nfl', onClose }: Ath
                     </div>
                   ) : (
                     <div className="sports-empty">
-                      <p>Overview statistics not available.</p>
+                      <p>{t('overviewStatsUnavailable')}</p>
                     </div>
                   )}
 
@@ -243,7 +243,7 @@ export function AthleteDetailModal({ athleteId, leagueId = 'nfl', onClose }: Ath
                     ))
                   ) : (
                     <div className="sports-empty">
-                      <p>Career season statistics not available.</p>
+                      <p>{t('careerStatsUnavailable')}</p>
                     </div>
                   )}
                 </div>
@@ -256,9 +256,9 @@ export function AthleteDetailModal({ athleteId, leagueId = 'nfl', onClose }: Ath
                       <table className="athlete-stats-table gamelog">
                         <thead>
                           <tr>
-                            <th>Date</th>
-                            <th>Opponent</th>
-                            <th>Result</th>
+                            <th>{t('date')}</th>
+                            <th>{t('opponent')}</th>
+                            <th>{t('result')}</th>
                             {gamelog.labels.map((lbl: string, idx: number) => (
                               <th key={idx}>{lbl}</th>
                             ))}
@@ -295,7 +295,7 @@ export function AthleteDetailModal({ athleteId, leagueId = 'nfl', onClose }: Ath
                     </div>
                   ) : (
                     <div className="sports-empty">
-                      <p>Game log not available.</p>
+                      <p>{t('gameLogUnavailable')}</p>
                     </div>
                   )}
                 </div>

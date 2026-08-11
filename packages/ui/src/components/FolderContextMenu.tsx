@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import './ProgramContextMenu.css';
 
 interface FolderContextMenuProps {
@@ -29,6 +31,7 @@ export function FolderContextMenu({
     onManageCategories,
     onManageFolder,
 }: FolderContextMenuProps) {
+    useTranslation();
     const menuRef = useRef<HTMLDivElement>(null);
     const [adjustedPosition, setAdjustedPosition] = useState(position);
 
@@ -87,24 +90,24 @@ export function FolderContextMenu({
             {isPinned ? (
                 onUnpin && (
                     <div className="context-menu-item" onClick={() => { onUnpin(); onClose(); }}>
-                        📌 Unpin Folder
+                        📌 {i18n.t('contextMenu.unpinFolder')}
                     </div>
                 )
             ) : (
                 onPin && (
                     <div className="context-menu-item" onClick={() => { onPin(); onClose(); }}>
-                        📌 Pin Folder to Top
+                        📌 {i18n.t('contextMenu.pinFolderTop')}
                     </div>
                 )
             )}
             {onManageFolder && (
                 <div className="context-menu-item" onClick={() => { onManageFolder(folderId, folderName, sourceId, sourceName); onClose(); }}>
-                    📂 Manage Folder
+                    📂 {i18n.t('contextMenu.manageFolder')}
                 </div>
             )}
             {onManageCategories && (
                 <div className="context-menu-item" onClick={() => { onManageCategories(sourceId, sourceName); onClose(); }}>
-                    ⚙️ Manage Categories
+                    ⚙️ {i18n.t('contextMenu.manageCategories')}
                 </div>
             )}
         </div>,

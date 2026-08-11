@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { db, type StoredChannel, type StoredCategory } from '../db';
 import { buildSearchQueryClauses } from '../utils/searchNormalization';
 import './CustomGroupManager.css'; // Reuse the same styles
@@ -39,6 +40,7 @@ interface SearchResultsProps {
 }
 
 function SearchResults({ query, selectedChannelId, onSelect, enabledSourceIdsKey, enabledSourceIds, sources }: SearchResultsProps) {
+  const { t } = useTranslation('live');
   const [results, setResults] = useState<StoredChannel[] | undefined>();
 
   useEffect(() => {
@@ -109,7 +111,7 @@ function SearchResults({ query, selectedChannelId, onSelect, enabledSourceIdsKey
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, enabledSourceIdsKey]);
 
-  if (!results) return <div className="cgm-empty">Searching…</div>;
+  if (!results) return <div className="cgm-empty">{t('searching')}</div>;
   if (results.length === 0) return <div className="cgm-empty">No results for "{query}"</div>;
 
   // Group results by source
@@ -164,6 +166,7 @@ interface TreeViewProps {
 }
 
 function TreeView({ sourcesAndCategories, searchQuery, expandedNodes, toggleNode, selectedChannelId, onSelect, enabledSourceIdsKey, enabledSourceIds }: TreeViewProps) {
+  const { t } = useTranslation('live');
   const [loadedChannels, setLoadedChannels] = useState<StoredChannel[]>([]);
   const [loadingNode, setLoadingNode] = useState<string | null>(null);
   const loadedCats = useRef<Set<string>>(new Set());
@@ -191,7 +194,7 @@ function TreeView({ sourcesAndCategories, searchQuery, expandedNodes, toggleNode
     }
   }, []);
 
-  if (!sourcesAndCategories) return <div className="cgm-empty">Loading sources…</div>;
+  if (!sourcesAndCategories) return <div className="cgm-empty">{t('loadingSources')}</div>;
 
   const { sources, categories } = sourcesAndCategories;
 
@@ -230,8 +233,8 @@ function TreeView({ sourcesAndCategories, searchQuery, expandedNodes, toggleNode
                       </div>
                       {isCatExpanded && (
                         <div className="node-children">
-                          {loadingNode === cat.category_id && catChannels.length === 0 && <div className="cgm-empty">Loading…</div>}
-                          {loadingNode !== cat.category_id && catChannels.length === 0 && <div className="cgm-empty">No channels</div>}
+                          {loadingNode === cat.category_id && catChannels.length === 0 && <div className="cgm-empty">{t('loading')}</div>}
+                          {loadingNode !== cat.category_id && catChannels.length === 0 && <div className="cgm-empty">{t('noChannels')}</div>}
                           {catChannels.map(ch => {
                             const isSelected = selectedChannelId === ch.stream_id;
                             return (
@@ -260,6 +263,7 @@ function TreeView({ sourcesAndCategories, searchQuery, expandedNodes, toggleNode
 // ── Main ChannelSelectorModal ───────────────────────────────────────────────────
 
 export function ChannelSelectorModal({ currentChannelName, networkName, onSelect, onClose }: ChannelSelectorModalProps) {
+  const { t } = useTranslation('live');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({});
   const [selectedChannel, setSelectedChannel] = useState<StoredChannel | null>(null);
@@ -322,14 +326,14 @@ export function ChannelSelectorModal({ currentChannelName, networkName, onSelect
       <div className="custom-group-manager-modal" onClick={e => e.stopPropagation()}>
 
         <div className="custom-group-manager-header">
-          <h2>Set Channel</h2>
+          <h2>{t('setChannel')}</h2>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
         {/* Current Channel Info */}
         {currentChannelName && (
           <div style={{ padding: '12px 20px', background: 'rgba(102, 126, 234, 0.1)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>Current: </span>
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>{t('current')}: </span>
             <span style={{ color: '#a5b4fc', fontWeight: 600 }}>{currentChannelName}</span>
           </div>
         )}
@@ -337,7 +341,7 @@ export function ChannelSelectorModal({ currentChannelName, networkName, onSelect
         {/* Selected Channel Info */}
         {selectedChannel && (
           <div style={{ padding: '12px 20px', background: 'rgba(34, 197, 94, 0.1)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>New Selection: </span>
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>{t('newSelection')}: </span>
             <span style={{ color: '#4ade80', fontWeight: 600 }}>{selectedChannel.name}</span>
           </div>
         )}
@@ -349,7 +353,7 @@ export function ChannelSelectorModal({ currentChannelName, networkName, onSelect
             <div className="search-bar">
               <input
                 type="text"
-                placeholder="Search channels…"
+                placeholder={t('searchChannels')}
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 autoComplete="off"
@@ -358,7 +362,7 @@ export function ChannelSelectorModal({ currentChannelName, networkName, onSelect
             </div>
             <div className="selector-content">
               {loading
-                ? <div className="cgm-empty">Loading…</div>
+                ? <div className="cgm-empty">{t('loading')}</div>
                 : <TreeView
                   sourcesAndCategories={sourcesAndCategories}
                   searchQuery={searchQuery}
@@ -376,7 +380,7 @@ export function ChannelSelectorModal({ currentChannelName, networkName, onSelect
         </div>
 
         <div className="custom-group-manager-footer">
-          <span className="cgm-footer-hint">Click + to select a channel</span>
+          <span className="cgm-footer-hint">{t('clickPlusToSelect')}</span>
           <div style={{ display: 'flex', gap: '12px' }}>
             {currentChannelName && (
               <button className="close-done-btn" style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#f87171' }} onClick={handleClear}>

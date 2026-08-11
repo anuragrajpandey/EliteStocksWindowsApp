@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../hooks/useSqliteLiveQuery';
 import { db } from '../db';
@@ -19,6 +20,7 @@ export function GroupPickerModal({
   onRemove,
   onClose,
 }: GroupPickerModalProps) {
+  const { t } = useTranslation('live');
   const overlayRef = useRef<HTMLDivElement>(null);
 
   const groups = useLiveQuery(
@@ -76,8 +78,8 @@ export function GroupPickerModal({
                 <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
                 <rect x="9" y="3" width="6" height="4" rx="1" />
               </svg>
-              <span>No custom groups yet.</span>
-              <small>Create custom group in LiveTV categories sidebar, clicking the + at the top</small>
+              <span>{t('noCustomGroups')}</span>
+              <small>{t('noCustomGroupsHint')}</small>
             </div>
           ) : (
             groups!.map((group) => {
@@ -92,7 +94,7 @@ export function GroupPickerModal({
                       <rect x="3" y="14" width="7" height="7" />
                     </svg>
                     <span className="group-picker-item-name">{group.name}</span>
-                    {isActive && <span className="group-picker-badge">Active</span>}
+                    {isActive && <span className="group-picker-badge">{t('active')}</span>}
                   </div>
                   <div className="group-picker-item-actions">
                     {isActive ? (

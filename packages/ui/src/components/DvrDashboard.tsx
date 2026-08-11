@@ -414,7 +414,7 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
                     {loading ? (
                         <div className="dvr-loading">
                             <div className="dvr-spinner" />
-                            <span>Loading...</span>
+                            <span>{i18n.t('common:loading')}</span>
                         </div>
                     ) : activeTab === 'scheduled' ? (
                         <ScheduledTab
@@ -508,8 +508,8 @@ function ScheduledTab({
                         <line x1="3" y1="10" x2="21" y2="10" />
                     </svg>
                 </div>
-                <h3>No Scheduled Recordings</h3>
-                <p>Right-click on programs in the TV Guide to schedule recordings</p>
+                <h3>{i18n.t('dvr:noScheduled')}</h3>
+                <p>{i18n.t('dvr:noScheduledHint')}</p>
             </div>
         );
     }
@@ -557,7 +557,7 @@ function ScheduledTab({
             {hasNoItems ? (
                 <div className="dvr-empty-state" style={{ padding: '40px 20px' }}>
                     <h3>No {filter === 'recurring' ? 'Recurring' : 'One-time'} Recordings Scheduled</h3>
-                    <p>Change your filter or schedule new ones from the TV Guide</p>
+                    <p>{i18n.t('dvr:noScheduledFilterHint')}</p>
                 </div>
             ) : (
                 <>
@@ -716,8 +716,8 @@ function RecordedTab({ recorded, onPlay, onDelete, onRename, formatDateTime }: R
                         <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                     </svg>
                 </div>
-                <h3>No Recordings Yet</h3>
-                <p>Your recordings will appear here once they start or complete</p>
+                <h3>{i18n.t('dvr:noRecordings')}</h3>
+                <p>{i18n.t('dvr:noRecordingsHint')}</p>
             </div>
         );
     }
@@ -802,7 +802,7 @@ function RecordedTab({ recorded, onPlay, onDelete, onRename, formatDateTime }: R
                                 e.stopPropagation();
                                 onDelete(item.id!, item.file_path);
                             }}
-                            title="Delete"
+                            title={i18n.t('common:delete')}
                         >
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <polyline points="3 6 5 6 21 6" />
@@ -815,7 +815,7 @@ function RecordedTab({ recorded, onPlay, onDelete, onRename, formatDateTime }: R
                                 e.stopPropagation();
                                 onRename(item.id!, item.program_title);
                             }}
-                            title="Rename Recording"
+                            title={i18n.t('dvr:renameRecording')}
                         >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -834,7 +834,7 @@ function RecordedTab({ recorded, onPlay, onDelete, onRename, formatDateTime }: R
                                             e.stopPropagation();
                                             setActiveMenuId(activeMenuId === item.id ? null : item.id!);
                                         }}
-                                        title="Convert Recording"
+                                        title={i18n.t('dvr:convertRecording')}
                                     >
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                             <polyline points="23 4 23 10 17 10" />
@@ -860,8 +860,8 @@ function RecordedTab({ recorded, onPlay, onDelete, onRename, formatDateTime }: R
                                                 }}
                                             />
                                             <div className="dvr-convert-dropdown" onClick={(e) => e.stopPropagation()}>
-                                                <button onClick={(e) => { e.stopPropagation(); handleConvert(item.id!, 'mp4'); }}>Convert to MP4</button>
-                                                <button onClick={(e) => { e.stopPropagation(); handleConvert(item.id!, 'mkv'); }}>Convert to MKV</button>
+                                                <button onClick={(e) => { e.stopPropagation(); handleConvert(item.id!, 'mp4'); }}>{i18n.t('dvr:convertToMp4')}</button>
+                                                <button onClick={(e) => { e.stopPropagation(); handleConvert(item.id!, 'mkv'); }}>{i18n.t('dvr:convertToMkv')}</button>
                                             </div>
                                         </>
                                     )}
@@ -872,7 +872,7 @@ function RecordedTab({ recorded, onPlay, onDelete, onRename, formatDateTime }: R
                     {convertingIds[item.id!] && (
                         <div className="dvr-media-converting-overlay" onClick={(e) => e.stopPropagation()}>
                             <div className="dvr-converting-spinner" />
-                            <span className="dvr-converting-text">Converting...</span>
+                            <span className="dvr-converting-text">{i18n.t('dvr:converting')}</span>
                         </div>
                     )}
                 </div>
@@ -961,13 +961,13 @@ function RecordingCard({ item, progress, onEdit, onCancel, onPlay, formatDateTim
                 </span>
                 <div className="dvr-card-actions">
                     {onPlay && progress?.file_path && (
-                        <button className="dvr-btn-icon play" onClick={onPlay} title="Play while recording">
+                        <button className="dvr-btn-icon play" onClick={onPlay} title={i18n.t('dvr:playWhileRecording')}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                 <polygon points="5 3 19 12 5 21 5 3" />
                             </svg>
                         </button>
                     )}
-                    <button className="dvr-btn-icon" onClick={onEdit} title="Edit padding">
+                    <button className="dvr-btn-icon" onClick={onEdit} title={i18n.t('dvr:editPadding')}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
@@ -1037,7 +1037,7 @@ function RecordingCard({ item, progress, onEdit, onCancel, onPlay, formatDateTim
                             🔄 {formatRecurrence(item.recurrence)}
                         </span>
                         <div className="recurrence-occurrences">
-                            <div className="occurrences-title">Next 3 Runs:</div>
+                            <div className="occurrences-title">{i18n.t('dvr:nextRuns')}:</div>
                             {getNextOccurrences(item, 3).map((timestamp, index) => (
                                 <div key={index} className="occurrence-date">
                                     📅 {formatDateTime(timestamp)}
@@ -1064,15 +1064,15 @@ function ScheduledCard({ item, onEdit, onCancel, formatDateTime, formatDuration 
     return (
         <div className="dvr-card scheduled">
             <div className="dvr-card-header">
-                <span className="dvr-card-status-badge scheduled">SCHEDULED</span>
+                <span className="dvr-card-status-badge scheduled">{i18n.t('dvr:scheduled')}</span>
                 <div className="dvr-card-actions">
-                    <button className="dvr-btn-icon" onClick={onEdit} title="Edit padding">
+                    <button className="dvr-btn-icon" onClick={onEdit} title={i18n.t('dvr:editPadding')}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                         </svg>
                     </button>
-                    <button className="dvr-btn-icon danger" onClick={onCancel} title="Cancel recording">
+                    <button className="dvr-btn-icon danger" onClick={onCancel} title={i18n.t('dvr:cancelRecording')}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <line x1="18" y1="6" x2="6" y2="18" />
                             <line x1="6" y1="6" x2="18" y2="18" />
@@ -1108,7 +1108,7 @@ function ScheduledCard({ item, onEdit, onCancel, formatDateTime, formatDuration 
                 </div>
                 {(item.start_padding_sec > 0 || item.end_padding_sec > 0) && (
                     <div className="dvr-card-padding">
-                        <span className="dvr-padding-label">Padding:</span>
+                        <span className="dvr-padding-label">{i18n.t('dvr:padding')}:</span>
                         <span className="dvr-padding-value">+{item.start_padding_sec}s start, +{item.end_padding_sec}s end</span>
                     </div>
                 )}
@@ -1118,7 +1118,7 @@ function ScheduledCard({ item, onEdit, onCancel, formatDateTime, formatDuration 
                             🔄 {formatRecurrence(item.recurrence)}
                         </span>
                         <div className="recurrence-occurrences">
-                            <div className="occurrences-title">Next 3 Runs:</div>
+                            <div className="occurrences-title">{i18n.t('dvr:nextRuns')}:</div>
                             {getNextOccurrences(item, 3).map((timestamp, index) => (
                                 <div key={index} className="occurrence-date">
                                     📅 {formatDateTime(timestamp)}
@@ -1168,7 +1168,7 @@ function EditModal({
         <div className="dvr-modal-overlay" onClick={onCancel}>
             <div className="dvr-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="dvr-modal-header">
-                    <h3>Edit Recording</h3>
+                    <h3>{i18n.t('dvr:editRecording')}</h3>
                     <button className="dvr-modal-close" onClick={onCancel}>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <line x1="18" y1="6" x2="6" y2="18" />
@@ -1185,7 +1185,7 @@ function EditModal({
                     </div>
 
                     <div className="dvr-form-group">
-                        <label>Start Padding</label>
+                        <label>{i18n.t('dvr:startPadding')}</label>
                         <div className="dvr-form-control">
                             <input
                                 type="range"
@@ -1197,11 +1197,11 @@ function EditModal({
                             />
                             <span className="dvr-form-value">{startPadding}s</span>
                         </div>
-                        <span className="dvr-form-hint">Record this many seconds before start time</span>
+                        <span className="dvr-form-hint">{i18n.t('dvr:startPaddingHint')}</span>
                     </div>
 
                     <div className="dvr-form-group">
-                        <label>End Padding</label>
+                        <label>{i18n.t('dvr:endPadding')}</label>
                         <div className="dvr-form-control">
                             <input
                                 type="range"
@@ -1213,26 +1213,26 @@ function EditModal({
                             />
                             <span className="dvr-form-value">{endPadding}s</span>
                         </div>
-                        <span className="dvr-form-hint">Record this many seconds after end time</span>
+                        <span className="dvr-form-hint">{i18n.t('dvr:endPaddingHint')}</span>
                     </div>
 
                     <div className="dvr-form-group">
-                        <label>Recurrence</label>
+                        <label>{i18n.t('dvr:recurrence')}</label>
                         <select
                             value={recurrence}
                             onChange={(e) => onRecurrenceChange(e.target.value)}
                             className="dvr-form-input"
                         >
-                            <option value="once">Once</option>
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="every">Every X Days</option>
+                            <option value="once">{i18n.t('dvr:once')}</option>
+                            <option value="daily">{i18n.t('dvr:daily')}</option>
+                            <option value="weekly">{i18n.t('dvr:weekly')}</option>
+                            <option value="every">{i18n.t('dvr:everyXDays')}</option>
                         </select>
                     </div>
 
                     {recurrence === 'every' && (
                         <div className="dvr-form-group">
-                            <label>Days</label>
+                            <label>{i18n.t('dvr:days')}</label>
                             <input
                                 type="number"
                                 min="1"
@@ -1245,7 +1245,7 @@ function EditModal({
                 </div>
 
                 <div className="dvr-modal-footer">
-                    <button className="dvr-btn secondary" onClick={onCancel}>Cancel</button>
+                    <button className="dvr-btn secondary" onClick={onCancel}>{i18n.t('common:cancel')}</button>
                     <button className="dvr-btn primary" onClick={onSave} disabled={saving}>
                         {saving ? 'Saving...' : 'Save Changes'}
                     </button>
@@ -1294,31 +1294,31 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                 <div style={{ flex: '1 0 150px', display: 'flex', alignItems: 'center' }}>
                     <div className="dvr-downloads-stats-chips">
                         {activeDownloads.length > 0 && (
-                            <span className="dvr-downloads-stats-chip downloading" title="Currently downloading">
+                            <span className="dvr-downloads-stats-chip downloading" title={i18n.t('dvr:downloading')}>
                                 <span className="dvr-downloads-stats-dot downloading" />
                                 {activeDownloads.length} downloading
                             </span>
                         )}
                         {queuedDownloads.length > 0 && (
-                            <span className="dvr-downloads-stats-chip queued" title="Queued waiting to download">
+                            <span className="dvr-downloads-stats-chip queued" title={i18n.t('dvr:queued')}>
                                 <span className="dvr-downloads-stats-dot queued" />
                                 {queuedDownloads.length} queued
                             </span>
                         )}
                         {pausedDownloads.length > 0 && (
-                            <span className="dvr-downloads-stats-chip paused" title="Paused downloads" style={{ background: 'rgba(230, 126, 34, 0.15)', color: '#e67e22' }}>
+                            <span className="dvr-downloads-stats-chip paused" title={i18n.t('dvr:paused')} style={{ background: 'rgba(230, 126, 34, 0.15)', color: '#e67e22' }}>
                                 <span className="dvr-downloads-stats-dot paused" style={{ backgroundColor: '#e67e22' }} />
                                 {pausedDownloads.length} paused
                             </span>
                         )}
                         {completedDownloads.length > 0 && (
-                            <span className="dvr-downloads-stats-chip completed" title="Successfully downloaded">
+                            <span className="dvr-downloads-stats-chip completed" title={i18n.t('dvr:successfullyDownloaded')}>
                                 <span className="dvr-downloads-stats-dot completed" />
                                 {completedDownloads.length} downloaded
                             </span>
                         )}
                         {otherDownloads.length > 0 && (
-                            <span className="dvr-downloads-stats-chip failed" title="Canceled or failed downloads">
+                            <span className="dvr-downloads-stats-chip failed" title={i18n.t('dvr:canceledOrFailed')}>
                                 <span className="dvr-downloads-stats-dot failed" />
                                 {otherDownloads.length} canceled/failed
                             </span>
@@ -1390,7 +1390,7 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                 </div>
 
                 <div style={{ flex: '1 0 150px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px' }}>
-                    <label className="dvr-downloads-toggle-posters" title="Toggle poster visibility">
+                    <label className="dvr-downloads-toggle-posters" title={i18n.t('dvr:togglePosters')}>
                         <input
                             type="checkbox"
                             checked={showPosters}
@@ -1421,8 +1421,8 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     </div>
-                    <h3>No Downloads</h3>
-                    <p>Start a download from Movie or Series details</p>
+                    <h3>{i18n.t('dvr:noDownloads')}</h3>
+                    <p>{i18n.t('dvr:noDownloadsHint')}</p>
                 </div>
             ) : filteredDownloads.length === 0 ? (
                 <div className="dvr-empty-state">
@@ -1432,8 +1432,8 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                             <line x1="21" y1="21" x2="16.65" y2="16.65" />
                         </svg>
                     </div>
-                    <h3>No matching downloads</h3>
-                    <p>Try searching for a different keyword</p>
+                    <h3>{i18n.t('dvr:noMatchingDownloads')}</h3>
+                    <p>{i18n.t('dvr:noMatchingDownloadsHint')}</p>
                 </div>
             ) : (
                 <div className={`dvr-downloads-list ${showPosters ? 'show-posters' : ''}`}>
@@ -1503,7 +1503,7 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                                             <button
                                                 className="dvr-btn-icon play"
                                                 onClick={() => resumeDownload(item.id)}
-                                                title="Resume Download"
+                                                title={i18n.t('dvr:resumeDownload')}
                                             >
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                                     <polygon points="5 3 19 12 5 21 5 3" />
@@ -1527,7 +1527,7 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                                                         scheduled_end: Math.floor(item.addedAt / 1000),
                                                     });
                                                 }}
-                                                title="Play Downloaded File"
+                                                title={i18n.t('dvr:playDownloaded')}
                                             >
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                                     <polygon points="5 3 19 12 5 21 5 3" />
@@ -1538,7 +1538,7 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                                             <button
                                                 className="dvr-btn-icon danger"
                                                 onClick={() => cancelDownload(item.id)}
-                                                title="Cancel Download (Deletes partial files)"
+                                                title={i18n.t('dvr:cancelDownload')}
                                             >
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                     <line x1="18" y1="6" x2="6" y2="18" />
@@ -1550,7 +1550,7 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                                             <button
                                                 className="dvr-btn-icon danger"
                                                 onClick={() => removeDownload(item.id)}
-                                                title="Remove from list"
+                                                title={i18n.t('dvr:removeFromList')}
                                             >
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                     <polyline points="3 6 5 6 21 6" />

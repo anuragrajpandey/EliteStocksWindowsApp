@@ -1,4 +1,5 @@
 import { Fragment, createContext, useContext, useState, useEffect, useRef, useCallback, useMemo, useLayoutEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../hooks/useSqliteLiveQuery';
 import { useCategoriesBySource, useEnabledSources, type CategoryWithCount, type SourceWithCategories } from '../hooks/useChannels';
@@ -461,6 +462,7 @@ function SidebarFolderHeader({
 
 
 export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, onEditSource, onClose, onShow, isLiveTV }: CategoryStripProps) {
+  const { t } = useTranslation('live');
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const prevVisibleRef = useRef(visible);
   const prevSelectedCatRef = useRef(selectedCategoryId);
@@ -2198,7 +2200,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
 
                       {playlistLinks.length === 0 && individualCount === 0 && (
                         <div className="playlist-empty-hint">
-                          <span>Empty playlist</span>
+                          <span>{t('emptyPlaylist')}</span>
                           <button 
                             className="playlist-edit-link"
                             onClick={() => setEditingPlaylist({ id: playlist.playlist_id, name: playlist.name })}

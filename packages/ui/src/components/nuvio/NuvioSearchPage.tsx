@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { fetchCatalog } from '../../services/stremio-addon';
 import type { InstalledAddon, StremioManifestCatalog, StremioMetaPreview } from '../../types/stremio';
 import { useStremioHover } from '../../contexts/StremioHoverContext';
@@ -117,6 +118,7 @@ function NuvioSearchRow({
   onItemClick,
   onSeeAll,
 }: NuvioSearchRowProps) {
+  const { t } = useTranslation('nuvio');
   const { onCardMouseEnter, onCardMouseLeave, onCardClick } = useStremioHover();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -156,7 +158,7 @@ function NuvioSearchRow({
             className="stremio-row-nav-btn"
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
-            aria-label="Scroll left"
+            aria-label={t('scrollLeft')}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M15 18l-6-6 6-6" />
@@ -166,7 +168,7 @@ function NuvioSearchRow({
             className="stremio-row-nav-btn"
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
-            aria-label="Scroll right"
+            aria-label={t('scrollRight')}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M9 18l6-6-6-6" />
@@ -216,6 +218,7 @@ export function NuvioSearchPage({
   query,
   onQueryChange
 }: NuvioSearchPageProps) {
+  const { t } = useTranslation('nuvio');
   const { onCardMouseEnter, onCardMouseLeave, onCardClick } = useStremioHover();
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedCatalogKey, setSelectedCatalogKey] = useState<string | null>(initialCatalogKey || null);
@@ -523,7 +526,7 @@ export function NuvioSearchPage({
             ref={focusRef}
             className="nuvio-search-bar-input"
             type="text"
-            placeholder="Search movies, series, and more..."
+            placeholder={t('searchPlaceholder')}
             value={query}
             onChange={(e) => handleQueryChange(e.target.value)}
           />
@@ -572,7 +575,7 @@ export function NuvioSearchPage({
                   <line x1="19" y1="12" x2="5" y2="12" />
                   <polyline points="12 19 5 12 12 5" />
                 </svg>
-                <span>Back</span>
+                <span>{t('back')}</span>
               </button>
             )}
             <h2 className="nuvio-discover-title" style={{ margin: 0 }}>Discover</h2>
@@ -621,7 +624,7 @@ export function NuvioSearchPage({
                 onChange={(e) => setSelectedGenre(e.target.value || null)}
                 disabled={genreOptions.length === 0}
               >
-                <option value="">All Genres</option>
+                <option value="">{t('allGenres')}</option>
                 {genreOptions.map(g => (
                   <option key={g} value={g}>{g}</option>
                 ))}
@@ -636,7 +639,7 @@ export function NuvioSearchPage({
           {discoverLoading && discoverItems.length === 0 ? (
             <div className="nuvio-search-loading">
               <div className="spinner" style={{ width: '28px', height: '28px', borderRadius: '50%', border: '3px solid rgba(0,212,255,0.1)', borderTopColor: '#00d4ff', animation: 'spin 1s linear infinite' }} />
-              <span>Loading discover...</span>
+              <span>{t('loadingDiscover')}</span>
             </div>
           ) : discoverItems.length > 0 ? (
             <>
@@ -714,7 +717,7 @@ export function NuvioSearchPage({
                 <line x1="19" y1="12" x2="5" y2="12" />
                 <polyline points="12 19 5 12 12 5" />
               </svg>
-              <span>Back</span>
+              <span>{t('back')}</span>
             </button>
             <h2 className="nuvio-discover-title" style={{ margin: 0 }}>
               Search Results: {searchCatalogDetail.addon.manifest?.name || searchCatalogDetail.addon.id} - {searchCatalogDetail.catalog.name}
@@ -724,7 +727,7 @@ export function NuvioSearchPage({
           {searchDetailLoading && searchDetailItems.length === 0 ? (
             <div className="nuvio-search-loading">
               <div className="spinner" style={{ width: '28px', height: '28px', borderRadius: '50%', border: '3px solid rgba(0,212,255,0.1)', borderTopColor: '#00d4ff', animation: 'spin 1s linear infinite' }} />
-              <span>Searching...</span>
+              <span>{t('searching')}</span>
             </div>
           ) : searchDetailItems.length > 0 ? (
             <>
@@ -773,7 +776,7 @@ export function NuvioSearchPage({
           {searchLoading && searchResults.length === 0 ? (
             <div className="nuvio-search-loading">
               <div className="spinner" style={{ width: '28px', height: '28px', borderRadius: '50%', border: '3px solid rgba(0,212,255,0.1)', borderTopColor: '#00d4ff', animation: 'spin 1s linear infinite' }} />
-              <span>Searching...</span>
+              <span>{t('searching')}</span>
             </div>
           ) : searchResults.length > 0 ? (
             searchResults.map(({ addon, catalog, items }) => (

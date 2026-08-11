@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import './ProgramContextMenu.css';
 
 interface SourceContextMenuProps {
@@ -25,6 +27,7 @@ export function SourceContextMenu({
     onEditEpg,
     onCreateCategoryFolder,
 }: SourceContextMenuProps) {
+    useTranslation();
     const menuRef = useRef<HTMLDivElement>(null);
     const [adjustedPosition, setAdjustedPosition] = useState(position);
 
@@ -95,27 +98,27 @@ export function SourceContextMenu({
             </div>
             {onManageCategories && (
                 <div className="context-menu-item" onClick={() => { onManageCategories(sourceId, sourceName); onClose(); }}>
-                    Manage Categories
+                    {i18n.t('contextMenu.manageCategories')}
                 </div>
             )}
             {onCreateCategoryFolder && (
                 <div className="context-menu-item" onClick={() => { onCreateCategoryFolder(sourceId, sourceName); onClose(); }}>
-                    Create Category Folder
+                    {i18n.t('contextMenu.createCategoryFolder')}
                 </div>
             )}
             {onManageVodCategories && (
                 <div className="context-menu-item" onClick={() => { onManageVodCategories(sourceId, sourceName); onClose(); }}>
-                    Manage VOD Categories
+                    {i18n.t('contextMenu.manageVodCategories')}
                 </div>
             )}
             {onEditSource && (
                 <div className="context-menu-item" onClick={() => { onEditSource(sourceId); onClose(); }}>
-                    Edit Source
+                    {i18n.t('contextMenu.editSource')}
                 </div>
             )}
             {onEditEpg && (
                 <div className="context-menu-item" onClick={() => { onEditEpg(sourceId, sourceName); onClose(); }}>
-                    Edit EPG
+                    {i18n.t('contextMenu.editEpg')}
                 </div>
             )}
         </div>,

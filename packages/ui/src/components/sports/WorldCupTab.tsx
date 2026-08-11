@@ -43,7 +43,7 @@ interface GroupStanding {
 }
 
 export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProps) {
-  useTranslation();
+  const { t } = useTranslation('sports');
   const epgClockFormat = useEpgClockFormat();
   const [activeSubTab, setActiveSubTab] = useState<SubTabId>('overview');
   
@@ -494,7 +494,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
             <path d="M8 11h8" />
             <path d="M8 15h8" />
           </svg>
-          <p>Knockout matches have not been generated yet. They will appear here once the group stage concludes.</p>
+          <p>{t('knockoutNotGenerated')}</p>
         </div>
       );
     }
@@ -644,23 +644,23 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
         {/* Filters Bar */}
         <div className="wc-filters-bar">
           <div className="wc-filter-group">
-            <label>Stage:</label>
+            <label>{t('stage')}:</label>
             <select value={matchStageFilter} onChange={e => setMatchStageFilter(e.target.value)} className="wc-select">
-              <option value="all">All Stages</option>
-              <option value="group">Group Stage</option>
-              <option value="knockout">Knockout Stage</option>
-              <option value="round-of-32">Round of 32</option>
-              <option value="round-of-16">Round of 16</option>
-              <option value="quarterfinals">Quarterfinals</option>
-              <option value="semifinals">Semifinals</option>
-              <option value="final">Finals</option>
+              <option value="all">{t('allStages')}</option>
+              <option value="group">{t('groupStage')}</option>
+              <option value="knockout">{t('knockoutStage')}</option>
+              <option value="round-of-32">{t('roundOf32')}</option>
+              <option value="round-of-16">{t('roundOf16')}</option>
+              <option value="quarterfinals">{t('quarterfinals')}</option>
+              <option value="semifinals">{t('semifinals')}</option>
+              <option value="final">{t('finals')}</option>
             </select>
           </div>
           
           <div className="wc-filter-group">
-            <label>Date:</label>
+            <label>{t('date')}:</label>
             <select value={selectedDateStr} onChange={e => setSelectedDateStr(e.target.value)} className="wc-select">
-              <option value="all">All Dates</option>
+              <option value="all">{t('allDates')}</option>
               {matchDates.map(date => {
                 const dateObj = new Date(date + 'T12:00:00'); // prevent timezone shift
                 const label = formatDate(dateObj, { weekday: 'short', month: 'short', day: 'numeric' });
@@ -690,7 +690,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
               <circle cx="12" cy="12" r="10" />
               <line x1="8" y1="12" x2="16" y2="12" />
             </svg>
-            <p>No matches match the selected filters.</p>
+            <p>{t('noMatchesMatchFilters')}</p>
           </div>
         )}
       </div>

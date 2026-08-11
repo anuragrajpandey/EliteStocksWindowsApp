@@ -354,7 +354,7 @@ export function ChannelPanel({
   audioVisualizerMode = 'spectrum',
   onSetAudioVisualizerMode,
 }: ChannelPanelProps) {
-  useTranslation();
+  const { t } = useTranslation();
   const epgView = useEpgView();
   const epgVisibleHours = useEpgVisibleHours();
   const epgClockFormat = useEpgClockFormat();
@@ -2720,11 +2720,11 @@ export function ChannelPanel({
             )}
             {!isSearchMode && (
               <div className="guide-nav">
-                <button className="guide-nav-btn" onClick={goBack} title="Previous hour">
+                <button className="guide-nav-btn" onClick={goBack} title={t('previousHour')}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
                 </button>
                 <button className="guide-now-btn" onClick={goToNow} disabled={isAtNow}>Now</button>
-                <button className="guide-nav-btn" onClick={goForward} title="Next hour">
+                <button className="guide-nav-btn" onClick={goForward} title={t('nextHour')}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
                 </button>
               </div>
@@ -2760,7 +2760,7 @@ export function ChannelPanel({
                       }}
                     />
                     {channelSearchQuery && (
-                      <button className="search-clear-btn" onClick={() => setChannelSearchQuery('')} title="Clear search">
+                      <button className="search-clear-btn" onClick={() => setChannelSearchQuery('')} title={t('clearSearch')}>
                         ✕
                       </button>
                     )}

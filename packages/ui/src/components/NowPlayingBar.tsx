@@ -1,4 +1,5 @@
 import { type ChangeEvent, useEffect, useState, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { invoke } from '@tauri-apps/api/core';
 import type { StoredChannel } from '../db';
@@ -150,6 +151,7 @@ export function NowPlayingBar({
   audioVisualizerMode = 'spectrum',
   onSetAudioVisualizerMode,
 }: NowPlayingBarProps) {
+  const { t } = useTranslation('player');
   const { showVolumePercent: showVolumePercentSetting } = useAppSettings();
   const showVolumePercent = propShowVolumePercent ?? showVolumePercentSetting ?? false;
 
@@ -684,7 +686,7 @@ export function NowPlayingBar({
                     className="npb-clean-dvr-btn"
                     onClick={handleQuickRecord}
                     disabled={!canControl || recording}
-                    title="Quick Record / DVR"
+                    title={t('quickRecordDvr')}
                   >
                     <span className="npb-clean-dvr-dash">-</span> DVR
                   </button>
@@ -693,7 +695,7 @@ export function NowPlayingBar({
                   timeshiftState && timeshiftState.behindLive >= 5 ? (
                     <div className="npb-clean-behind-live-group">
                       {onTimeshiftCatchUp ? (
-                        <button className="npb-clean-live-btn active" onClick={onTimeshiftCatchUp} title="Catch up to live">
+                        <button className="npb-clean-live-btn active" onClick={onTimeshiftCatchUp} title={t('catchUpToLive')}>
                           <span className="npb-clean-live-dot red" />
                           LIVE
                         </button>
@@ -718,7 +720,7 @@ export function NowPlayingBar({
                   <button
                     className="npb-clean-live-btn active"
                     onClick={onGoToLive}
-                    title="Go to Live"
+                    title={t('goToLive')}
                   >
                     Go Live
                   </button>
@@ -771,7 +773,7 @@ export function NowPlayingBar({
                     className="npb-clean-sm-btn"
                     onClick={onReplayStream}
                     disabled={!canControl}
-                    title="Reload Channel (Q)"
+                    title={t('reloadChannel')}
                   >
                     <ReloadIcon />
                   </button>
@@ -782,7 +784,7 @@ export function NowPlayingBar({
                     className="npb-clean-sm-btn"
                     onClick={onStop}
                     disabled={!canControl}
-                    title="Stop"
+                    title={t('stop')}
                   >
                     <StopIcon />
                   </button>
@@ -822,7 +824,7 @@ export function NowPlayingBar({
                   <button
                     className={`npb-clean-btn${guideTransparent ? ' active' : ''}`}
                     onClick={onToggleTransparentGuide}
-                    title="Toggle Transparent EPG Guide (Z)"
+                    title={t('toggleTransparentGuide')}
                   >
                     <TvIcon />
                   </button>
@@ -833,7 +835,7 @@ export function NowPlayingBar({
                     className="npb-clean-btn"
                     onClick={onToggleStats}
                     disabled={!canControl}
-                    title="Toggle Stats (I)"
+                    title={t('toggleStats')}
                   >
                     <StatsIcon />
                   </button>
@@ -845,7 +847,7 @@ export function NowPlayingBar({
                       className="npb-clean-btn"
                       onClick={() => setShowAspectMenu(v => !v)}
                       disabled={!canControl}
-                      title="Aspect Ratio"
+                      title={t('aspectRatio')}
                     >
                       <AspectRatioIcon />
                     </button>
@@ -873,13 +875,13 @@ export function NowPlayingBar({
                     <button
                       className={`npb-clean-btn ${showVisualizerMenu ? 'active' : ''}`}
                       onClick={() => setShowVisualizerMenu(v => !v)}
-                      title="Audio Visualizer Style"
+                      title={t('audioVisualizerStyle')}
                     >
                       <VisualizerIcon />
                     </button>
                     {showVisualizerMenu && (
                       <div className="npb-aspect-menu npb-visualizer-menu">
-                        <div className="npb-menu-title">Audio Visualizer</div>
+                        <div className="npb-menu-title">{t('audioVisualizer')}</div>
                         <button
                           className={`npb-aspect-item ${audioVisualizerMode === 'spectrum' ? 'active' : ''}`}
                           onClick={() => { onSetAudioVisualizerMode('spectrum'); setShowVisualizerMenu(false); }}
@@ -914,7 +916,7 @@ export function NowPlayingBar({
                   className={`npb-clean-btn${hasAudioDelay ? ' has-badge' : ''}`}
                   onClick={onShowAudioModal}
                   disabled={!canControl}
-                  title="Audio / Language (A)"
+                  title={t('audioLanguage')}
                 >
                   <TranslateIcon />
                 </button>
@@ -923,7 +925,7 @@ export function NowPlayingBar({
                   className="npb-clean-btn"
                   onClick={onShowSubtitleModal}
                   disabled={!canControl}
-                  title="Subtitles / Tracks (J)"
+                  title={t('subtitlesTracks')}
                 >
                   <SubtitleIcon />
                 </button>
@@ -933,7 +935,7 @@ export function NowPlayingBar({
                     className="npb-clean-btn npb-source-picker-btn"
                     onClick={() => setShowSourcePicker(true)}
                     disabled={!canControl}
-                    title="Switch Source"
+                    title={t('switchSource')}
                   >
                     <SourcePickerIcon />
                   </button>
@@ -954,7 +956,7 @@ export function NowPlayingBar({
                   className="npb-clean-btn"
                   onClick={onToggleFullscreen}
                   disabled={!canControl}
-                  title="Toggle Fullscreen (F)"
+                  title={t('toggleFullscreen')}
                 >
                   <FullscreenIcon />
                 </button>
@@ -993,7 +995,7 @@ export function NowPlayingBar({
                   ) : isCatchup && catchupInfo ? (
                     <>
                       <span className="npb-channel-name" title={channel.alias || channel.name}>
-                        {channel.alias || channel.name} <span className="npb-catchup-badge" style={{ fontSize: '0.7em', backgroundColor: '#e5a00d', padding: '2px 6px', borderRadius: '4px', verticalAlign: 'middle', marginLeft: '6px' }}>CATCHUP</span>
+                        {channel.alias || channel.name} <span className="npb-catchup-badge" style={{ fontSize: '0.7em', backgroundColor: '#e5a00d', padding: '2px 6px', borderRadius: '4px', verticalAlign: 'middle', marginLeft: '6px' }}>{t('catchup')}</span>
                       </span>
                       <MetadataBadge streamId={channel.stream_id} variant="detailed" />
                       <span className="npb-program-title" title={catchupInfo.programTitle}>
@@ -1018,7 +1020,7 @@ export function NowPlayingBar({
                           )}
                         </>
                       ) : (
-                        <span className="npb-no-program">No program info</span>
+                        <span className="npb-no-program">{t('noProgramInfo')}</span>
                       )}
                     </>
                   )}
@@ -1080,7 +1082,7 @@ export function NowPlayingBar({
                       onClick={() => {
                         onGoToLive();
                       }}
-                      title="Go to Live"
+                      title={t('goToLive')}
                     >
                       Go Live
                     </button>
@@ -1146,7 +1148,7 @@ export function NowPlayingBar({
                                 <button
                                   className="npb-scrub-mode-btn"
                                   onClick={() => setScrubMode('epgcatchup')}
-                                  title="Switch to EPG Catchup mode"
+                                  title={t('switchToEpgCatchup')}
                                 >
                                   ⏱ EPG Catchup
                                 </button>
@@ -1160,7 +1162,7 @@ export function NowPlayingBar({
                           </div>
                           <span className="npb-time-remaining">−{formatTime(behindLive)}</span>
                           {!isLive && onTimeshiftCatchUp && (
-                            <button className="npb-btn npb-live-btn" onClick={onTimeshiftCatchUp} title="Catch up to live">
+                            <button className="npb-btn npb-live-btn" onClick={onTimeshiftCatchUp} title={t('catchUpToLive')}>
                               ⏭ Live
                             </button>
                           )}
@@ -1173,7 +1175,7 @@ export function NowPlayingBar({
                             <button
                               className="npb-scrub-mode-btn npb-scrub-mode-btn--back"
                               onClick={() => setScrubMode('timeshift')}
-                              title="Switch back to TimeShift mode"
+                              title={t('switchToTimeshift')}
                             >
                               ⏮ TimeShift
                             </button>
@@ -1266,7 +1268,7 @@ export function NowPlayingBar({
                     className="npb-btn npb-reload-btn"
                     onClick={onReplayStream}
                     disabled={!canControl}
-                    title="Reload Channel (Q)"
+                    title={t('reloadChannel')}
                   >
                     <ReloadIcon />
                   </button>
@@ -1275,7 +1277,7 @@ export function NowPlayingBar({
                   className="npb-btn"
                   onClick={onStop}
                   disabled={!canControl}
-                  title="Stop"
+                  title={t('stop')}
                 >
                   <StopIcon />
                 </button>
@@ -1287,7 +1289,7 @@ export function NowPlayingBar({
                   className="npb-btn"
                   onClick={onShowSubtitleModal}
                   disabled={!canControl}
-                  title="Select Subtitle (J)"
+                  title={t('selectSubtitle')}
                 >
                   <SubtitleIcon />
                 </button>
@@ -1295,7 +1297,7 @@ export function NowPlayingBar({
                   className={`npb-btn${hasAudioDelay ? ' has-badge' : ''}`}
                   onClick={onShowAudioModal}
                   disabled={!canControl}
-                  title="Select Audio Track (A)"
+                  title={t('selectAudioTrack')}
                 >
                   <AudioIcon />
                 </button>
@@ -1303,7 +1305,7 @@ export function NowPlayingBar({
                   className="npb-btn"
                   onClick={onToggleStats}
                   disabled={!canControl}
-                  title="Toggle Stats (I)"
+                  title={t('toggleStats')}
                 >
                   <StatsIcon />
                 </button>
@@ -1312,7 +1314,7 @@ export function NowPlayingBar({
                     className="npb-btn npb-source-picker-btn"
                     onClick={() => setShowSourcePicker(true)}
                     disabled={!canControl}
-                    title="Switch Source"
+                    title={t('switchSource')}
                   >
                     <SourcePickerIcon />
                   </button>
@@ -1322,7 +1324,7 @@ export function NowPlayingBar({
                     className="npb-btn npb-record-btn"
                     onClick={handleQuickRecord}
                     disabled={!canControl || recording}
-                    title="Quick Record"
+                    title={t('quickRecord')}
                     style={{ color: recording ? '#ff4444' : undefined }}
                   >
                     <RecordIcon recording={recording} />
@@ -1337,7 +1339,7 @@ export function NowPlayingBar({
                     className="npb-btn"
                     onClick={() => setShowAspectMenu(v => !v)}
                     disabled={!canControl}
-                    title="Aspect Ratio"
+                    title={t('aspectRatio')}
                   >
                     <AspectRatioIcon />
                   </button>
@@ -1367,13 +1369,13 @@ export function NowPlayingBar({
                     className={`npb-btn ${showVisualizerMenu ? 'active' : ''}`}
                     onClick={() => setShowVisualizerMenu(v => !v)}
                     disabled={!canControl}
-                    title="Audio Visualizer Style"
+                    title={t('audioVisualizerStyle')}
                   >
                     <VisualizerIcon />
                   </button>
                   {showVisualizerMenu && (
                     <div className="npb-aspect-menu npb-visualizer-menu">
-                      <div className="npb-menu-title">Audio Visualizer</div>
+                      <div className="npb-menu-title">{t('audioVisualizer')}</div>
                       <button
                         className={`npb-aspect-item ${audioVisualizerMode === 'spectrum' ? 'active' : ''}`}
                         onClick={() => { onSetAudioVisualizerMode('spectrum'); setShowVisualizerMenu(false); }}
@@ -1474,7 +1476,7 @@ export function NowPlayingBar({
                 className="npb-btn npb-fullscreen-btn"
                 onClick={onToggleFullscreen}
                 disabled={!canControl}
-                title="Toggle Fullscreen (F)"
+                title={t('toggleFullscreen')}
               >
                 <FullscreenIcon />
               </button>
@@ -1487,7 +1489,7 @@ export function NowPlayingBar({
           <div className="npb-modal-overlay" onClick={() => setShowRecordModal(false)}>
             <div className="npb-modal" onClick={(e) => e.stopPropagation()}>
               <div className="npb-modal-header">
-                <h3>Quick Record</h3>
+                <h3>{t('quickRecord')}</h3>
                 <button className="npb-modal-close" onClick={() => setShowRecordModal(false)}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <line x1="18" y1="6" x2="6" y2="18" />
@@ -1496,19 +1498,19 @@ export function NowPlayingBar({
                 </button>
               </div>
               <div className="npb-modal-body">
-                <p>Record <strong>{channel?.name}</strong></p>
+                <p>{t('recordChannel', { name: channel?.name })}</p>
                 <div className="npb-form-group">
-                  <label>Recording Title</label>
+                  <label>{t('recordingTitle')}</label>
                   <input
                     type="text"
                     value={recordTitle}
                     onChange={(e) => setRecordTitle(e.target.value)}
-                    placeholder={currentProgram?.title || `Quick Record - ${channel?.name || ''}`}
+                    placeholder={currentProgram?.title || `${t('quickRecord')} - ${channel?.name || ''}`}
                     autoFocus
                   />
                 </div>
                 <div className="npb-form-group">
-                  <label>Duration (minutes)</label>
+                  <label>{t('durationMinutes')}</label>
                   <input
                     type="number"
                     min="1"
@@ -1519,8 +1521,8 @@ export function NowPlayingBar({
                 </div>
               </div>
               <div className="npb-modal-footer">
-                <button className="npb-btn secondary" onClick={() => setShowRecordModal(false)}>Cancel</button>
-                <button className="npb-btn primary" onClick={handleStartRecording}>Start Recording</button>
+                <button className="npb-btn secondary" onClick={() => setShowRecordModal(false)}>{t('cancel')}</button>
+                <button className="npb-btn primary" onClick={handleStartRecording}>{t('startRecording')}</button>
               </div>
             </div>
           </div>,
@@ -1577,7 +1579,7 @@ export function NowPlayingBar({
           <button
             className="npb-btn npb-fullscreen-btn"
             onClick={onToggleFullscreen}
-            title="Toggle Fullscreen (F)"
+            title={t('toggleFullscreen')}
           >
             <FullscreenIcon />
           </button>
