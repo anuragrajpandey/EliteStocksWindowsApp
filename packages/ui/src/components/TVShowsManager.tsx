@@ -4,6 +4,7 @@ import './TVShowsManager.css';
 import { db, addTvEpisodeToWatchlist, clearAutoAddedEpisodesForShow, type AutoAddEpisode } from '../db';
 import { matchesSearch } from '../utils/searchNormalization';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { formatDate } from '../utils/dateTime';
 
 interface TrackedShow {
@@ -30,7 +31,7 @@ type SortOption = 'name' | 'status' | 'channel' | 'recent';
 type ViewMode = 'grid' | 'list';
 
 export function TVShowsManager({ onClose, onPlayChannel }: Props) {
-  useTranslation();
+  const { t } = useTranslation('tvShows');
   const [shows, setShows] = useState<TrackedShow[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,7 +57,7 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
   }
 
   async function removeShow(tvmazeId: number, showName: string) {
-    if (!confirm(`Remove "${showName}" from your tracked shows?`)) return;
+    if (!confirm(t('removeConfirm', { name: showName }))) return;
 
     setRemovingId(tvmazeId);
     try {
@@ -66,7 +67,7 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
         setSelectedShow(null);
       }
     } catch (e: any) {
-      alert('Failed to remove show: ' + e);
+      alert(t('failedToRemove', { error: String(e) }));
     } finally {
       setRemovingId(null);
     }
@@ -178,7 +179,7 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
   };
 
   const getStatusLabel = (status: string | null) => {
-    if (!status) return 'Unknown';
+    if (!status) return t('unknown');
     return status;
   };
 
@@ -201,8 +202,8 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
               </svg>
             </div>
             <div className="tvsm-title">
-              <h2>My Shows</h2>
-              <span className="tvsm-subtitle">{shows.length} tracked {shows.length === 1 ? 'show' : 'shows'}</span>
+              <h2>{t('myShows')}</h2>
+              <span className="tvsm-subtitle">{t('trackedCount', { count: shows.length })}</span>
             </div>
           </div>
 
@@ -215,7 +216,7 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
               </svg>
               <input
                 type="text"
-                placeholder="Search shows..."
+                placeholder={t('searchShowsPlaceholder')}
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
               />
@@ -232,10 +233,10 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
             {/* Sort Dropdown */}
             <div className="tvsm-sort">
               <select value={sortBy} onChange={e => setSortBy(e.target.value as SortOption)}>
-                <option value="name">Sort by Name</option>
-                <option value="status">Sort by Status</option>
-                <option value="channel">Sort by Channel</option>
-                <option value="recent">Recently Synced</option>
+                <option value="name">{t('sortByName')}</option>
+                <option value="status">{t('sortByStatus')}</option>
+                <option value="channel">{t('sortByChannel')}</option>
+                <option value="recent">{t('recentlySynced')}</option>
               </select>
             </div>
 
@@ -244,7 +245,7 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
               <button
                 className={viewMode === 'grid' ? 'active' : ''}
                 onClick={() => setViewMode('grid')}
-                title="Grid view"
+                title={t('gridView')}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect x="3" y="3" width="7" height="7" />
@@ -256,7 +257,7 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
               <button
                 className={viewMode === 'list' ? 'active' : ''}
                 onClick={() => setViewMode('list')}
-                title="List view"
+                title={t('listView')}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="8" y1="6" x2="21" y2="6" />
@@ -283,7 +284,7 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
           {loading ? (
             <div className="tvsm-loading">
               <div className="tvsm-spinner" />
-              <span>Loading your shows...</span>
+              <span>{t('loadingShows')}</span>
             </div>
           ) : filteredShows.length === 0 ? (
             <div className="tvsm-empty">
@@ -295,8 +296,8 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
                   <line x1="2" y1="12" x2="22" y2="12" />
                 </svg>
               </div>
-              <h3>No shows found</h3>
-              <p>{searchQuery ? 'Try a different search term' : 'Start tracking shows from the TV Guide'}</p>
+              <h3>{t('noShows')}</h3>
+              <p>{searchQuery ? t('tryDifferentTerm') : t('startTrackingHint')}</p>
             </div>
           ) : (
             <div className={`tvsm-shows ${viewMode}`}>
@@ -343,7 +344,7 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
                     )}
                     <div className="tvsm-show-meta">
                       {show.last_synced && (
-                        <span>Synced {formatDate(new Date(show.last_synced))}</span>
+                        <span>{t('synced', { date: formatDate(new Date(show.last_synced)) })}</span>
                       )}
                     </div>
                   </div>
@@ -358,7 +359,7 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
                           onPlayChannel(show.channel_name!);
                           onClose();
                         }}
-                        title={`Play ${show.channel_name}`}
+                        title={t('playOnChannel', { channel: show.channel_name })}
                       >
                         <svg viewBox="0 0 24 24" fill="currentColor">
                           <polygon points="5 3 19 12 5 21 5 3" />
@@ -371,7 +372,7 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
                         e.stopPropagation();
                         syncShow(show.tvmaze_id);
                       }}
-                      title="Sync episodes"
+                      title={t('syncEpisodes')}
                     >
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="23 4 23 10 17 10" />
@@ -385,7 +386,7 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
                         removeShow(show.tvmaze_id, show.show_name);
                       }}
                       disabled={removingId === show.tvmaze_id}
-                      title="Remove show"
+                      title={t('removeShow')}
                     >
                       {removingId === show.tvmaze_id ? (
                         <div className="tvsm-btn-spinner" />
@@ -407,10 +408,10 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
         <div className="tvsm-footer">
           <span className="tvsm-footer-text">
             {filteredShows.length !== shows.length
-              ? `Showing ${filteredShows.length} of ${shows.length} shows`
-              : `${shows.length} ${shows.length === 1 ? 'show' : 'shows'} tracked`}
+              ? t('showingOf', { shown: filteredShows.length, total: shows.length })
+              : t('trackedCount', { count: shows.length })}
           </span>
-          <button className="tvsm-done-btn" onClick={onClose}>Done</button>
+          <button className="tvsm-done-btn" onClick={onClose}>{i18n.t('common:done')}</button>
         </div>
       </div>
     </div>

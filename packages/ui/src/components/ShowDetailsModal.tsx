@@ -5,6 +5,7 @@ import { ShowNotificationsModal } from './ShowNotificationsModal';
 import { db, addTvEpisodeToWatchlist, clearAutoAddedEpisodesForShow, type AutoAddEpisode, type StoredChannel } from '../db';
 import { useEpgClockFormat } from '../stores/uiStore';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { formatDate, formatTime } from '../utils/dateTime';
 import './ShowDetailsModal.css';
 
@@ -91,7 +92,7 @@ interface Props {
 }
 
 export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onClose, onPlayChannel, onChannelSet }: Props) {
-  useTranslation();
+  const { t } = useTranslation('tvShows');
   const epgClockFormat = useEpgClockFormat();
   const [data, setData] = useState<ShowDetailsWithEpisodes | null>(null);
   const [loading, setLoading] = useState(true);
@@ -165,7 +166,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
 
         // Check if channel is set first
         if (!currentChannel) {
-          setAutoAddSuccess('Please set a channel for this show first to enable auto-add');
+          setAutoAddSuccess(t('setChannelFirstAutoAdd'));
           setTimeout(() => setAutoAddSuccess(null), 5000);
           // Disable auto-add since it can't work without a channel
           setAutoAddEnabled(false);
@@ -216,16 +217,16 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
           }
 
           if (addedCount > 0) {
-            setAutoAddSuccess(`Added ${addedCount} upcoming episode${addedCount !== 1 ? 's' : ''} to your watchlist`);
+            setAutoAddSuccess(t('addedToWatchlist', { count: addedCount }));
             setTimeout(() => setAutoAddSuccess(null), 5000);
             // Dispatch event to refresh watchlist UI
             window.dispatchEvent(new CustomEvent('watchlist-updated'));
           } else {
-            setAutoAddSuccess('No new episodes to add');
+            setAutoAddSuccess(t('noNewEpisodes'));
             setTimeout(() => setAutoAddSuccess(null), 3000);
           }
         } else {
-          setAutoAddSuccess('No upcoming episodes found');
+          setAutoAddSuccess(t('noUpcomingFound'));
           setTimeout(() => setAutoAddSuccess(null), 3000);
         }
       }
@@ -244,7 +245,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
     if (enabled) {
       // Check if channel is set first
       if (!currentChannel) {
-        setAutoAddSuccess('Please set a channel for this show first');
+        setAutoAddSuccess(t('setChannelFirst'));
         setTimeout(() => setAutoAddSuccess(null), 5000);
         return;
       }
@@ -274,7 +275,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
     saveWatchlistSettings(true, reminderEnabled, reminderMinutes, autoswitchEnabled, autoswitchSeconds);
 
     if (addedCount > 0) {
-      setAutoAddSuccess(`Added ${addedCount} upcoming episode${addedCount !== 1 ? 's' : ''} to your watchlist`);
+      setAutoAddSuccess(t('addedToWatchlist', { count: addedCount }));
       setTimeout(() => setAutoAddSuccess(null), 5000);
     }
   }
@@ -343,7 +344,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
   }
 
   function formatShowDate(dateStr?: string): string {
-    if (!dateStr) return 'TBA';
+    if (!dateStr) return t('tba');
     return formatDate(new Date(dateStr), {
       weekday: 'long',
       year: 'numeric',
@@ -392,13 +393,13 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
             <button
               className="sdm-notifications-btn"
               onClick={() => setShowNotificationsModal(true)}
-              title="Set up notifications for upcoming episodes"
+              title={t('setupNotifications')}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
-              <span>Notifications</span>
+              <span>{t('notifications')}</span>
             </button>
             <button className="sdm-close-btn" onClick={onClose}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -412,7 +413,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
         {loading ? (
           <div className="sdm-loading">
             <div className="sdm-spinner" />
-            <span>Loading show details...</span>
+            <span>{t('loadingDetails')}</span>
           </div>
         ) : error ? (
           <div className="sdm-error">
@@ -421,7 +422,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-            <p>Failed to load show details</p>
+            <p>{t('failedToLoadDetails')}</p>
             <span>{error}</span>
           </div>
         ) : details ? (
@@ -518,7 +519,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                     <svg viewBox="0 0 24 24" fill="currentColor">
                       <polygon points="5 3 19 12 5 21 5 3" />
                     </svg>
-                    Watch on {currentChannel}
+                    {t('watchOnChannel', { channel: currentChannel })}
                   </button>
                 )}
 
@@ -529,7 +530,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                   </svg>
-                  {currentChannel ? 'Change Channel' : 'Set Channel'}
+                  {currentChannel ? t('changeChannel') : t('setChannel')}
                 </button>
 
                 {/* Auto-add to Watchlist Settings */}
@@ -545,7 +546,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M12 2v20M2 12h20" />
                       </svg>
-                      Auto-add new episodes to Watchlist
+                      {t('autoAddWatchlist')}
                     </span>
                   </label>
                 </div>
@@ -559,12 +560,12 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polygon points="5 3 19 12 5 21 5 3" />
                   </svg>
-                  <h3>Next Episode</h3>
+                  <h3>{t('nextEpisode')}</h3>
                 </div>
                 <div className="sdm-episode-card sdm-next">
                   <div className="sdm-episode-date">
                     <span className="sdm-episode-day">
-                      {nextEpisode.airdate ? formatDate(new Date(nextEpisode.airdate), { weekday: 'short' }) : 'TBA'}
+                      {nextEpisode.airdate ? formatDate(new Date(nextEpisode.airdate), { weekday: 'short' }) : t('tba')}
                     </span>
                     <span className="sdm-episode-num">
                       {nextEpisode.airdate ? new Date(nextEpisode.airdate).getDate() : '?'}
@@ -572,7 +573,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                   </div>
                   <div className="sdm-episode-info">
                     <h4>
-                      {nextEpisode.name || `Episode ${nextEpisode.number}`}
+                      {nextEpisode.name || t('episodeNumber', { number: nextEpisode.number })}
                       {nextEpisode.season && nextEpisode.number && (
                         <span className="sdm-episode-se-num">S{nextEpisode.season}E{nextEpisode.number}</span>
                       )}
@@ -621,14 +622,14 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                     <line x1="8" y1="2" x2="8" y2="6" />
                     <line x1="3" y1="10" x2="21" y2="10" />
                   </svg>
-                  <h3>Upcoming Episodes</h3>
+                  <h3>{t('upcomingEpisodes')}</h3>
                 </div>
                 <div className="sdm-upcoming-list">
                   {upcomingEpisodes.map(episode => (
                     <div key={episode.id} className="sdm-episode-card">
                       <div className="sdm-episode-date">
                         <span className="sdm-episode-day">
-                          {episode.airdate ? formatDate(new Date(episode.airdate), { weekday: 'short' }) : 'TBA'}
+                          {episode.airdate ? formatDate(new Date(episode.airdate), { weekday: 'short' }) : t('tba')}
                         </span>
                         <span className="sdm-episode-num">
                           {episode.airdate ? new Date(episode.airdate).getDate() : '?'}
@@ -636,7 +637,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                       </div>
                       <div className="sdm-episode-info">
                         <h4>
-                          {episode.name || `Episode ${episode.number}`}
+                          {episode.name || t('episodeNumber', { number: episode.number })}
                           {episode.season && episode.number && (
                             <span className="sdm-episode-se-num">S{episode.season}E{episode.number}</span>
                           )}
@@ -681,31 +682,31 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
             <div className="sdm-details-grid">
               {details.summary && (
                 <div className="sdm-section sdm-summary">
-                  <h3>About</h3>
+                  <h3>{t('about')}</h3>
                   <p>{stripHtml(details.summary)}</p>
                 </div>
               )}
 
               <div className="sdm-section sdm-facts">
-                <h3>Show Info</h3>
+                <h3>{t('showInfo')}</h3>
                 <dl>
                   {details.premiered && (
                     <>
-                      <dt>Premiered</dt>
+                      <dt>{t('premiered')}</dt>
                       <dd>{formatShowDate(details.premiered)}</dd>
                     </>
                   )}
 
                   {details.ended && (
                     <>
-                      <dt>Ended</dt>
+                      <dt>{t('ended')}</dt>
                       <dd>{formatShowDate(details.ended)}</dd>
                     </>
                   )}
 
                   {details.language && (
                     <>
-                      <dt>Language</dt>
+                      <dt>{t('language')}</dt>
                       <dd>{details.language}</dd>
                     </>
                   )
@@ -713,13 +714,13 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
 
                   {details.official_site && (
                     <>
-                      <dt>Official Site</dt>
+                      <dt>{t('officialSite')}</dt>
                       <dd>
                         <button
                           className="sdm-link-btn"
                           onClick={() => openUrl(details.official_site)}
                         >
-                          Visit Website
+                          {t('visitWebsite')}
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                             <polyline points="15 3 21 3 21 9" />
@@ -732,7 +733,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
 
                   {details.externals?.imdb && (
                     <>
-                      <dt>IMDb</dt>
+                      <dt>{t('imdb')}</dt>
                       <dd>
                         <button
                           className="sdm-link-btn"
@@ -765,7 +766,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                     <line x1="17" y1="2" x2="17" y2="22" />
                     <line x1="2" y1="12" x2="22" y2="12" />
                   </svg>
-                  View on TVMaze
+                  {t('viewOnTVMaze')}
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="sdm-link-icon">
                     <path d="M7 17L17 7" />
                     <path d="M7 7h10v10" />
@@ -781,8 +782,8 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-            <p>No show details available</p>
-            <button className="sdm-retry-btn" onClick={loadShowDetails}>Retry</button>
+            <p>{t('noDetailsAvailable')}</p>
+            <button className="sdm-retry-btn" onClick={loadShowDetails}>{i18n.t('common:retry')}</button>
           </div>
         )}
 
@@ -803,7 +804,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
             episodes={episodes}
             onConfirm={(addedCount) => {
               setShowNotificationsModal(false);
-              setNotificationSuccess(`Added ${addedCount} episode${addedCount !== 1 ? 's' : ''} to your watchlist`);
+              setNotificationSuccess(t('addedToWatchlist', { count: addedCount }));
               setTimeout(() => setNotificationSuccess(null), 3000);
               // Dispatch event to refresh watchlist UI
               window.dispatchEvent(new CustomEvent('watchlist-updated'));

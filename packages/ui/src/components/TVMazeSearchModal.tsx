@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import './TVMazeSearchModal.css';
 
 interface ShowResult {
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export function TVMazeSearchModal({ programTitle, channelName, channelId, onClose }: Props) {
+  const { t } = useTranslation('tvShows');
   console.log('[TVMaze] Modal opened with:', { programTitle, channelName, channelId });
   const [query, setQuery] = useState(programTitle);
   const [results, setResults] = useState<ShowResult[]>([]);
@@ -49,7 +51,7 @@ export function TVMazeSearchModal({ programTitle, channelName, channelId, onClos
       const res = await invoke<ShowResult[]>('search_tvmaze', { query: query.trim() });
       setResults(res.slice(0, 6));
     } catch (e: any) {
-      setError(e?.toString() || 'Search failed');
+      setError(e?.toString() || t('searchFailed'));
     } finally {
       setLoading(false);
     }
@@ -77,7 +79,7 @@ export function TVMazeSearchModal({ programTitle, channelName, channelId, onClos
       onClose();
     } catch (e: any) {
       console.error('[TVMaze] Add failed:', e);
-      setError(e?.toString() || 'Failed to add show');
+      setError(e?.toString() || t('failedToAddShort'));
     } finally {
       setAdding(null);
     }
@@ -87,7 +89,7 @@ export function TVMazeSearchModal({ programTitle, channelName, channelId, onClos
     <div className="tvmaze-overlay" onMouseDown={e => e.stopPropagation()} onClick={onClose}>
       <div className="tvmaze-modal" onMouseDown={e => e.stopPropagation()} onClick={e => e.stopPropagation()}>
         <div className="tvmaze-header">
-          <h2>Track Show</h2>
+          <h2>{t('trackShow')}</h2>
           <button className="tvmaze-close" onClick={onClose}>✕</button>
         </div>
         <div className="tvmaze-search-row">
@@ -99,12 +101,12 @@ export function TVMazeSearchModal({ programTitle, channelName, channelId, onClos
             autoFocus
           />
           <button className="tvmaze-search-btn" onClick={handleSearch} disabled={loading}>
-            {loading ? '…' : 'Search'}
+            {loading ? '…' : t('search')}
           </button>
         </div>
         {error && <div className="tvmaze-error">{error}</div>}
         <div style={{ padding: '0 20px', color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem' }}>
-          Click a show below to track it
+          {t('clickToTrack')}
         </div>
         <div className="tvmaze-results">
           {results.map(r => (
@@ -127,11 +129,11 @@ export function TVMazeSearchModal({ programTitle, channelName, channelId, onClos
                 <span>{r.show.network?.name}{r.show.status ? ` · ${r.show.status}` : ''}</span>
               </div>
               <div className="tvmaze-add-label">
-                {adding === r.show.id ? '⏳' : '+ Track'}
+                {adding === r.show.id ? '⏳' : `+ ${t('track')}`}
               </div>
             </div>
           ))}
-          {!loading && results.length === 0 && <div className="tvmaze-empty">No results</div>}
+          {!loading && results.length === 0 && <div className="tvmaze-empty">{t('noResults')}</div>}
         </div>
       </div>
     </div>,

@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { addToWatchlist, db, type WatchlistOptions, type StoredChannel } from '../db';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { formatDate } from '../utils/dateTime';
 import './ShowNotificationsModal.css';
 
@@ -37,7 +38,7 @@ export function ShowNotificationsModal({
   onCancel,
   configureOnly = false,
 }: ShowNotificationsModalProps) {
-  useTranslation();
+  const { t } = useTranslation('tvShows');
   const [reminderEnabled, setReminderEnabled] = useState(true);
   const [reminderMinutes, setReminderMinutes] = useState(5);
   const [autoswitchEnabled, setAutoswitchEnabled] = useState(false);
@@ -74,17 +75,17 @@ export function ShowNotificationsModal({
       if (matchedChannel) {
         setChannel(matchedChannel);
       } else {
-        setChannelError(`Channel "${channelName}" not found. Please set a valid channel first.`);
+        setChannelError(t('channelNotFound', { name: channelName }));
       }
     } catch (error) {
       console.error('[ShowNotificationsModal] Failed to lookup channel:', error);
-      setChannelError('Failed to lookup channel');
+      setChannelError(t('failedToLookupChannel'));
     }
   }
 
   const handleConfirm = useCallback(async () => {
     if (!channel) {
-      setChannelError('No channel set for this show');
+      setChannelError(t('noChannelSetForShow'));
       return;
     }
 
@@ -179,7 +180,7 @@ export function ShowNotificationsModal({
     <div className="show-notifications-overlay" onClick={isAdding ? undefined : onCancel}>
       <div className="show-notifications-modal" onClick={(e) => e.stopPropagation()}>
         <div className="show-notifications-header">
-          <h3>{configureOnly ? '⚙️ Auto-Add Settings' : '🔔 Notifications'}</h3>
+          <h3>{configureOnly ? `⚙️ ${t('autoAddSettings')}` : `🔔 ${t('notifications')}`}</h3>
           <button className="show-notifications-close" onClick={isAdding ? undefined : onCancel} disabled={isAdding}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18" />
@@ -193,12 +194,12 @@ export function ShowNotificationsModal({
           <div className="show-notifications-info">
             <div className="show-notifications-show-name">{showName}</div>
             <div className="show-notifications-channel">
-              {channelName ? `Channel: ${channelName}` : 'No channel set'}
+              {channelName ? t('channelLabel', { name: channelName }) : t('noChannelSet')}
             </div>
             <div className="show-notifications-count">
               {configureOnly
-                ? `${upcomingCount} upcoming episode${upcomingCount !== 1 ? 's' : ''} will be auto-added with these settings`
-                : `${upcomingCount} upcoming episode${upcomingCount !== 1 ? 's' : ''} will be added to your watchlist`}
+                ? t('willAutoAdd', { count: upcomingCount })
+                : t('willAddToWatchlist', { count: upcomingCount })}
             </div>
             {channelError && (
               <div className="show-notifications-error">{channelError}</div>
@@ -208,13 +209,13 @@ export function ShowNotificationsModal({
           {/* Episodes Preview */}
           {upcomingCount > 0 && (
             <div className="show-notifications-preview">
-              <h4>Upcoming Episodes:</h4>
+              <h4>{t('upcomingEpisodesLabel')}</h4>
               <div className="show-notifications-episodes-list">
                 {futureEpisodes().slice(0, 5).map((ep, idx) => (
                   <div key={ep.id} className="show-notifications-episode-item">
                     <span className="show-notifications-episode-new">*NEW*</span>
                     <span className="show-notifications-episode-title">
-                      {ep.name || `Episode ${ep.number}`}
+                      {ep.name || t('episodeNumber', { number: ep.number })}
                       {ep.season && ep.number && (
                         <span className="show-notifications-episode-se">S{ep.season}E{ep.number}</span>
                       )}
@@ -223,13 +224,13 @@ export function ShowNotificationsModal({
                       {ep.airdate ? formatDate(new Date(ep.airdate), {
                         month: 'short',
                         day: 'numeric'
-                      }) : 'TBA'}
+                      }) : t('tba')}
                     </span>
                   </div>
                 ))}
                 {upcomingCount > 5 && (
                   <div className="show-notifications-episode-more">
-                    +{upcomingCount - 5} more episodes
+                    {t('moreEpisodes', { count: upcomingCount - 5 })}
                   </div>
                 )}
               </div>
@@ -248,12 +249,12 @@ export function ShowNotificationsModal({
                     onChange={(e) => setReminderEnabled(e.target.checked)}
                     disabled={isAdding}
                   />
-                  <span className="show-notifications-option-text">🔔 Set Reminder</span>
+                  <span className="show-notifications-option-text">🔔 {t('setReminder')}</span>
                 </label>
 
                 {reminderEnabled && (
                   <div className="show-notifications-option-detail">
-                    <label>Remind me</label>
+                    <label>{t('remindMe')}</label>
                     <div className="show-notifications-reminder-input">
                       <input
                         type="number"
@@ -263,10 +264,10 @@ export function ShowNotificationsModal({
                         onChange={(e) => setReminderMinutes(Math.max(0, Math.min(120, parseInt(e.target.value) || 0)))}
                         disabled={isAdding}
                       />
-                      <span>minutes before start</span>
+                      <span>{t('minutesBeforeStart')}</span>
                     </div>
                     {reminderMinutes === 0 && (
-                      <span className="show-notifications-hint">(at program start time)</span>
+                      <span className="show-notifications-hint">{t('atProgramStart')}</span>
                     )}
                   </div>
                 )}
@@ -281,12 +282,12 @@ export function ShowNotificationsModal({
                     onChange={(e) => setAutoswitchEnabled(e.target.checked)}
                     disabled={isAdding}
                   />
-                  <span className="show-notifications-option-text">🔄 Auto-Switch Channel</span>
+                  <span className="show-notifications-option-text">🔄 {t('autoSwitchChannel')}</span>
                 </label>
 
                 {autoswitchEnabled && (
                   <div className="show-notifications-option-detail">
-                    <label>Auto-switch</label>
+                    <label>{t('autoSwitch')}</label>
                     <div className="show-notifications-reminder-input">
                       <input
                         type="number"
@@ -296,13 +297,13 @@ export function ShowNotificationsModal({
                         onChange={(e) => setAutoswitchSeconds(Math.max(0, Math.min(300, parseInt(e.target.value) || 0)))}
                         disabled={isAdding}
                       />
-                      <span>seconds before program starts</span>
+                      <span>{t('secondsBeforeStart')}</span>
                     </div>
                     {autoswitchSeconds === 0 ? (
-                      <span className="show-notifications-hint">(at program start time)</span>
+                      <span className="show-notifications-hint">{t('atProgramStart')}</span>
                     ) : (
                       <span className="show-notifications-hint">
-                        Will switch to {channelName} {autoswitchSeconds} seconds early
+                        {t('willSwitchEarly', { channel: channelName, seconds: autoswitchSeconds })}
                       </span>
                     )}
                   </div>
@@ -313,7 +314,7 @@ export function ShowNotificationsModal({
 
           {upcomingCount === 0 && (
             <div className="show-notifications-no-episodes">
-              No upcoming episodes found for this show.
+              {t('noUpcomingForShow')}
             </div>
           )}
         </div>
@@ -324,7 +325,7 @@ export function ShowNotificationsModal({
             onClick={onCancel}
             disabled={isAdding}
           >
-            Cancel
+            {i18n.t('common:cancel')}
           </button>
           <button
             className="show-notifications-btn primary"
@@ -334,12 +335,12 @@ export function ShowNotificationsModal({
             {isAdding ? (
               <>
                 <span className="show-notifications-spinner" />
-                Adding...
+                {t('adding')}
               </>
             ) : configureOnly ? (
-              `Enable Auto-Add for ${upcomingCount} Episode${upcomingCount !== 1 ? 's' : ''}`
+              t('enableAutoAdd', { count: upcomingCount })
             ) : (
-              `Add ${upcomingCount} Episode${upcomingCount !== 1 ? 's' : ''} to Watchlist`
+              t('addEpisodesToWatchlist', { count: upcomingCount })
             )}
           </button>
         </div>

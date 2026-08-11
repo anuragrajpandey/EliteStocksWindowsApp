@@ -7,7 +7,12 @@ import { TVCalendarTab } from './settings/TVCalendarTab';
 import { db, addTvEpisodeToWatchlist, clearAutoAddedEpisodesForShow, type StoredChannel, type AutoAddEpisode } from '../db';
 import { useEpgClockFormat } from '../stores/uiStore';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { formatTime, formatDate } from '../utils/dateTime';
+
+const WEEKDAY_KEYS: Record<string, 'weekdaySun' | 'weekdayMon' | 'weekdayTue' | 'weekdayWed' | 'weekdayThu' | 'weekdayFri' | 'weekdaySat'> = {
+  Sun: 'weekdaySun', Mon: 'weekdayMon', Tue: 'weekdayTue', Wed: 'weekdayWed', Thu: 'weekdayThu', Fri: 'weekdayFri', Sat: 'weekdaySat',
+};
 
 // Cache storage key for localStorage
 const CACHE_STORAGE_KEY = 'tvmaze_episode_cache';
@@ -195,7 +200,7 @@ const SettingsIcon = () => (
 );
 
 export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
-  useTranslation();
+  const { t } = useTranslation('tvShows');
   const epgClockFormat = useEpgClockFormat();
   const [activeTab, setActiveTab] = useState<TVCalendarTab>('calendar');
 
@@ -557,7 +562,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
       await loadShows();
       setActiveTab('myshows');
     } catch (e: any) {
-      alert('Failed to add show: ' + e);
+      alert(t('failedToAdd', { error: String(e) }));
     } finally {
       setAddingShowId(null);
     }
@@ -576,7 +581,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
       setShows(prev => prev.filter(s => s.tvmaze_id !== tvmaze_id));
       setDeleteModalShow(null);
     } catch (e: any) {
-      alert('Failed to remove show: ' + e);
+      alert(t('failedToRemove', { error: String(e) }));
     } finally {
       setRemovingId(null);
     }
@@ -632,7 +637,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
         }
 
         if (addedCount > 0) {
-          setSyncModalMessage(`Added ${addedCount} episode${addedCount !== 1 ? 's' : ''} to your watchlist`);
+          setSyncModalMessage(t('addedToWatchlist', { count: addedCount }));
         }
       }
 
@@ -640,7 +645,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
       const eps = await invoke<CalendarEpisode[]>('get_calendar_episodes', { month: monthKey });
       setEpisodes(eps);
     } catch (e) {
-      alert('Sync failed: ' + e);
+      alert(t('syncFailed', { error: String(e) }));
     } finally {
       setSyncing(false);
     }
@@ -707,14 +712,14 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
   const renderSearchTab = () => (
     <div className="tvcp-search-tab">
       <div className="tvcp-search-header">
-        <h2>Search TV Shows</h2>
-        <p>Find and track shows from TVMaze</p>
+        <h2>{t('searchTVShows')}</h2>
+        <p>{t('findAndTrack')}</p>
       </div>
 
       <div className="tvcp-search-box">
         <input
           type="text"
-          placeholder="Search for a TV show..."
+          placeholder={t('searchPlaceholder')}
           value={tvmazeQuery}
           onChange={e => setTvmazeQuery(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && searchTVMaze()}
@@ -725,13 +730,13 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
           ) : (
             <SearchIcon />
           )}
-          Search
+          {t('search')}
         </button>
       </div>
 
       {tvmazeResults.length > 0 && (
         <div className="tvcp-search-results">
-          <h3>Search Results</h3>
+          <h3>{t('searchResults')}</h3>
           <div className="tvcp-results-grid">
             {tvmazeResults.map(result => (
               <div key={result.show.id} className="tvcp-result-card">
@@ -746,7 +751,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                 </div>
                 <div className="tvcp-result-info">
                   <h4>{result.show.name}</h4>
-                  <span className="tvcp-result-network">{result.show.network?.name || 'Unknown Network'}</span>
+                  <span className="tvcp-result-network">{result.show.network?.name || t('unknownNetwork')}</span>
                   {result.show.status && (
                     <span
                       className="tvcp-result-status"
@@ -768,7 +773,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                     {addingShowId === result.show.id ? (
                       <>
                         <div className="tvcp-spinner-small" />
-                        Adding...
+                        {t('adding')}
                       </>
                     ) : (
                       <>
@@ -776,7 +781,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                           <line x1="12" y1="5" x2="12" y2="19" />
                           <line x1="5" y1="12" x2="19" y2="12" />
                         </svg>
-                        Track Show
+                        {t('trackShow')}
                       </>
                     )}
                   </button>
@@ -790,7 +795,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
       {tvmazeResults.length === 0 && tvmazeQuery && !tvmazeLoading && (
         <div className="tvcp-search-empty">
           <ShowsIcon />
-          <p>No shows found. Try a different search term.</p>
+          <p>{t('noShowsTryDifferent')}</p>
         </div>
       )}
     </div>
@@ -803,13 +808,13 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
     return (
       <div className="tvcp-calendar-tab">
         <div className="tvcp-calendar-header">
-          <h2>TV Calendar</h2>
+          <h2>{t('title')}</h2>
           <div className="tvcp-calendar-controls">
-            <button onClick={() => changeMonth(-1)}>← Prev</button>
+            <button onClick={() => changeMonth(-1)}>← {t('prev')}</button>
             <span className="tvcp-month-label">{monthLabel}</span>
-            <button onClick={() => changeMonth(1)}>Next →</button>
+            <button onClick={() => changeMonth(1)}>{t('next')} →</button>
             <button onClick={manualSync} disabled={syncing} className="tvcp-sync-btn">
-              {syncing ? 'Syncing…' : '↻ Sync'}
+              {syncing ? t('syncing') : `↻ ${t('sync')}`}
             </button>
           </div>
         </div>
@@ -817,14 +822,14 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
         <div className="tvcp-calendar-grid-container">
           <div className="tvcp-weekdays">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-              <div key={d} className="tvcp-weekday">{d}</div>
+              <div key={d} className="tvcp-weekday">{t(WEEKDAY_KEYS[d])}</div>
             ))}
           </div>
 
           {calendarLoading ? (
             <div className="tvcp-calendar-loading">
               <div className="tvcp-spinner" />
-              <span>Loading episodes...</span>
+              <span>{t('loadingEpisodes')}</span>
             </div>
           ) : (
             <div className="tvcp-calendar-grid">
@@ -847,19 +852,19 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                           className="tvcp-episode"
                           onClick={() => handleEpisodeClick(ep)}
                           style={{ cursor: 'pointer' }}
-                          title={`${ep.show_name} S${ep.season ?? '?'}E${ep.episode ?? '?'}${ep.channel_name ? ` on ${ep.channel_name}` : ''} - Click for details`}
+                          title={`${ep.show_name} S${ep.season ?? '?'}E${ep.episode ?? '?'}${ep.channel_name ? ` ${t('onChannel', { channel: ep.channel_name })}` : ''} - ${t('clickForDetails')}`}
                         >
                           <span className="tvcp-ep-time">
                             {/* Use airstamp for accurate local timezone conversion */}
                             {ep.airstamp
                               ? formatTime(new Date(ep.airstamp), { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })
-                              : ep.airtime ?? 'TBA'}
+                              : ep.airtime ?? t('tba')}
                           </span>
                           <span className="tvcp-ep-show">{ep.show_name}</span>
                         </div>
                       ))}
                       {dayEps.length > 3 && (
-                        <div className="tvcp-more-episodes">+{dayEps.length - 3} more</div>
+                        <div className="tvcp-more-episodes">{t('moreCount', { count: dayEps.length - 3 })}</div>
                       )}
                     </div>
                   </div>
@@ -881,8 +886,8 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
     return (
       <div className="tvcp-upcoming-tab">
         <div className="tvcp-upcoming-header">
-          <h2>Upcoming Shows</h2>
-          <p>TV Schedule for Web Channels</p>
+          <h2>{t('upcomingShows')}</h2>
+          <p>{t('scheduleForWebChannels')}</p>
         </div>
 
         {/* Date Picker */}
@@ -890,7 +895,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
           <button
             className="tvcp-date-nav-btn"
             onClick={goToPreviousDay}
-            title="Previous day"
+            title={t('prevDay')}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="15 18 9 12 15 6" />
@@ -905,14 +910,14 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
             />
             {!isToday && (
               <button className="tvcp-today-btn" onClick={goToToday}>
-                Today
+                {t('today')}
               </button>
             )}
           </div>
           <button
             className="tvcp-date-nav-btn"
             onClick={goToNextDay}
-            title="Next day"
+            title={t('nextDay')}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="9 18 15 12 9 6" />
@@ -930,24 +935,24 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
           <span className="tvcp-date-full">
             {formatDate(dateObj, { weekday: 'long', month: 'long', day: 'numeric' })}
           </span>
-          <span className="tvcp-date-count">{episodes.length} episodes</span>
+          <span className="tvcp-date-count">{t('episodesCount', { count: episodes.length })}</span>
         </div>
 
         {upcomingLoading ? (
           <div className="tvcp-upcoming-loading">
             <div className="tvcp-spinner" />
-            <span>Loading upcoming episodes...</span>
+            <span>{t('loadingUpcoming')}</span>
           </div>
         ) : upcomingError ? (
           <div className="tvcp-upcoming-error">
-            <p>Failed to load upcoming shows</p>
+            <p>{t('failedLoadUpcoming')}</p>
             <span>{upcomingError}</span>
-            <button onClick={loadUpcomingShows}>Retry</button>
+            <button onClick={loadUpcomingShows}>{i18n.t('common:retry')}</button>
           </div>
         ) : episodes.length === 0 ? (
           <div className="tvcp-upcoming-empty">
             <UpcomingIcon />
-            <p>No episodes found for this date</p>
+            <p>{t('noEpisodesForDate')}</p>
           </div>
         ) : (
           <div className="tvcp-upcoming-content">
@@ -991,9 +996,9 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                               )}
                             </div>
                             <div className="tvcp-upcoming-info">
-                              <h4>{show?.name || 'Unknown Show'}</h4>
+                              <h4>{show?.name || t('unknownShow')}</h4>
                               <div className="tvcp-upcoming-episode-title">
-                                {episode.name || `Episode ${episode.number}`}
+                                {episode.name || t('episodeNumber', { number: episode.number })}
                                 {episode.season && episode.number && (
                                   <span className="tvcp-se-num">S{episode.season}E{episode.number}</span>
                                 )}
@@ -1041,7 +1046,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                                 addShow(show, show.network?.name || show.webChannel?.name);
                               }}
                               disabled={isAdding}
-                              title="Add to My Shows"
+                              title={t('addToMyShows')}
                             >
                               {isAdding ? (
                                 <div className="tvcp-spinner-small" />
@@ -1051,7 +1056,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                                     <line x1="12" y1="5" x2="12" y2="19" />
                                     <line x1="5" y1="12" x2="19" y2="12" />
                                   </svg>
-                                  My Shows
+                                  {t('myShows')}
                                 </>
                               )}
                             </button>
@@ -1061,7 +1066,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <polyline points="20 6 9 17 4 12" />
                               </svg>
-                              Tracked
+                              {t('tracked')}
                             </span>
                           )}
                         </div>
@@ -1079,11 +1084,11 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
   const renderMyShowsTab = () => (
     <div className="tvcp-myshows-tab">
       <div className="tvcp-myshows-header">
-        <h2>My Shows</h2>
+        <h2>{t('myShows')}</h2>
         <div className="tvcp-myshows-search">
           <input
             type="text"
-            placeholder="Search your shows..."
+            placeholder={t('searchYourShowsPlaceholder')}
             value={showSearchQuery}
             onChange={e => setShowSearchQuery(e.target.value)}
           />
@@ -1093,13 +1098,13 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
       {showsLoading ? (
         <div className="tvcp-myshows-loading">
           <div className="tvcp-spinner" />
-          <span>Loading your shows...</span>
+          <span>{t('loadingShows')}</span>
         </div>
       ) : filteredShows.length === 0 ? (
         <div className="tvcp-myshows-empty">
           <ShowsIcon />
-          <h3>{showSearchQuery ? 'No shows match your search' : 'No shows tracked yet'}</h3>
-          <p>{showSearchQuery ? 'Try a different search term' : 'Go to the Search tab to find and track shows'}</p>
+          <h3>{showSearchQuery ? t('noShowsMatch') : t('noShowsTracked')}</h3>
+          <p>{showSearchQuery ? t('tryDifferentTerm') : t('goToSearchTab')}</p>
         </div>
       ) : (
         <div className="tvcp-myshows-grid">
@@ -1122,7 +1127,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                   className="tvcp-myshow-status"
                   style={{ backgroundColor: getStatusColor(show.status) }}
                 >
-                  {show.status || 'Unknown'}
+                  {show.status || t('unknown')}
                 </span>
               </div>
               <div className="tvcp-myshow-info">
@@ -1143,11 +1148,11 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                       {isLoading ? (
                         <div className="tvcp-myshow-upcoming tvcp-myshow-upcoming--loading">
                           <div className="tvcp-spinner-tiny" />
-                          <span>Loading episodes...</span>
+                          <span>{t('loadingEpisodes')}</span>
                         </div>
                       ) : nextEp ? (
                         <div className="tvcp-myshow-upcoming">
-                          <div className="tvcp-myshow-upcoming-label">Next Episode</div>
+                          <div className="tvcp-myshow-upcoming-label">{t('nextEpisode')}</div>
                           <div className="tvcp-myshow-upcoming-title">
                             {nextEp.name}
                             {nextEp.season && nextEp.number && (
@@ -1164,21 +1169,21 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                               {/* Use airstamp for accurate local timezone conversion */}
                               {nextEp.airstamp ? (
                                 <span className="tvcp-myshow-upcoming-time">
-                                  {' '}at {formatTime(new Date(nextEp.airstamp), {
+                                  {' '}{t('at')} {formatTime(new Date(nextEp.airstamp), {
                                     hour: '2-digit',
                                     minute: '2-digit',
                                     hour12: epgClockFormat !== '24h'
                                   })}
                                 </span>
                               ) : nextEp.airtime ? (
-                                <span className="tvcp-myshow-upcoming-time"> at {nextEp.airtime}</span>
+                                <span className="tvcp-myshow-upcoming-time"> {t('at')} {nextEp.airtime}</span>
                               ) : null}
                             </div>
                           )}
                         </div>
                       ) : (
                         <div className="tvcp-myshow-upcoming tvcp-myshow-upcoming--none">
-                          <span>No upcoming episodes</span>
+                          <span>{t('noUpcomingEpisodes')}</span>
                         </div>
                       )}
                     </>
@@ -1193,7 +1198,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                     confirmRemoveShow(show);
                   }}
                   disabled={removingId === show.tvmaze_id}
-                  title="Remove show"
+                  title={t('removeShow')}
                 >
                   {removingId === show.tvmaze_id ? (
                     <div className="tvcp-spinner-small" />
@@ -1239,7 +1244,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
               <line x1="8" y1="2" x2="8" y2="6" />
               <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
-            <span className="tvcp-brand-name">TV Calendar</span>
+            <span className="tvcp-brand-name">{t('title')}</span>
           </div>
         </div>
 
@@ -1249,28 +1254,28 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
             onClick={() => setActiveTab('search')}
           >
             <span className="tvcp-topbar-icon"><SearchIcon /></span>
-            <span>Search Shows</span>
+            <span>{t('searchShows')}</span>
           </button>
           <button
             className={`tvcp-topbar-item ${activeTab === 'calendar' ? 'active' : ''}`}
             onClick={() => setActiveTab('calendar')}
           >
             <span className="tvcp-topbar-icon"><CalendarIcon /></span>
-            <span>Calendar</span>
+            <span>{t('calendar')}</span>
           </button>
           <button
             className={`tvcp-topbar-item ${activeTab === 'upcoming' ? 'active' : ''}`}
             onClick={() => setActiveTab('upcoming')}
           >
             <span className="tvcp-topbar-icon"><UpcomingIcon /></span>
-            <span>Upcoming Shows</span>
+            <span>{t('upcomingShows')}</span>
           </button>
           <button
             className={`tvcp-topbar-item ${activeTab === 'myshows' ? 'active' : ''}`}
             onClick={() => setActiveTab('myshows')}
           >
             <span className="tvcp-topbar-icon"><ShowsIcon /></span>
-            <span>My Shows</span>
+            <span>{t('myShows')}</span>
             {shows.length > 0 && <span className="tvcp-topbar-badge">{shows.length}</span>}
           </button>
           <button
@@ -1278,7 +1283,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
             onClick={() => setActiveTab('settings')}
           >
             <span className="tvcp-topbar-icon"><SettingsIcon /></span>
-            <span>Settings</span>
+            <span>{t('settings')}</span>
           </button>
         </div>
 
@@ -1321,15 +1326,15 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
               </svg>
             </div>
-            <h3>Remove Show</h3>
-            <p>Are you sure you want to remove <strong>"{deleteModalShow.show_name}"</strong> from your tracked shows?</p>
+            <h3>{t('removeShowTitle')}</h3>
+            <p>{t('removeConfirm', { name: deleteModalShow.show_name })}</p>
             <div className="tvcp-delete-modal-actions">
               <button
                 className="tvcp-delete-modal-cancel"
                 onClick={() => setDeleteModalShow(null)}
                 disabled={removingId === deleteModalShow.tvmaze_id}
               >
-                Cancel
+                {i18n.t('common:cancel')}
               </button>
               <button
                 className="tvcp-delete-modal-confirm"
@@ -1339,10 +1344,10 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                 {removingId === deleteModalShow.tvmaze_id ? (
                   <>
                     <div className="tvcp-spinner-small" />
-                    Removing...
+                    {t('removing')}
                   </>
                 ) : (
-                  'Remove'
+                  i18n.t('common:remove')
                 )}
               </button>
             </div>
@@ -1364,7 +1369,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
             {episodeDetailsLoading ? (
               <div className="tvcp-episode-modal-loading">
                 <div className="tvcp-spinner" />
-                <span>Loading episode details...</span>
+                <span>{t('loadingEpisodeDetails')}</span>
               </div>
             ) : episodeDetails ? (
               <div className="tvcp-episode-modal-content">
@@ -1407,7 +1412,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                   {/* Show Name */}
                   {episodeDetails._embedded?.show?.name && (
                     <div className="tvcp-episode-modal-show">
-                      <span>From:</span>
+                      <span>{t('from')}</span>
                       <strong>{episodeDetails._embedded.show.name}</strong>
                     </div>
                   )}
@@ -1425,14 +1430,14 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                       <svg viewBox="0 0 24 24" fill="currentColor">
                         <polygon points="5 3 19 12 5 21 5 3" />
                       </svg>
-                      Watch on {selectedEpisode.channel_name}
+                      {t('watchOnChannel', { channel: selectedEpisode.channel_name })}
                     </button>
                   )}
                 </div>
               </div>
             ) : (
               <div className="tvcp-episode-modal-error">
-                <p>Failed to load episode details</p>
+                <p>{t('failedLoadEpisodeDetails')}</p>
               </div>
             )}
           </div>
@@ -1449,7 +1454,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                 <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
             </div>
-            <h3>Sync Complete</h3>
+            <h3>{t('syncComplete')}</h3>
             <p>{syncModalMessage}</p>
             <div className="tvcp-delete-modal-actions">
               <button
@@ -1457,7 +1462,7 @@ export function TVCalendarPage({ onClose, onPlayChannel }: Props) {
                 onClick={() => setSyncModalMessage(null)}
                 style={{ background: '#4ade80' }}
               >
-                OK
+                {i18n.t('common:ok')}
               </button>
             </div>
           </div>

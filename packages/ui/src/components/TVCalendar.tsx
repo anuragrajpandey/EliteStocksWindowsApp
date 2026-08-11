@@ -4,7 +4,12 @@ import './TVCalendar.css';
 import { TVShowsManager } from './TVShowsManager';
 import { db, addTvEpisodeToWatchlist, clearAutoAddedEpisodesForShow, type AutoAddEpisode } from '../db';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { formatDate } from '../utils/dateTime';
+
+const WEEKDAY_KEYS: Record<string, 'weekdaySun' | 'weekdayMon' | 'weekdayTue' | 'weekdayWed' | 'weekdayThu' | 'weekdayFri' | 'weekdaySat'> = {
+  Sun: 'weekdaySun', Mon: 'weekdayMon', Tue: 'weekdayTue', Wed: 'weekdayWed', Thu: 'weekdayThu', Fri: 'weekdayFri', Sat: 'weekdaySat',
+};
 
 interface CalendarEpisode {
   airdate: string | null;
@@ -38,7 +43,7 @@ interface Props {
 }
 
 export function TVCalendar({ onClose, onPlayChannel }: Props) {
-  useTranslation();
+  const { t } = useTranslation('tvShows');
   const [now, setNow] = useState(() => new Date());
   const [episodes, setEpisodes] = useState<CalendarEpisode[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,11 +71,11 @@ export function TVCalendar({ onClose, onPlayChannel }: Props) {
       .then(shows => {
         console.log('[TVCalendar] Tracked shows:', shows);
         setTrackedShows(shows);
-        setDebugInfo(`Loaded ${shows.length} tracked shows`);
+        setDebugInfo(t('debugLoaded', { count: shows.length }));
       })
       .catch(e => {
         console.error('[TVCalendar] Failed to get tracked shows:', e);
-        setDebugInfo(`Error: ${e}`);
+        setDebugInfo(t('debugError', { error: String(e) }));
       });
   }, [monthKey]);
 
@@ -130,12 +135,12 @@ export function TVCalendar({ onClose, onPlayChannel }: Props) {
         }
 
         if (addedCount > 0) {
-          alert(`Synced ${result.synced_count} shows, added ${addedCount} episodes to your watchlist`);
+          alert(t('syncedWithAdded', { count: result.synced_count, added: addedCount }));
         } else {
-          alert(`Synced ${result.synced_count} shows`);
+          alert(t('syncedCount', { count: result.synced_count }));
         }
       } else {
-        alert(`Synced ${result.synced_count} shows`);
+        alert(t('syncedCount', { count: result.synced_count }));
       }
 
       // Refresh current month
@@ -145,23 +150,23 @@ export function TVCalendar({ onClose, onPlayChannel }: Props) {
       const shows = await invoke<TrackedShow[]>('get_tracked_shows');
       setTrackedShows(shows);
     } catch (e) {
-      alert('Sync failed: ' + e);
+      alert(t('syncFailed', { error: String(e) }));
     } finally {
       setSyncing(false);
     }
   }
 
   async function removeShow(tvmazeId: number, showName: string) {
-    if (!confirm(`Remove "${showName}" from tracked shows?`)) return;
+    if (!confirm(t('removeConfirm', { name: showName }))) return;
     try {
       await invoke('remove_tv_favorite', { tvmazeId });
       setTrackedShows(prev => prev.filter(s => s.tvmaze_id !== tvmazeId));
-      setDebugInfo(`Removed ${showName}`);
+      setDebugInfo(t('debugRemoved', { name: showName }));
       // Refresh episodes
       const eps = await invoke<CalendarEpisode[]>('get_calendar_episodes', { month: monthKey });
       setEpisodes(eps);
     } catch (e: any) {
-      setDebugInfo(`Error removing: ${e}`);
+      setDebugInfo(t('debugError', { error: String(e) }));
     }
   }
 
@@ -228,15 +233,15 @@ export function TVCalendar({ onClose, onPlayChannel }: Props) {
     <div className="tvcal-overlay" onClick={onClose}>
       <div className="tvcal-panel" onClick={e => e.stopPropagation()}>
         <div className="tvcal-header">
-          <h2>📅 TV Calendar</h2>
+          <h2>📅 {t('title')}</h2>
           <div className="tvcal-controls">
-            <button onClick={() => changeMonth(-1)}>← Prev</button>
+            <button onClick={() => changeMonth(-1)}>← {t('prev')}</button>
             <span className="tvcal-month">{monthLabel}</span>
-            <button onClick={() => changeMonth(1)}>Next →</button>
+            <button onClick={() => changeMonth(1)}>{t('next')} →</button>
             <button
               onClick={() => setShowManager(true)}
               className="tvcal-manage-btn"
-              title="Manage tracked shows"
+              title={t('manageTrackedShows')}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 16, height: 16, marginRight: 6, verticalAlign: 'middle' }}>
                 <rect x="2" y="2" width="20" height="20" rx="2.18" />
@@ -244,15 +249,15 @@ export function TVCalendar({ onClose, onPlayChannel }: Props) {
                 <line x1="17" y1="2" x2="17" y2="22" />
                 <line x1="2" y1="12" x2="22" y2="12" />
               </svg>
-              Manage Shows
+              {t('manageShows')}
             </button>
             <button onClick={manualSync} disabled={syncing} className="tvcal-sync">
-              {syncing ? 'Syncing…' : '🔄 Sync'}
+              {syncing ? t('syncing') : `🔄 ${t('sync')}`}
             </button>
             <button onClick={() => setShowDebug(!showDebug)} className="tvcal-debug-btn">
-              {showDebug ? 'Hide Debug' : 'Debug'}
+              {showDebug ? t('hideDebug') : t('debug')}
             </button>
-            <button onClick={openSettings} className="tvcal-settings-btn" title="TV Calendar Settings">
+            <button onClick={openSettings} className="tvcal-settings-btn" title={t('settingsTitle')}>
               ⚙️
             </button>
           </div>
@@ -262,41 +267,41 @@ export function TVCalendar({ onClose, onPlayChannel }: Props) {
         {showDebug && (
           <div className="tvcal-debug-panel">
             <div className="tvcal-debug-section">
-              <h4>Tracked Shows ({trackedShows.length})</h4>
-              {trackedShows.length === 0 && <p>No tracked shows found</p>}
+              <h4>{t('trackedShowsCount', { count: trackedShows.length })}</h4>
+              {trackedShows.length === 0 && <p>{t('noTrackedShows')}</p>}
               {trackedShows.map(show => (
                 <div key={show.tvmaze_id} className="tvcal-debug-show">
                   <strong>{show.show_name}</strong>
-                  <span>ID: {show.tvmaze_id}</span>
-                  <span>Status: {show.status || 'Unknown'}</span>
-                  <span>Channel: {show.channel_name || 'N/A'}</span>
-                  <span>Last Sync: {show.last_synced || 'Never'}</span>
+                  <span>{t('idLabel', { id: show.tvmaze_id })}</span>
+                  <span>{t('statusLabel')} {show.status || t('unknown')}</span>
+                  <span>{t('channelLabel', { name: show.channel_name || t('nA') })}</span>
+                  <span>{t('lastSync')} {show.last_synced || t('never')}</span>
                   <button
                     className="tvcal-remove-btn"
                     onClick={() => removeShow(show.tvmaze_id, show.show_name)}
                   >
-                    Remove
+                    {i18n.t('common:remove')}
                   </button>
                 </div>
               ))}
             </div>
             <div className="tvcal-debug-section">
-              <h4>Debug Info</h4>
+              <h4>{t('debugInfo')}</h4>
               <pre>{debugInfo}</pre>
-              <p>Current month key: {monthKey}</p>
-              <p>Episodes loaded: {episodes.length}</p>
+              <p>{t('currentMonthKey', { key: monthKey })}</p>
+              <p>{t('episodesLoaded', { count: episodes.length })}</p>
             </div>
           </div>
         )}
 
         <div className="tvcal-weekdays">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-            <div key={d} className="tvcal-weekday">{d}</div>
+            <div key={d} className="tvcal-weekday">{t(WEEKDAY_KEYS[d])}</div>
           ))}
         </div>
 
         {loading ? (
-          <div className="tvcal-loading">Loading…</div>
+          <div className="tvcal-loading">{t('loading')}</div>
         ) : (
           <div className="tvcal-grid">
             {daysInMonth.map(date => {
@@ -318,11 +323,11 @@ export function TVCalendar({ onClose, onPlayChannel }: Props) {
                         className="tvcal-episode"
                         onClick={() => handlePlay(ep)}
                         style={{ cursor: ep.channel_name ? 'pointer' : 'default' }}
-                        title={`${ep.show_name} S${ep.season ?? '?'}E${ep.episode ?? '?'}${ep.channel_name ? ` on ${ep.channel_name}` : ''}`}
+                        title={`${ep.show_name} S${ep.season ?? '?'}E${ep.episode ?? '?'}${ep.channel_name ? ` ${t('onChannel', { channel: ep.channel_name })}` : ''}`}
                       >
                         {ep.show_image && <img src={ep.show_image} alt="" className="tvcal-ep-img" />}
                         <div className="tvcal-ep-info">
-                          <span className="tvcal-ep-time">{ep.airtime ?? 'TBA'}</span>
+                          <span className="tvcal-ep-time">{ep.airtime ?? t('tba')}</span>
                           <span className="tvcal-ep-show">{ep.show_name}</span>
                           {ep.episode_name && (
                             <span className="tvcal-ep-title">{ep.episode_name}</span>
