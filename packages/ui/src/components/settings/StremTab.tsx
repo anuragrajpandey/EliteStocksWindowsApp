@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import i18n from '../../i18n';
+import i18n, { translateNativeError } from '../../i18n';
 import type { StremioStreamPickerMode, BadgeSource } from '../../types/stremio';
 import { parseBadgePayload, isLightColor, convertArgbToRgba } from '../../utils/streamBadges';
 
@@ -99,7 +99,7 @@ export function StremTab({
       setBadgeUrl('');
       setBadgePaste('');
     } catch (err: any) {
-      setBadgeImportError(err?.message || i18n.t('settings:strem.errImportFailed'));
+      setBadgeImportError(translateNativeError(err?.message) || i18n.t('settings:strem.errImportFailed'));
     } finally {
       setBadgeImporting(false);
     }

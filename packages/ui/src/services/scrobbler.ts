@@ -419,7 +419,7 @@ class ScrobblerService {
 
     const data = await response.json();
     if (!data.user_code) {
-      throw new Error('Simkl PIN response missing user_code');
+      throw new Error(i18n.t('settings:simkl.missingUserCode'));
     }
     return data as SimklPinResponse;
   }

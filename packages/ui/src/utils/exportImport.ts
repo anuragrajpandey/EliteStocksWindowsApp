@@ -8,7 +8,7 @@ import {
     type PlaylistCategoryLink,
     type PlaylistIndividualChannel
 } from '../db';
-import i18n from '../i18n';
+import i18n, { translateNativeError } from '../i18n';
 import type { Source } from '@ynotv/core';
 import type { AppSettings } from '../types/app';
 import { Bridge } from '../services/tauri-bridge';
@@ -189,14 +189,14 @@ const EXPORT_VERSION = 9;
  */
 export async function exportAllData(): Promise<{ success: boolean; filePath?: string; error?: string }> {
     try {
-        if (!window.storage) throw new Error('Storage API not available');
+        if (!window.storage) throw new Error(i18n.t('common:storageApiUnavailable'));
 
         // 1. Get Sources and Settings
         const sourcesResult = await window.storage.getSources();
         const settingsResult = await window.storage.getSettings();
 
-        if (sourcesResult.error) throw new Error(sourcesResult.error);
-        if (settingsResult.error) throw new Error(settingsResult.error);
+        if (sourcesResult.error) throw new Error(translateNativeError(sourcesResult.error) || sourcesResult.error);
+        if (settingsResult.error) throw new Error(translateNativeError(settingsResult.error) || settingsResult.error);
 
         // 2. Get Favorites from DB
         const allChannels = await db.channels.toArray();

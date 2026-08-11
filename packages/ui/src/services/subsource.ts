@@ -11,7 +11,7 @@
  *   3. Download: GET /subtitles/{id}/download (returns ZIP)
  */
 
-import i18n from '../i18n';
+import i18n, { translateNativeError } from '../i18n';
 import { decodeSubtitleBytes } from '../utils/subtitleEncoding';
 
 const API_BASE = 'https://api.subsource.net/api/v1';
@@ -159,10 +159,10 @@ async function apiFetch(
     log('FETCH', 'using fetchProxy');
     const proxyResult = await window.fetchProxy.fetch(url.toString(), { headers });
     if (proxyResult.error) {
-      throw new Error(proxyResult.error);
+      throw new Error(translateNativeError(proxyResult.error) || proxyResult.error);
     }
     if (!proxyResult.data) {
-      throw new Error('No response data from fetchProxy');
+      throw new Error(i18n.t('subtitles:noResponseData'));
     }
     log('FETCH', `status=${proxyResult.data.status} ok=${proxyResult.data.ok}`);
     return {
@@ -255,7 +255,7 @@ export async function searchSubSourceMovies(
     return { success: true, movies };
   } catch (e: any) {
     log('SEARCH_MOVIES', 'ERROR', e?.message);
-    return { success: false, error: e?.message || 'Network error' };
+    return { success: false, error: translateNativeError(e?.message) || i18n.t('subtitles:networkError') };
   }
 }
 
@@ -300,7 +300,7 @@ export async function searchSubSourceSubtitles(
     return { success: true, subtitles, pagination: body.pagination };
   } catch (e: any) {
     log('SEARCH_SUBS', 'ERROR', e?.message);
-    return { success: false, error: e?.message || 'Network error' };
+    return { success: false, error: translateNativeError(e?.message) || i18n.t('subtitles:networkError') };
   }
 }
 
@@ -369,7 +369,7 @@ export async function downloadSubSourceSubtitle(
   const srtText = await extractSrtFromZip(zipResult.data);
   if (!srtText) {
     log('DOWNLOAD', 'no .srt found in ZIP');
-    return { success: false, error: 'Could not extract .srt from ZIP archive' };
+    return { success: false, error: i18n.t('subtitles:extractSrtFailed') };
   }
 
   log('DOWNLOAD', `extracted ${srtText.length} chars`);

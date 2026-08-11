@@ -1,3 +1,4 @@
+import i18n from '../i18n';
 import type { StremioStream, StremioStreamBadge, BadgeSource, ImportedBadgePayload, ImportedBadgeFilter } from '../types/stremio';
 
 interface BadgeRule {
@@ -142,11 +143,11 @@ export function parseBadgePayload(json: string): ImportedBadgePayload {
   try {
     parsed = JSON.parse(json);
   } catch {
-    throw new Error('Invalid JSON');
+    throw new Error(i18n.t('settings:strem.invalidBadgeJson'));
   }
 
   if (!parsed.filters || !Array.isArray(parsed.filters)) {
-    throw new Error('Missing "filters" array');
+    throw new Error(i18n.t('settings:strem.missingBadgeFilters'));
   }
 
   const filters = parsed.filters.map((f: any, i: number) => ({
@@ -164,7 +165,7 @@ export function parseBadgePayload(json: string): ImportedBadgePayload {
 
   const validFilters = filters.filter((f: ImportedBadgeFilter) => f.name.trim() && f.pattern.trim());
   if (validFilters.length === 0) {
-    throw new Error('No usable filters found (each needs a name and pattern)');
+    throw new Error(i18n.t('settings:strem.noUsableBadgeFilters'));
   }
 
   const groups = Array.isArray(parsed.groups)

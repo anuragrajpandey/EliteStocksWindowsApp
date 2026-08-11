@@ -1150,7 +1150,8 @@
       "codeExpired": "The code has expired. Please start over.",
       "authStartFailed": "Failed to start authentication flow.",
       "failedRequestPin": "Failed to request Simkl PIN code ({{status}})",
-      "pollFailed": "Simkl PIN poll failed ({{status}})"
+      "pollFailed": "Simkl PIN poll failed ({{status}})",
+      "missingUserCode": "Simkl PIN response missing user_code"
     },
     "strem": {
       "title": "Strem Playback",
@@ -1192,7 +1193,10 @@
       "filtersGroups": "{{filters}} filters · {{groups}} groups",
       "clickToActivate": "Click to activate",
       "previewBadges_one": "PREVIEW BADGE ({{count}})",
-      "previewBadges_other": "PREVIEW BADGES ({{count}})"
+      "previewBadges_other": "PREVIEW BADGES ({{count}})",
+      "invalidBadgeJson": "Invalid JSON",
+      "missingBadgeFilters": "Missing \"filters\" array",
+      "noUsableBadgeFilters": "No usable filters found (each needs a name and pattern)"
     },
     "nuvio": {
       "title": "Nuvio",
@@ -3230,7 +3234,11 @@
     "downloadVideoOnly": "Download Video Only",
     "cancel": "Cancel",
     "sessionExpired": "OpenSubtitles session expired. Please re-login in Settings → Subtitles.",
-    "binaryDownloadFailed": "Binary download failed"
+    "binaryDownloadFailed": "Binary download failed",
+    "networkError": "Network error",
+    "noResponseData": "No response data from fetchProxy",
+    "extractSrtFailed": "Could not extract .srt from ZIP archive",
+    "loginRequestFailed": "Login request failed"
   },
   "logoEditor": {
     "title": "Logo Editor",

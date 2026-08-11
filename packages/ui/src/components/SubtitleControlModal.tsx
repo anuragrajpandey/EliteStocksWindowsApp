@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { translateNativeError } from '../i18n';
 import { Bridge } from '../services/tauri-bridge';
 import {
   searchSubSourceMovies,
@@ -450,7 +451,7 @@ export function SubtitleControlModal({
       console.log('[SubtitleModal] Auto-search result:', result);
 
       if (!result.success) {
-        setSearchError(result.error || t('autoSearchFailed'));
+        setSearchError(translateNativeError(result.error) || t('autoSearchFailed'));
         return;
       }
 
@@ -517,7 +518,7 @@ export function SubtitleControlModal({
       }
     } catch (e: any) {
       console.error('[SubtitleModal] Auto-search exception:', e);
-      setSearchError(e?.message || t('autoSearchFailed'));
+      setSearchError(translateNativeError(e?.message) || t('autoSearchFailed'));
     } finally {
       setSearching(false);
     }
@@ -978,7 +979,7 @@ export function SubtitleControlModal({
       console.log('[SubtitleModal] Movie search result:', result);
 
       if (!result.success) {
-        setSearchError(result.error || t('searchFailed'));
+        setSearchError(translateNativeError(result.error) || t('searchFailed'));
         return;
       }
 
@@ -1001,7 +1002,7 @@ export function SubtitleControlModal({
       };
     } catch (e: any) {
       console.error('[SubtitleModal] Movie search exception:', e);
-      setSearchError(e?.message || t('searchFailed'));
+      setSearchError(translateNativeError(e?.message) || t('searchFailed'));
     } finally {
       setSearching(false);
     }
@@ -1026,7 +1027,7 @@ export function SubtitleControlModal({
       console.log('[SubtitleModal] Subtitle search result:', result);
 
       if (!result.success) {
-        setSearchError(result.error || t('loadSubtitlesFailed'));
+        setSearchError(translateNativeError(result.error) || t('loadSubtitlesFailed'));
         setViewState('tracks');
         return;
       }
@@ -1065,7 +1066,7 @@ export function SubtitleControlModal({
       }
     } catch (e: any) {
       console.error('[SubtitleModal] Subtitle fetch exception:', e);
-      setSearchError(e?.message || t('loadSubtitlesFailed2'));
+      setSearchError(translateNativeError(e?.message) || t('loadSubtitlesFailed2'));
       setViewState('tracks');
     } finally {
       setSearching(false);
@@ -1125,7 +1126,7 @@ export function SubtitleControlModal({
       setActiveSubSourceSubtitle(null);
     } catch (e: any) {
       console.error('[SubtitleModal] Extraction exception:', e);
-      setSearchError(e?.message || t('extractSubtitleFailed'));
+      setSearchError(translateNativeError(e?.message) || t('extractSubtitleFailed'));
     } finally {
       setDownloadingSubId(null);
     }
@@ -1169,7 +1170,7 @@ export function SubtitleControlModal({
       }
     } catch (e: any) {
       console.error('[SubtitleModal] Download exception:', e);
-      setSearchError(e?.message || t('downloadSubtitleFailed2'));
+      setSearchError(translateNativeError(e?.message) || t('downloadSubtitleFailed2'));
     } finally {
       setDownloadingSubId(null);
     }
@@ -1203,7 +1204,7 @@ export function SubtitleControlModal({
       }
     } catch (e: any) {
       console.error('[SubtitleModal] Failed to load local subtitle file:', e);
-      setSearchError(e?.message || t('openLocalFileFailed'));
+      setSearchError(translateNativeError(e?.message) || t('openLocalFileFailed'));
     }
   };
 

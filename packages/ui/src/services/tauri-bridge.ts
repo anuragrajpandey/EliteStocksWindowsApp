@@ -7,6 +7,7 @@ import { attachConsole } from '@tauri-apps/plugin-log';
 import { openPath } from '@tauri-apps/plugin-opener';
 import { appLogDir, join } from '@tauri-apps/api/path';
 import { debug as logDebug, info as logInfo, warn as logWarn, error as logError } from '@tauri-apps/plugin-log';
+import i18n, { translateNativeError } from '../i18n';
 
 // Store instance for Tauri
 let store: Store | null = null;
@@ -381,7 +382,7 @@ export const Bridge = {
                 });
                 return { success: true };
             } catch (e: any) {
-                return { success: false, error: typeof e === 'string' ? e : e.message || 'Failed to cast media' };
+                return { success: false, error: typeof e === 'string' ? e : translateNativeError(e.message) || i18n.t('player:failedToCastMedia') };
             } finally {
                 castLoadInFlight = false;
             }
@@ -390,7 +391,7 @@ export const Bridge = {
             await invoke('mpv_load', { url });
             return { success: true };
         } catch (e: any) {
-            return { success: false, error: typeof e === 'string' ? e : e.message || 'Unknown error' };
+            return { success: false, error: typeof e === 'string' ? e : translateNativeError(e.message) || i18n.t('player:unknownError') };
         }
     },
 

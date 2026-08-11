@@ -134,10 +134,10 @@ async function apiFetch(
     log('FETCH', 'using fetchProxy');
     const proxyResult = await window.fetchProxy.fetch(url.toString(), fetchOptions);
     if (proxyResult.error) {
-      throw new Error(proxyResult.error);
+      throw new Error(translateNativeError(proxyResult.error) || proxyResult.error);
     }
     if (!proxyResult.data) {
-      throw new Error('No response data from fetchProxy');
+      throw new Error(i18n.t('subtitles:noResponseData'));
     }
     log('FETCH', `status=${proxyResult.data.status} ok=${proxyResult.data.ok}`);
     return {
@@ -164,7 +164,7 @@ async function apiFetch(
 
 /* ─── subtitle decoding ─── */
 import { decodeSubtitleBytes } from '../utils/subtitleEncoding';
-import i18n from '../i18n';
+import i18n, { translateNativeError } from '../i18n';
 
 /**
  * Shared auto-retry wrapper used by search/download. Handles 401/403 by
@@ -245,7 +245,7 @@ export async function loginOpenSubtitles(
     };
   } catch (e: any) {
     log('LOGIN', 'Error:', e?.message);
-    return { success: false, error: e?.message || 'Login request failed' };
+    return { success: false, error: translateNativeError(e?.message) || i18n.t('subtitles:loginRequestFailed') };
   }
 }
 
@@ -476,7 +476,7 @@ export async function searchOpenSubtitles(
     };
   } catch (e: any) {
     log('SEARCH', 'Error:', e?.message);
-    return { success: false, error: e?.message || 'Failed to search OpenSubtitles' };
+    return { success: false, error: translateNativeError(e?.message) || i18n.t('subtitles:openSubtitlesSearchFailed') };
   }
 }
 

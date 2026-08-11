@@ -1150,7 +1150,8 @@
       "codeExpired": "Le code a expiré. Veuillez recommencer.",
       "authStartFailed": "Échec du démarrage du flux d'authentification.",
       "failedRequestPin": "Échec de la demande du code PIN Simkl ({{status}})",
-      "pollFailed": "Échec de la vérification du code PIN Simkl ({{status}})"
+      "pollFailed": "Échec de la vérification du code PIN Simkl ({{status}})",
+      "missingUserCode": "Réponse PIN Simkl sans user_code"
     },
     "strem": {
       "title": "Lecture Strem",
@@ -1192,7 +1193,10 @@
       "filtersGroups": "{{filters}} filtres · {{groups}} groupes",
       "clickToActivate": "Cliquer pour activer",
       "previewBadges_one": "APERÇU DU BADGE ({{count}})",
-      "previewBadges_other": "APERÇU DES BADGES ({{count}})"
+      "previewBadges_other": "APERÇU DES BADGES ({{count}})",
+      "invalidBadgeJson": "JSON invalide",
+      "missingBadgeFilters": "Tableau \"filters\" manquant",
+      "noUsableBadgeFilters": "Aucun filtre utilisable trouvé (chacun doit avoir un nom et un motif)"
     },
     "nuvio": {
       "title": "Nuvio",
@@ -3230,7 +3234,11 @@
     "downloadVideoOnly": "Télécharger uniquement la vidéo",
     "cancel": "Annuler",
     "sessionExpired": "Session OpenSubtitles expirée. Veuillez vous reconnecter dans Paramètres → Sous-titres.",
-    "binaryDownloadFailed": "Échec du téléchargement binaire"
+    "binaryDownloadFailed": "Échec du téléchargement binaire",
+    "networkError": "Erreur réseau",
+    "noResponseData": "Aucune donnée de réponse de fetchProxy",
+    "extractSrtFailed": "Impossible d'extraire le fichier .srt de l'archive ZIP",
+    "loginRequestFailed": "Échec de la demande de connexion"
   },
   "logoEditor": {
     "title": "Éditeur de logos",

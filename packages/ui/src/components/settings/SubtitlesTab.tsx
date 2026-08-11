@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import i18n from '../../i18n';
+import i18n, { translateNativeError } from '../../i18n';
 import { validateSubSourceApiKey } from '../../services/subsource';
 import { loginOpenSubtitles, logoutOpenSubtitles, OpenSubtitlesUser } from '../../services/opensubtitles';
 import { Bridge } from '../../services/tauri-bridge';
@@ -208,12 +208,12 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
         setOsPassword('');
         useToastStore.getState().addToast(i18n.t('settings:subtitles.loggedInToast', { username: res.user.username }), 'success');
       } else {
-        const err = res.error || i18n.t('common:loginFailed');
+        const err = translateNativeError(res.error) || i18n.t('common:loginFailed');
         setOsError(err);
         useToastStore.getState().addToast(err, 'error');
       }
     } catch (e: any) {
-      const err = e?.message || i18n.t('common:loginFailed');
+      const err = translateNativeError(e?.message) || i18n.t('common:loginFailed');
       setOsError(err);
       useToastStore.getState().addToast(err, 'error');
     } finally {
