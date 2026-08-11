@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { ThemeId, CustomThemeConfig } from '../../types/app';
 import { extractCurrentThemeVariables } from '../../utils/themeHelper';
 import { useAppSettings } from '../../hooks/useAppSettings';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 interface ThemeTabProps {
   theme: ThemeId;
@@ -235,6 +237,7 @@ export function ThemeTab({
   customThemeConfig, 
   onCustomThemeConfigChange 
 }: ThemeTabProps) {
+  useTranslation();
   const {
     appFontFamily,
     appCustomFontBase64,
@@ -500,7 +503,7 @@ export function ThemeTab({
             transition: 'all 0.2s ease'
           }}
         >
-          🎨 Premade Themes
+          🎨 {i18n.t('settings:theme.presetThemes')}
         </button>
         <button
           onClick={() => setActiveSubTab('custom')}
@@ -516,7 +519,7 @@ export function ThemeTab({
             transition: 'all 0.2s ease'
           }}
         >
-          🛠️ Custom Customizer
+          🛠️ {i18n.t('settings:theme.customTheme')}
         </button>
       </div>
 
@@ -524,7 +527,7 @@ export function ThemeTab({
         <div className="settings-section">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
             <div className="section-header" style={{ marginBottom: 0 }}>
-              <h3 style={{ margin: 0 }}>Theme Selection</h3>
+              <h3 style={{ margin: 0 }}>{i18n.t('settings:theme.selectTheme')}</h3>
             </div>
             {theme !== 'custom' && (
               <button

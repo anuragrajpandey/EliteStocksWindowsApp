@@ -1,9 +1,9 @@
-// Locale allowlist enforcement.
+// Locale allowlist enforcement + key parity check.
 //
-// Every locale file in packages/ui/src/i18n/locales must have a matching entry
-// in the SUPPORTED_LOCALES registry (src/i18n/index.ts), and vice versa. This
-// runs as part of `pnpm --filter @ynotv/ui typecheck` so a locale cannot be
-// added without also being exposed in the Settings language picker.
+// 1. Every locale file must have a matching entry in SUPPORTED_LOCALES (and vice versa).
+// 2. All locale files must have the same set of flattened keys as en.json (the source of truth).
+//
+// Runs as part of `pnpm --filter @ynotv/ui typecheck`.
 import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,22 +20,57 @@ const fileCodes = [...new Set(files.map((f) => f.replace(/\.json$/, '')))];
 
 const errors = [];
 
+// --- Check 1: allowlist parity ---
 for (const code of fileCodes) {
   if (!registered.includes(code)) {
     errors.push(`Locale file "locales/${code}.json" exists but "${code}" is missing from SUPPORTED_LOCALES in src/i18n/index.ts.`);
   }
 }
-
 for (const code of registered) {
   if (!fileCodes.includes(code)) {
     errors.push(`SUPPORTED_LOCALES lists "${code}" but no locales/${code}.json file exists.`);
   }
 }
 
+// --- Check 2: key parity (all locales must have the same keys as en.json) ---
+function flattenKeys(obj, prefix = '') {
+  const keys = [];
+  for (const [k, v] of Object.entries(obj)) {
+    const full = prefix ? `${prefix}.${k}` : k;
+    if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
+      keys.push(...flattenKeys(v, full));
+    } else {
+      keys.push(full);
+    }
+  }
+  return keys;
+}
+
+const enPath = join(localesDir, 'en.json');
+const enKeys = new Set(flattenKeys(JSON.parse(readFileSync(enPath, 'utf8'))));
+
+for (const code of fileCodes) {
+  if (code === 'en') continue;
+  const localePath = join(localesDir, `${code}.json`);
+  const localeKeys = new Set(flattenKeys(JSON.parse(readFileSync(localePath, 'utf8'))));
+
+  for (const key of enKeys) {
+    if (!localeKeys.has(key)) {
+      errors.push(`[key-parity] "${code}.json" is missing key: "${key}" (exists in en.json).`);
+    }
+  }
+  for (const key of localeKeys) {
+    if (!enKeys.has(key)) {
+      errors.push(`[key-parity] "${code}.json" has extra key: "${key}" (not in en.json).`);
+    }
+  }
+}
+
+// --- Report ---
 if (errors.length > 0) {
-  console.error('[i18n:check] Locale allowlist mismatch:');
+  console.error('[i18n:check] Locale errors:');
   for (const e of errors) console.error('  - ' + e);
-  console.error('\nFix: keep src/i18n/locales/*.json and SUPPORTED_LOCALES in sync.');
+  console.error('\nFix: keep all locale files structurally identical to en.json.');
   process.exit(1);
 }
 

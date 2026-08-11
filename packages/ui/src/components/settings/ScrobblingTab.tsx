@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef, type CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { getScrobblerCredentialStatus, scrobbler } from '../../services/scrobbler';
 import { TraktCatalogsModal } from './TraktCatalogsModal';
 import '../Modal.css';
 import './PlaybackTab.css';
 
 export function ScrobblingTab() {
+  useTranslation();
   const [traktScrobbleEnabled, setTraktScrobbleEnabled] = useState(false);
   const [traktLinked, setTraktLinked] = useState(false);
 
@@ -155,7 +158,7 @@ export function ScrobblingTab() {
     <div className="settings-tab-content">
       <div className="settings-section">
         <div className="section-header">
-          <h3>Trakt</h3>
+          <h3>{i18n.t('settings:scrobbling.title')}</h3>
           <span style={{
             fontSize: '0.75rem',
             fontWeight: 600,
@@ -166,12 +169,12 @@ export function ScrobblingTab() {
             color: traktLinked ? '#2ed573' : 'var(--text-muted)',
             background: traktLinked ? 'rgba(46,213,115,0.1)' : 'var(--surface-color)',
           }}>
-            {traktLinked ? 'Connected' : 'Not Connected'}
+            {traktLinked ? i18n.t('settings:scrobbling.connected') : i18n.t('settings:scrobbling.notConnected')}
           </span>
         </div>
 
         <p className="section-description">
-          Scrobble live playback progress, synchronize your global movies/series history, and browse custom Trakt recommendations and lists directly inside Stremio mode.
+          {i18n.t('settings:scrobbling.description')}
         </p>
 
         {!traktLinked ? (
@@ -183,7 +186,7 @@ export function ScrobblingTab() {
                 disabled={!credentialStatus.traktConfigured}
                 style={{ padding: '8px 20px', fontSize: '0.9rem' }}
               >
-                Connect Trakt Account
+                {i18n.t('settings:scrobbling.connectBtn')}
               </button>
             )}
 
@@ -191,16 +194,20 @@ export function ScrobblingTab() {
               <div style={authContainerStyle}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                    Enter This Pin Code:
+                    {i18n.t('settings:scrobbling.enterPin')}
                   </div>
-                  <div style={pinCodeStyle} onClick={() => handleCopyCode(traktUserCode)} title="Click to copy">
+                  <div style={pinCodeStyle} onClick={() => handleCopyCode(traktUserCode)} title={i18n.t('settings:scrobbling.clickToCopy')}>
                     {traktUserCode}
                   </div>
                   <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '0 0 12px 0' }}>
-                    Go to <a href={traktVerificationUrl} target="_blank" rel="noreferrer" style={{ color: '#00d4ff' }}>{traktVerificationUrl}</a> on any device and authenticate.
+                    {i18n.t('settings:scrobbling.goToUrlPrefix')}{' '}
+                    <a href={traktVerificationUrl} target="_blank" rel="noreferrer" style={{ color: '#00d4ff' }}>
+                      {traktVerificationUrl}
+                    </a>
+                    {' '}{i18n.t('settings:scrobbling.goToUrlSuffix')}
                   </p>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
-                    Waiting for verification... ({Math.floor(traktExpiresIn / 60)}m {traktExpiresIn % 60}s)
+                    {i18n.t('settings:scrobbling.waitingVerification', { minutes: Math.floor(traktExpiresIn / 60), seconds: traktExpiresIn % 60 })}
                   </div>
                   <button
                     onClick={cancelTraktLink}
@@ -212,7 +219,7 @@ export function ScrobblingTab() {
                       cursor: 'pointer',
                     }}
                   >
-                    Cancel Code Request
+                    {i18n.t('settings:scrobbling.cancelCode')}
                   </button>
                 </div>
               </div>
@@ -227,7 +234,7 @@ export function ScrobblingTab() {
                 fontWeight: 600,
                 textAlign: 'center',
               }}>
-                ✓ Successfully authenticated!
+                ✓ {i18n.t('settings:scrobbling.authSuccess')}
               </div>
             )}
 
@@ -240,10 +247,10 @@ export function ScrobblingTab() {
                 textAlign: 'center',
               }}>
                 <div style={{ fontWeight: 600, marginBottom: '8px' }}>
-                  {credentialStatus.traktConfigured ? 'Code expired or request failed.' : 'Trakt credentials were not injected into this build.'}
+                  {credentialStatus.traktConfigured ? i18n.t('settings:scrobbling.codeExpired') : i18n.t('settings:scrobbling.noCredentials')}
                 </div>
                 <button className="sync-btn" onClick={startTraktLink} style={{ color: '#ff4757', borderColor: 'rgba(255,71,87,0.4)', background: 'rgba(255,71,87,0.15)' }}>
-                  Try Again
+                  {i18n.t('settings:scrobbling.tryAgain')}
                 </button>
               </div>
             )}
@@ -252,8 +259,8 @@ export function ScrobblingTab() {
           <div>
             <div className="timeshift-toggle-row" style={{ marginBottom: '12px', marginTop: '12px' }}>
               <div className="timeshift-toggle-info">
-                <span className="timeshift-toggle-label">Enable Cloud Scrobbling</span>
-                <span className="timeshift-toggle-sub">Send live updates to Trakt every 30s during playback</span>
+                <span className="timeshift-toggle-label">{i18n.t('settings:scrobbling.enableScrobble')}</span>
+                <span className="timeshift-toggle-sub">{i18n.t('settings:scrobbling.enableScrobbleHint')}</span>
               </div>
               <label className="toggle-switch">
                 <input
@@ -271,19 +278,23 @@ export function ScrobblingTab() {
                 onClick={openCatalogModal}
                 style={{ padding: '8px 20px', fontSize: '0.9rem' }}
               >
-                Manage Strem Catalogs
+                {i18n.t('settings:scrobbling.configureStremCatalogs')}
               </button>
               <button
                 className="sync-btn"
                 onClick={openNuvioCatalogModal}
                 style={{ padding: '8px 20px', fontSize: '0.9rem' }}
               >
-                Manage Nuvio Catalogs
+                {i18n.t('settings:scrobbling.configureNuvioCatalogs')}
               </button>
             </div>
 
-            <button className="sync-btn danger" onClick={handleTraktUnlink}>
-              Disconnect Trakt Account
+            <button
+              className="sync-btn danger"
+              onClick={handleTraktUnlink}
+              style={{ padding: '8px 20px', fontSize: '0.9rem', borderColor: 'rgba(255,71,87,0.4)', color: '#ff4757' }}
+            >
+              {i18n.t('settings:scrobbling.disconnect')}
             </button>
           </div>
         )}

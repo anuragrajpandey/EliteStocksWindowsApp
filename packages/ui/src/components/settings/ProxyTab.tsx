@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { relaunch } from '@tauri-apps/plugin-process';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import '../Modal.css';
 
 interface ProxyTabProps {
@@ -23,6 +25,7 @@ export function ProxyTab({
   socks5ProxyPassword,
   onSocks5ProxyPasswordChange,
 }: ProxyTabProps) {
+  useTranslation();
   const [enabled, setEnabled] = useState(socks5ProxyEnabled);
   const [server, setServer] = useState(socks5ProxyServer);
   const [username, setUsername] = useState(socks5ProxyUsername);
@@ -140,14 +143,14 @@ export function ProxyTab({
       }}>
         <div>
           <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>
-            System Status
+            {i18n.t('settings:proxy.systemStatus')}
           </div>
           <div style={{ fontSize: '1.1rem', fontWeight: 700, color: socks5ProxyEnabled ? '#10b981' : 'var(--text-secondary)', marginTop: '0.25rem' }}>
-            {socks5ProxyEnabled ? 'SOCKS5 Proxy is Enabled' : 'SOCKS5 Proxy is Disabled'}
+            {socks5ProxyEnabled ? i18n.t('settings:proxy.activeStatus') : i18n.t('settings:proxy.disabledStatus')}
           </div>
           {socks5ProxyEnabled && socks5ProxyServer && (
             <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem', fontFamily: 'monospace', opacity: 0.8 }}>
-              Server: {socks5ProxyServer}
+              {i18n.t('settings:proxy.serverLabel', { server: socks5ProxyServer })}
             </div>
           )}
         </div>
@@ -167,17 +170,17 @@ export function ProxyTab({
             boxShadow: socks5ProxyEnabled ? '0 0 10px #10b981' : 'none',
             transition: 'all 0.3s ease',
           }} />
-          {socks5ProxyEnabled ? 'Active' : 'Inactive'}
+          {socks5ProxyEnabled ? i18n.t('settings:proxy.active') : i18n.t('settings:proxy.inactive')}
         </div>
       </div>
 
       <div className="settings-section">
         <div className="section-header">
-          <h3>SOCKS5 Proxy Configuration</h3>
+          <h3>{i18n.t('settings:proxy.title')}</h3>
         </div>
 
         <p className="section-description">
-          Route all outgoing application network traffic—including stream feeds, EPG guides, metadata requests, and VOD updates—through a secure SOCKS5 proxy server.
+          {i18n.t('settings:proxy.description')}
         </p>
 
         <div className="tmdb-form" style={{ marginTop: '1.5rem' }}>
@@ -198,16 +201,16 @@ export function ProxyTab({
                 }}
               />
               <span className="genre-name" style={{ fontSize: '0.95rem', fontWeight: 600 }}>
-                Enable Proxy Routing
+                {i18n.t('settings:proxy.enableProxy')}
               </span>
             </label>
             <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-              Toggle the proxy connection. When disabled, traffic flows directly via your default ISP.
+              {i18n.t('settings:proxy.enableProxyHint')}
             </p>
           </div>
 
           <div className="form-group" style={{ marginBottom: '1.5rem', opacity: enabled ? 1 : 0.5, transition: 'opacity 0.2s' }}>
-            <label>SOCKS5 Proxy Server</label>
+            <label>{i18n.t('settings:proxy.serverAddress')}</label>
             <input
               type="text"
               value={server}
@@ -220,13 +223,13 @@ export function ProxyTab({
               style={{ width: '100%' }}
             />
             <p className="form-hint">
-              Enter the host/IP and port of your proxy server. Scheme is automatically resolved (defaults to DNS-safe <code>socks5h://</code> to prevent local DNS leaks).
+              {i18n.t('settings:proxy.serverHint')}
             </p>
           </div>
 
           <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '1.5rem', opacity: enabled ? 1 : 0.5, transition: 'opacity 0.2s' }}>
             <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-              <label>Username (Optional)</label>
+              <label>{i18n.t('settings:proxy.username')}</label>
               <input
                 type="text"
                 value={username}
@@ -240,7 +243,7 @@ export function ProxyTab({
               />
             </div>
             <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-              <label>Password (Optional)</label>
+              <label>{i18n.t('settings:proxy.password')}</label>
               <input
                 type="password"
                 value={password}
@@ -263,7 +266,7 @@ export function ProxyTab({
               className={saveStatus === 'success' ? 'success' : saveStatus === 'error' ? 'error' : 'save-btn'}
               style={{ minWidth: '180px' }}
             >
-              {isSaving ? 'Relaunching...' : saveStatus === 'success' ? 'Applied' : saveStatus === 'error' ? 'Failed to Apply' : 'Save & Apply Proxy'}
+              {isSaving ? i18n.t('settings:proxy.saving') : saveStatus === 'success' ? i18n.t('settings:proxy.saved') : saveStatus === 'error' ? i18n.t('settings:proxy.failed') : i18n.t('settings:proxy.saveProxy')}
             </button>
           </div>
         </div>

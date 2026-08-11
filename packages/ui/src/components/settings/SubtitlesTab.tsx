@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { validateSubSourceApiKey } from '../../services/subsource';
 import { loginOpenSubtitles, logoutOpenSubtitles, OpenSubtitlesUser } from '../../services/opensubtitles';
 import { Bridge } from '../../services/tauri-bridge';
@@ -86,6 +88,7 @@ interface SubtitlesTabProps {
 }
 
 export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: SubtitlesTabProps) {
+  useTranslation();
   const merged = { ...DEFAULT_SETTINGS, ...settings };
   const [localKey, setLocalKey] = useState(merged.subsourceApiKey);
   const [keyValid, setKeyValid] = useState<boolean | null>(null);
@@ -260,13 +263,13 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
           className={`settings-tab ${activeSubTab === 'subtitles' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('subtitles')}
         >
-          Subtitles
+          {i18n.t('settings:subtitles.tabs.subtitles')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'audio' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('audio')}
         >
-          Audio
+          {i18n.t('settings:subtitles.tabs.audio')}
         </button>
       </div>
 

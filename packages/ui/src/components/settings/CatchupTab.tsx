@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './PlaybackTab.css';
 
 interface CatchupTabProps {
@@ -17,23 +19,24 @@ export function CatchupTab({
   catchupContinuePlaying,
   onCatchupContinuePlayingChange,
 }: CatchupTabProps) {
+  useTranslation();
   return (
     <div className="settings-tab-content">
       <div className="settings-section" style={{ paddingTop: '8px' }}>
         <div className="section-header">
-          <h3>Catch-up Settings</h3>
+          <h3>{i18n.t('settings:playback.catchupTitle')}</h3>
         </div>
         <p className="section-description">
-          Adjust the playback settings for catch-up (timeshift) programs to prevent shows or sports from being cut off.
+          {i18n.t('settings:playback.catchupDesc')}
         </p>
 
         <div className="timeshift-settings">
           {/* Start Padding */}
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Start Padding</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:playback.startPadding')}</span>
               <span className="timeshift-toggle-sub">
-                Minutes to play before the EPG scheduled start time. This lets you scrub back to the very beginning if needed.
+                {i18n.t('settings:playback.startPaddingSub')}
               </span>
             </div>
             <div className="retry-input-wrapper">
@@ -49,16 +52,16 @@ export function CatchupTab({
                 }}
                 className="retry-number-input"
               />
-              <span className="retry-input-unit">min</span>
+              <span className="retry-input-unit">{i18n.t('settings:playback.minUnit')}</span>
             </div>
           </div>
 
           {/* End Padding */}
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">End Padding</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:playback.endPadding')}</span>
               <span className="timeshift-toggle-sub">
-                Minutes of extra time to append after the scheduled program end. Avoids cut-offs for slightly delayed programs.
+                {i18n.t('settings:playback.endPaddingSub')}
               </span>
             </div>
             <div className="retry-input-wrapper">
@@ -74,16 +77,16 @@ export function CatchupTab({
                 }}
                 className="retry-number-input"
               />
-              <span className="retry-input-unit">min</span>
+              <span className="retry-input-unit">{i18n.t('settings:playback.minUnit')}</span>
             </div>
           </div>
 
           {/* Continue Playing */}
           <div className="timeshift-toggle-row" style={{ marginTop: '12px', borderBottom: 'none' }}>
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Continue Playing past End Time</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:playback.continuePlaying')}</span>
               <span className="timeshift-toggle-sub">
-                Allows the player to keep streaming past the program end time indefinitely (up to 12 hours) on the channel. Highly recommended for sports.
+                {i18n.t('settings:playback.continuePlayingSub')}
               </span>
             </div>
             <label className="toggle-switch">

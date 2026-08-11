@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { LayoutMode } from '../../hooks/useMultiview';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 export interface SavedLayoutState {
   layout: LayoutMode;
@@ -34,6 +36,7 @@ export function StartupTab({
   onReopenLastOnStartupChange,
   onStartupViewChange,
 }: StartupTabProps) {
+  useTranslation();
   const [localValue, setLocalValue] = useState(rememberLastChannels);
   const [localReopenValue, setLocalReopenValue] = useState(reopenLastOnStartup);
 
@@ -64,10 +67,10 @@ export function StartupTab({
 
   const getLayoutLabel = (layout: LayoutMode): string => {
     switch (layout) {
-      case 'main': return 'Main View';
-      case 'pip': return 'Picture-in-Picture';
-      case '2x2': return '2x2 Grid';
-      case 'bigbottom': return 'Big Top + Bottom Bar';
+      case 'main': return i18n.t('settings:startup.layouts.main');
+      case 'pip': return i18n.t('settings:startup.layouts.pip');
+      case '2x2': return i18n.t('settings:startup.layouts.grid2x2');
+      case 'bigbottom': return i18n.t('settings:startup.layouts.bigbottom');
       default: return layout;
     }
   };
@@ -84,11 +87,11 @@ export function StartupTab({
       {/* Remember Channels Section */}
       <div className="settings-section" style={{ paddingBottom: '8px' }}>
         <div className="section-header">
-          <h3>Startup Behavior</h3>
+          <h3>{i18n.t('settings:startup.title')}</h3>
         </div>
 
         <p className="section-description" style={{ marginBottom: '12px' }}>
-          Control what happens when the application starts and when switching between view layouts.
+          {i18n.t('settings:startup.description')}
         </p>
 
         {/* Startup View Selector */}
@@ -103,10 +106,10 @@ export function StartupTab({
         >
           <div style={{ flex: 1 }}>
             <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-              Startup View
+              {i18n.t('settings:startup.startupView')}
             </div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
-              Choose which page opens when the app starts
+              {i18n.t('settings:startup.startupViewTooltip')}
             </div>
           </div>
           <select
@@ -124,15 +127,15 @@ export function StartupTab({
               minWidth: '140px',
             }}
           >
-            <option value="none">Hero Page</option>
-            <option value="guide">Live TV</option>
-            <option value="movies">Movies</option>
-            <option value="series">Series</option>
-            <option value="sports">Sports</option>
-            <option value="calendar">TV Calendar</option>
-            <option value="dvr">DVR</option>
-            <option value="stremio">Strem</option>
-            <option value="nuvio">Nuvio</option>
+            <option value="none">{i18n.t('settings:startup.views.none')}</option>
+            <option value="guide">{i18n.t('settings:startup.views.guide')}</option>
+            <option value="movies">{i18n.t('settings:startup.views.movies')}</option>
+            <option value="series">{i18n.t('settings:startup.views.series')}</option>
+            <option value="sports">{i18n.t('settings:startup.views.sports')}</option>
+            <option value="calendar">{i18n.t('settings:startup.views.calendar')}</option>
+            <option value="dvr">{i18n.t('settings:startup.views.dvr')}</option>
+            <option value="stremio">{i18n.t('settings:startup.views.stremio')}</option>
+            <option value="nuvio">{i18n.t('settings:startup.views.nuvio')}</option>
           </select>
         </div>
 
@@ -149,10 +152,10 @@ export function StartupTab({
           >
             <div style={{ flex: 1 }}>
               <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-                Remember Last Viewed Channels
+                {i18n.t('settings:startup.rememberLastChannels')}
               </div>
               <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
-                Save channels when switching layouts and restore them on next startup
+                {i18n.t('settings:startup.rememberLastChannelsDescription')}
               </div>
             </div>
             <input
@@ -177,10 +180,10 @@ export function StartupTab({
           >
             <div style={{ flex: 1 }}>
               <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-                Reopen Last on Startup
+                {i18n.t('settings:startup.reopenLastOnStartup')}
               </div>
               <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
-                Automatically load and play the remembered channels when the application starts
+                {i18n.t('settings:startup.reopenLastOnStartupDescription')}
               </div>
             </div>
             <input
@@ -205,21 +208,21 @@ export function StartupTab({
             }}
           >
             <div style={{ color: 'var(--text-primary)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-              <strong>Saved Layout State</strong>
+              <strong>{i18n.t('settings:startup.savedState')}</strong>
             </div>
             <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-              <div>Layout: {getLayoutLabel(savedLayoutState.layout)}</div>
-              <div>Active Channels: {getActiveChannelCount()}</div>
+              <div>{i18n.t('settings:startup.layoutLabel', { layout: getLayoutLabel(savedLayoutState.layout) })}</div>
+              <div>{i18n.t('settings:startup.activeChannels', { count: getActiveChannelCount() })}</div>
               {savedLayoutState.mainChannel.channelName && (
                 <div style={{ marginTop: '0.5rem' }}>
-                  Main: {savedLayoutState.mainChannel.channelName}
+                  {i18n.t('settings:startup.mainChannel', { name: savedLayoutState.mainChannel.channelName })}
                 </div>
               )}
               {savedLayoutState.slots.filter(s => s.active).length > 0 && (
                 <div style={{ marginTop: '0.25rem' }}>
                   {savedLayoutState.slots
                     .filter(s => s.active)
-                    .map(s => `Slot ${s.id}: ${s.channelName}`)
+                    .map(s => i18n.t('settings:startup.slotChannel', { id: s.id, name: s.channelName }))
                     .join(', ')}
                 </div>
               )}
@@ -237,13 +240,13 @@ export function StartupTab({
           }}
         >
           <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-            <strong style={{ color: 'var(--text-primary)' }}>How it works:</strong>
+            <strong style={{ color: 'var(--text-primary)' }}>{i18n.t('settings:startup.howItWorks')}</strong>
             <ul style={{ marginTop: '0.5rem', marginLeft: '1.2rem', lineHeight: '1.6' }}>
-              <li>Channels are automatically saved when you switch layouts or close the app</li>
-              <li>2x2 Grid and Big Top + Bottom Bar share the same 4 video sources</li>
-              <li>Picture-in-Picture uses the Main view + Slot 2</li>
-              <li>Main View only uses the primary player</li>
-              <li>When switching layouts, available channels are restored to their respective players</li>
+              <li>{i18n.t('settings:startup.rule1')}</li>
+              <li>{i18n.t('settings:startup.rule2')}</li>
+              <li>{i18n.t('settings:startup.rule3')}</li>
+              <li>{i18n.t('settings:startup.rule4')}</li>
+              <li>{i18n.t('settings:startup.rule5')}</li>
             </ul>
           </div>
         </div>

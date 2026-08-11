@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
+
 interface DiscordTabProps {
   discordRichPresence: boolean;
   onDiscordRichPresenceChange: (enabled: boolean) => void;
@@ -27,6 +30,7 @@ export function DiscordTab({
   discordShowTimestamp,
   onDiscordShowTimestampChange,
 }: DiscordTabProps) {
+  useTranslation();
   return (
     <div className="settings-tab-content" style={{ overflowY: 'auto', maxHeight: '100%', textTransform: 'none' }}>
       {/* Header Banner */}
@@ -51,16 +55,16 @@ export function DiscordTab({
           </svg>
           <div>
             <div style={{ fontSize: '0.8rem', textTransform: 'none', letterSpacing: 'normal', color: 'var(--text-secondary)' }}>
-              Discord Integration
+              {i18n.t('settings:discord.integration')}
             </div>
             <div style={{ fontSize: '1.15rem', fontWeight: 700, textTransform: 'none', color: discordRichPresence ? '#5865F2' : 'var(--text-secondary)', marginTop: '0.2rem' }}>
-              {discordRichPresence ? 'Discord Rich Presence is Active' : 'Discord Rich Presence is Disabled'}
+              {discordRichPresence ? i18n.t('settings:discord.activeStatus') : i18n.t('settings:discord.disabledStatus')}
             </div>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', textTransform: 'none', color: discordRichPresence ? '#5865F2' : 'var(--text-secondary)', fontWeight: 600 }}>
           <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: discordRichPresence ? '#5865F2' : '#6b7280', boxShadow: discordRichPresence ? '0 0 10px #5865F2' : 'none' }} />
-          {discordRichPresence ? 'Active' : 'Inactive'}
+          {discordRichPresence ? i18n.t('settings:discord.active') : i18n.t('settings:discord.inactive')}
         </div>
       </div>
 
@@ -68,11 +72,11 @@ export function DiscordTab({
       <div className="settings-section" style={{ textTransform: 'none' }}>
         <div className="section-header">
           <h3 style={{ textTransform: 'none', letterSpacing: 'normal', fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-            Discord Rich Presence Settings
+            {i18n.t('settings:discord.title')}
           </h3>
         </div>
         <p className="section-description" style={{ textTransform: 'none', letterSpacing: 'normal' }}>
-          Display what you are watching on your Discord profile, complete with title info, live progress bar, and show posters. Requires the Discord desktop app to be running.
+          {i18n.t('settings:discord.description')}
         </p>
 
         <div className="tmdb-form" style={{ marginTop: '1.5rem', textTransform: 'none' }}>
@@ -85,11 +89,11 @@ export function DiscordTab({
                 onChange={(e) => onDiscordRichPresenceChange(e.target.checked)}
               />
               <span className="genre-name" style={{ fontSize: '1rem', fontWeight: 600, textTransform: 'none', letterSpacing: 'normal' }}>
-                Show on Discord
+                {i18n.t('settings:discord.showOnDiscord')}
               </span>
             </label>
             <p className="form-hint" style={{ marginTop: '0.5rem', textTransform: 'none', letterSpacing: 'normal' }}>
-              Broadcasting active activity to your Discord profile.
+              {i18n.t('settings:discord.showOnDiscordHint')}
             </p>
           </div>
 
@@ -97,36 +101,36 @@ export function DiscordTab({
           {discordRichPresence && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingLeft: '1rem', borderLeft: '2px solid rgba(88, 101, 242, 0.3)', marginTop: '1.25rem', textTransform: 'none' }}>
               <SubToggleRow
-                title="Hide the title"
-                description="Show 'Watching something' with no show name or poster artwork."
+                title={i18n.t('settings:discord.hideTitle')}
+                description={i18n.t('settings:discord.hideTitleDesc')}
                 checked={discordHideTitle}
                 onChange={onDiscordHideTitleChange}
               />
 
               <SubToggleRow
-                title="Show while paused"
-                description="Keep the presence visible when media playback is paused."
+                title={i18n.t('settings:discord.showPaused')}
+                description={i18n.t('settings:discord.showPausedDesc')}
                 checked={discordShowWhenPaused}
                 onChange={onDiscordShowWhenPausedChange}
               />
 
               <SubToggleRow
-                title="Show while browsing"
-                description="Display 'Browsing ynotv' when nothing is playing."
+                title={i18n.t('settings:discord.showBrowsing')}
+                description={i18n.t('settings:discord.showBrowsingDesc')}
                 checked={discordShowWhenBrowsing}
                 onChange={onDiscordShowWhenBrowsingChange}
               />
 
               <SubToggleRow
-                title="Show poster"
-                description="Reveal movie or show artwork. Turning off keeps the title but hides the poster."
+                title={i18n.t('settings:discord.showPoster')}
+                description={i18n.t('settings:discord.showPosterDesc')}
                 checked={discordShowPoster}
                 onChange={onDiscordShowPosterChange}
               />
 
               <SubToggleRow
-                title="Show elapsed time"
-                description="Display the live progress bar showing how far into the title you are."
+                title={i18n.t('settings:discord.showTimestamp')}
+                description={i18n.t('settings:discord.showTimestampDesc')}
                 checked={discordShowTimestamp}
                 onChange={onDiscordShowTimestampChange}
               />

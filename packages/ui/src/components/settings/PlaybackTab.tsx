@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { relaunch } from '@tauri-apps/plugin-process';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import '../Modal.css';
 import './PlaybackTab.css';
 import { PopoutTab } from './PopoutTab';
@@ -124,6 +126,7 @@ export function PlaybackTab({
   vodShowSourceBadge,
   onVodShowSourceBadgeChange,
 }: PlaybackTabProps) {
+  useTranslation();
   const [activeSubTab, setActiveSubTab] = useState<PlaybackSubTabId>('mpv');
 
   useEffect(() => {
@@ -201,7 +204,7 @@ export function PlaybackTab({
   };
 
   const handleReset = async () => {
-    if (confirm('Reset to recommended default parameters?')) {
+    if (confirm(i18n.t('settings:playback.resetConfirm'))) {
       setLocalParams(DEFAULT_MPV_PARAMS);
       await onMpvParamsChange(DEFAULT_MPV_PARAMS);
       setHasChanges(false);
@@ -209,7 +212,7 @@ export function PlaybackTab({
   };
 
   const handleClear = async () => {
-    if (confirm('Clear all custom parameters?')) {
+    if (confirm(i18n.t('settings:playback.clearConfirm'))) {
       setLocalParams('');
       await onMpvParamsChange('');
       setHasChanges(false);
@@ -232,43 +235,43 @@ export function PlaybackTab({
           className={`settings-tab ${activeSubTab === 'mpv' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('mpv')}
         >
-          MPV Parameters
+          {i18n.t('settings:playback.tabs.mpv')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'reconnect' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('reconnect')}
         >
-          Reconnect
+          {i18n.t('settings:playback.tabs.reconnect')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'cast' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('cast')}
         >
-          Google Cast
+          {i18n.t('settings:playback.tabs.cast')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'popout' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('popout')}
         >
-          External/Popout Player
+          {i18n.t('settings:playback.tabs.popout')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'skipintro' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('skipintro')}
         >
-          Skip Intro
+          {i18n.t('settings:playback.tabs.skipintro')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'catchup' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('catchup')}
         >
-          Catch-up
+          {i18n.t('settings:playback.tabs.catchup')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'vod' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('vod')}
         >
-          VOD
+          {i18n.t('settings:playback.tabs.vod')}
         </button>
       </div>
 
@@ -284,28 +287,28 @@ export function PlaybackTab({
                     onChange={(e) => handleHwdecToggle(e.target.checked)}
                   />
                   <span style={{ fontWeight: 600, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    Enable Hardware Video Acceleration (--hwdec=auto)
+                    {i18n.t('settings:playback.hwdecLabel')}
                     {isHwdecOverridden && (
                       <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', background: 'rgba(255, 193, 7, 0.15)', color: '#ffc107', border: '1px solid rgba(255, 193, 7, 0.3)', fontWeight: 500 }}>
-                        Managed by custom parameter below
+                        {i18n.t('settings:playback.hwdecManaged')}
                       </span>
                     )}
                   </span>
                 </label>
                 <p style={{ marginTop: '0.4rem', marginLeft: '26px', opacity: 0.8, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4', margin: '6px 0 0 26px' }}>
                   {isHwdecOverridden
-                    ? 'A custom --hwdec parameter was detected in your parameters below. Your custom parameter will take priority over this toggle.'
-                    : <>Automatically passes <code style={{ color: 'var(--accent-color, #00d4ff)' }}>--hwdec=auto</code> and <code style={{ color: 'var(--accent-color, #00d4ff)' }}>--vo=gpu</code> to MPV to offload live video decoding to your GPU. Can be overridden using custom parameters below.</>}
+                    ? i18n.t('settings:playback.hwdecOverriddenHint')
+                    : <>{i18n.t('settings:playback.hwdecHintPrefix')} <code style={{ color: 'var(--accent-color, #00d4ff)' }}>--hwdec=auto</code> {i18n.t('settings:playback.hwdecHintMid')} <code style={{ color: 'var(--accent-color, #00d4ff)' }}>--vo=gpu</code> {i18n.t('settings:playback.hwdecHintSuffix')}</>}
                 </p>
               </div>
 
             <div className="playback-section" style={{ marginTop: 0 }}>
               <div className="playback-label">
-                <span>MPV Parameters</span>
+                <span>{i18n.t('settings:playback.mpvParamsLabel')}</span>
                 <small>
-                  One parameter per line. These flags are passed to MPV on startup.
+                  {i18n.t('settings:playback.mpvParamsHint')}
                   <br />
-                  Example: --hwdec=auto --cache=yes --network-timeout=10
+                  {i18n.t('settings:playback.mpvParamsExample')}
                 </small>
               </div>
 
@@ -324,42 +327,42 @@ export function PlaybackTab({
                   onClick={handleSave}
                   disabled={!hasChanges}
                 >
-                  {hasChanges ? 'Save Changes' : 'Saved'}
+                  {hasChanges ? i18n.t('settings:playback.saveChanges') : i18n.t('settings:playback.saved')}
                 </button>
                 <button className="reset-btn" onClick={handleReset}>
-                  Reset to Defaults
+                  {i18n.t('settings:playback.resetDefaults')}
                 </button>
                 <button className="clear-btn" onClick={handleClear}>
-                  Clear All
+                  {i18n.t('common:clearAll')}
                 </button>
               </div>
 
               <div className="playback-help">
-                <h4>Common Parameters</h4>
+                <h4>{i18n.t('settings:playback.commonParams')}</h4>
                 <div className="help-grid">
                   <div className="help-item">
                     <code>--hwdec=auto</code>
-                    <span>Enable hardware decoding</span>
+                    <span>{i18n.t('settings:playback.helpHwdec')}</span>
                   </div>
                   <div className="help-item">
                     <code>--cache=yes</code>
-                    <span>Enable stream caching</span>
+                    <span>{i18n.t('settings:playback.helpCache')}</span>
                   </div>
                   <div className="help-item">
                     <code>--network-timeout=10</code>
-                    <span>Network timeout in seconds</span>
+                    <span>{i18n.t('settings:playback.helpTimeout')}</span>
                   </div>
                   <div className="help-item">
                     <code>--video-sync=display-resample</code>
-                    <span>Smooth video playback</span>
+                    <span>{i18n.t('settings:playback.helpVsync')}</span>
                   </div>
                   <div className="help-item">
                     <code>--demuxer-max-bytes=50MiB</code>
-                    <span>Maximum cache size</span>
+                    <span>{i18n.t('settings:playback.helpDemuxer')}</span>
                   </div>
                   <div className="help-item">
                     <code>--stream-lavf-o=reconnect=1</code>
-                    <span>Auto-reconnect on disconnect</span>
+                    <span>{i18n.t('settings:playback.helpReconnect')}</span>
                   </div>
                 </div>
               </div>
@@ -372,7 +375,7 @@ export function PlaybackTab({
                   onClick={checkMpvParams}
                   style={{ maxWidth: '220px' }}
                 >
-                  Check Loaded MPV Parameters
+                  {i18n.t('settings:playback.checkLoadedParams')}
                 </button>
                 {debugInfo && (
                   <pre style={{
@@ -400,9 +403,9 @@ export function PlaybackTab({
               {/* Show Channel Loading Screen */}
               <div className="timeshift-toggle-row" style={{ marginBottom: '12px' }}>
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Show Channel Loading Screen</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:playback.loadingScreen')}</span>
                   <span className="timeshift-toggle-sub">
-                    Show an overlay with a loading spinner and channel name when a stream starts or buffers.
+                    {i18n.t('settings:playback.loadingScreenSub')}
                   </span>
                 </div>
                 <label className="toggle-switch">
@@ -418,11 +421,9 @@ export function PlaybackTab({
               {/* Event-based reconnect toggle */}
               <div className="timeshift-toggle-row" style={{ marginBottom: '12px' }}>
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Event-Based Reconnect</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:playback.eventReconnect')}</span>
                   <span className="timeshift-toggle-sub">
-                    React immediately to stream errors (EOF, HTTP errors, MPV crashes). Disable if you experience
-                    overly aggressive reconnects on slow or unstable sources — the watchdog will still detect
-                    dead streams based on playback progress.
+                    {i18n.t('settings:playback.eventReconnectSub')}
                   </span>
                 </div>
                 <label className="toggle-switch">
@@ -441,11 +442,9 @@ export function PlaybackTab({
               {/* Stall detection toggle */}
               <div className="timeshift-toggle-row" style={{ marginBottom: '12px' }}>
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Stall Detection (Watchdog)</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:playback.stallDetection')}</span>
                   <span className="timeshift-toggle-sub">
-                    Periodically poll MPV to detect stalled or frozen streams based on playback progress.
-                    Disable if you prefer only event-based detection, or if the watchdog causes false
-                    reconnects on slow streams.
+                    {i18n.t('settings:playback.stallDetectionSub')}
                   </span>
                 </div>
                 <label className="toggle-switch">
@@ -464,9 +463,9 @@ export function PlaybackTab({
               {/* Watchdog timeout */}
               <div className="retry-setting-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Stall Detection Timeout</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:playback.stallTimeout')}</span>
                   <span className="timeshift-toggle-sub">
-                    Seconds of no position change before a stream is considered stalled. Lower values react faster but may false-trigger on slow servers.
+                    {i18n.t('settings:playback.stallTimeoutSub')}
                   </span>
                 </div>
                 <div className="retry-input-wrapper">
@@ -488,7 +487,7 @@ export function PlaybackTab({
                       if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
                     }}
                   />
-                  <span className="retry-input-unit">sec</span>
+                  <span className="retry-input-unit">{i18n.t('settings:playback.secUnit')}</span>
                 </div>
               </div>
 
@@ -501,7 +500,7 @@ export function PlaybackTab({
                     <line x1="12" y1="17" x2="12.01" y2="17" />
                   </svg>
                   <span>
-                    Values below 8s may cause false retries on slow IPTV servers or streams that take time to buffer. If you notice unexpected reconnects on healthy streams, increase this value.
+                    {i18n.t('settings:playback.stallWarning')}
                   </span>
                 </div>
               )}
@@ -509,9 +508,9 @@ export function PlaybackTab({
               {/* Max retries */}
               <div className="retry-setting-row" style={{ marginTop: '16px' }}>
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Max Retry Attempts</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:playback.maxRetries')}</span>
                   <span className="timeshift-toggle-sub">
-                    Maximum number of reconnection attempts before giving up and showing a permanent error.
+                    {i18n.t('settings:playback.maxRetriesSub')}
                   </span>
                 </div>
                 <div className="retry-input-wrapper">
@@ -533,7 +532,7 @@ export function PlaybackTab({
                       if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
                     }}
                   />
-                  <span className="retry-input-unit">retries</span>
+                  <span className="retry-input-unit">{i18n.t('settings:playback.retriesUnit')}</span>
                 </div>
               </div>
 
@@ -546,9 +545,9 @@ export function PlaybackTab({
             <div className="playback-section" style={{ marginTop: 0 }}>
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Enable Google Cast Support</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:playback.castSupport')}</span>
                   <span className="timeshift-toggle-sub">
-                    Allows scanning your local network for Chromecast devices. Enabling this will prompt the operating system for local network and firewall permissions.
+                    {i18n.t('settings:playback.castSupportSub')}
                   </span>
                 </div>
                 <label className="toggle-switch">
@@ -563,9 +562,9 @@ export function PlaybackTab({
 
               <div className="timeshift-toggle-row" style={{ borderBottom: 'none', marginTop: '12px' }}>
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Rewrite TS to M3U8 for Cast</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:playback.rewriteTs')}</span>
                   <span className="timeshift-toggle-sub">
-                    Automatically rewrite `.ts` stream URLs to HLS `.m3u8` when casting. Turn this on only if your IPTV provider supports HLS at the rewritten URL. Disabling this casts the raw stream as MPEG-TS (`video/mp2t`).
+                    {i18n.t('settings:playback.rewriteTsSub')}
                   </span>
                 </div>
                 <label className="toggle-switch">
@@ -586,7 +585,7 @@ export function PlaybackTab({
                     <line x1="12" y1="17" x2="12.01" y2="17" />
                   </svg>
                   <span>
-                    Google Cast discovery is active. The application will scan the local network for compatible Chromecast devices. Ensure your device is on the same Wi-Fi/local network.
+                    {i18n.t('settings:playback.castActiveWarning')}
                   </span>
                 </div>
               )}
@@ -646,21 +645,20 @@ export function PlaybackTab({
         <div className="modal-overlay" onClick={() => setShowRestartModal(false)}>
           <div className="modal-container" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">Restart Required</h3>
+              <h3 className="modal-title">{i18n.t('settings:playback.restartRequired')}</h3>
             </div>
             <div className="modal-body">
               <p className="modal-message">
-                For playback settings to take effect, the app needs to restart.
-                <br /><br />
-                Would you like to restart now?
+                {i18n.t('settings:playback.restartMessage')}<br /><br />
+                {i18n.t('settings:playback.restartQuestion')}
               </p>
             </div>
             <div className="modal-footer">
               <button className="modal-btn modal-btn-secondary" onClick={confirmSaveWithoutRestart}>
-                No, Save Only
+                {i18n.t('settings:playback.saveOnly')}
               </button>
               <button className="modal-btn modal-btn-primary" onClick={confirmSaveWithRestart}>
-                Yes, Restart Now
+                {i18n.t('settings:playback.restartNow')}
               </button>
             </div>
           </div>

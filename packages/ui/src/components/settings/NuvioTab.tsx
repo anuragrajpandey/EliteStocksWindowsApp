@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef, forwardRef, useImperativeHandle } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { useNuvioAuthStore } from '../../stores/nuvioAuthStore';
 import { useNuvioPluginStore } from '../../stores/nuvioPluginStore';
 import { useNuvioAddonStore } from '../../stores/nuvioAddonStore';
@@ -10,7 +12,6 @@ import { TraktCatalogsModal } from './TraktCatalogsModal';
 import { getEffectiveNuvioUrl, getEffectiveNuvioKey } from '../../services/nuvio-api';
 import type { InstalledAddon, BadgeSource, StreamAutoPlayMode, StreamAutoPlaySourceScope } from '../../types/stremio';
 import { parseBadgePayload, isLightColor, convertArgbToRgba } from '../../utils/streamBadges';
-import { useTranslation } from 'react-i18next';
 import { formatTime } from '../../utils/dateTime';
 
 const isAioMetadataAddon = (addon: InstalledAddon): boolean => {
@@ -195,7 +196,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
     const url = badgeUrl.trim();
     const paste = badgePaste.trim();
     if (!url && !paste) {
-      setBadgeImportError('Enter a badge JSON URL or paste the JSON content.');
+      setBadgeImportError(i18n.t('settings:nuvio.badgeUrlRequired'));
       return;
     }
 
@@ -210,7 +211,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
         sourceName = `Pasted Rule ${pastedCount}`;
       } else {
         if (!url.startsWith('http://') && !url.startsWith('https://')) {
-          setBadgeImportError('URL must start with http:// or https://');
+          setBadgeImportError(i18n.t('settings:nuvio.badgeUrlInvalid'));
           setBadgeImporting(false);
           return;
         }
@@ -237,7 +238,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       setBadgeUrl('');
       setBadgePaste('');
     } catch (err: any) {
-      setBadgeImportError(err?.message || 'Import failed');
+      setBadgeImportError(err?.message || i18n.t('settings:nuvio.importFailed'));
     } finally {
       setBadgeImporting(false);
     }
@@ -588,9 +589,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       };
       
       await authStore.updateHomeCatalogSettings(payload);
-      alert('Homepage catalog settings saved and synced successfully!');
+      alert(i18n.t('settings:nuvio.savedLayoutAlert'));
     } catch (e: any) {
-      alert(e.message || 'Failed to save homepage catalog settings');
+      alert(e.message || i18n.t('settings:nuvio.failedSaveLayoutAlert'));
       throw e;
     }
   }, [localCatalogItems, hideUnreleased, hideUnderline, landscapePosters, authStore]);
@@ -615,7 +616,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
   }), [handleSaveCatalogSettings]);
 
   const handleResetCatalogSettings = async () => {
-    if (confirm('Are you sure you want to reset homepage catalog settings to defaults?')) {
+    if (confirm(i18n.t('settings:nuvio.resetLayoutConfirm'))) {
       try {
         const payload = {
           hide_unreleased_content: false,
@@ -624,7 +625,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
           items: []
         };
         await authStore.updateHomeCatalogSettings(payload);
-        alert('Homepage catalog settings reset to defaults.');
+        alert(i18n.t('settings:nuvio.resetLayoutAlert'));
       } catch (e: any) {
         alert(e.message || 'Failed to reset settings');
       }
@@ -654,9 +655,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
         debrid_settings: updatedDebrid,
         tmdb_settings: updatedTmdb
       });
-      alert('Settings saved and synced to Nuvio cloud successfully!');
+      alert(i18n.t('settings:nuvio.savedSettingsAlert'));
     } catch (e: any) {
-      alert(e.message || 'Failed to save settings');
+      alert(e.message || i18n.t('settings:nuvio.failedSaveSettingsAlert'));
     }
   };
 
@@ -664,7 +665,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
     e.preventDefault();
     setAuthError(null);
     if (!email || !password) {
-      setAuthError('Please fill in all fields.');
+      setAuthError(i18n.t('settings:nuvio.authRequired'));
       return;
     }
     try {
@@ -676,7 +677,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       setEmail('');
       setPassword('');
     } catch (err: any) {
-      setAuthError(err.message || 'Authentication failed');
+      setAuthError(err.message || i18n.t('settings:nuvio.authFailed'));
     }
   };
 
@@ -688,7 +689,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       setNewProfileName('');
       setShowCreateProfile(false);
     } catch (err: any) {
-      alert(err.message || 'Failed to create profile');
+      alert(err.message || i18n.t('settings:nuvio.createProfileFailed'));
     }
   };
 
@@ -697,16 +698,16 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
     setAddonError(null);
     if (!addonUrl.trim()) return;
     if (!token || !profile) {
-      setAddonError('Please select an active profile first.');
+      setAddonError(i18n.t('settings:nuvio.selectProfileFirst'));
       return;
     }
     setInstallingAddon(true);
     try {
       await addonsStore.addAddon(token, profile.profile_index, addonUrl.trim());
       setAddonUrl('');
-      alert('Addon installed successfully!');
+      alert(i18n.t('settings:nuvio.addonInstalledAlert'));
     } catch (err: any) {
-      setAddonError(err.message || 'Failed to install addon');
+      setAddonError(err.message || i18n.t('settings:nuvio.installAddonFailed'));
     } finally {
       setInstallingAddon(false);
     }
@@ -717,17 +718,17 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
     try {
       await addonsStore.toggleAddon(token, profile.profile_index, addonId);
     } catch (err: any) {
-      alert(err.message || 'Failed to toggle addon');
+      alert(err.message || i18n.t('settings:nuvio.toggleAddonFailed'));
     }
   };
 
   const handleRemoveAddon = async (addonId: string) => {
     if (!token || !profile) return;
-    if (confirm('Are you sure you want to uninstall this addon?')) {
+    if (confirm(i18n.t('settings:nuvio.uninstallAddonConfirm'))) {
       try {
         await addonsStore.removeAddon(token, profile.profile_index, addonId);
       } catch (err: any) {
-        alert(err.message || 'Failed to remove addon');
+        alert(err.message || i18n.t('settings:nuvio.removeAddonFailed'));
       }
     }
   };
@@ -740,7 +741,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       await pluginStore.addRepository(repoUrl);
       setRepoUrl('');
     } catch (err: any) {
-      setRepoError(err.message || 'Failed to add repository');
+      setRepoError(err.message || i18n.t('settings:nuvio.addRepoFailed'));
     }
   };
 
@@ -750,9 +751,9 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
     <div className="settings-tab-content nuvio-settings-tab">
       {/* 1. Header & Dynamic Server Sync Info */}
       <div className="settings-section">
-        <h3 style={{ margin: '0 0 8px 0', fontSize: '1rem', fontWeight: 600 }}>Nuvio Integration</h3>
+        <h3 style={{ margin: '0 0 8px 0', fontSize: '1rem', fontWeight: 600 }}>{i18n.t('settings:nuvio.title')}</h3>
         <p style={{ margin: '0 0 16px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-          Nuvio is a media synchronization and plugin platform. Log in to sync collections, profiles, and run custom scrapers.
+          {i18n.t('settings:nuvio.description')}
         </p>
 
 
@@ -766,13 +767,13 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
             padding: '20px'
           }}>
             <h4 style={{ margin: '0 0 14px 0', fontSize: '0.9rem', fontWeight: 600 }}>
-              {isLoginMode ? 'Sign In to Nuvio' : 'Create a Nuvio Account'}
+              {isLoginMode ? i18n.t('settings:nuvio.loginTab') : i18n.t('settings:nuvio.registerTab')}
             </h4>
             <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <input
                   type="email"
-                  placeholder="Email Address"
+                  placeholder={i18n.t('settings:nuvio.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   style={{
@@ -791,7 +792,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               <div>
                 <input
                   type="password"
-                  placeholder="Password"
+                  placeholder={i18n.t('settings:nuvio.passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   style={{
@@ -828,7 +829,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                     opacity: authStore.isSyncing ? 0.7 : 1
                   }}
                 >
-                  {authStore.isSyncing ? 'Authenticating...' : isLoginMode ? 'Login' : 'Sign Up'}
+                  {authStore.isSyncing ? i18n.t('settings:nuvio.saving') : isLoginMode ? i18n.t('settings:nuvio.loginTab') : i18n.t('settings:nuvio.registerTab')}
                 </button>
                 <button
                   type="button"
@@ -842,7 +843,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                     textDecoration: 'underline'
                   }}
                 >
-                  {isLoginMode ? "Need an account? Register" : "Have an account? Login"}
+                  {isLoginMode ? i18n.t('settings:nuvio.needRegister') : i18n.t('settings:nuvio.haveAccount')}
                 </button>
               </div>
             </form>
@@ -853,7 +854,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               lineHeight: 1.5,
               textAlign: 'center'
             }}>
-              Disclaimer: ynoTV is an independent open source desktop client and is not affiliated with or endorsed by Nuvio. Your login credentials are only used to connect to Nuvio's servers directly to sync &mdash; ynoTV never stores or transmits them.
+              {i18n.t('settings:nuvio.disclaimer')}
             </p>
           </div>
         ) : (
@@ -870,11 +871,11 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
               justifyContent: 'space-between'
             }}>
               <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, var(--text-muted))', fontWeight: 700, letterSpacing: '0.05em' }}>SIGNED IN AS</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, var(--text-muted))', fontWeight: 700, letterSpacing: '0.05em' }}>{i18n.t('settings:nuvio.signedInAs')}</div>
                 <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary, var(--text-primary))' }}>{authStore.user?.email}</div>
                 {authStore.lastSyncTime && (
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-muted, var(--text-muted))', marginTop: '4px' }}>
-                    Synced: {formatTime(new Date(authStore.lastSyncTime))}
+                    {i18n.t('settings:nuvio.syncedAt', { time: formatTime(new Date(authStore.lastSyncTime)) })}
                   </div>
                 )}
               </div>
@@ -893,7 +894,7 @@ border: '1px solid var(--accent-glow)',
                     cursor: authStore.isSyncing ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  {authStore.isSyncing ? 'Syncing...' : 'Sync Now'}
+                  {authStore.isSyncing ? i18n.t('settings:nuvio.saving') : i18n.t('settings:nuvio.syncNow')}
                 </button>
                 <button
                   onClick={() => authStore.logout()}
@@ -908,7 +909,7 @@ border: '1px solid var(--accent-glow)',
                     cursor: 'pointer'
                   }}
                 >
-                  Sign Out
+                  {i18n.t('settings:nuvio.signOut')}
                 </button>
               </div>
             </div>
@@ -916,7 +917,7 @@ border: '1px solid var(--accent-glow)',
             {/* Profiles Section */}
             <div style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <h4 style={{ margin: 0, fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>Profiles ({authStore.profiles.length}/4)</h4>
+                <h4 style={{ margin: 0, fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>{i18n.t('settings:nuvio.profilesTitle', { count: authStore.profiles.length })}</h4>
                 {authStore.profiles.length < 4 && !showCreateProfile && (
                   <button
                     onClick={() => setShowCreateProfile(true)}
@@ -930,7 +931,7 @@ border: '1px solid var(--accent-glow)',
                       padding: 0
                     }}
                   >
-                    + Add Profile
+                    {i18n.t('settings:nuvio.addProfile')}
                   </button>
                 )}
               </div>
@@ -949,7 +950,7 @@ border: '1px solid var(--accent-glow)',
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <input
                       type="text"
-                      placeholder="Profile Name"
+                      placeholder={i18n.t('settings:nuvio.profileNamePlaceholder')}
                       value={newProfileName}
                       onChange={(e) => setNewProfileName(e.target.value)}
                       style={{
@@ -1008,7 +1009,7 @@ border: '1px solid var(--accent-glow)',
                         cursor: 'pointer'
                       }}
                     >
-                      Cancel
+                      {i18n.t('common:cancel')}
                     </button>
                     <button
                       type="submit"
@@ -1023,7 +1024,7 @@ border: '1px solid var(--accent-glow)',
                         cursor: 'pointer'
                       }}
                     >
-                      Create
+                      {i18n.t('common:create')}
                     </button>
                   </div>
                 </form>
@@ -1086,7 +1087,7 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
                               borderRadius: '4px',
                               fontWeight: 700
                             }}>
-                              ACTIVE
+                              {i18n.t('settings:nuvio.active')}
                             </span>
                           )}
                         </div>
@@ -1096,12 +1097,12 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
                           <button
                             onClick={() => {
                               showConfirm(
-                                'Delete Profile',
-                                `Are you sure you want to delete profile "${p.name}"? This deletes all synced data for this profile.`,
+                                i18n.t('settings:nuvio.deleteProfile'),
+                                i18n.t('settings:nuvio.deleteProfileConfirm', { name: p.name }),
                                 () => authStore.deleteProfile(p.profile_index)
                               );
                             }}
-                            title="Delete profile data"
+                            title={i18n.t('settings:nuvio.deleteProfileTooltip')}
                             style={{
                               background: 'none',
                               border: 'none',
@@ -1111,7 +1112,7 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
                               padding: '4px'
                             }}
                           >
-                            Delete
+                            {i18n.t('settings:nuvio.deleteProfile')}
                           </button>
                         )}
                       </div>
@@ -1130,16 +1131,16 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
               marginBottom: '24px'
             }}>
               <h4 style={{ margin: '0 0 14px 0', fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                Profile Cloud Settings
+                {i18n.t('settings:nuvio.cloudSettings')}
               </h4>
               <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Configure Debrid caching services and TMDB metadata enrichment synced directly with Nuvio's cloud profile.
+                {i18n.t('settings:nuvio.cloudSettingsDesc')}
               </p>
 
               {/* TMDB SECTION */}
               <div style={{ marginBottom: '24px', borderBottom: '1px solid var(--surface-border)', paddingBottom: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>TMDB Metadata Enrichment</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>{i18n.t('settings:nuvio.tmdbTitle')}</span>
                   <label className="toggle-switch" style={{ transform: 'scale(0.85)' }}>
                     <input
                       type="checkbox"
@@ -1153,11 +1154,11 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
                 {tmdbEnabled && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>TMDB API Read Access Token</label>
+                      <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>{i18n.t('settings:nuvio.tmdbTokenLabel')}</label>
                       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%' }}>
                         <input
                           type={showTmdbKey ? 'text' : 'password'}
-                          placeholder="eyJhbGciOiJIUzI1Ni..."
+                          placeholder={i18n.t('settings:nuvio.tmdbTokenPlaceholder')}
                           value={tmdbKey}
                           onChange={(e) => setTmdbKey(e.target.value)}
                           className="nuvio-input"
@@ -1166,7 +1167,7 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
                         <button
                           type="button"
                           onClick={() => setShowTmdbKey(!showTmdbKey)}
-                          title={showTmdbKey ? 'Hide key' : 'Show key'}
+                          title={showTmdbKey ? i18n.t('settings:nuvio.hideKey') : i18n.t('settings:nuvio.showKey')}
                           style={{
                             position: 'absolute',
                             right: '6px',
@@ -1201,7 +1202,7 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
                       </div>
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Metadata Language</label>
+                      <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>{i18n.t('settings:nuvio.metadataLanguage')}</label>
                       <input
                         type="text"
                         placeholder="en"
@@ -1218,7 +1219,7 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
               {/* DEBRID SECTION */}
               <div style={{ marginBottom: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>Debrid Link Resolving</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>{i18n.t('settings:nuvio.debridTitle')}</span>
                   <label className="toggle-switch" style={{ transform: 'scale(0.85)' }}>
                     <input
                       type="checkbox"
@@ -1232,7 +1233,7 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
                 {debridEnabled && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Enable Cloud Library Cache</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{i18n.t('settings:nuvio.cloudLibrary')}</span>
                       <label className="toggle-switch" style={{ transform: 'scale(0.75)' }}>
                         <input
                           type="checkbox"
@@ -1244,14 +1245,14 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
                     </div>
 
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Preferred Debrid Provider</label>
+                      <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>{i18n.t('settings:nuvio.preferredProvider')}</label>
                       <select
                         value={preferredDebrid}
                         onChange={(e) => setPreferredDebrid(e.target.value)}
                         className="nuvio-input"
                         style={{ width: '100%', padding: '9px 12px' }}
                       >
-                        <option value="">None (Disable resolving)</option>
+                        <option value="">{i18n.t('settings:nuvio.noProvider')}</option>
                         <option value="realdebrid">Real-Debrid</option>
                         <option value="premiumize">Premiumize</option>
                         <option value="torbox">Torbox</option>
@@ -1259,13 +1260,13 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '4px', background: 'var(--bg-tertiary)', padding: '12px', borderRadius: '6px', border: '1px solid var(--surface-border)' }}>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>PROVIDER API KEYS</span>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>{i18n.t('settings:nuvio.providerKeys')}</span>
                       
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Real-Debrid API Key</label>
+                        <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '4px' }}>{i18n.t('settings:nuvio.realDebridKey')}</label>
                         <input
                           type="password"
-                          placeholder="Real-Debrid Token"
+                          placeholder={i18n.t('settings:nuvio.realDebridToken')}
                           value={realDebridKey}
                           onChange={(e) => setRealDebridKey(e.target.value)}
                           className="nuvio-input"
@@ -1274,10 +1275,10 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
                       </div>
 
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Premiumize API Key</label>
+                        <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '4px' }}>{i18n.t('settings:nuvio.premiumizeKey')}</label>
                         <input
                           type="password"
-                          placeholder="Premiumize Token/PIN"
+                          placeholder={i18n.t('settings:nuvio.premiumizeToken')}
                           value={premiumizeKey}
                           onChange={(e) => setPremiumizeKey(e.target.value)}
                           className="nuvio-input"
@@ -1286,10 +1287,10 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
                       </div>
 
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Torbox API Key</label>
+                        <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '4px' }}>{i18n.t('settings:nuvio.torboxKey')}</label>
                         <input
                           type="password"
-                          placeholder="Torbox Token"
+                          placeholder={i18n.t('settings:nuvio.torboxToken')}
                           value={torboxKey}
                           onChange={(e) => setTorboxKey(e.target.value)}
                           className="nuvio-input"
@@ -1319,7 +1320,7 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
                     opacity: authStore.isSyncing ? 0.7 : 1
                   }}
                 >
-                  {authStore.isSyncing ? 'Saving to Cloud...' : 'Save Profile Settings'}
+                  {authStore.isSyncing ? i18n.t('settings:nuvio.saving') : i18n.t('settings:nuvio.saveSettings')}
                 </button>
               </div>
             </div>
@@ -1334,18 +1335,18 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
               marginBottom: '24px'
             }}>
               <h4 style={{ margin: '0 0 14px 0', fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                Homepage Layout Customization
+                {i18n.t('settings:nuvio.homeLayoutTitle')}
               </h4>
               <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Customize which catalog rows (from your collections or addons) appear on your homepage and rearrange their display order.
+                {i18n.t('settings:nuvio.homeLayoutDesc')}
               </p>
 
               {/* Toggles */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px', borderBottom: '1px solid var(--surface-border)', paddingBottom: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>Hide Unreleased Content</span>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Filter out movies/shows that haven't aired or released yet.</div>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>{i18n.t('settings:nuvio.hideUnreleased')}</span>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>{i18n.t('settings:nuvio.hideUnreleasedSub')}</div>
                   </div>
                   <label className="toggle-switch" style={{ transform: 'scale(0.85)' }}>
                     <input
@@ -1359,8 +1360,8 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>Hide Catalog Underline</span>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Hide the horizontal indicator line beneath catalog titles.</div>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>{i18n.t('settings:nuvio.hideUnderline')}</span>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>{i18n.t('settings:nuvio.hideUnderlineSub')}</div>
                   </div>
                   <label className="toggle-switch" style={{ transform: 'scale(0.85)' }}>
                     <input
@@ -1374,8 +1375,8 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>Landscape Posters</span>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Display posters in catalogs in landscape aspect ratio.</div>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>{i18n.t('settings:nuvio.landscapePosters')}</span>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>{i18n.t('settings:nuvio.landscapePostersSub')}</div>
                   </div>
                   <label className="toggle-switch" style={{ transform: 'scale(0.85)' }}>
                     <input
@@ -1390,8 +1391,8 @@ border: `1px solid ${isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`
 
               {/* Continue Watching Style */}
               <div style={{ marginBottom: '20px', borderBottom: '1px solid var(--surface-border)', paddingBottom: '16px' }}>
-                <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Continue Watching Style</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '10px' }}>Choose how continue watching items are displayed.</div>
+                <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{i18n.t('settings:nuvio.continueWatchingStyle')}</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '10px' }}>{i18n.t('settings:nuvio.continueWatchingStyleSub')}</div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   {['card', 'wide', 'poster'].map((style) => {
                     const current = localStorage.getItem('nuvio_cw_style') || 'card';
@@ -1414,7 +1415,7 @@ color: current === style ? 'var(--accent-primary)' : 'var(--text-secondary)',
                           transition: 'all 0.15s ease',
                         }}
                       >
-                        {style}
+                        {style === 'card' ? i18n.t('settings:nuvio.cwCard') : style === 'wide' ? i18n.t('settings:nuvio.cwWide') : i18n.t('settings:nuvio.cwPoster')}
                       </button>
                     );
                   })}
@@ -1423,9 +1424,9 @@ color: current === style ? 'var(--accent-primary)' : 'var(--text-secondary)',
 
               {/* Hero Catalog Sources */}
               <div style={{ marginBottom: '20px', borderBottom: '1px solid var(--surface-border)', paddingBottom: '16px' }}>
-                <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Hero Banner Sources</div>
+                <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{i18n.t('settings:nuvio.heroBannerSources')}</div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
-                  Select up to 2 catalogs to feature in the hero banner at the top of the home page. Items will be randomly picked from these catalogs.
+                  {i18n.t('settings:nuvio.heroBannerSourcesSub')}
                 </div>
                   {(() => {
                   // Normalize: handle old string[] format too
@@ -1438,7 +1439,7 @@ color: current === style ? 'var(--accent-primary)' : 'var(--text-secondary)',
                     <>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                         <span style={{ fontSize: '0.7rem', fontWeight: 700, color: selectedKeys.length >= 2 ? '#ff4f4f' : 'var(--text-muted)', letterSpacing: '0.05em' }}>
-                          {selectedKeys.length}/2 selected
+                          {i18n.t('settings:nuvio.selectedCount', { count: selectedKeys.length })}
                         </span>
                         <button
                           type="button"
@@ -1457,7 +1458,7 @@ color: current === style ? 'var(--accent-primary)' : 'var(--text-secondary)',
                             cursor: 'pointer',
                           }}
                         >
-                          Reset Selection
+                          {i18n.t('settings:nuvio.resetSelection')}
                         </button>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '200px', overflowY: 'auto', paddingRight: '4px' }}>
@@ -1513,7 +1514,7 @@ border: isSelected ? '1px solid var(--accent-glow)' : '1px solid var(--surface-b
                         })}
                         {catalogsList.length === 0 && (
                           <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', padding: '10px 0' }}>
-                            No catalogs available. Install addons first.
+                            {i18n.t('settings:nuvio.noCatalogs')}
                           </div>
                         )}
                       </div>
@@ -1526,7 +1527,7 @@ border: isSelected ? '1px solid var(--accent-glow)' : '1px solid var(--surface-b
               {localCatalogItems.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '4px', letterSpacing: '0.05em' }}>
-                    CATALOG DISPLAY ORDER & VISIBILITY
+                    {i18n.t('settings:nuvio.catalogOrder')}
                   </div>
                   <div
                     ref={catalogListRef}
@@ -1656,7 +1657,7 @@ border: isSelected ? '1px solid var(--accent-glow)' : '1px solid var(--surface-b
                 </div>
               ) : (
                 <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem', border: '1px dashed var(--surface-border)', borderRadius: '6px' }}>
-                  No collections or catalogs available. Install addons or create collections first.
+                  {i18n.t('settings:nuvio.noCatalogItems')}
                 </div>
               )}
 
@@ -1676,7 +1677,7 @@ border: isSelected ? '1px solid var(--accent-glow)' : '1px solid var(--surface-b
                     cursor: 'pointer'
                   }}
                 >
-                  Reset Layout Defaults
+                  {i18n.t('settings:nuvio.resetLayout')}
                 </button>
                 <button
                   type="button"
@@ -1694,20 +1695,20 @@ border: isSelected ? '1px solid var(--accent-glow)' : '1px solid var(--surface-b
                     opacity: authStore.isSyncing ? 0.7 : 1
                   }}
                 >
-                  {authStore.isSyncing ? 'Saving Layout...' : 'Save Homepage Layout'}
+                  {authStore.isSyncing ? i18n.t('settings:nuvio.savingLayout') : i18n.t('settings:nuvio.saveLayout')}
                 </button>
               </div>
             </div>
 
             {/* Addons Section */}
             <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '20px', marginTop: '20px' }}>
-              <h4 style={{ margin: '0 0 12px 0', fontSize: '0.9rem', fontWeight: 600 }}>Nuvio Addons</h4>
+              <h4 style={{ margin: '0 0 12px 0', fontSize: '0.9rem', fontWeight: 600 }}>{i18n.t('settings:nuvio.addonsTitle')}</h4>
               
               {/* Install Addon form */}
               <form onSubmit={handleAddAddon} style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                 <input
                   type="text"
-                  placeholder="Install Addon Manifest URL (e.g. https://.../manifest.json)"
+                  placeholder={i18n.t('settings:nuvio.addonUrlPlaceholder')}
                   value={addonUrl}
                   onChange={(e) => setAddonUrl(e.target.value)}
                   style={{
@@ -1735,7 +1736,7 @@ border: '1px solid var(--accent-glow)',
                     cursor: installingAddon ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  {installingAddon ? 'Installing...' : 'Install'}
+                  {installingAddon ? i18n.t('common:installing') : i18n.t('common:install')}
                 </button>
               </form>
               {addonError && <div style={{ color: '#ff4f4f', fontSize: '0.75rem', marginBottom: '14px' }}>{addonError}</div>}
@@ -1745,7 +1746,7 @@ border: '1px solid var(--accent-glow)',
               {addonsStore.addons.length > 0 ? (
                 <div>
                   <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.05em' }}>
-                    INSTALLED ADDONS
+                    {i18n.t('settings:nuvio.installedAddons')}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {addonsStore.addons.map((addon) => (
@@ -1787,7 +1788,7 @@ border: '1px solid var(--accent-glow)',
                               cursor: 'pointer'
                             }}
                           >
-                            {addon.enabled === false ? 'Enable' : 'Disable'}
+                            {addon.enabled === false ? i18n.t('common:enable') : i18n.t('common:disable')}
                           </button>
                           <button
                             onClick={() => handleRemoveAddon(addon.id)}
@@ -1801,7 +1802,7 @@ border: '1px solid var(--accent-glow)',
                               cursor: 'pointer'
                             }}
                           >
-                            Uninstall
+                            {i18n.t('settings:nuvio.uninstall')}
                           </button>
                         </div>
                       </div>
@@ -1817,21 +1818,21 @@ border: '1px solid var(--accent-glow)',
                   border: '1px dashed var(--surface-border)',
                   borderRadius: '8px'
                 }}>
-                  No addons installed yet.
+                  {i18n.t('settings:nuvio.noAddons')}
                 </div>
               )}
             </div>
 
             {/* Plugin Scrapers Section */}
             <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '20px', marginTop: '20px' }}>
-              <h4 style={{ margin: '0 0 12px 0', fontSize: '0.9rem', fontWeight: 600 }}>Nuvio Scrapers / Plugins</h4>
+              <h4 style={{ margin: '0 0 12px 0', fontSize: '0.9rem', fontWeight: 600 }}>{i18n.t('settings:nuvio.pluginsTitle')}</h4>
               
               {/* Toggles */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
                 <div className="retry-setting-row" style={{ borderBottom: 'none', padding: 0 }}>
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label" style={{ fontSize: '0.85rem' }}>Enable Plugin Scrapers</span>
-                    <span className="timeshift-toggle-sub" style={{ fontSize: '0.75rem' }}>Use installed Nuvio scrapers when looking for media streams.</span>
+                    <span className="timeshift-toggle-label" style={{ fontSize: '0.85rem' }}>{i18n.t('settings:nuvio.enablePlugins')}</span>
+                    <span className="timeshift-toggle-sub" style={{ fontSize: '0.75rem' }}>{i18n.t('settings:nuvio.enablePluginsSub')}</span>
                   </div>
                   <label className="toggle-switch">
                     <input
@@ -1845,8 +1846,8 @@ border: '1px solid var(--accent-glow)',
 
                 <div className="retry-setting-row" style={{ borderBottom: 'none', padding: 0 }}>
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label" style={{ fontSize: '0.85rem' }}>Group Streams by Repository</span>
-                    <span className="timeshift-toggle-sub" style={{ fontSize: '0.75rem' }}>Group streams by their originating plugin scraper repo in the stream picker.</span>
+                    <span className="timeshift-toggle-label" style={{ fontSize: '0.85rem' }}>{i18n.t('settings:nuvio.groupByRepo')}</span>
+                    <span className="timeshift-toggle-sub" style={{ fontSize: '0.75rem' }}>{i18n.t('settings:nuvio.groupByRepoSub')}</span>
                   </div>
                   <label className="toggle-switch">
                     <input
@@ -1863,7 +1864,7 @@ border: '1px solid var(--accent-glow)',
               <form onSubmit={handleAddRepository} style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                 <input
                   type="text"
-                  placeholder="Install Plugin Manifest URL (e.g. https://.../manifest.json)"
+                  placeholder={i18n.t('settings:nuvio.pluginUrlPlaceholder')}
                   value={repoUrl}
                   onChange={(e) => setRepoUrl(e.target.value)}
                   style={{
@@ -1891,7 +1892,7 @@ border: '1px solid var(--accent-glow)',
                     cursor: pluginStore.isLoading ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  Install
+                  {i18n.t('common:install')}
                 </button>
               </form>
               {repoError && <div style={{ color: '#ff4f4f', fontSize: '0.75rem', marginBottom: '14px' }}>{repoError}</div>}
@@ -1901,7 +1902,7 @@ border: '1px solid var(--accent-glow)',
               {pluginStore.repositories.length > 0 ? (
                 <div>
                   <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.05em' }}>
-                    INSTALLED REPOSITORIES
+                    {i18n.t('settings:nuvio.installedRepos')}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {pluginStore.repositories.map((repo) => {
@@ -1944,7 +1945,7 @@ border: '1px solid var(--accent-glow)',
                                   cursor: repo.isRefreshing ? 'not-allowed' : 'pointer'
                                 }}
                               >
-                                {repo.isRefreshing ? 'Refreshing...' : 'Refresh'}
+                                {repo.isRefreshing ? i18n.t('common:refreshing') : i18n.t('common:refresh')}
                               </button>
                               <button
                                 onClick={() => pluginStore.removeRepository(repo.manifestUrl)}
@@ -1958,14 +1959,14 @@ border: '1px solid var(--accent-glow)',
                                   cursor: 'pointer'
                                 }}
                               >
-                                Remove
+                                {i18n.t('common:remove')}
                               </button>
                             </div>
                           </div>
 
                           {repo.errorMessage && (
                             <div style={{ color: '#ff4f4f', fontSize: '0.7rem', marginTop: '6px' }}>
-                              Error: {repo.errorMessage}
+                              {i18n.t('settings:nuvio.errorPrefix')}{repo.errorMessage}
                             </div>
                           )}
 
@@ -1973,7 +1974,7 @@ border: '1px solid var(--accent-glow)',
                           {repoScrapers.length > 0 && (
                             <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid var(--surface-border)' }}>
                               <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '6px' }}>
-                                SCRAPERS
+                                {i18n.t('settings:nuvio.scrapers')}
                               </div>
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                 {repoScrapers.map((scraper) => (
@@ -2030,7 +2031,7 @@ border: '1px solid var(--accent-glow)',
                   border: '1px dashed var(--surface-border)',
                   borderRadius: '8px'
                 }}>
-                  No plugin repositories installed yet.
+                  {i18n.t('settings:nuvio.noRepos')}
                 </div>
               )}
             </div>
@@ -2041,8 +2042,8 @@ border: '1px solid var(--accent-glow)',
       {/* Hover Details toggle for Nuvio */}
       <div className="retry-setting-row" style={{ borderBottom: 'none', paddingLeft: '20px', paddingRight: '20px', marginTop: '24px' }}>
         <div className="timeshift-toggle-info">
-          <span className="timeshift-toggle-label">Hover Details</span>
-          <span className="timeshift-toggle-sub">Show hover cards with details when hovering over items in Nuvio catalogs.</span>
+          <span className="timeshift-toggle-label">{i18n.t('settings:strem.hoverDetails')}</span>
+          <span className="timeshift-toggle-sub">{i18n.t('settings:nuvio.hoverDetailsSub')}</span>
         </div>
         <label className="toggle-switch">
           <input
@@ -2057,17 +2058,17 @@ border: '1px solid var(--accent-glow)',
       {/* Trakt Integration Section for Nuvio */}
       <div className="settings-section" style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '24px', marginTop: '24px' }}>
         <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-          Trakt Integration (Nuvio)
+          {i18n.t('settings:nuvio.traktTitle')}
         </h3>
         <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-          Check your Trakt connection status and configure Trakt catalogs for Nuvio.
+          {i18n.t('settings:nuvio.traktDesc')}
         </p>
 
         <div className="retry-setting-row" style={{ borderBottom: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div className="timeshift-toggle-info">
-            <span className="timeshift-toggle-label">Connection Status</span>
+            <span className="timeshift-toggle-label">{i18n.t('settings:nuvio.connectionStatus')}</span>
             <span className="timeshift-toggle-sub">
-              {traktConnected ? '✓ Connected to Trakt' : 'Not connected to Trakt'}
+              {traktConnected ? i18n.t('settings:nuvio.connectedToTrakt') : i18n.t('settings:nuvio.notConnectedToTrakt')}
             </span>
           </div>
           {!traktConnected ? (
@@ -2076,19 +2077,19 @@ border: '1px solid var(--accent-glow)',
               className="sync-btn"
               style={{ padding: '6px 12px', fontSize: '0.8rem' }}
             >
-              Connect Trakt Account
+              {i18n.t('settings:scrobbling.connectBtn')}
             </button>
           ) : (
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <span style={{ fontSize: '0.75rem', color: '#2ed573', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '4px 8px', borderRadius: '4px', background: 'rgba(46,213,115,0.1)' }}>
-                Connected
+                {i18n.t('settings:scrobbling.connected')}
               </span>
               <button
                 onClick={() => setShowTraktModal(true)}
                 className="sync-btn"
                 style={{ padding: '6px 12px', fontSize: '0.8rem' }}
               >
-                Add Trakt Catalogs
+                {i18n.t('settings:nuvio.addTraktCatalogs')}
               </button>
             </div>
           )}
@@ -2098,16 +2099,16 @@ border: '1px solid var(--accent-glow)',
       {/* Stream Auto-Play Settings for Nuvio */}
       <div className="settings-section" style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '24px', marginTop: '24px' }}>
         <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-          Stream Auto-Play (Nuvio)
+          {i18n.t('settings:nuvio.autoplayTitle')}
         </h3>
         <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-          Automatically select and play a stream when Nuvio detail page opens, or when a new episode is selected.
+          {i18n.t('settings:nuvio.autoplayDesc')}
         </p>
 
         <div className="retry-setting-row" style={{ borderBottom: 'none', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div className="timeshift-toggle-info">
-            <span className="timeshift-toggle-label">Auto Stream Selection</span>
-            <span className="timeshift-toggle-sub">How to pick a stream when auto-playing.</span>
+            <span className="timeshift-toggle-label">{i18n.t('settings:nuvio.autoStreamSelection')}</span>
+            <span className="timeshift-toggle-sub">{i18n.t('settings:nuvio.autoStreamSelectionSub')}</span>
           </div>
           <select
             value={nuvioAutoPlayMode}
@@ -2123,9 +2124,9 @@ border: '1px solid var(--accent-glow)',
               cursor: 'pointer',
             }}
           >
-            <option value="manual" style={{ background: '#1a1a1a' }}>Manual (Off)</option>
-            <option value="first-stream" style={{ background: '#1a1a1a' }}>First Stream</option>
-            <option value="regex-match" style={{ background: '#1a1a1a' }}>Regex Match</option>
+            <option value="manual" style={{ background: '#1a1a1a' }}>{i18n.t('settings:nuvio.manualOff')}</option>
+            <option value="first-stream" style={{ background: '#1a1a1a' }}>{i18n.t('settings:nuvio.firstStream')}</option>
+            <option value="regex-match" style={{ background: '#1a1a1a' }}>{i18n.t('settings:nuvio.regexMatch')}</option>
           </select>
         </div>
 
@@ -2133,8 +2134,8 @@ border: '1px solid var(--accent-glow)',
           <>
             <div className="retry-setting-row" style={{ borderBottom: 'none', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div className="timeshift-toggle-info">
-                <span className="timeshift-toggle-label">Selection Timeout ({nuvioAutoPlayTimeout}s)</span>
-                <span className="timeshift-toggle-sub">Wait N seconds before auto-selecting a stream. 0 = instant.</span>
+                <span className="timeshift-toggle-label">{i18n.t('settings:nuvio.selectionTimeout', { seconds: nuvioAutoPlayTimeout })}</span>
+                <span className="timeshift-toggle-sub">{i18n.t('settings:nuvio.selectionTimeoutSub')}</span>
               </div>
               <input
                 type="range"
@@ -2152,8 +2153,8 @@ border: '1px solid var(--accent-glow)',
 
             <div className="retry-setting-row" style={{ borderBottom: 'none', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div className="timeshift-toggle-info">
-                <span className="timeshift-toggle-label">Source Scope</span>
-                <span className="timeshift-toggle-sub">Which sources to consider for auto-play.</span>
+                <span className="timeshift-toggle-label">{i18n.t('settings:nuvio.sourceScope')}</span>
+                <span className="timeshift-toggle-sub">{i18n.t('settings:nuvio.sourceScopeSub')}</span>
               </div>
               <select
                 value={nuvioAutoPlaySourceScope}
@@ -2169,21 +2170,21 @@ border: '1px solid var(--accent-glow)',
                   cursor: 'pointer',
                 }}
               >
-                <option value="all" style={{ background: '#1a1a1a' }}>All Sources</option>
-                <option value="installed-addons" style={{ background: '#1a1a1a' }}>Installed Addons Only</option>
-                <option value="enabled-plugins" style={{ background: '#1a1a1a' }}>Enabled Plugins Only</option>
+                <option value="all" style={{ background: '#1a1a1a' }}>{i18n.t('settings:nuvio.allSources')}</option>
+                <option value="installed-addons" style={{ background: '#1a1a1a' }}>{i18n.t('settings:nuvio.installedAddonsOnly')}</option>
+                <option value="enabled-plugins" style={{ background: '#1a1a1a' }}>{i18n.t('settings:nuvio.enabledPluginsOnly')}</option>
               </select>
             </div>
 
             {nuvioAutoPlayMode === 'regex-match' && (
               <div className="retry-setting-row" style={{ borderBottom: 'none', marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-start' }}>
                 <div className="timeshift-toggle-info" style={{ width: '100%' }}>
-                  <span className="timeshift-toggle-label">Regex Pattern</span>
-                  <span className="timeshift-toggle-sub">Match stream title/description/URL against this regex (e.g. (?=.*1080p)(?!.*cam)).</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:nuvio.regexPattern')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:nuvio.regexPatternSub')}</span>
                 </div>
                 <input
                   type="text"
-                  placeholder="Regex pattern (e.g. 1080p|720p)"
+                  placeholder={i18n.t('settings:nuvio.regexPlaceholder')}
                   value={nuvioAutoPlayRegex}
                   onChange={(e) => onNuvioAutoPlayRegexChange(e.target.value)}
                   style={{
@@ -2204,8 +2205,8 @@ border: '1px solid var(--accent-glow)',
 
             <div className="retry-setting-row" style={{ borderBottom: 'none', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div className="timeshift-toggle-info">
-                <span className="timeshift-toggle-label">Allowed Addons ({nuvioAutoPlayAllowedAddons.length === 0 ? 'All' : nuvioAutoPlayAllowedAddons.length})</span>
-                <span className="timeshift-toggle-sub">Select which addons are allowed to auto-play.</span>
+                <span className="timeshift-toggle-label">{i18n.t(nuvioAutoPlayAllowedAddons.length === 0 ? 'settings:nuvio.allowedAddonsAll' : 'settings:nuvio.allowedAddonsCount', { count: nuvioAutoPlayAllowedAddons.length })}</span>
+                <span className="timeshift-toggle-sub">{i18n.t('settings:nuvio.allowedAddonsSub')}</span>
               </div>
               <button
                 onClick={() => setShowAddonDialog(true)}
@@ -2220,14 +2221,14 @@ border: '1px solid var(--accent-glow)',
                   outline: 'none'
                 }}
               >
-                Configure
+                {i18n.t('common:configure')}
               </button>
             </div>
 
             <div className="retry-setting-row" style={{ borderBottom: 'none', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div className="timeshift-toggle-info">
-                <span className="timeshift-toggle-label">Allowed Plugins ({nuvioAutoPlayAllowedPlugins.length === 0 ? 'All' : nuvioAutoPlayAllowedPlugins.length})</span>
-                <span className="timeshift-toggle-sub">Select which scraper plugins are allowed to auto-play.</span>
+                <span className="timeshift-toggle-label">{i18n.t(nuvioAutoPlayAllowedPlugins.length === 0 ? 'settings:nuvio.allowedPluginsAll' : 'settings:nuvio.allowedPluginsCount', { count: nuvioAutoPlayAllowedPlugins.length })}</span>
+                <span className="timeshift-toggle-sub">{i18n.t('settings:nuvio.allowedPluginsSub')}</span>
               </div>
               <button
                 onClick={() => setShowPluginDialog(true)}
@@ -2242,7 +2243,7 @@ border: '1px solid var(--accent-glow)',
                   outline: 'none'
                 }}
               >
-                Configure
+                {i18n.t('common:configure')}
               </button>
             </div>
           </>
@@ -2252,16 +2253,16 @@ border: '1px solid var(--accent-glow)',
       {/* Cache Fetch Results section for Nuvio */}
       <div className="settings-section" style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '24px', marginTop: '24px' }}>
         <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-          Cache Fetch Results (Nuvio)
+          {i18n.t('settings:nuvio.cacheTitle')}
         </h3>
         <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-          Cache addon and plugin fetch results. When returning to the same detail page within the set time, previously fetched streams will load instantly.
+          {i18n.t('settings:nuvio.cacheDesc')}
         </p>
 
         <div className="retry-setting-row" style={{ borderBottom: 'none' }}>
           <div className="timeshift-toggle-info">
-            <span className="timeshift-toggle-label">Cache Fetch Results</span>
-            <span className="timeshift-toggle-sub">Enable caching of stream query results.</span>
+            <span className="timeshift-toggle-label">{i18n.t('settings:nuvio.cacheResults')}</span>
+            <span className="timeshift-toggle-sub">{i18n.t('settings:nuvio.cacheResultsSub')}</span>
           </div>
           <label className="toggle-switch">
             <input
@@ -2276,8 +2277,8 @@ border: '1px solid var(--accent-glow)',
         {nuvioCacheFetchResults && (
           <div className="retry-setting-row" style={{ borderBottom: 'none', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Cache Expiration ({nuvioCacheFetchTimeout}m)</span>
-              <span className="timeshift-toggle-sub">How long (in minutes) cache results remain valid (max 30 minutes).</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:strem.cacheExpiration', { minutes: nuvioCacheFetchTimeout })}</span>
+              <span className="timeshift-toggle-sub">{i18n.t('settings:strem.cacheExpirationSub')}</span>
             </div>
             <input
               type="range"
@@ -2298,16 +2299,16 @@ border: '1px solid var(--accent-glow)',
       {/* Stream Badges section for Nuvio */}
       <div className="settings-section" style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '24px', marginTop: '24px' }}>
         <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-          Stream Badges (Nuvio)
+          {i18n.t('settings:nuvio.badgesTitle')}
         </h3>
         <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-          Show quality, codec, HDR, and audio badges on Nuvio stream links, or import custom rules.
+          {i18n.t('settings:nuvio.badgesDesc')}
         </p>
 
         <div className="retry-setting-row" style={{ borderBottom: 'none' }}>
           <div className="timeshift-toggle-info">
-            <span className="timeshift-toggle-label">Enable Badges</span>
-            <span className="timeshift-toggle-sub">Toggle stream badges on or off for Nuvio streams.</span>
+            <span className="timeshift-toggle-label">{i18n.t('settings:nuvio.enableBadges')}</span>
+            <span className="timeshift-toggle-sub">{i18n.t('settings:nuvio.enableBadgesSub')}</span>
           </div>
           <label className="toggle-switch">
             <input
@@ -2323,8 +2324,8 @@ border: '1px solid var(--accent-glow)',
           <>
             <div className="retry-setting-row" style={{ borderBottom: 'none', marginTop: '12px' }}>
               <div className="timeshift-toggle-info">
-                <span className="timeshift-toggle-label">Show File Size Badges</span>
-                <span className="timeshift-toggle-sub">Display the video file size badge if available.</span>
+                <span className="timeshift-toggle-label">{i18n.t('settings:nuvio.showFileSize')}</span>
+                <span className="timeshift-toggle-sub">{i18n.t('settings:nuvio.showFileSizeSub')}</span>
               </div>
               <label className="toggle-switch">
                 <input
@@ -2338,8 +2339,8 @@ border: '1px solid var(--accent-glow)',
 
             <div className="retry-setting-row" style={{ borderBottom: 'none', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div className="timeshift-toggle-info">
-                <span className="timeshift-toggle-label">Badge Position</span>
-                <span className="timeshift-toggle-sub">Render badges above or below the Nuvio stream title.</span>
+                <span className="timeshift-toggle-label">{i18n.t('settings:nuvio.badgePosition')}</span>
+                <span className="timeshift-toggle-sub">{i18n.t('settings:nuvio.badgePositionSub')}</span>
               </div>
               <select
                 value={nuvioStreamBadgePlacement}
@@ -2355,14 +2356,14 @@ border: '1px solid var(--accent-glow)',
                   cursor: 'pointer',
                 }}
               >
-                <option value="bottom" style={{ background: '#1a1a1a' }}>Bottom (Below Title)</option>
-                <option value="top" style={{ background: '#1a1a1a' }}>Top (Above Title)</option>
+                <option value="bottom" style={{ background: '#1a1a1a' }}>{i18n.t('settings:nuvio.bottom')}</option>
+                <option value="top" style={{ background: '#1a1a1a' }}>{i18n.t('settings:nuvio.top')}</option>
               </select>
             </div>
 
             <div className="retry-setting-row" style={{ borderBottom: 'none', flexDirection: 'column', alignItems: 'stretch', gap: '10px', marginTop: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                <span className="timeshift-toggle-label" style={{ fontSize: '0.85rem' }}>Badge Scale ({nuvioBadgeSize}%)</span>
+                <span className="timeshift-toggle-label" style={{ fontSize: '0.85rem' }}>{i18n.t('settings:nuvio.badgeScale', { percent: nuvioBadgeSize })}</span>
               </div>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', width: '100%', boxSizing: 'border-box' }}>
                 <input
@@ -2385,7 +2386,7 @@ border: '1px solid var(--accent-glow)',
               </div>
               <div style={{ padding: '12px 16px', background: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--surface-border)', width: '100%', boxSizing: 'border-box' }}>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.05em' }}>
-                  LIVE PREVIEW (NUVIO BADGES)
+                  {i18n.t('settings:nuvio.livePreview')}
                 </div>
                 <div className="stremio-detail-stream-badges" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', '--stremio-badge-scale': String(nuvioBadgeSize / 100) } as React.CSSProperties}>
                   <span className="stremio-stream-badge-img" style={{ backgroundColor: '#ffffff', borderColor: '#ffffff' }}>
@@ -2409,12 +2410,12 @@ border: '1px solid var(--accent-glow)',
         {/* Fusion Badge Rules Importer */}
         <div style={{ marginTop: '20px', borderTop: '1px solid var(--surface-border)', paddingTop: '16px' }}>
           <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
-            Fusion Badges / Custom Rules
+            {i18n.t('settings:nuvio.fusionTitle')}
           </div>
 
           <input
             type="text"
-            placeholder="Fusion Badge JSON URL (e.g. https://pastebin.com/raw/...)"
+            placeholder={i18n.t('settings:nuvio.fusionUrlPlaceholder')}
             value={badgeUrl}
             onChange={(e) => setBadgeUrl(e.target.value)}
             style={{
@@ -2432,7 +2433,7 @@ border: '1px solid var(--accent-glow)',
           />
 
           <textarea
-            placeholder="Or paste badge JSON directly..."
+            placeholder={i18n.t('settings:nuvio.fusionPastePlaceholder')}
             value={badgePaste}
             onChange={(e) => setBadgePaste(e.target.value)}
             rows={3}
@@ -2468,7 +2469,7 @@ color: 'var(--accent-primary)',
                 opacity: badgeImporting ? 0.6 : 1,
               }}
             >
-              {badgeImporting ? 'Importing...' : 'Import'}
+              {badgeImporting ? i18n.t('common:importing') : i18n.t('common:import')}
             </button>
             {badgeImportError && (
               <span style={{ fontSize: '0.75rem', color: '#ef4444' }}>{badgeImportError}</span>
@@ -2479,7 +2480,7 @@ color: 'var(--accent-primary)',
           {nuvioBadgeSources.length > 0 && (
             <div>
               <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.05em' }}>
-                IMPORTED SOURCES
+                {i18n.t('settings:nuvio.importedSources')}
               </div>
               {nuvioBadgeSources.map((source) => {
                 const isExpanded = expandedSourceUrl === source.url;
@@ -2530,13 +2531,13 @@ color: 'var(--accent-primary)',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                         }}>
-                          {source.payload.filters.length} filters · {source.payload.groups.length} groups
+                          {i18n.t('settings:nuvio.filtersGroups', { filters: source.payload.filters.length, groups: source.payload.groups.length })}
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: '6px', marginLeft: '8px' }}>
                         <button
                           onClick={() => handleToggleSource(source.url)}
-                          title={source.isActive ? 'Active' : 'Click to activate'}
+                          title={source.isActive ? i18n.t('common:active') : i18n.t('settings:nuvio.clickToActivate')}
                           style={{
                             background: source.isActive ? 'var(--surface-glow)' : 'var(--surface-color)',
                             border: `1px solid ${source.isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`,
@@ -2548,12 +2549,12 @@ color: 'var(--accent-primary)',
                             cursor: 'pointer',
                           }}
                         >
-                          {source.isActive ? 'Active' : 'Inactive'}
+                          {source.isActive ? i18n.t('common:active') : i18n.t('common:inactive')}
                         </button>
                         {!source.isDefault && (
                           <button
                             onClick={() => handleDeleteSource(source.url)}
-                            title="Remove"
+                            title={i18n.t('common:remove')}
                             style={{
                               background: 'rgba(239,68,68,0.1)',
                               border: '1px solid rgba(239,68,68,0.2)',
@@ -2565,7 +2566,7 @@ color: 'var(--accent-primary)',
                               cursor: 'pointer',
                             }}
                           >
-                            Delete
+                            {i18n.t('common:delete')}
                           </button>
                         )}
                       </div>
@@ -2580,7 +2581,7 @@ color: 'var(--accent-primary)',
                         boxSizing: 'border-box'
                       }}>
                         <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.03em' }}>
-                          PREVIEW BADGES ({source.payload.filters.length}):
+                          {i18n.t('settings:nuvio.previewBadges', { count: source.payload.filters.length })}
                         </div>
                         <div className="stremio-detail-stream-badges" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', '--stremio-badge-scale': 'var(--nuvio-badge-scale, 1)' } as React.CSSProperties}>
                           {source.payload.filters.map((filter, fIdx) => {
@@ -2636,7 +2637,7 @@ color: 'var(--accent-primary)',
         <div className="nuvio-pin-modal-overlay" style={{ zIndex: 3000 }} onClick={() => setShowAddonDialog(false)}>
           <div className="nuvio-pin-modal-card" style={{ width: '400px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '10px' }}>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>Allowed Addons</h3>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>{i18n.t('settings:nuvio.allowedAddonsTitle')}</h3>
               <button
                 onClick={() => setShowAddonDialog(false)}
                 style={{
@@ -2653,7 +2654,7 @@ color: 'var(--accent-primary)',
             </div>
             
             <p style={{ margin: '0 0 16px 0', fontSize: '0.8rem', color: 'var(--text-muted)', width: '100%' }}>
-              Select which Stremio addons are allowed to be auto-played. If none are selected, all addons are allowed.
+              {i18n.t('settings:nuvio.allowedAddonsModalDesc')}
             </p>
 
             <div style={{
@@ -2670,7 +2671,7 @@ color: 'var(--accent-primary)',
               {(() => {
                 const uniqueAddonNames = Array.from(new Set((addonsStore.enabledAddons || []).map(a => a.manifest?.name || a.id).filter(Boolean)));
                 if (uniqueAddonNames.length === 0) {
-                  return <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '40px 0' }}>No active addons found.</div>;
+                  return <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '40px 0' }}>{i18n.t('settings:nuvio.noActiveAddons')}</div>;
                 }
                 return uniqueAddonNames.map(name => {
                   const isChecked = nuvioAutoPlayAllowedAddons.includes(name);
@@ -2717,13 +2718,13 @@ border: `1px solid ${isChecked ? 'var(--accent-glow)' : 'var(--surface-border)'}
                 className="nuvio-pin-btn nuvio-pin-btn-cancel"
                 onClick={() => onNuvioAutoPlayAllowedAddonsChange([])}
               >
-                Clear All
+                {i18n.t('common:clearAll')}
               </button>
               <button
                 className="nuvio-pin-btn nuvio-pin-btn-submit"
                 onClick={() => setShowAddonDialog(false)}
               >
-                Done
+                {i18n.t('common:done')}
               </button>
             </div>
           </div>
@@ -2734,7 +2735,7 @@ border: `1px solid ${isChecked ? 'var(--accent-glow)' : 'var(--surface-border)'}
         <div className="nuvio-pin-modal-overlay" style={{ zIndex: 3000 }} onClick={() => setShowPluginDialog(false)}>
           <div className="nuvio-pin-modal-card" style={{ width: '400px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '10px' }}>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>Allowed Plugins</h3>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>{i18n.t('settings:nuvio.allowedPluginsTitle')}</h3>
               <button
                 onClick={() => setShowPluginDialog(false)}
                 style={{
@@ -2751,7 +2752,7 @@ border: `1px solid ${isChecked ? 'var(--accent-glow)' : 'var(--surface-border)'}
             </div>
             
             <p style={{ margin: '0 0 16px 0', fontSize: '0.8rem', color: 'var(--text-muted)', width: '100%' }}>
-              Select which scraper plugins are allowed to be auto-played. If none are selected, all plugins are allowed.
+              {i18n.t('settings:nuvio.allowedPluginsModalDesc')}
             </p>
 
             <div style={{
@@ -2768,7 +2769,7 @@ border: `1px solid ${isChecked ? 'var(--accent-glow)' : 'var(--surface-border)'}
               {(() => {
                 const uniquePluginNames = Array.from(new Set((pluginStore.scrapers || []).filter(s => s.enabled).map(s => s.name).filter(Boolean)));
                 if (uniquePluginNames.length === 0) {
-                  return <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '40px 0' }}>No active plugin scrapers found.</div>;
+                  return <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '40px 0' }}>{i18n.t('settings:nuvio.noActivePlugins')}</div>;
                 }
                 return uniquePluginNames.map(name => {
                   const isChecked = nuvioAutoPlayAllowedPlugins.includes(name);
@@ -2815,13 +2816,13 @@ border: `1px solid ${isChecked ? 'var(--accent-glow)' : 'var(--surface-border)'}
                 className="nuvio-pin-btn nuvio-pin-btn-cancel"
                 onClick={() => onNuvioAutoPlayAllowedPluginsChange([])}
               >
-                Clear All
+                {i18n.t('common:clearAll')}
               </button>
               <button
                 className="nuvio-pin-btn nuvio-pin-btn-submit"
                 onClick={() => setShowPluginDialog(false)}
               >
-                Done
+                {i18n.t('common:done')}
               </button>
             </div>
           </div>

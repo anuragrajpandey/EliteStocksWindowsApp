@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 interface DebugTabProps {
   debugLoggingEnabled: boolean;
@@ -13,14 +15,12 @@ export function DebugTab({
   logRetentionDays,
   onLogRetentionChange,
 }: DebugTabProps) {
+  useTranslation();
   const [logPath, setLogPath] = useState<string>('');
 
   useEffect(() => {
     // Get log file path on mount
     if (window.debug) {
-      console.log('[DebugTab] window.debug type:', typeof window.debug);
-      console.log('[DebugTab] window.debug keys:', Object.keys(window.debug));
-      console.log('[DebugTab] window.debug.getLogPath:', window.debug.getLogPath);
       window.debug.getLogPath().then((result) => {
         if (result.data) {
           setLogPath(result.data);
@@ -49,13 +49,11 @@ export function DebugTab({
     <div className="settings-tab-content">
       <div className="settings-section">
         <div className="section-header">
-          <h3>Debug Logging</h3>
+          <h3>{i18n.t('settings:debug.title')}</h3>
         </div>
 
         <p className="section-description">
-          Enable verbose logging to help diagnose issues with video playback,
-          network requests, and application errors. Logs are written to a file
-          that you can share when reporting bugs.
+          {i18n.t('settings:debug.description')}
         </p>
 
         <div className="tmdb-form" style={{ marginTop: '1rem' }}>
@@ -65,17 +63,16 @@ export function DebugTab({
               checked={debugLoggingEnabled}
               onChange={(e) => handleDebugLoggingChange(e.target.checked)}
             />
-            <span className="genre-name">Enable debug logging</span>
+            <span className="genre-name">{i18n.t('settings:debug.enableLogging')}</span>
           </label>
           <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-            When enabled, detailed logs from mpv, the renderer, and main process
-            are written to a file. This may slightly impact performance.
+            {i18n.t('settings:debug.enableLoggingHint')}
           </p>
         </div>
 
         <div className="tmdb-form" style={{ marginTop: '1.5rem', maxWidth: '320px' }}>
           <label className="settings-label" style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
-            Log Retention Settings
+            {i18n.t('settings:debug.retentionLabel')}
           </label>
           <select
             value={logRetentionDays}
@@ -90,21 +87,21 @@ export function DebugTab({
               fontSize: '0.85rem'
             }}
           >
-            <option value={1}>1 Day</option>
-            <option value={3}>3 Days</option>
-            <option value={5}>5 Days</option>
-            <option value={7}>7 Days (Default)</option>
-            <option value={0}>Keep indefinitely</option>
+            <option value={1}>{i18n.t('settings:debug.retentionOptions.1day')}</option>
+            <option value={3}>{i18n.t('settings:debug.retentionOptions.3days')}</option>
+            <option value={5}>{i18n.t('settings:debug.retentionOptions.5days')}</option>
+            <option value={7}>{i18n.t('settings:debug.retentionOptions.7days')}</option>
+            <option value={0}>{i18n.t('settings:debug.retentionOptions.indefinite')}</option>
           </select>
           <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-            Older logs are automatically removed when the app starts.
+            {i18n.t('settings:debug.retentionHint')}
           </p>
         </div>
 
         {logPath && (
           <div style={{ marginTop: '1.5rem' }}>
             <h4 style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-              Log File Location
+              {i18n.t('settings:debug.logFileLocation')}
             </h4>
             <div style={{
               display: 'flex',
@@ -127,7 +124,7 @@ export function DebugTab({
                   whiteSpace: 'nowrap'
                 }}
               >
-                Open Folder
+                {i18n.t('settings:debug.openFolder')}
               </button>
             </div>
           </div>
@@ -135,8 +132,7 @@ export function DebugTab({
       </div>
 
       <p className="settings-disclaimer">
-        Debug logs may contain sensitive information like stream URLs. Only share
-        logs with trusted parties when troubleshooting issues.
+        {i18n.t('settings:debug.disclaimer')}
       </p>
     </div>
   );

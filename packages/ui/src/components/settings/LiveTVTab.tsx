@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { ChannelsTab } from './ChannelsTab';
 import { LiveViewTab } from './LiveViewTab';
 import { WidgetsTab } from './WidgetsTab';
@@ -251,6 +253,7 @@ export function LiveTVTab({
   onTransparentGuideSidebarOpacityChange,
   modernUiEnabled,
 }: LiveTVTabProps) {
+  useTranslation();
   const [activeSubTab, setActiveSubTab] = useState<LiveTVSubTabId>('epg');
 
   useEffect(() => {
@@ -266,43 +269,43 @@ export function LiveTVTab({
           className={`settings-tab ${activeSubTab === 'epg' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('epg')}
         >
-          EPG
+          {i18n.t('settings:livetv.tabs.epg')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'logos' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('logos')}
         >
-          Logos
+          {i18n.t('settings:livetv.tabs.logos')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'font-size' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('font-size')}
         >
-          Font Size
+          {i18n.t('settings:livetv.tabs.fontSize')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'sort-order' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('sort-order')}
         >
-          Sort Order
+          {i18n.t('settings:livetv.tabs.sortOrder')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'search' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('search')}
         >
-          Search
+          {i18n.t('settings:livetv.tabs.search')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'live-view' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('live-view')}
         >
-          Channel Overlay
+          {i18n.t('settings:livetv.tabs.liveView')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'widgets' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('widgets')}
         >
-          Widgets
+          {i18n.t('settings:livetv.tabs.widgets')}
         </button>
       </div>
 
@@ -314,8 +317,8 @@ export function LiveTVTab({
                 {/* EPG Visible Hours */}
                 <div className="timeshift-toggle-row">
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label">EPG Visible Hours</span>
-                    <span className="timeshift-toggle-sub">Customize the number of hours visible in the grid (Automatic uses 2-5 hours dynamically based on width).</span>
+                    <span className="timeshift-toggle-label">{i18n.t('settings:livetv.epgVisibleHours')}</span>
+                    <span className="timeshift-toggle-sub">{i18n.t('settings:livetv.epgVisibleHoursSub')}</span>
                   </div>
                   <select
                     value={epgVisibleHours}
@@ -324,27 +327,27 @@ export function LiveTVTab({
                       onEpgVisibleHoursChange(val === 'auto' ? 'auto' : parseInt(val, 10));
                     }}
                   >
-                    <option value="auto">Automatic (Default)</option>
-                    <option value="2">2 Hours</option>
-                    <option value="3">3 Hours</option>
-                    <option value="4">4 Hours</option>
-                    <option value="5">5 Hours</option>
-                    <option value="6">6 Hours</option>
+                    <option value="auto">{i18n.t('settings:livetv.autoDefault')}</option>
+                    <option value="2">{i18n.t('settings:livetv.hours', { count: 2 })}</option>
+                    <option value="3">{i18n.t('settings:livetv.hours', { count: 3 })}</option>
+                    <option value="4">{i18n.t('settings:livetv.hours', { count: 4 })}</option>
+                    <option value="5">{i18n.t('settings:livetv.hours', { count: 5 })}</option>
+                    <option value="6">{i18n.t('settings:livetv.hours', { count: 6 })}</option>
                   </select>
                 </div>
 
                 {/* EPG Clock Format */}
                 <div className="timeshift-toggle-row">
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label">EPG Clock Format</span>
-                    <span className="timeshift-toggle-sub">Select between 12-hour (AM/PM) and 24-hour clock display across EPG grid, search results, watchlist, and recordings.</span>
+                    <span className="timeshift-toggle-label">{i18n.t('settings:livetv.epgClockFormat')}</span>
+                    <span className="timeshift-toggle-sub">{i18n.t('settings:livetv.epgClockFormatSub')}</span>
                   </div>
                   <select
                     value={epgClockFormat}
                     onChange={(e) => onEpgClockFormatChange(e.target.value as '12h' | '24h')}
                   >
-                    <option value="12h">12-Hour Clock (e.g. 2:30 PM)</option>
-                    <option value="24h">24-Hour Clock (e.g. 14:30)</option>
+                    <option value="12h">{i18n.t('settings:livetv.clock12')}</option>
+                    <option value="24h">{i18n.t('settings:livetv.clock24')}</option>
                   </select>
                 </div>
 
@@ -352,8 +355,8 @@ export function LiveTVTab({
                 {(modernUiEnabled === false || modernUiEnabled === 'v1') && (
                   <div className="timeshift-toggle-row">
                     <div className="timeshift-toggle-info">
-                      <span className="timeshift-toggle-label">Make EPG Current airing program blocks darker</span>
-                      <span className="timeshift-toggle-sub">When enabled, the currently airing program in the EPG will have a deeper/darker highlight, making it easier to identify on all themes.</span>
+                      <span className="timeshift-toggle-label">{i18n.t('settings:livetv.darkenCurrent')}</span>
+                      <span className="timeshift-toggle-sub">{i18n.t('settings:livetv.darkenCurrentSub')}</span>
                     </div>
                     <label className="toggle-switch">
                       <input
@@ -369,8 +372,8 @@ export function LiveTVTab({
                 {/* Highlight border around current playing */}
                 <div className="timeshift-toggle-row">
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label">Highlight border around current playing</span>
-                    <span className="timeshift-toggle-sub">When enabled, a border with the accent color will outline the currently playing channel row in the EPG.</span>
+                    <span className="timeshift-toggle-label">{i18n.t('settings:livetv.highlightCurrent')}</span>
+                    <span className="timeshift-toggle-sub">{i18n.t('settings:livetv.highlightCurrentSub')}</span>
                   </div>
                   <label className="toggle-switch">
                     <input
@@ -382,12 +385,10 @@ export function LiveTVTab({
                   </label>
                 </div>
 
-
-
                 {/* Preview example (v1 design only) */}
                 {(modernUiEnabled === false || modernUiEnabled === 'v1') && (
                   <div style={{ marginTop: '24px', padding: '16px', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                    <h4 style={{ margin: '0 0 12px 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Preview:</h4>
+                    <h4 style={{ margin: '0 0 12px 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{i18n.t('settings:livetv.preview')}</h4>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       {/* Regular program block */}
                       <div style={{
@@ -398,7 +399,7 @@ export function LiveTVTab({
                         flex: 1,
                         fontSize: '0.8rem'
                       }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>Other Program</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{i18n.t('settings:livetv.otherProgram')}</span>
                       </div>
                       {/* Current program block */}
                       <div style={{
@@ -411,7 +412,7 @@ export function LiveTVTab({
                         flex: 1,
                         fontSize: '0.8rem'
                       }}>
-                        <span style={{ color: 'var(--text-primary)' }}>Current Program</span>
+                        <span style={{ color: 'var(--text-primary)' }}>{i18n.t('settings:livetv.currentProgram')}</span>
                       </div>
                     </div>
                   </div>
@@ -423,11 +424,11 @@ export function LiveTVTab({
             <div className="settings-section">
               <div className="section-header">
                 <h3 style={{ color: 'var(--text-primary, #ffffff)', fontSize: '1rem', fontWeight: 600, textTransform: 'none', letterSpacing: 'normal' }}>
-                  Metadata Badges
+                  {i18n.t('settings:livetv.metadataBadgesTitle')}
                 </h3>
               </div>
               <p className="section-description">
-                Enable or disable metadata badges displayed on channel rows in the EPG grid.
+                {i18n.t('settings:livetv.metadataBadgesDescription')}
               </p>
 
               <div style={{ marginTop: '16px', overflowX: 'auto' }}>

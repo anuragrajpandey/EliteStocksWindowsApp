@@ -1,4 +1,6 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import type { StremioStreamPickerMode, BadgeSource } from '../../types/stremio';
 import { parseBadgePayload, isLightColor, convertArgbToRgba } from '../../utils/streamBadges';
 
@@ -43,6 +45,7 @@ export function StremTab({
   stremioCacheFetchTimeout,
   onStremioCacheFetchTimeoutChange,
 }: StremTabProps) {
+  useTranslation();
   const [badgeUrl, setBadgeUrl] = useState('');
   const [badgePaste, setBadgePaste] = useState('');
   const [badgeImportError, setBadgeImportError] = useState('');
@@ -125,16 +128,16 @@ export function StremTab({
     <div className="settings-tab-content strem-settings-tab">
       <div className="settings-section">
       <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-        Strem Playback
+        {i18n.t('settings:strem.title')}
       </h3>
       <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-        Choose how streams from Stremio addons are played.
+        {i18n.t('settings:strem.description')}
       </p>
       <div className="retry-setting-row" style={{ borderBottom: 'none' }}>
         <div className="timeshift-toggle-info">
-          <span className="timeshift-toggle-label">Stream Picker Mode</span>
+          <span className="timeshift-toggle-label">{i18n.t('settings:strem.pickerMode')}</span>
           <span className="timeshift-toggle-sub">
-            Show a picker modal to choose which stream to play, or auto-play the first direct stream.
+            {i18n.t('settings:strem.pickerModeSub')}
           </span>
         </div>
         <div className="stremio-picker-toggle">
@@ -142,21 +145,21 @@ export function StremTab({
             className={`stremio-picker-btn ${stremioStreamPickerMode === 'modal' ? 'active' : ''}`}
             onClick={() => onStremioStreamPickerModeChange('modal')}
           >
-            Show Picker
+            {i18n.t('settings:strem.showPicker')}
           </button>
           <button
             className={`stremio-picker-btn ${stremioStreamPickerMode === 'autoplay' ? 'active' : ''}`}
             onClick={() => onStremioStreamPickerModeChange('autoplay')}
           >
-            Auto-play
+            {i18n.t('settings:strem.autoPlay')}
           </button>
         </div>
       </div>
 
       <div className="retry-setting-row" style={{ borderBottom: 'none', marginTop: '20px' }}>
         <div className="timeshift-toggle-info">
-          <span className="timeshift-toggle-label">Hover Details</span>
-          <span className="timeshift-toggle-sub">Show hover cards with details when hovering over items.</span>
+          <span className="timeshift-toggle-label">{i18n.t('settings:strem.hoverDetails')}</span>
+          <span className="timeshift-toggle-sub">{i18n.t('settings:strem.hoverDetailsSub')}</span>
         </div>
         <label className="toggle-switch">
           <input
@@ -171,16 +174,16 @@ export function StremTab({
       {/* Cache Fetch Results section for Stremio */}
       <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '20px', marginTop: '20px' }}>
         <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-          Cache Fetch Results (Stremio)
+          {i18n.t('settings:strem.cacheTitle')}
         </h3>
         <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-          Cache addon fetch results. When returning to the same detail page within the set time, previously fetched streams will load instantly.
+          {i18n.t('settings:strem.cacheDescription')}
         </p>
 
         <div className="retry-setting-row" style={{ borderBottom: 'none' }}>
           <div className="timeshift-toggle-info">
-            <span className="timeshift-toggle-label">Cache Fetch Results</span>
-            <span className="timeshift-toggle-sub">Enable caching of stream query results.</span>
+            <span className="timeshift-toggle-label">{i18n.t('settings:strem.cacheResults')}</span>
+            <span className="timeshift-toggle-sub">{i18n.t('settings:strem.cacheResultsSub')}</span>
           </div>
           <label className="toggle-switch">
             <input
@@ -195,8 +198,8 @@ export function StremTab({
         {stremioCacheFetchResults && (
           <div className="retry-setting-row" style={{ borderBottom: 'none', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Cache Expiration ({stremioCacheFetchTimeout}m)</span>
-              <span className="timeshift-toggle-sub">How long (in minutes) cache results remain valid (max 30 minutes).</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:strem.cacheExpiration', { minutes: stremioCacheFetchTimeout })}</span>
+              <span className="timeshift-toggle-sub">{i18n.t('settings:strem.cacheExpirationSub')}</span>
             </div>
             <input
               type="range"
@@ -215,7 +218,7 @@ export function StremTab({
       </div>
 
       <h3 style={{ margin: '24px 0 8px 0', fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-        Stream Badges
+        {i18n.t('settings:strem.badgesTitle')}
       </h3>
       <p style={{ margin: '0 0 12px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
         Show quality, codec, HDR and audio badges on stream links, or import custom badge rules.

@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { validateAccessToken } from '../../services/tmdb';
 import { validateRpdbApiKey, getRpdbTier, rpdbSupportsBackdrops } from '../../services/rpdb';
 import { SERVICES, type StreamingService } from '../../constants/streamingProviders';
@@ -45,6 +47,7 @@ export function TmdbTab({
   enabledStreamingServices,
   onEnabledStreamingServicesChange,
 }: TmdbTabProps) {
+  useTranslation();
   const [activeSubTab, setActiveSubTab] = useState<MetadataSubTabId>('tmdb');
   const [tmdbValidating, setTmdbValidating] = useState(false);
   const [rpdbValidating, setRpdbValidating] = useState(false);
@@ -105,13 +108,13 @@ export function TmdbTab({
           className={`settings-tab ${activeSubTab === 'tmdb' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('tmdb')}
         >
-          TMDB
+          {i18n.t('settings:tmdb.tabs.tmdb')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'rpdb' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('rpdb')}
         >
-          RPDB
+          {i18n.t('settings:tmdb.tabs.rpdb')}
         </button>
       </div>
 
@@ -120,19 +123,18 @@ export function TmdbTab({
           <div className="settings-section">
             {/* TMDB Section */}
             <div className="section-header">
-              <h3>TMDB Integration</h3>
+              <h3>{i18n.t('settings:tmdb.title')}</h3>
             </div>
 
             <p className="section-description">
-              For the best experience with ynoTV, a free TMDB key is highly recommended, as it enables full metadata for Movies and Series for VODs, and enhances the Stremio experience. Also unlocks Streaming platform catalogs.
-              Use the token labeled "API Read Access Token"{' '}
+              {i18n.t('settings:tmdb.description')}{' '}
               <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" className="tmdb-link">
                 from here
               </a>.
             </p>
 
             <p className="section-description" style={{ marginBottom: '16px' }}>
-              Guide on getting a free TMDB API key with video:{' '}
+              {i18n.t('settings:tmdb.guideLink')}{' '}
               <a href="https://duckkota.gitlab.io/guides/tmdb/" target="_blank" rel="noopener noreferrer" className="tmdb-link">
                 https://duckkota.gitlab.io/guides/tmdb/
               </a>
@@ -140,7 +142,7 @@ export function TmdbTab({
 
             <div className="tmdb-form">
               <div className="form-group inline">
-                <label>Access Token</label>
+                <label>{i18n.t('settings:tmdb.accessTokenLabel')}</label>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: 1 }}>
                   <input
                     type={showTmdbKey ? 'text' : 'password'}
@@ -149,7 +151,7 @@ export function TmdbTab({
                       onApiKeyChange(e.target.value);
                       onApiKeyValidChange(null);
                     }}
-                    placeholder="API Read Access Token"
+                    placeholder={i18n.t('settings:tmdb.placeholder')}
                     style={{ flex: 1, paddingRight: '36px', boxSizing: 'border-box' }}
                   />
                   <button
@@ -195,11 +197,11 @@ export function TmdbTab({
                   disabled={tmdbValidating}
                   className={tmdbKeyValid === true ? 'success' : tmdbKeyValid === false ? 'error' : ''}
                 >
-                  {tmdbValidating ? 'Validating...' : tmdbKeyValid === true ? 'Valid' : tmdbKeyValid === false ? 'Invalid' : 'Save'}
+                  {tmdbValidating ? i18n.t('settings:tmdb.validating') : tmdbKeyValid === true ? i18n.t('settings:tmdb.keyValid') : tmdbKeyValid === false ? i18n.t('settings:tmdb.keyInvalid') : i18n.t('settings:tmdb.saveKey')}
                 </button>
               </div>
               <p className="form-hint">
-                Get a free account at{' '}
+                {i18n.t('settings:tmdb.getAccountHint')}{' '}
                 <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener noreferrer">
                   themoviedb.org
                 </a>
@@ -210,15 +212,15 @@ export function TmdbTab({
             <div className={`streaming-catalogs-section ${tmdbKeyValid !== true ? 'disabled' : ''}`} style={{ marginTop: '2rem' }}>
               <div className="section-header" style={{ marginBottom: '12px' }}>
                 <h4 style={{ margin: 0, textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
-                  Streaming Catalogs
+                  {i18n.t('settings:tmdb.catalogsTitle')}
                 </h4>
               </div>
 
               <div className="timeshift-settings" style={{ marginTop: 0 }}>
                 <div className="timeshift-toggle-row" style={{ padding: '8px 0', borderBottom: 'none' }}>
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label" style={{ color: tmdbKeyValid === true ? 'var(--text-primary)' : 'var(--text-muted)' }}>Enable Streaming Catalogs</span>
-                    <span className="timeshift-toggle-sub">Show "Streaming Platforms" catalog row on the Stremio Home page.</span>
+                    <span className="timeshift-toggle-label" style={{ color: tmdbKeyValid === true ? 'var(--text-primary)' : 'var(--text-muted)' }}>{i18n.t('settings:tmdb.enableStremioCatalogs')}</span>
+                    <span className="timeshift-toggle-sub">{i18n.t('settings:tmdb.enableStremioCatalogsSub')}</span>
                   </div>
                   <label className="toggle-switch" style={{ opacity: tmdbKeyValid === true ? 1 : 0.5, cursor: tmdbKeyValid === true ? 'pointer' : 'not-allowed' }}>
                     <input
@@ -233,8 +235,8 @@ export function TmdbTab({
 
                 <div className="timeshift-toggle-row" style={{ padding: '8px 0', borderBottom: 'none', marginTop: '8px' }}>
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label" style={{ color: tmdbKeyValid === true ? 'var(--text-primary)' : 'var(--text-muted)' }}>Enable Streaming Catalogs in Nuvio</span>
-                    <span className="timeshift-toggle-sub">Show "Streaming Platforms" catalog row on the Nuvio Home page.</span>
+                    <span className="timeshift-toggle-label" style={{ color: tmdbKeyValid === true ? 'var(--text-primary)' : 'var(--text-muted)' }}>{i18n.t('settings:tmdb.enableNuvioCatalogs')}</span>
+                    <span className="timeshift-toggle-sub">{i18n.t('settings:tmdb.enableNuvioCatalogsSub')}</span>
                   </div>
                   <label className="toggle-switch" style={{ opacity: tmdbKeyValid === true ? 1 : 0.5, cursor: tmdbKeyValid === true ? 'pointer' : 'not-allowed' }}>
                     <input
@@ -339,13 +341,13 @@ export function TmdbTab({
 
               {tmdbKeyValid !== true && (
                 <p className="form-hint" style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                  Requires a valid TMDB Access Token. Save a valid token above to configure streaming catalogs.
+                  {i18n.t('settings:tmdb.requiresToken')}
                 </p>
               )}
             </div>
 
             <p className="settings-disclaimer" style={{ marginTop: '2rem' }}>
-              This product uses the TMDB API but is not endorsed or certified by TMDB.
+              {i18n.t('settings:tmdb.disclaimer')}
             </p>
           </div>
         )}
@@ -354,15 +356,14 @@ export function TmdbTab({
           <div className="settings-section">
             {/* RPDB Section */}
             <div className="section-header">
-              <h3>RatingPosterDB Integration</h3>
+              <h3>{i18n.t('settings:tmdb.rpdbTitle')}</h3>
               {tier != null && rpdbKeyValid === true && (
                 <span className="tier-badge">Tier {tier}</span>
               )}
             </div>
 
             <p className="section-description">
-              RatingPosterDB overlays rating badges (IMDb, Rotten Tomatoes, etc.) on movie
-              and series posters. Configure your badge preferences at{' '}
+              {i18n.t('settings:tmdb.rpdbDescription')}{' '}
               <a
                 href="https://manager.ratingposterdb.com/"
                 target="_blank"
@@ -376,7 +377,7 @@ export function TmdbTab({
 
             <div className="tmdb-form">
               <div className="form-group inline">
-                <label>API Key</label>
+                <label>{i18n.t('settings:tmdb.rpdbApiKeyLabel')}</label>
                 <input
                   type="password"
                   value={rpdbApiKey}
@@ -384,7 +385,7 @@ export function TmdbTab({
                     onRpdbApiKeyChange(e.target.value);
                     onRpdbKeyValidChange(null);
                   }}
-                  placeholder="Enter your RPDB API key"
+                  placeholder={i18n.t('settings:tmdb.rpdbPlaceholder')}
                 />
                 <button
                   type="button"
@@ -392,11 +393,11 @@ export function TmdbTab({
                   disabled={rpdbValidating}
                   className={rpdbKeyValid === true ? 'success' : rpdbKeyValid === false ? 'error' : ''}
                 >
-                  {rpdbValidating ? 'Validating...' : rpdbKeyValid === true ? 'Valid' : rpdbKeyValid === false ? 'Invalid' : 'Save'}
+                  {rpdbValidating ? i18n.t('settings:tmdb.validating') : rpdbKeyValid === true ? i18n.t('settings:tmdb.keyValid') : rpdbKeyValid === false ? i18n.t('settings:tmdb.keyInvalid') : i18n.t('settings:tmdb.saveKey')}
                 </button>
               </div>
               <p className="form-hint">
-                Get an API key by subscribing at{' '}
+                {i18n.t('settings:tmdb.rpdbAccountHint')}{' '}
                 <a href="https://ratingposterdb.com/" target="_blank" rel="noopener noreferrer">
                   ratingposterdb.com
                 </a>
@@ -416,22 +417,22 @@ export function TmdbTab({
                     onChange={(e) => handleBackdropsToggle(e.target.checked)}
                     disabled={!supportsBackdrops}
                   />
-                  <span className="genre-name">Use RPDB backdrop images</span>
+                  <span className="genre-name">{i18n.t('settings:tmdb.rpdbBackdrops')}</span>
                 </label>
                 {!supportsBackdrops && (
                   <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-                    Backdrops require a Tier 2+ subscription
+                    {i18n.t('settings:tmdb.rpdbTierRequired')}
                   </p>
                 )}
               </div>
             )}
 
             <p className="settings-disclaimer" style={{ marginTop: '2rem' }}>
-              RPDB is a third-party service. Visit{' '}
+              {i18n.t('settings:tmdb.rpdbDisclaimerPrefix')}{' '}
               <a href="https://ratingposterdb.com/" target="_blank" rel="noopener noreferrer" className="tmdb-link">
                 ratingposterdb.com
               </a>{' '}
-              for pricing and features.
+              {i18n.t('settings:tmdb.rpdbDisclaimerSuffix')}
             </p>
           </div>
         )}

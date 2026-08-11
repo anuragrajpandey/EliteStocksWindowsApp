@@ -1506,7 +1506,7 @@ export function SourcesTab({
             transition: 'all 0.2s ease',
           }}
         >
-          Playlist
+          {i18n.t('settings:sources.tabs.source')}
         </button>
         <button
           className={`sub-tab-btn ${activeSubTab === 'epg' ? 'active' : ''}`}
@@ -1523,7 +1523,7 @@ export function SourcesTab({
             transition: 'all 0.2s ease',
           }}
         >
-          EPG
+          {i18n.t('settings:sources.tabs.epg')}
         </button>
         <button
           className={`sub-tab-btn ${activeSubTab === 'refresh' ? 'active' : ''}`}
@@ -1540,7 +1540,7 @@ export function SourcesTab({
             transition: 'all 0.2s ease',
           }}
         >
-          Data Refresh
+          {i18n.t('settings:sources.tabs.refresh')}
         </button>
         <button
           className={`sub-tab-btn ${activeSubTab === 'global_ua' ? 'active' : ''}`}
@@ -1557,7 +1557,7 @@ export function SourcesTab({
             transition: 'all 0.2s ease',
           }}
         >
-          Global UserAgent
+          {i18n.t('settings:sources.tabs.globalUa')}
         </button>
       </div>
 

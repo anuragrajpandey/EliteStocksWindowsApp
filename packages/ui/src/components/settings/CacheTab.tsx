@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './PlaybackTab.css';
 
 const CACHE_PRESETS = [
@@ -22,6 +24,7 @@ interface CacheTabProps {
 }
 
 export function CacheTab({ timeshiftEnabled, timeshiftCacheBytes, liveBufferOffset = 0, onTimeshiftChange }: CacheTabProps) {
+  useTranslation();
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
 
   const handleTimeshiftToggle = (enabled: boolean) => {
@@ -49,18 +52,18 @@ export function CacheTab({ timeshiftEnabled, timeshiftCacheBytes, liveBufferOffs
     <div className="settings-tab-content playback-tab-content">
       <div className="settings-section">
         <div className="section-header">
-          <h3>Cache Time Shift</h3>
+          <h3>{i18n.t('settings:cache.title')}</h3>
         </div>
         <p className="section-description">
-          When enabled, MPV keeps a rolling in-memory buffer of the live stream so you can rewind and fast-forward within the cached window.
+          {i18n.t('settings:cache.description')}
         </p>
 
         <div className="timeshift-settings">
           {/* Enable toggle */}
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Enable Time Shift</span>
-              <span className="timeshift-toggle-sub">Allows rewinding live TV up to the cache window. Takes effect on next restart.</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:cache.enableTimeshift')}</span>
+              <span className="timeshift-toggle-sub">{i18n.t('settings:cache.enableTimeshiftSub')}</span>
             </div>
             <label className="toggle-switch">
               <input
@@ -74,7 +77,7 @@ export function CacheTab({ timeshiftEnabled, timeshiftCacheBytes, liveBufferOffs
 
           {timeshiftEnabled && (
             <>
-              <div className="timeshift-presets-label">Cache Size</div>
+              <div className="timeshift-presets-label">{i18n.t('settings:cache.cacheSize')}</div>
               <div className="timeshift-presets">
                 {CACHE_PRESETS.map((preset) => (
                   <button
@@ -90,8 +93,8 @@ export function CacheTab({ timeshiftEnabled, timeshiftCacheBytes, liveBufferOffs
               <table className="timeshift-estimate-table">
                 <thead>
                   <tr>
-                    <th>Stream Quality</th>
-                    <th>Estimated Rewind Window</th>
+                    <th>{i18n.t('settings:cache.streamQuality')}</th>
+                    <th>{i18n.t('settings:cache.estimatedWindow')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -111,9 +114,9 @@ export function CacheTab({ timeshiftEnabled, timeshiftCacheBytes, liveBufferOffs
               </table>
 
               <div className="timeshift-buffer-offset" style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--surface-border)' }}>
-                <div className="timeshift-presets-label">Live Now Buffer Offset</div>
+                <div className="timeshift-presets-label">{i18n.t('settings:cache.liveBufferOffset')}</div>
                 <p className="section-description" style={{ marginTop: '4px', fontSize: '0.8125rem' }}>
-                  When pressing "Go Live" during time shift, seek to this many seconds behind the live edge. Helps prevent buffer stalls on some networks.
+                  {i18n.t('settings:cache.liveBufferOffsetHint')}
                 </p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px' }}>
                   <input
@@ -132,7 +135,7 @@ export function CacheTab({ timeshiftEnabled, timeshiftCacheBytes, liveBufferOffs
               </div>
 
               <p className="timeshift-note">
-                ⚠️ Changes take effect on next restart. Buffer lives only in RAM and is reset on channel change.
+                {i18n.t('settings:cache.timeshiftNote')}
               </p>
 
               {/* Debug section */}
@@ -142,7 +145,7 @@ export function CacheTab({ timeshiftEnabled, timeshiftCacheBytes, liveBufferOffs
                   onClick={checkMpvCache}
                   style={{ maxWidth: '200px' }}
                 >
-                  Check MPV Cache Settings
+                  {i18n.t('settings:cache.checkMpvCache')}
                 </button>
                 {debugInfo && (
                   <pre style={{

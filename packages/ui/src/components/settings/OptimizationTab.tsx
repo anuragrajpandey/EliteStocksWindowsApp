@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { relaunch } from '@tauri-apps/plugin-process';
 import { useAppSettings } from '../../hooks/useAppSettings';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 export function OptimizationTab() {
+  useTranslation();
   const {
     hardwareAcceleration,
     setHardwareAcceleration,
@@ -50,11 +53,11 @@ export function OptimizationTab() {
       {/* Hardware Acceleration Section */}
       <div className="settings-section" style={{ paddingTop: '8px' }}>
         <div className="section-header">
-          <h3>Hardware Acceleration</h3>
+          <h3>{i18n.t('settings:optimization.title')}</h3>
         </div>
 
         <p className="section-description">
-          Configure GPU hardware acceleration for interface rendering and window compositing.
+          {i18n.t('settings:optimization.description')}
         </p>
 
         <div className="tmdb-form" style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -65,10 +68,10 @@ export function OptimizationTab() {
                 checked={hardwareAcceleration}
                 onChange={(e) => handleHwAccelToggle(e.target.checked)}
               />
-              <span className="genre-name" style={{ fontWeight: 600, fontSize: '0.95rem' }}>Enable GPU Hardware Acceleration</span>
+              <span className="genre-name" style={{ fontWeight: 600, fontSize: '0.95rem' }}>{i18n.t('settings:optimization.enableGpu')}</span>
             </label>
             <p className="form-hint" style={{ marginTop: '0.4rem', marginLeft: '26px', opacity: 0.8, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-              Offloads UI compositing, glass animations, and layout rendering to your graphics processor (integrated or dedicated GPU). Keep enabled for lowest CPU usage. If you experience screen flickering (such as with G-Sync windowed mode) or display driver crashes, you can disable this option. <em style={{ color: 'var(--accent-color, #00d4ff)' }}>(Requires App Restart)</em>
+              {i18n.t('settings:optimization.enableGpuHint')} <em style={{ color: 'var(--accent-color, #00d4ff)' }}>{i18n.t('settings:optimization.requiresRestart')}</em>
             </p>
           </div>
         </div>
@@ -77,11 +80,11 @@ export function OptimizationTab() {
       {/* Theme Optimization Section */}
       <div className="settings-section" style={{ marginTop: '2rem' }}>
         <div className="section-header">
-          <h3>Theme Optimization</h3>
+          <h3>{i18n.t('settings:optimization.themeTitle')}</h3>
         </div>
 
         <p className="section-description">
-          Customize theme rendering performance. If you experience high GPU usage, interface lag, or frame drops when using the glass, gradient, or solid themes, you can disable individual intensive effects here.
+          {i18n.t('settings:optimization.themeDescription')}
         </p>
 
         <div className="tmdb-form" style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -92,10 +95,10 @@ export function OptimizationTab() {
                 checked={disableThemeBackdropBlur}
                 onChange={(e) => setDisableThemeBackdropBlur(e.target.checked)}
               />
-              <span className="genre-name" style={{ fontWeight: 600, fontSize: '0.95rem' }}>Disable Glass Backdrop Blur</span>
+              <span className="genre-name" style={{ fontWeight: 600, fontSize: '0.95rem' }}>{i18n.t('settings:optimization.disableBlur')}</span>
             </label>
             <p className="form-hint" style={{ marginTop: '0.4rem', marginLeft: '26px', opacity: 0.8, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-              Removes the backdrop blur effect from cards, menus, and overlays. Significantly increases UI responsiveness on integrated or older graphics processors.
+              {i18n.t('settings:optimization.disableBlurHint')}
             </p>
           </div>
         </div>
@@ -104,11 +107,11 @@ export function OptimizationTab() {
       {/* EPG Optimization Section */}
       <div className="settings-section" style={{ marginTop: '2rem' }}>
         <div className="section-header">
-          <h3>EPG Optimization</h3>
+          <h3>{i18n.t('settings:optimization.epgTitle')}</h3>
         </div>
 
         <p className="section-description">
-          Optimize EPG guide performance and loading speeds, especially when using large playlists.
+          {i18n.t('settings:optimization.epgDescription')}
         </p>
 
         <div className="tmdb-form" style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -119,10 +122,10 @@ export function OptimizationTab() {
                 checked={epgLazyLoadingEnabled}
                 onChange={(e) => setEpgLazyLoadingEnabled(e.target.checked)}
               />
-              <span className="genre-name" style={{ fontWeight: 600, fontSize: '0.95rem' }}>Enable EPG Lazy Loading</span>
+              <span className="genre-name" style={{ fontWeight: 600, fontSize: '0.95rem' }}>{i18n.t('settings:optimization.enableLazy')}</span>
             </label>
             <p className="form-hint" style={{ marginTop: '0.4rem', marginLeft: '26px', opacity: 0.8, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-              Only loads EPG programs for the visible time window (plus a small scroll buffer) rather than loading the entire EPG guide database upfront. Recommended for large playlists to reduce memory usage and scroll lag.
+              {i18n.t('settings:optimization.enableLazyHint')}
             </p>
           </div>
 
@@ -133,10 +136,10 @@ export function OptimizationTab() {
                 checked={disableEpgTransitions}
                 onChange={(e) => setDisableEpgTransitions(e.target.checked)}
               />
-              <span className="genre-name" style={{ fontWeight: 600, fontSize: '0.95rem' }}>Disable EPG Card Shadows & Transitions</span>
+              <span className="genre-name" style={{ fontWeight: 600, fontSize: '0.95rem' }}>{i18n.t('settings:optimization.disableTransitions')}</span>
             </label>
             <p className="form-hint" style={{ marginTop: '0.4rem', marginLeft: '26px', opacity: 0.8, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-              Disables animations, hover scales, and drop shadows on the timeline program blocks, channel info hover transitions, and the channel name marquee scroll. Reduces GPU paint spikes when scrolling the guide.
+              {i18n.t('settings:optimization.disableTransitionsHint')}
             </p>
           </div>
 
@@ -147,10 +150,10 @@ export function OptimizationTab() {
                 checked={epgReduceGpuLayers}
                 onChange={(e) => setEpgReduceGpuLayers(e.target.checked)}
               />
-              <span className="genre-name" style={{ fontWeight: 600, fontSize: '0.95rem' }}>Reduce EPG Scroll Rendering Work</span>
+              <span className="genre-name" style={{ fontWeight: 600, fontSize: '0.95rem' }}>{i18n.t('settings:optimization.reduceGpuLayers')}</span>
             </label>
             <p className="form-hint" style={{ marginTop: '0.4rem', marginLeft: '26px', opacity: 0.8, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-              Adds paint and layout containment to guide rows and program grids so scrolling repaints less of the EPG at once. Recommended if the guide feels heavy while scrolling.
+              {i18n.t('settings:optimization.reduceGpuLayersHint')}
             </p>
           </div>
 
@@ -161,10 +164,10 @@ export function OptimizationTab() {
                 checked={epgDisableChannelFade}
                 onChange={(e) => setEpgDisableChannelFade(e.target.checked)}
               />
-              <span className="genre-name" style={{ fontWeight: 600, fontSize: '0.95rem' }}>Disable EPG Channel Name Gradient Fade</span>
+              <span className="genre-name" style={{ fontWeight: 600, fontSize: '0.95rem' }}>{i18n.t('settings:optimization.disableChannelFade')}</span>
             </label>
             <p className="form-hint" style={{ marginTop: '0.4rem', marginLeft: '26px', opacity: 0.8, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-              Removes the soft gradient fade on the right edge of long channel names (each one creates a GPU compositing layer). Also disables smooth-scroll on the guide list. Visual trade-off: long names show ellipsis (…) instead of a gradient fade.
+              {i18n.t('settings:optimization.disableChannelFadeHint')}
             </p>
           </div>
         </div>

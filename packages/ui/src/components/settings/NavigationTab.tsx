@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './PlaybackTab.css'; // Reuse existing tab styles
 
 interface NavigationTabProps {
@@ -108,19 +109,19 @@ export function NavigationTab({
           className={`settings-tab ${activeSubTab === 'titlebar' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('titlebar')}
         >
-          Titlebar
+          {i18n.t('settings:navigation.tabs.titlebar')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'category' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('category')}
         >
-          Category
+          {i18n.t('settings:navigation.tabs.category')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'epg' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('epg')}
         >
-          EPG
+          {i18n.t('settings:navigation.tabs.epg')}
         </button>
       </div>
 
@@ -128,11 +129,11 @@ export function NavigationTab({
         {activeSubTab === 'titlebar' && (
           <div className="settings-section" style={{ paddingBottom: '8px' }}>
             <div className="section-header">
-              <h3>Titlebar Navigation</h3>
+              <h3>{i18n.t('settings:navigation.mainNavTabs')}</h3>
             </div>
 
             <p className="section-description" style={{ marginBottom: '12px' }}>
-              Show or hide navigation buttons in the titlebar.
+              {i18n.t('settings:navigation.mainNavDescription')}
             </p>
 
             {NAV_ITEMS.map((item) => (
@@ -165,18 +166,18 @@ export function NavigationTab({
         {activeSubTab === 'category' && (
           <div className="settings-section">
             <div className="section-header">
-              <h3>Category Sidebar</h3>
+              <h3>{i18n.t('settings:navigation.liveTvCategories')}</h3>
             </div>
             <p className="section-description">
-              Choose which category groups are displayed in the LiveTV sidebar.
+              {i18n.t('settings:navigation.liveTvCategoriesDescription')}
             </p>
 
             <div className="timeshift-settings">
               {/* All Channels Toggle */}
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">All Channels</span>
-                  <span className="timeshift-toggle-sub">Show the "All Channels" category in the sidebar.</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:navigation.showAllChannels')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:navigation.showAllChannelsSub')}</span>
                 </div>
                 <label className="toggle-switch">
                   <input
@@ -191,8 +192,8 @@ export function NavigationTab({
               {/* Favorites Toggle */}
               <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Favorites</span>
-                  <span className="timeshift-toggle-sub">Show the "Favorites" category in the sidebar.</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:navigation.showFavorites')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:navigation.showFavoritesSub')}</span>
                 </div>
                 <label className="toggle-switch">
                   <input
@@ -207,8 +208,8 @@ export function NavigationTab({
               {/* Watchlist Toggle */}
               <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Watchlist</span>
-                  <span className="timeshift-toggle-sub">Show the "Watchlist" category in the sidebar.</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:navigation.showWatchlist')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:navigation.showWatchlistSub')}</span>
                 </div>
                 <label className="toggle-switch">
                   <input
@@ -223,8 +224,8 @@ export function NavigationTab({
               {/* Recently Viewed Toggle */}
               <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Recently Viewed</span>
-                  <span className="timeshift-toggle-sub">Show the "Recently Viewed" category in the sidebar.</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:navigation.showRecentlyViewed')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:navigation.showRecentlyViewedSub')}</span>
                 </div>
                 <label className="toggle-switch">
                   <input
@@ -242,11 +243,11 @@ export function NavigationTab({
         {activeSubTab === 'epg' && (
           <div className="settings-section" style={{ paddingBottom: '8px' }}>
             <div className="section-header">
-              <h3>EPG Button Visibility</h3>
+              <h3>{i18n.t('settings:navigation.epgButtons')}</h3>
             </div>
 
             <p className="section-description" style={{ marginBottom: '12px' }}>
-              Show or hide buttons in the LiveTV EPG header.
+              {i18n.t('settings:navigation.epgButtonsDescription')}
             </p>
 
             {EPG_BUTTONS.map((item) => (

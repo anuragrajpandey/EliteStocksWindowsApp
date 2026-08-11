@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import * as dialog from '@tauri-apps/plugin-dialog';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './PlaybackTab.css';
 
 interface PopoutTabProps {
@@ -36,6 +38,7 @@ export function PopoutTab({
   externalPlayerReuse,
   onExternalPlayerReuseChange,
 }: PopoutTabProps) {
+  useTranslation();
   const [localParams, setLocalParams] = useState(popoutMpvParams);
   const [hasChanges, setHasChanges] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
@@ -77,21 +80,19 @@ export function PopoutTab({
       {/* External Player Section */}
       <div className="settings-section" style={{ paddingTop: '8px' }}>
         <div className="section-header">
-          <h3>External Player</h3>
+          <h3>{i18n.t('settings:playback.externalPlayerTitle')}</h3>
         </div>
         <p className="section-description">
-          Configure an external media player (e.g. mpv, VLC) to stream channels directly.
-          When the EPG popout mode is set to "External", clicking any channel will send its
-          stream to the configured player.
+          {i18n.t('settings:playback.externalPlayerDesc')}
         </p>
 
         <div style={{ marginTop: '12px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <label style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-              Player Executable Path
+              {i18n.t('settings:playback.playerPathLabel')}
             </label>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '4px' }}>
-              Full path to your player executable (e.g. C:\Program Files\mpv\mpv.exe or C:\Program Files\VideoLAN\VLC\vlc.exe).
+              {i18n.t('settings:playback.playerPathHint')}
             </span>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <input
@@ -115,17 +116,16 @@ export function PopoutTab({
                 }}
                 style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
               >
-                Browse
+                {i18n.t('settings:playback.browse')}
               </button>
             </div>
           </div>
 
           <div className="timeshift-toggle-row" style={{ marginTop: '16px' }}>
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Reuse same player instance</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:playback.reusePlayer')}</span>
               <span className="timeshift-toggle-sub">
-                When enabled, switching channels will close the previous player before opening a new one,
-                instead of spawning multiple player windows.
+                {i18n.t('settings:playback.reusePlayerSub')}
               </span>
             </div>
             <label className="toggle-switch">
@@ -145,19 +145,18 @@ export function PopoutTab({
       {/* Popout Player Section */}
       <div className="settings-section" style={{ paddingTop: '8px' }}>
         <div className="section-header">
-          <h3>Popout Player</h3>
+          <h3>{i18n.t('settings:playback.popoutTitle')}</h3>
         </div>
         <p className="section-description">
-          Control how the standalone popout MPV player behaves when activated.
+          {i18n.t('settings:playback.popoutDesc')}
         </p>
 
         <div className="timeshift-settings">
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Stop main player when popout opens</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:playback.stopMain')}</span>
               <span className="timeshift-toggle-sub">
-                When enabled, the embedded player in the main window will stop when a popout is opened.
-                Disable this to keep both playing simultaneously.
+                {i18n.t('settings:playback.stopMainSub')}
               </span>
             </div>
             <label className="toggle-switch">
@@ -172,9 +171,9 @@ export function PopoutTab({
 
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Always on top</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:playback.alwaysOnTop')}</span>
               <span className="timeshift-toggle-sub">
-                Keep the popout window above all other windows. Useful for watching while browsing.
+                {i18n.t('settings:playback.alwaysOnTopSub')}
               </span>
             </div>
             <label className="toggle-switch">
@@ -192,17 +191,17 @@ export function PopoutTab({
           <div className="timeshift-toggle-row" style={{ opacity: isPopoutHwdecOverridden ? 0.75 : 1 }}>
             <div className="timeshift-toggle-info">
               <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                Enable Hardware Video Acceleration (--hwdec=auto)
+                {i18n.t('settings:playback.hwdecLabel')}
                 {isPopoutHwdecOverridden && (
                   <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', background: 'rgba(255, 193, 7, 0.15)', color: '#ffc107', border: '1px solid rgba(255, 193, 7, 0.3)', fontWeight: 500 }}>
-                    Managed by custom parameter below
+                    {i18n.t('settings:playback.hwdecManaged')}
                   </span>
                 )}
               </span>
               <span className="timeshift-toggle-sub">
                 {isPopoutHwdecOverridden
-                  ? 'A custom --hwdec parameter was detected in your parameters below. Your custom parameter will take priority over this toggle.'
-                  : 'Automatically passes --hwdec=auto and --vo=gpu to the popout player instance to offload live video decoding to your GPU.'}
+                  ? i18n.t('settings:playback.hwdecOverriddenHint')
+                  : i18n.t('settings:playback.popoutHwdecHint')}
               </span>
             </div>
             <label className="toggle-switch">
@@ -218,10 +217,9 @@ export function PopoutTab({
 
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Enable additional MPV parameters</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:playback.extraParams')}</span>
               <span className="timeshift-toggle-sub">
-                Pass custom command-line arguments to the popout MPV instance.
-                These are applied each time a new popout is opened.
+                {i18n.t('settings:playback.extraParamsSub')}
               </span>
             </div>
             <label className="toggle-switch">
@@ -238,9 +236,9 @@ export function PopoutTab({
             <div style={{ marginTop: '12px' }}>
               <div className="playback-section">
                 <div className="playback-label">
-                  <span>Additional MPV Parameters</span>
+                  <span>{i18n.t('settings:playback.extraParamsLabel')}</span>
                   <small>
-                    One parameter per line. These flags are passed to the popout MPV on startup.
+                    {i18n.t('settings:playback.extraParamsHint')}
                   </small>
                 </div>
 
@@ -259,10 +257,10 @@ export function PopoutTab({
                     onClick={handleSave}
                     disabled={!hasChanges}
                   >
-                    {hasChanges ? 'Save Changes' : 'Saved'}
+                    {hasChanges ? i18n.t('settings:playback.saveChanges') : i18n.t('settings:playback.saved')}
                   </button>
                   <button className="clear-btn" onClick={handleReset}>
-                    Clear All
+                    {i18n.t('common:clearAll')}
                   </button>
                 </div>
 
@@ -272,7 +270,7 @@ export function PopoutTab({
                     onClick={checkPopoutParams}
                     style={{ maxWidth: '260px' }}
                   >
-                    Check Loaded Popout Parameters
+                    {i18n.t('settings:playback.checkPopoutParams')}
                   </button>
                   {debugInfo && (
                     <pre style={{

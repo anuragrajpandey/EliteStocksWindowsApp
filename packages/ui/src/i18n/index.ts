@@ -45,6 +45,11 @@ i18n.use(initReactI18next).init({
     escapeValue: false,
   },
   returnNull: false,
+  missingKeyHandler: (lngs, ns, key, fallbackValue) => {
+    if (import.meta.env.DEV) {
+      console.warn(`[i18n:missing] Key "${ns}:${key}" missing for locale "${lngs.join(',')}". Fallback: "${fallbackValue}"`);
+    }
+  },
   react: {
     useSuspense: false,
   },

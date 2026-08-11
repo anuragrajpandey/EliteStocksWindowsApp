@@ -3,6 +3,8 @@ import { AppSettings } from './app';
 
 declare global {
     interface ImportMetaEnv {
+        readonly DEV?: boolean;
+        readonly MODE?: string;
         readonly VITE_TRAKT_CLIENT_ID?: string;
         readonly VITE_TRAKT_CLIENT_SECRET?: string;
         readonly VITE_OPENSUBTITLES_API_KEY?: string;

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './PlaybackTab.css';
 
 interface SkipIntroTabProps {
@@ -13,25 +15,23 @@ export function SkipIntroTab({
   skipIntroAutoSkip,
   onSkipIntroAutoSkipChange,
 }: SkipIntroTabProps) {
+  useTranslation();
   return (
     <div className="settings-tab-content">
       <div className="settings-section" style={{ paddingTop: '8px' }}>
         <div className="section-header">
-          <h3>Skip Intro</h3>
+          <h3>{i18n.t('settings:playback.skipIntroTitle')}</h3>
         </div>
         <p className="section-description">
-          Configure the IntroDB-powered skip intro feature for series episodes.
-          When a valid intro entry exists from the IntroDB API, the app can show a
-          skip button or skip automatically.
+          {i18n.t('settings:playback.skipIntroDesc')}
         </p>
 
         <div className="timeshift-settings">
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Automatic Intro Skip</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:playback.autoSkip')}</span>
               <span className="timeshift-toggle-sub">
-                When enabled, the intro will be skipped automatically as soon as it
-                starts — no button needed. Disable to show the skip button instead.
+                {i18n.t('settings:playback.autoSkipSub')}
               </span>
             </div>
             <label className="toggle-switch">
@@ -46,10 +46,9 @@ export function SkipIntroTab({
 
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Skip Button Duration</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:playback.buttonDuration')}</span>
               <span className="timeshift-toggle-sub">
-                How many seconds the skip button stays visible before auto-dismissing
-                (only applies when Automatic Intro Skip is disabled).
+                {i18n.t('settings:playback.buttonDurationSub')}
               </span>
             </div>
             <input

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import type { ShortcutsMap, ShortcutAction } from '../../types/app';
 import { DEFAULT_SHORTCUTS } from '../../constants/shortcuts';
 
@@ -52,6 +54,7 @@ const GROUPS: Record<string, ShortcutAction[]> = {
 
 
 export function ShortcutsTab({ shortcuts, onShortcutsChange }: ShortcutsTabProps) {
+    useTranslation();
     const [listeningFor, setListeningFor] = useState<ShortcutAction | null>(null);
     const [showResetConfirm, setShowResetConfirm] = useState(false);
 
@@ -94,10 +97,10 @@ export function ShortcutsTab({ shortcuts, onShortcutsChange }: ShortcutsTabProps
         <div className="settings-tab-content shortcuts-tab-content">
             <div className="settings-section">
                 <div className="section-header">
-                    <h3>Keyboard Shortcuts</h3>
+                    <h3>{i18n.t('settings:shortcuts.title')}</h3>
                 </div>
                 <p className="section-description">
-                    Click on a shortcut to rebind it. Press <b>Esc</b> to cancel listening (unless rebinding Close).
+                    {i18n.t('settings:shortcuts.description')}
                 </p>
 
                 <div className="shortcuts-scroll-container">
@@ -110,16 +113,16 @@ export function ShortcutsTab({ shortcuts, onShortcutsChange }: ShortcutsTabProps
                                 letterSpacing: '0.05em',
                                 color: 'var(--text-muted)',
                                 margin: '0 0 12px 0'
-                            }}>{groupName}</h4>
+                            }}>{i18n.t(`settings:shortcuts.groups.${groupName}`, { defaultValue: groupName })}</h4>
                             <div className="shortcuts-list">
                                 {actions.map(action => (
                                     <div key={action} className="shortcut-row">
-                                        <span className="shortcut-label">{ACTION_LABELS[action]}</span>
+                                        <span className="shortcut-label">{i18n.t(`settings:shortcuts.actions.${action}`, { defaultValue: ACTION_LABELS[action] })}</span>
                                         <button
                                             className={`shortcut-btn ${listeningFor === action ? 'listening' : ''}`}
                                             onClick={() => setListeningFor(action)}
                                         >
-                                            {listeningFor === action ? 'Press any key...' : (currentShortcuts[action] === ' ' ? 'Space' : currentShortcuts[action])}
+                                            {listeningFor === action ? i18n.t('settings:shortcuts.listening') : (currentShortcuts[action] === ' ' ? 'Space' : currentShortcuts[action])}
                                         </button>
                                     </div>
                                 ))}
@@ -130,7 +133,7 @@ export function ShortcutsTab({ shortcuts, onShortcutsChange }: ShortcutsTabProps
 
                 <div className="settings-actions" style={{ marginTop: '20px' }}>
                     <button className="reset-shortcuts-btn" onClick={handleReset}>
-                        Reset to Defaults
+                        {i18n.t('settings:shortcuts.resetDefaults')}
                     </button>
                 </div>
             </div>
@@ -138,22 +141,22 @@ export function ShortcutsTab({ shortcuts, onShortcutsChange }: ShortcutsTabProps
             {showResetConfirm && createPortal(
                 <div className="source-form-overlay">
                     <div className="source-form" style={{ maxWidth: '400px', height: 'auto' }}>
-                        <h3>Reset Shortcuts</h3>
+                        <h3>{i18n.t('settings:shortcuts.resetTitle')}</h3>
                         <p style={{ color: 'var(--text-primary)', marginBottom: '24px', lineHeight: '1.5' }}>
-                            Are you sure you want to reset all keyboard shortcuts to their default values?
+                            {i18n.t('settings:shortcuts.resetMessage')}
                         </p>
                         <div className="form-actions" style={{ marginTop: '0' }}>
                             <button
                                 className="cancel-btn"
                                 onClick={() => setShowResetConfirm(false)}
                             >
-                                Cancel
+                                {i18n.t('settings:shortcuts.cancel')}
                             </button>
                             <button
                                 className="save-btn"
                                 onClick={confirmReset}
                             >
-                                Reset to Defaults
+                                {i18n.t('settings:shortcuts.confirmReset')}
                             </button>
                         </div>
                     </div>

@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { exportAllData, importAllData } from '../../utils/exportImport';
 
 export function ImportExportTab() {
+    useTranslation();
     const [isProcessing, setIsProcessing] = useState(false);
     const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [showImportConfirm, setShowImportConfirm] = useState(false);
@@ -65,11 +68,10 @@ export function ImportExportTab() {
             {/* System Backup & Restoration - Main header */}
             <div className="settings-section" style={{ paddingBottom: '8px' }}>
                 <div className="section-header">
-                    <h3>System Backup & Restoration</h3>
+                    <h3>{i18n.t('settings:exportImport.title')}</h3>
                 </div>
                 <p className="section-description">
-                    Export your configuration to a JSON file to transfer between devices or create backups.
-                    Includes Sources, Settings (including TMDB, RPDB, SubSource API keys, Saved Custom Themes, and Font configurations), Favorites (Live TV & VOD), Category/Channel customizations, Watchlist, DVR schedules, Failover groups, VOD history, EPG overrides, Stremio addons, and Stremio watch history.
+                    {i18n.t('settings:exportImport.description')}
                 </p>
 
                 {status && (
@@ -82,11 +84,11 @@ export function ImportExportTab() {
             {/* Export Configuration */}
             <div className="settings-section" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
                 <div className="section-header">
-                    <h3>Export Configuration</h3>
+                    <h3>{i18n.t('settings:exportImport.exportTitle')}</h3>
                 </div>
                 <p className="section-description" style={{ marginBottom: '12px' }}>
-                    Save your current setup to a file. <br />
-                    <span style={{ color: '#ff9900' }}>Warning: The exported file contains your source passwords, Stremio settings, and API keys in plain text. Keep it safe.</span>
+                    {i18n.t('settings:exportImport.exportDescription')}<br />
+                    <span style={{ color: '#ff9900' }}>{i18n.t('settings:exportImport.exportWarning')}</span>
                 </p>
                 <button
                     className="sync-btn"
@@ -94,18 +96,18 @@ export function ImportExportTab() {
                     disabled={isProcessing}
                     style={{ maxWidth: '200px', borderColor: 'var(--surface-border)' }}
                 >
-                    {isProcessing ? 'Processing...' : 'Export to File'}
+                    {isProcessing ? i18n.t('settings:exportImport.processing') : i18n.t('settings:exportImport.exportBtn')}
                 </button>
             </div>
 
             {/* Import Configuration */}
             <div className="settings-section" style={{ paddingTop: '8px' }}>
                 <div className="section-header">
-                    <h3>Import Configuration</h3>
+                    <h3>{i18n.t('settings:exportImport.importTitle')}</h3>
                 </div>
                 <p className="section-description" style={{ marginBottom: '12px' }}>
-                    Restore configuration from a previously exported file. <br />
-                    <span style={{ color: '#ff4444' }}>Caution: This will replace all your current sources and settings.</span>
+                    {i18n.t('settings:exportImport.importDescription')}<br />
+                    <span style={{ color: '#ff4444' }}>{i18n.t('settings:exportImport.importWarning')}</span>
                 </p>
                 <button
                     className="sync-btn"
@@ -113,32 +115,30 @@ export function ImportExportTab() {
                     disabled={isProcessing}
                     style={{ maxWidth: '200px', borderColor: 'var(--surface-border)' }}
                 >
-                    {isProcessing ? 'Processing...' : 'Import from File'}
+                    {isProcessing ? i18n.t('settings:exportImport.processing') : i18n.t('settings:exportImport.importBtn')}
                 </button>
             </div>
 
             {showImportConfirm && createPortal(
                 <div className="source-form-overlay">
                     <div className="source-form" style={{ maxWidth: '400px', height: 'auto' }}>
-                        <h3>Import Configuration</h3>
+                        <h3>{i18n.t('settings:exportImport.confirmTitle')}</h3>
                         <p style={{ color: 'var(--text-primary)', marginBottom: '24px', lineHeight: '1.5' }}>
-                            WARNING: Importing will overwrite all current sources and settings. Application data will be cleared.
-                            <br /><br />
-                            Are you sure you want to continue?
+                            {i18n.t('settings:exportImport.confirmMessage')}
                         </p>
                         <div className="form-actions" style={{ marginTop: '0' }}>
                             <button
                                 className="cancel-btn"
                                 onClick={() => setShowImportConfirm(false)}
                             >
-                                Cancel
+                                {i18n.t('settings:exportImport.cancel')}
                             </button>
                             <button
                                 className="save-btn"
                                 onClick={confirmImport}
                                 style={{ borderColor: '#ff4444', color: '#ff4444', background: 'rgba(255, 68, 68, 0.1)' }}
                             >
-                                Yes, Import Data
+                                {i18n.t('settings:exportImport.continue')}
                             </button>
                         </div>
                     </div>

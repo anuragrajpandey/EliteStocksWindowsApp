@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef, type CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { scrobbler } from '../../services/scrobbler';
 import '../Modal.css';
 import './PlaybackTab.css';
 
 export function SimklTab() {
+  useTranslation();
   const [simklScrobbleEnabled, setSimklScrobbleEnabled] = useState(false);
   const [simklLinked, setSimklLinked] = useState(false);
 
@@ -142,7 +145,7 @@ export function SimklTab() {
     <div className="settings-tab-content">
       <div className="settings-section">
         <div className="section-header">
-          <h3>Simkl</h3>
+          <h3>{i18n.t('settings:simkl.title')}</h3>
           <span style={{
             fontSize: '0.75rem',
             fontWeight: 600,
@@ -153,12 +156,12 @@ export function SimklTab() {
             color: simklLinked ? '#2ed573' : 'var(--text-muted)',
             background: simklLinked ? 'rgba(46,213,115,0.1)' : 'var(--surface-color)',
           }}>
-            {simklLinked ? 'Connected' : 'Not Connected'}
+            {simklLinked ? i18n.t('settings:simkl.connected') : i18n.t('settings:simkl.notConnected')}
           </span>
         </div>
 
         <p className="section-description">
-          Automatically scrobble your live playback progress across Movies, TV Shows, and Anime directly to your Simkl profile. Uses Simkl's secure PIN device authorization.
+          {i18n.t('settings:simkl.description')}
         </p>
 
         {!simklLinked ? (
@@ -170,7 +173,7 @@ export function SimklTab() {
                   onClick={startSimklPinAuth}
                   style={{ padding: '8px 20px', fontSize: '0.9rem' }}
                 >
-                  Connect Simkl Account
+                  {i18n.t('settings:simkl.connectBtn')}
                 </button>
                 <a
                   href="https://simkl.com"
@@ -186,7 +189,7 @@ export function SimklTab() {
                     background: 'var(--surface-color)',
                   }}
                 >
-                  About Simkl ↗
+                  {i18n.t('settings:simkl.aboutSimkl')}
                 </a>
               </div>
             )}
@@ -194,10 +197,10 @@ export function SimklTab() {
             {authState === 'polling' && (
               <div style={authContainerStyle}>
                 <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px' }}>
-                  Step 1: Enter this code on Simkl
+                  {i18n.t('settings:simkl.step1')}
                 </div>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: '0 0 12px 0' }}>
-                  Go to Simkl in your browser and enter the code below to grant authorization to ynotv:
+                  {i18n.t('settings:simkl.enterCodeHint')}
                 </p>
 
                 <button
@@ -240,15 +243,15 @@ export function SimklTab() {
                       textDecoration: 'none',
                     }}
                   >
-                    Open simkl.com/pin ↗
+                    {i18n.t('settings:simkl.openPin')}
                   </a>
                 </div>
 
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                  {expiresIn > 0 ? `Code expires in ${formatCountdown(expiresIn)}` : 'Checking authorization...'}
+                  {expiresIn > 0 ? i18n.t('settings:simkl.codeExpires', { countdown: formatCountdown(expiresIn) }) : i18n.t('settings:simkl.checkingAuth')}
                 </div>
                 <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                  Waiting for you to authorize... this page updates automatically.
+                  {i18n.t('settings:simkl.waitingAuth')}
                 </div>
 
                 {errorMessage && (
@@ -268,7 +271,7 @@ export function SimklTab() {
                     padding: 0,
                   }}
                 >
-                  Cancel Authorization
+                  {i18n.t('settings:simkl.cancelAuth')}
                 </button>
               </div>
             )}
@@ -282,7 +285,7 @@ export function SimklTab() {
                 fontWeight: 600,
                 textAlign: 'center',
               }}>
-                ✓ Simkl account successfully connected!
+                {i18n.t('settings:simkl.authSuccess')}
               </div>
             )}
 
@@ -302,7 +305,7 @@ export function SimklTab() {
                   onClick={startSimklPinAuth}
                   style={{ color: '#ff4757', borderColor: 'rgba(255,71,87,0.4)', background: 'rgba(255,71,87,0.15)' }}
                 >
-                  Try Again
+                  {i18n.t('settings:simkl.tryAgain')}
                 </button>
               </div>
             )}
@@ -311,8 +314,8 @@ export function SimklTab() {
           <div>
             <div className="timeshift-toggle-row" style={{ marginBottom: '16px', marginTop: '12px' }}>
               <div className="timeshift-toggle-info">
-                <span className="timeshift-toggle-label">Enable Cloud Scrobbling</span>
-                <span className="timeshift-toggle-sub">Track what you watch and keep your Simkl profile in sync automatically</span>
+                <span className="timeshift-toggle-label">{i18n.t('settings:simkl.enableScrobble')}</span>
+                <span className="timeshift-toggle-sub">{i18n.t('settings:simkl.enableScrobbleHint')}</span>
               </div>
               <label className="toggle-switch">
                 <input
@@ -339,10 +342,10 @@ export function SimklTab() {
                   background: 'var(--surface-color)',
                 }}
               >
-                About Simkl ↗
+                {i18n.t('settings:simkl.aboutSimkl')}
               </a>
               <button className="sync-btn danger" onClick={handleSimklUnlink}>
-                Disconnect Simkl Account
+                {i18n.t('settings:simkl.disconnect')}
               </button>
             </div>
           </div>

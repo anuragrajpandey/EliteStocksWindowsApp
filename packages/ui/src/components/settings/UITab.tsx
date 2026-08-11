@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
 import { useAppSettings } from '../../hooks/useAppSettings';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './SourcesTab.css'; // Import shared tooltip styles
 
 interface UITabProps {
@@ -165,6 +167,7 @@ function WindowSizeSettings({ width, height, onChange }: { width: number; height
 }
 
 export function UITab({ settings, onSettingsChange }: UITabProps) {
+  useTranslation();
   const [activeSubTab, setActiveSubTab] = useState<'general' | 'player'>('general');
   const {
     appFontFamily,
@@ -206,13 +209,13 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
           className={`settings-tab ${activeSubTab === 'general' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('general')}
         >
-          General
+          {i18n.t('settings:ui.general')}
         </button>
         <button
           className={`settings-tab ${activeSubTab === 'player' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('player')}
         >
-          Player
+          {i18n.t('settings:ui.player')}
         </button>
       </div>
 

@@ -31,7 +31,7 @@ import type { ShortcutsMap, ThemeId, CustomThemeConfig } from '../types/app';
 import type { StremioStreamPickerMode, BadgeSource, StreamAutoPlayMode, StreamAutoPlaySourceScope } from '../types/stremio';
 import { DEFAULT_BADGE_SOURCES, mergeDefaultBadgeSources } from '../utils/streamBadges';
 import { useTranslation } from 'react-i18next';
-import { SUPPORTED_LOCALES } from '../i18n';
+import i18n, { SUPPORTED_LOCALES } from '../i18n';
 import './Settings.css';
 
 interface SettingsProps {
@@ -262,6 +262,7 @@ export function Settings({
   discordShowTimestamp: discordShowTimestampProp,
   onDiscordShowTimestampChange,
 }: SettingsProps) {
+  useTranslation();
   const [activeTab, setActiveTab] = useState<SettingsTabId>(initialTab);
   const { showConfirm, ModalComponent } = useModal();
   const nuvioHasUnsavedHomeLayout = useUIStore((s) => s.nuvioHasUnsavedHomeLayout);
@@ -270,8 +271,8 @@ export function Settings({
   const handleTabChange = (newTab: SettingsTabId) => {
     if (activeTab === 'nuvio' && nuvioHasUnsavedHomeLayout) {
       showConfirm(
-        'Unsaved Changes',
-        "Changes aren't saved, would you like to save homepage layout?",
+        i18n.t('settings:unsavedChanges'),
+        i18n.t('settings:unsavedHomeLayoutConfirm'),
         async () => {
           try {
             await nuvioTabSaveFn?.();
@@ -285,8 +286,8 @@ export function Settings({
           useUIStore.setState({ nuvioHasUnsavedHomeLayout: false });
           setActiveTab(newTab);
         },
-        'Save',
-        'Discard Changes'
+        i18n.t('common:save'),
+        i18n.t('settings:discardChanges')
       );
     } else {
       setActiveTab(newTab);
@@ -296,8 +297,8 @@ export function Settings({
   const handleClose = () => {
     if (activeTab === 'nuvio' && nuvioHasUnsavedHomeLayout) {
       showConfirm(
-        'Unsaved Changes',
-        "Changes aren't saved, would you like to save homepage layout?",
+        i18n.t('settings:unsavedChanges'),
+        i18n.t('settings:unsavedHomeLayoutConfirm'),
         async () => {
           try {
             await nuvioTabSaveFn?.();
@@ -311,8 +312,8 @@ export function Settings({
           useUIStore.setState({ nuvioHasUnsavedHomeLayout: false });
           onClose();
         },
-        'Save',
-        'Discard Changes'
+        i18n.t('common:save'),
+        i18n.t('settings:discardChanges')
       );
     } else {
       onClose();

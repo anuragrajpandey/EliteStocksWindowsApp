@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './PlaybackTab.css';
 
 interface VodTabProps {
@@ -13,23 +15,23 @@ export function VodTab({
   vodShowSourceBadge,
   onVodShowSourceBadgeChange,
 }: VodTabProps) {
+  useTranslation();
   return (
     <div className="settings-tab-content">
       <div className="settings-section" style={{ paddingTop: '8px' }}>
         <div className="section-header">
-          <h3>VOD Settings</h3>
+          <h3>{i18n.t('settings:playback.vodTitle')}</h3>
         </div>
         <p className="section-description">
-          Configure playback settings and preferences for Video on Demand (VOD) content.
+          {i18n.t('settings:playback.vodDesc')}
         </p>
 
         <div className="timeshift-settings">
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Auto-Play Next Episode</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:playback.autoPlayNext')}</span>
               <span className="timeshift-toggle-sub">
-                Automatically play the next episode of a VOD Series when the current episode ends.
-                If it's the end of a season, it will automatically start the first episode of the next season.
+                {i18n.t('settings:playback.autoPlayNextSub')}
               </span>
             </div>
             <label className="toggle-switch">
@@ -44,9 +46,9 @@ export function VodTab({
 
           <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Show Source Badge</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:playback.showSourceBadge')}</span>
               <span className="timeshift-toggle-sub">
-                Display the provider source badge for VOD Movies and Series cards in Recently Watched on the home page, All Movies/Series page, and Recent page.
+                {i18n.t('settings:playback.showSourceBadgeSub')}
               </span>
             </div>
             <label className="toggle-switch">

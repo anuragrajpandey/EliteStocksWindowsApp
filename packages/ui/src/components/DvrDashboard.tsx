@@ -179,8 +179,8 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
 
     async function handleCancel(id: number) {
         showConfirm(
-            'Cancel Recording',
-            'Are you sure you want to cancel this recording?',
+            i18n.t('dvr:cancelRecording'),
+            i18n.t('dvr:cancelRecordingConfirm'),
             async () => {
                 try {
                     await cancelRecording(id);
@@ -191,8 +191,8 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
                 }
             },
             undefined,
-            'Cancel Recording',
-            'Keep'
+            i18n.t('dvr:cancelRecording'),
+            i18n.t('common:keep')
         );
     }
 
@@ -242,10 +242,10 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
     }
 
     async function handleDelete(id: number, filePath?: string) {
-        const title = filePath ? 'Delete Recording File' : 'Remove Recording';
+        const title = filePath ? i18n.t('dvr:deleteRecordingFile') : i18n.t('dvr:removeRecording');
         const message = filePath
-            ? 'Are you sure you want to delete this recording file from disk? This action cannot be undone.'
-            : 'Are you sure you want to remove this recording from the list?';
+            ? i18n.t('dvr:deleteRecordingFileConfirm')
+            : i18n.t('dvr:removeRecordingConfirm');
 
         showConfirm(
             title,
@@ -260,8 +260,8 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
                 }
             },
             undefined,
-            filePath ? 'Delete' : 'Remove',
-            'Cancel'
+            filePath ? i18n.t('dvr:deleteFile') : i18n.t('dvr:remove'),
+            i18n.t('common:cancel')
         );
     }
 
@@ -351,7 +351,7 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
                             <line x1="8" y1="2" x2="8" y2="6" />
                             <line x1="3" y1="10" x2="21" y2="10" />
                         </svg>
-                        <span>Scheduled</span>
+                        <span>{i18n.t('dvr:scheduled')}</span>
                         {upcomingCount > 0 && <span className="dvr-topbar-badge">{upcomingCount}</span>}
                     </button>
 
@@ -363,7 +363,7 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
                             <polygon points="23 7 16 12 23 17 23 7" />
                             <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                         </svg>
-                        <span>Recordings</span>
+                        <span>{i18n.t('dvr:recordings')}</span>
                         {recorded.length > 0 && <span className="dvr-topbar-badge">{recorded.length}</span>}
                     </button>
 
@@ -376,7 +376,7 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
                             <polyline points="7 10 12 15 17 10" />
                             <line x1="12" y1="15" x2="12" y2="3" />
                         </svg>
-                        <span>Downloads</span>
+                        <span>{i18n.t('dvr:downloads')}</span>
                         {activeDownloadsCount > 0 ? (
                             <span className="dvr-topbar-badge">{activeDownloadsCount}</span>
                         ) : downloads.length > 0 ? (
@@ -392,7 +392,7 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
                             <circle cx="12" cy="12" r="3" />
                             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
                         </svg>
-                        <span>Settings</span>
+                        <span>{i18n.t('dvr:settingsTab')}</span>
                     </button>
                 </div>
 
@@ -640,6 +640,7 @@ interface RecordedTabProps {
 }
 
 function RecordedTab({ recorded, onPlay, onDelete, onRename, formatDateTime }: RecordedTabProps) {
+    useTranslation();
     // Store thumbnail URLs by recording ID
     const [thumbnails, setThumbnails] = useState<Record<number, string>>({});
     const [convertingIds, setConvertingIds] = useState<Record<number, boolean>>({});
@@ -775,7 +776,7 @@ function RecordedTab({ recorded, onPlay, onDelete, onRename, formatDateTime }: R
                             )}
                         </div>
                         <span className={`dvr-media-badge ${item.status}`}>
-                            {item.status === 'completed' ? 'Completed' : item.status === 'recording' ? 'REC' : item.status === 'partial' ? 'Partial' : item.status === 'failed' ? 'Failed' : item.status}
+                            {item.status === 'completed' ? i18n.t('dvr:completed') : item.status === 'recording' ? i18n.t('dvr:recording') : item.status === 'partial' ? i18n.t('dvr:partial') : item.status === 'failed' ? i18n.t('dvr:failed') : item.status}
                         </span>
                     </div>
                     <div className="dvr-media-info">
@@ -786,7 +787,7 @@ function RecordedTab({ recorded, onPlay, onDelete, onRename, formatDateTime }: R
                                 ? formatDateTime(item.actual_end)
                                 : item.actual_start
                                     ? formatDateTime(item.actual_start)
-                                    : 'Unknown date'}
+                                    : i18n.t('dvr:unknownDate')}
                         </p>
                         {item.duration_sec && (
                             <p className="dvr-media-duration">
@@ -936,6 +937,7 @@ interface RecordingCardProps {
 }
 
 function RecordingCard({ item, progress, onEdit, onCancel, onPlay, formatDateTime, formatDuration, formatElapsed }: RecordingCardProps) {
+    useTranslation();
     const nowSec = Math.floor(Date.now() / 1000);
     const isCatchup = item.scheduled_end <= nowSec || !!(item.stream_url && (
         item.stream_url.includes('timeshift') ||
@@ -971,7 +973,7 @@ function RecordingCard({ item, progress, onEdit, onCancel, onPlay, formatDateTim
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                         </svg>
                     </button>
-                    <button className="dvr-btn-icon danger" onClick={onCancel} title={isCatchup ? 'Cancel download' : 'Stop recording'}>
+                    <button className="dvr-btn-icon danger" onClick={onCancel} title={isCatchup ? i18n.t('dvr:cancelDownload') : i18n.t('dvr:stopRecording')}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                         </svg>
@@ -1260,6 +1262,7 @@ interface DownloadsTabProps {
 }
 
 function DownloadsTab({ onPlay }: DownloadsTabProps) {
+    useTranslation();
     const [searchQuery, setSearchQuery] = useState('');
     const [showPosters, setShowPosters] = useState<boolean>(() => {
         try {
@@ -1274,7 +1277,6 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
     const resumeDownload = useDownloadStore((s) => s.resumeDownload);
     const removeDownload = useDownloadStore((s) => s.removeDownload);
     const clearCompleted = useDownloadStore((s) => s.clearCompleted);
-
 
     const activeDownloads = downloads.filter((d) => d.status === 'downloading');
     const queuedDownloads = downloads.filter((d) => d.status === 'queued');
@@ -1332,7 +1334,7 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                 <div className="dvr-downloads-search-container" style={{ position: 'relative', flex: '0 1 300px', width: '100%', minWidth: '200px', margin: '0 auto' }}>
                     <input
                         type="text"
-                        placeholder="Search downloads..."
+                        placeholder={i18n.t('dvr:searchDownloads')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         style={{
