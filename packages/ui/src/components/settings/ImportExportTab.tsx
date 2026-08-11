@@ -149,25 +149,25 @@ export function ImportExportTab() {
             {showRestartConfirm && createPortal(
                 <div className="source-form-overlay">
                     <div className="source-form" style={{ maxWidth: '400px', height: 'auto' }}>
-                        <h3>Restart Required</h3>
+                        <h3>{i18n.t('settings:exportImport.restartTitle')}</h3>
                         <p style={{ color: 'var(--text-primary)', marginBottom: '24px', lineHeight: '1.5' }}>
-                            Import successful! The application needs to restart to apply changes.
+                            {i18n.t('settings:exportImport.restartMessage')}
                             <br /><br />
-                            Do you want to restart now?
+                            {i18n.t('settings:exportImport.restartQuestion')}
                         </p>
                         <div className="form-actions" style={{ marginTop: '0' }}>
                             <button
                                 className="cancel-btn"
                                 onClick={() => setShowRestartConfirm(false)}
                             >
-                                Restart Later
+                                {i18n.t('settings:exportImport.restartLater')}
                             </button>
                             <button
                                 className="save-btn"
                                 onClick={handleRestart}
                                 style={{ borderColor: '#4CAF50', color: '#4CAF50', background: 'rgba(76, 175, 80, 0.1)' }}
                             >
-                                Yes, Restart Now
+                                {i18n.t('settings:exportImport.restartNow')}
                             </button>
                         </div>
                     </div>

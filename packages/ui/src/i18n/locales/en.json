@@ -655,7 +655,9 @@
       "audioOutputDeviceSub": "Select the audio output device for playback.",
       "audioDevice": "Audio Device",
       "audioDeviceSub": "Select the device to route audio playback.",
-      "defaultAutoselect": "Default (Autoselect)"
+      "defaultAutoselect": "Default (Autoselect)",
+      "loggedInToast": "Logged in to OpenSubtitles as {{username}}",
+      "providerSetToast": "Default subtitle provider set to {{provider}}"
     },
     "sources": {
       "tabs": {
@@ -843,7 +845,8 @@
       "enableScrobbleHint": "Automatically send watched status and playback updates to Trakt while viewing.",
       "configureStremCatalogs": "Configure Trakt Strem Catalogs",
       "configureNuvioCatalogs": "Configure Trakt Nuvio Catalogs",
-      "disconnect": "Disconnect Trakt Account"
+      "disconnect": "Disconnect Trakt Account",
+      "disconnectConfirm": "Are you sure you want to disconnect your Trakt account?"
     },
     "simkl": {
       "title": "Simkl",
@@ -864,7 +867,8 @@
       "tryAgain": "Try Again",
       "enableScrobble": "Enable Live Scrobbling",
       "enableScrobbleHint": "Automatically send watched status and playback updates to Simkl while viewing.",
-      "disconnect": "Disconnect Simkl Account"
+      "disconnect": "Disconnect Simkl Account",
+      "disconnectConfirm": "Are you sure you want to disconnect your Simkl account?"
     },
     "strem": {
       "title": "Strem Playback",
@@ -1159,7 +1163,12 @@
       "reduceGpuLayers": "Reduce EPG Scroll Rendering Work",
       "reduceGpuLayersHint": "Adds paint and layout containment to guide rows and program grids so scrolling repaints less of the EPG at once.",
       "disableChannelFade": "Disable EPG Channel Name Gradient Fade",
-      "disableChannelFadeHint": "Removes the soft gradient fade on the right edge of long channel names. Visual trade-off: long names show ellipsis (…) instead of a gradient fade."
+      "disableChannelFadeHint": "Removes the soft gradient fade on the right edge of long channel names. Visual trade-off: long names show ellipsis (…) instead of a gradient fade.",
+      "restartTitle": "Restart Required",
+      "restartMessage": "For hardware acceleration settings to take effect in the application engine, the app needs to restart.",
+      "restartQuestion": "Would you like to restart now?",
+      "saveOnly": "No, Save Only",
+      "restartNow": "Yes, Restart Now"
     },
     "cache": {
       "title": "Cache Time Shift",
@@ -1245,7 +1254,12 @@
       "confirmTitle": "Import Configuration",
       "confirmMessage": "WARNING: Importing will overwrite all current sources and settings. Application data will be cleared. Are you sure you want to continue?",
       "cancel": "Cancel",
-      "continue": "Overwrite & Import"
+      "continue": "Overwrite & Import",
+      "restartTitle": "Restart Required",
+      "restartMessage": "Import successful! The application needs to restart to apply changes.",
+      "restartQuestion": "Do you want to restart now?",
+      "restartLater": "Restart Later",
+      "restartNow": "Yes, Restart Now"
     },
     "debug": {
       "title": "Debug Logging",

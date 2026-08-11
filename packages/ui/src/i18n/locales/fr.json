@@ -655,7 +655,9 @@
       "audioOutputDeviceSub": "Sélectionnez le périphérique de sortie audio pour la lecture.",
       "audioDevice": "Périphérique audio",
       "audioDeviceSub": "Sélectionnez le périphérique pour acheminer la lecture audio.",
-      "defaultAutoselect": "Par défaut (sélection automatique)"
+      "defaultAutoselect": "Par défaut (sélection automatique)",
+      "loggedInToast": "Connecté à OpenSubtitles en tant que {{username}}",
+      "providerSetToast": "Fournisseur de sous-titres par défaut défini sur {{provider}}"
     },
     "sources": {
       "tabs": {
@@ -843,7 +845,8 @@
       "enableScrobbleHint": "Envoyer automatiquement le statut de visionnage et les mises à jour de lecture à Trakt pendant le visionnage.",
       "configureStremCatalogs": "Configurer les catalogues Trakt Strem",
       "configureNuvioCatalogs": "Configurer les catalogues Trakt Nuvio",
-      "disconnect": "Déconnecter le compte Trakt"
+      "disconnect": "Déconnecter le compte Trakt",
+      "disconnectConfirm": "Voulez-vous vraiment déconnecter votre compte Trakt ?"
     },
     "simkl": {
       "title": "Simkl",
@@ -864,7 +867,8 @@
       "tryAgain": "Réessayer",
       "enableScrobble": "Activer le Scrobbling en direct",
       "enableScrobbleHint": "Envoyer automatiquement le statut de visionnage et les mises à jour de lecture à Simkl pendant le visionnage.",
-      "disconnect": "Déconnecter le compte Simkl"
+      "disconnect": "Déconnecter le compte Simkl",
+      "disconnectConfirm": "Voulez-vous vraiment déconnecter votre compte Simkl ?"
     },
     "strem": {
       "title": "Lecture Strem",
@@ -1159,7 +1163,12 @@
       "reduceGpuLayers": "Réduire le travail de rendu de défilement EPG",
       "reduceGpuLayersHint": "Ajoute un confinement de rendu et de mise en page aux lignes du guide pour que le défilement repeigne moins d'éléments à la fois.",
       "disableChannelFade": "Désactiver le dégradé du nom de chaîne EPG",
-      "disableChannelFadeHint": "Supprime le dégradé doux sur le bord droit des noms de chaînes longs. Compromis visuel : affichage d'un sélecteur à points de suspension (…)."
+      "disableChannelFadeHint": "Supprime le dégradé doux sur le bord droit des noms de chaînes longs. Compromis visuel : affichage d'un sélecteur à points de suspension (…).",
+      "restartTitle": "Redémarrage requis",
+      "restartMessage": "Pour que les paramètres d’accélération matérielle prennent effet dans le moteur de l’application, l’application doit redémarrer.",
+      "restartQuestion": "Voulez-vous redémarrer maintenant ?",
+      "saveOnly": "Non, enregistrer seulement",
+      "restartNow": "Oui, redémarrer maintenant"
     },
     "cache": {
       "title": "Masquage temporel du cache (Time Shift)",
@@ -1245,7 +1254,12 @@
       "confirmTitle": "Importer la configuration",
       "confirmMessage": "AVERTISSEMENT : L'importation écrasera toutes vos sources et paramètres actuels. Êtes-vous sûr de vouloir continuer ?",
       "cancel": "Annuler",
-      "continue": "Écraser et importer"
+      "continue": "Écraser et importer",
+      "restartTitle": "Redémarrage requis",
+      "restartMessage": "Importation réussie ! L’application doit redémarrer pour appliquer les modifications.",
+      "restartQuestion": "Voulez-vous redémarrer maintenant ?",
+      "restartLater": "Redémarrer plus tard",
+      "restartNow": "Oui, redémarrer maintenant"
     },
     "debug": {
       "title": "Journal de débogage",

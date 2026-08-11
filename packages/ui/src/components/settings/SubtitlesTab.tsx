@@ -206,7 +206,7 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
           openSubtitlesUsername: osUsername.trim(),
         });
         setOsPassword('');
-        useToastStore.getState().addToast(`Logged in to OpenSubtitles as ${res.user.username}`, 'success');
+        useToastStore.getState().addToast(i18n.t('settings:subtitles.loggedInToast', { username: res.user.username }), 'success');
       } else {
         const err = res.error || 'Login failed';
         setOsError(err);
@@ -425,7 +425,7 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                         await window.storage.updateSettings({ subtitleSettings: updated });
                       }
                       onSettingsChange({ preferredProvider: val });
-                      useToastStore.getState().addToast(`Default subtitle provider set to ${val === 'opensubtitles' ? 'OpenSubtitles' : 'SubSource'}`, 'success');
+                      useToastStore.getState().addToast(i18n.t('settings:subtitles.providerSetToast', { provider: val === 'opensubtitles' ? 'OpenSubtitles' : 'SubSource' }), 'success');
                     }}
                     style={{
                       background: 'var(--surface-color)',

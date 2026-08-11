@@ -113,7 +113,7 @@ export function ScrobblingTab() {
   };
 
   const handleTraktUnlink = async () => {
-    if (confirm('Are you sure you want to disconnect your Trakt account?')) {
+    if (confirm(i18n.t('settings:scrobbling.disconnectConfirm'))) {
       await scrobbler.logoutTrakt();
       loadSettings();
     }

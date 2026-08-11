@@ -121,7 +121,7 @@ export function SimklTab() {
   };
 
   const handleSimklUnlink = async () => {
-    if (confirm('Are you sure you want to disconnect your Simkl account?')) {
+    if (confirm(i18n.t('settings:simkl.disconnectConfirm'))) {
       await scrobbler.logoutSimkl();
       await loadSettings();
     }
@@ -205,7 +205,7 @@ export function SimklTab() {
 
                 <button
                   onClick={() => navigator.clipboard.writeText(userCode)}
-                  title="Click to copy"
+                  title={i18n.t('settings:scrobbling.clickToCopy')}
                   style={{
                     display: 'block',
                     width: '100%',

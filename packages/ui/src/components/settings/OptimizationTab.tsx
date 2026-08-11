@@ -177,21 +177,21 @@ export function OptimizationTab() {
         <div className="modal-overlay" onClick={() => setShowRestartModal(false)}>
           <div className="modal-container" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">Restart Required</h3>
+              <h3 className="modal-title">{i18n.t('settings:optimization.restartTitle')}</h3>
             </div>
             <div className="modal-body">
               <p className="modal-message">
-                For hardware acceleration settings to take effect in the application engine, the app needs to restart.
+                {i18n.t('settings:optimization.restartMessage')}
                 <br /><br />
-                Would you like to restart now?
+                {i18n.t('settings:optimization.restartQuestion')}
               </p>
             </div>
             <div className="modal-footer">
               <button className="modal-btn modal-btn-secondary" onClick={confirmSaveWithoutRestart}>
-                No, Save Only
+                {i18n.t('settings:optimization.saveOnly')}
               </button>
               <button className="modal-btn modal-btn-primary" onClick={confirmRestart}>
-                Yes, Restart Now
+                {i18n.t('settings:optimization.restartNow')}
               </button>
             </div>
           </div>
