@@ -11,6 +11,8 @@ import {
 } from '../../services/failover-groups';
 import { db } from '../../db';
 import type { FailoverGroup } from '../../db';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './FailoverTab.css';
 
 interface GroupWithMembers extends FailoverGroup {
@@ -119,6 +121,7 @@ function parseCategoryIds(raw: string | string[] | number[] | undefined): string
 }
 
 export function FailoverTab() {
+  useTranslation();
   const [groups, setGroups] = useState<GroupWithMembers[]>([]);
   const [loading, setLoading] = useState(true);
   const [newGroupName, setNewGroupName] = useState('');
@@ -208,7 +211,7 @@ export function FailoverTab() {
   }, [newGroupName, loadGroups]);
 
   const handleDeleteGroup = useCallback(async (groupId: string) => {
-    if (!confirm('Delete this failover group? Channels will no longer fail over.')) return;
+    if (!confirm(i18n.t('settings:failover.deleteConfirm'))) return;
     try {
       await deleteFailoverGroup(groupId);
       loadGroups();
@@ -261,12 +264,12 @@ export function FailoverTab() {
   }, []);
 
   const getPriorityLabel = (priority: number) => {
-    if (priority === 0) return 'PRIMARY';
-    return `BACKUP ${priority}`;
+    if (priority === 0) return i18n.t('settings:failover.primary');
+    return i18n.t('settings:failover.backup', { priority });
   };
 
   const getMemberSourceCategory = (member: NonNullable<GroupWithMembers['members']>[number]): string => {
-    const sourceName = sourceNameMap.get(String(member.source_id)) || member.source_id || 'Unknown';
+    const sourceName = sourceNameMap.get(String(member.source_id)) || member.source_id || i18n.t('settings:failover.unknown');
     const catIds = parseCategoryIds(member.category_ids);
     const catName = catIds.length > 0 ? (categoryNameMap.get(String(catIds[0])) || catIds[0]) : '—';
     return `${sourceName} → ${catName}`;
@@ -274,20 +277,19 @@ export function FailoverTab() {
 
   return (
     <div className="failover-tab">
-      <h3>Failover Groups</h3>
+      <h3>{i18n.t('settings:failover.groups')}</h3>
       <p className="failover-desc">
-        When a stream stalls or disconnects, the app will automatically switch to the next channel in the group.
-        Drag channels to change priority order.
+        {i18n.t('settings:failover.desc')}
       </p>
 
       <div className="failover-toolbar">
-        <label className="failover-display-source-label" title="Show source and category for each channel">
+        <label className="failover-display-source-label" title={i18n.t('settings:failover.displaySourceHint')}>
           <input
             type="checkbox"
             checked={displaySource}
             onChange={e => setDisplaySource(e.target.checked)}
           />
-          Display Source
+          {i18n.t('settings:failover.displaySource')}
         </label>
       </div>
 
@@ -295,28 +297,28 @@ export function FailoverTab() {
       <div className="failover-create-row">
         {!creating ? (
           <button className="failover-create-btn" onClick={() => setCreating(true)}>
-            + New Failover Group
+            + {i18n.t('settings:failover.newGroup')}
           </button>
         ) : (
           <div className="failover-create-form">
             <input
               type="text"
-              placeholder="Group name (e.g. CNN Backup)"
+              placeholder={i18n.t('settings:failover.groupNamePlaceholder')}
               value={newGroupName}
               onChange={e => setNewGroupName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleCreateGroup()}
               autoFocus
             />
-            <button onClick={handleCreateGroup} disabled={!newGroupName.trim()}>Create</button>
-            <button className="cancel-btn" onClick={() => { setCreating(false); setNewGroupName(''); }}>Cancel</button>
+            <button onClick={handleCreateGroup} disabled={!newGroupName.trim()}>{i18n.t('common:create')}</button>
+            <button className="cancel-btn" onClick={() => { setCreating(false); setNewGroupName(''); }}>{i18n.t('common:cancel')}</button>
           </div>
         )}
       </div>
 
       {loading ? (
-        <div className="failover-empty">Loading groups…</div>
+        <div className="failover-empty">{i18n.t('settings:failover.loading')}</div>
       ) : groups.length === 0 ? (
-        <div className="failover-empty">No failover groups yet. Create one to get started.</div>
+        <div className="failover-empty">{i18n.t('settings:failover.noGroups')}</div>
       ) : (
         <div className="failover-group-list">
           {groups.map(group => (
@@ -325,7 +327,7 @@ export function FailoverTab() {
                 <button
                   className="failover-expand-btn"
                   onClick={() => toggleExpand(group.group_id)}
-                  title={group.expanded ? 'Collapse' : 'Expand'}
+                  title={group.expanded ? i18n.t('common:collapse') : i18n.t('common:expand')}
                 >
                   {group.expanded ? '▼' : '▶'}
                 </button>
@@ -333,11 +335,11 @@ export function FailoverTab() {
                   name={group.name}
                   onRename={(name) => handleRenameGroup(group.group_id, name)}
                 />
-                <span className="failover-group-count">{group.memberCount} channels</span>
+                <span className="failover-group-count">{i18n.t('settings:failover.channelsCount', { count: group.memberCount })}</span>
                 <button
                   className="failover-delete-btn"
                   onClick={() => handleDeleteGroup(group.group_id)}
-                  title="Delete group"
+                  title={i18n.t('settings:failover.deleteGroup')}
                 >
                   🗑
                 </button>
@@ -369,7 +371,7 @@ export function FailoverTab() {
                           <button
                             className="failover-remove-member-btn"
                             onClick={() => handleRemoveMember(member.stream_id, group.group_id)}
-                            title="Remove from group"
+                            title={i18n.t('settings:failover.removeFromGroup')}
                           >
                             ✕
                           </button>
@@ -378,7 +380,7 @@ export function FailoverTab() {
                     />
                   ) : (
                     <div className="failover-no-members">
-                      No channels in this group yet. Add channels from the channel manager.
+                      {i18n.t('settings:failover.noMembers')}
                     </div>
                   )}
                 </div>
@@ -423,7 +425,7 @@ function EditableGroupName({ name, onRename }: { name: string; onRename: (name: 
   }
 
   return (
-    <span className="failover-group-name" onClick={() => setEditing(true)} title="Click to rename">
+    <span className="failover-group-name" onClick={() => setEditing(true)} title={i18n.t('settings:failover.clickToRename')}>
       {name}
     </span>
   );

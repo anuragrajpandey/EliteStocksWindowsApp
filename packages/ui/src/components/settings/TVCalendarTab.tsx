@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './TVCalendarTab.css';
 import { db, addTvEpisodeToWatchlist, clearAutoAddedEpisodesForShow, type AutoAddEpisode } from '../../db';
 
 export function TVCalendarTab() {
+  useTranslation();
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
   const [syncStatus, setSyncStatus] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -29,7 +32,7 @@ export function TVCalendarTab() {
 
   async function handleManualSync() {
     setLoading(true);
-    setSyncStatus('Syncing...');
+    setSyncStatus(i18n.t('common:syncing'));
     try {
       const result = await invoke<{
         synced_count: number;
@@ -76,9 +79,9 @@ export function TVCalendarTab() {
         }
       }
 
-      setSyncStatus(`Synced ${result.synced_count} shows${addedCount > 0 ? `, added ${addedCount} episodes to watchlist` : ''}`);
+      setSyncStatus(`${i18n.t('settings:tvcalendar.syncedShows', { count: result.synced_count })}${addedCount > 0 ? i18n.t('settings:tvcalendar.addedEpisodes', { count: addedCount }) : ''}`);
     } catch (e: any) {
-      setSyncStatus(`Sync failed: ${e}`);
+      setSyncStatus(i18n.t('settings:tvcalendar.syncFailed', { error: e }));
     } finally {
       setLoading(false);
     }
@@ -88,16 +91,16 @@ export function TVCalendarTab() {
     <div className="settings-tab-content">
       <div className="settings-section">
         <div className="section-header">
-          <h3>TV Calendar</h3>
+          <h3>{i18n.t('settings:tvcalendar.title')}</h3>
         </div>
         <p className="section-description">
-          Track your favorite TV shows and view upcoming episodes on a calendar.
+          {i18n.t('settings:tvcalendar.titleSub')}
         </p>
 
         <div className="tvcal-settings-option">
           <div className="tvcal-option-label">
-            <span>Auto-sync episodes</span>
-            <small>Automatically refresh episode data every 24 hours for running shows</small>
+            <span>{i18n.t('settings:tvcalendar.autoSync')}</span>
+            <small>{i18n.t('settings:tvcalendar.autoSyncSub')}</small>
           </div>
           <label className="tvcal-toggle-switch">
             <input
@@ -111,15 +114,15 @@ export function TVCalendarTab() {
 
         <div className="tvcal-settings-option sync-option">
           <div className="tvcal-option-label">
-            <span>Manual Sync</span>
-            <small>Force refresh all tracked shows now</small>
+            <span>{i18n.t('settings:tvcalendar.manualSync')}</span>
+            <small>{i18n.t('settings:tvcalendar.manualSyncSub')}</small>
           </div>
           <button
             className="tvcal-sync-btn"
             onClick={handleManualSync}
             disabled={loading}
           >
-            {loading ? 'Syncing...' : 'Sync Now'}
+            {loading ? i18n.t('common:syncing') : i18n.t('settings:tvcalendar.syncNow')}
           </button>
         </div>
 

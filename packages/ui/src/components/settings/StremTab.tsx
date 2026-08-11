@@ -57,7 +57,7 @@ export function StremTab({
     const url = badgeUrl.trim();
     const paste = badgePaste.trim();
     if (!url && !paste) {
-      setBadgeImportError('Enter a badge JSON URL or paste the JSON content.');
+      setBadgeImportError(i18n.t('settings:strem.errBadgeInput'));
       return;
     }
 
@@ -69,10 +69,10 @@ export function StremTab({
       if (paste) {
         sourceUrl = `pasted_${Date.now()}`;
         const pastedCount = badgeSources.filter((s) => s.url.startsWith('pasted_')).length + 1;
-        sourceName = `Pasted Rule ${pastedCount}`;
+        sourceName = `${i18n.t('settings:strem.pastedRule', { count: pastedCount })}`;
       } else {
         if (!url.startsWith('http://') && !url.startsWith('https://')) {
-          setBadgeImportError('URL must start with http:// or https://');
+          setBadgeImportError(i18n.t('settings:strem.errBadgeUrl'));
           setBadgeImporting(false);
           return;
         }
@@ -99,7 +99,7 @@ export function StremTab({
       setBadgeUrl('');
       setBadgePaste('');
     } catch (err: any) {
-      setBadgeImportError(err?.message || 'Import failed');
+      setBadgeImportError(err?.message || i18n.t('settings:strem.errImportFailed'));
     } finally {
       setBadgeImporting(false);
     }
@@ -226,8 +226,8 @@ export function StremTab({
 
       <div className="retry-setting-row" style={{ borderBottom: 'none' }}>
         <div className="timeshift-toggle-info">
-          <span className="timeshift-toggle-label">Enable Badges</span>
-          <span className="timeshift-toggle-sub">Toggle stream badges on or off.</span>
+          <span className="timeshift-toggle-label">{i18n.t('settings:strem.enableBadgesLabel')}</span>
+          <span className="timeshift-toggle-sub">{i18n.t('settings:strem.enableBadgesLabelSub')}</span>
         </div>
         <label className="toggle-switch">
           <input
@@ -243,8 +243,8 @@ export function StremTab({
         <>
           <div className="retry-setting-row" style={{ borderBottom: 'none', marginTop: '12px' }}>
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Show File Size Badges</span>
-              <span className="timeshift-toggle-sub">Display the video file size badge if available.</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:strem.fileSizeBadges')}</span>
+              <span className="timeshift-toggle-sub">{i18n.t('settings:strem.fileSizeBadgesSub')}</span>
             </div>
             <label className="toggle-switch">
               <input
@@ -258,8 +258,8 @@ export function StremTab({
 
           <div className="retry-setting-row" style={{ borderBottom: 'none', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Badge Position</span>
-              <span className="timeshift-toggle-sub">Render badges above or below the stream title.</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:strem.badgePosition')}</span>
+              <span className="timeshift-toggle-sub">{i18n.t('settings:strem.badgePositionSub')}</span>
             </div>
             <select
               value={streamBadgePlacement}
@@ -275,14 +275,14 @@ export function StremTab({
                 cursor: 'pointer',
               }}
             >
-              <option value="bottom" style={{ background: 'var(--surface-color)' }}>Bottom (Below Title)</option>
-              <option value="top" style={{ background: 'var(--surface-color)' }}>Top (Above Title)</option>
+              <option value="bottom" style={{ background: 'var(--surface-color)' }}>{i18n.t('settings:strem.bottomBelow')}</option>
+              <option value="top" style={{ background: 'var(--surface-color)' }}>{i18n.t('settings:strem.topAbove')}</option>
             </select>
           </div>
 
           <div className="retry-setting-row" style={{ borderBottom: 'none', flexDirection: 'column', alignItems: 'stretch', gap: '10px', marginTop: '12px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-            <span className="timeshift-toggle-label" style={{ fontSize: '0.85rem' }}>Badge Scale ({stremioBadgeSize}%)</span>
+            <span className="timeshift-toggle-label" style={{ fontSize: '0.85rem' }}>{i18n.t('settings:strem.badgeScale', { percent: stremioBadgeSize })}</span>
           </div>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', width: '100%', boxSizing: 'border-box' }}>
             <input
@@ -305,7 +305,7 @@ export function StremTab({
           </div>
           <div style={{ padding: '12px 16px', background: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--surface-border)', width: '100%', boxSizing: 'border-box' }}>
             <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.05em' }}>
-              LIVE PREVIEW
+              {i18n.t('settings:strem.livePreview')}
             </div>
             <div className="stremio-detail-stream-badges" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
               <span className="stremio-stream-badge-img" style={{ backgroundColor: '#ffffff', borderColor: '#ffffff' }}>
@@ -329,12 +329,12 @@ export function StremTab({
       {/* Custom Badge Import */}
       <div style={{ marginTop: '20px', borderTop: '1px solid var(--surface-border)', paddingTop: '16px' }}>
         <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
-          Fusion Badges / Custom Rules
+          {i18n.t('settings:strem.fusionBadges')}
         </div>
 
         <input
           type="text"
-          placeholder="Fusion Badge JSON URL (e.g. https://pastebin.com/raw/...)"
+          placeholder={i18n.t('settings:strem.badgeUrlPlaceholder')}
           value={badgeUrl}
           onChange={(e) => setBadgeUrl(e.target.value)}
           style={{
@@ -352,7 +352,7 @@ export function StremTab({
         />
 
         <textarea
-          placeholder="Or paste badge JSON directly..."
+          placeholder={i18n.t('settings:strem.badgePastePlaceholder')}
           value={badgePaste}
           onChange={(e) => setBadgePaste(e.target.value)}
           rows={3}
@@ -388,7 +388,7 @@ export function StremTab({
               opacity: badgeImporting ? 0.6 : 1,
             }}
           >
-            {badgeImporting ? 'Importing...' : 'Import'}
+            {badgeImporting ? i18n.t('common:importing') : i18n.t('common:import')}
           </button>
           {badgeImportError && (
             <span style={{ fontSize: '0.75rem', color: '#ef4444' }}>{badgeImportError}</span>
@@ -399,7 +399,7 @@ export function StremTab({
         {badgeSources.length > 0 && (
           <div>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.05em' }}>
-              IMPORTED SOURCES
+              {i18n.t('settings:strem.importedSources')}
             </div>
             {badgeSources.map((source) => {
               const isExpanded = expandedSourceUrl === source.url;
@@ -450,13 +450,13 @@ export function StremTab({
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                       }}>
-                        {source.payload.filters.length} filters · {source.payload.groups.length} groups
+                        {i18n.t('settings:strem.filtersGroups', { filters: source.payload.filters.length, groups: source.payload.groups.length })}
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '6px', marginLeft: '8px' }}>
                       <button
                         onClick={() => handleToggleSource(source.url)}
-                        title={source.isActive ? 'Active' : 'Click to activate'}
+                        title={source.isActive ? i18n.t('common:active') : i18n.t('settings:strem.clickToActivate')}
                         style={{
                           background: source.isActive ? 'var(--surface-glow)' : 'var(--surface-color)',
                           border: `1px solid ${source.isActive ? 'var(--accent-glow)' : 'var(--surface-border)'}`,
@@ -468,12 +468,12 @@ export function StremTab({
                           cursor: 'pointer',
                         }}
                       >
-                        {source.isActive ? 'Active' : 'Inactive'}
+                        {source.isActive ? i18n.t('common:active') : i18n.t('common:inactive')}
                       </button>
                       {!source.isDefault && (
                         <button
                           onClick={() => handleDeleteSource(source.url)}
-                          title="Remove"
+                          title={i18n.t('common:remove')}
                           style={{
                             background: 'rgba(239,68,68,0.1)',
                             border: '1px solid rgba(239,68,68,0.2)',
@@ -485,7 +485,7 @@ export function StremTab({
                             cursor: 'pointer',
                           }}
                         >
-                          Delete
+                          {i18n.t('common:delete')}
                         </button>
                       )}
                     </div>
@@ -500,7 +500,7 @@ export function StremTab({
                       boxSizing: 'border-box'
                     }}>
                       <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.03em' }}>
-                        PREVIEW BADGES ({source.payload.filters.length}):
+                        {i18n.t('settings:strem.previewBadges', { count: source.payload.filters.length })}:
                       </div>
                       <div className="stremio-detail-stream-badges" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
                         {source.payload.filters.map((filter, fIdx) => {

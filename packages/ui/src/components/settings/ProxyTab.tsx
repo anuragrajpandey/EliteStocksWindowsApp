@@ -238,7 +238,7 @@ export function ProxyTab({
                   setUsername(e.target.value);
                   setSaveStatus('idle');
                 }}
-                placeholder="Proxy username"
+                placeholder={i18n.t('settings:proxy.usernamePlaceholder')}
                 style={{ width: '100%' }}
               />
             </div>
@@ -252,7 +252,7 @@ export function ProxyTab({
                   setPassword(e.target.value);
                   setSaveStatus('idle');
                 }}
-                placeholder="Proxy password"
+                placeholder={i18n.t('settings:proxy.passwordPlaceholder')}
                 style={{ width: '100%' }}
               />
             </div>
@@ -275,10 +275,10 @@ export function ProxyTab({
       {/* Diagnostics / Verification Section */}
       <div className="settings-section" style={{ marginTop: '2.5rem', borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>
         <div className="section-header">
-          <h3>Diagnostics & Connection Test</h3>
+          <h3>{i18n.t('settings:proxy.diagnosticsTitle')}</h3>
         </div>
         <p className="section-description">
-          Test connectivity and verify that your public IP matches your proxy server location.
+          {i18n.t('settings:proxy.diagnosticsSub')}
         </p>
 
         <div style={{ marginTop: '1.25rem' }}>
@@ -297,7 +297,7 @@ export function ProxyTab({
             }}>
               <span style={{ fontSize: '1.1rem' }}>⚠️</span>
               <span>
-                You have unsaved changes. Please save and apply proxy settings before testing.
+                {i18n.t('settings:proxy.unsavedWarning')}
               </span>
             </div>
           )}
@@ -315,11 +315,11 @@ export function ProxyTab({
                 cursor: socks5ProxyEnabled ? 'pointer' : 'not-allowed',
               }}
             >
-              {testing ? 'Running test...' : 'Run Connection Test'}
+              {testing ? i18n.t('settings:proxy.testing') : i18n.t('settings:proxy.runTest')}
             </button>
             {!socks5ProxyEnabled && (
               <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                Enable and apply SOCKS5 proxy to enable testing.
+                {i18n.t('settings:proxy.enableToTest')}
               </span>
             )}
           </div>
@@ -338,25 +338,25 @@ export function ProxyTab({
               <div style={{ fontWeight: 700, marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 {testResult.success ? (
                   <>
-                    <span>✓</span> Connection Test Successful
+                    <span>✓</span> {i18n.t('settings:proxy.testSuccess')}
                   </>
                 ) : (
                   <>
-                    <span>✗</span> Connection Test Failed
+                    <span>✗</span> {i18n.t('settings:proxy.testFailed')}
                   </>
                 )}
               </div>
               <div style={{ marginTop: '0.5rem', fontFamily: 'monospace', color: 'var(--text-primary)', wordBreak: 'break-all' }}>
                 {testResult.success ? (
                   <>
-                    Your Egress IP: <strong style={{ color: '#10b981' }}>{testResult.ip}</strong>
+                    {i18n.t('settings:proxy.egressIp')}: <strong style={{ color: '#10b981' }}>{testResult.ip}</strong>
                     <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '0.25rem', fontFamily: 'sans-serif' }}>
-                      All network requests and playback streams are successfully routing through the proxy.
+                      {i18n.t('settings:proxy.routingOk')}
                     </div>
                   </>
                 ) : (
                   <>
-                    Error Detail: {testResult.error}
+                    {i18n.t('settings:proxy.errorDetail')}: {testResult.error}
                   </>
                 )}
               </div>
@@ -368,53 +368,53 @@ export function ProxyTab({
       {/* Verification / FAQ Guide */}
       <div className="settings-section" style={{ marginTop: '2.5rem', borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
         <div className="section-header">
-          <h3>Proxy Verification FAQ</h3>
+          <h3>{i18n.t('settings:proxy.faqTitle')}</h3>
         </div>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
           <div>
             <h4 style={{ fontSize: '0.9rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
-              How do I confirm the SOCKS5 proxy is routing stream playback?
+              {i18n.t('settings:proxy.faqQ1')}
             </h4>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-              ynoTV spawns MPV player instances with the <code>--http-proxy</code> command-line argument. We default to using the DNS-safe <code>socks5h://</code> scheme, forcing DNS resolution to occur directly at the proxy server and eliminating local DNS leaks.
+              {i18n.t('settings:proxy.faqA1Pre')}<code>--http-proxy</code>{i18n.t('settings:proxy.faqA1Mid')}<code>socks5h://</code>{i18n.t('settings:proxy.faqA1Post')}
             </p>
           </div>
 
           <div>
             <h4 style={{ fontSize: '0.9rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
-              Do settings apply instantly on saving?
+              {i18n.t('settings:proxy.faqQ2')}
             </h4>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-              Yes. Upon clicking <strong>Save & Apply Proxy</strong>, the app prompts you to save settings and restart. Relaunching ensures all network operations and MPV stream playbacks run cleanly with the newly applied variables.
+              {i18n.t('settings:proxy.faqA2Pre')}<strong>{i18n.t('settings:proxy.faqA2Strong')}</strong>{i18n.t('settings:proxy.faqA2Post')}
             </p>
           </div>
         </div>
       </div>
 
       <p className="settings-disclaimer">
-        Note: Chromecast devices and local discovery (mDNS) bypass the proxy automatically to maintain normal local network communication.
+        {i18n.t('settings:proxy.disclaimer')}
       </p>
 
       {showRestartModal && (
         <div className="modal-overlay" onClick={() => setShowRestartModal(false)}>
           <div className="modal-container" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">Restart Required</h3>
+              <h3 className="modal-title">{i18n.t('settings:proxy.restartRequired')}</h3>
             </div>
             <div className="modal-body">
               <p className="modal-message">
-                Applying SOCKS5 proxy changes requires the application to restart. This ensures all network services and the video player load correctly with the new proxy configuration.
+                {i18n.t('settings:proxy.restartMsg')}
                 <br /><br />
-                Would you like to save changes and restart the application now?
+                {i18n.t('settings:proxy.restartQuestion')}
               </p>
             </div>
             <div className="modal-footer">
               <button className="modal-btn modal-btn-secondary" onClick={() => setShowRestartModal(false)}>
-                Cancel
+                {i18n.t('common:cancel')}
               </button>
               <button className="modal-btn modal-btn-primary" onClick={handleSaveAndRestart}>
-                Yes, Save & Restart
+                {i18n.t('settings:proxy.saveAndRestart')}
               </button>
             </div>
           </div>
@@ -428,13 +428,13 @@ export function ProxyTab({
         }}>
           <div className="modal-container" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">Restart Required to Disable</h3>
+              <h3 className="modal-title">{i18n.t('settings:proxy.restartRequiredDisable')}</h3>
             </div>
             <div className="modal-body">
               <p className="modal-message">
-                Disabling SOCKS5 proxy routing requires the application to restart so all network components and the player revert to direct routing.
+                {i18n.t('settings:proxy.restartDisableMsg')}
                 <br /><br />
-                Would you like to disable the proxy and restart the application now?
+                {i18n.t('settings:proxy.disableQuestion')}
               </p>
             </div>
             <div className="modal-footer">
@@ -442,10 +442,10 @@ export function ProxyTab({
                 setShowDisableModal(false);
                 setEnabled(true);
               }}>
-                Cancel
+                {i18n.t('common:cancel')}
               </button>
               <button className="modal-btn modal-btn-primary" onClick={handleDisableAndRestart}>
-                Yes, Disable & Restart
+                {i18n.t('settings:proxy.disableAndRestart')}
               </button>
             </div>
           </div>

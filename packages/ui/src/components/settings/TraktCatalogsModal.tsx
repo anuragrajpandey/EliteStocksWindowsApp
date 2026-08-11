@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { scrobbler, TRAKT_CATALOG_DEFINITIONS } from '../../services/scrobbler';
 import { useSetTraktCatalogRefreshToken } from '../../stores/uiStore';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import '../Modal.css';
 import './PlaybackTab.css';
 
@@ -12,6 +14,7 @@ interface TraktCatalogsModalProps {
 
 export function TraktCatalogsModal({ type, onClose }: TraktCatalogsModalProps) {
   const isNuvio = type === 'nuvio';
+  useTranslation();
   const bumpRefreshToken = useSetTraktCatalogRefreshToken();
 
   const [catalogSettings, setCatalogSettings] = useState<Record<string, boolean>>({});
@@ -171,7 +174,7 @@ export function TraktCatalogsModal({ type, onClose }: TraktCatalogsModalProps) {
     allEntries.push({
       key: `list-${list.id.slug}`,
       label: list.name,
-      description: 'Your custom list',
+      description: i18n.t('settings:traktCatalogs.yourCustomList'),
       isEnabled: currentEnabledLists.some(l => l.id === list.id.slug),
     });
   }
@@ -253,7 +256,7 @@ export function TraktCatalogsModal({ type, onClose }: TraktCatalogsModalProps) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '560px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <div className="modal-header">
-          <h3 className="modal-title">{isNuvio ? 'Trakt Nuvio Catalogs' : 'Trakt Strem Catalogs'}</h3>
+          <h3 className="modal-title">{isNuvio ? i18n.t('settings:traktCatalogs.nuvioTitle') : i18n.t('settings:traktCatalogs.stremTitle')}</h3>
           <button className="modal-close-btn" onClick={onClose}>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6L6 18M6 6l12 12" />
@@ -263,15 +266,15 @@ export function TraktCatalogsModal({ type, onClose }: TraktCatalogsModalProps) {
         <div className="modal-body strem-catalogs-modal-body" style={{ maxHeight: '60vh', overflowY: 'auto', paddingBottom: '8px' }}>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0 0 16px 0', lineHeight: '1.5' }}>
             {isNuvio
-              ? 'Toggle which Trakt catalogs appear on your Nuvio home page. Use the arrows to reorder them.'
-              : 'Toggle which Trakt catalogs appear on your Stremio home page. Use the arrows to reorder them.'}
+              ? i18n.t('settings:traktCatalogs.nuvioSub')
+              : i18n.t('settings:traktCatalogs.stremSub')}
           </p>
 
           {/* Position toggle */}
           <div className="timeshift-toggle-row" style={{ padding: '10px 0', marginBottom: '12px' }}>
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label" style={{ fontSize: '0.9rem' }}>Show before addon catalogs</span>
-              <span className="timeshift-toggle-sub">Place Trakt catalog rows above addon-provided catalogs</span>
+              <span className="timeshift-toggle-label" style={{ fontSize: '0.9rem' }}>{i18n.t('settings:traktCatalogs.showBeforeAddon')}</span>
+              <span className="timeshift-toggle-sub">{i18n.t('settings:traktCatalogs.showBeforeAddonSub')}</span>
             </div>
             <label className="toggle-switch">
               <input
@@ -287,9 +290,9 @@ export function TraktCatalogsModal({ type, onClose }: TraktCatalogsModalProps) {
           {ordered.length > 0 && (
             <div style={{ marginBottom: '16px' }}>
               <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                Enabled Catalogs
+                {i18n.t('settings:traktCatalogs.enabledCatalogs')}
                 <span style={{ marginLeft: '8px', fontWeight: 400, fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                  (drag ⋮⋮ to reorder)
+                  ({i18n.t('settings:traktCatalogs.dragReorder')})
                 </span>
               </div>
               <div
@@ -359,7 +362,7 @@ export function TraktCatalogsModal({ type, onClose }: TraktCatalogsModalProps) {
           {disabled.length > 0 && (
             <div style={{ marginBottom: '14px' }}>
               <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                Disabled Catalogs
+                {i18n.t('settings:traktCatalogs.disabledCatalogs')}
               </div>
               {disabled.map((entry) => (
                 <div key={entry.key} className="timeshift-toggle-row" style={{ padding: '10px 0' }}>
@@ -397,18 +400,18 @@ export function TraktCatalogsModal({ type, onClose }: TraktCatalogsModalProps) {
               disabled={listsLoading}
               style={{ padding: '6px 16px', fontSize: '0.85rem' }}
             >
-              {listsLoading ? 'Loading...' : 'Load My Lists'}
+              {listsLoading ? i18n.t('common:loading') : i18n.t('settings:traktCatalogs.loadMyLists')}
             </button>
             {traktLists.length === 0 && !listsLoading && (
               <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '8px 0 0 0', lineHeight: '1.5' }}>
-                Click to fetch your Trakt custom lists. Loaded lists appear in the sections above.
+                {i18n.t('settings:traktCatalogs.loadListsHint')}
               </p>
             )}
           </div>
         </div>
         <div className="modal-footer">
           <button className="modal-btn modal-btn-primary" onClick={onClose}>
-            Done
+            {i18n.t('common:done')}
           </button>
         </div>
       </div>

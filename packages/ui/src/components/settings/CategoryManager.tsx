@@ -6,6 +6,8 @@ import { useCategorySortOrder } from '../../stores/uiStore';
 import { isCategorySortCustomized, setCategorySortCustomized } from '../../utils/categorySortOverrides';
 import { createCategoryFolder, renameCategoryFolder, deleteCategoryFolder, reorderCategoryFolders } from '../../services/playlist-editor';
 import { ChannelManager } from './ChannelManager';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './CategoryManager.css';
 import {
   DndContext,
@@ -74,9 +76,9 @@ function SortableInsideFolderCategory(props: {
                 style={{ background: 'rgba(255,75,75,0.15)', border: '1px solid rgba(255,75,75,0.3)', color: '#ff4b4b', borderRadius: '4px', cursor: 'pointer', fontSize: '0.72rem', padding: '2px 8px', fontWeight: 600 }}
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={() => onRemove(cat.id)}
-                title="Remove category from this folder"
+                title={i18n.t('settings:categoryManager.removeFromFolder')}
             >
-                ✕ Remove
+                ✕ {i18n.t('common:remove')}
             </button>
         </div>
     );
@@ -124,6 +126,7 @@ interface CategoryManagerProps {
 }
 
 export function CategoryManager({ sourceId, sourceName, onClose, onChange, initialCreateFolder, initialBulkFolder }: CategoryManagerProps) {
+    useTranslation();
     const [categories, setCategories] = useState<Array<
         | { type: 'native'; id: string; name: string; enabled: boolean; displayOrder: number; folderId?: string | null; category: StoredCategory }
         | { type: 'link'; id: string; linkId: number; name: string; enabled: boolean; displayOrder: number; folderId?: string | null; link: any }
@@ -383,7 +386,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
 
     // Delete custom categories / category links
     const handleDeleteLink = useCallback(async (linkId: number) => {
-        const confirm = window.confirm("Are you sure you want to delete this category link?");
+        const confirm = window.confirm(i18n.t('settings:categoryManager.confirmDeleteLink'));
         if (!confirm) return;
         const { removeCategoryFromPlaylist } = await import('../../services/playlist-editor');
         await removeCategoryFromPlaylist(linkId);
@@ -634,7 +637,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
             onClose();
         } catch (err) {
             console.error('[CategoryManager] Failed to save:', err);
-            alert('Failed to save changes. Please try again.');
+            alert(i18n.t('settings:categoryManager.errSave'));
             isSavingRef.current = false;
         }
     }, [categories, onChange, onClose]);
@@ -648,14 +651,14 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
         <div className="category-manager-overlay">
             <div className="category-manager-modal" onClick={e => e.stopPropagation()}>
                 <div className="category-manager-header">
-                    <h2>Manage Categories - {sourceName}</h2>
+                    <h2>{i18n.t('settings:categoryManager.manageTitle', { name: sourceName })}</h2>
                     <button className="close-btn" onClick={onClose}>✕</button>
                 </div>
 
                 <div className="category-manager-stats" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span>{enabledCount} of {totalCount} categories enabled</span>
+                    <span>{i18n.t('settings:categoryManager.categoriesEnabled', { enabled: enabledCount, total: totalCount })}</span>
                     <span style={{ opacity: 0.7, fontSize: '0.85em' }}>
-                        ({categorySortOrder === 'alphabetical' && !isCustomized ? 'Alphabetical' : 'Default'} order)
+                        ({i18n.t('settings:categoryManager.orderLabel', { order: categorySortOrder === 'alphabetical' && !isCustomized ? i18n.t('common:alphabetical') : i18n.t('common:default') })})
                     </span>
                     {categorySortOrder === 'alphabetical' && (
                         !isCustomized ? (
@@ -674,7 +677,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                     gap: '4px',
                                     marginLeft: '8px'
                                 }}
-                                title="Unlock manual reordering for this specific playlist/source"
+                                title={i18n.t('settings:categoryManager.unlockOrderHint')}
                             >
                                 <svg 
                                     xmlns="http://www.w3.org/2000/svg" 
@@ -690,7 +693,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                     <path d="M12 20h9"/>
                                     <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
                                 </svg>
-                                <span>Customize Order</span>
+                                <span>{i18n.t('settings:categoryManager.customizeOrder')}</span>
                             </button>
                         ) : (
                             <button
@@ -708,7 +711,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                     gap: '4px',
                                     marginLeft: '8px'
                                 }}
-                                title="Reset sorting for this specific playlist/source back to alphabetical"
+                                title={i18n.t('settings:categoryManager.resetOrderHint')}
                             >
                                 <svg 
                                     xmlns="http://www.w3.org/2000/svg" 
@@ -724,36 +727,36 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                     <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
                                     <path d="M3 3v5h5"/>
                                 </svg>
-                                <span>Reset to Alphabetical</span>
+                                <span>{i18n.t('settings:categoryManager.resetToAlphabetical')}</span>
                             </button>
                         )
                     )}
                 </div>
 
                 <div className="category-manager-actions" style={{ flexWrap: 'wrap', gap: '8px' }}>
-                    <button onClick={handleSelectAll}>✓ Select All</button>
-                    <button onClick={handleSelectNone}>✗ Select None</button>
+                    <button onClick={handleSelectAll}>✓ {i18n.t('common:selectAll')}</button>
+                    <button onClick={handleSelectNone}>✗ {i18n.t('common:selectNone')}</button>
                     <div className="divider-vertical"></div>
                     <button
                         onClick={handleSortABC}
-                        title="Sort categories alphabetically (uses category alias if set)"
+                        title={i18n.t('settings:categoryManager.sortAZHint')}
                     >
-                        🔤 Sort A-Z
+                        🔤 {i18n.t('common:sortAZ')}
                     </button>
                     <div className="divider-vertical"></div>
                     <button
                         onClick={() => setHideUnselected(!hideUnselected)}
                         className={hideUnselected ? 'active-toggle' : ''}
                     >
-                        {hideUnselected ? '👁 Show All' : '👁‍🗨 Hide Unselected'}
+                        {hideUnselected ? '👁 ' + i18n.t('common:showAll') : '👁‍🗨 ' + i18n.t('settings:categoryManager.hideUnselected')}
                     </button>
                     <button
                         onClick={handleSelectToMoveToggle}
                         className={selectToMoveMode !== 'inactive' ? 'active-toggle' : ''}
                     >
-                        {selectToMoveMode === 'inactive' && '⇈ Multi-Select'}
-                        {selectToMoveMode === 'selecting' && `✓ Done Selecting (${selectedForMove.size})`}
-                        {selectToMoveMode === 'ready' && '⇈ Move Selected to Top'}
+                        {selectToMoveMode === 'inactive' && '⇈ ' + i18n.t('settings:categoryManager.multiSelect')}
+                        {selectToMoveMode === 'selecting' && `✓ ${i18n.t('settings:categoryManager.doneSelecting', { count: selectedForMove.size })}`}
+                        {selectToMoveMode === 'ready' && '⇈ ' + i18n.t('settings:categoryManager.moveSelectedTop')}
                     </button>
 
                     <button
@@ -762,9 +765,9 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                             setIsCreateOnlyModalOpen(true);
                         }}
                         style={{ color: 'var(--accent-primary, #00d4ff)', borderColor: 'rgba(0,212,255,0.3)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                        title="Create a new category folder in this source."
+                        title={i18n.t('settings:categoryManager.createFolderHint')}
                     >
-                        <FolderIcon size={14} /> + Create Folder
+                        <FolderIcon size={14} /> + {i18n.t('settings:categoryManager.createFolder')}
                     </button>
 
                     {selectToMoveMode !== 'inactive' && (
@@ -772,7 +775,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                             onClick={handleSelectToMoveCancel}
                             className="cancel-select-btn"
                         >
-                            Cancel
+                            {i18n.t('common:cancel')}
                         </button>
                     )}
                 </div>
@@ -780,7 +783,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                 <div className="category-search">
                     <input
                         type="text"
-                        placeholder="Search categories..."
+                        placeholder={i18n.t('settings:categoryManager.searchPlaceholder')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -847,9 +850,9 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                     handleAssignFolderSingle(cat.id, val);
                                                 }}
                                                 onClick={(e) => e.stopPropagation()}
-                                                title="Assign category to folder"
+                                                title={i18n.t('settings:categoryManager.assignFolderHint')}
                                             >
-                                                <option value="">📁 Root Level</option>
+                                                <option value="">📁 {i18n.t('settings:categoryManager.rootLevel')}</option>
                                                 {categoryFolders.map((f: CategoryFolder) => (
                                                     <option key={f.folder_id} value={f.folder_id}>📁 {f.name}</option>
                                                 ))}
@@ -860,16 +863,16 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                             className="manage-channels-btn"
                                             onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => setManagingCategory({ id: cat.id, name: cat.name })}
                                             disabled={selectToMoveMode !== 'inactive'}
-                                            title="Manage channels in this category"
+                                            title={i18n.t('settings:categoryManager.manageChannelsHint')}
                                         >
-                                            📺 Channels
+                                            📺 {i18n.t('settings:categoryManager.channels')}
                                         </button>
                                         {cat.type === 'link' && (
                                             <button
                                                 className="category-delete-btn"
                                                 onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => handleDeleteLink(cat.linkId)}
                                                 disabled={selectToMoveMode !== 'inactive'}
-                                                title="Remove category link"
+                                                title={i18n.t('settings:categoryManager.removeLinkHint')}
                                                 style={{
                                                     background: 'transparent',
                                                     border: 'none',
@@ -892,7 +895,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                 className="order-btn"
                                                 onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => moveToTop(index)}
                                                 disabled={index === 0 || selectToMoveMode !== 'inactive'}
-                                                title="Move to top"
+                                                title={i18n.t('common:moveToTop')}
                                             >
                                                 ↑↑
                                             </button>
@@ -900,7 +903,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                 className="order-btn"
                                                 onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => moveUp(index)}
                                                 disabled={index === 0 || selectToMoveMode !== 'inactive'}
-                                                title="Move up"
+                                                title={i18n.t('common:moveUp')}
                                             >
                                                 ↑
                                             </button>
@@ -908,7 +911,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                 className="order-btn"
                                                 onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => moveDown(index)}
                                                 disabled={index === categories.length - 1 || selectToMoveMode !== 'inactive'}
-                                                title="Move down"
+                                                title={i18n.t('common:moveDown')}
                                             >
                                                 ↓
                                             </button>
@@ -940,7 +943,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                     <div className="cm-folder-header-left">
                                                         <span
                                                             className="drag-handle"
-                                                            title="Drag to reorder folder"
+                                                            title={i18n.t('settings:categoryManager.dragFolderHint')}
                                                             style={{ cursor: 'grab', opacity: 0.6, fontSize: '0.9rem', padding: '0 4px', userSelect: 'none', touchAction: 'none' }}
                                                             onPointerDown={(e) => {
                                                                 e.stopPropagation();
@@ -953,7 +956,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                         </span>
                                                         <FolderIcon size={16} />
                                                         <span style={{ fontWeight: 600 }}>{folder.name}</span>
-                                                        <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)', fontWeight: 'normal' }}>({folderCategories.length} categories)</span>
+                                                        <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)', fontWeight: 'normal' }}>({i18n.t('settings:categoryManager.folderCategoriesCount', { count: folderCategories.length })})</span>
                                                     </div>
 
                                                     <div className="cm-folder-header-actions" onClick={e => e.stopPropagation()}>
@@ -968,7 +971,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                                 const updates = newFolders.map((f, idx) => ({ folderId: f.folder_id, displayOrder: idx }));
                                                                 await reorderCategoryFolders(updates);
                                                             }}
-                                                            title="Move folder up"
+                                                            title={i18n.t('settings:categoryManager.moveFolderUp')}
                                                         >
                                                             ↑
                                                         </button>
@@ -983,7 +986,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                                 const updates = newFolders.map((f, idx) => ({ folderId: f.folder_id, displayOrder: idx }));
                                                                 await reorderCategoryFolders(updates);
                                                             }}
-                                                            title="Move folder down"
+                                                            title={i18n.t('settings:categoryManager.moveFolderDown')}
                                                         >
                                                             ↓
                                                         </button>
@@ -994,7 +997,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                                 setBulkRightSearch('');
                                                                 setBulkFolderTarget(folder);
                                                             }}
-                                                            title="Bulk add/remove categories in this folder"
+                                                            title={i18n.t('settings:categoryManager.bulkAddRemoveHint')}
                                                             style={{
                                                                 background: 'rgba(0, 212, 255, 0.12)',
                                                                 border: '1px solid rgba(0, 212, 255, 0.3)',
@@ -1007,7 +1010,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                                 marginRight: '6px'
                                                             }}
                                                         >
-                                                            ⇄ Bulk Add/Remove
+                                                            ⇄ {i18n.t('settings:categoryManager.bulkAddRemove')}
                                                         </button>
                                                         <button
                                                             className="cm-folder-icon-btn"
@@ -1015,14 +1018,14 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                                 setRenamingFolder(folder);
                                                                 setRenameInput(folder.name);
                                                             }}
-                                                            title="Rename folder"
+                                                            title={i18n.t('settings:categoryManager.renameFolderHint')}
                                                         >
                                                             <PencilIcon size={14} />
                                                         </button>
                                                         <button
                                                             className="cm-folder-icon-btn delete"
                                                             onClick={() => setDeletingFolderTarget(folder)}
-                                                            title="Delete folder"
+                                                            title={i18n.t('settings:categoryManager.deleteFolderHint')}
                                                         >
                                                             ✕
                                                         </button>
@@ -1032,7 +1035,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                 {!isCollapsed && (
                                                     <div className="cm-folder-card-body">
                                                         {folderCategories.length === 0 ? (
-                                                            <div className="cm-folder-empty-hint">Folder is empty. Use "Move Selected to Folder" or the folder dropdown to assign categories.</div>
+                                                            <div className="cm-folder-empty-hint">{i18n.t('settings:categoryManager.folderEmpty')}</div>
                                                         ) : (
                                                             folderCategories.map(cat => renderCategoryItem(cat))
                                                         )}
@@ -1044,7 +1047,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
 
                                     {rootCategories.length > 0 && (
                                         <div className="cm-root-categories">
-                                            {categoryFolders.length > 0 && <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', margin: '12px 0 6px' }}>Root Categories</div>}
+                                            {categoryFolders.length > 0 && <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', margin: '12px 0 6px' }}>{i18n.t('settings:categoryManager.rootCategories')}</div>}
                                             {rootCategories.map(cat => renderCategoryItem(cat))}
                                         </div>
                                     )}
@@ -1057,13 +1060,13 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                 </div>
 
                 <div className="category-manager-footer">
-                    <button className="cancel-btn" onClick={onClose}>Cancel</button>
+                    <button className="cancel-btn" onClick={onClose}>{i18n.t('common:cancel')}</button>
                     <button
                         className="save-btn"
                         onClick={handleSave}
                         disabled={!isDirty}
                     >
-                        Save Changes
+                        {i18n.t('common:saveChanges')}
                     </button>
                 </div>
 
@@ -1088,14 +1091,14 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                 <div className="cm-folder-modal-header">
                                     <h3>
                                         <FolderIcon size={18} />
-                                        <span>{activeMoveCount > 0 ? `Move ${activeMoveCount} Categories to Folder` : `Folders in ${sourceName}`}</span>
+                                        <span>{activeMoveCount > 0 ? i18n.t('settings:categoryManager.moveCategoriesToFolder', { count: activeMoveCount }) : i18n.t('settings:categoryManager.foldersInSource', { name: sourceName })}</span>
                                     </h3>
                                     <button className="close-btn" onClick={() => setIsFolderModalOpen(false)}>✕</button>
                                 </div>
 
                                 <div className="cm-folder-modal-body">
                                     <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '4px' }}>
-                                        {activeMoveCount > 0 ? 'Select Destination Folder:' : 'Current Source Folders:'}
+                                        {activeMoveCount > 0 ? i18n.t('settings:categoryManager.selectDestFolder') : i18n.t('settings:categoryManager.currentSourceFolders')}
                                     </div>
 
                                     <button
@@ -1109,9 +1112,9 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                     >
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <FolderIcon size={16} />
-                                            <span>Root Level (No Folder)</span>
+                                            <span>{i18n.t('settings:categoryManager.rootLevelNoFolder')}</span>
                                         </div>
-                                        <span style={{ opacity: 0.5, fontSize: '0.75rem' }}>Default</span>
+                                        <span style={{ opacity: 0.5, fontSize: '0.75rem' }}>{i18n.t('common:default')}</span>
                                     </button>
 
                                     {categoryFolders && categoryFolders.length > 0 ? (
@@ -1133,27 +1136,27 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                         <span style={{ fontWeight: 600 }}>{f.name}</span>
                                                     </div>
                                                     <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)' }}>
-                                                        {count} {count === 1 ? 'category' : 'categories'}
+                                                        {i18n.t('settings:categoryManager.categoryCount', { count })}
                                                     </span>
                                                 </button>
                                             );
                                         })
                                     ) : (
                                         <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', padding: '6px 0' }}>
-                                            No custom folders created yet in this source.
+                                            {i18n.t('settings:categoryManager.noFoldersYet')}
                                         </div>
                                     )}
 
                                     {/* Add New Folder Inline Form */}
                                     <div className="cm-folder-create-box">
                                         <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--accent-primary, #00d4ff)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                            <FolderIcon size={14} /> + Add New Folder
+                                            <FolderIcon size={14} /> + {i18n.t('settings:categoryManager.addNewFolder')}
                                         </div>
                                         <div style={{ display: 'flex', gap: '8px' }}>
                                             <input
                                                 type="text"
                                                 className="cm-folder-create-input"
-                                                placeholder="Folder name (e.g. USA, Sports, News)..."
+                                                placeholder={i18n.t('settings:categoryManager.folderNamePlaceholder')}
                                                 value={newFolderName}
                                                 onChange={e => setNewFolderName(e.target.value)}
                                                 onKeyDown={async e => {
@@ -1182,14 +1185,14 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                     setIsFolderModalOpen(false);
                                                 }}
                                             >
-                                                {activeMoveCount > 0 ? 'Create & Assign' : 'Create Folder'}
+                                                {activeMoveCount > 0 ? i18n.t('settings:categoryManager.createAndAssign') : i18n.t('settings:categoryManager.createFolder')}
                                             </button>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="category-manager-footer" style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                                    <button className="cancel-btn" onClick={() => setIsFolderModalOpen(false)}>Close</button>
+                                    <button className="cancel-btn" onClick={() => setIsFolderModalOpen(false)}>{i18n.t('common:close')}</button>
                                 </div>
                             </div>
                         </div>
@@ -1229,21 +1232,21 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                 <div className="cm-folder-modal-header">
                                     <h3>
                                         <FolderIcon size={18} />
-                                        <span>Create New Folder</span>
+                                        <span>{i18n.t('settings:categoryManager.createNewFolder')}</span>
                                     </h3>
                                     <button className="close-btn" onClick={handleCancel}>✕</button>
                                 </div>
 
                                 <div className="cm-folder-modal-body" style={{ gap: '16px' }}>
                                     <div className="cm-modal-subtext">
-                                        Enter a name for the new folder to be created in <strong>{sourceName}</strong>:
+                                        {i18n.t('settings:categoryManager.enterFolderNamePre')}<strong>{sourceName}</strong>{i18n.t('settings:categoryManager.enterFolderNamePost')}
                                     </div>
 
                                     <input
                                         type="text"
                                         className="cm-folder-create-input"
                                         style={{ width: '100%', boxSizing: 'border-box', fontSize: '0.9rem', padding: '10px 14px' }}
-                                        placeholder="Folder name (e.g. USA, Sports, News)..."
+                                        placeholder={i18n.t('settings:categoryManager.folderNamePlaceholder')}
                                         value={createOnlyFolderName}
                                         onChange={e => setCreateOnlyFolderName(e.target.value)}
                                         onKeyDown={async e => {
@@ -1256,14 +1259,14 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                 </div>
 
                                 <div className="category-manager-footer" style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                                    <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
+                                    <button className="cancel-btn" onClick={handleCancel}>{i18n.t('common:cancel')}</button>
                                     <button
                                         className="save-btn"
                                         style={{ padding: '6px 18px' }}
                                         disabled={!createOnlyFolderName.trim()}
                                         onClick={handleCreate}
                                     >
-                                        Create Folder
+                                        {i18n.t('settings:categoryManager.createFolder')}
                                     </button>
                                 </div>
                             </div>
@@ -1326,7 +1329,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                 <div className="cm-folder-modal-header">
                                     <h3>
                                         <FolderIcon size={18} />
-                                        <span>Bulk Edit Categories in Folder: <strong>{bulkFolderTarget.name}</strong></span>
+                                        <span>{i18n.t('settings:categoryManager.bulkEditPre')}<strong>{bulkFolderTarget.name}</strong></span>
                                     </h3>
                                     <button className="close-btn" onClick={handleCloseBulkModal}>✕</button>
                                 </div>
@@ -1338,7 +1341,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                         <div className="cm-bulk-col" style={{ display: 'flex', flexDirection: 'column', background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', overflow: 'hidden' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                                                 <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-primary, #00d4ff)' }}>
-                                                    📁 In Folder ({insideFolder.length})
+                                                    📁 {i18n.t('settings:categoryManager.inFolder', { count: insideFolder.length })}
                                                 </div>
                                                 {insideFolder.length > 0 && (
                                                     <button
@@ -1349,7 +1352,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                             setIsDirty(true);
                                                         }}
                                                     >
-                                                        Remove All
+                                                        {i18n.t('settings:categoryManager.removeAll')}
                                                     </button>
                                                 )}
                                             </div>
@@ -1358,7 +1361,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                 type="text"
                                                 className="cm-folder-create-input"
                                                 style={{ marginBottom: '8px', padding: '6px 10px', fontSize: '0.8rem' }}
-                                                placeholder="Filter categories in folder..."
+                                                placeholder={i18n.t('settings:categoryManager.filterInFolder')}
                                                 value={bulkLeftSearch}
                                                 onChange={e => setBulkLeftSearch(e.target.value)}
                                             />
@@ -1385,7 +1388,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                     </DndContext>
                                                 ) : (
                                                     <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', padding: '12px 0', textAlign: 'center' }}>
-                                                        No categories in this folder.
+                                                        {i18n.t('settings:categoryManager.noCategoriesInFolder')}
                                                     </div>
                                                 )}
                                             </div>
@@ -1395,7 +1398,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                         <div className="cm-bulk-col" style={{ display: 'flex', flexDirection: 'column', background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', overflow: 'hidden' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                                                 <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary, rgba(255,255,255,0.8))' }}>
-                                                    📄 Available Root Categories ({outsideFolder.length})
+                                                    📄 {i18n.t('settings:categoryManager.availableRoot', { count: outsideFolder.length })}
                                                 </div>
                                                 {filteredOutside.length > 0 && bulkRightSearch.trim() && (
                                                     <button
@@ -1406,7 +1409,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                             setIsDirty(true);
                                                         }}
                                                     >
-                                                        + Add All Filtered ({filteredOutside.length})
+                                                        + {i18n.t('settings:categoryManager.addAllFiltered', { count: filteredOutside.length })}
                                                     </button>
                                                 )}
                                             </div>
@@ -1415,7 +1418,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                 type="text"
                                                 className="cm-folder-create-input"
                                                 style={{ marginBottom: '8px', padding: '6px 10px', fontSize: '0.8rem' }}
-                                                placeholder="Filter available root categories..."
+                                                placeholder={i18n.t('settings:categoryManager.filterAvailableRoot')}
                                                 value={bulkRightSearch}
                                                 onChange={e => setBulkRightSearch(e.target.value)}
                                             />
@@ -1431,13 +1434,13 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                                         >
                                                             <span style={{ fontWeight: 500 }}>{cat.name}</span>
                                                             <span style={{ fontSize: '0.72rem', color: 'var(--accent-primary, #00d4ff)', fontWeight: 600, padding: '2px 6px', background: 'rgba(0,212,255,0.1)', borderRadius: '4px' }}>
-                                                                + Add
+                                                                + {i18n.t('common:add')}
                                                             </span>
                                                         </div>
                                                     ))
                                                 ) : (
                                                     <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', padding: '12px 0', textAlign: 'center' }}>
-                                                        No available root categories.
+                                                        {i18n.t('settings:categoryManager.noAvailableRoot')}
                                                     </div>
                                                 )}
                                             </div>
@@ -1447,7 +1450,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                 </div>
 
                                 <div className="category-manager-footer" style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end' }}>
-                                    <button className="save-btn" style={{ padding: '6px 20px' }} onClick={handleCloseBulkModal}>Done</button>
+                                    <button className="save-btn" style={{ padding: '6px 20px' }} onClick={handleCloseBulkModal}>{i18n.t('common:done')}</button>
                                 </div>
                             </div>
                         </div>
@@ -1461,14 +1464,14 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                             <div className="cm-folder-modal-header">
                                 <h3>
                                     <PencilIcon size={18} />
-                                    <span>Rename Folder</span>
+                                    <span>{i18n.t('settings:categoryManager.renameFolderTitle')}</span>
                                 </h3>
                                 <button className="close-btn" onClick={() => setRenamingFolder(null)}>✕</button>
                             </div>
 
                             <div className="cm-folder-modal-body" style={{ gap: '16px' }}>
                                 <div className="cm-modal-subtext">
-                                    Enter new name for folder <strong>{renamingFolder.name}</strong>:
+                                    {i18n.t('settings:categoryManager.enterNewFolderNamePre')}<strong>{renamingFolder.name}</strong>{i18n.t('settings:categoryManager.enterNewFolderNamePost')}
                                 </div>
 
                                 <input
@@ -1488,7 +1491,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                             </div>
 
                             <div className="category-manager-footer" style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                                <button className="cancel-btn" onClick={() => setRenamingFolder(null)}>Cancel</button>
+                                <button className="cancel-btn" onClick={() => setRenamingFolder(null)}>{i18n.t('common:cancel')}</button>
                                 <button
                                     className="save-btn"
                                     style={{ padding: '6px 18px' }}
@@ -1499,7 +1502,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                         setRenamingFolder(null);
                                     }}
                                 >
-                                    Save Name
+                                    {i18n.t('settings:categoryManager.saveName')}
                                 </button>
                             </div>
                         </div>
@@ -1513,22 +1516,22 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                             <div className="cm-folder-modal-header">
                                 <h3>
                                     <span style={{ color: '#ff4b4b' }}>⚠️</span>
-                                    <span>Delete Folder</span>
+                                    <span>{i18n.t('settings:categoryManager.deleteFolderTitle')}</span>
                                 </h3>
                                 <button className="close-btn" onClick={() => setDeletingFolderTarget(null)}>✕</button>
                             </div>
 
                             <div className="cm-folder-modal-body" style={{ gap: '12px' }}>
                                 <div style={{ fontSize: '0.92rem', fontWeight: 600 }}>
-                                    Are you sure you want to delete folder <strong>"{deletingFolderTarget.name}"</strong>?
+                                    {i18n.t('settings:categoryManager.deleteFolderConfirmPre')}<strong>{i18n.t('settings:categoryManager.deleteFolderConfirmName', { name: deletingFolderTarget.name })}</strong>{i18n.t('settings:categoryManager.deleteFolderConfirmPost')}
                                 </div>
                                 <div className="cm-modal-subtext">
-                                    Categories inside this folder will not be deleted; they will return to the root level.
+                                    {i18n.t('settings:categoryManager.deleteFolderSub')}
                                 </div>
                             </div>
 
                             <div className="category-manager-footer" style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                                <button className="cancel-btn" onClick={() => setDeletingFolderTarget(null)}>Cancel</button>
+                                <button className="cancel-btn" onClick={() => setDeletingFolderTarget(null)}>{i18n.t('common:cancel')}</button>
                                 <button
                                     className="save-btn"
                                     style={{ padding: '6px 18px', background: '#ff4b4b', borderColor: '#ff4b4b', color: '#fff' }}
@@ -1538,7 +1541,7 @@ export function CategoryManager({ sourceId, sourceName, onClose, onChange, initi
                                     }}
                                     autoFocus
                                 >
-                                    Delete Folder
+                                    {i18n.t('settings:categoryManager.deleteFolderTitle')}
                                 </button>
                             </div>
                         </div>

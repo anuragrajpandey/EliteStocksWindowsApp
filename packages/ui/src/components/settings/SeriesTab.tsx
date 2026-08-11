@@ -1,5 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useTvGenres, useMultipleSeriesByGenre } from '../../hooks/useTmdbLists';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 interface SeriesTabProps {
   tmdbApiKey: string | null;
@@ -14,6 +16,7 @@ export function SeriesTab({
   onEnabledGenresChange,
   settingsLoaded,
 }: SeriesTabProps) {
+  useTranslation();
   const { genres, loading } = useTvGenres(tmdbApiKey);
 
   // Get all genre IDs to check availability
@@ -77,20 +80,19 @@ export function SeriesTab({
     <div className="settings-tab-content">
       <div className="settings-section">
         <div className="section-header">
-          <h3>Series Genre Carousels</h3>
+          <h3>{i18n.t('settings:series.genreCarousels')}</h3>
         </div>
 
         <p className="section-description">
-          Select which genres to show as carousels on the Series home page.
-          Each selected genre will appear as a Netflix-style row.
+          {i18n.t('settings:series.genreCarouselsSub')}
         </p>
 
         {!settingsLoaded || loading || countsLoading ? (
-          <div className="loading-state">Loading genres...</div>
+          <div className="loading-state">{i18n.t('settings:series.loadingGenres')}</div>
         ) : genres.length === 0 ? (
           <div className="empty-state">
-            <p>No genres available</p>
-            <p className="hint">Unable to load genres from cache</p>
+            <p>{i18n.t('settings:series.noGenres')}</p>
+            <p className="hint">{i18n.t('settings:series.noGenresHint')}</p>
           </div>
         ) : (
           <>
@@ -101,7 +103,7 @@ export function SeriesTab({
                 onClick={handleSelectAll}
                 disabled={isAllSelected}
               >
-                Select All
+                {i18n.t('settings:series.selectAll')}
               </button>
               <button
                 type="button"
@@ -109,10 +111,10 @@ export function SeriesTab({
                 onClick={handleDeselectAll}
                 disabled={isNoneSelected}
               >
-                Deselect All
+                {i18n.t('settings:series.deselectAll')}
               </button>
               <span className="genre-count">
-                {enabledGenres?.length || 0} of {availableGenreIds.length} selected
+                {i18n.t('settings:series.selectedCount', { count: enabledGenres?.length || 0, total: availableGenreIds.length })}
               </span>
             </div>
 
@@ -140,7 +142,7 @@ export function SeriesTab({
 
             {!tmdbApiKey && (
               <p className="settings-disclaimer">
-                Add a TMDB access token for more genre options.
+                {i18n.t('settings:series.tmdbHint')}
               </p>
             )}
           </>

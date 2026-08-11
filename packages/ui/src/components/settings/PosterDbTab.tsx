@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { validateRpdbApiKey, getRpdbTier, rpdbSupportsBackdrops } from '../../services/rpdb';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 interface PosterDbTabProps {
   apiKey: string;
@@ -18,6 +20,7 @@ export function PosterDbTab({
   backdropsEnabled,
   onBackdropsEnabledChange,
 }: PosterDbTabProps) {
+  useTranslation();
   const [validating, setValidating] = useState(false);
 
   const tier = getRpdbTier(apiKey);
@@ -49,15 +52,14 @@ export function PosterDbTab({
     <div>
       <div className="settings-section">
         <div className="section-header">
-          <h3>RatingPosterDB Integration</h3>
+          <h3>{i18n.t('settings:posterdb.integration')}</h3>
           {tier != null && apiKeyValid === true && (
-            <span className="tier-badge">Tier {tier}</span>
+            <span className="tier-badge">{i18n.t('settings:posterdb.tier', { tier })}</span>
           )}
         </div>
 
         <p className="section-description">
-          RatingPosterDB overlays rating badges (IMDb, Rotten Tomatoes, etc.) on movie
-          and series posters. Configure your badge preferences at{' '}
+          {i18n.t('settings:posterdb.integrationSub')}{' '}
           <a
             href="https://manager.ratingposterdb.com/"
             target="_blank"
@@ -71,7 +73,7 @@ export function PosterDbTab({
 
         <div className="tmdb-form">
           <div className="form-group inline">
-            <label>API Key</label>
+            <label>{i18n.t('settings:posterdb.apiKey')}</label>
             <input
               type="password"
               value={apiKey}
@@ -79,7 +81,7 @@ export function PosterDbTab({
                 onApiKeyChange(e.target.value);
                 onApiKeyValidChange(null);
               }}
-              placeholder="Enter your RPDB API key"
+              placeholder={i18n.t('settings:posterdb.apiKeyPlaceholder')}
             />
             <button
               type="button"
@@ -87,11 +89,11 @@ export function PosterDbTab({
               disabled={validating}
               className={apiKeyValid === true ? 'success' : apiKeyValid === false ? 'error' : ''}
             >
-              {validating ? 'Validating...' : apiKeyValid === true ? 'Valid' : apiKeyValid === false ? 'Invalid' : 'Save'}
+              {validating ? i18n.t('settings:posterdb.validating') : apiKeyValid === true ? i18n.t('settings:posterdb.valid') : apiKeyValid === false ? i18n.t('settings:posterdb.invalid') : i18n.t('common:save')}
             </button>
           </div>
           <p className="form-hint">
-            Get an API key by subscribing at{' '}
+            {i18n.t('settings:posterdb.getApiKeyHint')}{' '}
             <a href="https://ratingposterdb.com/" target="_blank" rel="noopener noreferrer">
               ratingposterdb.com
             </a>
@@ -111,11 +113,11 @@ export function PosterDbTab({
                 onChange={(e) => handleBackdropsToggle(e.target.checked)}
                 disabled={!supportsBackdrops}
               />
-              <span className="genre-name">Use RPDB backdrop images</span>
+              <span className="genre-name">{i18n.t('settings:posterdb.useBackdrops')}</span>
             </label>
             {!supportsBackdrops && (
               <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-                Backdrops require a Tier 2+ subscription
+                {i18n.t('settings:posterdb.backdropsTierHint')}
               </p>
             )}
           </div>
@@ -123,11 +125,11 @@ export function PosterDbTab({
       </div>
 
       <p className="settings-disclaimer">
-        RPDB is a third-party service. Visit{' '}
+        {i18n.t('settings:posterdb.disclaimer')}{' '}
         <a href="https://ratingposterdb.com/" target="_blank" rel="noopener noreferrer" className="tmdb-link">
           ratingposterdb.com
         </a>{' '}
-        for pricing and features.
+        {i18n.t('settings:posterdb.disclaimerSub')}
       </p>
     </div>
   );

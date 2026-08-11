@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../../hooks/useSqliteLiveQuery';
 import { db, type StoredChannel, updateChannelsBatch } from '../../db';
 import { normalizeBoolean } from '../../utils/db-helpers';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './ChannelManager.css';
 
 interface ChannelManagerProps {
@@ -16,6 +18,7 @@ interface ChannelManagerProps {
 
 
 export function ChannelManager({ categoryId, categoryName, sourceId, onClose, onChange, sortOrder = 'number' }: ChannelManagerProps) {
+    useTranslation();
     const [channels, setChannels] = useState<StoredChannel[]>([]);
     const [isDirty, setIsDirty] = useState(false);
     const [hideDisabled, setHideDisabled] = useState(false);
@@ -317,7 +320,7 @@ export function ChannelManager({ categoryId, categoryName, sourceId, onClose, on
             onClose();
         } catch (err) {
             console.error('[ChannelManager] Failed to save:', err);
-            alert('Failed to save changes. Please try again.');
+            alert(i18n.t('settings:channelManager.errSave'));
         } finally {
             isSavingRef.current = false;
         }
@@ -418,30 +421,30 @@ export function ChannelManager({ categoryId, categoryName, sourceId, onClose, on
         <div className="channel-manager-overlay" onClick={onClose}>
             <div className="channel-manager-modal" onClick={e => e.stopPropagation()}>
                 <div className="channel-manager-header">
-                    <h2>Manage Channels - {categoryName}</h2>
+                    <h2>{i18n.t('settings:channelManager.manageTitle', { name: categoryName })}</h2>
                     <button className="close-btn" onClick={onClose}>✕</button>
                 </div>
 
                 <div className="channel-manager-stats">
-                    {enabledCount} of {totalCount} channels visible
+                    {i18n.t('settings:channelManager.channelsVisible', { enabled: enabledCount, total: totalCount })}
                 </div>
 
                 <div className="channel-manager-actions">
-                    <button onClick={handleSelectAll}>✓ Enable All</button>
-                    <button onClick={handleSelectNone}>✗ Disable All</button>
+                    <button onClick={handleSelectAll}>✓ {i18n.t('settings:channelManager.enableAll')}</button>
+                    <button onClick={handleSelectNone}>✗ {i18n.t('settings:channelManager.disableAll')}</button>
                     <div className="divider-vertical"></div>
                     <button
                         onClick={handleSortABC}
-                        title="Sort channels alphabetically (uses channel alias if set)"
+                        title={i18n.t('settings:channelManager.sortAZHint')}
                     >
-                        🔤 Sort A-Z
+                        🔤 {i18n.t('common:sortAZ')}
                     </button>
                     <div className="divider-vertical"></div>
                     <button
                         onClick={() => setHideDisabled(!hideDisabled)}
                         className={hideDisabled ? 'active-toggle' : ''}
                     >
-                        {hideDisabled ? '👁 Show All' : '👁‍🗨 Hide Disabled'}
+                        {hideDisabled ? '👁 ' + i18n.t('common:showAll') : '👁‍🗨 ' + i18n.t('settings:channelManager.hideDisabled')}
                     </button>
                     {!isLink && (
                         <>
@@ -450,7 +453,7 @@ export function ChannelManager({ categoryId, categoryName, sourceId, onClose, on
                                 onClick={() => setShowFilterPanel(!showFilterPanel)}
                                 className={showFilterPanel ? 'active-toggle' : ''}
                             >
-                                🔤 Filter Words
+                                🔤 {i18n.t('settings:channelManager.filterWords')}
                             </button>
                         </>
                     )}
@@ -460,22 +463,22 @@ export function ChannelManager({ categoryId, categoryName, sourceId, onClose, on
                 {showFilterPanel && (
                     <div className="filter-words-panel">
                         <div className="filter-words-header">
-                            <span>Filter words from channel names</span>
-                            <span className="filter-words-hint">Example: "US | " removes prefix from "US | CNN"</span>
+                            <span>{i18n.t('settings:channelManager.filterWordsTitle')}</span>
+                            <span className="filter-words-hint">{i18n.t('settings:channelManager.filterWordsHint')}</span>
                         </div>
                         <div className="filter-words-input-row">
                             <input
                                 type="text"
-                                placeholder="Enter word to filter (e.g., US | )"
+                                placeholder={i18n.t('settings:channelManager.filterWordPlaceholder')}
                                 value={newFilterWord}
                                 onChange={(e) => setNewFilterWord(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleAddFilterWord()}
                             />
-                            <button onClick={handleAddFilterWord} className="filter-add-btn">Add</button>
+                            <button onClick={handleAddFilterWord} className="filter-add-btn">{i18n.t('common:add')}</button>
                         </div>
                         <div className="filter-words-list">
                             {filterWords.length === 0 ? (
-                                <span className="filter-words-empty">No filter words added</span>
+                                <span className="filter-words-empty">{i18n.t('settings:channelManager.noFilterWords')}</span>
                             ) : (
                                 filterWords.map((word) => (
                                     <span key={word} className="filter-word-tag">
@@ -491,7 +494,7 @@ export function ChannelManager({ categoryId, categoryName, sourceId, onClose, on
                 <div className="channel-search">
                     <input
                         type="text"
-                        placeholder="Search channels..."
+                        placeholder={i18n.t('settings:channelManager.searchPlaceholder')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -506,7 +509,7 @@ export function ChannelManager({ categoryId, categoryName, sourceId, onClose, on
                 >
                     {visibleChannels.length === 0 ? (
                         <div className="channel-empty">
-                            {searchQuery ? 'No channels match your search' : 'No channels in this category'}
+                            {searchQuery ? i18n.t('settings:channelManager.noSearchResults') : i18n.t('settings:channelManager.noChannels')}
                         </div>
                     ) : (
                         visibleChannels.map((ch, visibleIndex) => {
@@ -549,7 +552,7 @@ export function ChannelManager({ categoryId, categoryName, sourceId, onClose, on
                                             className="order-btn"
                                             onClick={() => moveToTop(visibleIndex)}
                                             disabled={visibleIndex === 0}
-                                            title="Move to top"
+                                            title={i18n.t('common:moveToTop')}
                                         >
                                             ↑↑
                                         </button>
@@ -557,7 +560,7 @@ export function ChannelManager({ categoryId, categoryName, sourceId, onClose, on
                                             className="order-btn"
                                             onClick={() => moveUp(visibleIndex)}
                                             disabled={visibleIndex === 0}
-                                            title="Move up"
+                                            title={i18n.t('common:moveUp')}
                                         >
                                             ↑
                                         </button>
@@ -565,7 +568,7 @@ export function ChannelManager({ categoryId, categoryName, sourceId, onClose, on
                                             className="order-btn"
                                             onClick={() => moveDown(visibleIndex)}
                                             disabled={visibleIndex === visibleChannels.length - 1}
-                                            title="Move down"
+                                            title={i18n.t('common:moveDown')}
                                         >
                                             ↓
                                         </button>
@@ -579,13 +582,13 @@ export function ChannelManager({ categoryId, categoryName, sourceId, onClose, on
 
 
                 <div className="channel-manager-footer">
-                    <button className="cancel-btn" onClick={onClose}>Cancel</button>
+                    <button className="cancel-btn" onClick={onClose}>{i18n.t('common:cancel')}</button>
                     <button
                         className="save-btn"
                         onClick={handleSave}
                         disabled={!isDirty}
                     >
-                        Save Changes
+                        {i18n.t('common:saveChanges')}
                     </button>
                 </div>
             </div>

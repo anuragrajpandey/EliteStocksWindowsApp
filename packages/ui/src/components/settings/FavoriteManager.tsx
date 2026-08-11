@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { db, type StoredChannel, updateChannelsBatch } from '../../db';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './FavoriteManager.css';
 
 interface FavoriteManagerProps {
@@ -9,6 +11,7 @@ interface FavoriteManagerProps {
 }
 
 export function FavoriteManager({ onClose, onChange }: FavoriteManagerProps) {
+    useTranslation();
     const [favorites, setFavorites] = useState<StoredChannel[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -122,7 +125,7 @@ export function FavoriteManager({ onClose, onChange }: FavoriteManagerProps) {
             onClose();
         } catch (e) {
             console.error('Failed to save favorite order:', e);
-            alert('Failed to save. Please try again.');
+            alert(i18n.t('settings:favoriteManager.errSave'));
         } finally {
             setSaving(false);
         }
@@ -133,15 +136,15 @@ export function FavoriteManager({ onClose, onChange }: FavoriteManagerProps) {
             <div className="fav-manager-modal" onClick={e => e.stopPropagation()}>
 
                 <div className="fav-manager-header">
-                    <h2>⭐ Manage Favorites</h2>
+                    <h2>⭐ {i18n.t('settings:favoriteManager.manageTitle')}</h2>
                     <button className="close-btn" onClick={onClose}>✕</button>
                 </div>
 
                 <div className="fav-manager-stats" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span>{favorites.length} favorite{favorites.length !== 1 ? 's' : ''} · drag ⋮⋮ to reorder</span>
+                    <span>{i18n.t('settings:favoriteManager.countLabel', { count: favorites.length })} · {i18n.t('settings:favoriteManager.dragToReorder')}</span>
                     <button
                         onClick={handleSortABC}
-                        title="Sort favorites alphabetically (uses channel alias if set)"
+                        title={i18n.t('settings:favoriteManager.sortAZHint')}
                         style={{
                             padding: '3px 10px',
                             fontSize: '0.8rem',
@@ -155,14 +158,14 @@ export function FavoriteManager({ onClose, onChange }: FavoriteManagerProps) {
                             gap: '4px'
                         }}
                     >
-                        🔤 Sort A-Z
+                        🔤 {i18n.t('common:sortAZ')}
                     </button>
                 </div>
 
                 {loading
-                    ? <div className="fav-manager-empty">Loading…</div>
+                    ? <div className="fav-manager-empty">{i18n.t('common:loading')}</div>
                     : favorites.length === 0
-                        ? <div className="fav-manager-empty">No favorites yet — star a channel in the EPG first.</div>
+                        ? <div className="fav-manager-empty">{i18n.t('settings:favoriteManager.noFavorites')}</div>
                         : (
                             <div
                                 className="fav-manager-list"
@@ -192,7 +195,7 @@ export function FavoriteManager({ onClose, onChange }: FavoriteManagerProps) {
                                             <button
                                                 className="fav-remove-btn"
                                                 onClick={() => handleRemoveFavorite(ch.stream_id)}
-                                                title="Remove from favorites"
+                                                title={i18n.t('settings:favoriteManager.removeFromFavorites')}
                                             >✕</button>
                                         </div>
                                     );
@@ -202,9 +205,9 @@ export function FavoriteManager({ onClose, onChange }: FavoriteManagerProps) {
                 }
 
                 <div className="fav-manager-footer">
-                    <button className="cancel-btn" onClick={onClose}>Cancel</button>
+                    <button className="cancel-btn" onClick={onClose}>{i18n.t('common:cancel')}</button>
                     <button className="save-btn" onClick={handleSave} disabled={!isDirty || saving}>
-                        {saving ? 'Saving…' : 'Save Order'}
+                        {saving ? i18n.t('common:saving') : i18n.t('settings:favoriteManager.saveOrder')}
                     </button>
                 </div>
 

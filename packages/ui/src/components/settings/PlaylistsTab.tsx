@@ -9,6 +9,7 @@ import {
 import { PlaylistEditorModal } from '../PlaylistEditorModal';
 import { useModal } from '../Modal';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { formatDate } from '../../utils/dateTime';
 
 export function PlaylistsTab() {
@@ -53,8 +54,8 @@ export function PlaylistsTab() {
 
   const handleCreate = () => {
     showPrompt(
-      'Create Custom Playlist',
-      'Enter a name for the new playlist:',
+      i18n.t('settings:playlists.createTitle'),
+      i18n.t('settings:playlists.createSub'),
       async (name) => {
         if (name.trim()) {
           const id = await createPlaylist(name.trim());
@@ -62,34 +63,34 @@ export function PlaylistsTab() {
         }
       },
       undefined,
-      'Playlist name...',
+      i18n.t('settings:playlists.namePlaceholder'),
       '',
-      'Create',
-      'Cancel'
+      i18n.t('common:create'),
+      i18n.t('common:cancel')
     );
   };
 
   const handleRename = (playlist: CustomPlaylist) => {
     showPrompt(
-      'Rename Playlist',
-      'Enter a new name:',
+      i18n.t('settings:playlists.renameTitle'),
+      i18n.t('settings:playlists.renameSub'),
       async (newName) => {
         if (newName.trim() && newName.trim() !== playlist.name) {
           await renamePlaylist(playlist.playlist_id, newName.trim());
         }
       },
       undefined,
-      'Playlist name...',
+      i18n.t('settings:playlists.namePlaceholder'),
       playlist.name,
-      'Rename',
-      'Cancel'
+      i18n.t('settings:playlists.rename'),
+      i18n.t('common:cancel')
     );
   };
 
   const handleDelete = (playlistId: string) => {
     showConfirm(
-      'Delete Playlist',
-      'Are you sure you want to delete this custom playlist? This cannot be undone.',
+      i18n.t('settings:playlists.deleteTitle'),
+      i18n.t('settings:playlists.deleteSub'),
       async () => {
         await deletePlaylist(playlistId);
       }
@@ -102,11 +103,11 @@ export function PlaylistsTab() {
       const content = await generateM3uForPlaylist(playlist.playlist_id);
       const result = await window.storage.saveM3UFile(content, playlist.name);
       if (result.success) {
-        alert('Playlist exported successfully!');
+        alert(i18n.t('settings:playlists.exportSuccess'));
       }
     } catch (e) {
       console.error('Failed to export playlist:', e);
-      alert('Export failed: ' + String(e));
+      alert(i18n.t('settings:playlists.exportFailed', { error: String(e) }));
     }
   };
 
@@ -114,9 +115,9 @@ export function PlaylistsTab() {
     <div style={{ padding: '20px 24px', color: 'var(--text-primary)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
-          <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>Custom Playlists</h3>
+          <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>{i18n.t('settings:playlists.title')}</h3>
           <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: 'var(--text-secondary, #aaa)' }}>
-            Group categories and channels from different sources into single custom playlists.
+            {i18n.t('settings:playlists.titleSub')}
           </p>
         </div>
         <button
@@ -132,26 +133,26 @@ export function PlaylistsTab() {
             cursor: 'pointer',
           }}
         >
-          ＋ New Playlist
+          ＋ {i18n.t('settings:playlists.newPlaylist')}
         </button>
       </div>
 
       {playlists.length === 0 ? (
         <div style={{ padding: '60px 20px', textAlign: 'center', background: 'var(--surface-color)', border: '1px dashed var(--surface-border)', borderRadius: '8px', color: 'var(--text-secondary, #aaa)' }}>
           <span style={{ fontSize: '2rem', display: 'block', marginBottom: '10px' }}>📋</span>
-          <h4 style={{ margin: '0 0 6px 0', color: 'var(--text-primary)' }}>No Playlists Yet</h4>
-          <p style={{ margin: 0, fontSize: '0.8rem' }}>Create a custom playlist to start adding categories and channels.</p>
+          <h4 style={{ margin: '0 0 6px 0', color: 'var(--text-primary)' }}>{i18n.t('settings:playlists.noPlaylists')}</h4>
+          <p style={{ margin: 0, fontSize: '0.8rem' }}>{i18n.t('settings:playlists.noPlaylistsSub')}</p>
         </div>
       ) : (
         <div style={{ overflowX: 'auto', border: '1px solid var(--surface-border)', borderRadius: '8px', background: 'var(--bg-tertiary)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--surface-border)', background: 'var(--surface-color)', color: 'var(--text-secondary, #aaa)' }}>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Playlist Name</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Linked Categories</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Individual Channels</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Created Date</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600, textAlign: 'right' }}>Actions</th>
+                <th style={{ padding: '12px 16px', fontWeight: 600 }}>{i18n.t('settings:playlists.colName')}</th>
+                <th style={{ padding: '12px 16px', fontWeight: 600 }}>{i18n.t('settings:playlists.colLinkedCategories')}</th>
+                <th style={{ padding: '12px 16px', fontWeight: 600 }}>{i18n.t('settings:playlists.colIndividualChannels')}</th>
+                <th style={{ padding: '12px 16px', fontWeight: 600 }}>{i18n.t('settings:playlists.colCreatedDate')}</th>
+                <th style={{ padding: '12px 16px', fontWeight: 600, textAlign: 'right' }}>{i18n.t('settings:playlists.colActions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -163,8 +164,8 @@ export function PlaylistsTab() {
                 return (
                   <tr key={playlist.playlist_id} style={{ borderBottom: '1px solid var(--surface-border)' }}>
                     <td style={{ padding: '12px 16px', fontWeight: 500 }}>{playlist.name}</td>
-                    <td style={{ padding: '12px 16px', color: 'var(--text-secondary, #aaa)' }}>{catCount} categories</td>
-                    <td style={{ padding: '12px 16px', color: 'var(--text-secondary, #aaa)' }}>{indivCount} channels</td>
+                    <td style={{ padding: '12px 16px', color: 'var(--text-secondary, #aaa)' }}>{i18n.t('settings:playlists.categoriesCount', { count: catCount })}</td>
+                    <td style={{ padding: '12px 16px', color: 'var(--text-secondary, #aaa)' }}>{i18n.t('settings:playlists.channelsCount', { count: indivCount })}</td>
                     <td style={{ padding: '12px 16px', color: 'var(--text-secondary, #aaa)' }}>{dateStr}</td>
                     <td style={{ padding: '12px 16px', textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
@@ -172,25 +173,25 @@ export function PlaylistsTab() {
                           onClick={() => setEditingPlaylist({ id: playlist.playlist_id, name: playlist.name })}
                           style={{ padding: '5px 10px', background: 'var(--surface-color)', color: 'var(--text-primary)', border: '1px solid var(--surface-border)', borderRadius: '4px', fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'inherit' }}
                         >
-                          ✏️ Edit Contents
+                          ✏️ {i18n.t('settings:playlists.editContents')}
                         </button>
                         <button
                           onClick={() => handleRename(playlist)}
                           style={{ padding: '5px 10px', background: 'var(--surface-color)', color: 'var(--text-primary)', border: '1px solid var(--surface-border)', borderRadius: '4px', fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'inherit' }}
                         >
-                          📝 Rename
+                          📝 {i18n.t('settings:playlists.rename')}
                         </button>
                         <button
                           onClick={() => handleExport(playlist)}
                           style={{ padding: '5px 10px', background: 'var(--surface-color)', color: 'var(--text-primary)', border: '1px solid var(--surface-border)', borderRadius: '4px', fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'inherit' }}
                         >
-                          📤 Export .m3u
+                          📤 {i18n.t('settings:playlists.exportM3u')}
                         </button>
                         <button
                           onClick={() => handleDelete(playlist.playlist_id)}
                           style={{ padding: '5px 10px', background: 'rgba(255, 75, 75, 0.1)', color: '#ff4b4b', border: '1px solid rgba(255, 75, 75, 0.15)', borderRadius: '4px', fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'inherit' }}
                         >
-                          🗑️ Delete
+                          🗑️ {i18n.t('common:delete')}
                         </button>
                       </div>
                     </td>
