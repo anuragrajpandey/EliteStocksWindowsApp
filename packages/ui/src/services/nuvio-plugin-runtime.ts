@@ -1,4 +1,5 @@
 import CryptoJS from 'crypto-js';
+import i18n, { translateNativeError } from '../i18n';
 import { type PluginScraper } from '../stores/nuvioPluginStore';
 
 export interface PluginRuntimeResult {
@@ -164,7 +165,7 @@ export async function executePlugin(
 
       if (proxy?.fetch) {
         const res = await proxy.fetch(url, fetchOptions);
-        if (res.error) throw new Error(res.error);
+        if (res.error) throw new Error(translateNativeError(res.error) || res.error);
         const data = res.data;
         responseText = data.text;
         responseStatus = data.status;

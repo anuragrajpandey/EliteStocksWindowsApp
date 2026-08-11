@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
 import { save } from '@tauri-apps/plugin-dialog';
+import i18n, { translateNativeError } from '../i18n';
 
 export interface DownloadItem {
   id: string;
@@ -202,7 +203,7 @@ export const useDownloadStore = create<DownloadState>()(
           }
         } catch (error: any) {
           console.error('[DownloadStore] Failed to start download:', error);
-          alert(`Failed to start download: ${error?.message || error}`);
+          alert(`${i18n.t('common:failedToStartDownload')}: ${translateNativeError(error?.message) || error}`);
         }
       },
 
@@ -376,7 +377,7 @@ export const useDownloadStore = create<DownloadState>()(
                   ? {
                       ...d,
                       status: 'failed' as const,
-                      error: error?.message || String(error),
+                      error: translateNativeError(error?.message) || String(error),
                     }
                   : d
               ),
@@ -453,7 +454,7 @@ export const useDownloadStore = create<DownloadState>()(
               return {
                 ...d,
                 status: 'failed' as const,
-                error: d.statusText ? `Interrupted: ${d.statusText}` : 'Interrupted by app restart',
+                error: d.statusText ? `${i18n.t('common:interruptedPrefix')}: ${d.statusText}` : i18n.t('common:interruptedRestart'),
                 statusText: undefined,
               };
             }

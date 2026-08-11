@@ -21,7 +21,7 @@ import { useDownloadStore } from '../stores/downloadStore';
 import { matchesSearch } from '../utils/searchNormalization';
 import { useEpgClockFormat } from '../stores/uiStore';
 import { activeLocale } from '../utils/dateTime';
-import i18n from '../i18n';
+import i18n, { translateNativeError } from '../i18n';
 import './DvrDashboard.css';
 
 const formatBytes = (bytes: number): string => {
@@ -1682,7 +1682,7 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
 
                                         {isFailed && item.error && (
                                             <p className="dvr-download-error">
-                                                Error: {item.error}
+                                                {i18n.t('common:errorPrefix')}: {translateNativeError(item.error)}
                                             </p>
                                         )}
                                     </div>

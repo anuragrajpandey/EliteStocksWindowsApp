@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { relaunch } from '@tauri-apps/plugin-process';
 import { useTranslation } from 'react-i18next';
-import i18n from '../../i18n';
+import i18n, { translateNativeError } from '../../i18n';
 import '../Modal.css';
 
 interface ProxyTabProps {
@@ -120,7 +120,7 @@ export function ProxyTab({
       setTestResult({ success: true, ip });
     } catch (err: any) {
       console.error('[ProxyTab] Proxy test failed:', err);
-      setTestResult({ success: false, error: err?.toString() || 'Unknown error occurred' });
+      setTestResult({ success: false, error: translateNativeError(err?.toString()) || i18n.t('common:unknownErrorOccurred') });
     } finally {
       setTesting(false);
     }

@@ -1,4 +1,5 @@
 import type { InstalledAddon, StremioManifest, StremioCatalogResponse, StremioMeta, StremioStream, StremioSubtitle } from '../types/stremio';
+import i18n, { translateNativeError } from '../i18n';
 
 function encodeAddonPathSegment(val: string): string {
   return encodeURIComponent(val).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
@@ -23,7 +24,7 @@ async function fetchJson(url: string): Promise<any> {
   const proxy = window.fetchProxy;
   if (proxy?.fetch) {
     const res = await proxy.fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' } });
-    if (res.error) throw new Error(res.error);
+    if (res.error) throw new Error(translateNativeError(res.error) || res.error);
     if (!res.data) throw new Error(`Failed to fetch ${url}`);
     if (!res.data.ok) throw new Error(`HTTP ${res.data.status} for ${url}`);
     return await res.data.json();

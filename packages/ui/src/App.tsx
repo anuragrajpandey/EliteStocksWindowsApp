@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 const AUTO_SYNC_CHECK_INTERVAL_MS = 10 * 60 * 1000;
 let hasStartupAutoSyncTriggered = false;
 import { invoke } from '@tauri-apps/api/core';
-import i18n from './i18n';
+import i18n, { translateNativeError } from './i18n';
 import type { StremioStream, StremioStreamPickerMode, StremioMeta, StremioVideo, BadgeSource, StreamAutoPlayMode, StreamAutoPlaySourceScope } from './types/stremio';
 import { checkForUpdates, checkForUpdatesSilent } from './services/updater';
 import { getCachedSettings } from './services/settings-cache';
@@ -1026,10 +1026,10 @@ function App() {
       // preventing two simultaneous cast_load_media calls that cause INVALID_MEDIA_SESSION_ID.
       const result = await Bridge.loadVideo(url, userAgent);
       if (!result.success) {
-        throw new Error(result.error || 'Failed to cast media');
+        throw new Error(translateNativeError(result.error) || i18n.t('player:failedToCastMedia'));
       }
     } catch (e: any) {
-      alert('Failed to cast media: ' + (e?.message || e));
+      alert(i18n.t('player:failedToCastMedia') + ': ' + (translateNativeError(e?.message) || e));
     } finally {
       _castLoadingRef.current = false;
     }

@@ -1,5 +1,5 @@
 import { db, clearSourceData, clearVodData, restoreUserCustomizations, type SourceMeta, type StoredProgram, type StoredMovie, type StoredSeries, type StoredEpisode, type VodCategory } from './index';
-import i18n from '../i18n';
+import i18n, { translateNativeError } from '../i18n';
 import { fetchAndParseM3U, XtreamClient, StalkerClient } from '@ynotv/local-adapter';
 import type { Source, Channel, Category, Movie, Series } from '@ynotv/core';
 import { useUIStore } from '../stores/uiStore';
@@ -2206,7 +2206,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
           onProgress?.(i18n.t('common:connectingXtream'));
           const client = new XtreamClient({ baseUrl: source.url, username: source.username, password: source.password, userAgent: source.user_agent }, source.id);
           const connTest = await client.testConnection();
-          if (!connTest.success) throw new Error(connTest.error ?? i18n.t('common:connectionFailed'));
+          if (!connTest.success) throw new Error(translateNativeError(connTest.error) || i18n.t('common:connectionFailed'));
 
           const userInfo = await client.getUserInfo();
           (source as any)._xtream_expiry = userInfo.expiry_date;
@@ -2316,7 +2316,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       const connTest = await client.testConnection();
       if (!connTest.success) {
         debugLog(`Connection test failed: ${connTest.error}`, 'sync');
-        throw new Error(connTest.error ?? i18n.t('common:connectionFailed'));
+        throw new Error(translateNativeError(connTest.error) || i18n.t('common:connectionFailed'));
       }
       debugLog('Connection test passed', 'sync');
 
@@ -2374,7 +2374,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       debugLog('Testing Stalker connection...', 'sync');
       const connTest = await client.testConnection();
       if (!connTest.success) {
-        throw new Error(connTest.error ?? i18n.t('common:connectionFailed'));
+        throw new Error(translateNativeError(connTest.error) || i18n.t('common:connectionFailed'));
       }
 
       // Fetch account info to get expiry date

@@ -524,19 +524,19 @@ export async function downloadOpenSubtitlesSubtitle(
       // Fetch raw bytes so we can charset-detect (OpenSubtitles files aren't always UTF-8)
       const binRes = await (window.fetchProxy as any).fetchBinary(downloadLink);
       if (binRes.error || !binRes.data) {
-        throw new Error(binRes.error || 'Failed to download subtitle content');
+        throw new Error(binRes.error || i18n.t('subtitles:downloadFailed'));
       }
       content = decodeSubtitleBytes(binRes.data as Uint8Array);
     } else if (window.fetchProxy) {
       const proxyRes = await window.fetchProxy.fetch(downloadLink);
       if (proxyRes.error || !proxyRes.data) {
-        throw new Error(proxyRes.error || 'Failed to download subtitle content');
+        throw new Error(proxyRes.error || i18n.t('subtitles:downloadFailed'));
       }
       content = decodeSubtitleBytes(new TextEncoder().encode(proxyRes.data.text));
     } else {
       const fetchRes = await fetch(downloadLink);
       if (!fetchRes.ok) {
-        throw new Error(`Failed to download subtitle content (HTTP ${fetchRes.status})`);
+        throw new Error(i18n.t('subtitles:downloadFailed') + ` (HTTP ${fetchRes.status})`);
       }
       content = decodeSubtitleBytes(new Uint8Array(await fetchRes.arrayBuffer()));
     }
@@ -553,6 +553,6 @@ export async function downloadOpenSubtitlesSubtitle(
     };
   } catch (e: any) {
     log('DOWNLOAD', 'Error:', e?.message);
-    return { success: false, error: e?.message || 'Download failed' };
+    return { success: false, error: e?.message || i18n.t('subtitles:downloadFailed') };
   }
 }

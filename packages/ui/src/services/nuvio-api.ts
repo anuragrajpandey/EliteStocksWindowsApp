@@ -1,3 +1,5 @@
+import i18n, { translateNativeError } from '../i18n';
+
 export const NUVIO_SUPABASE_URL = 'https://api.nuvio.tv';
 export const NUVIO_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzgxNTIxMzQ2LCJleHAiOjE5MzkyMDEzNDZ9.tmQaj682pwzehpqlgCDMnySOqiUvpgRbrE43T4VJpDI';
 
@@ -206,7 +208,7 @@ async function executeNuvioRequestOnce<T>(
   const proxy = (window as any).fetchProxy;
   if (proxy?.fetch) {
     const res = await proxy.fetch(url, options);
-    if (res.error) throw new Error(res.error);
+    if (res.error) throw new Error(translateNativeError(res.error) || res.error);
     if (!res.data) throw new Error(`No response data from Nuvio API: ${path}`);
     if (!res.data.ok) {
       const errorJson = await res.data.json().catch(() => ({}));

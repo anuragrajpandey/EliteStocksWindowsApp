@@ -1,3 +1,5 @@
+import i18n, { translateNativeError } from '../i18n';
+
 const STREMIO_API_URL = 'https://api.strem.io/api';
 
 export interface StremioUser {
@@ -64,7 +66,7 @@ async function callStremioApi<T>(path: string, body: object): Promise<T> {
   const proxy = window.fetchProxy;
   if (proxy?.fetch) {
     const res = await proxy.fetch(url, options);
-    if (res.error) throw new Error(res.error);
+    if (res.error) throw new Error(translateNativeError(res.error) || res.error);
     if (!res.data) throw new Error(`No response data from API: ${path}`);
     if (!res.data.ok) throw new Error(`API HTTP ${res.data.status} for ${path}`);
     const json = await res.data.json();

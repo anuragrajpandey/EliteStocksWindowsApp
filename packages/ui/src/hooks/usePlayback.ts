@@ -16,6 +16,7 @@ import { fetchNuvioWatchProgress } from '../services/nuvio-api';
 import type { useMpvListeners } from './useMpvListeners';
 import { logInfo, logWarn, logError } from '../utils/logger';
 import { toSubSourceLang, fromSubSourceLang, LANG_MAP } from '../services/subsource';
+import i18n, { translateNativeError } from '../i18n';
 
 /**
  * Apply saved subtitle settings to MPV.
@@ -182,7 +183,7 @@ async function tryLoadWithFallbacks(
     return { success: true, url: primaryUrl };
   }
 
-  const errorMsg = (result as any).error || 'Unknown error';
+  const errorMsg = translateNativeError((result as any).error) || i18n.t('player:unknownError');
   logWarn('[Playback] Failed to load:', primaryUrl, 'Error:', errorMsg);
 
   const fallbacks = getStreamFallbacks(primaryUrl, isLive);
@@ -980,7 +981,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
 
       if (!result.success) {
         setIgnoreHttpErrors(false);
-        const errMsg = result.error ?? 'Failed to load stream';
+        const errMsg = translateNativeError(result.error) || i18n.t('player:failedToLoadStream');
         setError(errMsg);
         return false;
       } else {
@@ -2118,7 +2119,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
     const result = await tryLoadWithFallbacks(resolved.url, false, resolved.userAgent);
     if (!result.success) {
       if (isLocal) setIgnoreHttpErrors(false);
-      setError(result.error ?? 'Failed to load catchup stream');
+      setError(translateNativeError(result.error) || i18n.t('player:failedToLoadCatchupStream'));
     } else {
       setCurrentChannel(channel);
       setCatchupInfo({ channelId: channel.stream_id, programTitle, startTime: adjustedStartTimeMs, duration: adjustedDurationMinutes, programDesc });
@@ -2187,7 +2188,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
     const result = await tryLoadWithFallbacks(resolved.url, false, resolved.userAgent);
     if (!result.success) {
       setIgnoreHttpErrors(false);
-      setError(result.error ?? 'Failed to load stream');
+      setError(translateNativeError(result.error) || i18n.t('player:failedToLoadStream'));
       setVodLoadingInfo(null);
     } else {
       const workingUrl = result.url;
@@ -2423,11 +2424,11 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
         // Close DVR dashboard when playing
         onCloseView?.();
       } else {
-        const errMsg = (result as any).error || 'Failed to load recording';
+        const errMsg = translateNativeError((result as any).error) || i18n.t('player:failedToLoadRecording');
         setError(errMsg);
       }
     } catch (error: any) {
-      setError(error?.message || 'Failed to play recording');
+      setError(translateNativeError(error?.message) || i18n.t('player:failedToPlayRecording'));
     }
   }, [clearPendingSeeks]);
 

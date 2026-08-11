@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import i18n from '../i18n';
+import i18n, { translateNativeError } from '../i18n';
 import { type NuvioPluginRow, fetchNuvioPlugins, pushNuvioPlugins } from '../services/nuvio-api';
 
 export interface PluginRepositoryItem {
@@ -53,7 +53,7 @@ async function fetchText(url: string): Promise<string> {
   const proxy = (window as any).fetchProxy;
   if (proxy?.fetch) {
     const res = await proxy.fetch(url);
-    if (res.error) throw new Error(res.error);
+    if (res.error) throw new Error(translateNativeError(res.error) || res.error);
     if (!res.data) throw new Error(`No data returned for ${url}`);
     return res.data.text;
   }

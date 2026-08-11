@@ -42,7 +42,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 import { formatTime, formatDate, activeLocale } from '../../utils/dateTime';
-import i18n from '../../i18n';
+import i18n, { translateNativeError } from '../../i18n';
 
 export type SourcesSubTabId = 'source' | 'epg' | 'refresh' | 'global_ua';
 
@@ -829,7 +829,7 @@ export function SourcesTab({
 
       const result = await window.storage.saveSource(source);
       if (result.error) {
-        setError(result.error);
+        setError(translateNativeError(result.error) || result.error);
         return;
       }
 
@@ -1203,7 +1203,7 @@ export function SourcesTab({
         console.log(`Source ${source.name}: ${result.channelCount} channels synced`);
       } else {
         console.error(`Source ${source.name} sync failed:`, result.error);
-        useToastStore.getState().addToast(i18n.t('settings:sources.syncFailedToast', { name: source.name, error: result.error }), 'error');
+        useToastStore.getState().addToast(i18n.t('settings:sources.syncFailedToast', { name: source.name, error: translateNativeError(result.error) || result.error }), 'error');
       }
 
       // Post-sync: apply global EPG links (primary EPG just cleared everything)
@@ -1241,7 +1241,7 @@ export function SourcesTab({
         console.log(`Source ${source.name}: ${result.movieCount} movies, ${result.seriesCount} series synced`);
       } else {
         console.error(`Source ${source.name} VOD sync failed:`, result.error);
-        useToastStore.getState().addToast(i18n.t('settings:sources.vodSyncFailedToast', { name: source.name, error: result.error }), 'error');
+        useToastStore.getState().addToast(i18n.t('settings:sources.vodSyncFailedToast', { name: source.name, error: translateNativeError(result.error) || result.error }), 'error');
       }
       onSourcesChange(); // Refresh to show updated counts
     } catch (err) {

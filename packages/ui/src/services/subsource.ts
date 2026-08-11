@@ -11,9 +11,10 @@
  *   3. Download: GET /subtitles/{id}/download (returns ZIP)
  */
 
-const API_BASE = 'https://api.subsource.net/api/v1';
-
+import i18n from '../i18n';
 import { decodeSubtitleBytes } from '../utils/subtitleEncoding';
+
+const API_BASE = 'https://api.subsource.net/api/v1';
 
 /* ─── debug logging ─── */
 function log(stage: string, ...args: any[]) {
@@ -333,7 +334,7 @@ export async function downloadSubSourceZip(
       });
       if (proxyResult.error || !proxyResult.data || !proxyResult.success) {
         log('DOWNLOAD_ZIP', 'fetchBinary failed:', proxyResult.error);
-        return { success: false, error: proxyResult.error || 'Binary download failed' };
+        return { success: false, error: proxyResult.error || i18n.t('subtitles:binaryDownloadFailed') };
       }
       zipData = proxyResult.data;
     } else {
@@ -352,7 +353,7 @@ export async function downloadSubSourceZip(
     return { success: true, data: zipData };
   } catch (e: any) {
     log('DOWNLOAD_ZIP', 'ERROR', e?.message);
-    return { success: false, error: e?.message || 'Download failed' };
+    return { success: false, error: e?.message || i18n.t('subtitles:downloadFailed') };
   }
 }
 
@@ -362,7 +363,7 @@ export async function downloadSubSourceSubtitle(
 ): Promise<SubSourceDownloadResult> {
   const zipResult = await downloadSubSourceZip(apiKey, subtitleId);
   if (!zipResult.success || !zipResult.data) {
-    return { success: false, error: zipResult.error || 'Download failed' };
+    return { success: false, error: zipResult.error || i18n.t('subtitles:downloadFailed') };
   }
 
   const srtText = await extractSrtFromZip(zipResult.data);

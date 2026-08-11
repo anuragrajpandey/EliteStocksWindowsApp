@@ -318,7 +318,15 @@
     "unsupportedSourceType": "Unsupported source type: {{type}}",
     "storageApiUnavailable": "Storage API not available",
     "invalidStalkerSource": "Invalid Stalker source",
-    "failedToGetSources": "Failed to get sources"
+    "failedToGetSources": "Failed to get sources",
+    "authenticationFailed": "Authentication failed",
+    "downloadNotFoundOrFinished": "Download not found or already finished",
+    "errorPrefix": "Error",
+    "failedToStartDownload": "Failed to start download",
+    "interruptedPrefix": "Interrupted",
+    "interruptedRestart": "Interrupted by app restart",
+    "recordingNotFound": "Recording not found",
+    "unknownErrorOccurred": "Unknown error occurred"
   },
   "nav": {
     "epgButtons": {
@@ -1406,7 +1414,8 @@
       "disclaimer": "Note: Chromecast devices and local discovery (mDNS) bypass the proxy automatically to maintain normal local network communication.",
       "usernamePlaceholder": "Proxy username",
       "passwordPlaceholder": "Proxy password",
-      "serverPlaceholder": "e.g. 127.0.0.1:1080 or socks5h://127.0.0.1:1080"
+      "serverPlaceholder": "e.g. 127.0.0.1:1080 or socks5h://127.0.0.1:1080",
+      "notEnabled": "Proxy is not enabled or proxy server field is empty"
     },
     "optimization": {
       "title": "Hardware Acceleration",
@@ -2872,7 +2881,14 @@
     "popoutActive": "Popout Active",
     "disableAlwaysOnTop": "Disable Always on top",
     "enableAlwaysOnTop": "Enable Always on top",
-    "liveAudio": "LIVE AUDIO"
+    "liveAudio": "LIVE AUDIO",
+    "failedToLoadStream": "Failed to load stream",
+    "failedToLoadCatchupStream": "Failed to load catchup stream",
+    "failedToLoadRecording": "Failed to load recording",
+    "failedToPlayRecording": "Failed to play recording",
+    "unknownError": "Unknown error",
+    "failedToCastMedia": "Failed to cast media",
+    "noMediaSession": "No media session"
   },
   "stremio": {
     "account": "Account",
@@ -3152,7 +3168,8 @@
     "extractSubtitles": "Extract Subtitles",
     "downloadVideoOnly": "Download Video Only",
     "cancel": "Cancel",
-    "sessionExpired": "OpenSubtitles session expired. Please re-login in Settings → Subtitles."
+    "sessionExpired": "OpenSubtitles session expired. Please re-login in Settings → Subtitles.",
+    "binaryDownloadFailed": "Binary download failed"
   },
   "logoEditor": {
     "title": "Logo Editor",

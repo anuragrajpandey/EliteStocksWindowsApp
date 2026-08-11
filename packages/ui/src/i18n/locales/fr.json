@@ -318,7 +318,15 @@
     "unsupportedSourceType": "Type de source non pris en charge : {{type}}",
     "storageApiUnavailable": "API de stockage indisponible",
     "invalidStalkerSource": "Source Stalker invalide",
-    "failedToGetSources": "Échec de la récupération des sources"
+    "failedToGetSources": "Échec de la récupération des sources",
+    "authenticationFailed": "Échec de l’authentification",
+    "downloadNotFoundOrFinished": "Téléchargement introuvable ou déjà terminé",
+    "errorPrefix": "Erreur",
+    "failedToStartDownload": "Échec du démarrage du téléchargement",
+    "interruptedPrefix": "Interrompu",
+    "interruptedRestart": "Interrompu par le redémarrage de l’application",
+    "recordingNotFound": "Enregistrement introuvable",
+    "unknownErrorOccurred": "Une erreur inconnue est survenue"
   },
   "nav": {
     "epgButtons": {
@@ -1406,7 +1414,8 @@
       "disclaimer": "Remarque : les appareils Chromecast et la découverte locale (mDNS) contournent automatiquement le proxy pour maintenir une communication réseau locale normale.",
       "usernamePlaceholder": "Nom d’utilisateur du proxy",
       "passwordPlaceholder": "Mot de passe du proxy",
-      "serverPlaceholder": "p. ex. 127.0.0.1:1080 ou socks5h://127.0.0.1:1080"
+      "serverPlaceholder": "p. ex. 127.0.0.1:1080 ou socks5h://127.0.0.1:1080",
+      "notEnabled": "Le proxy n’est pas activé ou le champ du serveur proxy est vide"
     },
     "optimization": {
       "title": "Accélération matérielle",
@@ -2872,7 +2881,14 @@
     "popoutActive": "Pop-out actif",
     "disableAlwaysOnTop": "Désactiver Toujours au premier plan",
     "enableAlwaysOnTop": "Activer Toujours au premier plan",
-    "liveAudio": "AUDIO EN DIRECT"
+    "liveAudio": "AUDIO EN DIRECT",
+    "failedToLoadStream": "Échec du chargement du flux",
+    "failedToLoadCatchupStream": "Échec du chargement du flux de rattrapage",
+    "failedToLoadRecording": "Échec du chargement de l’enregistrement",
+    "failedToPlayRecording": "Échec de la lecture de l’enregistrement",
+    "unknownError": "Erreur inconnue",
+    "failedToCastMedia": "Échec de la diffusion du média",
+    "noMediaSession": "Aucune session média"
   },
   "stremio": {
     "account": "Compte",
@@ -3152,7 +3168,8 @@
     "extractSubtitles": "Extraire les sous-titres",
     "downloadVideoOnly": "Télécharger uniquement la vidéo",
     "cancel": "Annuler",
-    "sessionExpired": "Session OpenSubtitles expirée. Veuillez vous reconnecter dans Paramètres → Sous-titres."
+    "sessionExpired": "Session OpenSubtitles expirée. Veuillez vous reconnecter dans Paramètres → Sous-titres.",
+    "binaryDownloadFailed": "Échec du téléchargement binaire"
   },
   "logoEditor": {
     "title": "Éditeur de logos",
