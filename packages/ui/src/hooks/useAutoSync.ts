@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import i18n from '../i18n';
 import { syncSource, syncVodForSource, isEpgStale, isVodStale, syncAllStaleGlobalEpgLinks } from '../db/sync';
 import { bulkOps } from '../services/bulk-ops';
 import { getCachedSettings } from '../services/settings-cache';
@@ -123,7 +124,7 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                             const batch = staleSources.slice(i, i + CONCURRENCY);
                             const batchNum = Math.floor(i / CONCURRENCY) + 1;
                             const totalBatches = Math.ceil(total / CONCURRENCY);
-                            settersRef.current.setSyncStatusMessage(`Auto-syncing batch ${batchNum}/${totalBatches}: ${batch.map((s: any) => s.name).join(', ')}`);
+                            settersRef.current.setSyncStatusMessage(i18n.t('common:autoSyncingBatch', { batch: batchNum, total: totalBatches, names: batch.map((s: any) => s.name).join(', ') }));
                             await Promise.all(
                                 batch.map(async (source: any, idx: number) => {
                                     const prefix = `[${i + idx + 1}/${total}] ${source.name}`;
@@ -131,7 +132,7 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                                     if (syncResult.success) {
                                         syncedSourceIds.push(source.id);
                                     } else {
-                                        useToastStore.getState().addToast(`Auto-sync failed: ${source.name} - ${syncResult.error}`, 'error');
+                                        useToastStore.getState().addToast(i18n.t('common:autoSyncFailed', { name: source.name, error: syncResult.error }), 'error');
                                     }
                                 })
                             );
@@ -157,7 +158,7 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                                 const batch = staleVod.slice(i, i + CONCURRENCY);
                                 const batchNum = Math.floor(i / CONCURRENCY) + 1;
                                 const totalBatches = Math.ceil(total / CONCURRENCY);
-                                settersRef.current.setSyncStatusMessage(`Auto-syncing VOD batch ${batchNum}/${totalBatches}: ${batch.map((s: any) => s.name).join(', ')}`);
+                                settersRef.current.setSyncStatusMessage(i18n.t('common:autoSyncingVodBatch', { batch: batchNum, total: totalBatches, names: batch.map((s: any) => s.name).join(', ') }));
                                 await Promise.all(batch.map((source: any) => syncVodForSource(source)));
                             }
                             settersRef.current.setSyncStatusMessage(null);
@@ -168,7 +169,7 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                 // Post-sync: apply stale global EPG links
                 if (syncedSourceIds.length > 0) {
                     try {
-                        settersRef.current.setSyncStatusMessage('Updating global EPG links...');
+                        settersRef.current.setSyncStatusMessage(i18n.t('common:updatingGlobalEpgLinks'));
                         await syncAllStaleGlobalEpgLinks((msg) => settersRef.current.setSyncStatusMessage(msg), syncedSourceIds);
                     } catch (err) {
                         console.error('[AutoSync] Post-sync global EPG failed:', err);
@@ -179,7 +180,7 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                     console.log('[AutoSync] Periodic sync completed');
                 }
                 } catch (err) {
-                    const msg = err instanceof Error ? err.message : 'Auto-sync periodic check failed';
+                    const msg = err instanceof Error ? err.message : i18n.t('common:autoSyncPeriodicFailed');
                     console.error('[AutoSync] Periodic check failed:', err);
                     useToastStore.getState().addToast(msg, 'error');
                 } finally {
@@ -263,7 +264,7 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                             const batch = staleSources.slice(i, i + CONCURRENCY);
                             const batchNum = Math.floor(i / CONCURRENCY) + 1;
                             const totalBatches = Math.ceil(total / CONCURRENCY);
-                            settersRef.current.setSyncStatusMessage(`Syncing batch ${batchNum}/${totalBatches}: ${batch.map((s: any) => s.name).join(', ')}`);
+                            settersRef.current.setSyncStatusMessage(i18n.t('common:syncingBatch', { batch: batchNum, total: totalBatches, names: batch.map((s: any) => s.name).join(', ') }));
                             await Promise.all(
                                 batch.map(async (source: any, idx: number) => {
                                     const prefix = `[${i + idx + 1}/${total}] ${source.name}`;
@@ -271,7 +272,7 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                                     if (syncResult.success) {
                                         syncedSourceIds.push(source.id);
                                     } else {
-                                        useToastStore.getState().addToast(`Auto-sync failed: ${source.name} - ${syncResult.error}`, 'error');
+                                        useToastStore.getState().addToast(i18n.t('common:autoSyncFailed', { name: source.name, error: syncResult.error }), 'error');
                                     }
                                 })
                             );
@@ -295,7 +296,7 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                                 const batch = staleVod.slice(i, i + CONCURRENCY);
                                 const batchNum = Math.floor(i / CONCURRENCY) + 1;
                                 const totalBatches = Math.ceil(total / CONCURRENCY);
-                                settersRef.current.setSyncStatusMessage(`Syncing VOD batch ${batchNum}/${totalBatches}: ${batch.map((s: any) => s.name).join(', ')}`);
+                                settersRef.current.setSyncStatusMessage(i18n.t('common:syncingVodBatch', { batch: batchNum, total: totalBatches, names: batch.map((s: any) => s.name).join(', ') }));
                                 await Promise.all(batch.map((source: any) => syncVodForSource(source)));
                             }
                             settersRef.current.setSyncStatusMessage(null);
@@ -306,7 +307,7 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                 // Post-sync: apply stale global EPG links
                 if (syncedSourceIds.length > 0) {
                     try {
-                        settersRef.current.setSyncStatusMessage('Updating global EPG links...');
+                        settersRef.current.setSyncStatusMessage(i18n.t('common:updatingGlobalEpgLinks'));
                         await syncAllStaleGlobalEpgLinks((msg) => settersRef.current.setSyncStatusMessage(msg), syncedSourceIds);
                     } catch (err) {
                         console.error('[AutoSync] Initial post-sync global EPG failed:', err);
@@ -322,7 +323,7 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                     }, CHECK_INTERVAL_MS);
                 }
             } catch (err) {
-                const msg = err instanceof Error ? err.message : 'Auto-sync initial sync failed';
+                const msg = err instanceof Error ? err.message : i18n.t('common:autoSyncInitialFailed');
                 console.error('[AutoSync] Initial sync failed:', err);
                 useToastStore.getState().addToast(msg, 'error');
             } finally {

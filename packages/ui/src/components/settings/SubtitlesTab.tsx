@@ -208,12 +208,12 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
         setOsPassword('');
         useToastStore.getState().addToast(i18n.t('settings:subtitles.loggedInToast', { username: res.user.username }), 'success');
       } else {
-        const err = res.error || 'Login failed';
+        const err = res.error || i18n.t('common:loginFailed');
         setOsError(err);
         useToastStore.getState().addToast(err, 'error');
       }
     } catch (e: any) {
-      const err = e?.message || 'Login failed';
+      const err = e?.message || i18n.t('common:loginFailed');
       setOsError(err);
       useToastStore.getState().addToast(err, 'error');
     } finally {

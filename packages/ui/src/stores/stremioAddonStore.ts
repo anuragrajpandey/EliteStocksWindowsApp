@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import i18n from '../i18n';
 import type { InstalledAddon } from '../types/stremio';
 import { fetchManifest, clearCatalogCache, cleanAddonUrl, getManifestUrl } from '../services/stremio-addon';
 
@@ -97,7 +98,7 @@ export const useStremioAddonStore = create<StremioAddonStore>()(
         const manifest = await fetchManifest(url);
         const state = get();
         if (state.addons.some(a => a.id === manifest.id)) {
-          throw new Error(`Addon "${manifest.name}" is already installed.`);
+          throw new Error(i18n.t('stremio:addonAlreadyInstalled', { name: manifest.name }));
         }
         const addon: InstalledAddon = {
           id: manifest.id,

@@ -14,6 +14,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { bulkOps } from './bulk-ops';
+import i18n from '../i18n';
 import { activeLocale } from '../utils/dateTime';
 
 // Re-export types from Rust
@@ -241,10 +242,10 @@ export function createChannelMappings(
  */
 export function formatProgress(progress: EpgParseProgress): string {
   const phaseLabels: Record<string, string> = {
-    downloading: 'Downloading',
-    parsing: 'Parsing XML',
-    inserting: 'Inserting to DB',
-    complete: 'Complete',
+    downloading: i18n.t('common:phaseDownloading'),
+    parsing: i18n.t('common:phaseParsingXml'),
+    inserting: i18n.t('common:phaseInsertingDb'),
+    complete: i18n.t('common:phaseComplete'),
   };
 
   const phase = phaseLabels[progress.phase] || progress.phase;
@@ -258,14 +259,14 @@ export function formatProgress(progress: EpgParseProgress): string {
     message += ` ${percent}%`;
   }
 
-  message += ` ${progress.programs_parsed.toLocaleString(activeLocale())} programs parsed`;
+  message += ` ${i18n.t('common:programsParsed', { count: progress.programs_parsed.toLocaleString(activeLocale()) })}`;
 
   if (progress.programs_matched > 0) {
-    message += `, ${progress.programs_matched.toLocaleString(activeLocale())} matched`;
+    message += `, ${i18n.t('common:programsMatched', { count: progress.programs_matched.toLocaleString(activeLocale()) })}`;
   }
 
   if (progress.programs_inserted > 0) {
-    message += `, ${progress.programs_inserted.toLocaleString(activeLocale())} inserted`;
+    message += `, ${i18n.t('common:programsInserted', { count: progress.programs_inserted.toLocaleString(activeLocale()) })}`;
   }
 
   if (
@@ -273,7 +274,7 @@ export function formatProgress(progress: EpgParseProgress): string {
     progress.estimated_remaining_seconds > 0
   ) {
     const mins = Math.ceil(progress.estimated_remaining_seconds / 60);
-    message += ` (~${mins}m remaining)`;
+    message += ` ${i18n.t('common:minutesRemaining', { mins })}`;
   }
 
   return message;

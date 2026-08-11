@@ -3716,12 +3716,12 @@ function useTmdbPresencePoster(
             // 0 = run all at once; positive = batch size
             const CONCURRENCY = epgSyncConcurrency > 0 ? epgSyncConcurrency : staleSources.length || 1;
             const total = staleSources.length;
-            const statusPrefix = isPeriodic ? 'Auto-syncing' : 'Syncing';
+            const statusPrefix = isPeriodic ? i18n.t('common:autoSyncing') : i18n.t('common:syncing');
             for (let i = 0; i < total; i += CONCURRENCY) {
               const batch = staleSources.slice(i, i + CONCURRENCY);
               const batchNum = Math.floor(i / CONCURRENCY) + 1;
               const totalBatches = Math.ceil(total / CONCURRENCY);
-              setSyncStatusMessage(`${statusPrefix} batch ${batchNum}/${totalBatches}: ${batch.map((s: any) => s.name).join(', ')}`);
+              setSyncStatusMessage(i18n.t('common:syncingBatchWithPrefix', { prefix: statusPrefix, batch: batchNum, total: totalBatches, names: batch.map((s: any) => s.name).join(', ') }));
               await Promise.all(
                 batch.map(async (source: any, idx: number) => {
                   const prefix = `[${i + idx + 1}/${total}] ${source.name}`;
@@ -3729,13 +3729,13 @@ function useTmdbPresencePoster(
                   if (result.success) {
                     syncedSourceIds.push(source.id);
                   } else {
-                    useToastStore.getState().addToast(`Auto-sync failed: ${source.name} - ${result.error}`, 'error');
+                    useToastStore.getState().addToast(i18n.t('common:autoSyncFailed', { name: source.name, error: result.error }), 'error');
                   }
                 })
               );
             }
             if (syncedSourceIds.length > 0) {
-              setSyncStatusMessage('Updating global EPG links...');
+              setSyncStatusMessage(i18n.t('common:updatingGlobalEpgLinks'));
               await syncAllStaleGlobalEpgLinks((msg) => setSyncStatusMessage(msg), syncedSourceIds);
             }
             setSyncStatusMessage(null);
@@ -3756,12 +3756,12 @@ function useTmdbPresencePoster(
               // VOD sync also uses epgSyncConcurrency (0 = all at once)
               const CONCURRENCY = epgSyncConcurrency > 0 ? epgSyncConcurrency : staleVod.length || 1;
               const total = staleVod.length;
-              const statusPrefix = isPeriodic ? 'Auto-syncing' : 'Syncing';
+              const statusPrefix = isPeriodic ? i18n.t('common:autoSyncing') : i18n.t('common:syncing');
               for (let i = 0; i < total; i += CONCURRENCY) {
                 const batch = staleVod.slice(i, i + CONCURRENCY);
                 const batchNum = Math.floor(i / CONCURRENCY) + 1;
                 const totalBatches = Math.ceil(total / CONCURRENCY);
-                setSyncStatusMessage(`${statusPrefix} VOD batch ${batchNum}/${totalBatches}: ${batch.map((s: any) => s.name).join(', ')}`);
+                setSyncStatusMessage(i18n.t('common:syncingVodBatchWithPrefix', { prefix: statusPrefix, batch: batchNum, total: totalBatches, names: batch.map((s: any) => s.name).join(', ') }));
                 await Promise.all(batch.map((source: any) => syncVodForSource(source)));
               }
               setSyncStatusMessage(null);
@@ -3773,7 +3773,7 @@ function useTmdbPresencePoster(
           console.log('[AutoSync] Periodic sync completed');
         }
       } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Auto-sync failed';
+        const msg = err instanceof Error ? err.message : i18n.t('common:autoSyncFailedGeneric');
         console.error('[AutoSync] Sync failed:', err);
         useToastStore.getState().addToast(msg, 'error');
       } finally {
@@ -4437,12 +4437,12 @@ function useTmdbPresencePoster(
                 <div className="sync-status__spinner" />
                 <span className="sync-status__text">
                   {syncStatusMessage || (channelSyncing && vodSyncing
-                    ? 'Syncing channels & VOD...'
+                    ? i18n.t('common:syncingChannelsAndVod')
                     : channelSyncing
-                      ? 'Syncing channels...'
+                      ? i18n.t('common:syncingChannels')
                       : vodSyncing
-                        ? 'Syncing VOD...'
-                        : 'Matching with TMDB...')}
+                        ? i18n.t('common:syncingVod')
+                        : i18n.t('common:matchingTmdb'))}
                 </span>
               </div>
             ) : (

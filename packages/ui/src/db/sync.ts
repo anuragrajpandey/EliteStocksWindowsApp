@@ -1,4 +1,5 @@
 import { db, clearSourceData, clearVodData, restoreUserCustomizations, type SourceMeta, type StoredProgram, type StoredMovie, type StoredSeries, type StoredEpisode, type VodCategory } from './index';
+import i18n from '../i18n';
 import { fetchAndParseM3U, XtreamClient, StalkerClient } from '@ynotv/local-adapter';
 import type { Source, Channel, Category, Movie, Series } from '@ynotv/core';
 import { useUIStore } from '../stores/uiStore';
@@ -1401,7 +1402,7 @@ export async function syncAllStaleGlobalEpgLinks(
 ): Promise<number> {
   if (globalEpgPostSyncInFlight) {
     console.log('[Global EPG] Post-sync already in progress; joining existing run');
-    onProgress?.('Global EPG sync already in progress...');
+    onProgress?.(i18n.t('common:globalEpgInProgress'));
     return globalEpgPostSyncInFlight;
   }
 
@@ -1963,7 +1964,7 @@ export async function enrichM3uWithXtreamCatchup(
   }
 
   debugLog(`Enriching M3U channels with Xtream catchup data from ${xtreamCatchup.url}`, 'sync');
-  onProgress?.('Fetching Xtream catchup data...');
+  onProgress?.(i18n.t('common:fetchingCatchupData'));
 
   try {
     const { extractXtreamStreamId } = await import('@ynotv/local-adapter');
@@ -2117,7 +2118,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
 
     // 1. Fetch existing data for incremental sync
     debugLog(`Fetching existing data for incremental sync: ${source.id}`, 'sync');
-    onProgress?.('Checking existing data...');
+    onProgress?.(i18n.t('common:checkingExistingData'));
 
     // Get existing categories to preserve settings
     const existingCategories = await db.categories.where('source_id').equals(source.id).toArray();
@@ -2147,7 +2148,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       try {
         if (source.type === 'm3u') {
           debugLog(`Native Rust Sync for M3U: ${source.url}`, 'sync');
-          onProgress?.('Syncing via Rust Native Engine (0% UI CPU)...');
+          onProgress?.(i18n.t('common:syncingNativeEngine'));
           const result = await invoke<any>('sync_m3u_source', {
             sourceId: source.id,
             url: source.url,
@@ -2155,7 +2156,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
           });
 
           // Process fast deletions natively
-          onProgress?.('Cleaning up stale channels...');
+          onProgress?.(i18n.t('common:cleaningStaleChannels'));
           const existingChannels = await db.channels.where('source_id').equals(source.id).toArray();
           const existingChannelIds = existingChannels.map(c => c.stream_id);
           const newChannelIdSet = new Set(result.parsed_channel_ids || []);
@@ -2202,10 +2203,10 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
 
         } else if (source.type === 'xtream' && source.username && source.password) {
           debugLog('Testing Xtream connection to get server_info...', 'sync');
-          onProgress?.('Connecting to Xtream server...');
+          onProgress?.(i18n.t('common:connectingXtream'));
           const client = new XtreamClient({ baseUrl: source.url, username: source.username, password: source.password, userAgent: source.user_agent }, source.id);
           const connTest = await client.testConnection();
-          if (!connTest.success) throw new Error(connTest.error ?? 'Connection failed');
+          if (!connTest.success) throw new Error(connTest.error ?? i18n.t('common:connectionFailed'));
 
           const userInfo = await client.getUserInfo();
           (source as any)._xtream_expiry = userInfo.expiry_date;
@@ -2221,7 +2222,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
           }
 
           debugLog(`Native Rust Sync for Xtream: ${source.url}`, 'sync');
-          onProgress?.('Syncing via Rust Native Engine (0% UI CPU)...');
+          onProgress?.(i18n.t('common:syncingNativeEngine'));
           const result = await invoke<any>('sync_xtream_source', {
             sourceId: source.id,
             baseUrl: source.url,
@@ -2231,7 +2232,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
           });
 
           // Process fast deletions
-          onProgress?.('Cleaning up stale channels...');
+          onProgress?.(i18n.t('common:cleaningStaleChannels'));
           const existingChannels = await db.channels.where('source_id').equals(source.id).toArray();
           const existingChannelIds = existingChannels.map(c => c.stream_id);
           const newChannelIdSet = new Set(result.parsed_channel_ids || []);
@@ -2264,7 +2265,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       if (source.url.startsWith('imported:')) {
         // Local imported M3U - channels are already in DB, just fetch existing
         debugLog(`Local imported M3U detected: ${source.url}`, 'sync');
-        onProgress?.('Loading local playlist...');
+        onProgress?.(i18n.t('common:loadingLocalPlaylist'));
 
         // Get existing channels from database
         const existingChannels = await db.channels.where('source_id').equals(source.id).toArray();
@@ -2281,7 +2282,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       } else {
         // Remote M3U URL - fetch and parse
         debugLog(`Fetching M3U from: ${source.url}`, 'sync');
-        onProgress?.('Fetching M3U playlist...');
+        onProgress?.(i18n.t('common:fetchingM3uPlaylist'));
         const result = await fetchAndParseM3U(source.url, source.id, source.user_agent);
         channels = result.channels;
         categories = result.categories;
@@ -2295,11 +2296,11 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
     } else if (source.type === 'xtream') {
       // Xtream source - use client
       if (!source.username || !source.password) {
-        throw new Error('Xtream source requires username and password');
+        throw new Error(i18n.t('common:xtreamRequiresCredentials'));
       }
 
       debugLog(`Initializing Xtream client for: ${source.url} (UA: ${source.user_agent || 'none'})`, 'sync');
-      onProgress?.('Connecting to Xtream server...');
+      onProgress?.(i18n.t('common:connectingXtream'));
       const client = new XtreamClient(
         {
           baseUrl: source.url,
@@ -2315,7 +2316,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       const connTest = await client.testConnection();
       if (!connTest.success) {
         debugLog(`Connection test failed: ${connTest.error}`, 'sync');
-        throw new Error(connTest.error ?? 'Connection failed');
+        throw new Error(connTest.error ?? i18n.t('common:connectionFailed'));
       }
       debugLog('Connection test passed', 'sync');
 
@@ -2336,12 +2337,12 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
 
       // Fetch categories and channels
       debugLog('Fetching live categories...', 'sync');
-      onProgress?.('Fetching categories...');
+      onProgress?.(i18n.t('common:fetchingCategories'));
       categories = await client.getLiveCategories();
       debugLog(`Got ${categories.length} categories`, 'sync');
 
       debugLog('Fetching live streams...', 'sync');
-      onProgress?.('Fetching channels...');
+      onProgress?.(i18n.t('common:fetchingChannels'));
       channels = await client.getLiveStreams();
       debugLog(`Got ${channels.length} channels`, 'sync');
 
@@ -2360,11 +2361,11 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
     } else if (source.type === 'stalker') {
       // Stalker Portal source
       if (!source.mac) {
-        throw new Error('Stalker Portal requires a MAC address');
+        throw new Error(i18n.t('common:stalkerRequiresMac'));
       }
 
       debugLog(`Initializing Stalker client for: ${source.url}`, 'sync');
-      onProgress?.('Connecting to Stalker portal...');
+      onProgress?.(i18n.t('common:connectingStalker'));
       const client = new StalkerClient(
         { baseUrl: source.url, mac: source.mac, userAgent: source.user_agent },
         source.id
@@ -2373,7 +2374,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       debugLog('Testing Stalker connection...', 'sync');
       const connTest = await client.testConnection();
       if (!connTest.success) {
-        throw new Error(connTest.error ?? 'Connection failed');
+        throw new Error(connTest.error ?? i18n.t('common:connectionFailed'));
       }
 
       // Fetch account info to get expiry date
@@ -2382,7 +2383,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       const expiryDate = accountInfo.expiry;
 
       debugLog('Fetching Stalker live categories...', 'sync');
-      onProgress?.('Fetching categories...');
+      onProgress?.(i18n.t('common:fetchingCategories'));
       categories = await client.getLiveCategories();
       debugLog(`Got ${categories.length} categories`, 'sync');
       if (categories.length > 0) {
@@ -2390,7 +2391,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       }
 
       debugLog('Fetching Stalker live streams...', 'sync');
-      onProgress?.('Fetching channels...');
+      onProgress?.(i18n.t('common:fetchingChannels'));
       channels = await client.getLiveStreams();
       debugLog(`Got ${channels.length} channels`, 'sync');
       if (channels.length > 0) {
@@ -2402,7 +2403,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       // Store expiry date in a variable to use later when updating sourcesMeta
       (source as any)._stalker_expiry = expiryDate;
     } else {
-      throw new Error(`Unsupported source type: ${source.type}`);
+      throw new Error(i18n.t('common:unsupportedSourceType', { type: source.type }));
     }
 
     // Check if source was deleted during sync
@@ -2414,14 +2415,14 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
     // If vod_only is enabled, skip channel and category sync entirely
     if (source.vod_only) {
       debugLog(`Source ${source.name} is VOD-only, skipping ${channels.length} channels and ${categories.length} categories`, 'sync');
-      onProgress?.('VOD-only source: skipping channels and categories...');
+      onProgress?.(i18n.t('common:vodOnlySkipping'));
       channels = [];
       categories = [];
     }
 
     // Apply preserved settings to new data
     debugLog(`Applying preserved settings: ${favoriteChannelsSet.size} favorites, ${categorySettingsMap.size} category settings`, 'sync');
-    onProgress?.('Applying settings...');
+    onProgress?.(i18n.t('common:applyingSettings'));
 
     // Apply channel settings
     if (favoriteChannelsSet.size > 0) {
@@ -2449,7 +2450,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
 
     // Incremental sync: Calculate changes
     debugLog(`Calculating incremental changes for ${channels.length} channels and ${categories.length} categories...`, 'sync');
-    onProgress?.('Calculating changes...');
+    onProgress?.(i18n.t('common:calculatingChanges'));
 
     // Find new and updated channels
     const newChannelIds = new Set(channels.map(c => c.stream_id));
@@ -2531,7 +2532,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
     debugLog(`Changes: ${categoriesToAdd.length} new categories, ${categoriesToUpdate.length} updated, ${categoriesToDelete.length} deleted`, 'sync');
 
     // Apply changes using optimized bulk operations
-    onProgress?.('Applying changes...');
+    onProgress?.(i18n.t('common:applyingChanges'));
 
     // Convert to BulkChannel format for optimized Rust operations
     const convertToBulkChannel = (ch: any): BulkChannel => ({
@@ -2686,7 +2687,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
       // Xtream: use built-in EPG endpoint (or override if provided)
       console.log(`[EPG] Starting Xtream EPG sync...`);
       debugLog('Syncing EPG for Xtream source...', 'epg');
-      onProgress?.('Updating EPG...');
+      onProgress?.(i18n.t('common:updatingEpgShort'));
       console.time('sync-epg-insert');
       // Pass the correctly constructed EPG URL (with server info from connection test)
       programCount = await syncEpgForSource(source, channels, epgUrl);
@@ -2695,7 +2696,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
     } else if (shouldLoadEpg && source.type === 'stalker' && source.mac) {
       // Stalker: use get_epg_info endpoint
       debugLog('Syncing EPG for Stalker source...', 'epg');
-      onProgress?.('Updating EPG...');
+      onProgress?.(i18n.t('common:updatingEpgShort'));
       console.time('sync-epg-insert');
       programCount = await syncEpgForStalker(source, channels);
       console.timeEnd('sync-epg-insert');
@@ -2703,7 +2704,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
     } else if (shouldLoadEpg && epgUrl) {
       // M3U with EPG URL: fetch XMLTV from the EPG URL
       debugLog('Syncing EPG for M3U source...', 'epg');
-      onProgress?.('Updating EPG...');
+      onProgress?.(i18n.t('common:updatingEpgShort'));
       console.time('sync-epg-insert');
       programCount = await syncEpgFromUrl(source, epgUrl, channels);
       console.timeEnd('sync-epg-insert');
@@ -2715,7 +2716,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
     if (fixedEpgUrl && !shouldLoadEpg && !source.vod_only) {
       debugLog('Syncing EPG from manual URL override...', 'epg');
       console.log(`[EPG] Debug - About to call syncEpgFromUrl with manual URL: ${fixedEpgUrl}`);
-      onProgress?.('Updating EPG (manual URL)...');
+      onProgress?.(i18n.t('common:updatingEpgManualUrl'));
       console.time('sync-epg-manual');
       programCount = await syncEpgFromUrl(source, fixedEpgUrl, channels);
       console.timeEnd('sync-epg-manual');
@@ -2725,7 +2726,7 @@ async function _doSyncSourceImpl(source: Source, onProgress?: (msg: string) => v
     // Waterfall: fill in gaps with additional EPG URLs (skip for VOD-only sources)
     if (!source.vod_only && source.additional_epg_urls && source.additional_epg_urls.length > 0) {
       debugLog('Syncing additional EPG URLs (waterfall)...', 'epg');
-      onProgress?.('Updating EPG (additional sources)...');
+      onProgress?.(i18n.t('common:updatingEpgAdditional'));
       console.time('sync-epg-additional');
       const additionalCount = await syncAdditionalEpgUrls(source, channels, onProgress);
       console.timeEnd('sync-epg-additional');
@@ -2811,7 +2812,7 @@ export async function syncStalkerCategory(
 
   // Sources are in Tauri Store, not SQLite
   if (!window.storage) {
-    throw new Error('Storage API not available');
+    throw new Error(i18n.t('common:storageApiUnavailable'));
   }
 
   const result = await window.storage.getSource(sourceId);
@@ -2822,7 +2823,7 @@ export async function syncStalkerCategory(
   }
 
   if (!source || source.type !== 'stalker' || !source.mac) {
-    throw new Error('Invalid Stalker source');
+    throw new Error(i18n.t('common:invalidStalkerSource'));
   }
 
   const client = new StalkerClient(
@@ -2841,7 +2842,7 @@ export async function syncStalkerCategory(
     }
 
     debugLog(`[LazyLoad] Storing ${items.length} items for category ${categoryId}`, 'sync');
-    if (onProgress) onProgress(100, 'Saving to database...');
+    if (onProgress) onProgress(100, i18n.t('common:savingToDatabase'));
 
     // Removed db.transaction mock wrapper to prevent inner lock deadlocks
     if (true) {
@@ -2904,20 +2905,20 @@ export async function syncAllSources(
   concurrency = 0
 ): Promise<Map<string, SyncResult>> {
   debugLog('Starting syncAllSources...', 'sync');
-  onProgress?.('Initializing sync...');
+  onProgress?.(i18n.t('common:initializingSync'));
   const results = new Map<string, SyncResult>();
 
   // Get sources from Tauri Store
   if (!window.storage) {
     debugLog('ERROR: Storage API not available', 'sync');
-    throw new Error('Storage API not available');
+    throw new Error(i18n.t('common:storageApiUnavailable'));
   }
 
   debugLog('Fetching sources from storage...', 'sync');
   const sourcesResult = await window.storage.getSources();
   if (!sourcesResult.data) {
     debugLog(`ERROR: Failed to get sources: ${sourcesResult.error}`, 'sync');
-    throw new Error(sourcesResult.error || 'Failed to get sources');
+    throw new Error(sourcesResult.error || i18n.t('common:failedToGetSources'));
   }
   debugLog(`Found ${sourcesResult.data.length} sources`, 'sync');
 
@@ -2971,7 +2972,7 @@ export async function syncAllSources(
   if (syncedSourceIds.length > 0) {
     try {
       debugLog('Running post-sync global EPG...', 'sync');
-      onProgress?.('Updating global EPG links...');
+      onProgress?.(i18n.t('common:updatingGlobalEpgLinks'));
       const globalCount = await syncAllStaleGlobalEpgLinks(onProgress, syncedSourceIds);
       if (globalCount > 0) {
         debugLog(`Post-sync global EPG: ${globalCount} programs inserted`, 'sync');

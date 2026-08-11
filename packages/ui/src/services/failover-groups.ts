@@ -1,4 +1,5 @@
 import { db, updateFailoverMembersBatch } from '../db';
+import i18n from '../i18n';
 import type { FailoverGroup, StoredChannel } from '../db';
 
 /** Get the full ordered member list for a group, with channel data joined */
@@ -158,7 +159,7 @@ export async function addChannelToFailoverGroup(
     .equals(streamId)
     .first();
   if (existing && existing.group_id !== groupId) {
-    throw new Error(`Channel is already in failover group "${existing.group_id}". Remove it first.`);
+    throw new Error(i18n.t('settings:failover.alreadyInGroup', { group: existing.group_id }));
   }
   if (existing) return; // Already in this group, nothing to do
 

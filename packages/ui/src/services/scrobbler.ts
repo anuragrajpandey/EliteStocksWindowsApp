@@ -1,5 +1,6 @@
 import { AppSettings } from '../types/app';
 import type { StremioMetaPreview } from '../types/stremio';
+import i18n from '../i18n';
 import { db, updateVodWatchProgress, recordEpisodeWatch } from '../db';
 
 // Unified logger helpers
@@ -225,7 +226,7 @@ class ScrobblerService {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to generate Trakt device code');
+      throw new Error(i18n.t('settings:scrobbling.failedGenerateTraktCode'));
     }
 
     return await response.json();
@@ -413,7 +414,7 @@ class ScrobblerService {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to request Simkl PIN code (${response.status})`);
+      throw new Error(i18n.t('settings:simkl.failedRequestPin', { status: response.status }));
     }
 
     const data = await response.json();

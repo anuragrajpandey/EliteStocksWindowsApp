@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import i18n from '../i18n';
 import type { InstalledAddon } from '../types/stremio';
 import { fetchManifest, clearCatalogCache, cleanAddonUrl, getManifestUrl } from '../services/stremio-addon';
 import { fetchNuvioAddons, pushNuvioAddons, type NuvioAddonRow } from '../services/nuvio-api';
@@ -119,7 +120,7 @@ export const useNuvioAddonStore = create<NuvioAddonStore>()(
           const state = get();
           
           if (state.addons.some(a => a.id === manifest.id)) {
-            throw new Error(`Addon "${manifest.name}" is already installed in Nuvio.`);
+            throw new Error(i18n.t('nuvio:addonAlreadyInstalled', { name: manifest.name }));
           }
 
           const newAddon: InstalledAddon = {

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import i18n from '../i18n';
 import { type NuvioPluginRow, fetchNuvioPlugins, pushNuvioPlugins } from '../services/nuvio-api';
 
 export interface PluginRepositoryItem {
@@ -220,11 +221,11 @@ export const useNuvioPluginStore = create<NuvioPluginState>()(
         // Normalize URL - remove duplicate trailing slashes or manifest.json if present
         let manifestUrl = url.trim();
         if (!manifestUrl.startsWith('http://') && !manifestUrl.startsWith('https://')) {
-          throw new Error('URL must start with http:// or https://');
+          throw new Error(i18n.t('nuvio:urlMustBeHttp'));
         }
 
         if (get().repositories.some(r => r.manifestUrl.toLowerCase() === manifestUrl.toLowerCase())) {
-          throw new Error('Repository is already installed');
+          throw new Error(i18n.t('nuvio:repoAlreadyInstalled'));
         }
 
         set({ isLoading: true, error: null });

@@ -259,7 +259,66 @@
     "rec": "ENREG",
     "live": "EN DIRECT",
     "ended": "TERMINÉ",
-    "upcoming": "À VENIR"
+    "upcoming": "À VENIR",
+    "autoSyncFailed": "Échec de la synchronisation automatique : {{name}} - {{error}}",
+    "autoSyncFailedGeneric": "Échec de la synchronisation automatique",
+    "autoSyncPeriodicFailed": "Échec de la vérification périodique de la synchronisation automatique",
+    "autoSyncInitialFailed": "Échec de la synchronisation automatique initiale",
+    "channelSyncFailed": "Échec de la synchronisation des chaînes",
+    "vodSyncFailed": "Échec de la synchronisation VOD",
+    "loginFailed": "Échec de la connexion",
+    "autoSyncing": "Synchronisation automatique",
+    "autoSyncingBatch": "Synchronisation automatique du lot {{batch}}/{{total}} : {{names}}",
+    "autoSyncingVodBatch": "Synchronisation automatique du lot VOD {{batch}}/{{total}} : {{names}}",
+    "syncingBatch": "Synchronisation du lot {{batch}}/{{total}} : {{names}}",
+    "syncingVodBatch": "Synchronisation du lot VOD {{batch}}/{{total}} : {{names}}",
+    "syncingBatchWithPrefix": "{{prefix}} lot {{batch}}/{{total}} : {{names}}",
+    "syncingVodBatchWithPrefix": "{{prefix}} lot VOD {{batch}}/{{total}} : {{names}}",
+    "syncingChannelsAndVod": "Synchronisation des chaînes et VOD...",
+    "syncingChannels": "Synchronisation des chaînes...",
+    "syncingVod": "Synchronisation VOD...",
+    "matchingTmdb": "Correspondance avec TMDB...",
+    "initializing": "Initialisation...",
+    "starting": "Démarrage...",
+    "updatingGlobalEpg": "Mise à jour de l'EPG global...",
+    "updatingGlobalEpgLinks": "Mise à jour des liens EPG globaux...",
+    "syncingNativeEngine": "Synchronisation via le moteur natif Rust (0 % de CPU UI)...",
+    "fetchingCatchupData": "Récupération des données de rattrapage Xtream...",
+    "checkingExistingData": "Vérification des données existantes...",
+    "cleaningStaleChannels": "Nettoyage des chaînes obsolètes...",
+    "connectingXtream": "Connexion au serveur Xtream...",
+    "connectingStalker": "Connexion au portail Stalker...",
+    "loadingLocalPlaylist": "Chargement de la liste locale...",
+    "fetchingM3uPlaylist": "Récupération de la liste M3U...",
+    "fetchingCategories": "Récupération des catégories...",
+    "fetchingChannels": "Récupération des chaînes...",
+    "applyingSettings": "Application des paramètres...",
+    "calculatingChanges": "Calcul des modifications...",
+    "applyingChanges": "Application des modifications...",
+    "updatingEpgShort": "Mise à jour de l'EPG...",
+    "updatingEpgManualUrl": "Mise à jour de l'EPG (URL manuelle)...",
+    "updatingEpgAdditional": "Mise à jour de l'EPG (sources supplémentaires)...",
+    "savingToDatabase": "Enregistrement dans la base de données...",
+    "initializingSync": "Initialisation de la synchronisation...",
+    "globalEpgInProgress": "Synchronisation EPG globale déjà en cours...",
+    "vodOnlySkipping": "Source VOD uniquement : chaînes et catégories ignorées...",
+    "phaseDownloading": "Téléchargement",
+    "phaseParsingXml": "Analyse du XML",
+    "phaseInsertingDb": "Insertion en base",
+    "phaseComplete": "Terminé",
+    "programsParsed": "{{count}} programmes analysés",
+    "programsMatched": "{{count}} correspondances",
+    "programsInserted": "{{count}} insérés",
+    "minutesRemaining": "(~{{mins}} min restantes)",
+    "startsAt": "Commence à {{time}}",
+    "dismiss": "Ignorer",
+    "connectionFailed": "Échec de la connexion",
+    "xtreamRequiresCredentials": "La source Xtream nécessite un nom d'utilisateur et un mot de passe",
+    "stalkerRequiresMac": "Le portail Stalker nécessite une adresse MAC",
+    "unsupportedSourceType": "Type de source non pris en charge : {{type}}",
+    "storageApiUnavailable": "API de stockage indisponible",
+    "invalidStalkerSource": "Source Stalker invalide",
+    "failedToGetSources": "Échec de la récupération des sources"
   },
   "nav": {
     "epgButtons": {
@@ -1046,7 +1105,8 @@
       "configureStremCatalogs": "Configurer les catalogues Trakt Strem",
       "configureNuvioCatalogs": "Configurer les catalogues Trakt Nuvio",
       "disconnect": "Déconnecter le compte Trakt",
-      "disconnectConfirm": "Voulez-vous vraiment déconnecter votre compte Trakt ?"
+      "disconnectConfirm": "Voulez-vous vraiment déconnecter votre compte Trakt ?",
+      "failedGenerateTraktCode": "Échec de la génération du code d'appareil Trakt"
     },
     "simkl": {
       "title": "Simkl",
@@ -1068,7 +1128,10 @@
       "enableScrobble": "Activer le Scrobbling en direct",
       "enableScrobbleHint": "Envoyer automatiquement le statut de visionnage et les mises à jour de lecture à Simkl pendant le visionnage.",
       "disconnect": "Déconnecter le compte Simkl",
-      "disconnectConfirm": "Voulez-vous vraiment déconnecter votre compte Simkl ?"
+      "disconnectConfirm": "Voulez-vous vraiment déconnecter votre compte Simkl ?",
+      "codeExpired": "Le code a expiré. Veuillez recommencer.",
+      "authStartFailed": "Échec du démarrage du flux d'authentification.",
+      "failedRequestPin": "Échec de la demande du code PIN Simkl ({{status}})"
     },
     "strem": {
       "title": "Lecture Strem",
@@ -1665,7 +1728,8 @@
       "noResults": "Aucun résultat pour « {{query}} »",
       "renameGroup": "Renommer le groupe",
       "searchPlaceholder": "Rechercher des chaînes…",
-      "searching": "Recherche…"
+      "searching": "Recherche…",
+      "alreadyInGroup": "La chaîne est déjà dans le groupe de basculement \"{{group}}\". Supprimez-la d'abord."
     },
     "movies": {
       "genreCarousels": "Carrousels de genres de films",
@@ -2598,7 +2662,10 @@
     "summaryLabel": "RÉSUMÉ",
     "recommendationsLabel": "RECOMMANDATIONS",
     "pinRequired": "PIN requis",
-    "scrapersLabel": "SCRAPEURS"
+    "scrapersLabel": "SCRAPEURS",
+    "addonAlreadyInstalled": "L'addon \"{{name}}\" est déjà installé dans Nuvio.",
+    "repoAlreadyInstalled": "Le dépôt est déjà installé",
+    "urlMustBeHttp": "L'URL doit commencer par http:// ou https://"
   },
   "player": {
     "alignment": "Alignement",
@@ -2975,7 +3042,8 @@
     "castLabel": "DISTRIBUTION",
     "summaryLabel": "RÉSUMÉ",
     "recommendationsLabel": "RECOMMANDATIONS",
-    "watchedLabel": "Regardé"
+    "watchedLabel": "Regardé",
+    "addonAlreadyInstalled": "L'addon \"{{name}}\" est déjà installé."
   },
   "cast": {
     "disabledTitle": "Google Cast (désactivé)",
@@ -3083,7 +3151,8 @@
     "extractQuestion": "Souhaitez-vous extraire les sous-titres pour ce VOD ?",
     "extractSubtitles": "Extraire les sous-titres",
     "downloadVideoOnly": "Télécharger uniquement la vidéo",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "sessionExpired": "Session OpenSubtitles expirée. Veuillez vous reconnecter dans Paramètres → Sous-titres."
   },
   "logoEditor": {
     "title": "Éditeur de logos",

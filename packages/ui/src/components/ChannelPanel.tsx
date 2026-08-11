@@ -1055,7 +1055,7 @@ export function ChannelPanel({
     if (!source) return;
 
     setSyncingSourceId(sourceId);
-    setSyncStatusMsg('Starting...');
+    setSyncStatusMsg(i18n.t('common:starting'));
 
     try {
       const syncResult = await syncSource(source, setSyncStatusMsg);

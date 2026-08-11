@@ -77,7 +77,7 @@ export function SimklTab() {
         if (timeLeft <= 0) {
           clearTimers();
           setAuthState('error');
-          setErrorMessage('The code has expired. Please start over.');
+          setErrorMessage(i18n.t('settings:simkl.codeExpired'));
         }
       }, 1000);
 
@@ -107,7 +107,7 @@ export function SimklTab() {
       }, intervalSec * 1000);
     } catch (e: any) {
       console.error('Failed to initiate Simkl PIN auth:', e);
-      setErrorMessage(e.message || 'Failed to start authentication flow.');
+      setErrorMessage(e.message || i18n.t('settings:simkl.authStartFailed'));
       setAuthState('error');
     }
   };

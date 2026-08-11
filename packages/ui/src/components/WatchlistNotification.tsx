@@ -94,7 +94,7 @@ function NotificationItem({
       <div className="watchlist-notification-body">
         <div className="watchlist-notification-program">{notification.programTitle}</div>
         <div className="watchlist-notification-channel">{notification.channelName}</div>
-        <div className="watchlist-notification-time">Starts at {formatEpgTime(notification.startTime)}</div>
+        <div className="watchlist-notification-time">{i18n.t('common:startsAt', { time: formatEpgTime(notification.startTime) })}</div>
       </div>
 
       <div className="watchlist-notification-actions">
@@ -105,7 +105,7 @@ function NotificationItem({
           {isAutoswitch ? i18n.t('common:stayHere') : i18n.t('common:switchNow')}
         </button>
         <button className="watchlist-notification-btn dismiss" onClick={handleDismiss}>
-          Dismiss
+          {i18n.t('common:dismiss')}
         </button>
       </div>
 

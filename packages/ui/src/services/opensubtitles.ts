@@ -164,6 +164,7 @@ async function apiFetch(
 
 /* ─── subtitle decoding ─── */
 import { decodeSubtitleBytes } from '../utils/subtitleEncoding';
+import i18n from '../i18n';
 
 /**
  * Shared auto-retry wrapper used by search/download. Handles 401/403 by
@@ -191,7 +192,7 @@ async function apiFetchWithRetry(
       res = await doFetch(activeToken);
     } else {
       log(logStage, 'Auto re-login failed. Aborting; user must re-login.');
-      throw new Error('OpenSubtitles session expired. Please re-login in Settings → Subtitles.');
+      throw new Error(i18n.t('subtitles:sessionExpired'));
     }
   }
 

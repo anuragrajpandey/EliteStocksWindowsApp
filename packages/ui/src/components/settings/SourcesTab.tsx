@@ -1146,14 +1146,14 @@ export function SourcesTab({
     setSyncing(true);
     setSyncResults(null);
     setSyncError(null);
-    setSyncStatusMsg('Initializing...');
+    setSyncStatusMsg(i18n.t('common:initializing'));
     try {
       const results = await syncAllSources(setSyncStatusMsg, epgSyncConcurrency);
       setSyncResults(results);
       // Trigger category refresh after sync completes
       incrementVersion();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Channel sync failed';
+      const msg = err instanceof Error ? err.message : i18n.t('common:channelSyncFailed');
       console.error('Sync error:', err);
       setSyncError(msg);
       useToastStore.getState().addToast(msg, 'error');
@@ -1174,7 +1174,7 @@ export function SourcesTab({
       const results = await syncAllVod();
       setVodSyncResults(results);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'VOD sync failed';
+      const msg = err instanceof Error ? err.message : i18n.t('common:vodSyncFailed');
       console.error('VOD sync error:', err);
       setSyncError(msg);
       useToastStore.getState().addToast(msg, 'error');
@@ -1195,7 +1195,7 @@ export function SourcesTab({
     console.log('[SourcesTab] handleSourceSync - source.epg_url:', source.epg_url, 'length:', source.epg_url?.length);
 
     setSyncingSourceId(sourceId);
-    setSyncStatusMsg('Starting...');
+    setSyncStatusMsg(i18n.t('common:starting'));
     try {
       const result = await syncSource(source, setSyncStatusMsg);
       // Show success/failure notification
@@ -1208,7 +1208,7 @@ export function SourcesTab({
 
       // Post-sync: apply global EPG links (primary EPG just cleared everything)
       try {
-        setSyncStatusMsg('Updating global EPG...');
+        setSyncStatusMsg(i18n.t('common:updatingGlobalEpg'));
         const channels = await db.channels.where('source_id').equals(sourceId).toArray() as Channel[];
         const globalCount = await applyGlobalEpgToSource(source, channels, (msg) => setSyncStatusMsg(msg));
         if (globalCount > 0) {

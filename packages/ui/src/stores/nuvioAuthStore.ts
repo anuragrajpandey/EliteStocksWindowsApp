@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import i18n from '../i18n';
 import {
   loginNuvio,
   signUpNuvio,
@@ -196,7 +197,7 @@ export const useNuvioAuthStore = create<NuvioAuthStore>()(
         if (targetProfile.pin_enabled && pin) {
           const verify = await verifyNuvioProfilePin(token, profileIndex, pin);
           if (!verify.unlocked) {
-            throw new Error(verify.message || 'Incorrect PIN code');
+            throw new Error(verify.message || i18n.t('nuvio:incorrectPin'));
           }
         }
 

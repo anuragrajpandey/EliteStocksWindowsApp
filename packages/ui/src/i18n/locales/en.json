@@ -259,7 +259,66 @@
     "rec": "REC",
     "live": "LIVE",
     "ended": "ENDED",
-    "upcoming": "UPCOMING"
+    "upcoming": "UPCOMING",
+    "autoSyncFailed": "Auto-sync failed: {{name}} - {{error}}",
+    "autoSyncFailedGeneric": "Auto-sync failed",
+    "autoSyncPeriodicFailed": "Auto-sync periodic check failed",
+    "autoSyncInitialFailed": "Auto-sync initial sync failed",
+    "channelSyncFailed": "Channel sync failed",
+    "vodSyncFailed": "VOD sync failed",
+    "loginFailed": "Login failed",
+    "autoSyncing": "Auto-syncing",
+    "autoSyncingBatch": "Auto-syncing batch {{batch}}/{{total}}: {{names}}",
+    "autoSyncingVodBatch": "Auto-syncing VOD batch {{batch}}/{{total}}: {{names}}",
+    "syncingBatch": "Syncing batch {{batch}}/{{total}}: {{names}}",
+    "syncingVodBatch": "Syncing VOD batch {{batch}}/{{total}}: {{names}}",
+    "syncingBatchWithPrefix": "{{prefix}} batch {{batch}}/{{total}}: {{names}}",
+    "syncingVodBatchWithPrefix": "{{prefix}} VOD batch {{batch}}/{{total}}: {{names}}",
+    "syncingChannelsAndVod": "Syncing channels & VOD...",
+    "syncingChannels": "Syncing channels...",
+    "syncingVod": "Syncing VOD...",
+    "matchingTmdb": "Matching with TMDB...",
+    "initializing": "Initializing...",
+    "starting": "Starting...",
+    "updatingGlobalEpg": "Updating global EPG...",
+    "updatingGlobalEpgLinks": "Updating global EPG links...",
+    "syncingNativeEngine": "Syncing via Rust Native Engine (0% UI CPU)...",
+    "fetchingCatchupData": "Fetching Xtream catchup data...",
+    "checkingExistingData": "Checking existing data...",
+    "cleaningStaleChannels": "Cleaning up stale channels...",
+    "connectingXtream": "Connecting to Xtream server...",
+    "connectingStalker": "Connecting to Stalker portal...",
+    "loadingLocalPlaylist": "Loading local playlist...",
+    "fetchingM3uPlaylist": "Fetching M3U playlist...",
+    "fetchingCategories": "Fetching categories...",
+    "fetchingChannels": "Fetching channels...",
+    "applyingSettings": "Applying settings...",
+    "calculatingChanges": "Calculating changes...",
+    "applyingChanges": "Applying changes...",
+    "updatingEpgShort": "Updating EPG...",
+    "updatingEpgManualUrl": "Updating EPG (manual URL)...",
+    "updatingEpgAdditional": "Updating EPG (additional sources)...",
+    "savingToDatabase": "Saving to database...",
+    "initializingSync": "Initializing sync...",
+    "globalEpgInProgress": "Global EPG sync already in progress...",
+    "vodOnlySkipping": "VOD-only source: skipping channels and categories...",
+    "phaseDownloading": "Downloading",
+    "phaseParsingXml": "Parsing XML",
+    "phaseInsertingDb": "Inserting to DB",
+    "phaseComplete": "Complete",
+    "programsParsed": "{{count}} programs parsed",
+    "programsMatched": "{{count}} matched",
+    "programsInserted": "{{count}} inserted",
+    "minutesRemaining": "(~{{mins}}m remaining)",
+    "startsAt": "Starts at {{time}}",
+    "dismiss": "Dismiss",
+    "connectionFailed": "Connection failed",
+    "xtreamRequiresCredentials": "Xtream source requires username and password",
+    "stalkerRequiresMac": "Stalker Portal requires a MAC address",
+    "unsupportedSourceType": "Unsupported source type: {{type}}",
+    "storageApiUnavailable": "Storage API not available",
+    "invalidStalkerSource": "Invalid Stalker source",
+    "failedToGetSources": "Failed to get sources"
   },
   "nav": {
     "epgButtons": {
@@ -1046,7 +1105,8 @@
       "configureStremCatalogs": "Configure Trakt Strem Catalogs",
       "configureNuvioCatalogs": "Configure Trakt Nuvio Catalogs",
       "disconnect": "Disconnect Trakt Account",
-      "disconnectConfirm": "Are you sure you want to disconnect your Trakt account?"
+      "disconnectConfirm": "Are you sure you want to disconnect your Trakt account?",
+      "failedGenerateTraktCode": "Failed to generate Trakt device code"
     },
     "simkl": {
       "title": "Simkl",
@@ -1068,7 +1128,10 @@
       "enableScrobble": "Enable Live Scrobbling",
       "enableScrobbleHint": "Automatically send watched status and playback updates to Simkl while viewing.",
       "disconnect": "Disconnect Simkl Account",
-      "disconnectConfirm": "Are you sure you want to disconnect your Simkl account?"
+      "disconnectConfirm": "Are you sure you want to disconnect your Simkl account?",
+      "codeExpired": "The code has expired. Please start over.",
+      "authStartFailed": "Failed to start authentication flow.",
+      "failedRequestPin": "Failed to request Simkl PIN code ({{status}})"
     },
     "strem": {
       "title": "Strem Playback",
@@ -1665,7 +1728,8 @@
       "noResults": "No results for \"{{query}}\"",
       "renameGroup": "Rename group",
       "searchPlaceholder": "Search channels…",
-      "searching": "Searching…"
+      "searching": "Searching…",
+      "alreadyInGroup": "Channel is already in failover group \"{{group}}\". Remove it first."
     },
     "movies": {
       "genreCarousels": "Movie Genre Carousels",
@@ -2598,7 +2662,10 @@
     "summaryLabel": "SUMMARY",
     "recommendationsLabel": "RECOMMENDATIONS",
     "pinRequired": "PIN required",
-    "scrapersLabel": "SCRAPERS"
+    "scrapersLabel": "SCRAPERS",
+    "addonAlreadyInstalled": "Addon \"{{name}}\" is already installed in Nuvio.",
+    "repoAlreadyInstalled": "Repository is already installed",
+    "urlMustBeHttp": "URL must start with http:// or https://"
   },
   "player": {
     "alignment": "Alignment",
@@ -2975,7 +3042,8 @@
     "castLabel": "CAST",
     "summaryLabel": "SUMMARY",
     "recommendationsLabel": "RECOMMENDATIONS",
-    "watchedLabel": "Watched"
+    "watchedLabel": "Watched",
+    "addonAlreadyInstalled": "Addon \"{{name}}\" is already installed."
   },
   "cast": {
     "disabledTitle": "Google Cast (disabled)",
@@ -3083,7 +3151,8 @@
     "extractQuestion": "Would you like to extract subtitles for this VOD?",
     "extractSubtitles": "Extract Subtitles",
     "downloadVideoOnly": "Download Video Only",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "sessionExpired": "OpenSubtitles session expired. Please re-login in Settings → Subtitles."
   },
   "logoEditor": {
     "title": "Logo Editor",
