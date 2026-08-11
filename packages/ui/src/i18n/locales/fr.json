@@ -190,7 +190,12 @@
       "hour_one": "{{count}} heure",
       "hour_other": "{{count}} heures",
       "hr_one": "{{count}} h",
-      "hr_other": "{{count}} h"
+      "hr_other": "{{count}} h",
+      "failedResolveStreamUrl": "Échec de la résolution de l’URL du flux",
+      "conflictMessage": "Ce programme entre en conflit avec un enregistrement existant.",
+      "hasBeenScheduled": "{{name}} a été planifié",
+      "recordingStarted": "Enregistrement démarré",
+      "startedCatchupRecording": "Enregistrement de rattrapage démarré pour {{name}}"
     },
     "channel": "Chaîne",
     "closeTransparentGuide": "Fermer le guide EPG transparent",
@@ -326,7 +331,11 @@
     "interruptedPrefix": "Interrompu",
     "interruptedRestart": "Interrompu par le redémarrage de l’application",
     "recordingNotFound": "Enregistrement introuvable",
-    "unknownErrorOccurred": "Une erreur inconnue est survenue"
+    "unknownErrorOccurred": "Une erreur inconnue est survenue",
+    "primaryUrlFailedTryingBackup": "Échec de l’URL principale. Tentative avec la sauvegarde : {{url}}...",
+    "epgMaxRetriesExceeded": "Nombre maximal de tentatives dépassé pour l’opération de base de données",
+    "epgDownloadInterrupted": "Téléchargement interrompu",
+    "epgParseFailed": "Échec de l’analyse de l’EPG"
   },
   "nav": {
     "epgButtons": {
@@ -2347,7 +2356,13 @@
     "playRecording": "Lire l'enregistrement",
     "cannotPausePostProcessing": "Impossible de mettre en pause pendant le post-traitement",
     "pauseDownload": "Mettre le téléchargement en pause",
-    "manualConversionFailed": "Échec de la conversion manuelle : {{error}}"
+    "manualConversionFailed": "Échec de la conversion manuelle : {{error}}",
+    "failedToStartRecording": "Échec du démarrage de l’enregistrement",
+    "failedToCancelRecording": "Échec de l’annulation de l’enregistrement",
+    "failedToUpdateSchedule": "Échec de la mise à jour des paramètres de planification",
+    "failedToDeleteRecording": "Échec de la suppression de l’enregistrement",
+    "failedToRenameRecording": "Échec du renommage de l’enregistrement",
+    "record": "Enregistrer"
   },
   "epg": {
     "shiftTitle": "Décalage EPG",

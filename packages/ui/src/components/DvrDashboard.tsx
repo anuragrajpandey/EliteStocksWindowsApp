@@ -187,7 +187,7 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
                     await loadData();
                 } catch (error) {
                     console.error('Failed to cancel recording:', error);
-                    showError('Error', 'Failed to cancel recording');
+                    showError(i18n.t('contextMenu.error'), i18n.t('dvr:failedToCancelRecording'));
                 }
             },
             undefined,
@@ -235,7 +235,7 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
             setEditingSchedule(null);
         } catch (error) {
             console.error('Failed to update schedule:', error);
-            showError('Error', 'Failed to update schedule settings');
+            showError(i18n.t('contextMenu.error'), i18n.t('dvr:failedToUpdateSchedule'));
         } finally {
             setSavingEdit(false);
         }
@@ -256,7 +256,7 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
                     await loadData();
                 } catch (error) {
                     console.error('Failed to delete recording:', error);
-                    showError('Error', 'Failed to delete recording');
+                    showError(i18n.t('contextMenu.error'), i18n.t('dvr:failedToDeleteRecording'));
                 }
             },
             undefined,
@@ -277,7 +277,7 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
                     await loadData(false);
                 } catch (error) {
                     console.error('Failed to rename recording:', error);
-                    showError('Error', 'Failed to rename recording');
+                    showError(i18n.t('contextMenu.error'), i18n.t('dvr:failedToRenameRecording'));
                 }
             },
             undefined,

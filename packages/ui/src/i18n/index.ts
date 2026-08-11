@@ -66,6 +66,15 @@ export const changeLanguage = (lang: string): ReturnType<typeof i18n.changeLangu
  */
 export function translateNativeError(msg: string | null | undefined): string {
   if (!msg) return '';
+  // Prefix matches for Rust command wrappers with dynamic detail ("Failed to …: {cause}")
+  if (msg.startsWith('Conflict:')) return i18n.t('contextMenu.conflictMessage');
+  if (msg.startsWith('Failed to schedule recording:')) return i18n.t('contextMenu.failedScheduleRecording');
+  if (msg.startsWith('Failed to start instant recording:')) return i18n.t('dvr:failedToStartRecording');
+  if (msg.startsWith('Failed to resolve stream URL:')) return i18n.t('contextMenu.failedResolveStreamUrl');
+  if (msg.startsWith('Download interrupted by network error:')) return i18n.t('common:epgDownloadInterrupted');
+  if (msg.startsWith('Download interrupted:')) return i18n.t('common:epgDownloadInterrupted');
+  if (msg.startsWith('Stream parse EPG failed:')) return i18n.t('common:epgParseFailed');
+  if (msg.startsWith('Stream parse EPG multi failed:')) return i18n.t('common:epgParseFailed');
   switch (msg) {
     case 'Authentication failed':
       return i18n.t('common:authenticationFailed');
@@ -79,6 +88,8 @@ export function translateNativeError(msg: string | null | undefined): string {
       return i18n.t('common:interruptedRestart');
     case 'No media session':
       return i18n.t('player:noMediaSession');
+    case 'Max retries exceeded for database operation':
+      return i18n.t('common:epgMaxRetriesExceeded');
     default:
       return msg;
   }

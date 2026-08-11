@@ -190,7 +190,12 @@
       "hour_one": "{{count}} hour",
       "hour_other": "{{count}} hours",
       "hr_one": "{{count}} hr",
-      "hr_other": "{{count}} hrs"
+      "hr_other": "{{count}} hrs",
+      "failedResolveStreamUrl": "Failed to resolve stream URL",
+      "conflictMessage": "This program conflicts with an existing recording.",
+      "hasBeenScheduled": "{{name}} has been scheduled",
+      "recordingStarted": "Recording started",
+      "startedCatchupRecording": "Started recording catch-up for {{name}}"
     },
     "channel": "Channel",
     "closeTransparentGuide": "Close Transparent EPG Guide",
@@ -326,7 +331,11 @@
     "interruptedPrefix": "Interrupted",
     "interruptedRestart": "Interrupted by app restart",
     "recordingNotFound": "Recording not found",
-    "unknownErrorOccurred": "Unknown error occurred"
+    "unknownErrorOccurred": "Unknown error occurred",
+    "primaryUrlFailedTryingBackup": "Primary URL failed. Trying backup: {{url}}...",
+    "epgMaxRetriesExceeded": "Max retries exceeded for database operation",
+    "epgDownloadInterrupted": "Download interrupted",
+    "epgParseFailed": "Failed to parse EPG"
   },
   "nav": {
     "epgButtons": {
@@ -2347,7 +2356,13 @@
     "playRecording": "Play Recording",
     "cannotPausePostProcessing": "Cannot pause during post-processing",
     "pauseDownload": "Pause Download",
-    "manualConversionFailed": "Manual conversion failed: {{error}}"
+    "manualConversionFailed": "Manual conversion failed: {{error}}",
+    "failedToStartRecording": "Failed to start recording",
+    "failedToCancelRecording": "Failed to cancel recording",
+    "failedToUpdateSchedule": "Failed to update schedule settings",
+    "failedToDeleteRecording": "Failed to delete recording",
+    "failedToRenameRecording": "Failed to rename recording",
+    "record": "Record"
   },
   "epg": {
     "shiftTitle": "EPG Shift",

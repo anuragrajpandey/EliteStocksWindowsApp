@@ -11,6 +11,7 @@ import { CatchupDownloadModal } from './CatchupDownloadModal';
 import { useEpgClockFormat } from '../stores/uiStore';
 import { formatTime } from '../utils/dateTime';
 import { useTranslation } from 'react-i18next';
+import i18n, { translateNativeError } from '../i18n';
 import './ProgramContextMenu.css';
 
 interface ProgramContextMenuProps {
@@ -247,8 +248,8 @@ export function ProgramContextMenu({
         } catch (error: any) {
             console.error('Failed to resolve stream URL:', error);
             showModal({
-                title: 'Scheduling Failed',
-                message: error?.message || 'Failed to resolve stream URL',
+                title: i18n.t('contextMenu.schedulingFailed'),
+                message: translateNativeError(error?.message) || i18n.t('contextMenu.failedResolveStreamUrl'),
                 type: 'error',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),
@@ -293,15 +294,15 @@ export function ProgramContextMenu({
 
                 if (maxConnections === 1) {
                     showConfirm(
-                        '1 Connection Limit',
-                        'This source only has a 1 connection limit. Are you sure you want to record?',
+                        i18n.t('contextMenu.oneConnectionLimit'),
+                        i18n.t('contextMenu.oneConnectionLimitMsg'),
                         async () => {
                             try {
                                 setScheduling(true);
                                 await scheduleRecording(schedule);
                                 showModal({
-                                    title: 'Recording Scheduled',
-                                    message: `${program.title} has been scheduled`,
+                                    title: i18n.t('contextMenu.recordingScheduled'),
+                                    message: i18n.t('contextMenu.hasBeenScheduled', { name: program.title }),
                                     type: 'success',
                                     confirmText: 'OK',
                                     onConfirm: () => onClose(),
@@ -309,8 +310,8 @@ export function ProgramContextMenu({
                                 });
                             } catch (err: any) {
                                 showModal({
-                                    title: 'Scheduling Failed',
-                                    message: err?.message || 'Failed to schedule recording',
+                                    title: i18n.t('contextMenu.schedulingFailed'),
+                                    message: translateNativeError(err?.message) || i18n.t('contextMenu.failedScheduleRecording'),
                                     type: 'error',
                                     confirmText: 'OK',
                                     onConfirm: () => onClose(),
@@ -321,13 +322,13 @@ export function ProgramContextMenu({
                             }
                         },
                         () => onClose(),
-                        'Record',
-                        'Cancel'
+                        i18n.t('dvr:record'),
+                        i18n.t('common:cancel')
                     );
                 } else {
                     showModal({
-                        title: 'Scheduling Conflict',
-                        message: conflictResult.message || 'This program conflicts with an existing recording.',
+                        title: i18n.t('contextMenu.schedulingConflict'),
+                        message: translateNativeError(conflictResult.message) || i18n.t('contextMenu.conflictMessage'),
                         type: 'error',
                         confirmText: 'OK',
                         onConfirm: () => onClose(),
@@ -340,8 +341,8 @@ export function ProgramContextMenu({
             // Schedule the recording
             await scheduleRecording(schedule);
             showModal({
-                title: 'Recording Scheduled',
-                message: `${program.title} has been scheduled`,
+                title: i18n.t('contextMenu.recordingScheduled'),
+                message: i18n.t('contextMenu.hasBeenScheduled', { name: program.title }),
                 type: 'success',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),
@@ -350,8 +351,8 @@ export function ProgramContextMenu({
         } catch (error: any) {
             console.error('Failed to schedule recording:', error);
             showModal({
-                title: 'Scheduling Failed',
-                message: error?.message || 'Failed to schedule recording',
+                title: i18n.t('contextMenu.schedulingFailed'),
+                message: translateNativeError(error?.message) || i18n.t('contextMenu.failedScheduleRecording'),
                 type: 'error',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),
@@ -419,8 +420,8 @@ export function ProgramContextMenu({
             await scheduleRecording(schedule);
 
             showModal({
-                title: 'Recording Started',
-                message: `Started recording catch-up for ${program.title}`,
+                title: i18n.t('contextMenu.recordingStarted'),
+                message: i18n.t('contextMenu.startedCatchupRecording', { name: program.title }),
                 type: 'success',
                 confirmText: 'OK',
                 onConfirm: () => onClose(),

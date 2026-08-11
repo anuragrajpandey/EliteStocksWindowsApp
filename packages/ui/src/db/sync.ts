@@ -2074,7 +2074,7 @@ export async function syncSource(source: Source, onProgress?: (msg: string) => v
       if (!trimmedUrl) continue;
 
       debugLog(`Primary URL failed. Trying backup URL: ${trimmedUrl}`, 'sync');
-      onProgress?.(`Primary URL failed. Trying backup: ${trimmedUrl}...`);
+      onProgress?.(i18n.t('common:primaryUrlFailedTryingBackup', { url: trimmedUrl }));
 
       const backupSource: Source = { ...source, url: trimmedUrl };
       const backupResult = await _doSyncSourceImpl(backupSource, onProgress);
