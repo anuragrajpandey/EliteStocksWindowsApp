@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import {
     listFailoverGroups,
     createFailoverGroup,
@@ -21,6 +23,7 @@ interface FailoverGroupItem {
 }
 
 export function FailoverGroupListModal({ onClose }: FailoverGroupListModalProps) {
+  const { t } = useTranslation('settings');
     const [groups, setGroups] = useState<FailoverGroupItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [creating, setCreating] = useState(false);
@@ -120,7 +123,7 @@ export function FailoverGroupListModal({ onClose }: FailoverGroupListModalProps)
             <div className="failover-group-list-overlay" onClick={onClose}>
                 <div className="failover-group-list-modal" onClick={e => e.stopPropagation()}>
                     <div className="failover-group-list-header">
-                        <h2>Failover Groups</h2>
+                        <h2>{t('failover.groups')}</h2>
                         <button className="close-btn" onClick={onClose}>✕</button>
                     </div>
 
@@ -128,14 +131,14 @@ export function FailoverGroupListModal({ onClose }: FailoverGroupListModalProps)
                         <div className="failover-group-list-toolbar">
                             {!creating ? (
                                 <button className="fgl-create-btn" onClick={() => setCreating(true)}>
-                                    <span>＋</span> Create New Group
+                                    <span>＋</span> {t('failover.createGroup')}
                                 </button>
                             ) : (
                                 <div className="fgl-create-row">
                                     <input
                                         ref={newNameInputRef}
                                         className="fgl-create-input"
-                                        placeholder="Group name…"
+                                        placeholder={t('failover.createGroupPlaceholder')}
                                         value={newName}
                                         onChange={e => setNewName(e.target.value)}
                                         onKeyDown={handleNewNameKey}
@@ -145,18 +148,18 @@ export function FailoverGroupListModal({ onClose }: FailoverGroupListModalProps)
                                             }
                                         }}
                                     />
-                                    <button className="fgl-create-ok" onClick={handleCreate}>Create</button>
-                                    <button className="fgl-create-cancel" onClick={() => { setCreating(false); setNewName(''); }}>Cancel</button>
+                                    <button className="fgl-create-ok" onClick={handleCreate}>{i18n.t('common:create')}</button>
+                                    <button className="fgl-create-cancel" onClick={() => { setCreating(false); setNewName(''); }}>{i18n.t('common:cancel')}</button>
                                 </div>
                             )}
                         </div>
 
                         {loading ? (
-                            <div className="fgl-empty">Loading…</div>
+                            <div className="fgl-empty">{t('failover.loading')}</div>
                         ) : groups.length === 0 ? (
                             <div className="fgl-empty">
-                                <p>No failover groups yet.</p>
-                                <p className="fgl-hint">Create a group to manage backup channels for failover.</p>
+                                <p>{t('failover.noGroups')}</p>
+                                <p className="fgl-hint">{t('failover.noGroupsHint')}</p>
                             </div>
                         ) : (
                             <div className="fgl-list">
@@ -178,10 +181,10 @@ export function FailoverGroupListModal({ onClose }: FailoverGroupListModalProps)
                                             <div className="fgl-item-main" onClick={() => setManagingGroup({ id: group.group_id, name: group.name })}>
                                                 <div className="fgl-item-info">
                                                     <span className="fgl-item-name">{group.name}</span>
-                                                    <span className="fgl-item-count">{group.memberCount} channel{group.memberCount !== 1 ? 's' : ''}</span>
+                                                    <span className="fgl-item-count">{t('failover.channelsCount', { count: group.memberCount })}</span>
                                                 </div>
                                                 <div className="fgl-item-actions" onClick={e => e.stopPropagation()}>
-                                                    <button className="fgl-action-btn" onClick={() => startEdit(group)} title="Rename">
+                                                    <button className="fgl-action-btn" onClick={() => startEdit(group)} title={i18n.t('common:rename')}>
                                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                                             <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
                                                             <path d="m15 5 4 4" />
@@ -189,11 +192,11 @@ export function FailoverGroupListModal({ onClose }: FailoverGroupListModalProps)
                                                     </button>
                                                     {deleteConfirmId === group.group_id ? (
                                                         <>
-                                                            <button className="fgl-action-btn fgl-confirm" onClick={() => handleDelete(group.group_id)} title="Confirm delete">✓</button>
-                                                            <button className="fgl-action-btn" onClick={() => setDeleteConfirmId(null)} title="Cancel">✕</button>
+                                                            <button className="fgl-action-btn fgl-confirm" onClick={() => handleDelete(group.group_id)} title={t('failover.confirmDelete')}>✓</button>
+                                                            <button className="fgl-action-btn" onClick={() => setDeleteConfirmId(null)} title={i18n.t('common:cancel')}>✕</button>
                                                         </>
                                                     ) : (
-                                                        <button className="fgl-action-btn fgl-danger" onClick={() => setDeleteConfirmId(group.group_id)} title="Delete">
+                                                        <button className="fgl-action-btn fgl-danger" onClick={() => setDeleteConfirmId(group.group_id)} title={i18n.t('common:delete')}>
                                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                                                 <path d="M3 6h18" />
                                                                 <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
@@ -211,8 +214,8 @@ export function FailoverGroupListModal({ onClose }: FailoverGroupListModalProps)
                     </div>
 
                     <div className="failover-group-list-footer">
-                        <span className="fgl-footer-hint">Click a group to manage its channels</span>
-                        <button className="close-done-btn" onClick={onClose}>Done</button>
+                        <span className="fgl-footer-hint">{t('failover.footerHint')}</span>
+                        <button className="close-done-btn" onClick={onClose}>{i18n.t('common:done')}</button>
                     </div>
                 </div>
             </div>

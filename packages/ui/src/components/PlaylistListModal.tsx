@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../hooks/useSqliteLiveQuery';
 import { db, type CustomPlaylist } from '../db';
@@ -102,6 +104,7 @@ interface SortablePlaylistItemProps {
 }
 
 function SortablePlaylistItem(props: SortablePlaylistItemProps) {
+  const { t } = useTranslation('playlist');
   const {
     item,
     catCount,
@@ -155,10 +158,10 @@ function SortablePlaylistItem(props: SortablePlaylistItemProps) {
             <span className="pll-item-count source-type-badge">
               {catCount > 0 || indivCount > 0 ? (
                 <span className="pll-custom-additions-badge">
-                  +{catCount} category links · +{indivCount} individual channels
+                  +{t('linksAndChannels', { count: catCount })} · +{t('individualChannelsCount', { count: indivCount })}
                 </span>
               ) : (
-                "Media Source"
+                t('mediaSource')
               )}
             </span>
           </div>
@@ -167,26 +170,26 @@ function SortablePlaylistItem(props: SortablePlaylistItemProps) {
             <button
               className="pll-action-btn"
               onClick={() => setEditingPlaylist({ id: item.id, name: item.name })}
-              title="Edit Contents"
+              title={t('editContents')}
             >
-              <EditIcon size={12} />Content
+              <EditIcon size={12} />{t('content')}
             </button>
             <button
               className="pll-action-btn pll-danger"
               onClick={() => handleRevert(item.id, item.name)}
-              title="Revert to Default"
+              title={t('revertToDefault')}
               disabled={revertingId !== null}
             >
               <RevertIcon size={12} />
-              {revertingId === item.id ? 'Reverting...' : 'Revert'}
+              {revertingId === item.id ? t('reverting') : t('revert')}
             </button>
             {item.sourceType !== 'stalker' && (
               <button
                 className="pll-action-btn"
                 onClick={() => handleExport(item.id, item.name)}
-                title="Export .m3u"
+                title={t('exportM3u')}
               >
-                <ExportIcon size={12} />Export
+                <ExportIcon size={12} />{t('export')}
               </button>
             )}
           </div>
@@ -223,7 +226,7 @@ function SortablePlaylistItem(props: SortablePlaylistItemProps) {
           <div className="pll-item-info">
             <span className="pll-item-name">{playlist.name}</span>
             <span className="pll-item-count">
-              {catCount} category links · {indivCount} individual channels
+              {t('linksAndChannels', { count: catCount })} · {t('individualChannelsCount', { count: indivCount })}
             </span>
           </div>
 
@@ -231,23 +234,23 @@ function SortablePlaylistItem(props: SortablePlaylistItemProps) {
             <button
               className="pll-action-btn"
               onClick={() => setEditingPlaylist({ id: plId, name: playlist.name })}
-              title="Edit Contents"
+              title={t('editContents')}
             >
-              <EditIcon size={12} />Content
+              <EditIcon size={12} />{t('content')}
             </button>
             <button
               className="pll-action-btn"
               onClick={() => startEdit(playlist)}
-              title="Rename"
+              title={t('rename')}
             >
-              <RenameIcon size={12} />Rename
+              <RenameIcon size={12} />{t('rename')}
             </button>
             <button
               className="pll-action-btn"
               onClick={() => handleExport(playlist.playlist_id, playlist.name)}
-              title="Export .m3u"
+              title={t('exportM3u')}
             >
-              <ExportIcon size={12} />Export
+              <ExportIcon size={12} />{t('export')}
             </button>
 
             {deleteConfirmId === plId ? (
@@ -255,19 +258,19 @@ function SortablePlaylistItem(props: SortablePlaylistItemProps) {
                 <button
                   className="pll-action-btn pll-confirm"
                   onClick={() => handleDelete(plId)}
-                  title="Confirm delete"
+                  title={t('confirmDelete')}
                 >✓</button>
                 <button
                   className="pll-action-btn"
                   onClick={() => setDeleteConfirmId(null)}
-                  title="Cancel"
+                  title={i18n.t('common:cancel')}
                 >✕</button>
               </>
             ) : (
               <button
                 className="pll-action-btn pll-danger"
                 onClick={() => setDeleteConfirmId(plId)}
-                title="Delete"
+                title={i18n.t('common:delete')}
               >
                 <TrashIcon size={14} />
               </button>
@@ -284,6 +287,7 @@ interface PlaylistListModalProps {
 }
 
 export function PlaylistListModal({ onClose }: PlaylistListModalProps) {
+  const { t } = useTranslation('playlist');
   const { showConfirm, showSuccess, showError, ModalComponent } = useModal();
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -496,8 +500,8 @@ export function PlaylistListModal({ onClose }: PlaylistListModalProps) {
 
   const handleRevert = (sourceId: string, sourceName: string) => {
     showConfirm(
-      'Revert Source to Default',
-      `Are you sure you want to revert "${sourceName}" to its default state? This will remove all custom-added categories/channels and reset category ordering.`,
+      t('revertSourceTitle'),
+      t('revertSourceMsg', { name: sourceName }),
       async () => {
         setRevertingId(sourceId);
         try {
@@ -515,10 +519,10 @@ export function PlaylistListModal({ onClose }: PlaylistListModalProps) {
             }
           }
 
-          showSuccess('Revert Source', `Successfully reverted "${sourceName}" to default.`);
+          showSuccess(t('revertSource'), t('revertSourceSuccess', { name: sourceName }));
         } catch (e) {
           console.error('Failed to revert source to default:', e);
-          showError('Revert Source', 'Failed to revert: ' + String(e));
+          showError(t('revertSource'), t('revertSourceFailed', { error: String(e) }));
         } finally {
           setRevertingId(null);
         }
@@ -550,11 +554,11 @@ export function PlaylistListModal({ onClose }: PlaylistListModalProps) {
       const content = await generateM3uForPlaylist(id);
       const result = await window.storage.saveM3UFile(content, name);
       if (result.success) {
-        showSuccess('Export Playlist', 'Playlist exported successfully!');
+        showSuccess(t('exportPlaylist'), t('playlistExported'));
       }
     } catch (e) {
       console.error('Failed to export playlist:', e);
-      showError('Export Playlist', 'Export failed: ' + String(e));
+      showError(t('exportPlaylist'), t('exportFailed', { error: String(e) }));
     }
   };
 
@@ -576,7 +580,7 @@ export function PlaylistListModal({ onClose }: PlaylistListModalProps) {
       <div className="playlist-list-overlay" onClick={onClose}>
         <div className="playlist-list-modal" onClick={e => e.stopPropagation()}>
           <div className="playlist-list-header">
-            <h2><PlaylistIcon size={18} />Custom Playlists</h2>
+            <h2><PlaylistIcon size={18} />{t('customPlaylists')}</h2>
             <button className="close-btn" onClick={onClose}>✕</button>
           </div>
 
@@ -584,14 +588,14 @@ export function PlaylistListModal({ onClose }: PlaylistListModalProps) {
             <div className="playlist-list-toolbar">
               {!creating ? (
                 <button className="pll-create-btn" onClick={() => setCreating(true)}>
-                  <PlusIcon size={12} /> Create New Playlist
+                  <PlusIcon size={12} /> {t('createNewPlaylist')}
                 </button>
               ) : (
                 <div className="pll-create-row">
                   <input
                     ref={newNameInputRef}
                     className="pll-create-input"
-                    placeholder="Playlist name…"
+                    placeholder={t('playlistNamePlaceholder')}
                     value={newName}
                     onChange={e => setNewName(e.target.value)}
                     onKeyDown={handleNewNameKey}
@@ -601,17 +605,17 @@ export function PlaylistListModal({ onClose }: PlaylistListModalProps) {
                       }
                     }}
                   />
-                  <button className="pll-create-ok" onClick={handleCreate}>Create</button>
-                  <button className="pll-create-cancel" onClick={() => { setCreating(false); setNewName(''); }}>Cancel</button>
+                  <button className="pll-create-ok" onClick={handleCreate}>{i18n.t('common:create')}</button>
+                  <button className="pll-create-cancel" onClick={() => { setCreating(false); setNewName(''); }}>{i18n.t('common:cancel')}</button>
                 </div>
               )}
             </div>
 
             {loading ? (
-              <div className="pll-empty">Loading…</div>
+              <div className="pll-empty">{t('loading')}</div>
             ) : combinedItems.length === 0 ? (
               <div className="pll-empty">
-                <p>No custom playlists or media sources found.</p>
+                <p>{t('noPlaylistsFound')}</p>
               </div>
             ) : (
               <DndContext
@@ -661,8 +665,8 @@ export function PlaylistListModal({ onClose }: PlaylistListModalProps) {
           </div>
 
           <div className="playlist-list-footer">
-            <span className="pll-footer-hint">Drag ⋮⋮ to reorder sidebar · Click playlist to edit contents</span>
-            <button className="close-done-btn" onClick={onClose}>Done</button>
+            <span className="pll-footer-hint">{t('footerHint')}</span>
+            <button className="close-done-btn" onClick={onClose}>{i18n.t('common:done')}</button>
           </div>
         </div>
       </div>

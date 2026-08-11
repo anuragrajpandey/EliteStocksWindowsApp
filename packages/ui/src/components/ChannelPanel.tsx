@@ -24,6 +24,7 @@ import { db } from '../db';
 import { matchesSearch } from '../utils/searchNormalization';
 import { formatTime } from '../utils/dateTime';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 
 function formatSeekTime(seconds: number): string {
   if (!isFinite(seconds) || seconds < 0) return '0:00';
@@ -1006,7 +1007,7 @@ export function ChannelPanel({
   );
 
   const categoryName = playlistCatLink
-    ? (playlistCatLink.displayName ?? 'Linked Category')
+    ? (playlistCatLink.displayName ?? t('linkedCategory'))
     : (currentCategory?.category_name ?? 'All Channels');
 
   // Get source ID from current category or playlist link
@@ -1061,7 +1062,7 @@ export function ChannelPanel({
       if (syncResult.success) {
         console.log(`[ChannelPanel] Source ${source.name} synced: ${syncResult.channelCount} channels`);
         try {
-          setSyncStatusMsg('Updating global EPG...');
+          setSyncStatusMsg(i18n.t('common:updatingEpg'));
           const channels = await db.channels.where('source_id').equals(sourceId).toArray() as any[];
           await applyGlobalEpgToSource(source, channels, setSyncStatusMsg);
         } catch (epgErr) {
@@ -2098,7 +2099,7 @@ export function ChannelPanel({
           className={`guide-preview-resizer ${epgView === 'alternate' ? 'vertical' : 'horizontal'}`} 
           onMouseDown={handleResizeMouseDown}
           onContextMenu={handleResizeContextMenu}
-          title="Drag to resize preview | Right-click to reset"
+          title={t('dragResizePreview')}
         >
           <div className="resizer-dot"></div>
         </div>
@@ -2132,7 +2133,7 @@ export function ChannelPanel({
         {/* The actual video is rendered by MPV "under" this transparent div */}
         {/* Only show placeholder when truly no channel is selected (not in watchlist/favorites mode with a selection) */}
         {!selectedChannel && !isWatchlistMode && categoryId !== '__favorites__' && categoryId !== '__recent__' && (
-          <div className="guide-preview-placeholder">Select a channel</div>
+          <div className="guide-preview-placeholder">{t('selectAChannel')}</div>
         )}
         {/* Show Error Overlay if there is an error */}
         {error && (
@@ -2149,7 +2150,7 @@ export function ChannelPanel({
         {/* Show Channel Loading Overlay if loading and not retrying/failing over */}
         {loadingState && loadingState !== 'idle' && !retryState?.isRetrying && !failoverState?.isFailingOver && (
           <ChannelLoadingOverlay
-            channelName={currentChannel?.name || 'Channel'}
+            channelName={currentChannel?.name || t('channel')}
             loadingState={loadingState}
             isSmall
           />
@@ -2198,7 +2199,7 @@ export function ChannelPanel({
                   className="guide-minibar-btn"
                   onClick={onChannelUp}
                   onDoubleClick={(e) => e.stopPropagation()}
-                  title="Previous Channel (Up)"
+                  title={i18n.t('player:previousChannelUp')}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M18 15l-6-6-6 6" />
@@ -2210,7 +2211,7 @@ export function ChannelPanel({
                   className="guide-minibar-btn"
                   onClick={onChannelDown}
                   onDoubleClick={(e) => e.stopPropagation()}
-                  title="Next Channel (Down)"
+                  title={i18n.t('player:nextChannelDown')}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M6 9l6 6 6-6" />
@@ -2225,7 +2226,7 @@ export function ChannelPanel({
                 className="guide-minibar-btn guide-minibar-btn-primary"
                 onClick={onTogglePlay}
                 onDoubleClick={(e) => e.stopPropagation()}
-                title={isPlaying ? 'Pause' : 'Play'}
+                title={isPlaying ? i18n.t('player:pause') : i18n.t('player:play')}
               >
                 {isPlaying ? (
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -2243,7 +2244,7 @@ export function ChannelPanel({
                   className="guide-minibar-btn"
                   onClick={onStop}
                   onDoubleClick={(e) => e.stopPropagation()}
-                  title="Stop"
+                  title={i18n.t('player:stop')}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                     <rect x="6" y="6" width="12" height="12" rx="1" />
@@ -2259,7 +2260,7 @@ export function ChannelPanel({
                   className="guide-minibar-btn"
                   onClick={handlePreviewMuteToggle}
                   onDoubleClick={(e) => e.stopPropagation()}
-                  title={previewMuted ? 'Unmute' : 'Mute'}
+                  title={previewMuted ? i18n.t('player:unmute') : i18n.t('player:mute')}
                 >
                   {previewMuted || previewVolume === 0 ? (
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -2279,7 +2280,7 @@ export function ChannelPanel({
                   onChange={handlePreviewVolumeChange}
                   onDoubleClick={(e) => e.stopPropagation()}
                   className="guide-minibar-volume-slider"
-                  title="Volume"
+                  title={i18n.t('player:volume')}
                 />
               </div>
               {onTogglePip && (
@@ -2287,7 +2288,7 @@ export function ChannelPanel({
                   className="guide-minibar-btn"
                   onClick={onTogglePip}
                   onDoubleClick={(e) => e.stopPropagation()}
-                  title={pipMode ? 'Exit Picture-in-Picture' : 'Picture-in-Picture'}
+                  title={pipMode ? i18n.t('player:exitPip') : i18n.t('player:pip')}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="3" width="20" height="18" rx="2" />
@@ -2398,7 +2399,7 @@ export function ChannelPanel({
                       <span>{categoryName}</span>
                     </div>
                     <div className="guide-program-description">
-                      {selectedProgram?.description || 'No description available.'}
+                      {selectedProgram?.description || i18n.t('common:noDescription')}
                     </div>
                     {selectedChannel && (
                       <div style={{ marginTop: '8px' }}>
@@ -2413,7 +2414,7 @@ export function ChannelPanel({
                     )}
                   </>
                 ) : (
-                  <div className="guide-program-title">Select a channel</div>
+                  <div className="guide-program-title">{t('selectAChannel')}</div>
                 )}
               </div>
             )}
@@ -2430,7 +2431,7 @@ export function ChannelPanel({
             className="guide-transparent-resizer"
             onMouseDown={handleTransparentGuideResizeMouseDown}
             onContextMenu={handleTransparentGuideResizeContextMenu}
-            title="Drag to resize overlay height | Right-click to reset"
+            title={t('dragResizeOverlay')}
           />
         )}
         {/* Channel Column Resizer */}
@@ -2439,7 +2440,7 @@ export function ChannelPanel({
             className="epg-channel-resizer"
             onMouseDown={handleChannelColResizeMouseDown}
             onContextMenu={handleChannelColResizeContextMenu}
-            title="Drag to resize channel column | Right-click to reset"
+            title={t('dragResizeColumn')}
           />
         )}
         {/* Navigation / Header Bar */}
@@ -2447,9 +2448,9 @@ export function ChannelPanel({
           <div className="guide-header-left">
             {isWatchlistMode ? (
               <>
-                <span className="guide-search-title">📋 Watchlist</span>
+                <span className="guide-search-title">📋 {t('watchlist')}</span>
                 <span className="guide-channel-count">
-                  {watchlistItems?.length || 0} programs
+                  {t('programsCount', { count: watchlistItems?.length || 0 })}
                 </span>
                 <button
                   className={`guide-manage-channels-btn ${showWatchlistPlaylistName ? 'active-toggle' : ''}`}
@@ -2458,21 +2459,21 @@ export function ChannelPanel({
                     setShowWatchlistPlaylistName(newVal);
                     localStorage.setItem('showWatchlistPlaylistName', String(newVal));
                   }}
-                  title="Show playlist name for each channel"
+                  title={t('showPlaylistName')}
                 >
                   <span style={{ flexShrink: 0 }}>{showWatchlistPlaylistName ? '📋' : '📄'}</span>
-                  <span className="btn-label">Show Source</span>
+                  <span className="btn-label">{t('showSource')}</span>
                 </button>
               </>
             ) : isSearchMode ? (
               <>
-                <span className="guide-search-title">🔍 Search Results</span>
+                <span className="guide-search-title">🔍 {t('searchResults')}</span>
                 <span className="guide-search-query">"{searchQuery}"</span>
                 <span className="guide-channel-count">
                   {(() => {
                     const channelCount = searchScope !== 'epg' ? (searchChannels?.length || 0) : 0;
                     const programCount = searchScope !== 'channels' ? activePrograms.length : 0;
-                    return `${channelCount + programCount} results`;
+                    return t('resultsCount', { count: channelCount + programCount });
                   })()}
                 </span>
               </>
@@ -2484,10 +2485,10 @@ export function ChannelPanel({
                     <button
                       className="guide-manage-channels-btn"
                       onClick={() => setManagingFavorites(true)}
-                      title="Manage favorites order"
+                      title={t('manageFavoritesOrder')}
                     >
                       <span style={{ flexShrink: 0 }}>⭐</span>
-                      <span className="btn-label">Manage Favorites</span>
+                      <span className="btn-label">{t('manageFavorites')}</span>
                     </button>
                     <button
                       className={`guide-manage-channels-btn ${showFavPlaylistName ? 'active-toggle' : ''}`}
@@ -2496,10 +2497,10 @@ export function ChannelPanel({
                         setShowFavPlaylistName(newVal);
                         localStorage.setItem('showFavPlaylistName', String(newVal));
                       }}
-                      title="Show playlist name for each channel"
+                      title={t('showPlaylistName')}
                     >
                       <span style={{ flexShrink: 0 }}>{showFavPlaylistName ? '📋' : '📄'}</span>
-                      <span className="btn-label">Show Source</span>
+                      <span className="btn-label">{t('showSource')}</span>
                     </button>
                   </>
                 )}
@@ -2511,10 +2512,10 @@ export function ChannelPanel({
                       setShowRecentPlaylistName(newVal);
                       localStorage.setItem('showRecentPlaylistName', String(newVal));
                     }}
-                    title="Show playlist name for each channel"
+                    title={t('showPlaylistName')}
                   >
                     <span style={{ flexShrink: 0 }}>{showRecentPlaylistName ? '📋' : '📄'}</span>
-                    <span className="btn-label">Show Source</span>
+                    <span className="btn-label">{t('showSource')}</span>
                   </button>
                 )}
                 {isCustomCategory && categoryId !== '__favorites__' && categoryId !== '__recent__' && (
@@ -2525,10 +2526,10 @@ export function ChannelPanel({
                       setShowCustomPlaylistName(newVal);
                       localStorage.setItem('showCustomPlaylistName', String(newVal));
                     }}
-                    title="Show playlist name for each channel"
+                    title={t('showPlaylistName')}
                   >
                     <span style={{ flexShrink: 0 }}>{showCustomPlaylistName ? '📋' : '📄'}</span>
-                    <span className="btn-label">Show Source</span>
+                    <span className="btn-label">{t('showSource')}</span>
                   </button>
                 )}
                 {canManageChannels && (
@@ -2537,14 +2538,14 @@ export function ChannelPanel({
                       <button
                         className="guide-manage-channels-btn"
                         onClick={isCustomGroup ? () => setManagingCustomGroup({ id: categoryId!, name: customGroupName }) : handleManageChannels}
-                        title={isCustomGroup ? "Manage Custom Group" : "Manage Channels"}
+                        title={isCustomGroup ? t('manageCustomGroup') : t('manageChannels')}
                       >
                         {isCustomGroup ? (
                           <>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                               <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                             </svg>
-                            <span className="btn-label">Manage Custom Group</span>
+                            <span className="btn-label">{t('manageCustomGroup')}</span>
                           </>
                         ) : (
                           <>
@@ -2552,7 +2553,7 @@ export function ChannelPanel({
                               <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
                               <polyline points="17 2 12 7 7 2" />
                             </svg>
-                            <span className="btn-label">Manage Channels</span>
+                            <span className="btn-label">{t('manageChannels')}</span>
                           </>
                         )}
                       </button>
@@ -2564,19 +2565,19 @@ export function ChannelPanel({
                             className="guide-refresh-source-btn"
                             onClick={handleRefreshSource}
                             disabled={syncingSourceId === sourceId}
-                            title="Refresh Source"
+                            title={t('refreshSource')}
                           >
                             {syncingSourceId === sourceId ? (
                               <>
                                 <span className="sync-spinner">⟳</span>
-                                <span className="btn-label">{syncStatusMsg || 'Refreshing...'}</span>
+                                <span className="btn-label">{syncStatusMsg || t('refreshing')}</span>
                               </>
                             ) : (
                               <>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
                                   <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
                                 </svg>
-                                <span className="btn-label">Refresh Source</span>
+                                <span className="btn-label">{t('refreshSource')}</span>
                               </>
                             )}
                           </button>
@@ -2585,20 +2586,20 @@ export function ChannelPanel({
                           <button
                             className="guide-epg-shift-btn"
                             onClick={() => setShowEpgShiftModal(true)}
-                            title="EPG Shift"
+                            title={t('epgShift')}
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
                               <circle cx="12" cy="12" r="10"/>
                               <polyline points="12 6 12 12 16 14"/>
                             </svg>
-                            <span className="btn-label">{currentEpgOffset === 0 ? 'EPG Shift' : `Shift ${currentEpgOffset > 0 ? '+' : ''}${currentEpgOffset}h`}</span>
+                            <span className="btn-label">{currentEpgOffset === 0 ? t('epgShift') : t('shiftHours', { hours: `${currentEpgOffset > 0 ? '+' : ''}${currentEpgOffset}` })}</span>
                           </button>
                         )}
                         {!epgHiddenButtons.includes('playlist-editor') && (
                           <button
                             className="guide-epg-shift-btn"
                             onClick={() => setShowPlaylistListModal(true)}
-                            title="Playlist Editor"
+                            title={t('playlistEditor')}
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
                               <line x1="8" y1="6" x2="21" y2="6"></line>
@@ -2608,27 +2609,27 @@ export function ChannelPanel({
                               <line x1="3" y1="12" x2="3.01" y2="12"></line>
                               <line x1="3" y1="18" x2="3.01" y2="18"></line>
                             </svg>
-                            <span className="btn-label">Playlist Editor</span>
+                            <span className="btn-label">{t('playlistEditor')}</span>
                           </button>
                         )}
                         {!epgHiddenButtons.includes('failover-group') && (
                           <button
                             className="guide-epg-shift-btn"
                             onClick={() => setShowFailoverGroupModal(true)}
-                            title="Failover Group"
+                            title={t('failoverGroup')}
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
                               <path d="M12 2L2 7l10 5 10-5-10-5z"/>
                               <path d="M2 17l10 5 10-5"/>
                               <path d="M2 12l10 5 10-5"/>
                             </svg>
-                            <span className="btn-label">Failover Group</span>
+                            <span className="btn-label">{t('failoverGroup')}</span>
                           </button>
                         )}
                         {epgSyncStatus && epgSyncStatus.total > 0 && (
                           <span className="guide-epg-sync-status">
                             <span className="sync-spinner">⟳</span>
-                            <span>{epgSyncStatus.completed}/{epgSyncStatus.total} completed for EPG</span>
+                            <span>{t('epgCompleted', { completed: epgSyncStatus.completed, total: epgSyncStatus.total })}</span>
                           </span>
                         )}
                       </>
@@ -2649,7 +2650,7 @@ export function ChannelPanel({
                 <button
                   className={`guide-nav-btn ${showAlphabetMenu ? 'active' : ''}`}
                   onClick={() => setShowAlphabetMenu((prev) => !prev)}
-                  title="Jump to letter (#-Z)"
+                  title={t('jumpToLetter')}
                   style={{
                     padding: '0 8px',
                     width: 'auto',
@@ -2690,10 +2691,10 @@ export function ChannelPanel({
                 onClick={onTogglePopoutMode}
                 title={
                   popoutMode === 'off'
-                    ? 'Embedded mode (click to swap to Popout, External)'
+                    ? i18n.t('player:embeddedModeHint')
                     : popoutMode === 'popout'
-                      ? 'Popout mode (click to swap to External, Embedded)'
-                      : 'External mode (click to swap to Embedded, Popout)'
+                      ? i18n.t('player:popoutModeHint')
+                      : i18n.t('player:externalModeHint')
                 }
                 style={{
                   padding: '0 6px',
@@ -2714,7 +2715,7 @@ export function ChannelPanel({
                   </svg>
                 )}
                 <span style={{ marginLeft: '4px', fontSize: '11px' }}>
-                  {popoutMode === 'off' ? 'Embedded' : popoutMode === 'popout' ? 'Popout' : 'External'}
+                  {popoutMode === 'off' ? i18n.t('player:embedded') : popoutMode === 'popout' ? i18n.t('player:popout') : i18n.t('player:external')}
                 </span>
               </button>
             )}
@@ -2723,7 +2724,7 @@ export function ChannelPanel({
                 <button className="guide-nav-btn" onClick={goBack} title={t('previousHour')}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
                 </button>
-                <button className="guide-now-btn" onClick={goToNow} disabled={isAtNow}>Now</button>
+                <button className="guide-now-btn" onClick={goToNow} disabled={isAtNow}>{t('now')}</button>
                 <button className="guide-nav-btn" onClick={goForward} title={t('nextHour')}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
                 </button>
@@ -2747,7 +2748,7 @@ export function ChannelPanel({
                     <input
                       type="text"
                       className="channel-search-input"
-                      placeholder="Search channels..."
+                      placeholder={t('searchChannelsPlaceholder')}
                       value={channelSearchQuery}
                       onChange={(e) => setChannelSearchQuery(e.target.value)}
                       onFocus={() => setChannelSearchFocused(true)}
@@ -2790,7 +2791,7 @@ export function ChannelPanel({
               <button
                 className="guide-transparent-close-btn"
                 onClick={onClose}
-                title="Close Transparent EPG Guide"
+                title={t('closeTransparentGuide')}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -2892,8 +2893,8 @@ export function ChannelPanel({
                 })()
               ) : (
                 <div className="guide-empty">
-                  <h3>Your watchlist is empty</h3>
-                  <p>Right-click on any program in the guide to add it to your watchlist</p>
+                  <h3>{t('watchlistEmpty')}</h3>
+                  <p>{t('watchlistEmptyHint')}</p>
                 </div>
               )}
             </div>
@@ -3054,8 +3055,8 @@ export function ChannelPanel({
                 if (!hasChannels && !hasPrograms) {
                   return (
                     <div className="guide-empty">
-                      <h3>No results found</h3>
-                      <p>Try a different search term</p>
+                      <h3>{t('noResultsFound')}</h3>
+                      <p>{t('tryDifferentTerm')}</p>
                     </div>
                   );
                 }
@@ -3111,7 +3112,7 @@ export function ChannelPanel({
               components={{
                 EmptyPlaceholder: () => (
                   <div className="guide-empty">
-                    <h3>{channelSearchQuery ? 'No Channels Found' : 'No Channels'}</h3>
+                    <h3>{channelSearchQuery ? t('noChannelsFound') : t('noChannels')}</h3>
                   </div>
                 ),
               }}

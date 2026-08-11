@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { createPortal } from 'react-dom';
 import { db, type StoredChannel, type StoredCategory } from '../db';
 import { buildSearchQueryClauses } from '../utils/searchNormalization';
@@ -105,6 +107,7 @@ interface SearchResultsProps {
 }
 
 function SearchResults({ query, groupChannelIds, onAdd, onRemove, enabledSourceIdsKey, enabledSourceIds, sources }: SearchResultsProps) {
+  const { t } = useTranslation('customGroup');
     const [results, setResults] = useState<StoredChannel[] | undefined>();
 
     useEffect(() => {
@@ -176,8 +179,8 @@ function SearchResults({ query, groupChannelIds, onAdd, onRemove, enabledSourceI
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [query, enabledSourceIdsKey]);
 
-    if (!results) return <div className="cgm-empty">Searching…</div>;
-    if (results.length === 0) return <div className="cgm-empty">No results for "{query}"</div>;
+    if (!results) return <div className="cgm-empty">{t('searching')}</div>;
+    if (results.length === 0) return <div className="cgm-empty">{t('noResultsFor', { query })}</div>;
 
     // Group results by source
     const sourceNameMap = new Map(sources.map(s => [s.id, s.name]));
@@ -195,7 +198,7 @@ function SearchResults({ query, groupChannelIds, onAdd, onRemove, enabledSourceI
                 <div key={sourceId} className="tree-node source-wrapper">
                     <div className="tree-node-header source-node">
                         <span className="node-icon">▼</span>
-                        <span>{sourceNameMap.get(sourceId) || 'Unknown Source'}</span>
+                        <span>{sourceNameMap.get(sourceId) || t('unknownSource')}</span>
                         <span className="cgm-count">{channels.length}</span>
                     </div>
                     <div className="node-children">
@@ -232,6 +235,7 @@ interface TreeViewProps {
 }
 
 function TreeView({ sourcesAndCategories, searchQuery, expandedNodes, toggleNode, groupChannelIds, onAdd, onRemove, enabledSourceIdsKey, enabledSourceIds }: TreeViewProps) {
+  const { t } = useTranslation('customGroup');
     const [loadedChannels, setLoadedChannels] = useState<StoredChannel[]>([]);
     const [loadingNode, setLoadingNode] = useState<string | null>(null);
     const loadedCats = useRef<Set<string>>(new Set());
@@ -298,8 +302,8 @@ function TreeView({ sourcesAndCategories, searchQuery, expandedNodes, toggleNode
                                             </div>
                                             {isCatExpanded && (
                                                 <div className="node-children">
-                                                    {loadingNode === cat.category_id && catChannels.length === 0 && <div className="cgm-empty">Loading…</div>}
-                                                    {loadingNode !== cat.category_id && catChannels.length === 0 && <div className="cgm-empty">No channels</div>}
+                                                    {loadingNode === cat.category_id && catChannels.length === 0 && <div className="cgm-empty">{t('loading')}</div>}
+                                                    {loadingNode !== cat.category_id && catChannels.length === 0 && <div className="cgm-empty">{t('noChannels')}</div>}
                                                     {catChannels.map(ch => {
                                                         const inGroup = groupChannelIds.has(ch.stream_id);
                                                         return (
@@ -334,6 +338,7 @@ function TreeView({ sourcesAndCategories, searchQuery, expandedNodes, toggleNode
 // ── Main CustomGroupManager ───────────────────────────────────────────────────
 
 export function CustomGroupManager({ groupId, groupName, onClose }: CustomGroupManagerProps) {
+    const { t } = useTranslation('customGroup');
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -390,7 +395,7 @@ export function CustomGroupManager({ groupId, groupName, onClose }: CustomGroupM
     }, [sourcesAndCategories]);
 
     const getChannelSourceCategory = (ch: GroupChannel): string => {
-        const sourceName = sourceNameMap.get(String(ch.source_id)) || ch.source_id || 'Unknown';
+        const sourceName = sourceNameMap.get(String(ch.source_id)) || ch.source_id || t('unknown');
         const catIds = parseCategoryIds(ch.category_ids);
         const catName = catIds.length > 0 ? (categoryNameMap.get(String(catIds[0])) || catIds[0]) : '—';
         return `${sourceName} → ${catName}`;
@@ -501,7 +506,7 @@ export function CustomGroupManager({ groupId, groupName, onClose }: CustomGroupM
                     ) : (
                         <div className="cgm-title-row">
                             <h2>{currentName}</h2>
-                            <button className="cgm-rename-btn" onClick={startRename} title="Rename group">
+                            <button className="cgm-rename-btn" onClick={startRename} title={t('renameGroup')}>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
                                     <path d="m15 5 4 4" />
@@ -517,12 +522,12 @@ export function CustomGroupManager({ groupId, groupName, onClose }: CustomGroupM
                     {/* Left Pane: Group Channels (sortable via container pointer tracking) */}
                     <div className="group-channels-pane">
                         <div className="pane-header">
-                            <span>In Group</span>
+                            <span>{t('inGroup')}</span>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                 <button
                                     className="cgm-sort-abc-btn"
                                     onClick={handleSortABC}
-                                    title="Sort channels alphabetically (uses channel alias if set)"
+                                    title={t('sortAbcTitle')}
                                     style={{
                                         padding: '2px 8px',
                                         fontSize: '0.78rem',
@@ -536,21 +541,21 @@ export function CustomGroupManager({ groupId, groupName, onClose }: CustomGroupM
                                         gap: '4px'
                                     }}
                                 >
-                                    🔤 Sort A-Z
+                                    🔤 {t('sortAbc')}
                                 </button>
-                                <label className="cgm-display-source-label" title="Show source and category for each channel">
+                                <label className="cgm-display-source-label" title={t('displaySourceTitle')}>
                                     <input
                                         type="checkbox"
                                         checked={displaySource}
                                         onChange={e => setDisplaySource(e.target.checked)}
                                     />
-                                    Display Source
+                                    {t('displaySource')}
                                 </label>
                                 <span className="cgm-badge">{groupChannels.length}</span>
                             </div>
                         </div>
                         {groupChannels.length === 0 && !loading
-                            ? <div className="cgm-empty" style={{ padding: '20px 16px' }}>Click channels on the right to add them.</div>
+                            ? <div className="cgm-empty" style={{ padding: '20px 16px' }}>{t('clickToAdd')}</div>
                             : (
                                 <DndContext
                                     sensors={sensors}
@@ -581,12 +586,12 @@ export function CustomGroupManager({ groupId, groupName, onClose }: CustomGroupM
                     {/* Right Pane: Source/Category Tree Selector */}
                     <div className="source-selector-pane">
                         <div className="search-bar">
-                            <input type="text" placeholder="Search channels…" value={searchQuery}
+                            <input type="text" placeholder={t('searchPlaceholder')} value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)} autoComplete="off" />
                         </div>
                         <div className="selector-content">
                             {loading
-                                ? <div className="cgm-empty">Loading…</div>
+                                ? <div className="cgm-empty">{t('loading')}</div>
                                 : <TreeView
                                     sourcesAndCategories={sourcesAndCategories}
                                     searchQuery={searchQuery}
@@ -605,8 +610,8 @@ export function CustomGroupManager({ groupId, groupName, onClose }: CustomGroupM
                 </div>
 
                 <div className="custom-group-manager-footer">
-                    <span className="cgm-footer-hint">Click + to add · ✓ to remove · drag items to reorder</span>
-                    <button className="close-done-btn" onClick={onClose}>Done</button>
+                    <span className="cgm-footer-hint">{t('footerHint')}</span>
+                    <button className="close-done-btn" onClick={onClose}>{i18n.t('common:done')}</button>
                 </div>
 
             </div>

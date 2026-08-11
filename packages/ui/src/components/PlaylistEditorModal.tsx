@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../hooks/useSqliteLiveQuery';
 import { db, type PlaylistCategoryLink, type PlaylistIndividualChannel, type StoredChannel, type StoredCategory, type CategoryFolder } from '../db';
@@ -165,6 +167,7 @@ function CategoryBlockCard({
   onRemove,
   showHidden,
 }: CategoryBlockCardProps) {
+  const { t } = useTranslation('playlist');
   const [isExpanded, setIsExpanded] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [renamingName, setRenamingName] = useState(block.name);
@@ -377,7 +380,7 @@ function CategoryBlockCard({
   }
 
   const srcName = block.type === 'link' 
-    ? (block.link.source_id === 'custom' ? 'Custom Category' : (sources.find(s => s.id === block.link.source_id)?.name || 'Source')) 
+    ? (block.link.source_id === 'custom' ? t('customCategory') : (sources.find(s => s.id === block.link.source_id)?.name || t('source'))) 
     : '';
 
   const visibleChannelsCount = combinedChannels.filter(c => showHidden || c.enabled !== false).length;
@@ -440,7 +443,7 @@ function CategoryBlockCard({
                 className="ple-block-title"
                 onClick={startRename}
                 onPointerDown={(e) => e.stopPropagation()}
-                title="Click to rename category"
+                title={t('renameCategoryTooltip')}
               >
                 <FolderIcon /> {block.name} <EditIcon />
               </span>
@@ -454,7 +457,7 @@ function CategoryBlockCard({
           )}
           <span className="ple-block-sub">
             {block.type === 'link' ? `${srcName} · ` : ''}
-            {visibleChannelsCount} channels
+            {t('channelsCount', { count: visibleChannelsCount })}
           </span>
         </div>
 
@@ -466,7 +469,7 @@ function CategoryBlockCard({
               e.stopPropagation();
               toggleCategoryEnabled();
             }}
-            title={block.category.enabled === false ? "Show category" : "Hide category"}
+            title={block.category.enabled === false ? t('showCategory') : t('hideCategory')}
           >
             {block.category.enabled === false ? <EyeSlashIcon /> : <EyeIcon />}
           </button>
@@ -486,9 +489,9 @@ function CategoryBlockCard({
             }}
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
-            title="Assign category to folder"
+            title={t('assignToFolder')}
           >
-            <option value="">📁 Root Level</option>
+            <option value="">📁 {t('rootLevel')}</option>
             {folders.map(f => (
               <option key={f.folder_id} value={f.folder_id}>📁 {f.name}</option>
             ))}
@@ -502,9 +505,9 @@ function CategoryBlockCard({
             e.stopPropagation();
             onMark();
           }}
-          title={isMarked ? "Active target category for channel additions (Click to unmark)" : "Mark as target category for channel additions"}
+          title={isMarked ? t('targetActiveTooltip') : t('markTargetTooltip')}
         >
-          <TargetIcon size={12} /> {isMarked ? 'Target Active' : 'Target'}
+          <TargetIcon size={12} /> {isMarked ? t('targetActive') : t('target')}
         </button>
 
         {block.type === 'link' && onRemove && (
@@ -512,7 +515,7 @@ function CategoryBlockCard({
             className="ple-remove-btn"
             onPointerDown={(e) => e.stopPropagation()}
             onClick={onRemove}
-            title="Remove category link"
+            title={t('removeCategoryLink')}
           >✕</button>
         )}
       </div>
@@ -522,7 +525,7 @@ function CategoryBlockCard({
 
           <div className="ple-nested-section">
             {combinedChannels.length === 0 ? (
-              <div className="ple-empty-hint">Category is empty. Mark it as the target and click ＋ Channel in the left panel to insert.</div>
+              <div className="ple-empty-hint">{t('categoryEmptyHint')}</div>
             ) : (
               <div
                 className="ple-nested-channels-list reorderable"
@@ -558,7 +561,7 @@ function CategoryBlockCard({
                         <span className="ple-nested-ch-logo-placeholder"><TvIcon size={14} style={{ opacity: 0.6 }} /></span>
                       )}
                       <span className="ple-nested-ch-name">
-                        {ch.name} {!ch.isManualAddition && <span className="ple-dynamic-badge">dynamic</span>}
+                        {ch.name} {!ch.isManualAddition && <span className="ple-dynamic-badge">{t('dynamic')}</span>}
                       </span>
                       
                       <button
@@ -567,7 +570,7 @@ function CategoryBlockCard({
                           e.stopPropagation();
                           toggleChannelEnabled();
                         }}
-                        title={ch.enabled === false ? "Show channel" : "Hide channel"}
+                        title={ch.enabled === false ? t('showChannel') : t('hideChannel')}
                       >
                         {ch.enabled === false ? <EyeSlashIcon /> : <EyeIcon />}
                       </button>
@@ -576,10 +579,10 @@ function CategoryBlockCard({
                         <button
                           className="ple-remove-btn"
                           onClick={() => removeChannelFromCategory(playlistId, parentCategoryId, ch.stream_id)}
-                          title="Remove custom channel"
+                          title={t('removeCustomChannel')}
                         >✕</button>
                       ) : (
-                        <span className="ple-read-only-badge" title="Dynamic channel (read-only)"><LockIcon /></span>
+                        <span className="ple-read-only-badge" title={t('dynamicReadOnly')}><LockIcon /></span>
                       )}
                     </div>
                   );
@@ -601,6 +604,7 @@ function SortableIndivChannelCard(props: {
   showHidden: boolean;
   toggleChannelEnabledGlobal: (streamId: string, currentEnabled: boolean) => void;
 }) {
+  const { t } = useTranslation('playlist');
   const { ch, index, sources, playlistId, showHidden, toggleChannelEnabledGlobal } = props;
   const {
     attributes,
@@ -619,7 +623,7 @@ function SortableIndivChannelCard(props: {
     touchAction: 'none',
   };
 
-  const srcName = sources.find(s => s.id === ch.source_id)?.name || 'Source';
+  const srcName = sources.find(s => s.id === ch.source_id)?.name || t('source');
 
   if (ch.enabled === false && !showHidden) return null;
 
@@ -651,7 +655,7 @@ function SortableIndivChannelCard(props: {
           e.stopPropagation();
           toggleChannelEnabledGlobal(ch.stream_id, ch.enabled !== false);
         }}
-        title={ch.enabled === false ? "Show channel" : "Hide channel"}
+        title={ch.enabled === false ? t('showChannel') : t('hideChannel')}
       >
         {ch.enabled === false ? <EyeSlashIcon /> : <EyeIcon />}
       </button>
@@ -660,7 +664,7 @@ function SortableIndivChannelCard(props: {
         className="ple-remove-btn"
         onPointerDown={(e) => e.stopPropagation()}
         onClick={() => removeIndividualChannelFromPlaylist(playlistId, ch.stream_id)}
-        title="Remove channel"
+        title={t('removeChannel')}
       >
         ✕
       </button>
@@ -743,6 +747,7 @@ async function sortChannelsLikeLiveTV(sourceId: string, categoryId: string, chan
 }
 
 export function PlaylistEditorModal({ playlistId, playlistName, onClose }: PlaylistEditorModalProps) {
+  const { t } = useTranslation('playlist');
   const { showPrompt, showConfirm, showSuccess, showError, ModalComponent } = useModal();
   const [sources, setSources] = useState<BrowseSource[]>([]);
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
@@ -1016,7 +1021,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
           linkCategories.push({
             category_id: `indiv:${plId}`,
             source_id: sourceId,
-            category_name: 'Individual Channels',
+            category_name: t('individualChannels'),
             alias: undefined,
             enabled: true
           });
@@ -1153,7 +1158,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
 
   const handleAddChannel = async (streamId: string) => {
     if (!markedCategoryId) {
-      showError('Target Category Required', 'Please select a target category in the right panel first.');
+      showError(t('targetCategoryRequired'), t('selectTargetFirst'));
       return;
     }
     await addChannelToCategory(playlistId, markedCategoryId, streamId);
@@ -1161,7 +1166,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
 
   const handleCombineCategory = async (sourceId: string, categoryId: string) => {
     if (!markedCategoryId) {
-      showError('Target Category Required', 'Please select a target category in the right panel first.');
+      showError(t('targetCategoryRequired'), t('selectTargetFirst'));
       return;
     }
 
@@ -1204,13 +1209,13 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
 
       if (streamIds.length > 0) {
         await addChannelsToCategory(playlistId, markedCategoryId, streamIds);
-        showSuccess('Category Combined', `Successfully combined ${streamIds.length} channels into the target category.`);
+        showSuccess(t('categoryCombined'), t('combinedMsg', { count: streamIds.length }));
       } else {
-        showError('No Channels', 'The source category does not contain any channels.');
+        showError(t('noChannels'), t('noChannelsMsg'));
       }
     } catch (err) {
       console.error('Failed to combine category:', err);
-      showError('Combine Error', 'An error occurred while combining categories.');
+      showError(t('combineError'), t('combineErrorMsg'));
     }
   };
 
@@ -1274,11 +1279,11 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
       const content = await generateM3uForPlaylist(playlistId);
       const result = await window.storage.saveM3UFile(content, currentName);
       if (result.success) {
-        showSuccess('Export Playlist', 'Playlist exported successfully!');
+        showSuccess(t('exportPlaylist'), t('playlistExported'));
       }
     } catch (e) {
       console.error('Failed to export playlist:', e);
-      showError('Export Playlist', 'Export failed: ' + String(e));
+      showError(t('exportPlaylist'), t('exportFailed', { error: String(e) }));
     }
   };
 
@@ -1326,9 +1331,9 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
               Show Hidden
             </label>
             {sourceType !== 'stalker' && (
-              <button className="ple-export-btn" onClick={handleExport}><ExportIcon />Export .m3u</button>
+              <button className="ple-export-btn" onClick={handleExport}><ExportIcon />{t('exportM3u')}</button>
             )}
-            <button className="ple-close-btn" onClick={onClose}><CloseIcon />Close</button>
+            <button className="ple-close-btn" onClick={onClose}><CloseIcon />{i18n.t('common:close')}</button>
           </div>
         </div>
 
@@ -1337,11 +1342,11 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
           {/* Left Panel: Source Browser */}
           <div className="playlist-editor-left">
             <div className="ple-panel-header">
-              <h3>Search & Browse Sources</h3>
+              <h3>{t('searchBrowseSources')}</h3>
               <div className="ple-search-wrapper">
                 <input
                   type="text"
-                  placeholder="Search channels across sources…"
+                  placeholder={t('searchPlaceholder')}
                   className="ple-search-input"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
@@ -1357,9 +1362,9 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                 // Search View
                 <div className="ple-search-results">
                   {searchLoading ? (
-                    <div className="ple-loading-hint">Searching…</div>
+                    <div className="ple-loading-hint">{t('searching')}</div>
                   ) : searchResults.length === 0 ? (
-                    <div className="ple-empty-hint">No matching channels found.</div>
+                    <div className="ple-empty-hint">{t('noMatchingChannels')}</div>
                   ) : (() => {
                     // Group searchResults by source, then by category
                     const sourceMap = new Map<string, Map<string, StoredChannel[]>>();
@@ -1391,7 +1396,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                       <div className="ple-tree-root">
                         {Array.from(sourceMap.entries()).map(([sourceId, categoriesMap]) => {
                           const sourceObj = sources.find(s => s.id === sourceId);
-                          const sourceName = sourceObj ? sourceObj.name : 'Unknown Source';
+                          const sourceName = sourceObj ? sourceObj.name : t('unknownSource');
 
                           return (
                             <div key={sourceId} className="ple-tree-source-node">
@@ -1402,7 +1407,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                               <div className="ple-tree-source-children">
                                 {Array.from(categoriesMap.entries()).map(([catId, channels]) => {
                                   const categoryName = catId === 'uncategorized'
-                                    ? 'Uncategorized'
+                                    ? t('uncategorized')
                                     : (categoryNamesMap.get(`${sourceId}:${catId}`) || catId);
 
                                   const visibleChans = channels.filter(ch => showHidden || ch.enabled !== false);
@@ -1433,7 +1438,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                                                   e.stopPropagation();
                                                   toggleChannelEnabledGlobal(ch.stream_id, ch.enabled !== false);
                                                 }}
-                                                title={ch.enabled === false ? "Show channel" : "Hide channel"}
+                                                title={ch.enabled === false ? t('showChannel') : t('hideChannel')}
                                               >
                                                 {ch.enabled === false ? <EyeSlashIcon /> : <EyeIcon />}
                                               </button>
@@ -1441,7 +1446,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                                                 className="ple-tree-add-btn"
                                                 onClick={() => handleAddChannel(ch.stream_id)}
                                                 disabled={!markedCategoryId}
-                                                title={markedCategoryId ? "Add channel to target category" : "Please select a target category first"}
+                                                title={markedCategoryId ? t('addToTargetTooltip') : t('selectTargetTooltip')}
                                               >
                                                 <PlusIcon size={14} />
                                               </button>
@@ -1516,7 +1521,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                                         <button
                                           className="ple-add-btn"
                                           onClick={() => handleAddCategory(source.id, cat.category_id)}
-                                          title="Add category link to playlist"
+                                          title={t('addCategoryLinkTooltip')}
                                         >
                                           <PlusIcon size={12} /> Category
                                         </button>
@@ -1524,7 +1529,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                                           className="ple-add-btn"
                                           onClick={() => handleCombineCategory(source.id, cat.category_id)}
                                           disabled={!markedCategoryId}
-                                          title={markedCategoryId ? "Combine category channels into target category" : "Please select a target category first"}
+                                          title={markedCategoryId ? t('combineToTargetTooltip') : t('selectTargetTooltip')}
                                         >
                                           <PlusIcon size={12} /> Combine
                                         </button>
@@ -1551,7 +1556,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                                                       e.stopPropagation();
                                                       toggleChannelEnabledGlobal(ch.stream_id, ch.enabled !== false);
                                                     }}
-                                                    title={ch.enabled === false ? "Show channel" : "Hide channel"}
+                                                    title={ch.enabled === false ? t('showChannel') : t('hideChannel')}
                                                   >
                                                     {ch.enabled === false ? <EyeSlashIcon /> : <EyeIcon />}
                                                   </button>
@@ -1559,7 +1564,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                                                     className="ple-add-indiv-btn"
                                                     onClick={() => handleAddChannel(ch.stream_id)}
                                                     disabled={!markedCategoryId}
-                                                    title={markedCategoryId ? "Add channel to target category" : "Please select a target category first"}
+                                                    title={markedCategoryId ? t('addToTargetTooltip') : t('selectTargetTooltip')}
                                                   >
                                                     <PlusIcon size={14} />
                                                   </button>
@@ -1588,55 +1593,55 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
           <div className="playlist-editor-right">
             <div className="ple-panel-header ple-right-panel-header">
               <div className="ple-right-header-title-row">
-                <h3>Playlist Contents</h3>
+                <h3>{t('playlistContents')}</h3>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
                     className="ple-add-folder-btn"
                     onClick={() => {
                       showPrompt(
-                        'Create Category Folder',
-                        'Enter folder name (e.g. USA, Sports, News):',
+                        t('createFolderTitle'),
+                        t('createFolderMsg'),
                         async (name) => {
                           if (name && name.trim()) {
                             await createCategoryFolder(playlistId, name.trim());
                           }
                         },
                         undefined,
-                        'Folder name...'
+                        t('folderNamePlaceholder')
                       );
                     }}
                   >
-                    <FolderIcon size={14} /> + Folder
+                    <FolderIcon size={14} /> + {t('addFolder')}
                   </button>
                   <button
                     className="ple-add-custom-cat-btn"
                     onClick={() => {
                       showPrompt(
-                        'Create Custom Category',
-                        'Enter custom category name:',
+                        t('createCustomCategoryTitle'),
+                        t('createCustomCategoryMsg'),
                         async (name) => {
                           if (name && name.trim()) {
                             await addCustomCategoryToPlaylist(playlistId, name.trim());
                           }
                         },
                         undefined,
-                        'Category name...'
+                        t('categoryNamePlaceholder')
                       );
                     }}
                   >
-                    <PlusIcon size={12} /> Custom Category
+                    <PlusIcon size={12} /> {t('customCategoryBtn')}
                   </button>
                 </div>
               </div>
-              <span className="ple-meta-hint">Drag handle ⋮⋮ to reorder. Click Target to mark a category for left-panel additions.</span>
+              <span className="ple-meta-hint">{t('dragHint')}</span>
             </div>
 
             <div className="ple-panel-content">
               {(!combinedBlocks || combinedBlocks.length === 0) && (!individualChannels || individualChannels.length === 0) ? (
                 <div className="ple-right-empty">
                   <span className="ple-empty-icon"><PlaylistIcon size={48} /></span>
-                  <h4>Playlist is Empty</h4>
-                  <p>Add source categories or individual channels from the left panel to build your custom playlist.</p>
+                  <h4>{t('playlistEmpty')}</h4>
+                  <p>{t('playlistEmptyHint')}</p>
                 </div>
               ) : (
                 <div className="ple-contents-list">
@@ -1670,7 +1675,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                                       </button>
                                       <FolderIcon size={16} />
                                       <span>{folder.name}</span>
-                                      <span className="ple-original-title-hint">({folderBlocks.length} categories)</span>
+                                      <span className="ple-original-title-hint">({t('categoriesCount', { count: folderBlocks.length })})</span>
                                     </div>
 
                                     <div className="ple-folder-header-actions">
@@ -1678,19 +1683,19 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                                         className="ple-folder-icon-btn"
                                         onClick={() => {
                                           showPrompt(
-                                            'Rename Folder',
-                                            'Enter new folder name:',
+                                            t('renameFolderTitle'),
+                                            t('renameFolderMsg'),
                                             async (newName) => {
                                               if (newName && newName.trim()) {
                                                 await renameCategoryFolder(folder.folder_id, newName.trim());
                                               }
                                             },
                                             undefined,
-                                            'Folder name...',
+                                            t('folderNamePlaceholder'),
                                             folder.name
                                           );
                                         }}
-                                        title="Rename folder"
+                                        title={t('renameFolderTooltip')}
                                       >
                                         <EditIcon size={12} />
                                       </button>
@@ -1698,14 +1703,14 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                                         className="ple-folder-icon-btn delete"
                                         onClick={() => {
                                           showConfirm(
-                                            'Delete Folder',
-                                            `Are you sure you want to delete folder "${folder.name}"? Categories inside will return to the root level.`,
+                                            t('deleteFolderTitle'),
+                                            t('deleteFolderMsg', { name: folder.name }),
                                             async () => {
                                               await deleteCategoryFolder(folder.folder_id);
                                             }
                                           );
                                         }}
-                                        title="Delete folder"
+                                        title={t('deleteFolderTooltip')}
                                       >
                                         ✕
                                       </button>
@@ -1715,7 +1720,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                                   {!isCollapsed && (
                                     <div className="ple-folder-card-body">
                                       {folderBlocks.length === 0 ? (
-                                        <div className="ple-folder-empty-hint">Folder is empty. Use the "Folder" dropdown on any category below to assign it to this folder.</div>
+                                        <div className="ple-folder-empty-hint">{t('folderEmptyHint')}</div>
                                       ) : (
                                         folderBlocks.map((block) => {
                                           const origIndex = (combinedBlocks || []).findIndex(b => b.id === block.id);
@@ -1755,7 +1760,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                               if (rootBlocks.length === 0) return null;
                               return (
                                 <div className="ple-section-category-links">
-                                  {categoryFolders.length > 0 && <h4 style={{ margin: '8px 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>Root Categories</h4>}
+                                  {categoryFolders.length > 0 && <h4 style={{ margin: '8px 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>{t('rootCategories')}</h4>}
                                   {rootBlocks.map((block) => {
                                     const origIndex = (combinedBlocks || []).findIndex(b => b.id === block.id);
                                     const blockId = block.type === 'native' ? block.id : `link:${block.linkId}`;

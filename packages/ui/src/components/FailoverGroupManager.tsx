@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { db, type StoredChannel, type StoredCategory } from '../db';
 import { buildSearchQueryClauses } from '../utils/searchNormalization';
 import {
@@ -43,6 +45,7 @@ interface SearchResultsProps {
 }
 
 function SearchResults({ query, groupChannelIds, onAdd, onRemove, enabledSourceIdsKey, enabledSourceIds, sources }: SearchResultsProps) {
+    const { t } = useTranslation('settings');
     const [results, setResults] = useState<StoredChannel[] | undefined>();
 
     useEffect(() => {
@@ -103,8 +106,8 @@ function SearchResults({ query, groupChannelIds, onAdd, onRemove, enabledSourceI
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [query, enabledSourceIdsKey]);
 
-    if (!results) return <div className="cgm-empty">Searching…</div>;
-    if (results.length === 0) return <div className="cgm-empty">No results for "{query}"</div>;
+    if (!results) return <div className="cgm-empty">{t('failover.searching')}</div>;
+    if (results.length === 0) return <div className="cgm-empty">{t('failover.noResults', { query })}</div>;
 
     const sourceNameMap = new Map(sources.map(s => [s.id, s.name]));
     const groupedBySource = new Map<string, StoredChannel[]>();
@@ -158,6 +161,7 @@ interface TreeViewProps {
 }
 
 function TreeView({ sourcesAndCategories, searchQuery, expandedNodes, toggleNode, groupChannelIds, onAdd, onRemove, enabledSourceIdsKey, enabledSourceIds }: TreeViewProps) {
+    const { t } = useTranslation('settings');
     const [loadedChannels, setLoadedChannels] = useState<StoredChannel[]>([]);
     const [loadingNode, setLoadingNode] = useState<string | null>(null);
     const loadedCats = useRef<Set<string>>(new Set());
@@ -185,7 +189,7 @@ function TreeView({ sourcesAndCategories, searchQuery, expandedNodes, toggleNode
         }
     }, []);
 
-    if (!sourcesAndCategories) return <div className="cgm-empty">Loading sources…</div>;
+    if (!sourcesAndCategories) return <div className="cgm-empty">{t('failover.loadingSources')}</div>;
 
     const { sources, categories } = sourcesAndCategories;
 
@@ -202,7 +206,7 @@ function TreeView({ sourcesAndCategories, searchQuery, expandedNodes, toggleNode
                         <div className="tree-node-header source-node" onClick={() => toggleNode(source.id)}>
                             <span className="node-icon">{isExpanded ? '▼' : '▶'}</span>
                             <span>{source.name}</span>
-                            <span className="cgm-count">{sourceCats.length} cats</span>
+                            <span className="cgm-count">{t('failover.catsCount', { count: sourceCats.length })}</span>
                         </div>
                         {isExpanded && (
                             <div className="node-children">
@@ -224,8 +228,8 @@ function TreeView({ sourcesAndCategories, searchQuery, expandedNodes, toggleNode
                                             </div>
                                             {isCatExpanded && (
                                                 <div className="node-children">
-                                                    {loadingNode === cat.category_id && catChannels.length === 0 && <div className="cgm-empty">Loading…</div>}
-                                                    {loadingNode !== cat.category_id && catChannels.length === 0 && <div className="cgm-empty">No channels</div>}
+                                                    {loadingNode === cat.category_id && catChannels.length === 0 && <div className="cgm-empty">{t('failover.loadingTree')}</div>}
+                                                    {loadingNode !== cat.category_id && catChannels.length === 0 && <div className="cgm-empty">{t('failover.noChannels')}</div>}
                                                     {catChannels.map(ch => {
                                                         const inGroup = groupChannelIds.has(ch.stream_id);
                                                         return (
@@ -345,6 +349,7 @@ function SortableList<T>({ items, getKey, onReorder, renderItem }: SortableListP
 // ── Main FailoverGroupManager ─────────────────────────────────────────────────
 
 export function FailoverGroupManager({ groupId, groupName, onClose }: FailoverGroupManagerProps) {
+    const { t } = useTranslation('settings');
     const [searchQuery, setSearchQuery] = useState('');
     const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({});
     const [groupChannels, setGroupChannels] = useState<GroupChannel[]>([]);
@@ -378,7 +383,7 @@ export function FailoverGroupManager({ groupId, groupName, onClose }: FailoverGr
     }, [sourcesAndCategories]);
 
     const getChannelSourceCategory = (ch: GroupChannel): string => {
-        const sourceName = sourceNameMap.get(String(ch.source_id)) || ch.source_id || 'Unknown';
+        const sourceName = sourceNameMap.get(String(ch.source_id)) || ch.source_id || t('failover.unknown');
         const catIds = parseCategoryIds(ch.category_ids);
         const catName = catIds.length > 0 ? (categoryNameMap.get(String(catIds[0])) || catIds[0]) : '—';
         return `${sourceName} → ${catName}`;
@@ -428,7 +433,7 @@ export function FailoverGroupManager({ groupId, groupName, onClose }: FailoverGr
             await addChannelToFailoverGroup(groupId, ch.stream_id);
         } catch (e: any) {
             console.error('Failed to add:', e);
-            setErrorMsg(e.message || 'Failed to add channel');
+            setErrorMsg(e.message || t('failover.failedAdd'));
             setGroupChannels(prev => prev.filter(c => c.stream_id !== ch.stream_id));
         }
     }, [groupId, groupChannelIds]);
@@ -489,7 +494,7 @@ export function FailoverGroupManager({ groupId, groupName, onClose }: FailoverGr
                     ) : (
                         <div className="cgm-title-row">
                             <h2>{currentName}</h2>
-                            <button className="cgm-rename-btn" onClick={startRename} title="Rename group">
+                            <button className="cgm-rename-btn" onClick={startRename} title={t('failover.renameGroup')}>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
                                     <path d="m15 5 4 4" />
@@ -511,21 +516,21 @@ export function FailoverGroupManager({ groupId, groupName, onClose }: FailoverGr
                     {/* Left Pane: Group Channels (sortable via container pointer tracking) */}
                     <div className="group-channels-pane">
                         <div className="pane-header">
-                            <span>In Group</span>
+                            <span>{t('failover.inGroup')}</span>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                <label className="cgm-display-source-label" title="Show source and category for each channel">
+                                <label className="cgm-display-source-label" title={t('failover.displaySourceHint')}>
                                     <input
                                         type="checkbox"
                                         checked={displaySource}
                                         onChange={e => setDisplaySource(e.target.checked)}
                                     />
-                                    Display Source
+                                    {t('failover.displaySource')}
                                 </label>
                                 <span className="cgm-badge">{groupChannels.length}</span>
                             </div>
                         </div>
                         {groupChannels.length === 0 && !loading
-                            ? <div className="cgm-empty" style={{ padding: '20px 16px' }}>Click channels on the right to add them.</div>
+                            ? <div className="cgm-empty" style={{ padding: '20px 16px' }}>{t('failover.emptyGroupHint')}</div>
                             : <SortableList
                                 items={groupChannels}
                                 getKey={c => c.stream_id}
@@ -553,12 +558,12 @@ export function FailoverGroupManager({ groupId, groupName, onClose }: FailoverGr
                     {/* Right Pane: Source/Category Tree Selector */}
                     <div className="source-selector-pane">
                         <div className="search-bar">
-                            <input type="text" placeholder="Search channels…" value={searchQuery}
+                            <input type="text" placeholder={t('failover.searchPlaceholder')} value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)} autoComplete="off" />
                         </div>
                         <div className="selector-content">
                             {loading
-                                ? <div className="cgm-empty">Loading…</div>
+                                ? <div className="cgm-empty">{t('failover.loadingTree')}</div>
                                 : <TreeView
                                     sourcesAndCategories={sourcesAndCategories}
                                     searchQuery={searchQuery}
@@ -577,8 +582,8 @@ export function FailoverGroupManager({ groupId, groupName, onClose }: FailoverGr
                 </div>
 
                 <div className="custom-group-manager-footer">
-                    <span className="cgm-footer-hint">Click + to add · ✓ to remove · drag ⋮⋮ to reorder (top = primary)</span>
-                    <button className="close-done-btn" onClick={onClose}>Done</button>
+                    <span className="cgm-footer-hint">{t('failover.managerFooterHint')}</span>
+                    <button className="close-done-btn" onClick={onClose}>{i18n.t('common:done')}</button>
                 </div>
 
             </div>

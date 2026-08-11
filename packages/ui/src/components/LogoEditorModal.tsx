@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { createPortal } from 'react-dom';
 import { db, type StoredChannel, type EpgChannelOverride } from '../db';
 import { ChannelLogo } from './ChannelLogo';
@@ -18,6 +20,7 @@ export function LogoEditorModal({
   sourceId,
   onClose,
 }: LogoEditorModalProps) {
+  const { t } = useTranslation('logoEditor');
   const [channels, setChannels] = useState<StoredChannel[]>([]);
   const [existingOverrides, setExistingOverrides] = useState<Map<string, EpgChannelOverride>>(new Map());
   const [logoBgMap, setLogoBgMap] = useState<Record<string, 'auto' | 'light' | 'dark'>>({});
@@ -331,13 +334,13 @@ export function LogoEditorModal({
         <div className="logo-editor-header">
           <div className="logo-editor-title-group">
             <h2 id="logo-editor-title" className="logo-editor-title">
-              🖼️ Logo Editor — <span>{categoryName}</span>
+              🖼️ {t('title')} — <span>{categoryName}</span>
             </h2>
             <div className="logo-editor-subtitle">
-              Preview and customize EPG tile background & padding for channels in this category.
+              {t('subtitle')}
             </div>
           </div>
-          <button className="logo-editor-close-btn" onClick={onClose} title="Close (Esc)">✕</button>
+          <button className="logo-editor-close-btn" onClick={onClose} title={t('closeEsc')}>✕</button>
         </div>
 
         {/* Toolbar & Filters */}
@@ -347,7 +350,7 @@ export function LogoEditorModal({
             <input
               type="text"
               className="logo-editor-search-input"
-              placeholder="Search channels in category..."
+              placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -361,31 +364,31 @@ export function LogoEditorModal({
               className={`filter-tab ${filterMode === 'all' ? 'active' : ''}`}
               onClick={() => setFilterMode('all')}
             >
-              All ({counts.total})
+              {t('allTab', { count: counts.total })}
             </button>
             <button
               className={`filter-tab ${filterMode === 'auto' ? 'active' : ''}`}
               onClick={() => setFilterMode('auto')}
             >
-              Auto ({counts.auto})
+              {t('autoTab', { count: counts.auto })}
             </button>
             <button
               className={`filter-tab ${filterMode === 'light' ? 'active' : ''}`}
               onClick={() => setFilterMode('light')}
             >
-              ☀️ Light ({counts.light})
+              ☀️ {t('lightTab', { count: counts.light })}
             </button>
             <button
               className={`filter-tab ${filterMode === 'dark' ? 'active' : ''}`}
               onClick={() => setFilterMode('dark')}
             >
-              🌙 Dark ({counts.dark})
+              🌙 {t('darkTab', { count: counts.dark })}
             </button>
             <button
               className={`filter-tab ${filterMode === 'no-padding' ? 'active' : ''}`}
               onClick={() => setFilterMode('no-padding')}
             >
-              🖼️ No Padding ({counts.noPadding})
+              🖼️ {t('noPaddingTab', { count: counts.noPadding })}
             </button>
           </div>
         </div>
@@ -401,51 +404,51 @@ export function LogoEditorModal({
             />
             <span>
               {selectedIds.size > 0
-                ? `${selectedIds.size} Selected`
-                : `Select All (${filteredChannels.length})`}
+                ? t('selectedCount', { count: selectedIds.size })
+                : t('selectAllCount', { count: filteredChannels.length })}
             </span>
           </label>
 
           <div className="logo-editor-bulk-actions">
-            <span className="bulk-action-label">Background:</span>
+            <span className="bulk-action-label">{t('backgroundLabel')}</span>
             <button
               className="bulk-btn bulk-btn-light"
               onClick={() => applyBulkBg('light')}
-              title={selectedIds.size > 0 ? "Apply Light background to selected channels" : "Apply Light background to all filtered channels"}
+              title={selectedIds.size > 0 ? t('applyLightSelected') : t('applyLightAll')}
             >
-              ☀️ Light
+              ☀️ {t('light')}
             </button>
             <button
               className="bulk-btn bulk-btn-dark"
               onClick={() => applyBulkBg('dark')}
-              title={selectedIds.size > 0 ? "Apply Dark background to selected channels" : "Apply Dark background to all filtered channels"}
+              title={selectedIds.size > 0 ? t('applyDarkSelected') : t('applyDarkAll')}
             >
-              🌙 Dark
+              🌙 {t('dark')}
             </button>
             <button
               className="bulk-btn bulk-btn-auto"
               onClick={() => applyBulkBg('auto')}
-              title={selectedIds.size > 0 ? "Reset background to Auto for selected channels" : "Reset background to Auto for all filtered channels"}
+              title={selectedIds.size > 0 ? t('resetAutoSelected') : t('resetAutoAll')}
             >
-              🔄 Auto
+              🔄 {t('auto')}
             </button>
 
             <div className="bulk-action-divider" />
 
-            <span className="bulk-action-label">Padding:</span>
+            <span className="bulk-action-label">{t('paddingLabel')}</span>
             <button
               className="bulk-btn bulk-btn-no-pad"
               onClick={() => applyBulkPadding('none')}
-              title={selectedIds.size > 0 ? "Remove padding for selected channels" : "Remove padding for all filtered channels"}
+              title={selectedIds.size > 0 ? t('removePaddingSelected') : t('removePaddingAll')}
             >
-              🖼️ Remove Padding
+              🖼️ {t('removePadding')}
             </button>
             <button
               className="bulk-btn bulk-btn-pad-default"
               onClick={() => applyBulkPadding('default')}
-              title={selectedIds.size > 0 ? "Reset to normal padding for selected channels" : "Reset to normal padding for all filtered channels"}
+              title={selectedIds.size > 0 ? t('normalPaddingSelected') : t('normalPaddingAll')}
             >
-              📐 Normal Padding
+              📐 {t('normalPadding')}
             </button>
           </div>
         </div>
@@ -455,11 +458,11 @@ export function LogoEditorModal({
           {loading ? (
             <div className="logo-editor-loading">
               <div className="spinner" />
-              <span>Loading category channels...</span>
+              <span>{t('loadingChannels')}</span>
             </div>
           ) : filteredChannels.length === 0 ? (
             <div className="logo-editor-empty">
-              {channels.length === 0 ? 'No channels found in this category.' : 'No channels match your current search/filter.'}
+              {channels.length === 0 ? t('noChannelsCategory') : t('noChannelsFilter')}
             </div>
           ) : (
             <div className="logo-editor-grid">
@@ -513,21 +516,21 @@ export function LogoEditorModal({
                       <button
                         className={`segmented-btn ${bg === 'auto' ? 'active' : ''}`}
                         onClick={(e) => { e.stopPropagation(); setChannelBg(channel.stream_id, 'auto'); }}
-                        title="Auto background luminance detection"
+                        title={i18n.t('epg:autoBgTitle')}
                       >
                         Auto
                       </button>
                       <button
                         className={`segmented-btn ${bg === 'light' ? 'active' : ''}`}
                         onClick={(e) => { e.stopPropagation(); setChannelBg(channel.stream_id, 'light'); }}
-                        title="Force light background tile"
+                        title={i18n.t('epg:lightBgTitle')}
                       >
                         Light
                       </button>
                       <button
                         className={`segmented-btn ${bg === 'dark' ? 'active' : ''}`}
                         onClick={(e) => { e.stopPropagation(); setChannelBg(channel.stream_id, 'dark'); }}
-                        title="Force dark background tile"
+                        title={i18n.t('epg:darkBgTitle')}
                       >
                         Dark
                       </button>
@@ -538,14 +541,14 @@ export function LogoEditorModal({
                       <button
                         className={`segmented-btn ${pad === 'default' ? 'active' : ''}`}
                         onClick={(e) => { e.stopPropagation(); setChannelPadding(channel.stream_id, 'default'); }}
-                        title="Normal logo padding (3px)"
+                        title={i18n.t('epg:normalPaddingTitle')}
                       >
                         📐 Normal
                       </button>
                       <button
                         className={`segmented-btn ${pad === 'none' ? 'active' : ''}`}
                         onClick={(e) => { e.stopPropagation(); setChannelPadding(channel.stream_id, 'none'); }}
-                        title="Remove logo padding (0px, edge-to-edge)"
+                        title={i18n.t('epg:noPadTitle')}
                       >
                         🖼️ No Pad
                       </button>
@@ -561,18 +564,18 @@ export function LogoEditorModal({
         <div className="logo-editor-footer">
           <div className="footer-status-left">
             {saveSuccess && <span className="save-success-msg">{saveSuccess}</span>}
-            {!saveSuccess && hasChanges && <span className="unsaved-msg">● Unsaved changes</span>}
+            {!saveSuccess && hasChanges && <span className="unsaved-msg">● {t('unsavedChanges')}</span>}
           </div>
           <div className="footer-actions-right">
             <button className="logo-editor-btn logo-editor-btn-secondary" onClick={onClose}>
-              Cancel
+              {i18n.t('common:cancel')}
             </button>
             <button
               className="logo-editor-btn logo-editor-btn-primary"
               onClick={handleSaveChanges}
               disabled={saving || !hasChanges}
             >
-              {saving ? 'Saving…' : '💾 Save Changes'}
+              {saving ? t('saving') : `💾 ${t('saveChanges')}`}
             </button>
           </div>
         </div>

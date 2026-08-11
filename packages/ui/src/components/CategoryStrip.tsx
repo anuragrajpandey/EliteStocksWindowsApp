@@ -1,5 +1,6 @@
 import { Fragment, createContext, useContext, useState, useEffect, useRef, useCallback, useMemo, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../hooks/useSqliteLiveQuery';
 import { useCategoriesBySource, useEnabledSources, type CategoryWithCount, type SourceWithCategories } from '../hooks/useChannels';
@@ -212,6 +213,7 @@ const ChevronIcon = ({ expanded, size = 16 }: { expanded: boolean; size?: number
 
 // Favorites button component
 function FavoritesButton({ selectedCategoryId, onSelectCategory, onContextMenu }: { selectedCategoryId: string | null; onSelectCategory: (categoryId: string | null) => void; onContextMenu?: (e: React.MouseEvent) => void }) {
+  const { t } = useTranslation('live');
   const enabledSourceIds = useEnabledSources();
   const favoriteCount = useLiveQuery(
     async () => {
@@ -241,7 +243,7 @@ function FavoritesButton({ selectedCategoryId, onSelectCategory, onContextMenu }
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
           </svg>
         </span>
-        <ScrollingText className="category-name">Favorites</ScrollingText>
+        <ScrollingText className="category-name">{t('favorites')}</ScrollingText>
       </div>
       <span className="category-count">{favoriteCount ?? 0}</span>
     </button>
@@ -250,6 +252,7 @@ function FavoritesButton({ selectedCategoryId, onSelectCategory, onContextMenu }
 
 // Watchlist button component
 function WatchlistButton({ selectedCategoryId, onSelectCategory, onContextMenu }: { selectedCategoryId: string | null; onSelectCategory: (categoryId: string | null) => void; onContextMenu?: (e: React.MouseEvent) => void }) {
+  const { t } = useTranslation('live');
   const enabledSourceIds = useEnabledSources();
   const watchlistCount = useLiveQuery(
     async () => {
@@ -270,7 +273,7 @@ function WatchlistButton({ selectedCategoryId, onSelectCategory, onContextMenu }
             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
           </svg>
         </span>
-        <ScrollingText className="category-name">Watchlist</ScrollingText>
+        <ScrollingText className="category-name">{t('watchlist')}</ScrollingText>
       </div>
       <span className="category-count">{watchlistCount ?? 0}</span>
     </button>
@@ -279,6 +282,7 @@ function WatchlistButton({ selectedCategoryId, onSelectCategory, onContextMenu }
 
 // Recently Viewed button component
 function RecentlyViewedButton({ selectedCategoryId, onSelectCategory, onContextMenu }: { selectedCategoryId: string | null; onSelectCategory: (categoryId: string | null) => void; onContextMenu?: (e: React.MouseEvent) => void }) {
+  const { t } = useTranslation('live');
   const recentCount = useLiveQuery(
     async () => {
       const { getRecentChannels } = await import('../utils/recentChannels');
@@ -299,7 +303,7 @@ function RecentlyViewedButton({ selectedCategoryId, onSelectCategory, onContextM
             <polyline points="12 6 12 12 16 14" />
           </svg>
         </span>
-        <ScrollingText className="category-name">Recently Viewed</ScrollingText>
+        <ScrollingText className="category-name">{t('recentlyViewed')}</ScrollingText>
       </div>
       <span className="category-count">{recentCount ?? 0}</span>
     </button>
@@ -712,8 +716,8 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
 
   const handleCreatePlaylist = () => {
     showPrompt(
-      'New Custom Playlist',
-      'Enter a name for the new playlist:',
+      t('newPlaylistTitle'),
+      t('newPlaylistMsg'),
       async (name) => {
         if (name.trim()) {
           const { createPlaylist } = await import('../services/playlist-editor');
@@ -723,17 +727,17 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
         }
       },
       undefined,
-      'Playlist name...',
+      t('newPlaylistPlaceholder'),
       '',
-      'Create',
-      'Cancel'
+      i18n.t('common:create'),
+      i18n.t('common:cancel')
     );
   };
 
   const handleDeletePlaylist = (playlistId: string) => {
     showConfirm(
-      'Delete Playlist',
-      'Are you sure you want to delete this custom playlist? This cannot be undone.',
+      t('deletePlaylistTitle'),
+      t('deletePlaylistMsg'),
       async () => {
         const { deletePlaylist } = await import('../services/playlist-editor');
         await deletePlaylist(playlistId);
@@ -1360,25 +1364,25 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
 
   const handleCreateGroup = () => {
     showPrompt(
-      'Create Custom Group',
-      'Enter a name for the new group:',
+      t('createGroupTitle'),
+      t('createGroupMsg'),
       async (name) => {
         if (name.trim()) {
           await createCustomGroup(name.trim());
         }
       },
       undefined, // cancel handler
-      'Group name...',
+      t('createGroupPlaceholder'),
       '', // initial value
-      'Create',
-      'Cancel'
+      i18n.t('common:create'),
+      i18n.t('common:cancel')
     );
   };
 
   const handleDeleteGroup = (groupId: string) => {
     showConfirm(
-      'Delete Group',
-      'Are you sure you want to delete this custom group?',
+      t('deleteGroupTitle'),
+      t('deleteGroupMsg'),
       async () => {
         await deleteCustomGroup(groupId);
       }
@@ -1421,8 +1425,8 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
 
   const handleRenameCategory = (categoryId: string, currentName: string) => {
     showPrompt(
-      'Rename Category',
-      'Enter a new display name for this category:',
+      t('renameCategoryTitle'),
+      t('renameCategoryMsg'),
       async (newName) => {
         const trimmed = newName.trim();
         if (trimmed && trimmed !== currentName) {
@@ -1442,10 +1446,10 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
         }
       },
       undefined,
-      'Category name...',
+      t('categoryNamePlaceholder'),
       currentName,
-      'Rename',
-      'Cancel',
+      i18n.t('common:rename'),
+      i18n.t('common:cancel'),
       false
     );
   };
@@ -1560,15 +1564,15 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
           className="category-strip-resizer"
           onMouseDown={handleCategoryResizeMouseDown}
           onContextMenu={handleCategoryResizeContextMenu}
-          title="Drag to resize sidebar | Right-click to reset"
+          title={t('dragResizeSidebar')}
         />
         <div className="category-strip-header">
-          <span className="category-strip-title">Categories</span>
+          <span className="category-strip-title">{t('categories')}</span>
           <div className="category-strip-actions">
             <button
               className="add-group-btn"
               onClick={() => setIsCreateOptionModalOpen(true)}
-              title="Create Custom Group / Playlist"
+              title={t('createGroupPlaylist')}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -1579,7 +1583,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
               <button
                 className="guide-nav-btn"
                 onClick={onClose}
-                title="Hide Sidebar"
+                title={t('hideSidebar')}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="15 18 9 12 15 6"></polyline>
@@ -1598,7 +1602,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
             <input
               type="text"
               className="category-search-input"
-              placeholder="Search categories..."
+              placeholder={t('searchCategoriesPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setSearchFocused(true)}
@@ -1620,7 +1624,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
             onClick={() => onSelectCategory(null)}
             onContextMenu={(e) => {
               e.preventDefault();
-              setGenericSidebarContextMenu({ x: e.clientX, y: e.clientY, type: 'all', title: 'All Channels' });
+              setGenericSidebarContextMenu({ x: e.clientX, y: e.clientY, type: 'all', title: t('allChannels') });
             }}
           >
             <div className="category-item-left">
@@ -1630,7 +1634,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                   <polyline points="17 2 12 7 7 2" />
                 </svg>
               </span>
-              <ScrollingText className="category-name">All Channels</ScrollingText>
+              <ScrollingText className="category-name">{t('allChannels')}</ScrollingText>
             </div>
             <span className="category-count">{totalChannels}</span>
           </button>
@@ -1793,7 +1797,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                               className={`category-item nested ${selectedCategoryId === `__allsrc_${group.sourceId}` ? 'selected' : ''}`}
                               onClick={() => onSelectCategory(`__allsrc_${group.sourceId}`)}
                             >
-                              <ScrollingText className="category-name">All Channels</ScrollingText>
+                              <ScrollingText className="category-name">{t('allChannels')}</ScrollingText>
                               <span className="category-count">{item.count}</span>
                             </button>
                           )}
@@ -1975,7 +1979,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                               }`}
                               onClick={() => onSelectCategory(`__plindiv_${group.sourceId}`)}
                             >
-                              <ScrollingText className="category-name">Individual Channels</ScrollingText>
+                              <ScrollingText className="category-name">{t('individualChannels')}</ScrollingText>
                               <span className="category-count">{individualCount}</span>
                             </button>
                           )}
@@ -2039,7 +2043,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                           className={`category-item nested ${selectedCategoryId === `__allsrc_pl_${playlist.playlist_id}` ? 'selected' : ''}`}
                           onClick={() => onSelectCategory(`__allsrc_pl_${playlist.playlist_id}`)}
                         >
-                          <ScrollingText className="category-name">All Channels</ScrollingText>
+                          <ScrollingText className="category-name">{t('allChannels')}</ScrollingText>
                           <span className="category-count">{item.count}</span>
                         </button>
                       )}
@@ -2193,7 +2197,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                           }`}
                           onClick={() => onSelectCategory(`__plindiv_${playlist.playlist_id}`)}
                         >
-                          <ScrollingText className="category-name">Individual Channels</ScrollingText>
+                          <ScrollingText className="category-name">{t('individualChannels')}</ScrollingText>
                           <span className="category-count">{individualCount}</span>
                         </button>
                       )}
@@ -2221,8 +2225,8 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
 
         {filteredGroupedCategories.length === 0 && (!customPlaylists || customPlaylists.length === 0) && (
           <div className="category-empty">
-            <p>No categories yet</p>
-            <p className="hint">Add a source in Settings</p>
+            <p>{t('noCategoriesYet')}</p>
+            <p className="hint">{t('addSourceSettings')}</p>
           </div>
         )}
       </div>
@@ -2333,24 +2337,24 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
               const content = await generateM3uForPlaylist(playlistContextMenu.playlistId);
               const result = await window.storage.saveM3UFile(content, playlistContextMenu.playlistName);
               if (result.success) {
-                alert('Playlist exported successfully!');
+                alert(t('playlistExported'));
               }
             } catch (err) {
               console.error('[CategoryStrip] M3U export failed:', err);
-              alert('Export failed: ' + String(err));
+              alert(t('exportFailed', { error: String(err) }));
             }
           }}
           onRename={() => {
             showPrompt(
-              'Rename Playlist',
-              'Enter a new name:',
+              t('renamePlaylist'),
+              t('enterNewName'),
               async (newName) => {
                 if (newName.trim()) {
                   const { renamePlaylist } = await import('../services/playlist-editor');
                   await renamePlaylist(playlistContextMenu.playlistId, newName.trim());
                 }
               },
-              undefined, 'New name...', playlistContextMenu.playlistName, 'Rename', 'Cancel'
+              undefined, t('newNamePlaceholder'), playlistContextMenu.playlistName, i18n.t('common:rename'), i18n.t('common:cancel')
             );
           }}
           onDelete={() => {
@@ -2427,8 +2431,8 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
           onClose={() => setRecentContextMenu(null)}
           onClearRecent={() => {
             showConfirm(
-              'Clear Recent Channels',
-              'Are you sure you want to clear your Recently Viewed channels list?',
+              t('clearRecentTitle'),
+              t('clearRecentMsg'),
               () => {
                 clearRecentChannels();
                 if (selectedCategoryId === '__recent__') {
@@ -2525,7 +2529,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
             // Ensure button stays visible when hovering over it
             setMouseX(25);
           }}
-          title="Show Sidebar"
+          title={t('showSidebar')}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="9 18 15 12 9 6"></polyline>

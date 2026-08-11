@@ -7,6 +7,7 @@ import { ChannelLogo } from './ChannelLogo';
 import { useEpgClockFormat } from '../stores/uiStore';
 import { useAppSettings } from '../hooks/useAppSettings';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { activeLocale } from '../utils/dateTime';
 
 
@@ -85,7 +86,7 @@ function ProgramRow({
   onDelete: () => void;
   onRestore: () => void;
 }) {
-  useTranslation();
+  const { t } = useTranslation('epg');
   const epgClockFormat = useEpgClockFormat();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(prog.title);
@@ -128,17 +129,17 @@ function ProgramRow({
         )}
         <div className="epg-program-badges">
           {prog.has_override && !prog.is_deleted && !prog.is_custom && (
-            <span className="epg-badge epg-badge-modified">Modified</span>
+            <span className="epg-badge epg-badge-modified">{t('modified')}</span>
           )}
-          {prog.is_custom && <span className="epg-badge epg-badge-custom">Custom</span>}
-          {prog.is_deleted && <span className="epg-badge epg-badge-deleted">Deleted</span>}
+          {prog.is_custom && <span className="epg-badge epg-badge-custom">{t('custom')}</span>}
+          {prog.is_deleted && <span className="epg-badge epg-badge-deleted">{t('deleted')}</span>}
         </div>
         {editing && (
           <div className="epg-program-edit-form">
             <div className="full-width">
               <input
                 className="epg-editor-input"
-                placeholder="Title"
+                placeholder={t('titlePlaceholder')}
                 value={title}
                 onChange={e => setTitle(e.target.value)}
               />
@@ -146,7 +147,7 @@ function ProgramRow({
             <div className="full-width">
               <input
                 className="epg-editor-input"
-                placeholder="Subtitle (optional)"
+                placeholder={t('subtitleOptional')}
                 value={subtitle}
                 onChange={e => setSubtitle(e.target.value)}
               />
@@ -154,14 +155,14 @@ function ProgramRow({
             <div className="full-width">
               <textarea
                 className="epg-editor-textarea"
-                placeholder="Description (optional)"
+                placeholder={t('descriptionOptional')}
                 value={desc}
                 rows={2}
                 onChange={e => setDesc(e.target.value)}
               />
             </div>
             <div>
-              <label className="epg-editor-label">Start</label>
+              <label className="epg-editor-label">{t('start')}</label>
               <input
                 type="datetime-local"
                 className="epg-editor-input"
@@ -170,7 +171,7 @@ function ProgramRow({
               />
             </div>
             <div>
-              <label className="epg-editor-label">End</label>
+              <label className="epg-editor-label">{t('end')}</label>
               <input
                 type="datetime-local"
                 className="epg-editor-input"
@@ -179,8 +180,8 @@ function ProgramRow({
               />
             </div>
             <div className="full-width" style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button className="epg-editor-btn epg-editor-btn-secondary" onClick={() => setEditing(false)}>Cancel</button>
-              <button className="epg-editor-btn epg-editor-btn-primary" onClick={handleSave}>Save Program</button>
+              <button className="epg-editor-btn epg-editor-btn-secondary" onClick={() => setEditing(false)}>{i18n.t('common:cancel')}</button>
+              <button className="epg-editor-btn epg-editor-btn-primary" onClick={handleSave}>{t('saveProgram')}</button>
             </div>
           </div>
         )}
@@ -188,11 +189,11 @@ function ProgramRow({
       {!editing && (
         <div className="epg-program-actions">
           {prog.is_deleted ? (
-            <button className="epg-program-action-btn restore" onClick={onRestore}>↩ Undo</button>
+            <button className="epg-program-action-btn restore" onClick={onRestore}>↩ {t('undo')}</button>
           ) : (
             <>
-              <button className="epg-program-action-btn" onClick={() => setEditing(true)}>✏ Edit</button>
-              <button className="epg-program-action-btn danger" onClick={onDelete}>🗑 Delete</button>
+              <button className="epg-program-action-btn" onClick={() => setEditing(true)}>✏ {i18n.t('common:edit')}</button>
+              <button className="epg-program-action-btn danger" onClick={onDelete}>🗑 {i18n.t('common:delete')}</button>
             </>
           )}
         </div>
@@ -204,7 +205,7 @@ function ProgramRow({
 // ─── Main Modal ───────────────────────────────────────────────────────────────
 
 export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, onClose }: EpgEditorModalProps) {
-  useTranslation();
+  const { t } = useTranslation('epg');
   const epgClockFormat = useEpgClockFormat();
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -687,7 +688,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
       );
 
       if (channels.length === 0) {
-        setAutomatchResults({ matched: 0, skipped: 0, errors: 0, details: ['No channels missing EPG in the selected scope.'] });
+        setAutomatchResults({ matched: 0, skipped: 0, errors: 0, details: [t('noChannelsMissing')] });
         setAutomatchRunning(false);
         return;
       }
@@ -761,21 +762,21 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
 
   const tabs: { key: EditorTab; label: string }[] = channel
     ? [
-        { key: 'channel',  label: '📡 Channel' },
-        { key: 'programs', label: '📋 Programs' },
-        { key: 'search',   label: '🔍 EPG Search' },
-        { key: 'source',   label: '📺 All Channels' },
-        { key: 'automatch', label: '🤖 Automatch Missing' },
+        { key: 'channel',  label: `📡 ${t('channelTab')}` },
+        { key: 'programs', label: `📋 ${t('programsTab')}` },
+        { key: 'search',   label: `🔍 ${t('epgSearchTab')}` },
+        { key: 'source',   label: `📺 ${t('allChannelsTab')}` },
+        { key: 'automatch', label: `🤖 ${t('automatchTab')}` },
       ]
     : [
-        { key: 'source',   label: '📺 All Channels' },
-        { key: 'search',   label: '🔍 EPG Search' },
-        { key: 'automatch', label: '🤖 Automatch Missing' },
+        { key: 'source',   label: `📺 ${t('allChannelsTab')}` },
+        { key: 'search',   label: `🔍 ${t('epgSearchTab')}` },
+        { key: 'automatch', label: `🤖 ${t('automatchTab')}` },
       ];
 
   const title = channel
     ? channel.name
-    : sourceName ?? 'EPG Editor';
+    : sourceName ?? t('editorTitle');
 
   return createPortal(
     <div className="epg-editor-overlay" ref={overlayRef}>
@@ -810,26 +811,26 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
           {activeTab === 'channel' && channel && (
             <div>
               <div className="epg-editor-field">
-                <label className="epg-editor-label">TVG-ID (EPG Channel ID)</label>
+                <label className="epg-editor-label">{t('tvgIdLabel')}</label>
                 <input
                   className="epg-editor-input"
                   value={tvgId}
                   onChange={e => setTvgId(e.target.value)}
-                  placeholder="e.g. BBC.One.uk"
+                  placeholder={t('tvgIdPlaceholder')}
                 />
                 <div className="epg-editor-hint">
-                  The ID used to match this channel to EPG data. Use the EPG Search tab to find the right ID.
+                  {t('tvgIdHint')}
                 </div>
               </div>
 
               <div className="epg-editor-field">
-                <label className="epg-editor-label">Logo URL (Override)</label>
+                <label className="epg-editor-label">{t('logoUrlLabel')}</label>
                 <div className="epg-editor-logo-row">
                   <input
                     className="epg-editor-input"
                     value={logoUrl}
                     onChange={e => setLogoUrl(e.target.value)}
-                    placeholder="https://..."
+                    placeholder={t('logoUrlPlaceholder')}
                   />
                   <div className="epg-editor-logo-preview-wrapper">
                     <ChannelLogo
@@ -845,60 +846,60 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
               </div>
 
               <div className="epg-editor-field">
-                <label className="epg-editor-label">Logo Background</label>
+                <label className="epg-editor-label">{t('logoBackgroundLabel')}</label>
                 <div className="card-segmented-control" style={{ marginTop: 4 }}>
                   <button
                     type="button"
                     className={`segmented-btn ${logoBackground === 'auto' ? 'active' : ''}`}
                     onClick={() => setLogoBackground('auto')}
-                    title="Auto background luminance detection"
+                    title={t('autoBgTitle')}
                   >
-                    ✨ Auto
+                    ✨ {t('autoBg')}
                   </button>
                   <button
                     type="button"
                     className={`segmented-btn ${logoBackground === 'light' ? 'active' : ''}`}
                     onClick={() => setLogoBackground('light')}
-                    title="Force light background tile"
+                    title={t('lightBgTitle')}
                   >
-                    ☀️ Light
+                    ☀️ {t('lightBg')}
                   </button>
                   <button
                     type="button"
                     className={`segmented-btn ${logoBackground === 'dark' ? 'active' : ''}`}
                     onClick={() => setLogoBackground('dark')}
-                    title="Force dark background tile"
+                    title={t('darkBgTitle')}
                   >
-                    🌙 Dark
+                    🌙 {t('darkBg')}
                   </button>
                 </div>
                 <div className="epg-editor-hint">
-                  Pick the logo tile background if the automatic detection gets it wrong.
+                  {t('logoBgHint')}
                 </div>
               </div>
 
               <div className="epg-editor-field">
-                <label className="epg-editor-label">Logo Padding</label>
+                <label className="epg-editor-label">{t('logoPaddingLabel')}</label>
                 <div className="card-segmented-control card-padding-control" style={{ marginTop: 4 }}>
                   <button
                     type="button"
                     className={`segmented-btn ${logoPadding === 'default' ? 'active' : ''}`}
                     onClick={() => setLogoPadding('default')}
-                    title="Normal logo padding (3px)"
+                    title={t('normalPaddingTitle')}
                   >
-                    📐 Normal
+                    📐 {t('normalPadding')}
                   </button>
                   <button
                     type="button"
                     className={`segmented-btn ${logoPadding === 'none' ? 'active' : ''}`}
                     onClick={() => setLogoPadding('none')}
-                    title="Remove logo padding (0px, edge-to-edge)"
+                    title={t('noPadTitle')}
                   >
-                    🖼️ No Pad
+                    🖼️ {t('noPad')}
                   </button>
                 </div>
                 <div className="epg-editor-hint">
-                  Choose Normal for standard 3px padding or No Pad for full edge-to-edge logo display.
+                  {t('logoPaddingHint')}
                 </div>
               </div>
 
@@ -907,7 +908,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                 if (!playlistIcon && !epgLogoUrl) return null;
                 return (
                   <div className="epg-editor-field" style={{ marginTop: -8, marginBottom: 16 }}>
-                    <label className="epg-editor-label" style={{ fontSize: '0.75rem', opacity: 0.6 }}>Quick Select Logo:</label>
+                    <label className="epg-editor-label" style={{ fontSize: '0.75rem', opacity: 0.6 }}>{t('quickSelectLogo')}</label>
                     <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginTop: 4 }}>
                       {playlistIcon && (
                         <button
@@ -928,7 +929,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                           }}
                         >
                           <img src={playlistIcon} alt="" style={{ width: 20, height: 20, objectFit: 'contain' }} />
-                          <span>Playlist Logo</span>
+                          <span>{t('playlistLogo')}</span>
                         </button>
                       )}
                       {epgLogoUrl && (
@@ -950,7 +951,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                           }}
                         >
                           <img src={epgLogoUrl} alt="" style={{ width: 20, height: 20, objectFit: 'contain' }} />
-                          <span>EPG Logo</span>
+                          <span>{t('epgLogo')}</span>
                         </button>
                       )}
                     </div>
@@ -959,7 +960,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
               })()}
 
               <div className="epg-editor-field">
-                <label className="epg-editor-label">EPG Time Offset (hours)</label>
+                <label className="epg-editor-label">{t('timeOffsetLabel')}</label>
                 <div className="epg-editor-timeshift-row">
                   <input
                     type="number"
@@ -971,22 +972,22 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                     onChange={e => setTimeshiftHours(e.target.value)}
                   />
                   <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary, #888)' }}>
-                    Shifts all EPG times for this channel by this many hours (use negative to shift back)
+                    {t('timeOffsetHint')}
                   </span>
                 </div>
               </div>
 
               <div style={{ marginTop: 24, padding: 14, background: 'rgba(255,50,50,0.05)', border: '1px solid rgba(255,50,50,0.2)', borderRadius: 8 }}>
                 <div style={{ fontSize: '0.85rem', color: '#ffaaaa', marginBottom: 8 }}>
-                  <strong>Reset Channel</strong><br/>
-                  Clear all manual edits, custom programs, and logo overrides for this channel.
+                  <strong>{t('resetChannel')}</strong><br/>
+                  {t('resetChannelDesc')}
                 </div>
                 <button
                   className="epg-editor-btn"
                   style={{ background: 'rgba(255,50,50,0.15)', color: '#ffaaaa', border: '1px solid rgba(255,50,50,0.3)', padding: '6px 12px' }}
                   onClick={handleResetToDefault}
                 >
-                  ↻ Reset to Default
+                  ↻ {t('resetToDefault')}
                 </button>
               </div>
             </div>
@@ -997,14 +998,14 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
             <div>
               <div className="epg-editor-programs-toolbar">
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary, #888)' }}>
-                  Showing ±3 days of programs for <strong>{channel.name}</strong>
+                  {t('showingProgramsRange')} <strong>{channel.name}</strong>
                 </span>
                 <button
                   className="epg-editor-btn epg-editor-btn-primary"
                   style={{ padding: '7px 14px', fontSize: '0.82rem' }}
                   onClick={() => setShowAddForm(v => !v)}
                 >
-                  {showAddForm ? '✕ Cancel' : '+ Add Program'}
+                  {showAddForm ? `✕ ${i18n.t('common:cancel')}` : `+ ${t('addProgram')}`}
                 </button>
               </div>
 
@@ -1017,23 +1018,23 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                 }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                     <div style={{ gridColumn: '1/-1' }}>
-                      <label className="epg-editor-label">Title *</label>
-                      <input className="epg-editor-input" value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Program title" />
+                      <label className="epg-editor-label">{t('titleRequired')}</label>
+                      <input className="epg-editor-input" value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder={t('programTitlePlaceholder')} />
                     </div>
                     <div style={{ gridColumn: '1/-1' }}>
-                      <label className="epg-editor-label">Subtitle</label>
-                      <input className="epg-editor-input" value={newSubtitle} onChange={e => setNewSubtitle(e.target.value)} placeholder="Optional subtitle" />
+                      <label className="epg-editor-label">{t('subtitle')}</label>
+                      <input className="epg-editor-input" value={newSubtitle} onChange={e => setNewSubtitle(e.target.value)} placeholder={t('optionalSubtitle')} />
                     </div>
                     <div style={{ gridColumn: '1/-1' }}>
-                      <label className="epg-editor-label">Description</label>
-                      <textarea className="epg-editor-textarea" value={newDesc} rows={2} onChange={e => setNewDesc(e.target.value)} placeholder="Optional description" />
+                      <label className="epg-editor-label">{t('description')}</label>
+                      <textarea className="epg-editor-textarea" value={newDesc} rows={2} onChange={e => setNewDesc(e.target.value)} placeholder={t('optionalDescription')} />
                     </div>
                     <div>
-                      <label className="epg-editor-label">Start *</label>
+                      <label className="epg-editor-label">{t('startRequired')}</label>
                       <input type="datetime-local" className="epg-editor-input" value={newStart} onChange={e => setNewStart(e.target.value)} />
                     </div>
                     <div>
-                      <label className="epg-editor-label">End *</label>
+                      <label className="epg-editor-label">{t('endRequired')}</label>
                       <input type="datetime-local" className="epg-editor-input" value={newEnd} onChange={e => setNewEnd(e.target.value)} />
                     </div>
                     <div style={{ gridColumn: '1/-1', display: 'flex', justifyContent: 'flex-end' }}>
@@ -1042,7 +1043,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                         onClick={handleAddCustomProgram}
                         disabled={!newTitle.trim() || !newStart || !newEnd}
                       >
-                        ✓ Add Program
+                        ✓ {t('addProgram')}
                       </button>
                     </div>
                   </div>
@@ -1050,11 +1051,11 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
               )}
 
               {programsLoading ? (
-                <div className="epg-editor-loading">Loading programs…</div>
+                <div className="epg-editor-loading">{t('loadingPrograms')}</div>
               ) : programs.length === 0 ? (
                 <div className="epg-editor-empty">
-                  No programs found for this channel in the ±3 day window.<br />
-                  <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>Sync your source to populate EPG data, or add a custom program above.</span>
+                  {t('noProgramsRange')}<br />
+                  <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>{t('syncSourceHint')}</span>
                 </div>
               ) : (
                 <div className="epg-programs-list">
@@ -1077,13 +1078,13 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
             <div>
               <div style={{ marginBottom: 10, fontSize: '0.82rem', color: 'var(--text-secondary, #888)' }}>
                 {searchMode === 'epg'
-                  ? <>Search raw EPG channel names from the XMLTV data to find the right TVG-ID, then click <strong>Apply</strong> to link it to{' '}</>
-                  : <>Search your synced channel list to find the right TVG-ID, then click <strong>Apply</strong> to link it to{' '}</>
+                  ? <>{t('searchEpgHint1')} <strong>{t('apply')}</strong> {t('toLinkIt')}{' '}</>
+                  : <>{t('searchEpgHint2')} <strong>{t('apply')}</strong> {t('toLinkIt')}{' '}</>
                 }
-                <strong>{channel?.name ?? 'the selected channel'}</strong>.
+                <strong>{channel?.name ?? t('theSelectedChannel')}</strong>.
                 {searchMode === 'epg' && (
                   <span style={{ display: 'block', marginTop: 4, fontSize: '0.78rem', color: 'var(--text-secondary, #888)', opacity: 0.8 }}>
-                    Use this when your EPG provider doesn't include tvg-ids and only provides channel names.
+                    {t('searchEpgHintExtra')}
                   </span>
                 )}
               </div>
@@ -1092,7 +1093,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                   <span className="epg-search-icon">🔍</span>
                   <input
                     className="epg-editor-input"
-                    placeholder="Search EPG channels…"
+                    placeholder={t('searchPlaceholder')}
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     autoFocus
@@ -1102,32 +1103,32 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                   <button
                     className={`epg-search-scope-btn${searchScope === 'source' ? ' active' : ''}`}
                     onClick={() => setSearchScope('source')}
-                  >This Source</button>
+                  >{t('thisSource')}</button>
                   <button
                     className={`epg-search-scope-btn${searchScope === 'all' ? ' active' : ''}`}
                     onClick={() => setSearchScope('all')}
-                  >All Sources</button>
+                  >{t('allSources')}</button>
                 </div>
                 <div className="epg-search-scope-toggle">
                   <button
                     className={`epg-search-scope-btn${searchMode === 'm3u' ? ' active' : ''}`}
                     onClick={() => setSearchMode('m3u')}
-                    title="Search M3U channel names"
-                  >M3U Names</button>
+                    title={t('searchM3uTitle')}
+                  >{t('m3uNames')}</button>
                   <button
                     className={`epg-search-scope-btn${searchMode === 'epg' ? ' active' : ''}`}
                     onClick={() => setSearchMode('epg')}
-                    title="Search raw EPG channel names from XMLTV"
-                  >EPG Names</button>
+                    title={t('searchEpgNamesTitle')}
+                  >{t('epgNames')}</button>
                 </div>
                 {channel && (
                   <button
                     className="epg-search-auto-btn"
                     onClick={handleAutoSuggest}
                     disabled={autoSearching}
-                    title="Score all EPG channels against this channel's name"
+                    title={t('scoreAllTitle')}
                   >
-                    {autoSearching ? '…' : '✨ Auto-match'}
+                    {autoSearching ? '…' : `✨ ${t('autoMatch')}`}
                   </button>
                 )}
               </div>
@@ -1138,14 +1139,14 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                   background: 'rgba(255,165,0,0.08)', border: '1px solid rgba(255,165,0,0.2)',
                   fontSize: '0.82rem', color: '#ffaa44',
                 }}>
-                  Open a channel from the All Channels tab first to use Apply.
+                  {t('openChannelFirst')}
                 </div>
               )}
 
-              {searchLoading && <div className="epg-editor-loading">Searching…</div>}
+              {searchLoading && <div className="epg-editor-loading">{t('searching')}</div>}
 
               {!searchLoading && searchQuery && searchResults.length === 0 && (
-                <div className="epg-editor-empty">No EPG channels matched "{searchQuery}"</div>
+                <div className="epg-editor-empty">{t('noEpgMatched', { query: searchQuery })}</div>
               )}
 
               {!searchLoading && searchResults.length > 0 && (
@@ -1169,14 +1170,14 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                             <div className="epg-search-result-name">{r.display_name}</div>
                             <div className="epg-search-result-id">{r.id}</div>
                             {searchScope === 'all' && (
-                              <div className="epg-search-result-source">Source: {sourceNameMap.get(r.source_id) ?? r.source_id}</div>
+                              <div className="epg-search-result-source">{t('sourceLabel2', { name: sourceNameMap.get(r.source_id) ?? r.source_id })}</div>
                             )}
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 'auto' }}>
                             <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary, #888)', whiteSpace: 'nowrap' }}>
-                              {isPreviewOpen ? '▲ Hide' : '▼ Programs'}
+                              {isPreviewOpen ? `▲ ${t('hide')}` : `▼ ${t('programs')}`}
                             </span>
-                            <div className="epg-score-bar" title={`Match score: ${(r.score * 100).toFixed(0)}%`}>
+                            <div className="epg-score-bar" title={t('matchScore', { score: (r.score * 100).toFixed(0) })}>
                               <div className="epg-score-pip" style={{ width: `${Math.min(100, r.score / 1.2 * 100)}%` }} />
                             </div>
                             {channel && (
@@ -1185,7 +1186,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                                 disabled={applyingId === r.id}
                                 onClick={e => { e.stopPropagation(); handleApplyMatch(r); }}
                               >
-                                {applyingId === r.id ? '…' : 'Apply'}
+                                {applyingId === r.id ? '…' : t('apply')}
                               </button>
                             )}
                           </div>
@@ -1202,13 +1203,13 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                               padding: '6px 14px', background: 'rgba(0,212,255,0.07)',
                               fontSize: '0.8rem', color: '#fff'
                             }}>
-                              Programs for <strong>{r.display_name}</strong>
+                              {t('programsFor')} <strong>{r.display_name}</strong>
                             </div>
                             {previewLoading ? (
-                              <div className="epg-editor-loading" style={{ margin: '10px 0' }}>Loading programs…</div>
+                              <div className="epg-editor-loading" style={{ margin: '10px 0' }}>{t('loadingPrograms')}</div>
                             ) : previewPrograms.length === 0 ? (
                               <div className="epg-editor-empty" style={{ padding: '12px 14px' }}>
-                                No programs found. This EPG channel may not have data synced yet.
+                                {t('noProgramsFound')}
                               </div>
                             ) : (
                               <div style={{ maxHeight: 200, overflowY: 'auto', padding: '4px 0' }}>
@@ -1236,7 +1237,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
 
               {!searchQuery && !searchLoading && (
                 <div className="epg-editor-empty">
-                  Type to search or click <strong>✨ Auto-match</strong> to find the best match for <strong>{channel?.name ?? 'your channel'}</strong>.
+                  {t('typeToSearch')} <strong>✨ {t('autoMatch')}</strong> {t('toFindBestMatch')} <strong>{channel?.name ?? t('yourChannel')}</strong>.
                 </div>
               )}
             </div>
@@ -1248,15 +1249,15 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
               <div className="epg-source-filter">
                 <input
                   className="epg-editor-input"
-                  placeholder={`Filter ${resolvedSourceId ? `${sourceName ?? ''} ` : ''}channels…`}
+                  placeholder={t('filterChannels', { source: resolvedSourceId ? `${sourceName ?? ''} ` : '' })}
                   value={sourceFilter}
                   onChange={e => setSourceFilter(e.target.value)}
                 />
               </div>
               {sourceLoading ? (
-                <div className="epg-editor-loading">Loading channels…</div>
+                <div className="epg-editor-loading">{t('loadingChannels')}</div>
               ) : filteredSourceChannels.length === 0 ? (
-                <div className="epg-editor-empty">No channels found.</div>
+                <div className="epg-editor-empty">{t('noChannelsFound')}</div>
               ) : (
                 <div className="epg-source-channel-list">
                   {filteredSourceChannels.map(ch => (
@@ -1264,7 +1265,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                       key={ch.stream_id}
                       className="epg-source-channel-row"
                       onClick={() => handleOpenSourceChannel(ch)}
-                      title="Click to edit EPG for this channel"
+                      title={t('clickToEdit')}
                     >
                       {ch.stream_icon ? (
                         <img 
@@ -1280,7 +1281,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                       <div className="epg-source-channel-name">{ch.name}</div>
                       <div className="epg-source-channel-tvgid">{ch.epg_channel_id || '—'}</div>
                       {overriddenIds.has(ch.stream_id) && (
-                        <div className="epg-override-dot" title="Has EPG overrides" />
+                        <div className="epg-override-dot" title={t('hasOverrides')} />
                       )}
                       <span style={{ color: 'var(--text-secondary,#666)', fontSize: '0.85rem' }}>›</span>
                     </div>
@@ -1294,12 +1295,12 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
           {activeTab === 'automatch' && (
             <div>
               <div style={{ marginBottom: 16, fontSize: '0.82rem', color: 'var(--text-secondary, #888)' }}>
-                Automatically find and apply EPG matches for channels that don't have an EPG assignment.
+                {t('automatchHint')}
               </div>
 
               {/* Source selection */}
               <div className="epg-editor-field">
-                <label className="epg-editor-label">Source</label>
+                <label className="epg-editor-label">{t('sourceLabel')}</label>
                 <select
                   className="epg-editor-input"
                   value={automatchSourceId}
@@ -1315,44 +1316,44 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
 
               {/* Scope toggle */}
               <div className="epg-editor-field">
-                <label className="epg-editor-label">Scope</label>
+                <label className="epg-editor-label">{t('scope')}</label>
                 <div className="epg-search-scope-toggle">
                   <button
                     className={`epg-search-scope-btn${automatchScope === 'source' ? ' active' : ''}`}
                     onClick={() => setAutomatchScope('source')}
                     disabled={automatchRunning}
-                  >This Source</button>
+                  >{t('thisSource')}</button>
                   <button
                     className={`epg-search-scope-btn${automatchScope === 'all' ? ' active' : ''}`}
                     onClick={() => setAutomatchScope('all')}
                     disabled={automatchRunning}
-                  >All Sources</button>
+                  >{t('allSources')}</button>
                 </div>
               </div>
 
               {/* Search mode toggle */}
               <div className="epg-editor-field">
-                <label className="epg-editor-label">Match Against</label>
+                <label className="epg-editor-label">{t('matchAgainst')}</label>
                 <div className="epg-search-scope-toggle">
                   <button
                     className={`epg-search-scope-btn${automatchMode === 'm3u' ? ' active' : ''}`}
                     onClick={() => setAutomatchMode('m3u')}
                     disabled={automatchRunning}
-                    title="Search M3U channel names"
-                  >M3U Names</button>
+                    title={t('searchM3uTitle')}
+                  >{t('m3uNames')}</button>
                   <button
                     className={`epg-search-scope-btn${automatchMode === 'epg' ? ' active' : ''}`}
                     onClick={() => setAutomatchMode('epg')}
                     disabled={automatchRunning}
-                    title="Search raw EPG channel names from XMLTV"
-                  >EPG Names</button>
+                    title={t('searchEpgNamesTitle')}
+                  >{t('epgNames')}</button>
                 </div>
               </div>
 
               {/* Category selection */}
               {automatchScope === 'source' && sourceCategories.length > 0 && (
                 <div className="epg-editor-field">
-                  <label className="epg-editor-label">Categories</label>
+                  <label className="epg-editor-label">{t('categories')}</label>
                   <div style={{ marginBottom: 8 }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: '0.85rem', color: 'var(--text-primary, #e0e0e0)' }}>
                       <input
@@ -1361,7 +1362,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                         onChange={e => setAutomatchAllCategories(e.target.checked)}
                         disabled={automatchRunning}
                       />
-                      All categories in this source
+                      {t('allCategoriesInSource')}
                     </label>
                   </div>
                   {!automatchAllCategories && (
@@ -1391,7 +1392,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
               {/* Threshold slider */}
               <div className="epg-editor-field">
                 <label className="epg-editor-label">
-                  Minimum Match Threshold: <strong>{automatchThreshold}%</strong>
+                  {t('minMatchThreshold')} <strong>{automatchThreshold}%</strong>
                 </label>
                 <input
                   type="range"
@@ -1404,7 +1405,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                   className="epg-automatch-slider"
                 />
                 <div className="epg-editor-hint">
-                  Only auto-apply matches that score at least this percentage. Lower values = more matches, but less accurate.
+                  {t('thresholdHint')}
                 </div>
               </div>
 
@@ -1417,8 +1418,8 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                   style={{ width: '100%', padding: '12px 22px', fontSize: '0.95rem' }}
                 >
                   {automatchRunning && automatchProgress
-                    ? `Matching… ${automatchProgress.matched}/${automatchProgress.total}`
-                    : '🤖 Auto-Match Missing in Source'}
+                    ? t('matchingProgress', { matched: automatchProgress.matched, total: automatchProgress.total })
+                    : `🤖 ${t('automatchMissingBtn')}`}
                 </button>
               </div>
 
@@ -1440,7 +1441,7 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                     }} />
                   </div>
                   <div style={{ textAlign: 'center', marginTop: 6, fontSize: '0.8rem', color: 'var(--text-secondary, #888)' }}>
-                    {automatchProgress.matched} / {automatchProgress.total} channels processed
+                    {t('channelsProcessed', { matched: automatchProgress.matched, total: automatchProgress.total })}
                   </div>
                 </div>
               )}
@@ -1461,10 +1462,10 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                     gap: 16,
                     fontSize: '0.82rem',
                   }}>
-                    <span style={{ color: '#4caf50' }}><strong>{automatchResults.matched}</strong> matched</span>
-                    <span style={{ color: 'var(--text-secondary, #888)' }}><strong>{automatchResults.skipped}</strong> skipped</span>
+                    <span style={{ color: '#4caf50' }}><strong>{automatchResults.matched}</strong> {t('matched')}</span>
+                    <span style={{ color: 'var(--text-secondary, #888)' }}><strong>{automatchResults.skipped}</strong> {t('skipped')}</span>
                     {automatchResults.errors > 0 && (
-                      <span style={{ color: '#ff6b6b' }}><strong>{automatchResults.errors}</strong> errors</span>
+                      <span style={{ color: '#ff6b6b' }}><strong>{automatchResults.errors}</strong> {t('errors')}</span>
                     )}
                   </div>
                   <div style={{ maxHeight: 280, overflowY: 'auto', padding: '6px 0' }}>
@@ -1488,16 +1489,16 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
         {/* Footer */}
         <div className="epg-editor-footer">
           {channelSaved && (
-            <div className="epg-editor-saved-notice">✓ Saved</div>
+            <div className="epg-editor-saved-notice">✓ {t('saved')}</div>
           )}
-          <button className="epg-editor-btn epg-editor-btn-secondary" onClick={onClose}>Close</button>
+          <button className="epg-editor-btn epg-editor-btn-secondary" onClick={onClose}>{i18n.t('common:close')}</button>
           {activeTab === 'channel' && channel && (
             <button
               className="epg-editor-btn epg-editor-btn-primary"
               onClick={handleSaveChannel}
               disabled={channelSaving}
             >
-              {channelSaving ? 'Saving…' : '💾 Save Channel Override'}
+              {channelSaving ? t('saving') : `💾 ${t('saveChannelOverride')}`}
             </button>
           )}
         </div>
@@ -1517,11 +1518,11 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
             padding: 24, borderRadius: 12, maxWidth: 360, width: '100%',
             boxShadow: '0 8px 32px rgba(0,0,0,0.8)'
           }}>
-            <h3 style={{ margin: '0 0 12px 0', color: '#ff5555', fontSize: '1.2rem' }}>⚠ Reset Channel</h3>
+            <h3 style={{ margin: '0 0 12px 0', color: '#ff5555', fontSize: '1.2rem' }}>⚠ {t('resetChannel')}</h3>
             <p style={{ margin: '0 0 24px 0', fontSize: '0.9rem', color: '#ccc', lineHeight: 1.5 }}>
-              Are you sure you want to reset <strong>"{channel.name}"</strong>?
+              {t('resetConfirm')} <strong>"{channel.name}"</strong>?
               <br/><br/>
-              This will permanently clear all EPG overrides, custom logos, and manually added programs, restoring the original data from your provider.
+              {t('resetConfirmDesc')}
             </p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
               <button
@@ -1529,14 +1530,14 @@ export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, 
                 style={{ background: 'rgba(255,255,255,0.08)', color: '#fff', border: 'none', padding: '8px 16px' }}
                 onClick={() => setShowResetConfirm(false)}
               >
-                Cancel
+                {i18n.t('common:cancel')}
               </button>
               <button
                 className="epg-editor-btn"
                 style={{ background: 'rgba(255,50,50,0.15)', color: '#ffaaaa', border: '1px solid rgba(255,50,50,0.4)', padding: '8px 16px' }}
                 onClick={executeResetToDefault}
               >
-                Yes, Reset
+                {t('yesReset')}
               </button>
             </div>
           </div>

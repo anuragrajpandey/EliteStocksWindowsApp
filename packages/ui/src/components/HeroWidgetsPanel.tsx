@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import './HeroWidgetsPanel.css';
 
 interface HeroWidgetsPanelProps {
@@ -42,6 +43,7 @@ export function HeroWidgetsPanel({
   onAddCustomGroup,
   liveTvDesign,
 }: HeroWidgetsPanelProps) {
+  const { t } = useTranslation('widgets');
   const hasCustomGroups = customGroupIds.length > 0;
   const hasAnyWidget = sportsWidget !== null || recentWidget !== null || favoritesWidget || whatsNextWidget || hasCustomGroups;
 
@@ -49,7 +51,7 @@ export function HeroWidgetsPanel({
     <div className={`hero-widgets-panel${liveTvDesign === 'v3' ? ' design-v3' : ''}`}>
       {hasAnyWidget && (
         <div className="widgets-panel-section">
-          <div className="widgets-panel-header">Active Widgets</div>
+          <div className="widgets-panel-header">{t('activeWidgets')}</div>
           <div className="widgets-panel-list">
             {sportsWidget && (
               <div className="widgets-panel-item active-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -58,12 +60,12 @@ export function HeroWidgetsPanel({
                     <circle cx="12" cy="12" r="10" />
                     <polyline points="12 6 12 12 16 14" />
                   </svg>
-                  <span>Live Sports ({sportsWidget === 'autohide' ? 'Autohide' : 'Persistent'})</span>
+                  <span>{t('liveSports', { mode: sportsWidget === 'autohide' ? t('autohide') : t('persistent') })}</span>
                 </span>
                 <button
                   className="widgets-panel-remove-btn"
                   onClick={(e) => { e.stopPropagation(); onRemoveSports(); }}
-                  title="Stop Live Sports Overlay"
+                  title={t('stopLiveSports')}
                 >
                   ✕
                 </button>
@@ -76,12 +78,12 @@ export function HeroWidgetsPanel({
                     <polyline points="1 4 1 10 7 10" />
                     <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
                   </svg>
-                  <span>Recent Channels ({recentWidget})</span>
+                  <span>{t('recentChannels', { count: recentWidget })}</span>
                 </span>
                 <button
                   className="widgets-panel-remove-btn"
                   onClick={(e) => { e.stopPropagation(); onRemoveRecent(); }}
-                  title="Stop Recent Channels"
+                  title={t('stopRecentChannels')}
                 >
                   ✕
                 </button>
@@ -93,12 +95,12 @@ export function HeroWidgetsPanel({
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                   </svg>
-                  <span>Favorites</span>
+                  <span>{t('favorites')}</span>
                 </span>
                 <button
                   className="widgets-panel-remove-btn"
                   onClick={(e) => { e.stopPropagation(); onRemoveFavorites(); }}
-                  title="Stop Favorites"
+                  title={t('stopFavorites')}
                 >
                   ✕
                 </button>
@@ -110,12 +112,12 @@ export function HeroWidgetsPanel({
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
-                  <span>What's Next</span>
+                  <span>{t('whatsNext')}</span>
                 </span>
                 <button
                   className="widgets-panel-remove-btn"
                   onClick={(e) => { e.stopPropagation(); onRemoveWhatsNext(); }}
-                  title="Stop What's Next"
+                  title={t('stopWhatsNext')}
                 >
                   ✕
                 </button>
@@ -128,13 +130,13 @@ export function HeroWidgetsPanel({
                     <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
                     <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
                   </svg>
-                  <span>Custom Group</span>
+                  <span>{t('customGroup')}</span>
                 </span>
                 {onRemoveCustomGroup && (
                   <button
                     className="widgets-panel-remove-btn"
                     onClick={(e) => { e.stopPropagation(); onRemoveCustomGroup(gid); }}
-                    title="Stop Custom Group"
+                    title={t('stopCustomGroup')}
                   >
                     ✕
                   </button>
@@ -146,7 +148,7 @@ export function HeroWidgetsPanel({
       )}
 
       <div className="widgets-panel-section">
-        <div className="widgets-panel-header">Add Widget</div>
+        <div className="widgets-panel-header">{t('addWidget')}</div>
         <div className="widgets-panel-list">
           {sportsWidget !== 'autohide' && (
             <div className="widgets-panel-item click-item" onClick={onAddSportsAutohide}>
@@ -154,7 +156,7 @@ export function HeroWidgetsPanel({
                 <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 16 14" />
               </svg>
-              <span>Live Sports (Autohide)</span>
+              <span>{t('liveSportsAutohide')}</span>
             </div>
           )}
           {sportsWidget !== 'persistent' && (
@@ -163,7 +165,7 @@ export function HeroWidgetsPanel({
                 <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 16 14" />
               </svg>
-              <span>Live Sports (Persistent)</span>
+              <span>{t('liveSportsPersistent')}</span>
             </div>
           )}
           {!recentWidget && (
@@ -173,14 +175,14 @@ export function HeroWidgetsPanel({
                   <polyline points="1 4 1 10 7 10" />
                   <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
                 </svg>
-                <span>Recent Channels (5)</span>
+                <span>{t('recentChannels', { count: 5 })}</span>
               </div>
               <div className="widgets-panel-item click-item" onClick={onAddRecent10}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="1 4 1 10 7 10" />
                   <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
                 </svg>
-                <span>Recent Channels (10)</span>
+                <span>{t('recentChannels', { count: 10 })}</span>
               </div>
             </>
           )}
@@ -189,7 +191,7 @@ export function HeroWidgetsPanel({
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
-              <span>Favorites</span>
+              <span>{t('favorites')}</span>
             </div>
           )}
           {!whatsNextWidget && (
@@ -197,7 +199,7 @@ export function HeroWidgetsPanel({
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
-              <span>What's Next</span>
+              <span>{t('whatsNext')}</span>
             </div>
           )}
           <div className="widgets-panel-item click-item" onClick={onAddCustomGroup}>
@@ -205,7 +207,7 @@ export function HeroWidgetsPanel({
               <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
               <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
             </svg>
-            <span>Custom Group…</span>
+            <span>{t('customGroupEllipsis')}</span>
           </div>
         </div>
       </div>
