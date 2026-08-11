@@ -280,10 +280,10 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
           {/* SubSource API Section */}
           <div className="settings-section">
             <div className="section-header">
-              <h3>SubSource Integration</h3>
+              <h3>{i18n.t('settings:subtitles.subsourceIntegration')}</h3>
             </div>
             <p className="section-description">
-              SubSource provides subtitles for movies and series. Enter your API key below.
+              {i18n.t('settings:subtitles.subsourceIntegrationSub')}
               <br />
               <a
                 href="https://subsource.net/dashboard/profile"
@@ -291,13 +291,13 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                 rel="noopener noreferrer"
                 className="tmdb-link"
               >
-                Get your API key here
+                {i18n.t('settings:subtitles.getApiKey')}
               </a>
             </p>
 
             <div className="tmdb-form">
               <div className="form-group inline">
-                <label>API Key</label>
+                <label>{i18n.t('settings:subtitles.apiKey')}</label>
                 <input
                   type="password"
                   value={localKey}
@@ -305,7 +305,7 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                     setLocalKey(e.target.value);
                     setKeyValid(null);
                   }}
-                  placeholder="Enter your SubSource API key"
+                  placeholder={i18n.t('settings:subtitles.apiKeyPlaceholder')}
                 />
                 <button
                   type="button"
@@ -313,7 +313,7 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                   disabled={validating}
                   className={keyValid === true ? 'success' : keyValid === false ? 'error' : ''}
                 >
-                  {validating ? 'Validating...' : keyValid === true ? 'Valid' : keyValid === false ? 'Invalid' : 'Save'}
+                  {validating ? i18n.t('settings:subtitles.validating') : keyValid === true ? i18n.t('settings:subtitles.valid') : keyValid === false ? i18n.t('settings:subtitles.invalid') : i18n.t('common:save')}
                 </button>
               </div>
             </div>
@@ -322,10 +322,10 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
           {/* OpenSubtitles Integration Section */}
           <div className="settings-section" style={{ marginTop: '2rem' }}>
             <div className="section-header">
-              <h3>OpenSubtitles Integration</h3>
+              <h3>{i18n.t('settings:subtitles.openSubtitlesIntegration')}</h3>
             </div>
             <p className="section-description">
-              Log in with your OpenSubtitles account to download subtitles via OpenSubtitles in the player subtitle modal.
+              {i18n.t('settings:subtitles.osIntegrationSub')}
               <br />
               <a
                 href="https://www.opensubtitles.com/en/users/sign_up"
@@ -333,7 +333,7 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                 rel="noopener noreferrer"
                 className="tmdb-link"
               >
-                Create an OpenSubtitles account here
+                {i18n.t('settings:subtitles.createOsAccount')}
               </a>
             </p>
 
@@ -342,13 +342,13 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface-color)', padding: '12px 16px', borderRadius: '8px' }}>
                   <div>
                     <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>
-                      Logged in as {merged.openSubtitlesUser.username}
+                      {i18n.t('settings:subtitles.loggedInAs', { username: merged.openSubtitlesUser.username })}
                       {merged.openSubtitlesUser.vip && <span style={{ marginLeft: '8px', background: 'var(--accent-color, #e50914)', color: 'var(--text-primary)', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase' }}>VIP</span>}
                       {merged.openSubtitlesUser.level && <span style={{ marginLeft: '8px', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>({merged.openSubtitlesUser.level})</span>}
                     </div>
                     {merged.openSubtitlesUser.allowed_downloads !== undefined && (
                       <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                        Allowed downloads per day: {merged.openSubtitlesUser.allowed_downloads}
+                        {i18n.t('settings:subtitles.allowedDownloads', { count: merged.openSubtitlesUser.allowed_downloads })}
                       </div>
                     )}
                   </div>
@@ -357,28 +357,28 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                     onClick={handleOsLogout}
                     style={{ background: '#e53e3e', color: 'var(--text-primary)', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}
                   >
-                    Logout
+                    {i18n.t('common:logout')}
                   </button>
                 </div>
               </div>
             ) : (
               <div className="tmdb-form" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div className="form-group inline">
-                  <label>Username</label>
+                  <label>{i18n.t('settings:subtitles.username')}</label>
                   <input
                     type="text"
                     value={osUsername}
                     onChange={(e) => { setOsUsername(e.target.value); setOsError(''); }}
-                    placeholder="Enter your OpenSubtitles username"
+                    placeholder={i18n.t('settings:subtitles.osUsernamePlaceholder')}
                   />
                 </div>
                 <div className="form-group inline">
-                  <label>Password</label>
+                  <label>{i18n.t('settings:subtitles.password')}</label>
                   <input
                     type="password"
                     value={osPassword}
                     onChange={(e) => { setOsPassword(e.target.value); setOsError(''); }}
-                    placeholder="Enter your OpenSubtitles password"
+                    placeholder={i18n.t('settings:subtitles.osPasswordPlaceholder')}
                   />
                   <button
                     type="button"
@@ -386,7 +386,7 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                     disabled={osLoggingIn || !osUsername.trim() || !osPassword}
                     className="success"
                   >
-                    {osLoggingIn ? 'Logging in...' : 'Login'}
+                    {osLoggingIn ? i18n.t('settings:subtitles.loggingIn') : i18n.t('common:login')}
                   </button>
                 </div>
                 {osError && (
@@ -401,18 +401,18 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
           {/* Default Subtitle Provider Section */}
           <div className="settings-section" style={{ marginTop: '2rem' }}>
             <div className="section-header">
-              <h3>Default Subtitle Provider</h3>
+              <h3>{i18n.t('settings:subtitles.defaultProvider')}</h3>
             </div>
             <p className="section-description">
-              Choose which subtitle service to open by default when searching for subtitles in the player.
+              {i18n.t('settings:subtitles.defaultProviderSub')}
             </p>
 
             <div className="timeshift-settings">
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Preferred Provider</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:subtitles.preferredProvider')}</span>
                   <span className="timeshift-toggle-sub">
-                    Select your primary subtitle search source.
+                    {i18n.t('settings:subtitles.preferredProviderSub')}
                   </span>
                 </div>
                 <div className="timeshift-retention-select">
@@ -438,14 +438,14 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                     }}
                   >
                     <option value="subsource" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>
-                      SubSource {!merged.subsourceApiKey ? '(Not configured)' : ''}
+                      SubSource {!merged.subsourceApiKey ? i18n.t('settings:subtitles.notConfigured') : ''}
                     </option>
                     <option
                       value="opensubtitles"
                       disabled={!merged.openSubtitlesToken}
                       style={{ background: 'var(--surface-color)', color: !merged.openSubtitlesToken ? '#888' : 'var(--text-primary)' }}
                     >
-                      OpenSubtitles {!merged.openSubtitlesToken ? '(Requires Login)' : ''}
+                      OpenSubtitles {!merged.openSubtitlesToken ? i18n.t('settings:subtitles.requiresLogin') : ''}
                     </option>
                   </select>
                 </div>
@@ -456,24 +456,24 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
           {/* Default Appearance Section */}
           <div className="settings-section" style={{ marginTop: '2rem' }}>
             <div className="section-header">
-              <h3>Default Appearance</h3>
+              <h3>{i18n.t('settings:subtitles.defaultAppearance')}</h3>
             </div>
             <p className="section-description">
-              Configure how subtitles look by default. These settings can be adjusted per-video from the player.
+              {i18n.t('settings:subtitles.defaultAppearanceSub')}
             </p>
 
             <div className="timeshift-settings">
               {/* Default Language */}
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Default Language</span>
-                  <span className="timeshift-toggle-sub">Preferred subtitle language for auto-selection.</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:subtitles.defaultLanguage')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:subtitles.defaultLanguageSub')}</span>
                 </div>
                 <select
                   value={merged.defaultLanguage}
                   onChange={(e) => update({ defaultLanguage: e.target.value })}
                 >
-                  <option value="off">Off</option>
+                  <option value="off">{i18n.t('common:off')}</option>
                   {LANGUAGE_OPTIONS.map((lang) => (
                     <option key={lang.code} value={lang.code}>
                       {lang.label}
@@ -485,8 +485,8 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
               {/* Default Size */}
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Default Size</span>
-                  <span className="timeshift-toggle-sub">Base font size for subtitles (can be adjusted per-video).</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:subtitles.defaultSize')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:subtitles.defaultSizeSub')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '200px', justifyContent: 'flex-end' }}>
                   <input
@@ -506,8 +506,8 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
               {/* Vertical Position */}
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Vertical Position</span>
-                  <span className="timeshift-toggle-sub">Default vertical position on screen (90% is near bottom).</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:subtitles.verticalPosition')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:subtitles.verticalPositionSub')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '200px', justifyContent: 'flex-end' }}>
                   <input
@@ -527,25 +527,25 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
               {/* Override Embedded Styles */}
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Override Embedded Styles</span>
-                  <span className="timeshift-toggle-sub">Apply player size & style controls to embedded ASS/SSA subtitles.</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:subtitles.overrideEmbedded')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:subtitles.overrideEmbeddedSub')}</span>
                 </div>
                 <select
                   value={merged.subAssOverride || 'yes'}
                   onChange={(e) => update({ subAssOverride: e.target.value as any })}
                 >
-                  <option value="yes">Yes (Apply Player Styles & Resizing)</option>
-                  <option value="force">Force All (Including Placement)</option>
-                  <option value="scale">Scale Only</option>
-                  <option value="no">No (Keep Embedded Styles)</option>
+                  <option value="yes">{i18n.t('settings:subtitles.yesApply')}</option>
+                  <option value="force">{i18n.t('settings:subtitles.forceAll')}</option>
+                  <option value="scale">{i18n.t('settings:subtitles.scaleOnly')}</option>
+                  <option value="no">{i18n.t('settings:subtitles.noKeep')}</option>
                 </select>
               </div>
 
               {/* Subtitle Color */}
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Text Color</span>
-                  <span className="timeshift-toggle-sub">Color of the subtitle text.</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:subtitles.textColor')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:subtitles.textColorSub')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input
@@ -563,8 +563,8 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
               {/* Background Color */}
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Background</span>
-                  <span className="timeshift-toggle-sub">Show a colored box behind subtitle text.</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:subtitles.background')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:subtitles.backgroundSub')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <label className="toggle-switch">
@@ -582,8 +582,8 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                 <>
                   <div className="timeshift-toggle-row">
                     <div className="timeshift-toggle-info">
-                      <span className="timeshift-toggle-label">Background Color</span>
-                      <span className="timeshift-toggle-sub">Color of the background box behind subtitles.</span>
+                      <span className="timeshift-toggle-label">{i18n.t('settings:subtitles.backgroundColor')}</span>
+                      <span className="timeshift-toggle-sub">{i18n.t('settings:subtitles.backgroundColorSub')}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <input
@@ -599,8 +599,8 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                   </div>
                   <div className="timeshift-toggle-row">
                     <div className="timeshift-toggle-info">
-                      <span className="timeshift-toggle-label">Background Opacity</span>
-                      <span className="timeshift-toggle-sub">Transparency of the background box.</span>
+                      <span className="timeshift-toggle-label">{i18n.t('settings:subtitles.bgOpacity')}</span>
+                      <span className="timeshift-toggle-sub">{i18n.t('settings:subtitles.bgOpacitySub')}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '200px', justifyContent: 'flex-end' }}>
                       <input
@@ -622,8 +622,8 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
               {/* Outline Color */}
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Outline Color</span>
-                  <span className="timeshift-toggle-sub">Border/outline color around subtitle text.</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:subtitles.outlineColor')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:subtitles.outlineColorSub')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input
@@ -643,10 +643,10 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
           {/* Preview Section */}
           <div className="settings-section" style={{ marginTop: '2rem' }}>
             <div className="section-header">
-              <h3>Preview</h3>
+              <h3>{i18n.t('common:preview')}</h3>
             </div>
             <p className="section-description">
-              This is how your subtitles will look with the current settings.
+              {i18n.t('settings:subtitles.previewSub')}
             </p>
 
             <div
@@ -696,7 +696,7 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
                     display: 'inline-block',
                   }}
                 >
-                  This is a preview of your subtitles
+                  {i18n.t('settings:subtitles.previewSample')}
                 </span>
               </div>
             </div>
@@ -707,23 +707,23 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
           {/* Default Audio Language */}
           <div className="settings-section">
             <div className="section-header">
-              <h3>Audio Language Settings</h3>
+              <h3>{i18n.t('settings:subtitles.audioLanguageSettings')}</h3>
             </div>
             <p className="section-description">
-              Configure preferred audio language for auto-selection.
+              {i18n.t('settings:subtitles.audioLanguageSettingsSub')}
             </p>
 
             <div className="timeshift-settings">
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Default Audio Language</span>
-                  <span className="timeshift-toggle-sub">Whichever is selected will be automatically chosen when playing streams if available.</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:subtitles.defaultAudioLanguage')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:subtitles.defaultAudioLanguageSub')}</span>
                 </div>
                 <select
                   value={merged.defaultAudioLanguage || 'default'}
                   onChange={(e) => update({ defaultAudioLanguage: e.target.value })}
                 >
-                  <option value="default">Default</option>
+                  <option value="default">{i18n.t('common:default')}</option>
                   {LANGUAGE_OPTIONS.map((lang) => (
                     <option key={lang.code} value={lang.code}>
                       {lang.label}
@@ -737,23 +737,23 @@ export function SubtitlesTab({ initialSubTab, settings, onSettingsChange }: Subt
           {/* Audio Output Device */}
           <div className="settings-section" style={{ marginTop: '2rem' }}>
             <div className="section-header">
-              <h3>Audio Output Device</h3>
+              <h3>{i18n.t('settings:subtitles.audioOutputDevice')}</h3>
             </div>
             <p className="section-description">
-              Select the audio output device for playback.
+              {i18n.t('settings:subtitles.audioOutputDeviceSub')}
             </p>
 
             <div className="timeshift-settings">
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Audio Device</span>
-                  <span className="timeshift-toggle-sub">Select the device to route audio playback.</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:subtitles.audioDevice')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:subtitles.audioDeviceSub')}</span>
                 </div>
                 <select
                   value={merged.audioDevice || 'auto'}
                   onChange={(e) => handleAudioDeviceChange(e.target.value)}
                 >
-                  <option value="auto">Default (Autoselect)</option>
+                  <option value="auto">{i18n.t('settings:subtitles.defaultAutoselect')}</option>
                   {devices.map((dev) => (
                     <option key={dev.name} value={dev.name}>
                       {dev.description || dev.name}

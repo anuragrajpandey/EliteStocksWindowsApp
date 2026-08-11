@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { clearAllCachedData } from '../../db';
 import { syncAllSources } from '../../db/sync';
 import { useCacheClearing, useSetCacheClearing, useSetChannelSyncing, useSetSyncStatusMessage } from '../../stores/uiStore';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 interface DataRefreshTabProps {
   vodRefreshHours: number;
@@ -20,6 +22,7 @@ export function DataRefreshTab({
   onEpgRefreshChange,
   onEpgSyncConcurrencyChange,
 }: DataRefreshTabProps) {
+  useTranslation();
   const [showConfirm, setShowConfirm] = useState(false);
   const isClearing = useCacheClearing();
   const setCacheClearing = useSetCacheClearing();
@@ -55,16 +58,15 @@ export function DataRefreshTab({
     <div className="settings-tab-content">
       <div className="settings-section">
         <div className="section-header">
-          <h3>Data Refresh</h3>
+          <h3>{i18n.t('settings:dataRefresh.title')}</h3>
         </div>
         <p className="section-description">
-          Configure how often data is automatically refreshed on app startup.
-          Set to "Manual only" to disable automatic refresh.
+          {i18n.t('settings:dataRefresh.titleSub')}
         </p>
 
         <div className="refresh-settings">
           <div className="form-group inline">
-            <label>VOD (Movies &amp; Series)</label>
+            <label>{i18n.t('settings:dataRefresh.vodLabel')}</label>
             <select
               value={vodRefreshHours}
               onChange={(e) => {
@@ -73,18 +75,18 @@ export function DataRefreshTab({
                 saveRefreshSettings(val, epgRefreshHours);
               }}
             >
-              <option value={0}>Manual only</option>
-              <option value={1}>Every 1 hour</option>
-              <option value={6}>Every 6 hours</option>
-              <option value={12}>Every 12 hours</option>
-              <option value={24}>Every 24 hours</option>
-              <option value={48}>Every 2 days</option>
-              <option value={168}>Every week</option>
+              <option value={0}>{i18n.t('settings:dataRefresh.manualOnly')}</option>
+              <option value={1}>{i18n.t('settings:dataRefresh.every1h')}</option>
+              <option value={6}>{i18n.t('settings:dataRefresh.every6h')}</option>
+              <option value={12}>{i18n.t('settings:dataRefresh.every12h')}</option>
+              <option value={24}>{i18n.t('settings:dataRefresh.every24h')}</option>
+              <option value={48}>{i18n.t('settings:dataRefresh.every2d')}</option>
+              <option value={168}>{i18n.t('settings:dataRefresh.everyWeek')}</option>
             </select>
           </div>
 
           <div className="form-group inline">
-            <label>EPG (TV Guide)</label>
+            <label>{i18n.t('settings:dataRefresh.epgLabel')}</label>
             <select
               value={epgRefreshHours}
               onChange={(e) => {
@@ -93,22 +95,22 @@ export function DataRefreshTab({
                 saveRefreshSettings(vodRefreshHours, val);
               }}
             >
-              <option value={0}>Manual only</option>
-              <option value={0.0833333333}>Every 5 minutes</option>
-              <option value={0.5}>Every 30 minutes</option>
-              <option value={1}>Every 1 hour</option>
-              <option value={3}>Every 3 hours</option>
-              <option value={6}>Every 6 hours</option>
-              <option value={12}>Every 12 hours</option>
-              <option value={24}>Every 24 hours</option>
+              <option value={0}>{i18n.t('settings:dataRefresh.manualOnly')}</option>
+              <option value={0.0833333333}>{i18n.t('settings:dataRefresh.every5m')}</option>
+              <option value={0.5}>{i18n.t('settings:dataRefresh.every30m')}</option>
+              <option value={1}>{i18n.t('settings:dataRefresh.every1h')}</option>
+              <option value={3}>{i18n.t('settings:dataRefresh.every3h')}</option>
+              <option value={6}>{i18n.t('settings:dataRefresh.every6h')}</option>
+              <option value={12}>{i18n.t('settings:dataRefresh.every12h')}</option>
+              <option value={24}>{i18n.t('settings:dataRefresh.every24h')}</option>
             </select>
           </div>
 
           <div className="form-group inline" style={{ alignItems: 'flex-start', gap: '0.5rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
-              <label style={{ marginBottom: 0 }}>Simultaneous EPG Syncs</label>
+              <label style={{ marginBottom: 0 }}>{i18n.t('settings:dataRefresh.simSyncs')}</label>
               <span style={{ fontSize: '0.75rem', opacity: 0.6, lineHeight: 1.3 }}>
-                How many sources to sync in parallel. <strong>0&nbsp;=&nbsp;all at once</strong> (fastest — recommended when each source is a different provider).
+                {i18n.t('settings:dataRefresh.simSyncsHintPre')}<strong>{i18n.t('settings:dataRefresh.simSyncsHintStrong')}</strong>{i18n.t('settings:dataRefresh.simSyncsHintPost')}
               </span>
             </div>
             <input
@@ -137,30 +139,28 @@ export function DataRefreshTab({
 
       <div className="settings-section" style={{ marginTop: '1.5rem' }}>
         <div className="section-header">
-          <h3>Clear Cache</h3>
+          <h3>{i18n.t('settings:dataRefresh.clearCache')}</h3>
         </div>
         <p className="section-description">
-          Clear all cached channel, EPG, and VOD data, then compact the database to reclaim disk space.
-          Use this if you're experiencing issues like duplicate entries, stale EPG, or data not updating properly.
-          Your sources and settings will be preserved.
+          {i18n.t('settings:dataRefresh.clearCacheSub')}
         </p>
 
         <div style={{ marginTop: '0.75rem' }}>
           {isClearing ? (
             <button className="sync-btn danger" disabled>
-              Clearing...
+              {i18n.t('common:clearing')}
             </button>
           ) : !showConfirm ? (
             <button
               className="sync-btn danger"
               onClick={() => setShowConfirm(true)}
             >
-              Clear All Cached Data
+              {i18n.t('settings:dataRefresh.clearAllCached')}
             </button>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
               <span style={{ color: '#ff9900', fontSize: '0.85rem' }}>
-                Delete all cached data?
+                {i18n.t('settings:dataRefresh.deleteCachedConfirm')}
               </span>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button
@@ -168,14 +168,14 @@ export function DataRefreshTab({
                   onClick={handleClearCache}
                   disabled={isClearing}
                 >
-                  {isClearing ? 'Clearing...' : 'Yes, Clear'}
+                  {isClearing ? i18n.t('common:clearing') : i18n.t('settings:dataRefresh.yesClear')}
                 </button>
                 <button
                   className="sync-btn"
                   onClick={() => setShowConfirm(false)}
                   disabled={isClearing}
                 >
-                  Cancel
+                  {i18n.t('common:cancel')}
                 </button>
               </div>
             </div>

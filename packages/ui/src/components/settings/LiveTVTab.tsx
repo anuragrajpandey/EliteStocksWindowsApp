@@ -442,9 +442,9 @@ export function LiveTVTab({
                 }}>
                   <thead>
                     <tr style={{ background: 'var(--surface-color)', borderBottom: '1px solid var(--surface-border)' }}>
-                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>Resolution</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>FPS</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>Sound</th>
+                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>{i18n.t('settings:livetv.resolution')}</th>
+                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>{i18n.t('settings:livetv.fps')}</th>
+                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>{i18n.t('settings:livetv.sound')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -486,8 +486,8 @@ export function LiveTVTab({
 
               <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Show "fps" suffix</span>
-                  <span className="timeshift-toggle-sub">Display frame rate as e.g. "60fps" instead of just "60".</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:livetv.fpsSuffix')}</span>
+                  <span className="timeshift-toggle-sub">{i18n.t('settings:livetv.fpsSuffixSub')}</span>
                 </div>
                 <label className="toggle-switch">
                   <input
@@ -504,11 +504,11 @@ export function LiveTVTab({
             {modernUiEnabled !== 'v3' && <div className="settings-section">
               <div className="section-header">
                 <h3 style={{ color: 'var(--text-primary, #ffffff)', fontSize: '1rem', fontWeight: 600, textTransform: 'none', letterSpacing: 'normal' }}>
-                  Bold Typography
+                  {i18n.t('settings:livetv.boldTypography')}
                 </h3>
               </div>
               <p className="section-description">
-                Enable bold font formatting for EPG elements and sidebar categories.
+                {i18n.t('settings:livetv.boldTypographySub')}
               </p>
 
               <div style={{ marginTop: '16px', overflowX: 'auto' }}>
@@ -522,9 +522,9 @@ export function LiveTVTab({
                 }}>
                   <thead>
                     <tr style={{ background: 'var(--surface-color)', borderBottom: '1px solid var(--surface-border)' }}>
-                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>Channel Names</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>Top Categories</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>Source Categories</th>
+                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>{i18n.t('settings:livetv.channelNames')}</th>
+                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>{i18n.t('settings:livetv.topCategories')}</th>
+                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>{i18n.t('settings:livetv.sourceCategories')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -569,17 +569,17 @@ export function LiveTVTab({
             <div className="settings-section">
               <div className="section-header">
                 <h3 style={{ color: 'var(--text-primary, #ffffff)', fontSize: '1rem', fontWeight: 600, textTransform: 'none', letterSpacing: 'normal' }}>
-                  EPG Preview Font Sizes
+                  {i18n.t('settings:livetv.epgPreviewFontSizes')}
                 </h3>
               </div>
               <p className="section-description">
-                Adjust the font size for program information displayed in the EPG preview panel.
+                {i18n.t('settings:livetv.epgPreviewFontSizesSub')}
               </p>
 
               <div className="timeshift-settings">
                 {/* EPG Title Font Size */}
                 <div className="form-group" style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Title Font Size</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:livetv.titleFontSize')}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <input
                       type="range"
@@ -594,13 +594,13 @@ export function LiveTVTab({
                     </span>
                   </div>
                   <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-                    Preview: <span style={{ fontSize: `${epgTitleFontSize}px`, color: '#00d4ff' }}>Program Title</span>
+                    {i18n.t('settings:livetv.previewLabel')}: <span style={{ fontSize: `${epgTitleFontSize}px`, color: '#00d4ff' }}>{i18n.t('settings:livetv.programTitleExample')}</span>
                   </p>
                 </div>
 
                 {/* EPG Body Font Size */}
                 <div className="form-group" style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Body Text Font Size</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:livetv.bodyTextFontSize')}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <input
                       type="range"
@@ -615,7 +615,7 @@ export function LiveTVTab({
                     </span>
                   </div>
                   <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-                    Preview: <span style={{ fontSize: `${epgBodyFontSize}px`, color: '#00d4ff' }}>Program description text displayed in the preview panel.</span>
+                    {i18n.t('settings:livetv.previewLabel')}: <span style={{ fontSize: `${epgBodyFontSize}px`, color: '#00d4ff' }}>{i18n.t('settings:livetv.programDescExample')}</span>
                   </p>
                 </div>
 
@@ -629,7 +629,7 @@ export function LiveTVTab({
                     }}
                     style={{ maxWidth: '200px' }}
                   >
-                    Reset to Default
+                    {i18n.t('common:resetToDefault')}
                   </button>
                 </div>
               </div>
@@ -639,26 +639,26 @@ export function LiveTVTab({
             <div className="settings-section">
               <div className="section-header">
                 <h3 style={{ color: 'var(--text-primary, #ffffff)', fontSize: '1rem', fontWeight: 600, textTransform: 'none', letterSpacing: 'normal' }}>
-                  Preview Panel
+                  {i18n.t('settings:livetv.previewPanel')}
                 </h3>
               </div>
               <p className="section-description">
-                Customize the video preview panel in the LiveTV/EPG view.
+                {i18n.t('settings:livetv.previewPanelSub')}
               </p>
 
               <div className="timeshift-settings">
                 {/* EPG View Dropdown */}
                 <div className="timeshift-toggle-row">
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label">EPG View Layout</span>
-                    <span className="timeshift-toggle-sub">Select between the standard left-to-right setup or the full-width cinematic format.</span>
+                    <span className="timeshift-toggle-label">{i18n.t('settings:livetv.epgViewLayout')}</span>
+                    <span className="timeshift-toggle-sub">{i18n.t('settings:livetv.epgViewLayoutSub')}</span>
                   </div>
                   <select
                     value={epgView}
                     onChange={(e) => onEpgViewChange(e.target.value as 'traditional' | 'alternate')}
                   >
-                    <option value="traditional">Traditional EPG View</option>
-                    <option value="alternate">Alternate EPG View</option>
+                    <option value="traditional">{i18n.t('settings:livetv.traditionalView')}</option>
+                    <option value="alternate">{i18n.t('settings:livetv.alternateView')}</option>
                   </select>
                 </div>
 
@@ -669,18 +669,18 @@ export function LiveTVTab({
             <div className="settings-section">
               <div className="section-header">
                 <h3 style={{ color: 'var(--text-primary, #ffffff)', fontSize: '1rem', fontWeight: 600, textTransform: 'none', letterSpacing: 'normal' }}>
-                  Transparent EPG Overlay
+                  {i18n.t('settings:livetv.transparentOverlay')}
                 </h3>
               </div>
               <p className="section-description">
-                When using Transparent Guide mode (press Z), controls how much of the screen the EPG/channel list covers, from the bottom up.
+                {i18n.t('settings:livetv.transparentOverlaySub')}
               </p>
 
               <div className="timeshift-settings">
                 <div className="timeshift-toggle-row">
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label">Overlay Height</span>
-                    <span className="timeshift-toggle-sub">Percentage of the app height the EPG overlay covers (25–100%).</span>
+                    <span className="timeshift-toggle-label">{i18n.t('settings:livetv.overlayHeight')}</span>
+                    <span className="timeshift-toggle-sub">{i18n.t('settings:livetv.overlayHeightSub')}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <input
@@ -708,8 +708,8 @@ export function LiveTVTab({
 
                 <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label">Hide Top Row</span>
-                    <span className="timeshift-toggle-sub">Hide the time, manage, refresh, shift, and Now buttons. The channel list fills the extra space.</span>
+                    <span className="timeshift-toggle-label">{i18n.t('settings:livetv.hideTopRow')}</span>
+                    <span className="timeshift-toggle-sub">{i18n.t('settings:livetv.hideTopRowSub')}</span>
                   </div>
                   <label className="toggle-switch" style={{ position: 'relative', display: 'inline-block', width: '44px', height: '24px', flexShrink: 0 }}>
                     <input
@@ -736,8 +736,8 @@ export function LiveTVTab({
 
                 <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label">Display on Channel Zap</span>
-                    <span className="timeshift-toggle-sub">When zapping channels (channel up/down), the transparent EPG overlay appears briefly and auto-hides.</span>
+                    <span className="timeshift-toggle-label">{i18n.t('settings:livetv.displayOnZap')}</span>
+                    <span className="timeshift-toggle-sub">{i18n.t('settings:livetv.displayOnZapSub')}</span>
                   </div>
                   <label className="toggle-switch" style={{ position: 'relative', display: 'inline-block', width: '44px', height: '24px', flexShrink: 0 }}>
                     <input
@@ -764,8 +764,8 @@ export function LiveTVTab({
 
                 <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label">EPG Overlay Opacity</span>
-                    <span className="timeshift-toggle-sub">Opacity level of the transparent EPG overlay (0–100%).</span>
+                    <span className="timeshift-toggle-label">{i18n.t('settings:livetv.epgOverlayOpacity')}</span>
+                    <span className="timeshift-toggle-sub">{i18n.t('settings:livetv.epgOverlayOpacitySub')}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <input
@@ -793,8 +793,8 @@ export function LiveTVTab({
 
                 <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
                   <div className="timeshift-toggle-info">
-                    <span className="timeshift-toggle-label">Category Sidebar Opacity</span>
-                    <span className="timeshift-toggle-sub">Opacity level of the category sidebar in transparent guide mode (0–100%).</span>
+                    <span className="timeshift-toggle-label">{i18n.t('settings:livetv.sidebarOpacity')}</span>
+                    <span className="timeshift-toggle-sub">{i18n.t('settings:livetv.sidebarOpacitySub')}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <input
@@ -827,16 +827,16 @@ export function LiveTVTab({
         {activeSubTab === 'font-size' && (
           <div className="settings-section">
             <div className="section-header">
-              <h3>Font Size</h3>
+              <h3>{i18n.t('settings:livetv.fontSizeTitle')}</h3>
             </div>
 
             <p className="section-description" style={{ marginBottom: '12px' }}>
-              Adjust the font size for channel names and category labels to improve readability.
+              {i18n.t('settings:livetv.fontSizeSub')}
             </p>
 
             {/* Channel Font Size */}
             <div className="form-group" style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Channel Font Size</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:livetv.channelFontSize')}</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <input
                   type="range"
@@ -851,13 +851,13 @@ export function LiveTVTab({
                 </span>
               </div>
               <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-                Preview: <span style={{ fontSize: `${channelFontSize}px`, color: '#00d4ff' }}>Channel Name Example</span>
+                {i18n.t('settings:livetv.previewLabel')}: <span style={{ fontSize: `${channelFontSize}px`, color: '#00d4ff' }}>{i18n.t('settings:livetv.channelNameExample')}</span>
               </p>
             </div>
 
             {/* Category Font Size */}
             <div className="form-group" style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Category Font Size</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:livetv.categoryFontSize')}</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <input
                   type="range"
@@ -872,14 +872,14 @@ export function LiveTVTab({
                 </span>
               </div>
               <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-                Preview: <span style={{ fontSize: `${categoryFontSize}px`, color: '#00d4ff' }}>Category Name Example</span>
+                {i18n.t('settings:livetv.previewLabel')}: <span style={{ fontSize: `${categoryFontSize}px`, color: '#00d4ff' }}>{i18n.t('settings:livetv.categoryNameExample')}</span>
               </p>
             </div>
 
             {/* Source Font Size */}
             {modernUiEnabled === 'v3' && (
               <div className="form-group" style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Source Font Size</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:livetv.sourceFontSize')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <input
                     type="range"
@@ -894,7 +894,7 @@ export function LiveTVTab({
                   </span>
                 </div>
                 <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-                  Preview: <span style={{ fontSize: `${sourceFontSize}px`, color: '#00d4ff', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Source Name Example</span>
+                  {i18n.t('settings:livetv.previewLabel')}: <span style={{ fontSize: `${sourceFontSize}px`, color: '#00d4ff', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{i18n.t('settings:livetv.sourceNameExample')}</span>
                 </p>
               </div>
             )}
@@ -915,7 +915,7 @@ export function LiveTVTab({
                 }}
                 style={{ maxWidth: '200px' }}
               >
-                Reset to Default
+                {i18n.t('common:resetToDefault')}
               </button>
             </div>
           </div>

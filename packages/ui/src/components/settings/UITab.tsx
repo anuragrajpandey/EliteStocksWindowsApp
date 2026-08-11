@@ -58,6 +58,7 @@ interface UITabProps {
 }
 
 function WindowSizeSettings({ width, height, onChange }: { width: number; height: number; onChange: (w: number, h: number) => void }) {
+  useTranslation();
   const [localWidth, setLocalWidth] = useState(width);
   const [localHeight, setLocalHeight] = useState(height);
   const [status, setStatus] = useState<'' | 'saved'>('');
@@ -108,7 +109,7 @@ function WindowSizeSettings({ width, height, onChange }: { width: number; height
     <div className="form-group" style={{ marginBottom: '16px' }}>
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
         <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Width (px)</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:ui.widthPx')}</label>
           <input
             type="number"
             min="400"
@@ -120,7 +121,7 @@ function WindowSizeSettings({ width, height, onChange }: { width: number; height
           />
         </div>
         <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Height (px)</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:ui.heightPx')}</label>
           <input
             type="number"
             min="300"
@@ -139,7 +140,7 @@ function WindowSizeSettings({ width, height, onChange }: { width: number; height
           onClick={handleApply}
           style={{ padding: '0.5rem 1.5rem', background: '#00d4ff', color: 'black', fontWeight: 600 }}
         >
-          {status === 'saved' ? 'Saved!' : 'Apply'}
+          {status === 'saved' ? i18n.t('settings:ui.saved') : i18n.t('settings:ui.apply')}
         </button>
 
         <button
@@ -147,7 +148,7 @@ function WindowSizeSettings({ width, height, onChange }: { width: number; height
           onClick={handleUseCurrentSize}
           style={{ background: 'var(--surface-color)' }}
         >
-          Use Current Size
+          {i18n.t('settings:ui.useCurrentSize')}
         </button>
 
         <button
@@ -155,12 +156,12 @@ function WindowSizeSettings({ width, height, onChange }: { width: number; height
           onClick={handleReset}
           style={{ background: 'var(--surface-color)' }}
         >
-          Reset to Default
+          {i18n.t('common:resetToDefault')}
         </button>
       </div>
 
       <p className="form-hint" style={{ marginTop: '0.75rem' }}>
-        Window size is automatically saved when you close the app. Default: 1920 x 1080.
+        {i18n.t('settings:ui.windowSizeHint')}
       </p>
     </div>
   );
@@ -228,11 +229,11 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               <div className="timeshift-toggle-row" style={{ position: 'relative' }}>
                 <div className="timeshift-toggle-info">
                   <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    UI Design
+                    {i18n.t('settings:ui.uiDesign')}
                     <div className="epg-tooltip">
                       <span className="epg-tooltip-icon">?</span>
                       <div className="epg-tooltip-content">
-                        Choose the design layout: V1 (Classic), V2 (Modern), or V3 (with dynamic blurred backgrounds).
+                        {i18n.t('settings:ui.uiDesignTooltip')}
                       </div>
                     </div>
                   </span>
@@ -258,8 +259,8 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                     outline: 'none'
                   }}
                 >
-                  <option value="v1" style={{ backgroundColor: 'var(--bg-tertiary)' }}>v1 (Classic)</option>
-                  <option value="v2" style={{ backgroundColor: 'var(--bg-tertiary)' }}>v2 (Modern)</option>
+                  <option value="v1" style={{ backgroundColor: 'var(--bg-tertiary)' }}>{i18n.t('settings:ui.v1Classic')}</option>
+                  <option value="v2" style={{ backgroundColor: 'var(--bg-tertiary)' }}>{i18n.t('settings:ui.v2Modern')}</option>
                   <option value="v3" style={{ backgroundColor: 'var(--bg-tertiary)' }}>v3</option>
                 </select>
               </div>
@@ -268,11 +269,11 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
                   <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Collapse Source Categories on Startup
+                    {i18n.t('settings:ui.collapseCategories')}
                     <div className="epg-tooltip">
                       <span className="epg-tooltip-icon">?</span>
                       <div className="epg-tooltip-content">
-                        When enabled, source categories will be collapsed by default when the LiveTV and VOD Categories views load.
+                        {i18n.t('settings:ui.collapseCategoriesTooltip')}
                       </div>
                     </div>
                   </span>
@@ -291,11 +292,11 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
                   <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Minimize to tray when closing
+                    {i18n.t('settings:ui.minimizeTray')}
                     <div className="epg-tooltip">
                       <span className="epg-tooltip-icon">?</span>
                       <div className="epg-tooltip-content">
-                        When enabled, closing the window hides it to the system tray so playback and recordings can keep running. Use the tray icon to reopen or fully quit.
+                        {i18n.t('settings:ui.minimizeTrayTooltip')}
                       </div>
                     </div>
                   </span>
@@ -320,11 +321,11 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
                   <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Override Scrollbar Width
+                    {i18n.t('settings:ui.scrollbarWidth')}
                     <div className="epg-tooltip">
                       <span className="epg-tooltip-icon">?</span>
                       <div className="epg-tooltip-content">
-                        When enabled, custom scrollbars throughout the application will follow the specified width. When disabled, standard custom scrollbars are used.
+                        {i18n.t('settings:ui.scrollbarWidthTooltip')}
                       </div>
                     </div>
                   </span>
@@ -343,7 +344,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                 <div className="timeshift-toggle-row">
                   <div className="timeshift-toggle-info">
                     <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      Custom Scrollbar Width ({customScrollbarWidth}px)
+                      {i18n.t('settings:ui.customScrollbarWidthLabel', { px: customScrollbarWidth })}
                     </span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -367,11 +368,11 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
                   <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Autohide Overlay Timer (seconds)
+                    {i18n.t('settings:ui.autohideTimer')}
                     <div className="epg-tooltip">
                       <span className="epg-tooltip-icon">?</span>
                       <div className="epg-tooltip-content">
-                        How long to wait before automatically hiding the UI controls and overlay when inactive.
+                        {i18n.t('settings:ui.autohideTimerTooltip')}
                       </div>
                     </div>
                   </span>
@@ -391,11 +392,11 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
                   <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Overlay on Click Only
+                    {i18n.t('settings:ui.overlayClickOnly')}
                     <div className="epg-tooltip">
                       <span className="epg-tooltip-icon">?</span>
                       <div className="epg-tooltip-content">
-                        When enabled, the overlay will not hide automatically or show on mouse movement in full screen. It will only toggle when you left click the background.
+                        {i18n.t('settings:ui.overlayClickOnlyTooltip')}
                       </div>
                     </div>
                   </span>
@@ -414,11 +415,11 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               <div className="timeshift-toggle-row" style={{ alignItems: 'flex-start', gap: '1rem' }}>
                 <div className="timeshift-toggle-info" style={{ flex: 1 }}>
                   <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Application UI Scale
+                    {i18n.t('settings:ui.uiScale')}
                     <div className="epg-tooltip">
                       <span className="epg-tooltip-icon">?</span>
                       <div className="epg-tooltip-content">
-                        Adjust the overall scale of the application interface. Helpful for fitting more content on lower resolution displays (e.g., 80% or 90%) or making elements larger on high DPI displays.
+                        {i18n.t('settings:ui.uiScaleTooltip')}
                       </div>
                     </div>
                   </span>
@@ -453,7 +454,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                       cursor: 'pointer'
                     }}
                   >
-                    {scaleStatus === 'applied' ? 'Applied!' : 'Apply Scale'}
+                    {scaleStatus === 'applied' ? i18n.t('settings:ui.applied') : i18n.t('settings:ui.applyScale')}
                   </button>
                 </div>
               </div>
@@ -463,11 +464,11 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
           {/* Window Settings Section */}
           <div className="settings-section" style={{ paddingTop: '8px' }}>
             <div className="section-header">
-              <h3>Window Settings</h3>
+              <h3>{i18n.t('settings:ui.windowSettings')}</h3>
             </div>
 
             <p className="section-description" style={{ marginBottom: '12px' }}>
-              Set the default window size when the application starts.
+              {i18n.t('settings:ui.windowSettingsSub')}
             </p>
 
             <WindowSizeSettings
@@ -489,10 +490,10 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               >
                 <div style={{ flex: 1 }}>
                   <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-                    Do not save size on close
+                    {i18n.t('settings:ui.doNotSaveSize')}
                   </div>
                   <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
-                    When enabled, the window size will not be saved when closing. The app will always launch with the dimensions set above.
+                    {i18n.t('settings:ui.doNotSaveSizeSub')}
                   </div>
                 </div>
                 <input
@@ -508,17 +509,17 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
           {/* Typography & Fonts Section */}
           <div className="settings-section" style={{ paddingTop: '8px', borderTop: '1px solid var(--surface-border)', marginTop: '20px' }}>
             <div className="section-header">
-              <h3>Typography & Fonts</h3>
+              <h3>{i18n.t('settings:ui.typographyFonts')}</h3>
             </div>
 
             <p className="section-description" style={{ marginBottom: '16px' }}>
-              Customize the global typography and select the font family used across the application.
+              {i18n.t('settings:ui.typographyFontsSub')}
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: 'var(--surface-color)', border: '1px solid var(--surface-border)', borderRadius: '8px', padding: '16px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 500 }}>
-                  App Font Family
+                  {i18n.t('settings:ui.appFontFamily')}
                 </label>
                 <select
                   value={appFontFamily}
@@ -536,12 +537,12 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                     height: '36px'
                   }}
                 >
-                  <option value="inter" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Inter (Default)</option>
-                  <option value="switzer" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Switzer (Sans-Serif)</option>
-                  <option value="cabinet-grotesk" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Cabinet Grotesk (Display Sans)</option>
-                  <option value="fraunces" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Fraunces (Serif)</option>
-                  <option value="sentient" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Sentient (Serif)</option>
-                  <option value="custom" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Custom Uploaded Font...</option>
+                  <option value="inter" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>{i18n.t('settings:ui.interDefault')}</option>
+                  <option value="switzer" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>{i18n.t('settings:ui.switzer')}</option>
+                  <option value="cabinet-grotesk" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>{i18n.t('settings:ui.cabinetGrotesk')}</option>
+                  <option value="fraunces" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>{i18n.t('settings:ui.fraunces')}</option>
+                  <option value="sentient" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>{i18n.t('settings:ui.sentient')}</option>
+                  <option value="custom" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>{i18n.t('settings:ui.customUploadedFont')}</option>
                 </select>
               </div>
 
@@ -557,7 +558,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                   padding: '12px'
                 }}>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-                    Upload a TTF, OTF, WOFF, or WOFF2 font file. It will be loaded and persisted locally in your app settings.
+                    {i18n.t('settings:ui.fontUploadHint')}
                   </div>
                   
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -581,7 +582,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                       onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                       onMouseLeave={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                     >
-                      Choose Font File
+                      {i18n.t('settings:ui.chooseFontFile')}
                     </button>
                     <input
                       id="ui-font-uploader"
@@ -624,20 +625,20 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
           {/* Player Media Control Design Section */}
           <div className="settings-section" style={{ paddingTop: '8px' }}>
             <div className="section-header">
-              <h3>Media Control Design</h3>
+              <h3>{i18n.t('settings:ui.mediaControlDesign')}</h3>
             </div>
             <p className="section-description" style={{ marginBottom: '12px' }}>
-              Select the visual style for the video player's media controls and overlay UI.
+              {i18n.t('settings:ui.mediaControlDesignSub')}
             </p>
 
             <div className="timeshift-settings">
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
                   <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Control Design
+                    {i18n.t('settings:ui.controlDesign')}
                   </span>
                   <span className="timeshift-toggle-sub">
-                    Legacy uses the classic bottom control bar cards. Clean / Borderless offers an edge-to-edge layout with floating controls and a top seek bar.
+                    {i18n.t('settings:ui.controlDesignSub')}
                   </span>
                 </div>
                 <select
@@ -655,18 +656,18 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                     outline: 'none'
                   }}
                 >
-                  <option value="default" style={{ backgroundColor: 'var(--bg-tertiary)' }}>Legacy</option>
-                  <option value="clean" style={{ backgroundColor: 'var(--bg-tertiary)' }}>Clean / Borderless</option>
+                  <option value="default" style={{ backgroundColor: 'var(--bg-tertiary)' }}>{i18n.t('settings:ui.legacy')}</option>
+                  <option value="clean" style={{ backgroundColor: 'var(--bg-tertiary)' }}>{i18n.t('settings:ui.cleanBorderless')}</option>
                 </select>
               </div>
 
               <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
                 <div className="timeshift-toggle-info">
                   <span className="timeshift-toggle-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Show Volume %
+                    {i18n.t('settings:ui.showVolumePercent')}
                   </span>
                   <span className="timeshift-toggle-sub">
-                    Display the volume percentage number on the right of the volume control in the now playing bar.
+                    {i18n.t('settings:ui.showVolumePercentSub')}
                   </span>
                 </div>
                 <label className="toggle-switch">
@@ -684,19 +685,19 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
           {/* Channel Info Overlay Settings */}
           <div className="settings-section" style={{ paddingTop: '8px' }}>
             <div className="section-header">
-              <h3>Channel Information Overlay</h3>
+              <h3>{i18n.t('settings:overlay.channelInfoOverlay')}</h3>
             </div>
             <p className="section-description" style={{ marginBottom: '12px' }}>
-              Configure the top-left channel info overlay displayed during playback.
+              {i18n.t('settings:ui.channelInfoOverlaySub')}
             </p>
 
             <div className="timeshift-settings">
               {/* Enable Channel Information Overlay */}
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Enable Channel Info Overlay</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:ui.enableChannelInfoOverlay')}</span>
                   <span className="timeshift-toggle-sub">
-                    Displays channel logo, name, stream quality, and current program details at top-left when switching channels or invoking overlay.
+                    {i18n.t('settings:ui.enableChannelInfoOverlaySub')}
                   </span>
                 </div>
                 <label className="toggle-switch">
@@ -712,9 +713,9 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               {/* Hide Program Summary */}
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Hide Program Summary</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:overlay.hideProgramSummary')}</span>
                   <span className="timeshift-toggle-sub">
-                    When enabled, program description text is hidden from the channel info overlay.
+                    {i18n.t('settings:ui.hideProgramSummarySub')}
                   </span>
                 </div>
                 <label className="toggle-switch">
@@ -730,9 +731,9 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               {/* Hide Metadata Badge */}
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Hide Metadata Badge</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:overlay.hideMetadataBadge')}</span>
                   <span className="timeshift-toggle-sub">
-                    When enabled, resolution, frame rate, and audio channel badges will be hidden from the overlay.
+                    {i18n.t('settings:ui.hideMetadataBadgeSub')}
                   </span>
                 </div>
                 <label className="toggle-switch">
@@ -748,9 +749,9 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               {/* Hide Channel Logo */}
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Hide Channel Logo</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:overlay.hideChannelLogo')}</span>
                   <span className="timeshift-toggle-sub">
-                    When enabled, the channel icon or logo image will be hidden from the overlay.
+                    {i18n.t('settings:ui.hideChannelLogoSub')}
                   </span>
                 </div>
                 <label className="toggle-switch">
@@ -766,9 +767,9 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               {/* Hide Program Timer */}
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Hide Program Timer & Progress</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:overlay.hideTimer')}</span>
                   <span className="timeshift-toggle-sub">
-                    When enabled, program start/end time, time remaining, and the progress bar will be hidden from the overlay.
+                    {i18n.t('settings:ui.hideTimerSub')}
                   </span>
                 </div>
                 <label className="toggle-switch">
@@ -784,9 +785,9 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               {/* Overlay Position */}
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Overlay Position</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:overlay.overlayPosition')}</span>
                   <span className="timeshift-toggle-sub">
-                    Choose whether the channel information overlay appears on the top-left or top-right of the screen.
+                    {i18n.t('settings:overlay.overlayPositionSub')}
                   </span>
                 </div>
                 <select
@@ -804,8 +805,8 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                     outline: 'none'
                   }}
                 >
-                  <option value="left" style={{ backgroundColor: 'var(--bg-tertiary)' }}>Left</option>
-                  <option value="right" style={{ backgroundColor: 'var(--bg-tertiary)' }}>Right</option>
+                  <option value="left" style={{ backgroundColor: 'var(--bg-tertiary)' }}>{i18n.t('common:left')}</option>
+                  <option value="right" style={{ backgroundColor: 'var(--bg-tertiary)' }}>{i18n.t('common:right')}</option>
                 </select>
               </div>
             </div>
@@ -815,7 +816,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
               <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {/* Font Size */}
                 <div className="form-group">
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Text Size</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:overlay.textSize')}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <input
                       type="range"
@@ -833,7 +834,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
 
                 {/* Logo Size */}
                 <div className="form-group">
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Logo Size</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:overlay.logoSize')}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <input
                       type="range"
@@ -851,7 +852,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
 
                 {/* Logo Shape */}
                 <div className="form-group" style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Logo Shape</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:overlay.logoShape')}</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button
                       type="button"
@@ -868,7 +869,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                         cursor: 'pointer'
                       }}
                     >
-                      Square (1:1)
+                      {i18n.t('settings:overlay.square11')}
                     </button>
                     <button
                       type="button"
@@ -885,14 +886,14 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
                         cursor: 'pointer'
                       }}
                     >
-                      Horizontal (16:9)
+                      {i18n.t('settings:overlay.horizontal169')}
                     </button>
                   </div>
                 </div>
 
                 {/* Box Width */}
                 <div className="form-group">
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Box Width</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:overlay.boxWidth')}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <input
                       type="range"
@@ -911,7 +912,7 @@ export function UITab({ settings, onSettingsChange }: UITabProps) {
 
                 {/* Background Opacity */}
                 <div className="form-group">
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Background Opacity</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:overlay.bgOpacity')}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <input
                       type="range"

@@ -323,10 +323,10 @@ export function ThemeTab({
     try {
       const parsed = JSON.parse(importText);
       if (!parsed || typeof parsed !== 'object') {
-        throw new Error('Invalid theme config object');
+        throw new Error(i18n.t('settings:theme.errInvalidConfig'));
       }
       if (!parsed.backgroundType) {
-        throw new Error('Not a valid theme configuration (missing backgroundType)');
+        throw new Error(i18n.t('settings:theme.errMissingBgType'));
       }
       const importedTheme: CustomThemeConfig = {
         ...parsed,
@@ -340,10 +340,10 @@ export function ThemeTab({
       handleThemeChange('custom');
       setImportText('');
       setImportError('');
-      setImportSuccess('Theme imported successfully!');
+      setImportSuccess(i18n.t('settings:theme.importSuccess'));
       setTimeout(() => setImportSuccess(''), 3000);
     } catch (e: any) {
-      setImportError(e.message || 'Failed to parse JSON string');
+      setImportError(e.message || i18n.t('settings:theme.errParseJson'));
     }
   };
 
@@ -356,10 +356,10 @@ export function ThemeTab({
         const text = event.target?.result as string;
         const parsed = JSON.parse(text);
         if (!parsed || typeof parsed !== 'object') {
-          throw new Error('Invalid theme config object');
+          throw new Error(i18n.t('settings:theme.errInvalidConfig'));
         }
         if (!parsed.backgroundType) {
-          throw new Error('Not a valid theme configuration (missing backgroundType)');
+          throw new Error(i18n.t('settings:theme.errMissingBgType'));
         }
         const importedTheme: CustomThemeConfig = {
           ...parsed,
@@ -371,10 +371,10 @@ export function ThemeTab({
           onCustomThemeConfigChange(importedTheme);
         }
         handleThemeChange('custom');
-        setImportSuccess('Theme file imported successfully!');
+        setImportSuccess(i18n.t('settings:theme.importSuccessFile'));
         setTimeout(() => setImportSuccess(''), 3000);
       } catch (err: any) {
-        alert(`Import failed: ${err.message}`);
+        alert(i18n.t('settings:theme.importFailed', { message: err.message }));
       }
     };
     reader.readAsText(file);
@@ -555,14 +555,13 @@ export function ThemeTab({
                   e.currentTarget.style.color = 'var(--text-primary)';
                 }}
               >
-                🎨 Customize "{activeThemeObj?.name || theme}"
+                🎨 {i18n.t('settings:theme.customizeQuote', { name: activeThemeObj?.name || theme })}
               </button>
             )}
           </div>
 
           <p className="section-description">
-            Choose a visual theme for the application. Glassmorphism themes feature translucent,
-            blurred backgrounds with vibrant color palettes.
+            {i18n.t('settings:theme.selectThemeSub')}
           </p>
 
           <div className="theme-grid" style={{
@@ -619,10 +618,10 @@ export function ThemeTab({
                   ⚙️
                 </div>
                 <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center', marginBottom: '4px' }}>
-                  Custom Theme
+                  {i18n.t('settings:theme.customThemeGrid')}
                 </span>
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.3 }}>
-                  Your personalized theme settings
+                  {i18n.t('settings:theme.customThemeGridSub')}
                 </span>
                 {theme === 'custom' && (
                   <div style={{
@@ -765,12 +764,12 @@ export function ThemeTab({
           }}>
             <div>
               <span style={{ fontWeight: 600, color: 'var(--text-primary)', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>
-                🎨 Custom Theme Creator
+                🎨 {i18n.t('settings:theme.themeCreator')}
               </span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                 {theme === 'custom' 
-                  ? 'Your custom theme is active. Any changes you make below will apply in real time!' 
-                  : 'Start customizing to design your own visual interface.'}
+                  ? i18n.t('settings:theme.themeActiveDesc') 
+                  : i18n.t('settings:theme.themeInactiveDesc')}
               </span>
             </div>
             {theme !== 'custom' ? (
@@ -791,7 +790,7 @@ export function ThemeTab({
                 onMouseEnter={(e) => e.currentTarget.style.filter = 'brightness(1.15)'}
                 onMouseLeave={(e) => e.currentTarget.style.filter = 'none'}
               >
-                Start Customizing
+                {i18n.t('settings:theme.startCustomizing')}
               </button>
             ) : (
               <span style={{
@@ -803,7 +802,7 @@ export function ThemeTab({
                 fontWeight: 600,
                 border: '1px solid var(--accent-glow)'
               }}>
-                ● Active
+                ● {i18n.t('settings:theme.active')}
               </span>
             )}
           </div>
@@ -823,7 +822,7 @@ export function ThemeTab({
                 border: '1px solid var(--surface-border)'
               }}>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flex: 1, minWidth: '240px' }}>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>Copy theme preset:</span>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{i18n.t('settings:theme.copyPreset')}</span>
                   <select
                     onChange={(e) => {
                       if (e.target.value) {
@@ -844,7 +843,7 @@ export function ThemeTab({
                       maxWidth: '220px'
                     }}
                   >
-                    <option value="">-- Select template --</option>
+                    <option value="">{i18n.t('settings:theme.selectTemplate')}</option>
                     {THEMES.filter(t => t.id !== 'custom').map(t => (
                       <option key={t.id} value={t.id}>{t.name}</option>
                     ))}
@@ -866,7 +865,7 @@ export function ThemeTab({
                   onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                   onMouseLeave={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                 >
-                  Reset Custom theme
+                  {i18n.t('settings:theme.resetCustomTheme')}
                 </button>
               </div>
 
@@ -882,7 +881,7 @@ export function ThemeTab({
                 gap: '16px'
               }}>
                 <h3 style={{ margin: 0, fontSize: '1.0rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--surface-border)', paddingBottom: '10px' }}>
-                  Saved Themes & Sharing
+                  {i18n.t('settings:theme.savedThemesSharing')}
                 </h3>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
@@ -890,12 +889,12 @@ export function ThemeTab({
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
-                        Save Current Configuration
+                        {i18n.t('settings:theme.saveCurrentConfig')}
                       </label>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <input
                           type="text"
-                          placeholder="e.g. My Cool Neon, Ocean Blue..."
+                          placeholder={i18n.t('settings:theme.themeNamePlaceholder')}
                           value={newThemeName}
                           onChange={(e) => setNewThemeName(e.target.value)}
                           style={{
@@ -926,18 +925,18 @@ export function ThemeTab({
                             height: '36px'
                           }}
                         >
-                          Save
+                          {i18n.t('common:save')}
                         </button>
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
-                        Your Saved Themes
+                        {i18n.t('settings:theme.yourSavedThemes')}
                       </span>
                       {savedCustomThemes.length === 0 ? (
                         <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', padding: '8px 0' }}>
-                          No custom themes saved yet. Use the input above to save your first!
+                          {i18n.t('settings:theme.noSavedThemes')}
                         </div>
                       ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto' }}>
@@ -955,7 +954,7 @@ export function ThemeTab({
                               }}
                             >
                               <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '8px' }}>
-                                {t.themeName || 'Unnamed Theme'}
+                                {t.themeName || i18n.t('settings:theme.unnamedTheme')}
                               </span>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <button
@@ -974,7 +973,7 @@ export function ThemeTab({
                                   onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                                   onMouseLeave={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                                 >
-                                  Load
+                                  {i18n.t('common:load')}
                                 </button>
                                 <button
                                   onClick={() => handleExportTheme(t)}
@@ -993,11 +992,11 @@ export function ThemeTab({
                                   onMouseEnter={(e) => { if (copiedThemeId !== t.id) e.currentTarget.style.background = 'var(--surface-color)'; }}
                                   onMouseLeave={(e) => { if (copiedThemeId !== t.id) e.currentTarget.style.background = 'var(--surface-color)'; }}
                                 >
-                                  {copiedThemeId === t.id ? 'Copied!' : 'Copy'}
+                                  {copiedThemeId === t.id ? i18n.t('settings:theme.copied') : i18n.t('common:copy')}
                                 </button>
                                 <button
                                   onClick={() => handleDownloadTheme(t)}
-                                  title="Download .json file"
+                                  title={i18n.t('settings:theme.downloadJson')}
                                   style={{
                                     background: 'var(--surface-color)',
                                     color: 'var(--text-primary)',
@@ -1031,7 +1030,7 @@ export function ThemeTab({
                                   onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(211, 47, 47, 0.35)'}
                                   onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(211, 47, 47, 0.2)'}
                                 >
-                                  Delete
+                                  {i18n.t('common:delete')}
                                 </button>
                               </div>
                             </div>
@@ -1045,11 +1044,11 @@ export function ThemeTab({
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
-                        Import Theme Configuration
+                        {i18n.t('settings:theme.importThemeConfig')}
                       </label>
                       <textarea
                         rows={2}
-                        placeholder="Paste exported theme JSON string here..."
+                        placeholder={i18n.t('settings:theme.importPlaceholder')}
                         value={importText}
                         onChange={(e) => setImportText(e.target.value)}
                         style={{
@@ -1084,7 +1083,7 @@ export function ThemeTab({
                           onMouseEnter={(e) => { if (importText.trim()) e.currentTarget.style.background = 'var(--surface-color)'; }}
                           onMouseLeave={(e) => { if (importText.trim()) e.currentTarget.style.background = 'var(--surface-color)'; }}
                         >
-                          Import Clipboard Paste
+                          {i18n.t('settings:theme.importClipboard')}
                         </button>
 
                         <button
@@ -1104,7 +1103,7 @@ export function ThemeTab({
                           onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                           onMouseLeave={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                         >
-                          Upload File
+                          {i18n.t('settings:theme.uploadFile')}
                         </button>
                         <input
                           id="theme-file-uploader"
@@ -1148,15 +1147,15 @@ export function ThemeTab({
                     gap: '16px'
                   }}>
                     <h4 style={{ margin: '0 0 4px 0', borderBottom: '1px solid var(--surface-border)', paddingBottom: '8px', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
-                      Background & Accent
+                      {i18n.t('settings:theme.backgroundAccent')}
                     </h4>
 
                     {/* Background Type */}
                     <ButtonGroupSelector
-                      label="Background Style"
+                      label={i18n.t('settings:theme.backgroundStyle')}
                       options={[
-                        { id: 'solid', name: 'Solid Color' },
-                        { id: 'gradient', name: '5-Color Gradient' }
+                        { id: 'solid', name: i18n.t('settings:theme.solidColor') },
+                        { id: 'gradient', name: i18n.t('settings:theme.gradient5') }
                       ]}
                       value={customThemeConfig.backgroundType}
                       onChange={(val) => onCustomThemeConfigChange({ backgroundType: val })}
@@ -1166,34 +1165,34 @@ export function ThemeTab({
                     {customThemeConfig.backgroundType === 'gradient' ? (
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
                         <ColorInput
-                          label="Stop 1 (Start)"
+                          label={i18n.t('settings:theme.stop1')}
                           value={customThemeConfig.gradientStart || '#1a0b2e'}
                           onChange={(val) => onCustomThemeConfigChange({ gradientStart: val })}
                         />
                         <ColorInput
-                          label="Stop 2 (25%)"
+                          label={i18n.t('settings:theme.stop2')}
                           value={customThemeConfig.gradientColor4 || customThemeConfig.gradientStart || '#1a0b2e'}
                           onChange={(val) => onCustomThemeConfigChange({ gradientColor4: val })}
                         />
                         <ColorInput
-                          label="Stop 3 (Middle)"
+                          label={i18n.t('settings:theme.stop3')}
                           value={customThemeConfig.gradientMiddle || '#4a1a6b'}
                           onChange={(val) => onCustomThemeConfigChange({ gradientMiddle: val })}
                         />
                         <ColorInput
-                          label="Stop 4 (75%)"
+                          label={i18n.t('settings:theme.stop4')}
                           value={customThemeConfig.gradientColor5 || customThemeConfig.gradientEnd || '#2d1b4e'}
                           onChange={(val) => onCustomThemeConfigChange({ gradientColor5: val })}
                         />
                         <ColorInput
-                          label="Stop 5 (End)"
+                          label={i18n.t('settings:theme.stop5')}
                           value={customThemeConfig.gradientEnd || '#2d1b4e'}
                           onChange={(val) => onCustomThemeConfigChange({ gradientEnd: val })}
                         />
                       </div>
                     ) : (
                       <ColorInput
-                        label="Background Color"
+                        label={i18n.t('settings:theme.backgroundColor')}
                         value={customThemeConfig.backgroundColor || '#1a1a1a'}
                         onChange={(val) => onCustomThemeConfigChange({ backgroundColor: val })}
                       />
@@ -1201,7 +1200,7 @@ export function ThemeTab({
 
                     {/* Accent Color */}
                     <ColorInput
-                      label="Primary Theme Accent Color"
+                      label={i18n.t('settings:theme.accentColor')}
                       value={customThemeConfig.accentColor || '#00d4ff'}
                       onChange={(val) => onCustomThemeConfigChange({ accentColor: val })}
                     />
@@ -1209,12 +1208,12 @@ export function ThemeTab({
                     {/* Text Colors */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '4px' }}>
                       <ColorInput
-                        label="Primary Text"
+                        label={i18n.t('settings:theme.primaryText')}
                         value={customThemeConfig.textColor || '#ffffff'}
                         onChange={(val) => onCustomThemeConfigChange({ textColor: val })}
                       />
                       <ColorInput
-                        label="Secondary Text"
+                        label={i18n.t('settings:theme.secondaryText')}
                         value={customThemeConfig.textSecondaryColor || 'rgba(255,255,255,0.7)'}
                         onChange={(val) => onCustomThemeConfigChange({ textSecondaryColor: val })}
                       />
@@ -1233,13 +1232,13 @@ export function ThemeTab({
                     marginTop: '16px'
                   }}>
                     <h4 style={{ margin: '0 0 4px 0', borderBottom: '1px solid var(--surface-border)', paddingBottom: '8px', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
-                      Typography Settings
+                      {i18n.t('settings:theme.typographySettings')}
                     </h4>
 
                     {/* Font Family selector */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
-                        App Font Family
+                        {i18n.t('settings:theme.appFontFamily')}
                       </label>
                       <select
                         value={appFontFamily}
@@ -1257,12 +1256,12 @@ export function ThemeTab({
                           height: '36px'
                         }}
                       >
-                        <option value="inter" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Inter (Default)</option>
-                        <option value="switzer" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Switzer (Sans-Serif)</option>
-                        <option value="cabinet-grotesk" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Cabinet Grotesk (Display Sans)</option>
-                        <option value="fraunces" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Fraunces (Serif)</option>
-                        <option value="sentient" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Sentient (Serif)</option>
-                        <option value="custom" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>Custom Uploaded Font...</option>
+                        <option value="inter" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>{i18n.t('settings:theme.interDefault')}</option>
+                        <option value="switzer" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>{i18n.t('settings:theme.switzer')}</option>
+                        <option value="cabinet-grotesk" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>{i18n.t('settings:theme.cabinetGrotesk')}</option>
+                        <option value="fraunces" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>{i18n.t('settings:theme.fraunces')}</option>
+                        <option value="sentient" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>{i18n.t('settings:theme.sentient')}</option>
+                        <option value="custom" style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}>{i18n.t('settings:theme.customUploadedFont')}</option>
                       </select>
                     </div>
 
@@ -1279,7 +1278,7 @@ export function ThemeTab({
                         marginTop: '4px'
                       }}>
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-                          Upload a TTF, OTF, WOFF, or WOFF2 font file. It will be loaded and persisted locally in your app settings.
+                          {i18n.t('settings:theme.fontUploadHint')}
                         </div>
                         
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1303,7 +1302,7 @@ export function ThemeTab({
                             onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                             onMouseLeave={(e) => e.currentTarget.style.background = 'var(--surface-color)'}
                           >
-                            Choose Font File
+                            {i18n.t('settings:theme.chooseFontFile')}
                           </button>
                           <input
                             id="custom-font-uploader"
@@ -1351,21 +1350,21 @@ export function ThemeTab({
                     gap: '16px'
                   }}>
                     <h4 style={{ margin: '0 0 4px 0', borderBottom: '1px solid var(--surface-border)', paddingBottom: '8px', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
-                      Glass Surfaces & Borders
+                      {i18n.t('settings:theme.glassSurfaces')}
                     </h4>
 
                     {/* Surface Color */}
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end' }}>
                       <div style={{ flex: '0 0 auto' }}>
                         <ColorInput
-                          label="Surface Tint"
+                          label={i18n.t('settings:theme.surfaceTint')}
                           value={customThemeConfig.surfaceColor || '#282828'}
                           onChange={(val) => onCustomThemeConfigChange({ surfaceColor: val })}
                         />
                       </div>
                       <div style={{ flex: 1 }}>
                         <SliderInput
-                          label="Surface Opacity"
+                          label={i18n.t('settings:theme.surfaceOpacity')}
                           min={0.1}
                           max={1.0}
                           step={0.05}
@@ -1380,14 +1379,14 @@ export function ThemeTab({
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end' }}>
                       <div style={{ flex: '0 0 auto' }}>
                         <ColorInput
-                          label="Border Color"
+                          label={i18n.t('settings:theme.borderColor')}
                           value={customThemeConfig.surfaceBorderColor || '#ffffff'}
                           onChange={(val) => onCustomThemeConfigChange({ surfaceBorderColor: val })}
                         />
                       </div>
                       <div style={{ flex: 1 }}>
                         <SliderInput
-                          label="Border Opacity"
+                          label={i18n.t('settings:theme.borderOpacity')}
                           min={0.0}
                           max={0.8}
                           step={0.05}
@@ -1400,7 +1399,7 @@ export function ThemeTab({
 
                     {/* Glass Blur Slider */}
                     <SliderInput
-                      label="Backdrop Blur Effect"
+                      label={i18n.t('settings:theme.backdropBlur')}
                       min={0}
                       max={40}
                       step={1}
@@ -1411,7 +1410,7 @@ export function ThemeTab({
 
                     {/* Glass Saturation Slider */}
                     <SliderInput
-                      label="Backdrop Color Saturation"
+                      label={i18n.t('settings:theme.backdropSaturation')}
                       min={100}
                       max={200}
                       step={5}
@@ -1433,12 +1432,12 @@ export function ThemeTab({
                     marginTop: '16px'
                   }}>
                     <h4 style={{ margin: '0 0 4px 0', borderBottom: '1px solid var(--surface-border)', paddingBottom: '8px', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
-                      V3 Liquid Glass Bulbs
+                      {i18n.t('settings:theme.v3Bulbs')}
                     </h4>
                     
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px dashed var(--surface-border)' }}>
                       <label style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500, cursor: 'pointer' }} htmlFor="toggle-glass-blobs">
-                        Show Background Bulbs
+                        {i18n.t('settings:theme.showBulbs')}
                       </label>
                       <input
                         id="toggle-glass-blobs"
@@ -1455,7 +1454,7 @@ export function ThemeTab({
                     </div>
 
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.3 }}>
-                      Customize the four glowing ambient bulbs displayed in the background in the V3 UI.
+                      {i18n.t('settings:theme.bulbsDesc')}
                     </p>
 
                     {(customThemeConfig.showGlassBlobs ?? true) && (
@@ -1463,12 +1462,12 @@ export function ThemeTab({
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', borderBottom: '1px dashed var(--surface-border)', paddingBottom: '16px' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <ColorInput
-                              label="Bulb 1 (Top Left)"
+                              label={i18n.t('settings:theme.bulb1')}
                               value={customThemeConfig.customBlob1 || '#00bbf5'}
                               onChange={(val) => onCustomThemeConfigChange({ customBlob1: val })}
                             />
                             <SliderInput
-                              label="Bulb 1 Intensity"
+                              label={i18n.t('settings:theme.bulb1Intensity')}
                               min={0}
                               max={100}
                               step={5}
@@ -1480,12 +1479,12 @@ export function ThemeTab({
 
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <ColorInput
-                              label="Bulb 2 (Bottom Right)"
+                              label={i18n.t('settings:theme.bulb2')}
                               value={customThemeConfig.customBlob2 || '#ff1493'}
                               onChange={(val) => onCustomThemeConfigChange({ customBlob2: val })}
                             />
                             <SliderInput
-                              label="Bulb 2 Intensity"
+                              label={i18n.t('settings:theme.bulb2Intensity')}
                               min={0}
                               max={100}
                               step={5}
@@ -1499,12 +1498,12 @@ export function ThemeTab({
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <ColorInput
-                              label="Bulb 3 (Top Right)"
+                              label={i18n.t('settings:theme.bulb3')}
                               value={customThemeConfig.customBlob3 || '#ffd700'}
                               onChange={(val) => onCustomThemeConfigChange({ customBlob3: val })}
                             />
                             <SliderInput
-                              label="Bulb 3 Intensity"
+                              label={i18n.t('settings:theme.bulb3Intensity')}
                               min={0}
                               max={100}
                               step={5}
@@ -1516,12 +1515,12 @@ export function ThemeTab({
 
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <ColorInput
-                              label="Bulb 4 (Bottom Left)"
+                              label={i18n.t('settings:theme.bulb4')}
                               value={customThemeConfig.customBlob4 || '#76ff03'}
                               onChange={(val) => onCustomThemeConfigChange({ customBlob4: val })}
                             />
                             <SliderInput
-                              label="Bulb 4 Intensity"
+                              label={i18n.t('settings:theme.bulb4Intensity')}
                               min={0}
                               max={100}
                               step={5}

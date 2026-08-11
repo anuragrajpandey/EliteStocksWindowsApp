@@ -1,5 +1,7 @@
 import { useSetChannelSortOrder, useSetCategorySortOrder, useSetIncludeAllChannelsToPlaylist, useSidebarDragHotkey, useSetSidebarDragHotkey } from '../../stores/uiStore';
 import './PlaybackTab.css'; // Reuse existing tab styles for toggle
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 interface ChannelsTabProps {
   channelSortOrder: 'alphabetical' | 'number' | 'provider';
@@ -61,6 +63,7 @@ export function ChannelsTab({
   onIncludeAllChannelsToPlaylistChange,
   showMode = 'all',
 }: ChannelsTabProps) {
+  useTranslation();
   const setChannelSortOrder = useSetChannelSortOrder();
   const setCategorySortOrder = useSetCategorySortOrder();
   const setIncludeAllChannelsToPlaylist = useSetIncludeAllChannelsToPlaylist();
@@ -90,91 +93,90 @@ export function ChannelsTab({
         <>
           <div className="settings-section">
             <div className="section-header">
-              <h3>Channel Display</h3>
+              <h3>{i18n.t('settings:livetv.channels.channelDisplay')}</h3>
             </div>
 
             <p className="section-description">
-              Configure how channels are sorted in the guide.
+              {i18n.t('settings:livetv.channels.channelDisplaySub')}
             </p>
 
             <div className="refresh-settings">
               <div className="form-group inline">
-                <label>Sort Order</label>
+                <label>{i18n.t('settings:livetv.channels.sortOrder')}</label>
                 <select
                   value={channelSortOrder}
                   onChange={(e) => handleSortOrderChange(e.target.value as 'alphabetical' | 'number' | 'provider')}
                 >
-                  <option value="provider">Provider</option>
-                  <option value="alphabetical">Alphabetical (A-Z)</option>
-                  <option value="number">Channel Number</option>
+                  <option value="provider">{i18n.t('settings:livetv.channels.providerOption')}</option>
+                  <option value="alphabetical">{i18n.t('settings:livetv.channels.alphabeticalOption')}</option>
+                  <option value="number">{i18n.t('settings:livetv.channels.channelNumberOption')}</option>
                 </select>
               </div>
             </div>
 
             <p className="form-hint" style={{ marginTop: '0.75rem' }}>
-              "Provider" preserves the order channels appear in the M3U file or provider response.
+              {i18n.t('settings:livetv.channels.providerHint')}
               <br />
-              "Alphabetical" sorts all channels A-Z.
+              {i18n.t('settings:livetv.channels.alphabeticalHint')}
               <br />
-              "Channel Number" uses the order from your provider (Xtream num or M3U tvg-chno).
-              Channels without a number will appear at the end, sorted alphabetically.
+              {i18n.t('settings:livetv.channels.channelNumberHint')}
+              {i18n.t('settings:livetv.channels.noNumberHint')}
             </p>
           </div>
 
           <div className="settings-section" style={{ marginTop: '24px' }}>
             <div className="section-header">
-              <h3>Category Display</h3>
+              <h3>{i18n.t('settings:livetv.channels.categoryDisplay')}</h3>
             </div>
 
             <p className="section-description">
-              Configure how categories are sorted under each source.
+              {i18n.t('settings:livetv.channels.categoryDisplaySub')}
             </p>
 
             <div className="refresh-settings">
               <div className="form-group inline">
-                <label>Sort Order</label>
+                <label>{i18n.t('settings:livetv.channels.sortOrder')}</label>
                 <select
                   value={categorySortOrder}
                   onChange={(e) => handleCategorySortOrderChange(e.target.value as 'default' | 'alphabetical')}
                 >
-                  <option value="default">Default</option>
-                  <option value="alphabetical">Alphabetical (A-Z)</option>
+                  <option value="default">{i18n.t('common:default')}</option>
+                  <option value="alphabetical">{i18n.t('settings:livetv.channels.alphabeticalOption')}</option>
                 </select>
               </div>
             </div>
 
             <p className="form-hint" style={{ marginTop: '0.75rem' }}>
-              "Default" uses the order from your provider or any custom order set in Manage Categories.
-              "Alphabetical" sorts all categories alphabetically (A-Z).
+              {i18n.t('settings:livetv.channels.defaultHint')}
+              {i18n.t('settings:livetv.channels.alphabeticalCategoryHint')}
             </p>
 
             <div className="refresh-settings" style={{ marginTop: '16px' }}>
               <div className="form-group inline">
-                <label>Sidebar Drag Reorder Hotkey</label>
+                <label>{i18n.t('settings:livetv.channels.sidebarDragHotkey')}</label>
                 <select
                   value={sidebarDragHotkey}
                   onChange={(e) => setSidebarDragHotkey(e.target.value as any)}
                 >
-                  <option value="Control">Ctrl Key (Default)</option>
-                  <option value="Alt">Alt / Option Key</option>
-                  <option value="Shift">Shift Key</option>
-                  <option value="Meta">Meta / Cmd Key</option>
-                  <option value="None">None (Always Draggable)</option>
+                  <option value="Control">{i18n.t('settings:livetv.channels.ctrlDefault')}</option>
+                  <option value="Alt">{i18n.t('settings:livetv.channels.altOption')}</option>
+                  <option value="Shift">{i18n.t('settings:livetv.channels.shiftOption')}</option>
+                  <option value="Meta">{i18n.t('settings:livetv.channels.metaOption')}</option>
+                  <option value="None">{i18n.t('settings:livetv.channels.noneOption')}</option>
                 </select>
               </div>
             </div>
 
             <p className="form-hint" style={{ marginTop: '0.75rem' }}>
-              Select the modifier key to hold down while clicking and dragging to reorder sources and categories in the LiveTV sidebar.
+              {i18n.t('settings:livetv.channels.dragHint')}
             </p>
 
             <div className="timeshift-settings" style={{ marginTop: '20px' }}>
               <div className="timeshift-toggle-row">
                 <div className="timeshift-toggle-info">
-                  <span className="timeshift-toggle-label">Include All Channels to Playlist</span>
+                  <span className="timeshift-toggle-label">{i18n.t('settings:livetv.channels.includeAllChannels')}</span>
                   <span className="timeshift-toggle-sub">
-                    When enabled, each playlist/source will show an "All Channels" category at the top that displays
-                    all enabled channels from that source in the EPG.
+                    {i18n.t('settings:livetv.channels.includeAllChannelsSub')}
                   </span>
                 </div>
                 <label className="toggle-switch">
@@ -199,20 +201,19 @@ export function ChannelsTab({
       {showSearch && (
         <div className="settings-section" style={{ marginTop: showSortOrder ? '24px' : '0' }}>
           <div className="section-header">
-            <h3>Search</h3>
+            <h3>{i18n.t('settings:livetv.channels.searchTitle')}</h3>
           </div>
 
           <p className="section-description">
-            Configure how channel search works.
+            {i18n.t('settings:livetv.channels.searchSub')}
           </p>
 
           <div className="timeshift-settings">
             <div className="timeshift-toggle-row">
               <div className="timeshift-toggle-info">
-                <span className="timeshift-toggle-label">Include Source name in search</span>
+                <span className="timeshift-toggle-label">{i18n.t('settings:livetv.channels.includeSourceName')}</span>
                 <span className="timeshift-toggle-sub">
-                  When enabled, search will also match against source names, and the source name will be displayed in search results.
-                  This helps distinguish between channels with the same name from different sources.
+                  {i18n.t('settings:livetv.channels.includeSourceNameSub')}
                 </span>
               </div>
               <label className="toggle-switch">
@@ -232,10 +233,9 @@ export function ChannelsTab({
           <div className="timeshift-settings" style={{ marginTop: '16px' }}>
             <div className="timeshift-toggle-row">
               <div className="timeshift-toggle-info">
-                <span className="timeshift-toggle-label">Include Source name in VOD Search</span>
+                <span className="timeshift-toggle-label">{i18n.t('settings:livetv.channels.includeSourceVod')}</span>
                 <span className="timeshift-toggle-sub">
-                  When enabled, the source name will be displayed for the search results when searching VOD Movies and Series.
-                  This helps distinguish between VOD content with the same name from different sources.
+                  {i18n.t('settings:livetv.channels.includeSourceVodSub')}
                 </span>
               </div>
               <label className="toggle-switch">
@@ -254,7 +254,7 @@ export function ChannelsTab({
 
           <div className="refresh-settings" style={{ marginTop: '20px' }}>
             <div className="form-group inline">
-              <label>Max search results</label>
+              <label>{i18n.t('settings:livetv.channels.maxSearchResults')}</label>
               <select
                 value={maxSearchResults}
                 onChange={(e) => {
@@ -265,20 +265,19 @@ export function ChannelsTab({
               >
                 <option value={50}>50</option>
                 <option value={100}>100</option>
-                <option value={200}>200 (default)</option>
+                <option value={200}>{i18n.t('settings:livetv.channels.default200')}</option>
                 <option value={500}>500</option>
                 <option value={1000}>1000</option>
               </select>
             </div>
             <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-              Maximum number of results to show in channel search, custom group search, and calendar channel selector.
-              Higher values may impact performance.
+              {i18n.t('settings:livetv.channels.maxSearchResultsSub')}
             </p>
           </div>
 
           <div className="refresh-settings" style={{ marginTop: '20px' }}>
             <div className="form-group inline">
-              <label>Search results order</label>
+              <label>{i18n.t('settings:livetv.channels.searchResultsOrder')}</label>
               <select
                 value={searchResultsOrder}
                 onChange={(e) => {
@@ -287,13 +286,12 @@ export function ChannelsTab({
                   saveSearchResultsOrder(value);
                 }}
               >
-                <option value="default">Default</option>
-                <option value="alphabetical">Alphabetical</option>
+                <option value="default">{i18n.t('common:default')}</option>
+                <option value="alphabetical">{i18n.t('settings:livetv.channels.alphabetical')}</option>
               </select>
             </div>
             <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-              Choose how search results are sorted. "Default" shows results in database order.
-              "Alphabetical" sorts channels and programs by name (A-Z).
+              {i18n.t('settings:livetv.channels.searchResultsOrderSub')}
             </p>
           </div>
         </div>

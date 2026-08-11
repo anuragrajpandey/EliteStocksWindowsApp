@@ -1,5 +1,7 @@
 import './PlaybackTab.css';
 import './WidgetsTab.css';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 interface WidgetsTabProps {
   widgetScale: number;
@@ -58,6 +60,7 @@ export function WidgetsTab({
   sportsScale, onSportsScaleChange,
   sportsBgOpacity, onSportsBgOpacityChange,
 }: WidgetsTabProps) {
+  useTranslation();
   const scalePercent   = Math.round(widgetScale * 100);
   const opacityPercent = Math.round(widgetBgOpacity * 100);
   const sScalePct      = Math.round(sportsScale * 100);
@@ -68,16 +71,16 @@ export function WidgetsTab({
 
       {/* ══ Recent & Favorites Widgets ══════════════════════════════ */}
       <div className="settings-section">
-        <div className="section-header"><h3>Overlay Widgets</h3></div>
+        <div className="section-header"><h3>{i18n.t('settings:livetv.widgets.overlayWidgets')}</h3></div>
         <p className="section-description">
-          Controls for the Recent, Favorites, Custom Group, and What&apos;s Next overlay widgets on the main screen.
+          {i18n.t('settings:livetv.widgets.overlayWidgetsSub')}
         </p>
 
         <div className="timeshift-settings">
           {/* Scale */}
           <SliderRow
-            label="Widget Scale"
-            hint="Scales the entire widget box and text. Default 100%."
+            label={i18n.t('settings:livetv.widgets.widgetScale')}
+            hint={i18n.t('settings:livetv.widgets.widgetScaleHint')}
             min={50} max={200} step={5}
             value={scalePercent}
             display={`${scalePercent}%`}
@@ -85,7 +88,7 @@ export function WidgetsTab({
           />
 
           {/* Quick presets */}
-          <div className="timeshift-presets-label">Scale Presets</div>
+          <div className="timeshift-presets-label">{i18n.t('settings:livetv.widgets.scalePresets')}</div>
           <div className="timeshift-presets" style={{ marginBottom: '18px' }}>
             {[75, 100, 125, 150].map((pct) => (
               <button
@@ -100,8 +103,8 @@ export function WidgetsTab({
 
           {/* Background Opacity */}
           <SliderRow
-            label="Background Opacity"
-            hint="Controls how transparent the widget box background is. Lower = more see-through."
+            label={i18n.t('settings:livetv.widgets.bgOpacity')}
+            hint={i18n.t('settings:livetv.widgets.bgOpacityHint')}
             min={5} max={95} step={5}
             value={opacityPercent}
             display={`${opacityPercent}%`}
@@ -115,7 +118,7 @@ export function WidgetsTab({
               onClick={() => { onWidgetScaleChange(1); onWidgetBgOpacityChange(0.55); }}
               style={{ maxWidth: '200px' }}
             >
-              Reset to Defaults
+              {i18n.t('common:resetToDefaults')}
             </button>
           </div>
         </div>
@@ -123,8 +126,8 @@ export function WidgetsTab({
 
       {/* ── Preview ── */}
       <div className="settings-section">
-        <div className="section-header"><h3>Preview</h3></div>
-        <p className="section-description">Live preview at the current scale and opacity.</p>
+        <div className="section-header"><h3>{i18n.t('common:preview')}</h3></div>
+        <p className="section-description">{i18n.t('settings:livetv.widgets.previewSub')}</p>
 
         <div className="widget-preview-area">
           <div
@@ -134,7 +137,7 @@ export function WidgetsTab({
             {/* Recent mock */}
             <div className="widget-preview-box">
               <div className="widget-preview-header" style={{ background: `rgba(0,0,0,${widgetBgOpacity})` }}>
-                Recent 5
+                {i18n.t('settings:livetv.widgets.recent5')}
               </div>
               <div className="widget-preview-list" style={{ background: `rgba(0,0,0,${widgetBgOpacity})` }}>
                 {['Animal Planet  -  I Was Prey','BET  -  Martin','Animal Planet HD  -  I Was Prey','ASPiRE TV  -  The Bernie Mac Show','US | ABC  -  The Golden Girls'].map((item,i)=>(
@@ -148,7 +151,7 @@ export function WidgetsTab({
             {/* Favorites mock */}
             <div className="widget-preview-box">
               <div className="widget-preview-header" style={{ background: `rgba(0,0,0,${widgetBgOpacity})` }}>
-                Favorites
+                {i18n.t('common:favorites')}
               </div>
               <div className="widget-preview-list" style={{ background: `rgba(0,0,0,${widgetBgOpacity})` }}>
                 {['US | ABC  -  The Golden Girls','BUZZER  -  Match Game Hollywood','US | Discovery  -  Caught!','Comedy Central  -  Family Guy','US | Fox HD  -  Kelly Clarkson'].map((item,i)=>(
@@ -171,17 +174,16 @@ export function WidgetsTab({
 
       {/* ══ Sports Scores Overlay ═══════════════════════════════════ */}
       <div className="settings-section">
-        <div className="section-header"><h3>Sports Scores Overlay</h3></div>
+        <div className="section-header"><h3>{i18n.t('settings:livetv.widgets.sportsOverlay')}</h3></div>
         <p className="section-description">
-          Controls for the live sports scores bar that runs along the top of the screen.
-          Requires the Sports widget to be enabled via the right-click context menu.
+          {i18n.t('settings:livetv.widgets.sportsOverlaySub')}
         </p>
 
         <div className="timeshift-settings">
           {/* Scale */}
           <SliderRow
-            label="Overlay Scale"
-            hint="Scales the height of the scores bar. Default 100%."
+            label={i18n.t('settings:livetv.widgets.overlayScale')}
+            hint={i18n.t('settings:livetv.widgets.overlayScaleHint')}
             min={50} max={200} step={5}
             value={sScalePct}
             display={`${sScalePct}%`}
@@ -189,7 +191,7 @@ export function WidgetsTab({
           />
 
           {/* Quick presets */}
-          <div className="timeshift-presets-label">Scale Presets</div>
+          <div className="timeshift-presets-label">{i18n.t('settings:livetv.widgets.scalePresets')}</div>
           <div className="timeshift-presets" style={{ marginBottom: '18px' }}>
             {[75, 100, 125, 150].map((pct) => (
               <button
@@ -204,8 +206,8 @@ export function WidgetsTab({
 
           {/* Background Opacity */}
           <SliderRow
-            label="Background Opacity"
-            hint="Controls how dark the gradient background of the scores bar is. Lower = more transparent."
+            label={i18n.t('settings:livetv.widgets.bgOpacity')}
+            hint={i18n.t('settings:livetv.widgets.sportsBgOpacityHint')}
             min={5} max={95} step={5}
             value={sOpacityPct}
             display={`${sOpacityPct}%`}
@@ -219,7 +221,7 @@ export function WidgetsTab({
               onClick={() => { onSportsScaleChange(1); onSportsBgOpacityChange(0.7); }}
               style={{ maxWidth: '200px' }}
             >
-              Reset to Defaults
+              {i18n.t('common:resetToDefaults')}
             </button>
           </div>
         </div>

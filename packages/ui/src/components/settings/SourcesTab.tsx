@@ -47,10 +47,10 @@ import i18n from '../../i18n';
 export type SourcesSubTabId = 'source' | 'epg' | 'refresh' | 'global_ua';
 
 const PRESET_USER_AGENTS = [
-  { label: 'VLC (Default)', value: 'VLC/3.0.18 LibVLC/3.0.18' },
-  { label: 'TiviMate/4.6.0', value: 'TiviMate/4.6.0' },
-  { label: 'GSE Smart IPTV', value: 'GSE Smart IPTV' },
-  { label: 'IPTVSmarters', value: 'IPTVSmarters' },
+  { labelKey: 'settings:sources.uaVlcDefault', value: 'VLC/3.0.18 LibVLC/3.0.18' },
+  { labelKey: 'settings:sources.uaTivimate', value: 'TiviMate/4.6.0' },
+  { labelKey: 'settings:sources.uaGse', value: 'GSE Smart IPTV' },
+  { labelKey: 'settings:sources.uaIptvSmarters', value: 'IPTVSmarters' },
 ];
 
 interface SourcesTabProps {
@@ -318,10 +318,10 @@ function SortableSourceItem(props: SortableSourceItemProps) {
                 type="checkbox"
                 checked={source.enabled !== false}
                 onChange={() => handleToggleEnabled(source.id)}
-                title={source.enabled !== false ? 'Enabled' : 'Disabled'}
+                title={source.enabled !== false ? i18n.t('common:enabled') : i18n.t('common:disabled')}
               />
               <span className="toggle-label">
-                {source.enabled !== false ? 'Enabled' : 'Disabled'}
+                {source.enabled !== false ? i18n.t('common:enabled') : i18n.t('common:disabled')}
               </span>
             </label>
           </div>
@@ -336,18 +336,18 @@ function SortableSourceItem(props: SortableSourceItemProps) {
               {meta.channel_count > 0 && (
                 <span className="stat-chip stat-chip--count">
                   <TvIcon size={11} />
-                  <span>{meta.channel_count.toLocaleString(activeLocale())} channels</span>
+                  <span>{i18n.t('settings:sources.channelsCount', { count: meta.channel_count.toLocaleString(activeLocale()) })}</span>
                 </span>
               )}
               {((meta.vod_movie_count ?? 0) + (meta.vod_series_count ?? 0)) > 0 && (
                 <span className="stat-chip stat-chip--count">
                   <FilmIcon size={11} />
-                  <span>{(meta.vod_movie_count ?? 0).toLocaleString(activeLocale())} movies</span>
+                  <span>{i18n.t('settings:sources.moviesCount', { count: (meta.vod_movie_count ?? 0).toLocaleString(activeLocale()) })}</span>
                   {(meta.vod_series_count ?? 0) > 0 && (
                     <span className="stat-chip-divider" />
                   )}
                   {(meta.vod_series_count ?? 0) > 0 && (
-                    <span>{(meta.vod_series_count ?? 0).toLocaleString(activeLocale())} series</span>
+                    <span>{i18n.t('settings:sources.seriesCount', { count: (meta.vod_series_count ?? 0).toLocaleString(activeLocale()) })}</span>
                   )}
                 </span>
               )}
@@ -357,14 +357,14 @@ function SortableSourceItem(props: SortableSourceItemProps) {
           {(source.type === 'xtream' || (source as any).xtream_catchup) && meta && meta.active_cons && meta.max_connections && (
             <span className="stat-chip stat-chip--count">
               <LinkIcon size={11} />
-              <span>{meta.active_cons}/{meta.max_connections} connections</span>
+              <span>{i18n.t('settings:sources.connectionsCount', { active: meta.active_cons, max: meta.max_connections })}</span>
             </span>
           )}
 
           {meta && meta.expiry_date && (
             <span className={`stat-chip stat-chip--expiry${isExpiryWarning(meta.expiry_date) ? ' stat-chip--expiry-warn' : ''}`}>
               <ClockIcon size={11} />
-              <span>Exp {formatExpiryDate(meta.expiry_date)}</span>
+              <span>{i18n.t('settings:sources.expLabel')} {formatExpiryDate(meta.expiry_date)}</span>
             </span>
           )}
         </div>
@@ -375,9 +375,9 @@ function SortableSourceItem(props: SortableSourceItemProps) {
           className="src-btn src-btn--primary"
           onClick={() => handleSourceSync(source.id)}
           disabled={syncingSourceId === source.id || !source.enabled}
-          title="Sync channels for this source only"
+          title={i18n.t('settings:sources.syncThisSource')}
         >
-          {syncingSourceId === source.id ? <><SpinnerIcon size={13} /> {syncStatusMsg || 'Syncing…'}</> : 'Sync Channels'}
+          {syncingSourceId === source.id ? <><SpinnerIcon size={13} /> {syncStatusMsg || i18n.t('common:syncing')}</> : i18n.t('settings:sources.syncChannelsBtn')}
         </button>
 
         {(source.type === 'xtream' || source.type === 'stalker') && !source.live_tv_only && (
@@ -385,24 +385,24 @@ function SortableSourceItem(props: SortableSourceItemProps) {
             className="src-btn src-btn--secondary"
             onClick={() => handleSourceVodSync(source.id)}
             disabled={vodSyncingSourceId === source.id || !source.enabled}
-            title="Sync movies & series for this source only"
+            title={i18n.t('settings:sources.syncThisVod')}
           >
-            {vodSyncingSourceId === source.id ? <><SpinnerIcon size={13} /> Syncing…</> : 'Sync VOD'}
+            {vodSyncingSourceId === source.id ? <><SpinnerIcon size={13} /> {i18n.t('common:syncing')}</> : i18n.t('settings:sources.syncVodBtn')}
           </button>
         )}
 
         <button
           className="src-btn src-btn--secondary"
           onClick={() => setCategoryManagerSource({ id: source.id, name: source.name })}
-          title="Manage categories for this source"
+          title={i18n.t('settings:sources.manageCategories')}
         >
-          Categories
+          {i18n.t('settings:sources.categories')}
         </button>
 
         <button
           className="action-icon-btn"
           onClick={() => handleEdit(source)}
-          title="Edit Source"
+          title={i18n.t('settings:sources.editSource')}
         >
           <SettingsIcon size={16} />
         </button>
@@ -411,7 +411,7 @@ function SortableSourceItem(props: SortableSourceItemProps) {
           className="action-icon-btn delete"
           onClick={() => handleDeleteClick(source.id, source.name)}
           disabled={isDeleting}
-          title="Delete Source"
+          title={i18n.t('settings:sources.deleteSource')}
         >
           {isDeleting ? <SpinnerIcon size={16} /> : <TrashIcon size={16} />}
         </button>
@@ -736,20 +736,20 @@ export function SourcesTab({
 
     // Validation
     if (!formData.name.trim()) {
-      setError('Name is required');
+      setError(i18n.t('settings:sources.errNameRequired'));
       return;
     }
     // URL is required unless this is a file import
     if (!importedM3U && !formData.url.trim()) {
-      setError('URL is required');
+      setError(i18n.t('settings:sources.errUrlRequired'));
       return;
     }
     if (formData.type === 'xtream' && (!formData.username.trim() || !formData.password.trim())) {
-      setError('Username and password are required for Xtream');
+      setError(i18n.t('settings:sources.errXtreamCreds'));
       return;
     }
     if (formData.type === 'stalker' && !formData.mac.trim()) {
-      setError('MAC Address is required for Stalker Portal');
+      setError(i18n.t('settings:sources.errMacRequired'));
       return;
     }
 
@@ -759,7 +759,7 @@ export function SourcesTab({
       const settingsReq = await window.storage.getSettings();
       const allowLan = settingsReq.data?.allowLanSources === true;
       if (!allowLan) {
-        setError('LAN sources are disabled. Enable "Allow LAN Sources" in Security settings first.');
+        setError(i18n.t('settings:sources.errLanSources'));
         return;
       }
     }
@@ -907,7 +907,7 @@ export function SourcesTab({
       }
     } catch (err: any) {
       console.error('[SourcesTab] Error saving source:', err);
-      setError(err?.message || 'An error occurred while saving the source');
+      setError(err?.message || i18n.t('settings:sources.errSaveSource'));
     } finally {
       setIsSaving(false);
     }
@@ -1203,7 +1203,7 @@ export function SourcesTab({
         console.log(`Source ${source.name}: ${result.channelCount} channels synced`);
       } else {
         console.error(`Source ${source.name} sync failed:`, result.error);
-        useToastStore.getState().addToast(`Sync failed: ${source.name} - ${result.error}`, 'error');
+        useToastStore.getState().addToast(i18n.t('settings:sources.syncFailedToast', { name: source.name, error: result.error }), 'error');
       }
 
       // Post-sync: apply global EPG links (primary EPG just cleared everything)
@@ -1241,7 +1241,7 @@ export function SourcesTab({
         console.log(`Source ${source.name}: ${result.movieCount} movies, ${result.seriesCount} series synced`);
       } else {
         console.error(`Source ${source.name} VOD sync failed:`, result.error);
-        useToastStore.getState().addToast(`VOD sync failed: ${source.name} - ${result.error}`, 'error');
+        useToastStore.getState().addToast(i18n.t('settings:sources.vodSyncFailedToast', { name: source.name, error: result.error }), 'error');
       }
       onSourcesChange(); // Refresh to show updated counts
     } catch (err) {
@@ -1316,15 +1316,15 @@ export function SourcesTab({
     if (!window.storage) return;
 
     if (!epgFormData.name.trim()) {
-      setEpgFormError('Name is required');
+      setEpgFormError(i18n.t('settings:sources.errNameRequired'));
       return;
     }
     if (!epgFormData.url.trim()) {
-      setEpgFormError('EPG URL is required');
+      setEpgFormError(i18n.t('settings:sources.errEpgUrlRequired'));
       return;
     }
     if (epgFormData.sourceIds.length === 0) {
-      setEpgFormError('Select at least one source');
+      setEpgFormError(i18n.t('settings:sources.errSelectSource'));
       return;
     }
 
@@ -1405,7 +1405,7 @@ export function SourcesTab({
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`[Global EPG] Failed to sync ${epg.name}:`, err);
-      useToastStore.getState().addToast(`EPG sync failed: ${epg.name} - ${msg}`, 'error');
+      useToastStore.getState().addToast(i18n.t('settings:sources.epgSyncFailedToast', { name: epg.name, error: msg }), 'error');
     } finally {
       setSyncingEpgId(null);
     }
@@ -1566,7 +1566,7 @@ export function SourcesTab({
           {/* Sources List */}
           <div className="settings-section">
             <div className="section-header">
-              <h3>Sources</h3>
+              <h3>{i18n.t('settings:sources.sourcesTitle')}</h3>
               <div className="section-actions">
                 <button
                   className="sync-btn"
@@ -1574,16 +1574,16 @@ export function SourcesTab({
                   disabled={syncing || sources.length === 0}
                   style={{ minWidth: '140px' }}
                 >
-                  {syncing ? (syncStatusMsg || 'Syncing...') : 'Sync Channels'}
+                  {syncing ? (syncStatusMsg || i18n.t('common:syncing')) : i18n.t('settings:sources.syncChannels')}
                 </button>
                 <button
                   className="sync-btn"
                   onClick={handleVodSync}
                   disabled={vodSyncing || !hasVodSource}
                 >
-                  {vodSyncing ? 'Syncing...' : 'Sync Movies & Series'}
+                  {vodSyncing ? i18n.t('common:syncing') : i18n.t('settings:sources.syncMoviesSeries')}
                 </button>
-                <button className="add-btn" onClick={handleAdd}>+ Add Playlist</button>
+                <button className="add-btn" onClick={handleAdd}>{i18n.t('settings:sources.addPlaylist')}</button>
               </div>
         </div>
 
@@ -1593,8 +1593,8 @@ export function SourcesTab({
 
         {sources.length === 0 ? (
           <div className="empty-state">
-            <p>No sources configured</p>
-            <p className="hint">Add an M3U playlist or Xtream account to get started</p>
+            <p>{i18n.t('settings:sources.noSources')}</p>
+            <p className="hint">{i18n.t('settings:sources.noSourcesHint')}</p>
           </div>
         ) : (
           <DndContext
@@ -1640,45 +1640,45 @@ export function SourcesTab({
       {showAddForm && createPortal(
         <div className="source-form-overlay">
           <form className="source-form" onSubmit={handleSubmit}>
-            <h3>{editingId ? 'Edit Source' : 'Add Source'}</h3>
+            <h3>{editingId ? i18n.t('settings:sources.editSource') : i18n.t('settings:sources.addSource')}</h3>
 
             {error && <div className="form-error">{error}</div>}
 
             <div className="form-group">
-              <label>Name</label>
+              <label>{i18n.t('settings:sources.name')}</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="My IPTV Provider"
+                placeholder={i18n.t('settings:sources.namePlaceholder')}
               />
             </div>
 
             {/* Type selector - hidden for file imports */}
             {!importedM3U && (
               <div className="form-group">
-                <label>Type</label>
+                <label>{i18n.t('settings:sources.type')}</label>
                 <div className="type-selector">
                   <button
                     type="button"
                     className={formData.type === 'm3u' ? 'active' : ''}
                     onClick={() => setFormData({ ...formData, type: 'm3u' })}
                   >
-                    M3U Playlist
+                    {i18n.t('settings:sources.m3uPlaylist')}
                   </button>
                   <button
                     type="button"
                     className={formData.type === 'xtream' ? 'active' : ''}
                     onClick={() => setFormData({ ...formData, type: 'xtream' })}
                   >
-                    Xtream Codes
+                    {i18n.t('settings:sources.xtreamCodes')}
                   </button>
                   <button
                     type="button"
                     className={formData.type === 'stalker' ? 'active' : ''}
                     onClick={() => setFormData({ ...formData, type: 'stalker' })}
                   >
-                    Stalker Portal
+                    {i18n.t('settings:sources.stalkerPortal')}
                   </button>
                 </div>
               </div>
@@ -1687,7 +1687,7 @@ export function SourcesTab({
             {/* URL field for Xtream/Stalker sources */}
             {(formData.type === 'xtream' || formData.type === 'stalker') && (
               <div className="form-group">
-                <label>Host URL</label>
+                <label>{i18n.t('settings:sources.hostUrl')}</label>
                 <input
                   type="text"
                   value={formData.url}
@@ -1714,7 +1714,7 @@ export function SourcesTab({
             {/* M3U: URL or File import */}
             {formData.type === 'm3u' && !importedM3U && (
               <div className="form-group">
-                <label>Playlist URL</label>
+                <label>{i18n.t('settings:sources.playlistUrl')}</label>
                 <input
                   type="text"
                   value={formData.url}
@@ -1722,14 +1722,14 @@ export function SourcesTab({
                   placeholder="http://example.com/playlist.m3u"
                 />
                 <div className="or-divider">
-                  <span>or</span>
+                  <span>{i18n.t('settings:sources.or')}</span>
                 </div>
                 <button
                   type="button"
                   className="import-btn"
                   onClick={handleImportM3U}
                 >
-                  Import from File...
+                  {i18n.t('settings:sources.importFromFile')}
                 </button>
               </div>
             )}
@@ -1737,18 +1737,18 @@ export function SourcesTab({
             {/* Import info for file imports */}
             {formData.type === 'm3u' && importedM3U && (
               <div className="form-group import-info">
-                <label>Imported File</label>
+                <label>{i18n.t('settings:sources.importedFile')}</label>
                 <div className="import-summary">
-                  <span>{importedM3U.channels} channels</span>
-                  <span>{importedM3U.categories} categories</span>
-                  {importedM3U.epgUrl && <span>EPG URL detected</span>}
+                  <span>{i18n.t('settings:sources.channelsCount', { count: importedM3U.channels })}</span>
+                  <span>{i18n.t('settings:sources.categoriesCount', { count: importedM3U.categories })}</span>
+                  {importedM3U.epgUrl && <span>{i18n.t('settings:sources.epgUrlDetected')}</span>}
                 </div>
                 <button
                   type="button"
                   className="change-file-btn"
                   onClick={() => setImportedM3U(null)}
                 >
-                  Use URL instead
+                  {i18n.t('settings:sources.useUrlInstead')}
                 </button>
               </div>
             )}
@@ -1756,13 +1756,13 @@ export function SourcesTab({
             {/* Xtream Catchup (for M3U sources with Xtream catchup support) */}
             {formData.type === 'm3u' && (
               <details className="form-details">
-                <summary className="form-details-summary">Xtream Catchup (optional)</summary>
+                <summary className="form-details-summary">{i18n.t('settings:sources.xtreamCatchup')}</summary>
                 <div className="form-details-content">
                   <span className="hint" style={{ marginBottom: '8px', display: 'block' }}>
-                    Enter Xtream Codes credentials to enable catchup on M3U channels.
+                    {i18n.t('settings:sources.xtreamCatchupHint')}
                   </span>
                   <div className="form-group">
-                    <label>XC Server URL</label>
+                    <label>{i18n.t('settings:sources.xcServerUrl')}</label>
                     <input
                       type="text"
                       value={formData.xtreamCatchupUrl}
@@ -1771,7 +1771,7 @@ export function SourcesTab({
                     />
                   </div>
                   <div className="form-group">
-                    <label>XC Username</label>
+                    <label>{i18n.t('settings:sources.xcUsername')}</label>
                     <input
                       type="text"
                       value={formData.xtreamCatchupUsername}
@@ -1780,7 +1780,7 @@ export function SourcesTab({
                     />
                   </div>
                   <div className="form-group">
-                    <label>XC Password</label>
+                    <label>{i18n.t('settings:sources.xcPassword')}</label>
                     <input
                       type="password"
                       value={formData.xtreamCatchupPassword}
@@ -1795,7 +1795,7 @@ export function SourcesTab({
             {formData.type === 'stalker' && (
               <>
                 <div className="form-group">
-                  <label>MAC Address</label>
+                  <label>{i18n.t('settings:sources.macAddress')}</label>
                   <input
                     type="text"
                     value={formData.mac}
@@ -1806,7 +1806,7 @@ export function SourcesTab({
 
                 {/* Backup MACs */}
                 <div className="form-group backup-section">
-                  <label>Backup MAC Addresses</label>
+                  <label>{i18n.t('settings:sources.backupMacs')}</label>
                   <div className="backup-list">
                     {formData.backupMacs.map((mac, index) => (
                       <div key={index} className="backup-item">
@@ -1816,17 +1816,17 @@ export function SourcesTab({
                             type="button"
                             className="swap-btn"
                             onClick={() => handleSwapCredential('stalker', index)}
-                            title="Swap to this MAC"
+                            title={i18n.t('settings:sources.swapToThisMac')}
                           >
-                            Swap
+                            {i18n.t('settings:sources.swap')}
                           </button>
                           <button
                             type="button"
                             className="delete-btn"
                             onClick={() => handleDeleteBackup('stalker', index)}
-                            title="Delete backup"
+                            title={i18n.t('settings:sources.deleteBackup')}
                           >
-                            Delete
+                            {i18n.t('common:delete')}
                           </button>
                         </div>
                       </div>
@@ -1849,14 +1849,14 @@ export function SourcesTab({
                           className="confirm-btn"
                           onClick={confirmAddBackupMac}
                         >
-                          Add
+                          {i18n.t('common:add')}
                         </button>
                         <button
                           type="button"
                           className="cancel-btn"
                           onClick={cancelAddBackupMac}
                         >
-                          Cancel
+                          {i18n.t('common:cancel')}
                         </button>
                       </div>
                     </div>
@@ -1866,7 +1866,7 @@ export function SourcesTab({
                       className="add-backup-btn"
                       onClick={handleAddBackupMac}
                     >
-                      + Add Backup MAC
+                      {i18n.t('settings:sources.addBackupMac')}
                     </button>
                   )}
                 </div>
@@ -1876,7 +1876,7 @@ export function SourcesTab({
             {formData.type === 'xtream' && (
               <>
                 <div className="form-group">
-                  <label>Username</label>
+                  <label>{i18n.t('settings:sources.username')}</label>
                   <input
                     type="text"
                     value={formData.username}
@@ -1885,7 +1885,7 @@ export function SourcesTab({
                   />
                 </div>
                 <div className="form-group">
-                  <label>Password</label>
+                  <label>{i18n.t('settings:sources.password')}</label>
                   <div className="password-input-wrapper">
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -1897,7 +1897,7 @@ export function SourcesTab({
                       type="button"
                       className="password-toggle-btn"
                       onClick={() => setShowPassword(!showPassword)}
-                      title={showPassword ? 'Hide password' : 'Show password'}
+                      title={showPassword ? i18n.t('settings:sources.hidePassword') : i18n.t('settings:sources.showPassword')}
                     >
                       {showPassword ? (
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1916,27 +1916,27 @@ export function SourcesTab({
 
                 {/* Backup Credentials */}
                 <div className="form-group backup-section">
-                  <label>Backup Credentials</label>
+                  <label>{i18n.t('settings:sources.backupCredentials')}</label>
                   <div className="backup-list">
                     {formData.backupCredentials.map((creds, index) => (
                       <div key={index} className="backup-item">
-                        <span className="backup-val">User: {creds.username}</span>
+                        <span className="backup-val">{i18n.t('settings:sources.userPrefix', { username: creds.username })}</span>
                         <div className="backup-actions">
                           <button
                             type="button"
                             className="swap-btn"
                             onClick={() => handleSwapCredential('xtream', index)}
-                            title="Swap to these credentials"
+                            title={i18n.t('settings:sources.swapToCreds')}
                           >
-                            Swap
+                            {i18n.t('settings:sources.swap')}
                           </button>
                           <button
                             type="button"
                             className="delete-btn"
                             onClick={() => handleDeleteBackup('xtream', index)}
-                            title="Delete backup"
+                            title={i18n.t('settings:sources.deleteBackup')}
                           >
-                            Delete
+                            {i18n.t('common:delete')}
                           </button>
                         </div>
                       </div>
@@ -1949,7 +1949,7 @@ export function SourcesTab({
                         type="text"
                         value={newBackupUser}
                         onChange={(e) => setNewBackupUser(e.target.value)}
-                        placeholder="Backup Username"
+                        placeholder={i18n.t('settings:sources.backupUsername')}
                         className="backup-input"
                         autoFocus
                       />
@@ -1958,14 +1958,14 @@ export function SourcesTab({
                           type={showBackupPassword ? 'text' : 'password'}
                           value={newBackupPass}
                           onChange={(e) => setNewBackupPass(e.target.value)}
-                          placeholder="Backup Password"
+                          placeholder={i18n.t('settings:sources.backupPassword')}
                           className="backup-input"
                         />
                         <button
                           type="button"
                           className="password-toggle-btn backup-toggle-btn"
                           onClick={() => setShowBackupPassword(!showBackupPassword)}
-                          title={showBackupPassword ? 'Hide password' : 'Show password'}
+                          title={showBackupPassword ? i18n.t('settings:sources.hidePassword') : i18n.t('settings:sources.showPassword')}
                         >
                           {showBackupPassword ? (
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1986,14 +1986,14 @@ export function SourcesTab({
                           className="confirm-btn"
                           onClick={confirmAddBackupCredential}
                         >
-                          Add
+                          {i18n.t('common:add')}
                         </button>
                         <button
                           type="button"
                           className="cancel-btn"
                           onClick={cancelAddBackupCredential}
                         >
-                          Cancel
+                          {i18n.t('common:cancel')}
                         </button>
                       </div>
                     </div>
@@ -2003,14 +2003,14 @@ export function SourcesTab({
                       className="add-backup-btn"
                       onClick={handleAddBackupCredential}
                     >
-                      + Add Backup Credentials
+                      {i18n.t('settings:sources.addBackupCreds')}
                     </button>
                   )}
                 </div>
 
                 {!isEncryptionAvailable && (
                   <div className="inline-warning">
-                    Warning: Password will be stored without encryption
+                    {i18n.t('settings:sources.passwordNoEncryption')}
                   </div>
                 )}
               </>
@@ -2024,14 +2024,14 @@ export function SourcesTab({
                   checked={formData.autoLoadEpg}
                   onChange={(e) => setFormData({ ...formData, autoLoadEpg: e.target.checked })}
                 />
-                Auto-load EPG from source
+                {i18n.t('settings:sources.autoLoadEpg')}
               </label>
               <span className="hint">
                 {formData.type === 'xtream'
-                  ? "Uses provider's XMLTV endpoint"
+                  ? i18n.t('settings:sources.autoLoadEpgHintXtream')
                   : formData.type === 'stalker'
-                    ? "Uses provider's built-in get_epg_info API"
-                    : 'Uses url-tvg from M3U header if available'}
+                    ? i18n.t('settings:sources.autoLoadEpgHintStalker')
+                    : i18n.t('settings:sources.autoLoadEpgHintM3U')}
               </span>
             </div>
 
@@ -2043,31 +2043,31 @@ export function SourcesTab({
                     checked={formData.disableShortEpg}
                     onChange={(e) => setFormData({ ...formData, disableShortEpg: e.target.checked })}
                   />
-                  Disable on-demand EPG updates (Short EPG)
+                  {i18n.t('settings:sources.disableShortEpg')}
                 </label>
                 <span className="hint">
-                  Prevents querying get_short_epg endpoints when scrolling or playing channels to reduce server requests.
+                  {i18n.t('settings:sources.disableShortEpgSub')}
                 </span>
               </div>
             )}
 
             {!formData.autoLoadEpg && (
               <div className="form-group">
-                <label>EPG URL (optional)</label>
+                <label>{i18n.t('settings:sources.epgUrlOptional')}</label>
                 <input
                   type="text"
                   value={formData.epgUrl}
                   onChange={(e) => setFormData({ ...formData, epgUrl: e.target.value })}
                   placeholder="http://example.com/epg.xml"
                 />
-                <span className="hint">XMLTV format EPG URL</span>
+                <span className="hint">{i18n.t('settings:sources.xmltvHint')}</span>
               </div>
             )}
 
             {displayedBuiltEpgUrl && (
               <div className="form-group" style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.03em', color: 'var(--text-muted, var(--text-muted))' }}>
-                  <span style={{ textTransform: 'none' }}>Provider EPG URL</span>
+                  <span style={{ textTransform: 'none' }}>{i18n.t('settings:sources.providerEpgUrl')}</span>
                   <button
                     type="button"
                     onClick={() => {
@@ -2086,7 +2086,7 @@ export function SourcesTab({
                       textTransform: 'none',
                     }}
                   >
-                    📋 Copy URL
+                    📋 {i18n.t('common:copyUrl')}
                   </button>
                 </label>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
@@ -2107,15 +2107,15 @@ export function SourcesTab({
                     onClick={(e) => (e.target as HTMLInputElement).select()}
                   />
                 </div>
-                <span className="hint">Auto-detected or built EPG URL from your provider. Use this as an additional EPG URL in other sources.</span>
+                <span className="hint">{i18n.t('settings:sources.builtEpgHint')}</span>
               </div>
             )}
 
             {/* Additional EPG URLs */}
             <div className="form-group backup-section">
-              <label>Additional EPG URLs</label>
+              <label>{i18n.t('settings:sources.additionalEpgUrls')}</label>
               <span className="hint" style={{ display: 'block', marginBottom: '10px' }}>
-                Waterfall EPG: these fill in channels the primary EPG missed, in order
+                {i18n.t('settings:sources.additionalEpgHint')}
               </span>
               <div className="backup-list">
                 {formData.additionalEpgUrls.map((url, index) => (
@@ -2132,9 +2132,9 @@ export function SourcesTab({
                         type="button"
                         className="delete-btn"
                         onClick={() => handleDeleteAdditionalEpg(index)}
-                        title="Delete additional EPG"
+                        title={i18n.t('settings:sources.deleteAdditionalEpg')}
                       >
-                        Delete
+                        {i18n.t('common:delete')}
                       </button>
                     </div>
                   </div>
@@ -2157,14 +2157,14 @@ export function SourcesTab({
                       className="confirm-btn"
                       onClick={confirmAddAdditionalEpg}
                     >
-                      Add
+                      {i18n.t('common:add')}
                     </button>
                     <button
                       type="button"
                       className="cancel-btn"
                       onClick={cancelAddAdditionalEpg}
                     >
-                      Cancel
+                      {i18n.t('common:cancel')}
                     </button>
                   </div>
                 </div>
@@ -2174,16 +2174,16 @@ export function SourcesTab({
                   className="add-backup-btn"
                   onClick={handleAddAdditionalEpg}
                 >
-                  + Add Additional EPG
+                  {i18n.t('settings:sources.addAdditionalEpg')}
                 </button>
               )}
             </div>
 
             {/* Backup URLs */}
             <div className="form-group backup-section">
-              <label>Backup URLs</label>
+              <label>{i18n.t('settings:sources.backupUrls')}</label>
               <span className="hint" style={{ display: 'block', marginBottom: '10px' }}>
-                If the primary URL fails, these will be tried in order. A working backup will automatically become the primary URL.
+                {i18n.t('settings:sources.backupUrlsHint')}
               </span>
               <div className="backup-list">
                 {formData.backupUrls.map((url, index) => (
@@ -2201,7 +2201,7 @@ export function SourcesTab({
                         className={`test-btn ${backupTestStatus.get(index) === 'success' ? 'test-success' : backupTestStatus.get(index) === 'error' ? 'test-error' : ''}`}
                         onClick={() => handleTestBackupUrl(index, url)}
                         disabled={backupTestStatus.get(index) === 'testing'}
-                        title="Test backup URL connection"
+                        title={i18n.t('settings:sources.testBackupUrl')}
                       >
                         {backupTestStatus.get(index) === 'testing'
                           ? '...'
@@ -2209,15 +2209,15 @@ export function SourcesTab({
                           ? '✓'
                           : backupTestStatus.get(index) === 'error'
                           ? '✕'
-                          : 'Test'}
+                          : i18n.t('common:test')}
                       </button>
                       <button
                         type="button"
                         className="delete-btn"
                         onClick={() => handleDeleteBackupUrl(index)}
-                        title="Delete backup URL"
+                        title={i18n.t('settings:sources.deleteBackupUrl')}
                       >
-                        Delete
+                        {i18n.t('common:delete')}
                       </button>
                     </div>
                   </div>
@@ -2240,14 +2240,14 @@ export function SourcesTab({
                       className="confirm-btn"
                       onClick={confirmAddBackupUrl}
                     >
-                      Add
+                      {i18n.t('common:add')}
                     </button>
                     <button
                       type="button"
                       className="cancel-btn"
                       onClick={cancelAddBackupUrl}
                     >
-                      Cancel
+                      {i18n.t('common:cancel')}
                     </button>
                   </div>
                 </div>
@@ -2257,7 +2257,7 @@ export function SourcesTab({
                   className="add-backup-btn"
                   onClick={handleAddBackupUrl}
                 >
-                  + Add Backup URL
+                  {i18n.t('settings:sources.addBackupUrl')}
                 </button>
               )}
             </div>
@@ -2270,10 +2270,10 @@ export function SourcesTab({
                   checked={formData.liveTvOnly}
                   onChange={(e) => setFormData({ ...formData, liveTvOnly: e.target.checked })}
                 />
-                LiveTV Only
+                {i18n.t('settings:sources.liveTvOnly')}
               </label>
               <span className="hint">
-                Skip VOD/Series sync - only sync LiveTV channels from this source
+                {i18n.t('settings:sources.liveTvOnlyHint')}
               </span>
             </div>
 
@@ -2285,10 +2285,10 @@ export function SourcesTab({
                   checked={formData.vodOnly}
                   onChange={(e) => setFormData({ ...formData, vodOnly: e.target.checked })}
                 />
-                VOD/Series Only
+                {i18n.t('settings:sources.vodOnly')}
               </label>
               <span className="hint">
-                Skip channel sync - only sync Movies and Series from this source
+                {i18n.t('settings:sources.vodOnlyHint')}
               </span>
             </div>
 
@@ -2300,15 +2300,15 @@ export function SourcesTab({
                   checked={formData.advancedEpgMatching}
                   onChange={(e) => setFormData({ ...formData, advancedEpgMatching: e.target.checked })}
                 />
-                Advanced EPG Matching
+                {i18n.t('settings:sources.advancedEpgMatching')}
               </label>
               <span className="hint">
-                Enable display name-based EPG matching for external EPGs (slower but more accurate for some providers)
+                {i18n.t('settings:sources.advancedEpgMatchingHint')}
               </span>
             </div>
 
             <div className="form-group">
-              <label>EPG Time Offset (hours)</label>
+              <label>{i18n.t('settings:sources.epgTimeOffset')}</label>
               <input
                 type="number"
                 value={formData.epgTimeshiftHours}
@@ -2318,39 +2318,39 @@ export function SourcesTab({
                 max="12"
                 step="1"
               />
-              <span className="hint">Adjust if EPG times are incorrect (e.g., -1 for 1 hour earlier)</span>
+              <span className="hint">{i18n.t('settings:sources.epgTimeOffsetHint')}</span>
             </div>
 
             <div className="form-group">
-              <label>Custom Refresh Interval (hours)</label>
+              <label>{i18n.t('settings:sources.customRefreshInterval')}</label>
               <input
                 type="number"
                 value={formData.customRefreshInterval || ''}
                 onChange={(e) => setFormData({ ...formData, customRefreshInterval: parseFloat(e.target.value) || 0 })}
-                placeholder="Use global setting"
+                placeholder={i18n.t('settings:sources.useGlobalSetting')}
                 min="0"
                 step="any"
               />
-              <span className="hint">Override the global TV Guide refresh interval for this source. Leave empty or 0 to use global settings.</span>
+              <span className="hint">{i18n.t('settings:sources.customRefreshHint')}</span>
             </div>
 
             {formData.type === 'xtream' && !formData.liveTvOnly && (
               <div className="form-group">
-                <label>Custom VOD Refresh Interval (hours)</label>
+                <label>{i18n.t('settings:sources.customVodRefresh')}</label>
                 <input
                   type="number"
                   value={formData.customVodRefreshInterval || ''}
                   onChange={(e) => setFormData({ ...formData, customVodRefreshInterval: parseFloat(e.target.value) || 0 })}
-                  placeholder="Use global setting"
+                  placeholder={i18n.t('settings:sources.useGlobalSetting')}
                   min="0"
                   step="any"
                 />
-                <span className="hint">Override the global VOD refresh interval for this source. Leave empty or 0 to use global settings.</span>
+                <span className="hint">{i18n.t('settings:sources.customVodRefreshHint')}</span>
               </div>
             )}
 
             <div className="form-group">
-              <label>User Agent (Optional)</label>
+              <label>{i18n.t('settings:sources.userAgentOptional')}</label>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.4rem' }}>
                 {PRESET_USER_AGENTS.map((preset) => {
                   const isActive = formData.userAgent.trim() === preset.value;
@@ -2371,7 +2371,7 @@ export function SourcesTab({
                         transition: 'all 0.15s ease',
                       }}
                     >
-                      {preset.label}
+                      {i18n.t(preset.labelKey, { defaultValue: preset.labelKey })}
                     </button>
                   );
                 })}
@@ -2382,15 +2382,15 @@ export function SourcesTab({
                 onChange={(e) => setFormData({ ...formData, userAgent: e.target.value })}
                 placeholder="Ex: VLC/3.0.18 LibVLC/3.0.18"
               />
-              <span className="hint">Custom User-Agent header for requests</span>
+              <span className="hint">{i18n.t('settings:sources.uaHint')}</span>
             </div>
 
             <div className="form-actions">
               <button type="button" className="cancel-btn" onClick={handleCancel} disabled={isSaving}>
-                Cancel
+                {i18n.t('common:cancel')}
               </button>
               <button type="submit" className="save-btn" disabled={isSaving}>
-                {isSaving ? 'Saving...' : (editingId ? 'Save Changes' : 'Add Source')}
+                {isSaving ? i18n.t('common:saving') : (editingId ? i18n.t('common:saveChanges') : i18n.t('settings:sources.addSource'))}
               </button>
             </div>
           </form>
@@ -2413,11 +2413,11 @@ export function SourcesTab({
       {deleteConfirm && createPortal(
         <div className="source-form-overlay">
           <div className="source-form" style={{ maxWidth: '400px', height: 'auto' }}>
-            <h3>Delete Source</h3>
+            <h3>{i18n.t('settings:sources.deleteSourceTitle')}</h3>
             <p style={{ color: 'var(--text-primary)', marginBottom: '24px', lineHeight: '1.5' }}>
-              Are you sure you want to delete <strong>"{deleteConfirm.name}"</strong>?
+              {i18n.t('settings:sources.deleteConfirmPre')}<strong>{i18n.t('settings:sources.confirmDeleteName', { name: deleteConfirm.name })}</strong>{i18n.t('settings:sources.deleteConfirmPost')}
               <br /><br />
-              This will remove all channels, EPG, and VOD data from this source.
+              {i18n.t('settings:sources.deleteSourceWarning')}
             </p>
             <div className="form-actions" style={{ marginTop: '0' }}>
               <button
@@ -2425,7 +2425,7 @@ export function SourcesTab({
                 onClick={() => setDeleteConfirm(null)}
                 disabled={isDeleting}
               >
-                Cancel
+                {i18n.t('common:cancel')}
               </button>
               <button
                 className="save-btn"
@@ -2433,7 +2433,7 @@ export function SourcesTab({
                 disabled={isDeleting}
                 style={{ borderColor: '#ff4444', color: '#ff4444', background: 'rgba(255, 68, 68, 0.1)' }}
               >
-                {isDeleting ? 'Deleting...' : 'Yes, Delete'}
+                {isDeleting ? i18n.t('common:deleting') : i18n.t('common:yesDelete')}
               </button>
             </div>
           </div>
@@ -2445,9 +2445,9 @@ export function SourcesTab({
       {deleteBackupConfirm && createPortal(
         <div className="source-form-overlay" style={{ zIndex: 1002 }}>
           <div className="source-form" style={{ maxWidth: '400px', height: 'auto' }}>
-            <h3>Delete Backup Credential</h3>
+            <h3>{i18n.t('settings:sources.deleteBackupTitle')}</h3>
             <p style={{ color: 'var(--text-primary)', marginBottom: '24px', lineHeight: '1.5' }}>
-              Are you sure you want to delete this backup credential?
+              {i18n.t('settings:sources.deleteBackupConfirm')}
             </p>
             <div className="form-actions" style={{ marginTop: '0' }}>
               <button
@@ -2455,7 +2455,7 @@ export function SourcesTab({
                 className="cancel-btn"
                 onClick={() => setDeleteBackupConfirm(null)}
               >
-                Cancel
+                {i18n.t('common:cancel')}
               </button>
               <button
                 type="button"
@@ -2463,7 +2463,7 @@ export function SourcesTab({
                 onClick={confirmDeleteBackup}
                 style={{ borderColor: '#ff4444', color: '#ff4444', background: 'rgba(255, 68, 68, 0.1)' }}
               >
-                Yes, Delete
+                {i18n.t('common:yesDelete')}
               </button>
             </div>
           </div>
@@ -2477,11 +2477,11 @@ export function SourcesTab({
         <div className="settings-section">
           <div className="section-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h3>Global EPG Links</h3>
+              <h3>{i18n.t('settings:sources.globalEpgLinks')}</h3>
               <div className="epg-tooltip">
                 <span className="epg-tooltip-icon">?</span>
                 <div className="epg-tooltip-content">
-                  Add EPG URLs that can be shared across multiple sources. Downloaded once and applied to all linked sources. Only fills channels that don't already have EPG. Use arrows to reorder — higher EPGs fill first, lower ones fill remaining gaps (waterfall).
+                  {i18n.t('settings:sources.epgTooltip')}
                 </div>
               </div>
             </div>
@@ -2493,17 +2493,17 @@ export function SourcesTab({
                   disabled={syncingAllEpg || syncingEpgId !== null}
                   style={{ minWidth: '100px' }}
                 >
-                  {syncingAllEpg ? 'Syncing...' : 'Sync All'}
+                  {syncingAllEpg ? i18n.t('common:syncing') : i18n.t('settings:sources.syncAll')}
                 </button>
               )}
-              <button className="add-btn" onClick={handleAddEpg}>+ Add EPG</button>
+              <button className="add-btn" onClick={handleAddEpg}>{i18n.t('settings:sources.addEpg')}</button>
             </div>
           </div>
 
           {sortedEpgLinks.length === 0 ? (
             <div className="empty-state">
-              <p>No global EPG links configured</p>
-              <p className="hint">Add an EPG URL and link it to one or more sources</p>
+              <p>{i18n.t('settings:sources.noEpgLinks')}</p>
+              <p className="hint">{i18n.t('settings:sources.noEpgLinksHint')}</p>
             </div>
           ) : (
             <ul className="epg-links-list">
@@ -2540,9 +2540,8 @@ export function SourcesTab({
                         <div className="epg-card-results">
                           <span className="epg-results-total">
                             {epg.lastSyncResult.channelsMatched !== undefined 
-                              ? `${epg.lastSyncResult.channelsMatched.toLocaleString(activeLocale())} channels, ` 
-                              : ''}
-                            {epg.lastSyncResult.totalInserted.toLocaleString(activeLocale())} programs
+                              ? i18n.t('settings:sources.channelsPrograms', { channels: epg.lastSyncResult.channelsMatched.toLocaleString(activeLocale()), programs: epg.lastSyncResult.totalInserted.toLocaleString(activeLocale()) }) 
+                              : i18n.t('settings:sources.programsCount', { count: epg.lastSyncResult.totalInserted.toLocaleString(activeLocale()) })}
                           </span>
                           <div className="epg-results-breakdown">
                             {Object.entries(epg.lastSyncResult.perSource).map(([srcId, count]) => {
@@ -2550,7 +2549,7 @@ export function SourcesTab({
                               const channelCount = epg.lastSyncResult?.perSourceChannels?.[srcId];
                               return (
                                 <span key={srcId} className="epg-results-item">
-                                  {srcName}: {channelCount !== undefined ? `${channelCount.toLocaleString(activeLocale())} channels, ` : ''}{Number(count).toLocaleString(activeLocale())} programs
+                                  {srcName}: {channelCount !== undefined ? i18n.t('settings:sources.channelsCount', { count: channelCount.toLocaleString(activeLocale()) }) + ', ' : ''}{i18n.t('settings:sources.programsCount', { count: Number(count).toLocaleString(activeLocale()) })}
                                 </span>
                               );
                             })}
@@ -2565,7 +2564,7 @@ export function SourcesTab({
                         className="epg-reorder-btn"
                         onClick={() => moveEpgUp(index)}
                         disabled={index === 0}
-                        title="Higher priority"
+                        title={i18n.t('settings:sources.higherPriority')}
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
                       </button>
@@ -2573,7 +2572,7 @@ export function SourcesTab({
                         className="epg-reorder-btn"
                         onClick={() => moveEpgDown(index)}
                         disabled={index === sortedEpgLinks.length - 1}
-                        title="Lower priority"
+                        title={i18n.t('settings:sources.lowerPriority')}
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                       </button>
@@ -2582,19 +2581,19 @@ export function SourcesTab({
                         className="epg-sync-btn"
                         onClick={() => handleSyncEpg(epg)}
                         disabled={isSyncing || syncingAllEpg}
-                        title="Sync this EPG"
+                        title={i18n.t('settings:sources.syncThisEpg')}
                       >
                         {isSyncing ? (
                           <svg className="epg-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
                         ) : (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
                         )}
-                        {isSyncing ? 'Syncing' : 'Sync'}
+                        {isSyncing ? i18n.t('common:syncing') : i18n.t('common:sync')}
                       </button>
                       <button
                         className="epg-icon-btn"
                         onClick={() => setViewMatchesEpg(epg)}
-                        title="View EPG Channels & Matches"
+                        title={i18n.t('settings:sources.viewMatches')}
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <line x1="8" y1="6" x2="21" y2="6"></line>
@@ -2608,14 +2607,14 @@ export function SourcesTab({
                       <button
                         className="epg-icon-btn"
                         onClick={() => handleEditEpg(epg)}
-                        title="Edit"
+                        title={i18n.t('common:edit')}
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                       </button>
                       <button
                         className="epg-icon-btn delete"
                         onClick={() => handleDeleteEpgClick(epg)}
-                        title="Delete"
+                        title={i18n.t('common:delete')}
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                       </button>
@@ -2642,17 +2641,16 @@ export function SourcesTab({
       {activeSubTab === 'global_ua' && (
         <div className="settings-section" style={{ paddingTop: '8px' }}>
           <div className="section-header">
-            <h3>Global UserAgent</h3>
+            <h3>{i18n.t('settings:sources.globalUserAgent')}</h3>
           </div>
 
           <p className="section-description" style={{ opacity: 0.8, fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.4' }}>
-            Set a default global User-Agent string to be used for all LiveTV sources when syncing and playing.
-            If a specific User-Agent is defined within a playlist's source settings, it will override this global setting.
+            {i18n.t('settings:sources.globalUaDesc')}
           </p>
 
           <div className="settings-form" style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', maxWidth: '550px' }}>
             <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>User-Agent String</label>
+              <label style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>{i18n.t('settings:sources.uaString')}</label>
               
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.2rem' }}>
                 {PRESET_USER_AGENTS.map((preset) => {
@@ -2674,7 +2672,7 @@ export function SourcesTab({
                         transition: 'all 0.15s ease',
                       }}
                     >
-                      {preset.label}
+                      {i18n.t(preset.labelKey, { defaultValue: preset.labelKey })}
                     </button>
                   );
                 })}
@@ -2697,7 +2695,7 @@ export function SourcesTab({
                 }}
               />
               <p className="form-hint" style={{ marginTop: '0.2rem', opacity: 0.7, fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-                Leave empty to fallback to the current default client user agent (<code>VLC/3.0.18 LibVLC/3.0.18</code>).
+                {i18n.t('settings:sources.uaFallbackHintPre')}<code>{i18n.t('settings:sources.uaFallbackHintCode')}</code>{i18n.t('settings:sources.uaFallbackHintPost')}
               </p>
             </div>
           </div>
@@ -2710,29 +2708,29 @@ export function SourcesTab({
       {showAddEpgForm && createPortal(
         <div className="source-form-overlay">
           <form className="source-form" onSubmit={handleSubmitEpg} style={{ maxWidth: '500px' }}>
-            <h3>{editingEpgId ? 'Edit Global EPG' : 'Add Global EPG'}</h3>
+            <h3>{editingEpgId ? i18n.t('settings:sources.editGlobalEpg') : i18n.t('settings:sources.addGlobalEpg')}</h3>
 
             {epgFormError && <div className="form-error">{epgFormError}</div>}
 
             <div className="form-group">
-              <label>Name</label>
+              <label>{i18n.t('settings:sources.name')}</label>
               <input
                 type="text"
                 value={epgFormData.name}
                 onChange={(e) => setEpgFormData({ ...epgFormData, name: e.target.value })}
-                placeholder="My Shared EPG"
+                placeholder={i18n.t('settings:sources.mySharedEpg')}
               />
             </div>
 
             <div className="form-group">
-              <label>EPG URL</label>
+              <label>{i18n.t('settings:sources.epgUrl')}</label>
               <input
                 type="text"
                 value={epgFormData.url}
                 onChange={(e) => setEpgFormData({ ...epgFormData, url: e.target.value })}
                 placeholder="http://example.com/epg.xml"
               />
-              <span className="hint">XMLTV format EPG URL</span>
+              <span className="hint">{i18n.t('settings:sources.xmltvHint')}</span>
             </div>
 
             <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px', marginBottom: '15px' }}>
@@ -2744,13 +2742,13 @@ export function SourcesTab({
                 style={{ cursor: 'pointer', width: '16px', height: '16px' }}
               />
               <label htmlFor="saveEntireEpg" style={{ cursor: 'pointer', marginBottom: 0, fontWeight: 'normal', fontSize: '0.85rem', color: 'var(--text-primary)', textTransform: 'none' }}>
-                Cache entire Epg locally (enables manual search/matching in Epg editor)
+                {i18n.t('settings:sources.cacheEntireEpg')}
               </label>
             </div>
 
             <div className="form-group">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <label style={{ marginBottom: 0 }}>Linked Sources</label>
+                <label style={{ marginBottom: 0 }}>{i18n.t('settings:sources.linkedSources')}</label>
                 {sources.length > 0 && (
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button
@@ -2758,23 +2756,23 @@ export function SourcesTab({
                       style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer', background: 'var(--surface-color)', border: '1px solid var(--surface-border)', borderRadius: '4px', color: 'var(--text-primary)' }}
                       onClick={() => setEpgFormData({ ...epgFormData, sourceIds: sources.map(s => s.id) })}
                     >
-                      Select All
+                      {i18n.t('settings:sources.selectAll')}
                     </button>
                     <button
                       type="button"
                       style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer', background: 'var(--surface-color)', border: '1px solid var(--surface-border)', borderRadius: '4px', color: 'var(--text-primary)' }}
                       onClick={() => setEpgFormData({ ...epgFormData, sourceIds: [] })}
                     >
-                      Select None
+                      {i18n.t('settings:sources.selectNone')}
                     </button>
                   </div>
                 )}
               </div>
               <span className="hint" style={{ display: 'block', marginBottom: '10px', marginTop: '8px' }}>
-                Select which sources should use this EPG (only fills channels without EPG)
+                {i18n.t('settings:sources.linkedSourcesHint')}
               </span>
               {sources.length === 0 ? (
-                <p className="hint">No sources available. Add a source first.</p>
+                <p className="hint">{i18n.t('settings:sources.noSourcesAvailable')}</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {sources.map(source => (
@@ -2806,10 +2804,10 @@ export function SourcesTab({
 
             <div className="form-actions">
               <button type="button" className="cancel-btn" onClick={handleCancelEpg}>
-                Cancel
+                {i18n.t('common:cancel')}
               </button>
               <button type="submit" className="save-btn">
-                {editingEpgId ? 'Save Changes' : 'Add EPG'}
+                {editingEpgId ? i18n.t('common:saveChanges') : i18n.t('settings:sources.addEpg')}
               </button>
             </div>
           </form>
@@ -2821,25 +2819,25 @@ export function SourcesTab({
       {deleteEpgConfirm && createPortal(
         <div className="source-form-overlay">
           <div className="source-form" style={{ maxWidth: '400px', height: 'auto' }}>
-            <h3>Delete Global EPG Link</h3>
+            <h3>{i18n.t('settings:sources.deleteEpgTitle')}</h3>
             <p style={{ color: 'var(--text-primary)', marginBottom: '24px', lineHeight: '1.5' }}>
-              Are you sure you want to delete <strong>"{deleteEpgConfirm.name}"</strong>?
+              {i18n.t('settings:sources.deleteConfirmPre')}<strong>{i18n.t('settings:sources.confirmDeleteName', { name: deleteEpgConfirm.name })}</strong>{i18n.t('settings:sources.deleteConfirmPost')}
               <br /><br />
-              This will stop this EPG from being applied to linked sources on next sync.
+              {i18n.t('settings:sources.deleteEpgWarning')}
             </p>
             <div className="form-actions" style={{ marginTop: '0' }}>
               <button
                 className="cancel-btn"
                 onClick={() => setDeleteEpgConfirm(null)}
               >
-                Cancel
+                {i18n.t('common:cancel')}
               </button>
               <button
                 className="save-btn"
                 onClick={confirmDeleteEpg}
                 style={{ borderColor: '#ff4444', color: '#ff4444', background: 'rgba(255, 68, 68, 0.1)' }}
               >
-                Yes, Delete
+                {i18n.t('common:yesDelete')}
               </button>
             </div>
           </div>
@@ -3091,7 +3089,7 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
               {epgLink.name}
             </h3>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Matched Channels &amp; Programs
+              {i18n.t('settings:sources.matchedChannels')}
             </span>
           </div>
           <button
@@ -3150,7 +3148,7 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                     transition: 'all 0.15s ease',
                   }}
                 >
-                  Matched ({channels.length})
+                  {i18n.t('settings:sources.matchedTab', { count: channels.length })}
                 </button>
                 <button
                   onClick={() => setActiveTab('all')}
@@ -3168,14 +3166,14 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                     transition: 'all 0.15s ease',
                   }}
                 >
-                  All EPG Channels
+                  {i18n.t('settings:sources.allEpgChannels')}
                 </button>
               </div>
             )}
 
             <input
               type="text"
-              placeholder={activeTab === 'matched' ? "Search matched channels..." : "Search all EPG channels..."}
+              placeholder={activeTab === 'matched' ? i18n.t('settings:sources.searchMatched') : i18n.t('settings:sources.searchAllEpg')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
@@ -3209,13 +3207,13 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
             >
               {loading || (activeTab === 'all' && cacheLoading) ? (
                 <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                  Loading channels...
+                  {i18n.t('settings:sources.loadingChannels')}
                 </div>
               ) : filteredChannels.length === 0 ? (
                 <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
                   {activeTab === 'matched' 
-                    ? (channels.length === 0 ? 'No channels matched yet' : 'No matching channels found')
-                    : (cacheChannels.length === 0 ? 'No channels in EPG cache' : 'No matching EPG channels found')}
+                    ? (channels.length === 0 ? i18n.t('settings:sources.noChannelsMatched') : i18n.t('settings:sources.noMatchingFound'))
+                    : (cacheChannels.length === 0 ? i18n.t('settings:sources.noCacheChannels') : i18n.t('settings:sources.noMatchingEpg'))}
                 </div>
               ) : (
                 filteredChannels.slice(0, visibleCount).map((ch) => {
@@ -3350,12 +3348,12 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                     </h4>
                     <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
                       {selectedChannel.is_cache ? (
-                        <span>EPG ID (tvg-id): <strong style={{ color: 'var(--text-primary)' }}>{selectedChannel.epg_channel_id}</strong></span>
+                        <span>{i18n.t('settings:sources.epgIdTvg')}: <strong style={{ color: 'var(--text-primary)' }}>{selectedChannel.epg_channel_id}</strong></span>
                       ) : (
                         <>
-                          <span>Source: <strong>{getSourceName(selectedChannel.source_id)}</strong></span>
+                          <span>{i18n.t('settings:sources.sourceColon')}: <strong>{getSourceName(selectedChannel.source_id)}</strong></span>
                           <span>•</span>
-                          <span>EPG ID: <strong>{selectedChannel.epg_channel_id || 'None'}</strong></span>
+                          <span>{i18n.t('settings:sources.epgIdColon')}: <strong>{selectedChannel.epg_channel_id || i18n.t('common:none')}</strong></span>
                         </>
                       )}
                     </div>
@@ -3366,11 +3364,11 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {programsLoading ? (
                     <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                      Loading programs...
+                      {i18n.t('settings:sources.loadingPrograms')}
                     </div>
                   ) : programs.length === 0 ? (
                     <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                      No programs found in database for this channel.
+                      {i18n.t('settings:sources.noPrograms')}
                     </div>
                   ) : (
                     programs.map((prog) => {
@@ -3416,7 +3414,7 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
               </>
             ) : (
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-                Select a channel from the left sidebar to view its EPG program timeline.
+                {i18n.t('settings:sources.selectChannel')}
               </div>
             )}
           </div>

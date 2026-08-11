@@ -1,4 +1,6 @@
 import './PlaybackTab.css'; // Reuse existing tab styles
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 interface LiveViewTabProps {
   channelInfoOverlayEnabled: boolean;
@@ -53,23 +55,24 @@ export function LiveViewTab({
   failoverGroupShowSource,
   onFailoverGroupShowSourceChange,
 }: LiveViewTabProps) {
+  useTranslation();
   return (
     <div className="settings-tab-content playback-tab-content">
       <div className="settings-section">
         <div className="section-header">
-          <h3>Channel Information Overlay</h3>
+          <h3>{i18n.t('settings:overlay.channelInfoOverlay')}</h3>
         </div>
         <p className="section-description">
-          When enabled, channel information (logo, name, metadata, and EPG) is moved from the Now Playing bar to a dedicated overlay that appears briefly when switching channels.
+          {i18n.t('settings:overlay.channelInfoOverlaySub')}
         </p>
 
         <div className="timeshift-settings">
           {/* Enable Channel Information Overlay */}
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Enable channel information</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:overlay.enableChannelInfo')}</span>
               <span className="timeshift-toggle-sub">
-                When enabled, the Now Playing bar hides the channel logo, name, resolution/fps/audio metadata, and EPG info. Instead, this information appears in a transparent box at the top-left when switching channels, and auto-hides after a few seconds — similar to classic cable TV channel surfing.
+                {i18n.t('settings:overlay.enableChannelInfoSub')}
               </span>
             </div>
             <label className="toggle-switch">
@@ -85,9 +88,9 @@ export function LiveViewTab({
           {/* Hide Program Description */}
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Hide Program Summary</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:overlay.hideProgramSummary')}</span>
               <span className="timeshift-toggle-sub">
-                When enabled, the program description text will be hidden from the overlay. The title, time, and progress bar will still be shown.
+                {i18n.t('settings:overlay.hideProgramSummarySub')}
               </span>
             </div>
             <label className="toggle-switch">
@@ -103,9 +106,9 @@ export function LiveViewTab({
           {/* Hide Metadata Badge */}
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Hide Metadata Badge</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:overlay.hideMetadataBadge')}</span>
               <span className="timeshift-toggle-sub">
-                When enabled, resolution, frame rate, and audio channel badges (e.g. 1080p 60 Stereo) will be hidden from the overlay.
+                {i18n.t('settings:overlay.hideMetadataBadgeSub')}
               </span>
             </div>
             <label className="toggle-switch">
@@ -121,9 +124,9 @@ export function LiveViewTab({
           {/* Hide Channel Logo */}
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Hide Channel Logo</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:overlay.hideChannelLogo')}</span>
               <span className="timeshift-toggle-sub">
-                When enabled, the channel icon or logo image will be hidden from the overlay.
+                {i18n.t('settings:overlay.hideChannelLogoSub')}
               </span>
             </div>
             <label className="toggle-switch">
@@ -139,9 +142,9 @@ export function LiveViewTab({
           {/* Hide Program Timer */}
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Hide Program Timer & Progress</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:overlay.hideTimer')}</span>
               <span className="timeshift-toggle-sub">
-                When enabled, program start/end time, time remaining, and the progress bar will be hidden from the overlay.
+                {i18n.t('settings:overlay.hideTimerSub')}
               </span>
             </div>
             <label className="toggle-switch">
@@ -157,9 +160,9 @@ export function LiveViewTab({
           {/* Overlay Position */}
           <div className="timeshift-toggle-row">
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Overlay Position</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:overlay.overlayPosition')}</span>
               <span className="timeshift-toggle-sub">
-                Choose whether the channel information overlay appears on the top-left or top-right of the screen.
+                {i18n.t('settings:overlay.overlayPositionSub')}
               </span>
             </div>
             <select
@@ -177,17 +180,17 @@ export function LiveViewTab({
                 outline: 'none'
               }}
             >
-              <option value="left" style={{ backgroundColor: 'var(--bg-tertiary)' }}>Left</option>
-              <option value="right" style={{ backgroundColor: 'var(--bg-tertiary)' }}>Right</option>
+              <option value="left" style={{ backgroundColor: 'var(--bg-tertiary)' }}>{i18n.t('common:left')}</option>
+              <option value="right" style={{ backgroundColor: 'var(--bg-tertiary)' }}>{i18n.t('common:right')}</option>
             </select>
           </div>
 
           {/* Show Source for Failover Group */}
           <div className="timeshift-toggle-row" style={{ marginTop: '12px' }}>
             <div className="timeshift-toggle-info">
-              <span className="timeshift-toggle-label">Show Source for Failover Group</span>
+              <span className="timeshift-toggle-label">{i18n.t('settings:overlay.showSourceFailover')}</span>
               <span className="timeshift-toggle-sub">
-                When enabled, the failover group overlay (which displays channels that are part of the channel's failover group) will also display the source name for each channel.
+                {i18n.t('settings:overlay.showSourceFailoverSub')}
               </span>
             </div>
             <label className="toggle-switch">
@@ -207,16 +210,16 @@ export function LiveViewTab({
           {/* Overlay Appearance Settings */}
           <div className="settings-section">
             <div className="section-header">
-              <h3>Overlay Appearance</h3>
+              <h3>{i18n.t('settings:overlay.appearance')}</h3>
             </div>
             <p className="section-description">
-              Customize the size and transparency of the channel info overlay.
+              {i18n.t('settings:overlay.appearanceSub')}
             </p>
 
             <div className="timeshift-settings">
               {/* Font Size */}
               <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Text Size</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:overlay.textSize')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <input
                     type="range"
@@ -231,13 +234,13 @@ export function LiveViewTab({
                   </span>
                 </div>
                 <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-                  Adjusts the channel name and program text size.
+                  {i18n.t('settings:overlay.textSizeHint')}
                 </p>
               </div>
 
               {/* Logo Size */}
               <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Logo Size</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:overlay.logoSize')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <input
                     type="range"
@@ -252,13 +255,13 @@ export function LiveViewTab({
                   </span>
                 </div>
                 <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-                  Adjusts the channel logo dimensions.
+                  {i18n.t('settings:overlay.logoSizeHint')}
                 </p>
               </div>
 
               {/* Logo Shape */}
               <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Logo Shape</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:overlay.logoShape')}</label>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
                     type="button"
@@ -274,7 +277,7 @@ export function LiveViewTab({
                       cursor: 'pointer'
                     }}
                   >
-                    Square (1:1)
+                    {i18n.t('settings:overlay.square11')}
                   </button>
                   <button
                     type="button"
@@ -290,17 +293,17 @@ export function LiveViewTab({
                       cursor: 'pointer'
                     }}
                   >
-                    Horizontal (16:9)
+                    {i18n.t('settings:overlay.horizontal169')}
                   </button>
                 </div>
                 <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-                  Select whether channel logos appear as square tiles or widescreen horizontal boxes.
+                  {i18n.t('settings:overlay.logoShapeHint')}
                 </p>
               </div>
 
               {/* Box Width */}
               <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Box Width</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:overlay.boxWidth')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <input
                     type="range"
@@ -316,13 +319,13 @@ export function LiveViewTab({
                   </span>
                 </div>
                 <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-                  Adjusts the maximum width of the overlay box.
+                  {i18n.t('settings:overlay.boxWidthHint')}
                 </p>
               </div>
 
               {/* Background Opacity */}
               <div className="form-group" style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Background Opacity</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{i18n.t('settings:overlay.bgOpacity')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <input
                     type="range"
@@ -337,7 +340,7 @@ export function LiveViewTab({
                   </span>
                 </div>
                 <p className="form-hint" style={{ marginTop: '0.5rem' }}>
-                  Lower values make the overlay more transparent. Higher values make it more opaque.
+                  {i18n.t('settings:overlay.bgOpacityHint')}
                 </p>
               </div>
 
@@ -354,7 +357,7 @@ export function LiveViewTab({
                   }}
                   style={{ maxWidth: '200px' }}
                 >
-                  Reset to Default
+                  {i18n.t('common:resetToDefault')}
                 </button>
               </div>
             </div>
@@ -363,10 +366,10 @@ export function LiveViewTab({
           {/* Live Preview */}
           <div className="settings-section">
             <div className="section-header">
-              <h3>Preview</h3>
+              <h3>{i18n.t('common:preview')}</h3>
             </div>
             <p className="section-description">
-              This is how the overlay will look when switching channels.
+              {i18n.t('settings:overlay.previewSub')}
             </p>
             <div style={{ marginTop: '16px', padding: '16px', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
               <div
@@ -394,14 +397,14 @@ export function LiveViewTab({
                       flexShrink: 0,
                     }}
                   >
-                    Logo
+                    {i18n.t('settings:overlay.logoPlaceholder')}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', minWidth: 0 }}>
                     <span style={{ fontSize: `${channelInfoOverlayFontSize}px`, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      Channel Name
+                      {i18n.t('settings:overlay.channelNamePlaceholder')}
                     </span>
                     <span style={{ fontSize: `${Math.max(10, channelInfoOverlayFontSize - 4)}px`, color: 'var(--text-secondary)' }}>
-                      Current Program Title
+                      {i18n.t('settings:overlay.programTitlePlaceholder')}
                     </span>
                   </div>
                 </div>
