@@ -2,6 +2,7 @@ import { useMemo, memo } from 'react';
 import { useEpgClockFormat } from '../stores/uiStore';
 import { formatTime } from '../utils/dateTime';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { RecordingIndicator } from './RecordingIndicator';
 import type { StoredProgram, StoredChannel } from '../db';
 import './ProgramBlock.css';
@@ -134,7 +135,7 @@ export const ProgramBlock = memo(function ProgramBlock({
       }}
       onClick={handleProgramClick}
       onContextMenu={onContextMenu}
-      title={`${program.title}${program.subtitle ? `\n${program.subtitle}` : ''}\n${formatEpgTime(program.start)} - ${formatEpgTime(program.end)}${program.description ? `\n\n${program.description}` : ''}${isCatchupAvailable && (isPast || isCurrent) ? '\n\nClick to play Catchup archive' : ''}`}
+      title={`${program.title}${program.subtitle ? `\n${program.subtitle}` : ''}\n${formatEpgTime(program.start)} - ${formatEpgTime(program.end)}${program.description ? `\n\n${program.description}` : ''}${isCatchupAvailable && (isPast || isCurrent) ? '\n\n' + i18n.t('epg:clickPlayCatchup') : ''}`}
     >
       {showRecordingIndicator && (
         <div className="program-recording-indicator">

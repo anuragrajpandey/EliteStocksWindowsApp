@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 const AUTO_SYNC_CHECK_INTERVAL_MS = 10 * 60 * 1000;
 let hasStartupAutoSyncTriggered = false;
 import { invoke } from '@tauri-apps/api/core';
+import i18n from './i18n';
 import type { StremioStream, StremioStreamPickerMode, StremioMeta, StremioVideo, BadgeSource, StreamAutoPlayMode, StreamAutoPlaySourceScope } from './types/stremio';
 import { checkForUpdates, checkForUpdatesSilent } from './services/updater';
 import { getCachedSettings } from './services/settings-cache';
@@ -3933,7 +3934,7 @@ function useTmdbPresencePoster(
             ? (isStremioOrNuvio
                 ? cleanEpisodeName(currentStremioEpisode?.title, currentStremioMeta?.name, currentStremioEpisode?.episode)
                 : cleanEpisodeName(vodInfo?.episodeInfo, vodInfo?.title, vodInfo?.episodeNum))
-            : (isStremioOrNuvio ? (currentStremioMeta?.name || 'Now Playing') : (vodInfo?.title || 'Now Playing'))
+            : (isStremioOrNuvio ? (currentStremioMeta?.name || i18n.t('player:nowPlaying')) : (vodInfo?.title || i18n.t('player:nowPlaying')))
         }
         subtitle={
           isSeriesPlayback
@@ -4080,13 +4081,13 @@ function useTmdbPresencePoster(
                     setCategoriesOpen(!categoriesHidden);
                   }
                 }}
-                title="Live TV"
+                title={i18n.t('nav:items.liveTv')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
                   <polyline points="17 2 12 7 7 2"></polyline>
                 </svg>
-                <span>Live TV</span>
+                <span>{i18n.t('nav:items.liveTv')}</span>
               </button>
 
               {!navHiddenTabs.includes('movies') && (
@@ -4096,7 +4097,7 @@ function useTmdbPresencePoster(
                     setCategoriesOpen(false);
                     setActiveView(activeView === 'movies' ? 'none' : 'movies');
                   }}
-                  title="Movies"
+                  title={i18n.t('nav:items.movies')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12"></path>
@@ -4108,7 +4109,7 @@ function useTmdbPresencePoster(
                     <path d="M16 8l4 0"></path>
                     <path d="M16 16l4 0"></path>
                   </svg>
-                  <span>Movies</span>
+                  <span>{i18n.t('nav:items.movies')}</span>
                 </button>
               )}
 
@@ -4119,13 +4120,13 @@ function useTmdbPresencePoster(
                     setCategoriesOpen(false);
                     setActiveView(activeView === 'series' ? 'none' : 'series');
                   }}
-                  title="Series"
+                  title={i18n.t('nav:items.series')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M3 9a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2l0 -9"></path>
                     <path d="M16 3l-4 4l-4 -4"></path>
                   </svg>
-                  <span>Series</span>
+                  <span>{i18n.t('nav:items.series')}</span>
                 </button>
               )}
 
@@ -4136,12 +4137,12 @@ function useTmdbPresencePoster(
                     setCategoriesOpen(false);
                     setActiveView(activeView === 'dvr' ? 'none' : 'dvr');
                   }}
-                  title="DVR"
+                  title={i18n.t('nav:items.dvr')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M5 18h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"></path>
                   </svg>
-                  <span>DVR</span>
+                  <span>{i18n.t('nav:items.dvr')}</span>
                 </button>
               )}
 
@@ -4152,7 +4153,7 @@ function useTmdbPresencePoster(
                     setCategoriesOpen(false);
                     setActiveView(activeView === 'sports' ? 'none' : 'sports');
                   }}
-                  title="Sports"
+                  title={i18n.t('nav:items.sports')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M8 21h8"></path>
@@ -4162,7 +4163,7 @@ function useTmdbPresencePoster(
                     <path d="M5 9c-1.5 0-3 .6-3 2 0 1.4 1.5 2 3 2"></path>
                     <path d="M19 9c1.5 0 3 .6 3 2 0 1.4-1.5 2-3 2"></path>
                   </svg>
-                  <span>Sports</span>
+                  <span>{i18n.t('nav:items.sports')}</span>
                 </button>
               )}
 
@@ -4173,7 +4174,7 @@ function useTmdbPresencePoster(
                     setCategoriesOpen(false);
                     setActiveView(activeView === 'stremio' ? 'none' : 'stremio');
                   }}
-                  title="Stremio Addons"
+                  title={i18n.t('nav:items.stremioAddons')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4 4h16v16H4z" />
@@ -4181,7 +4182,7 @@ function useTmdbPresencePoster(
                     <path d="M8 12h8" />
                     <path d="M12 8v8" />
                   </svg>
-                  <span>Strem</span>
+                  <span>{i18n.t('nav:items.stremio')}</span>
                 </button>
               )}
 
@@ -4192,12 +4193,12 @@ function useTmdbPresencePoster(
                     setCategoriesOpen(false);
                     setActiveView(activeView === 'nuvio' ? 'none' : 'nuvio');
                   }}
-                  title="Nuvio"
+                  title={i18n.t('nav:items.nuvio')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                   </svg>
-                  <span>Nuvio</span>
+                  <span>{i18n.t('nav:items.nuvio')}</span>
                 </button>
               )}
             </div>
@@ -4254,7 +4255,7 @@ function useTmdbPresencePoster(
                     setSearchQuery('');
                     setForceAdvancedFilters(false);
                   }}
-                  title="Clear search"
+                  title={i18n.t('common:clearSearch')}
                 >
                   ✕
                 </button>
@@ -4262,7 +4263,7 @@ function useTmdbPresencePoster(
               <button
                 className="title-bar-advanced-search-btn"
                 onClick={() => setShowAdvancedSearch(true)}
-                title="Advanced Search"
+                title={i18n.t('epg:advancedSearch')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8"></circle>
@@ -4297,7 +4298,7 @@ function useTmdbPresencePoster(
                           e.stopPropagation();
                           titlebarSearchHistory.removeFromHistory(item);
                         }}
-                        title="Remove"
+                        title={i18n.t('common:remove')}
                       >
                         ✕
                       </button>
@@ -4347,7 +4348,7 @@ function useTmdbPresencePoster(
               setCategoriesOpen(false);
               setActiveView(activeView === 'calendar' ? 'none' : 'calendar');
             }}
-            title="TV Calendar"
+            title={i18n.t('settings:tvcalendar.title')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
@@ -4378,7 +4379,7 @@ function useTmdbPresencePoster(
             setSettingsTab('sources');
             setEditSourceId(null);
           }}
-          title="Settings"
+          title={i18n.t('nav:items.settings')}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
@@ -4387,15 +4388,15 @@ function useTmdbPresencePoster(
         </button>
 
         <div className="window-controls">
-          <button onClick={handleMinimize} title="Minimize" aria-label="Minimize">
+          <button onClick={handleMinimize} title={i18n.t('common:minimize')} aria-label={i18n.t('common:minimize')}>
             <svg className="window-control-icon" viewBox="0 0 12 12" aria-hidden="true">
               <path d="M1 6.5h10" />
             </svg>
           </button>
           <button
             onClick={handleMaximize}
-            title={isMaximized || isFullscreen ? 'Restore Down' : 'Maximize'}
-            aria-label={isMaximized || isFullscreen ? 'Restore Down' : 'Maximize'}
+            title={isMaximized || isFullscreen ? i18n.t('common:restoreDown') : i18n.t('common:maximize')}
+            aria-label={isMaximized || isFullscreen ? i18n.t('common:restoreDown') : i18n.t('common:maximize')}
           >
             {isMaximized || isFullscreen ? (
               <svg className="window-control-icon" viewBox="0 0 12 12" aria-hidden="true">
@@ -4407,7 +4408,7 @@ function useTmdbPresencePoster(
               </svg>
             )}
           </button>
-          <button onClick={handleClose} className="close" title="Close" aria-label="Close">
+          <button onClick={handleClose} className="close" title={i18n.t('common:close')} aria-label={i18n.t('common:close')}>
             <svg className="window-control-icon" viewBox="0 0 12 12" aria-hidden="true">
               <path d="m1.5 1.5 9 9m0-9-9 9" />
             </svg>
@@ -5450,7 +5451,7 @@ function useTmdbPresencePoster(
                 ? popout.content.channel.name
                 : popout.content?.type === 'vod'
                   ? popout.content.info.title
-                  : 'Popout Active'}
+                  : i18n.t('player:popoutActive')}
             </span>
           </div>
 
@@ -5458,7 +5459,7 @@ function useTmdbPresencePoster(
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
             <button
               onClick={() => popoutTogglePause()}
-              title="Play / Pause"
+              title={i18n.t('player:playPause')}
               style={{
                 background: 'rgba(255,255,255,0.1)',
                 border: 'none',
@@ -5477,7 +5478,7 @@ function useTmdbPresencePoster(
             </button>
             <button
               onClick={() => popoutStopPlayback()}
-              title="Stop"
+              title={i18n.t('player:stop')}
               style={{
                 background: 'rgba(255,255,255,0.1)',
                 border: 'none',
@@ -5496,7 +5497,7 @@ function useTmdbPresencePoster(
             </button>
             <button
               onClick={() => popoutToggleFullscreen()}
-              title="Fullscreen"
+              title={i18n.t('common:fullscreen')}
               style={{
                 background: 'rgba(255,255,255,0.1)',
                 border: 'none',
@@ -5515,7 +5516,7 @@ function useTmdbPresencePoster(
             </button>
             <button
               onClick={handleTogglePopoutAlwaysOnTop}
-              title={popoutAlwaysOnTop ? "Disable Always on top" : "Enable Always on top"}
+              title={popoutAlwaysOnTop ? i18n.t('player:disableAlwaysOnTop') : i18n.t('player:enableAlwaysOnTop')}
               style={{
                 background: popoutAlwaysOnTop ? 'rgba(0, 212, 255, 0.25)' : 'rgba(255,255,255,0.1)',
                 border: 'none',
@@ -5539,7 +5540,7 @@ function useTmdbPresencePoster(
             <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.15)', margin: '0 4px' }} />
             <button
               onClick={() => closePopout()}
-              title="Close popout"
+              title={i18n.t('player:closePopout')}
               style={{
                 background: 'rgba(255,80,80,0.2)',
                 border: 'none',
@@ -5562,7 +5563,7 @@ function useTmdbPresencePoster(
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button
               onClick={() => setPopoutMuted(true)}
-              title="Mute"
+              title={i18n.t('player:mute')}
               style={{
                 background: 'none',
                 border: 'none',

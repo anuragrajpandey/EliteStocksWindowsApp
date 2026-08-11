@@ -248,7 +248,13 @@
     "secondsBeforeProgramStart": "secondes avant le début du programme",
     "addToWatchlist": "Ajouter à la liste de visionnage",
     "removeFromWatchlist": "Retirer de la liste de visionnage",
-    "editWatchlistSettings": "Modifier les paramètres de la liste de visionnage"
+    "editWatchlistSettings": "Modifier les paramètres de la liste de visionnage",
+    "minimize": "Réduire",
+    "maximize": "Agrandir",
+    "restoreDown": "Restaurer",
+    "fullscreen": "Plein écran",
+    "reminderMinutesBefore": "Rappel : {{minutes}} min avant",
+    "autoSwitchSecondsBefore": "Bascule automatique {{seconds}}s avant"
   },
   "nav": {
     "epgButtons": {
@@ -268,7 +274,10 @@
       "nuvio": "Nuvio",
       "series": "Séries",
       "sports": "Sports",
-      "stremio": "Strem"
+      "stremio": "Strem",
+      "liveTv": "TV en direct",
+      "stremioAddons": "Addons Stremio",
+      "settings": "Paramètres"
     }
   },
   "settings": {
@@ -1507,7 +1516,9 @@
       "rpdbBackdrops": "Utiliser les arrière-plans RPDB",
       "rpdbTierRequired": "Les arrière-plans nécessitent un abonnement Tier 2+",
       "rpdbDisclaimerPrefix": "RPDB est un service tiers. Visitez",
-      "rpdbDisclaimerSuffix": "pour les tarifs et fonctionnalités."
+      "rpdbDisclaimerSuffix": "pour les tarifs et fonctionnalités.",
+      "hideKey": "Masquer la clé",
+      "showKey": "Afficher la clé"
     },
     "overlay": {
       "channelInfoOverlay": "Superposition d'informations de chaîne",
@@ -2377,7 +2388,8 @@
     "loadingSources": "Chargement des sources...",
     "noEnabledSources": "Aucune source activée trouvée",
     "useForRegularSearch": "Utiliser ces paramètres pour les recherches de la barre de titre",
-    "search": "Rechercher"
+    "search": "Rechercher",
+    "clickPlayCatchup": "Cliquer pour lire l'archive Catch-up"
   },
   "live": {
     "active": "Actif",
@@ -2563,7 +2575,8 @@
     "installCustomAddonHint": "Collez l'URL manifest.json de n'importe quel addon compatible Stremio pour l'installer dans votre profil Nuvio.",
     "installScraperRepo": "Installer un référentiel de plugins scraper",
     "profileNotFound": "Profil introuvable.",
-    "backToEpisodes": "Retour aux épisodes"
+    "backToEpisodes": "Retour aux épisodes",
+    "viewMember": "Voir {{name}}"
   },
   "player": {
     "alignment": "Alignement",
@@ -2764,7 +2777,12 @@
     "hlsInBrowser": "Lecteur HLS dans le navigateur — prend en charge les superpositions",
     "sendToViewerSlot": "Envoyer au spectateur {{slot}}",
     "sendToViewerMain": "Envoyer au spectateur {{slot}} (principal)",
-    "viewerNotAvailable": "Spectateur {{slot}} non disponible dans cette disposition"
+    "viewerNotAvailable": "Spectateur {{slot}} non disponible dans cette disposition",
+    "playPause": "Lecture / Pause",
+    "closePopout": "Fermer la fenêtre pop-out",
+    "popoutActive": "Pop-out actif",
+    "disableAlwaysOnTop": "Désactiver Toujours au premier plan",
+    "enableAlwaysOnTop": "Activer Toujours au premier plan"
   },
   "stremio": {
     "account": "Compte",
@@ -2927,7 +2945,8 @@
     "thriller": "Thriller",
     "romance": "Romance",
     "profileNotFound": "Profil introuvable.",
-    "backToEpisodes": "Retour aux épisodes"
+    "backToEpisodes": "Retour aux épisodes",
+    "viewMember": "Voir {{name}}"
   },
   "cast": {
     "disabledTitle": "Google Cast (désactivé)",

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../hooks/useSqliteLiveQuery';
 import { db } from '../db';
@@ -63,7 +64,7 @@ export function GroupPickerModal({
             </svg>
             Add Custom Group Widget
           </div>
-          <button className="group-picker-close" onClick={onClose} aria-label="Close">✕</button>
+          <button className="group-picker-close" onClick={onClose} aria-label={i18n.t('common:close')}>✕</button>
         </div>
 
         <p className="group-picker-desc">

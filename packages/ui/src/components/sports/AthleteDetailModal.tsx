@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { formatDate } from '../../utils/dateTime';
 import {
   getAthleteDetails,
@@ -53,7 +54,7 @@ export function AthleteDetailModal({ athleteId, leagueId = 'nfl', onClose }: Ath
   return createPortal(
     <div className="athlete-modal-overlay" onClick={onClose}>
       <div className="athlete-modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="athlete-modal-close" onClick={onClose} aria-label="Close">
+        <button className="athlete-modal-close" onClick={onClose} aria-label={i18n.t('common:close')}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />

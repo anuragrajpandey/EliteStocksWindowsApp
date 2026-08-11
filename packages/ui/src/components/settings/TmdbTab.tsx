@@ -157,7 +157,7 @@ export function TmdbTab({
                   <button
                     type="button"
                     onClick={() => setShowTmdbKey(!showTmdbKey)}
-                    title={showTmdbKey ? 'Hide key' : 'Show key'}
+                    title={showTmdbKey ? i18n.t('settings:tmdb.hideKey') : i18n.t('settings:tmdb.showKey')}
                     style={{
                       position: 'absolute',
                       right: '6px',

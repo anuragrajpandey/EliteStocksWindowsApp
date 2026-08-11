@@ -711,7 +711,7 @@ export function StremioDetail({
                       key={member.name}
                       className="stremio-detail-cast-member"
                       onClick={() => handleCastClick(member)}
-                      title={`View ${member.name}`}
+                      title={i18n.t('stremio:viewMember', { name: member.name })}
                     >
                       <div className="stremio-detail-cast-photo">
                         {member.photo ? (

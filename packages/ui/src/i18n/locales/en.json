@@ -248,7 +248,13 @@
     "secondsBeforeProgramStart": "seconds before program starts",
     "addToWatchlist": "Add to Watchlist",
     "removeFromWatchlist": "Remove from watchlist",
-    "editWatchlistSettings": "Edit watchlist settings"
+    "editWatchlistSettings": "Edit watchlist settings",
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "restoreDown": "Restore Down",
+    "fullscreen": "Fullscreen",
+    "reminderMinutesBefore": "Reminder: {{minutes}} min before",
+    "autoSwitchSecondsBefore": "Auto-switch {{seconds}}s before"
   },
   "nav": {
     "epgButtons": {
@@ -268,7 +274,10 @@
       "nuvio": "Nuvio",
       "series": "Series",
       "sports": "Sports",
-      "stremio": "Strem"
+      "stremio": "Strem",
+      "liveTv": "Live TV",
+      "stremioAddons": "Stremio Addons",
+      "settings": "Settings"
     }
   },
   "settings": {
@@ -1507,7 +1516,9 @@
       "rpdbBackdrops": "Use RPDB backdrop images",
       "rpdbTierRequired": "Backdrops require a Tier 2+ subscription",
       "rpdbDisclaimerPrefix": "RPDB is a third-party service. Visit",
-      "rpdbDisclaimerSuffix": "for pricing and features."
+      "rpdbDisclaimerSuffix": "for pricing and features.",
+      "hideKey": "Hide key",
+      "showKey": "Show key"
     },
     "overlay": {
       "channelInfoOverlay": "Channel Information Overlay",
@@ -2377,7 +2388,8 @@
     "loadingSources": "Loading sources...",
     "noEnabledSources": "No enabled sources found",
     "useForRegularSearch": "Use these settings for regular title bar searches",
-    "search": "Search"
+    "search": "Search",
+    "clickPlayCatchup": "Click to play Catchup archive"
   },
   "live": {
     "active": "Active",
@@ -2563,7 +2575,8 @@
     "installCustomAddonHint": "Paste the manifest.json URL of any Stremio-compatible addon to install it into your Nuvio profile.",
     "installScraperRepo": "Install Scraper Plugin Repository",
     "profileNotFound": "Profile not found.",
-    "backToEpisodes": "Back to Episodes"
+    "backToEpisodes": "Back to Episodes",
+    "viewMember": "View {{name}}"
   },
   "player": {
     "alignment": "Alignment",
@@ -2764,7 +2777,12 @@
     "hlsInBrowser": "In-browser HLS player — supports overlays",
     "sendToViewerSlot": "Send to Viewer {{slot}}",
     "sendToViewerMain": "Send to Viewer {{slot}} (Main)",
-    "viewerNotAvailable": "Viewer {{slot}} not available in this layout"
+    "viewerNotAvailable": "Viewer {{slot}} not available in this layout",
+    "playPause": "Play / Pause",
+    "closePopout": "Close popout",
+    "popoutActive": "Popout Active",
+    "disableAlwaysOnTop": "Disable Always on top",
+    "enableAlwaysOnTop": "Enable Always on top"
   },
   "stremio": {
     "account": "Account",
@@ -2927,7 +2945,8 @@
     "thriller": "Thriller",
     "romance": "Romance",
     "profileNotFound": "Profile not found.",
-    "backToEpisodes": "Back to Episodes"
+    "backToEpisodes": "Back to Episodes",
+    "viewMember": "View {{name}}"
   },
   "cast": {
     "disabledTitle": "Google Cast (disabled)",

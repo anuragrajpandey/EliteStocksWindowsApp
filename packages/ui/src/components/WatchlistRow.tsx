@@ -189,10 +189,10 @@ export function WatchlistRow({
             <div style={{ fontSize: '0.85em', color: 'rgba(255,255,255,0.6)' }}>
               {formatDate(new Date(item.start_time))} {formatEpgTime(item.start_time)} - {formatEpgTime(item.end_time)}
               {hasReminder && (
-                <span style={{ marginLeft: 8 }} title={`Reminder: ${item.reminder_minutes} min before`}>🔔</span>
+                <span style={{ marginLeft: 8 }} title={i18n.t('common:reminderMinutesBefore', { minutes: item.reminder_minutes })}>🔔</span>
               )}
               {hasAutoswitch && (
-                <span style={{ marginLeft: 8 }} title={`Auto-switch${item.autoswitch_seconds_before ? ` ${item.autoswitch_seconds_before}s before` : ''}`}>🔄</span>
+                <span style={{ marginLeft: 8 }} title={item.autoswitch_seconds_before ? i18n.t('common:autoSwitchSecondsBefore', { seconds: item.autoswitch_seconds_before }) : i18n.t('common:autoSwitch')}>🔄</span>
               )}
             </div>
           </div>
