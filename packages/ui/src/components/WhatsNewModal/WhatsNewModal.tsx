@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import changelogContent from '@root/CHANGELOG.md?raw';
 import './WhatsNewModal.css';
@@ -10,6 +11,7 @@ interface WhatsNewModalProps {
 }
 
 export function WhatsNewModal({ isOpen, onClose, version }: WhatsNewModalProps) {
+  const { t } = useTranslation('updates');
   useEffect(() => {
     if (!isOpen) return;
 
@@ -30,18 +32,18 @@ export function WhatsNewModal({ isOpen, onClose, version }: WhatsNewModalProps) 
       <div className="whats-new-panel" onClick={(e) => e.stopPropagation()}>
         <div className="whats-new-header">
           <div className="whats-new-title-area">
-            <span className="whats-new-sparkle" role="img" aria-label="sparkles">✨</span>
-            <h2>What's New</h2>
+            <span className="whats-new-sparkle" role="img" aria-label={t('sparkles')}>✨</span>
+            <h2>{t('whatsNew')}</h2>
           </div>
           {version && <span className="whats-new-badge">v{version}</span>}
-          <button className="whats-new-close" onClick={onClose} aria-label="Close">
+          <button className="whats-new-close" onClick={onClose} aria-label={t('close')}>
             ✕
           </button>
         </div>
 
         <div className="whats-new-content">
           <div className="whats-new-intro">
-            <p>Welcome! Here's a summary of the latest features, enhancements, and fixes added to ynoTV.</p>
+            <p>{t('welcome')}</p>
           </div>
           <div className="whats-new-changelog">
             <ReactMarkdown>{changelogContent}</ReactMarkdown>
@@ -50,7 +52,7 @@ export function WhatsNewModal({ isOpen, onClose, version }: WhatsNewModalProps) 
 
         <div className="whats-new-footer">
           <button className="whats-new-btn-primary" onClick={onClose}>
-            Get Started
+            {t('getStarted')}
           </button>
         </div>
       </div>

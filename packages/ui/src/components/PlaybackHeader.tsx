@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import './PlaybackHeader.css';
 
 export interface PlaybackHeaderProps {
@@ -22,6 +23,7 @@ export function PlaybackHeader({
   onBack,
   onOpenDetails,
 }: PlaybackHeaderProps) {
+  const { t } = useTranslation('player');
   const [hiding, setHiding] = useState(false);
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export function PlaybackHeader({
   if (!sourceView) return null;
   if (!visible && !hiding) return null;
 
-  const displayTitle = title || 'Now Playing';
+  const displayTitle = title || t('nowPlaying');
   const displaySubtitle = subtitle || '';
   const displayQuality = quality;
 
@@ -48,8 +50,8 @@ export function PlaybackHeader({
         type="button"
         className="playback-header__back-btn"
         onClick={onBack}
-        title="Back"
-        aria-label="Back"
+        title={t('back')}
+        aria-label={t('back')}
       >
         <svg
           width="20"
@@ -71,7 +73,7 @@ export function PlaybackHeader({
           type="button"
           className="playback-header__info-pill"
           onClick={onOpenDetails}
-          title="About this title"
+          title={t('aboutThisTitle')}
         >
           <div className="playback-header__info-content">
             <div className="playback-header__top-row">

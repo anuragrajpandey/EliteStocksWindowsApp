@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { SERVICES, type StreamingService } from '../../constants/streamingProviders';
 
 interface StreamingPlatformsRowProps {
@@ -7,6 +9,7 @@ interface StreamingPlatformsRowProps {
 }
 
 export function StreamingPlatformsRow({ enabledServices, onServiceClick }: StreamingPlatformsRowProps) {
+  useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -54,7 +57,7 @@ export function StreamingPlatformsRow({ enabledServices, onServiceClick }: Strea
             className="carousel__nav-btn"
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
-            aria-label="Scroll left"
+            aria-label={i18n.t('vod:scrollLeft')}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M15 18l-6-6 6-6" />
@@ -64,7 +67,7 @@ export function StreamingPlatformsRow({ enabledServices, onServiceClick }: Strea
             className="carousel__nav-btn"
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
-            aria-label="Scroll right"
+            aria-label={i18n.t('vod:scrollRight')}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M9 18l6-6-6-6" />

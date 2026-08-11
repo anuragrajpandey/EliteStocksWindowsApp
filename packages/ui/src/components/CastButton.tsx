@@ -117,7 +117,7 @@ export function CastButton({ castEnabled, onCastCurrentStream, onCastEnabledChan
       });
     } catch (e: any) {
       console.error('[Cast] Connection failed:', e);
-      setErrorMsg(typeof e === 'string' ? e : e.message || 'Failed to connect');
+      setErrorMsg(typeof e === 'string' ? e : e.message || t('failedToConnect'));
       setConnectingId(null);
     }
   };

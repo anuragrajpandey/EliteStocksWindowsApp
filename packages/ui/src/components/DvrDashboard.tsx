@@ -654,7 +654,7 @@ function RecordedTab({ recorded, onPlay, onDelete, onRename, formatDateTime }: R
             await convertRecording(id, format);
         } catch (error) {
             console.error('Manual conversion failed:', error);
-            alert('Manual conversion failed: ' + (error instanceof Error ? error.message : String(error)));
+            alert(i18n.t('dvr:manualConversionFailed', { error: (error instanceof Error ? error.message : String(error)) }));
         } finally {
             setConvertingIds(prev => ({ ...prev, [id]: false }));
         }
@@ -767,7 +767,7 @@ function RecordedTab({ recorded, onPlay, onDelete, onRename, formatDateTime }: R
                                         console.log('[DVR] Play button clicked for:', item.file_path);
                                         onPlay(item);
                                     }}
-                                    title={item.status === 'recording' ? 'Play While Recording' : item.status === 'partial' ? 'Play Partial Recording' : 'Play Recording'}
+                                    title={item.status === 'recording' ? i18n.t('dvr:playWhileRecording') : item.status === 'partial' ? i18n.t('dvr:playPartialRecording') : i18n.t('dvr:playRecording')}
                                 >
                                     <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
                                         <polygon points="5 3 19 12 5 21 5 3" />
@@ -1491,7 +1491,7 @@ function DownloadsTab({ onPlay }: DownloadsTabProps) {
                                                 }}
                                                 disabled={!!item.statusText}
                                                 onClick={() => pauseDownload(item.id)}
-                                                title={item.statusText ? "Cannot pause during post-processing" : "Pause Download"}
+                                                title={item.statusText ? i18n.t('dvr:cannotPausePostProcessing') : i18n.t('dvr:pauseDownload')}
                                             >
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                                     <rect x="6" y="4" width="4" height="16" />

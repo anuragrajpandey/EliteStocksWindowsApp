@@ -1,4 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import type { StoredMovie, StoredSeries } from '../../db';
 import { MediaCard } from './MediaCard';
 import { useSourceNameMap } from '../../hooks/useChannels';
@@ -36,6 +38,7 @@ export function HorizontalCarousel({
   episodeData,
   onPlayItem,
 }: HorizontalCarouselProps) {
+  useTranslation();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -87,7 +90,7 @@ export function HorizontalCarousel({
             className="carousel__arrow carousel__arrow--left"
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
-            aria-label="Scroll left"
+            aria-label={i18n.t('vod:scrollLeft')}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M15 18l-6-6 6-6" />
@@ -97,7 +100,7 @@ export function HorizontalCarousel({
             className="carousel__arrow carousel__arrow--right"
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
-            aria-label="Scroll right"
+            aria-label={i18n.t('vod:scrollRight')}
           >
             <svg viewBox="0 0 24 24" fill="currentColor" strokeWidth="2">
               <path d="M9 18l6-6-6-6" />

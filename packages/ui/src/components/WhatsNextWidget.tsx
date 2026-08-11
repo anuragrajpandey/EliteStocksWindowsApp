@@ -3,6 +3,7 @@ import { useNextProgram } from '../hooks/useChannels';
 import { useEpgClockFormat } from '../stores/uiStore';
 import { formatTime } from '../utils/dateTime';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import './WhatsNextWidget.css';
 
 interface WhatsNextWidgetProps {
@@ -42,13 +43,13 @@ export function WhatsNextWidget({
   return (
     <div className="whats-next-widget">
       <div className="whats-next-header" style={{ display: 'flex', alignItems: 'center' }}>
-        <span>What&apos;s Next</span>
+        <span>{i18n.t('widgets:whatsNext')}</span>
         {(onMoveLeft || onMoveRight) && (
           <div className="widget-move-controls">
-            <button className="widget-move-btn" onClick={onMoveLeft} disabled={!onMoveLeft} title="Move Left">
+            <button className="widget-move-btn" onClick={onMoveLeft} disabled={!onMoveLeft} title={i18n.t('widgets:moveLeft')}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
             </button>
-            <button className="widget-move-btn" onClick={onMoveRight} disabled={!onMoveRight} title="Move Right">
+            <button className="widget-move-btn" onClick={onMoveRight} disabled={!onMoveRight} title={i18n.t('widgets:moveRight')}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </button>
           </div>
@@ -73,7 +74,7 @@ export function WhatsNextWidget({
             )}
           </div>
         ) : (
-          <div className="whats-next-empty">No upcoming program in guide</div>
+          <div className="whats-next-empty">{i18n.t('widgets:noUpcomingProgram')}</div>
         )}
       </div>
     </div>

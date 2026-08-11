@@ -4,6 +4,7 @@ import { db } from '../db';
 import { getFailoverGroupMembers } from '../services/failover-groups';
 import { useSourceNameMap } from '../hooks/useChannels';
 import { useAppSettings } from '../hooks/useAppSettings';
+import { useTranslation } from 'react-i18next';
 import './FailoverGroupOverlay.css';
 
 interface FailoverGroupOverlayProps {
@@ -27,6 +28,7 @@ export function FailoverGroupOverlay({
   onChannelClick,
   showSource: showSourceProp,
 }: FailoverGroupOverlayProps) {
+  const { t } = useTranslation('player');
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [groupName, setGroupName] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -138,7 +140,7 @@ export function FailoverGroupOverlay({
                 });
               }}
               disabled={isActive}
-              title={isActive ? 'Currently playing' : `Switch to ${member.name}`}
+              title={isActive ? t('currentlyPlaying') : t('switchTo', { name: member.name })}
             >
               {member.stream_icon ? (
                 <img

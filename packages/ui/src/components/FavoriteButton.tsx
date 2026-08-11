@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { toggleChannelFavorite } from '../db';
 import './FavoriteButton.css';
 
@@ -9,6 +10,7 @@ interface FavoriteButtonProps {
 }
 
 export function FavoriteButton({ streamId, isFavorite, onToggle }: FavoriteButtonProps) {
+    const { t } = useTranslation('live');
     async function handleClick(e: React.MouseEvent) {
         e.stopPropagation(); // Prevent triggering channel selection
         try {
@@ -25,7 +27,7 @@ export function FavoriteButton({ streamId, isFavorite, onToggle }: FavoriteButto
         <button
             className={`favorite-btn ${isFavorite ? 'favorited' : ''}`}
             onClick={handleClick}
-            title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            title={isFavorite ? t('removeFromFavorites') : t('addToFavorites')}
         >
             {isFavorite ? '★' : '☆'}
         </button>

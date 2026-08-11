@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import i18n from '../i18n';
 import type { ShortcutsMap, ShortcutAction } from '../types/app';
 import { DEFAULT_SHORTCUTS } from '../constants/shortcuts';
 import './KeyboardShortcutsModal.css';
@@ -113,10 +114,10 @@ export function KeyboardShortcutsModal({ isOpen, onClose, shortcuts }: KeyboardS
             <div className="shortcuts-modal-container" onClick={(e) => e.stopPropagation()}>
                 <div className="shortcuts-modal-header">
                     <div className="shortcuts-title-wrapper">
-                        <h2 className="shortcuts-modal-title">Keyboard Shortcuts</h2>
+                        <h2 className="shortcuts-modal-title">{i18n.t('settings:shortcuts.title')}</h2>
                         <span className="shortcut-key-badge trigger-badge">{triggerKey}</span>
                     </div>
-                    <button className="shortcuts-close-btn" onClick={onClose} aria-label="Close shortcuts overlay">
+                    <button className="shortcuts-close-btn" onClick={onClose} aria-label={i18n.t('settings:shortcuts.closeOverlay')}>
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="18" y1="6" x2="6" y2="18" />
                             <line x1="6" y1="6" x2="18" y2="18" />
@@ -127,7 +128,7 @@ export function KeyboardShortcutsModal({ isOpen, onClose, shortcuts }: KeyboardS
                 <div className="shortcuts-modal-body">
                     {GROUPS.map((group) => (
                         <div key={group.title} className="shortcuts-column">
-                            <div className="shortcuts-group-title">{group.title}</div>
+                            <div className="shortcuts-group-title">{i18n.t(`settings:shortcuts.groups.${group.title}`, { defaultValue: group.title })}</div>
                             <div className="shortcuts-item-list">
                                 {group.items.map((item) => {
                                     const rawKey = currentShortcuts[item.action];
@@ -135,12 +136,12 @@ export function KeyboardShortcutsModal({ isOpen, onClose, shortcuts }: KeyboardS
 
                                     return (
                                         <div key={item.action} className="shortcut-item-row">
-                                            <span className="shortcut-item-label">{item.label}</span>
+                                            <span className="shortcut-item-label">{i18n.t(`settings:shortcuts.actions.${item.action}`, { defaultValue: item.label })}</span>
                                             <div className="shortcut-key-badges">
                                                 {formatted ? (
                                                     <kbd className="shortcut-key-badge">{formatted}</kbd>
                                                 ) : (
-                                                    <span style={{ opacity: 0.4, fontSize: '0.8rem' }}>Unbound</span>
+                                                    <span style={{ opacity: 0.4, fontSize: '0.8rem' }}>{i18n.t('settings:shortcuts.unbound')}</span>
                                                 )}
                                             </div>
                                         </div>
@@ -153,13 +154,13 @@ export function KeyboardShortcutsModal({ isOpen, onClose, shortcuts }: KeyboardS
 
                 <div className="shortcuts-modal-footer">
                     <div className="shortcuts-footer-hint">
-                        <span>Press</span>
+                        <span>{i18n.t('settings:shortcuts.press')}</span>
                         <kbd className="shortcut-key-badge" style={{ fontSize: '0.7rem', padding: '2px 6px' }}>Esc</kbd>
-                        <span>or</span>
+                        <span>{i18n.t('settings:shortcuts.or')}</span>
                         <kbd className="shortcut-key-badge" style={{ fontSize: '0.7rem', padding: '2px 6px' }}>{triggerKey}</kbd>
-                        <span>to dismiss</span>
+                        <span>{i18n.t('settings:shortcuts.toDismiss')}</span>
                     </div>
-                    <div>Configurable in Settings → Shortcuts</div>
+                    <div>{i18n.t('settings:shortcuts.configurableInSettings')}</div>
                 </div>
             </div>
         </div>,

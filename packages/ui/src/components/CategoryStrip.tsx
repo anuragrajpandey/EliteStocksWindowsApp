@@ -1212,7 +1212,7 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
       list.push({
         id: group.sourceId,
         type: 'real',
-        name: sources[group.sourceId] || 'Loading...',
+        name: sources[group.sourceId] || t('loading'),
         count,
         realGroup: group
       });
@@ -1704,12 +1704,12 @@ export function CategoryStrip({ selectedCategoryId, onSelectCategory, visible, o
                   disabled={!isDragActive}
                   className="category-source-header"
                   onClick={() => toggleSource(group.sourceId)}
-                  onContextMenu={(e) => handleSourceContextMenu(e, group.sourceId, sources[group.sourceId] || 'Source')}
+                  onContextMenu={(e) => handleSourceContextMenu(e, group.sourceId, sources[group.sourceId] || t('source'))}
                 >
                   <div className="source-header-left">
                     <ChevronIcon expanded={isExpanded} />
                     <div className="source-name-container">
-                      <ScrollingText className="source-name">{sources[group.sourceId] || 'Loading...'}</ScrollingText>
+                      <ScrollingText className="source-name">{sources[group.sourceId] || t('loading')}</ScrollingText>
                     </div>
                   </div>
                   <span className="source-count">{item.count}</span>

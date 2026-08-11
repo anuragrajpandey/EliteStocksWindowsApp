@@ -56,13 +56,13 @@ export function EpgShiftModal({ isOpen, currentOffset, onClose, onChange }: EpgS
         <div className="epg-shift-body">
           <div className="epg-shift-value">{formatOffset(offset)}</div>
           <div className="epg-shift-controls">
-            <button className="epg-shift-btn" onClick={decrease} disabled={offset <= -12} aria-label="Decrease offset">
+            <button className="epg-shift-btn" onClick={decrease} disabled={offset <= -12} aria-label={i18n.t('epg:decreaseOffset')}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
             </button>
-            <span className="epg-shift-hint">Adjust by 1 hour</span>
-            <button className="epg-shift-btn" onClick={increase} disabled={offset >= 12} aria-label="Increase offset">
+            <span className="epg-shift-hint">{i18n.t('epg:adjustBy1Hour')}</span>
+            <button className="epg-shift-btn" onClick={increase} disabled={offset >= 12} aria-label={i18n.t('epg:increaseOffset')}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />

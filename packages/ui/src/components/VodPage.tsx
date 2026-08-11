@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import i18n from '../i18n';
 import { Virtuoso } from 'react-virtuoso';
 import { HeroSection } from './vod/HeroSection';
 import { HorizontalCarousel } from './vod/HorizontalCarousel';
@@ -802,7 +803,7 @@ export function VodPage({ type, onPlay, onClose, vodPlayerMode, onSelectVodPlaye
   ]);
 
   // Labels
-  const typeLabel = type === 'movie' ? 'Movies' : 'Series';
+  const typeLabel = type === 'movie' ? i18n.t('vod:movies') : i18n.t('vod:series');
   const browseType = type === 'movie' ? 'movies' : 'series';
 
   return (

@@ -598,10 +598,10 @@ function LeagueGameCard({ event, isIndividualSport, onChannelClick, onClick }: L
           {isLive ? (
             <span className="game-card-live-pill">
               <span className="live-dot" />
-              {event.period || event.timeElapsed || 'LIVE'}
+              {event.period || event.timeElapsed || t('statusLive')}
             </span>
           ) : (
-            <span className="game-card-vs">vs</span>
+            <span className="game-card-vs">{t('vs')}</span>
           )}
         </div>
 
@@ -632,7 +632,7 @@ function LeagueGameCard({ event, isIndividualSport, onChannelClick, onClick }: L
               e.stopPropagation();
               onChannelClick?.(networkName);
             }}
-            title={`Search channels for ${networkName}`}
+            title={t('searchChannelsForNetwork', { network: networkName })}
           >
             {networkName}
           </button>
@@ -1221,7 +1221,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
             </div>
             <div className="sports-hero-badge">
               {(leaguesBySport.grouped[activeSport] || []).length}{' '}
-              {(leaguesBySport.grouped[activeSport] || []).length === 1 ? 'League' : 'Leagues'}
+              {(leaguesBySport.grouped[activeSport] || []).length === 1 ? t('league') : t('leagues')}
             </div>
           </div>
 
@@ -1314,7 +1314,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                   <line x1="8" y1="2" x2="8" y2="6" />
                   <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
-                {isIndividualSport ? 'Schedule' : 'Games'}
+                {isIndividualSport ? t('schedule') : t('games')}
               </button>
               {!isUFC && (
                 <button
@@ -1326,7 +1326,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                     <line x1="12" y1="20" x2="12" y2="4" />
                     <line x1="6" y1="20" x2="6" y2="14" />
                   </svg>
-                  {isIndividualSport ? 'Rankings' : 'Standings'}
+                  {isIndividualSport ? t('rankings') : t('standings')}
                 </button>
               )}
             </div>
@@ -1462,7 +1462,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                                           } as any);
                                         }
                                       }}
-                                      title={isFav ? 'Remove from favorite teams' : 'Add to favorite teams'}
+                                      title={isFav ? t('removeFromFavoriteTeams') : t('addToFavoriteTeams')}
                                     >
                                       ★
                                     </button>
@@ -1530,7 +1530,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                                         } as any);
                                       }
                                     }}
-                                    title={isFav ? 'Remove from favorite teams' : 'Add to favorite teams'}
+                                    title={isFav ? t('removeFromFavoriteTeams') : t('addToFavoriteTeams')}
                                   >
                                     ★
                                   </button>
@@ -1600,7 +1600,7 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
                                         } as any);
                                       }
                                     }}
-                                    title={isFav ? 'Remove from favorite teams' : 'Add to favorite teams'}
+                                    title={isFav ? t('removeFromFavoriteTeams') : t('addToFavoriteTeams')}
                                   >
                                     ★
                                   </button>
@@ -1654,20 +1654,20 @@ export function LeaguesTab({ onSearchChannels, onPlayChannel }: LeaguesTabProps)
               {activeView === 'standings' && !isIndividualSport && (
                 <section className="sports-section">
                   <div className="sports-standings-top-bar">
-                    <h3 className="sports-section-title" style={{ margin: 0 }}>Standings</h3>
+                    <h3 className="sports-section-title" style={{ margin: 0 }}>{t('standings')}</h3>
                     {leagueStandingsGroups.length > 0 && (
                       <div className="sports-standings-toggle-group">
                         <button
                           className={`sports-standings-toggle-btn${standingsMode === 'division' ? ' active' : ''}`}
                           onClick={() => setStandingsMode('division')}
                         >
-                          By Division
+                          {t('byDivision')}
                         </button>
                         <button
                           className={`sports-standings-toggle-btn${standingsMode === 'conference' ? ' active' : ''}`}
                           onClick={() => setStandingsMode('conference')}
                         >
-                          By Conference
+                          {t('byConference')}
                         </button>
                       </div>
                     )}

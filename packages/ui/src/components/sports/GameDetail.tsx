@@ -510,7 +510,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
               {isLive ? (
                 <div className="game-detail-live">
                   <span className="game-detail-live-dot" />
-                  <span className="game-detail-live-text">{event.timeElapsed || 'LIVE'}</span>
+                  <span className="game-detail-live-text">{event.timeElapsed || i18n.t('sports:statusLive')}</span>
                 </div>
               ) : (
                 <span className="game-detail-datetime">{formatEventDateTime(event.startTime, epgClockFormat !== '24h')}</span>
@@ -624,7 +624,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
 
           {/* Fight Card */}
           <div className="ufc-detail-content">
-            <h3 className="ufc-detail-section-title">Fight Card</h3>
+            <h3 className="ufc-detail-section-title">{i18n.t('sports:fightCard')}</h3>
             <div className="ufc-detail-card-list">
               {event.matches?.map((match, idx) => {
                 const isMainEvent = idx === (event.matches?.length || 0) - 1;
@@ -634,7 +634,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
                     <div className="ufc-detail-fight-info">
                       <div className="ufc-detail-fight-matchup">
                         <span className="ufc-detail-fight-away">{match.awayName}</span>
-                        <span className="ufc-detail-fight-vs">vs</span>
+                        <span className="ufc-detail-fight-vs">{i18n.t('sports:vs')}</span>
                         <span className="ufc-detail-fight-home">{match.homeName}</span>
                       </div>
                       <div className="ufc-detail-fight-records">
@@ -650,7 +650,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
                         <span className="ufc-detail-fight-live-badge">LIVE</span>
                       )}
                       {isMainEvent && (
-                        <span className="ufc-detail-fight-main-badge">Main Event</span>
+                        <span className="ufc-detail-fight-main-badge">{i18n.t('sports:mainEvent')}</span>
                       )}
                     </div>
                   </div>
@@ -662,7 +662,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
           {/* Broadcast */}
           {event.channels.length > 0 && (
             <div className="ufc-detail-broadcast">
-              <h3 className="ufc-detail-section-title">Watch On</h3>
+              <h3 className="ufc-detail-section-title">{i18n.t('sports:watchOn')}</h3>
               <div className="game-detail-channels">
                 {event.channels.map((channel, idx) => (
                   <button
@@ -744,14 +744,14 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
               </div>
 
               {/* Full Results Table */}
-              <h3 className="racing-detail-section-title">Race Results</h3>
+              <h3 className="racing-detail-section-title">{i18n.t('sports:raceResults')}</h3>
               <div className="racing-detail-results-table">
                 <div className="racing-results-header">
-                  <span className="racing-results-col pos">Pos</span>
-                  <span className="racing-results-col driver">Driver</span>
-                  <span className="racing-results-col team">Team</span>
-                  <span className="racing-results-col time">Time/Interval</span>
-                  <span className="racing-results-col pts">Pts</span>
+                  <span className="racing-results-col pos">{i18n.t('sports:pos')}</span>
+                  <span className="racing-results-col driver">{i18n.t('sports:driver')}</span>
+                  <span className="racing-results-col team">{i18n.t('sports:team')}</span>
+                  <span className="racing-results-col time">{i18n.t('sports:timeInterval')}</span>
+                  <span className="racing-results-col pts">{i18n.t('sports:pts')}</span>
                 </div>
                 {results.map((result) => (
                   <div key={result.id} className={`racing-results-row ${result.position && result.position <= 3 ? 'podium' : ''}`}>
@@ -780,7 +780,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
           {/* Broadcast */}
           {event.channels.length > 0 && (
             <div className="racing-detail-broadcast">
-              <h3 className="racing-detail-section-title">Watch On</h3>
+              <h3 className="racing-detail-section-title">{i18n.t('sports:watchOn')}</h3>
               <div className="game-detail-channels">
                 {event.channels.map((channel, idx) => (
                   <button
@@ -841,12 +841,12 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
             <div className="golf-detail-content">
               <div className="golf-detail-leaderboard">
                 <div className="golf-lb-header">
-                  <span className="golf-lb-col pos">Pos</span>
-                  <span className="golf-lb-col player">Player</span>
+                  <span className="golf-lb-col pos">{i18n.t('sports:pos')}</span>
+                  <span className="golf-lb-col player">{i18n.t('sports:player')}</span>
                   {Array.from({ length: roundCount }, (_, i) => (
                     <span key={i} className="golf-lb-col round">R{i + 1}</span>
                   ))}
-                  <span className="golf-lb-col total">Total</span>
+                  <span className="golf-lb-col total">{i18n.t('sports:total')}</span>
                 </div>
                 {leaderboard.map((entry) => (
                   <div
@@ -881,7 +881,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
           {/* Broadcast */}
           {event.channels.length > 0 && (
             <div className="golf-detail-broadcast">
-              <h3 className="golf-detail-section-title">Watch On</h3>
+              <h3 className="golf-detail-section-title">{i18n.t('sports:watchOn')}</h3>
               <div className="game-detail-channels">
                 {event.channels.map((channel, idx) => (
                   <button
@@ -918,7 +918,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
 
     // Group matches by draw type
     const grouped = matches.reduce((acc, match) => {
-      const group = match.groupName || 'Matches';
+      const group = match.groupName || i18n.t('sports:matches');
       if (!acc[group]) acc[group] = [];
       acc[group].push(match);
       return acc;
@@ -972,7 +972,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
                             )}
                             <span className="tennis-match-name">{match.awayName}</span>
                           </div>
-                          <div className="tennis-match-vs">vs</div>
+                          <div className="tennis-match-vs">{i18n.t('sports:vs')}</div>
                           <div className="tennis-match-player">
                             {match.homeLogo && (
                               <img src={match.homeLogo} alt="" className="tennis-match-flag" />
@@ -1012,7 +1012,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
           {/* Broadcast */}
           {event.channels.length > 0 && (
             <div className="tennis-detail-broadcast">
-              <h3 className="tennis-detail-section-title">Watch On</h3>
+              <h3 className="tennis-detail-section-title">{i18n.t('sports:watchOn')}</h3>
               <div className="game-detail-channels">
                 {event.channels.map((channel, idx) => (
                   <button
@@ -1081,7 +1081,7 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
             {isLive ? (
               <div className="game-detail-live">
                 <span className="game-detail-live-dot" />
-                <span className="game-detail-live-text">{event.timeElapsed || 'LIVE'}</span>
+                <span className="game-detail-live-text">{event.timeElapsed || i18n.t('sports:statusLive')}</span>
                 {event.period && <span className="game-detail-period">{event.period}</span>}
               </div>
             ) : (

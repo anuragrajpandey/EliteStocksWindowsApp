@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import './CastOverlay.css';
 
 interface CastOverlayProps {
@@ -14,6 +15,7 @@ export function CastOverlay({
   mediaSubtitle,
   onDisconnect
 }: CastOverlayProps) {
+  const { t } = useTranslation('cast');
   return (
     <div className="cast-overlay">
       <div className="cast-overlay-content">
@@ -39,7 +41,7 @@ export function CastOverlay({
           </svg>
         </div>
 
-        <h3 className="cast-title">Casting to {deviceName || 'Chromecast'}</h3>
+        <h3 className="cast-title">{t('castingTo', { device: deviceName || t('chromecast') })}</h3>
         
         {(mediaTitle || mediaSubtitle) && (
           <div className="cast-media-info">
@@ -64,7 +66,7 @@ export function CastOverlay({
               <line x1="9" y1="9" x2="15" y2="15" />
               <line x1="15" y1="9" x2="9" y2="15" />
             </svg>
-            Disconnect Cast
+            {t('disconnectCast')}
           </button>
         )}
       </div>

@@ -250,7 +250,9 @@ export const SearchResultRow = memo(function SearchResultRow({
                   className={`multiview-slot-btn ${active ? 'active' : 'disabled'}`}
                   disabled={!active}
                   onClick={(slotId === 1) ? handlePlayMain : (e) => handleSendToSlot(slotId as 2 | 3 | 4, e)}
-                  title={active ? `Send to Viewer ${slotId}${slotId === 1 ? ' (Main)' : ''}` : `Viewer ${slotId} not available in this layout`}
+                  title={active
+                    ? (slotId === 1 ? i18n.t('player:sendToViewerMain', { slot: slotId }) : i18n.t('player:sendToViewerSlot', { slot: slotId }))
+                    : i18n.t('player:viewerNotAvailable', { slot: slotId })}
                 >
                   {slotId}
                 </button>

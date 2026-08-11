@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from '../hooks/useSqliteLiveQuery';
 import { useCurrentProgram, useEnabledSources } from '../hooks/useChannels';
 import { db } from '../db';
@@ -57,6 +58,7 @@ export function CustomGroupWidget({
   onMoveLeft,
   onMoveRight,
 }: CustomGroupWidgetProps) {
+  const { t } = useTranslation('widgets');
   const enabledSourceIds = useEnabledSources();
   // Single query: load group metadata + ordered channels in one shot
   const data = useLiveQuery(
@@ -101,10 +103,10 @@ export function CustomGroupWidget({
         <span>{groupName}</span>
         {(onMoveLeft || onMoveRight) && (
           <div className="widget-move-controls">
-            <button className="widget-move-btn" onClick={onMoveLeft} disabled={!onMoveLeft} title="Move Left">
+            <button className="widget-move-btn" onClick={onMoveLeft} disabled={!onMoveLeft} title={t('moveLeft')}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
             </button>
-            <button className="widget-move-btn" onClick={onMoveRight} disabled={!onMoveRight} title="Move Right">
+            <button className="widget-move-btn" onClick={onMoveRight} disabled={!onMoveRight} title={t('moveRight')}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </button>
           </div>

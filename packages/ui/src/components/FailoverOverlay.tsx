@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import './FailoverOverlay.css';
 import type { FailoverState } from '../hooks/usePlayback';
 
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export function FailoverOverlay({ state, isSmall = false }: Props) {
+  const { t } = useTranslation('player');
   return (
     <div className={`failover-overlay ${isSmall ? 'small' : ''}`}>
       <div className="failover-content">
@@ -21,10 +23,10 @@ export function FailoverOverlay({ state, isSmall = false }: Props) {
           </svg>
         </div>
         <div className="failover-text">
-          <span className="failover-title">Switching to backup stream</span>
+          <span className="failover-title">{t('switchingToBackup')}</span>
           <span className="failover-from">&#x21b3; {state.toChannelName}</span>
           {state.attempt > 1 && (
-            <span className="failover-attempt">Backup #{state.attempt}</span>
+            <span className="failover-attempt">{t('backupAttempt', { number: state.attempt })}</span>
           )}
         </div>
       </div>

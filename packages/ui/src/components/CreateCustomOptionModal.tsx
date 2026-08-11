@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import i18n from '../i18n';
 import './CreateCustomOptionModal.css';
 
 interface CreateCustomOptionModalProps {
@@ -87,8 +88,8 @@ export function CreateCustomOptionModal({
               <path d="M12 5v14M5 12h14" />
             </svg>
           </div>
-          <h3 className="modal-title">Create Custom Option</h3>
-          <button className="modal-close-btn" onClick={onClose} aria-label="Close">
+          <h3 className="modal-title">{i18n.t('common:createCustomOption')}</h3>
+          <button className="modal-close-btn" onClick={onClose} aria-label={i18n.t('common:close')}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
@@ -102,13 +103,13 @@ export function CreateCustomOptionModal({
             className={`cco-tab-btn ${activeTab === 'group' ? 'active' : ''}`}
             onClick={() => setActiveTab('group')}
           >
-            Custom Group
+            {i18n.t('common:customGroupTab')}
           </button>
           <button
             className={`cco-tab-btn ${activeTab === 'playlist' ? 'active' : ''}`}
             onClick={() => setActiveTab('playlist')}
           >
-            Custom Playlist
+            {i18n.t('common:customPlaylistTab')}
           </button>
         </div>
 
@@ -116,15 +117,15 @@ export function CreateCustomOptionModal({
         <div className="modal-body cco-body">
           <p className="modal-message cco-desc">
             {activeTab === 'group'
-              ? 'Create a custom group to add channels into from any source into its own category.'
-              : 'Create a custom playlist to manually add categories/channels from different sources into one. Can also create custom categories.'}
+              ? i18n.t('common:customGroupDesc')
+              : i18n.t('common:customPlaylistDesc')}
           </p>
 
           <input
             ref={inputRef}
             type="text"
             className="modal-input"
-            placeholder={activeTab === 'group' ? 'Group name...' : 'Playlist name...'}
+            placeholder={activeTab === 'group' ? i18n.t('common:groupNameEllipsis') : i18n.t('common:playlistNameEllipsis')}
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -134,14 +135,14 @@ export function CreateCustomOptionModal({
         {/* Footer */}
         <div className="modal-footer">
           <button className="modal-btn modal-btn-secondary" onClick={onClose}>
-            Cancel
+            {i18n.t('common:cancel')}
           </button>
           <button
             className="modal-btn modal-btn-primary"
             onClick={handleCreate}
             disabled={!name.trim()}
           >
-            Create
+            {i18n.t('common:create')}
           </button>
         </div>
 

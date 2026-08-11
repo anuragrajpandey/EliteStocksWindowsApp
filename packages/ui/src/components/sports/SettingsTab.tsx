@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { useSportsSettingsStore, getLeaguesByCategory } from '../../stores/sportsSettingsStore';
 import { clearLeagueLogosCache } from '../../services/sports/utils';
 
 interface SettingsTabProps {}
 
 export function SettingsTab({}: SettingsTabProps) {
+  const { t } = useTranslation('sports');
   const [clearedLogosMessage, setClearedLogosMessage] = useState(false);
   const {
     enabledLeagues,
@@ -50,23 +53,23 @@ export function SettingsTab({}: SettingsTabProps) {
       <div className="sports-settings-header">
         <div>
           <h2 className="sports-settings-title" style={{ fontSize: '1.4rem', fontWeight: 750, color: 'var(--text-primary, #ffffff)' }}>
-            Configure Active Leagues
+            {t('configureActiveLeagues')}
           </h2>
-          <p className="sports-settings-subtitle">Enabled leagues will appear across scores, upcoming games, news, and the leagues tab.</p>
+          <p className="sports-settings-subtitle">{t('enabledLeaguesDesc')}</p>
         </div>
         <button className="sports-settings-reset" onClick={resetToDefaults}>
-          Reset to Defaults
+          {i18n.t('common:resetToDefaults')}
         </button>
       </div>
 
       <div className="sports-settings-grid">
         <div className="sports-settings-card">
           <div className="sports-settings-card-header">
-            <span className="sports-settings-category-title">General Settings</span>
+            <span className="sports-settings-category-title">{t('generalSettings')}</span>
           </div>
           <div className="sports-settings-leagues-list">
             <div className="sports-settings-league-item">
-              <span className="sports-settings-league-name">Show World Cup 2026 Tab</span>
+              <span className="sports-settings-league-name">{t('showWorldCupTab')}</span>
               <label className="sports-settings-toggle">
                 <input
                   type="checkbox"
@@ -79,9 +82,9 @@ export function SettingsTab({}: SettingsTabProps) {
 
             <div className="sports-settings-league-item" style={{ paddingTop: 10, borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
               <div>
-                <span className="sports-settings-league-name">Cached Sports Logos</span>
+                <span className="sports-settings-league-name">{t('cachedSportsLogos')}</span>
                 <p style={{ margin: '2px 0 0 0', fontSize: '0.775rem', color: 'rgba(255, 255, 255, 0.5)' }}>
-                  Logos are stored permanently offline. Clear cache if logos appear outdated or corrupted.
+                  {t('logosCacheDesc')}
                 </p>
               </div>
               <button
@@ -93,7 +96,7 @@ export function SettingsTab({}: SettingsTabProps) {
                   setTimeout(() => setClearedLogosMessage(false), 3000);
                 }}
               >
-                {clearedLogosMessage ? '✓ Cache Cleared' : 'Clear Logo Cache'}
+                {clearedLogosMessage ? t('cacheCleared') : t('clearLogoCache')}
               </button>
             </div>
           </div>
@@ -116,7 +119,7 @@ export function SettingsTab({}: SettingsTabProps) {
                     onChange={(e) => setCategoryAll(category, e.target.checked)}
                   />
                   <span className="sports-settings-toggle-slider"></span>
-                  <span className="sports-settings-toggle-label">All</span>
+                  <span className="sports-settings-toggle-label">{t('all')}</span>
                 </label>
               </div>
 

@@ -5,6 +5,7 @@
  */
 
 import type { ReactNode } from 'react';
+import i18n from '../../../i18n';
 
 // Loading State
 interface LoadingStateProps {
@@ -12,7 +13,7 @@ interface LoadingStateProps {
   className?: string;
 }
 
-export function LoadingState({ message = 'Loading...', className = '' }: LoadingStateProps) {
+export function LoadingState({ message = i18n.t('sports:loading'), className = '' }: LoadingStateProps) {
   return (
     <div className={`sports-loading-state ${className}`}>
       <div className="sports-spinner" />
@@ -41,7 +42,7 @@ export function ErrorState({ message, onRetry, className = '' }: ErrorStateProps
       <p className="sports-error-text">{message}</p>
       {onRetry && (
         <button className="sports-retry-btn" onClick={onRetry}>
-          Try Again
+          {i18n.t('sports:tryAgain')}
         </button>
       )}
     </div>

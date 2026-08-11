@@ -583,7 +583,7 @@ export function SportsHub({
               <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
               <line x1="4" y1="22" x2="4" y2="15" />
             </svg>
-            <span className="sports-brand-name">Sports</span>
+            <span className="sports-brand-name">{i18n.t('sports:brandName')}</span>
           </div>
         </div>
 
@@ -607,7 +607,7 @@ export function SportsHub({
             <button
               className={`sports-topbar-preview-toggle ${previewEnabled ? 'active' : ''}`}
               onClick={onTogglePreview}
-              title={previewEnabled ? "Hide Video Preview" : "Show Video Preview"}
+              title={previewEnabled ? i18n.t('sports:hideVideoPreview') : i18n.t('sports:showVideoPreview')}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
@@ -639,7 +639,7 @@ export function SportsHub({
                   // Double-click to close Sports Hub (fullscreen video)
                   onClose();
                 }}
-                title="Double-click for fullscreen"
+                title={i18n.t('sports:doubleClickFullscreen')}
               >
                 {/* Opaque fillers that cover the empty space around the centered video */}
                 <div ref={fillerLeftRef} className="sports-preview-filler sports-preview-filler-left" />
@@ -652,7 +652,7 @@ export function SportsHub({
                   className="sports-preview-resizer"
                   onMouseDown={handleResizeMouseDown}
                   onContextMenu={handleResizeContextMenu}
-                  title="Drag up/down to resize preview | Right-click to reset"
+                  title={i18n.t('sports:dragResizePreview')}
                 >
                   <div className="sports-resizer-line"></div>
                 </div>
@@ -670,7 +670,7 @@ export function SportsHub({
                         className="sports-minibar-btn"
                         onClick={onTogglePlay}
                         onDoubleClick={(e) => e.stopPropagation()}
-                        title={isPlaying ? 'Pause' : 'Play'}
+                        title={isPlaying ? i18n.t('player:pause') : i18n.t('player:play')}
                       >
                         {isPlaying ? (
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -690,7 +690,7 @@ export function SportsHub({
                         className="sports-minibar-btn"
                         onClick={onStop}
                         onDoubleClick={(e) => e.stopPropagation()}
-                        title="Stop"
+                        title={i18n.t('player:stop')}
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                           <rect x="6" y="6" width="12" height="12" rx="1" />
@@ -703,7 +703,7 @@ export function SportsHub({
                         className="sports-minibar-btn"
                         onClick={onChannelUp}
                         onDoubleClick={(e) => e.stopPropagation()}
-                        title="Previous Channel (Up)"
+                        title={i18n.t('player:previousChannelUp')}
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M18 15l-6-6-6 6" />
@@ -716,7 +716,7 @@ export function SportsHub({
                         className="sports-minibar-btn"
                         onClick={onChannelDown}
                         onDoubleClick={(e) => e.stopPropagation()}
-                        title="Next Channel (Down)"
+                        title={i18n.t('player:nextChannelDown')}
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M6 9l6 6 6-6" />
@@ -730,7 +730,7 @@ export function SportsHub({
                           className="sports-minibar-btn"
                           onClick={() => setShowAspectMenu(v => !v)}
                           onDoubleClick={(e) => e.stopPropagation()}
-                          title="Aspect Ratio"
+                          title={i18n.t('player:aspectRatio')}
                         >
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -761,7 +761,7 @@ export function SportsHub({
                         className="sports-minibar-btn"
                         onClick={handlePreviewMuteToggle}
                         onDoubleClick={(e) => e.stopPropagation()}
-                        title={previewMuted ? 'Unmute' : 'Mute'}
+                        title={previewMuted ? i18n.t('player:unmute') : i18n.t('player:mute')}
                       >
                         {previewMuted || previewVolume === 0 ? (
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -781,7 +781,7 @@ export function SportsHub({
                         onChange={handlePreviewVolumeChange}
                         onDoubleClick={(e) => e.stopPropagation()}
                         className="sports-minibar-volume-slider"
-                        title="Volume"
+                        title={i18n.t('player:volume')}
                       />
                     </div>
                   </div>

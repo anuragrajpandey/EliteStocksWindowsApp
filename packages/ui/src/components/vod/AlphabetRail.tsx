@@ -6,6 +6,8 @@
  */
 
 import { useRef, useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './AlphabetRail.css';
 
 const LETTERS = ['#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
@@ -39,6 +41,7 @@ export function AlphabetRail({
   onLetterSelect,
   count,
 }: AlphabetRailProps) {
+  useTranslation();
   const railRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [hoveredLetter, setHoveredLetter] = useState<string | null>(null);
@@ -147,7 +150,7 @@ export function AlphabetRail({
             onMouseEnter={() => handleMouseEnter(letter)}
             onMouseLeave={handleMouseLeave}
             disabled={!isAvailable}
-            aria-label={`Jump to ${letter === '#' ? 'numbers' : letter}`}
+            aria-label={letter === '#' ? i18n.t('vod:jumpToNumbers') : i18n.t('vod:jumpToLetterName', { letter })}
           >
             {letter}
           </button>

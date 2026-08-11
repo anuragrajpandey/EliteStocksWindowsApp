@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import './RecordingIndicator.css';
 
 interface RecordingIndicatorProps {
@@ -7,11 +8,12 @@ interface RecordingIndicatorProps {
 }
 
 export function RecordingIndicator({ size = 'small', variant = 'recording', className = '' }: RecordingIndicatorProps) {
+  const { t } = useTranslation('dvr');
   const isRecording = variant === 'recording';
   return (
     <div
       className={`recording-indicator ${size} ${variant} ${className}`}
-      title={isRecording ? 'Recording in progress' : 'Scheduled to record'}
+      title={isRecording ? t('recordingInProgress') : t('scheduledToRecord')}
     >
       <div className={`recording-dot ${isRecording ? 'pulse' : ''}`}></div>
       <span className="recording-text">REC</span>

@@ -1483,7 +1483,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                         {isExpanded && (
                           <div className="ple-source-categories">
                             {cats.length === 0 ? (
-                              <div className="ple-empty-hint">No categories.</div>
+                              <div className="ple-empty-hint">{t('noCategories')}</div>
                             ) : (
                               cats.map(cat => {
                                 const catKey = `${source.id}:${cat.category_id}`;
@@ -1539,7 +1539,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                                     {isCatExpanded && (
                                       <div className="ple-cat-channels">
                                         {channels.length === 0 ? (
-                                          <div className="ple-empty-hint">No channels.</div>
+                                          <div className="ple-empty-hint">{t('noChannels')}</div>
                                         ) : (
                                           channels.map(ch => {
                                             if (ch.enabled === false && !showHidden) {

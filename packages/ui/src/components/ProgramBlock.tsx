@@ -159,6 +159,7 @@ export const ProgramBlock = memo(function ProgramBlock({
 
 // Empty state for channels with no EPG data
 export const EmptyProgramBlock = memo(function EmptyProgramBlock({ pixelsPerHour, visibleHours }: { pixelsPerHour: number; visibleHours: number }) {
+  const { t } = useTranslation('epg');
   const width = pixelsPerHour * visibleHours;
 
   return (
@@ -169,7 +170,7 @@ export const EmptyProgramBlock = memo(function EmptyProgramBlock({ pixelsPerHour
         width: `${width}px`,
       }}
     >
-      <span className="program-block-title">No EPG Data</span>
+      <span className="program-block-title">{t('noEpgData')}</span>
     </div>
   );
 });

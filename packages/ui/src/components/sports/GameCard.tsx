@@ -349,7 +349,7 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="button"
-      aria-label={`${event.awayTeam.name} vs ${event.homeTeam.name}, ${isLive ? 'Live' : isFinished ? 'Final' : 'Scheduled'}`}
+      aria-label={i18n.t('sports:gameCardAria', { away: event.awayTeam.name, home: event.homeTeam.name, status: isLive ? i18n.t('sports:statusLive') : isFinished ? i18n.t('sports:statusFinal') : i18n.t('sports:statusScheduled') })}
     >
       {/* Top Bar */}
       <div className="gc-top-bar">
@@ -388,13 +388,13 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
           {/* Fight Card List */}
           {event.matches && event.matches.length > 0 && (
             <div className="gc-ufc-card">
-              <div className="gc-ufc-card-header">Fight Card</div>
+              <div className="gc-ufc-card-header">{i18n.t('sports:fightCard')}</div>
               <div className="gc-ufc-card-list">
                 {event.matches.map((match) => (
                   <div key={match.id} className={`gc-ufc-match ${match.status === 'live' ? 'live' : ''}`}>
                     <div className="gc-ufc-match-names">
                       <span className="gc-ufc-match-away">{match.awayName}</span>
-                      <span className="gc-ufc-match-vs">vs</span>
+                      <span className="gc-ufc-match-vs">{i18n.t('sports:vs')}</span>
                       <span className="gc-ufc-match-home">{match.homeName}</span>
                     </div>
                     {match.subtitle && (
@@ -592,7 +592,7 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
         <div className="gc-action-row">
           <button
             className="gc-action-text-btn"
-            title={`Search EPG for ${event.homeTeam.name} vs ${event.awayTeam.name}`}
+            title={i18n.t('sports:searchEpgForTeam', { home: event.homeTeam.name, away: event.awayTeam.name })}
             onClick={(e) => {
               e.stopPropagation();
       const query = buildTeamSearchQuery(event.homeTeam.name, event.awayTeam.name, event.league.id, event.title);

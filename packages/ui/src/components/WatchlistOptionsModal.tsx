@@ -5,6 +5,7 @@ import type { WatchlistItem } from '../db';
 import { useEpgClockFormat } from '../stores/uiStore';
 import { formatTime } from '../utils/dateTime';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import './WatchlistOptionsModal.css';
 
 interface WatchlistOptionsModalProps {
@@ -118,7 +119,7 @@ export function WatchlistOptionsModal({
 
             {reminderEnabled && (
               <div className="watchlist-option-detail">
-                <label>Remind me</label>
+                <label>{i18n.t('tvShows:remindMe')}</label>
                 <div className="watchlist-reminder-input">
                   <input
                     type="number"
@@ -127,7 +128,7 @@ export function WatchlistOptionsModal({
                     value={reminderMinutes}
                     onChange={(e) => setReminderMinutes(Math.max(0, Math.min(120, parseInt(e.target.value) || 0)))}
                   />
-                  <span>minutes before start</span>
+                  <span>{i18n.t('common:minutesBeforeStart')}</span>
                 </div>
                 {reminderMinutes === 0 && (
                   <span className="watchlist-hint">(at program start time)</span>
@@ -149,7 +150,7 @@ export function WatchlistOptionsModal({
 
             {autoswitchEnabled && (
               <div className="watchlist-option-detail">
-                <label>Auto-switch</label>
+                <label>{i18n.t('common:autoSwitch')}</label>
                 <div className="watchlist-reminder-input">
                   <input
                     type="number"
@@ -158,7 +159,7 @@ export function WatchlistOptionsModal({
                     value={autoswitchSeconds}
                     onChange={(e) => setAutoswitchSeconds(Math.max(0, Math.min(300, parseInt(e.target.value) || 0)))}
                   />
-                  <span>seconds before program starts</span>
+                  <span>{i18n.t('common:secondsBeforeProgramStart')}</span>
                 </div>
                 {autoswitchSeconds === 0 ? (
                   <span className="watchlist-hint">(at program start time)</span>
@@ -177,7 +178,7 @@ export function WatchlistOptionsModal({
             Cancel
           </button>
           <button className="watchlist-btn primary" onClick={handleConfirm}>
-            {isEditMode ? 'Save Changes' : 'Add to Watchlist'}
+            {isEditMode ? i18n.t('common:saveChanges') : i18n.t('common:addToWatchlist')}
           </button>
         </div>
       </div>

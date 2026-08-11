@@ -1,4 +1,5 @@
 import { memo, useMemo, useState, useCallback } from 'react';
+import i18n from '../i18n';
 import { ProgramBlock, EmptyProgramBlock } from './ProgramBlock';
 import { ProgramContextMenu } from './ProgramContextMenu';
 import { ChannelContextMenu } from './ChannelContextMenu';
@@ -204,7 +205,7 @@ export const ChannelRow = memo(function ChannelRow({
               <span style={{ color: '#e5a00d', marginLeft: '4px', fontSize: '1.1em', verticalAlign: 'middle' }}>↺</span>
             )}
             {channel.is_adult && (
-              <span className="adult-badge" title="Adult channel" style={{
+              <span className="adult-badge" title={i18n.t('live:adultChannel')} style={{
                 backgroundColor: 'rgba(220, 53, 69, 0.85)',
                 color: '#fff',
                 fontSize: '0.65em',
@@ -235,7 +236,9 @@ export const ChannelRow = memo(function ChannelRow({
                   className={`multiview-slot-btn ${active ? 'active' : 'disabled'}`}
                   disabled={!active}
                   onClick={(slotId === 1) ? handlePlayMain : (e) => handleSendToSlot(slotId as 2 | 3 | 4, e)}
-                  title={active ? `Send to Viewer ${slotId}${slotId === 1 ? ' (Main)' : ''}` : `Viewer ${slotId} not available in this layout`}
+                  title={active
+                    ? (slotId === 1 ? i18n.t('player:sendToViewerMain', { slot: slotId }) : i18n.t('player:sendToViewerSlot', { slot: slotId }))
+                    : i18n.t('player:viewerNotAvailable', { slot: slotId })}
                 >
                   {slotId}
                 </button>

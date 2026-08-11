@@ -275,7 +275,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
     return (
       <div className="sports-loading wc-loading">
         <div className="sports-spinner" />
-        <span className="wc-loading-text">Fetching FIFA World Cup 2026 Hub...</span>
+        <span className="wc-loading-text">{t('fetchingWorldCup')}</span>
       </div>
     );
   }
@@ -290,7 +290,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
           <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
         <p>{error}</p>
-        <button className="wc-retry-btn" onClick={() => window.location.reload()}>Retry</button>
+        <button className="wc-retry-btn" onClick={() => window.location.reload()}>{t('retry')}</button>
       </div>
     );
   }
@@ -350,7 +350,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
               <span className="wc-banner-badge">FIFA World Cup 2026</span>
               <span className="wc-banner-loc">United States • Canada • Mexico</span>
             </div>
-            <h2 className="wc-banner-title">The World's Game</h2>
+            <h2 className="wc-banner-title">{t('worldsGame')}</h2>
             
             {live.length > 0 ? (
               <div className="wc-banner-status live">
@@ -359,7 +359,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
               </div>
             ) : nextMatch ? (
               <div className="wc-banner-status upcoming">
-                <span className="wc-status-lbl">Next Match Countdown:</span>
+                <span className="wc-status-lbl">{t('nextMatchCountdown')}</span>
                 <span className="wc-countdown-timer">{countdownStr}</span>
                 <span className="wc-next-teams">
                   {nextMatch.awayTeam.name} vs {nextMatch.homeTeam.name}
@@ -367,7 +367,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
               </div>
             ) : (
               <div className="wc-banner-status finished">
-                <span className="wc-status-lbl">Tournament Completed</span>
+                <span className="wc-status-lbl">{t('tournamentCompleted')}</span>
               </div>
             )}
 
@@ -375,19 +375,19 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
             <div className="wc-mini-stats">
               <div className="wc-mini-stat">
                 <span className="val">{totalMatches}</span>
-                <span className="lbl">Total Matches</span>
+                <span className="lbl">{t('totalMatches')}</span>
               </div>
               <div className="wc-mini-stat">
                 <span className="val">{finishedCount}</span>
-                <span className="lbl">Completed</span>
+                <span className="lbl">{t('completed')}</span>
               </div>
               <div className="wc-mini-stat">
                 <span className="val">{totalMatches - finishedCount}</span>
-                <span className="lbl">Remaining</span>
+                <span className="lbl">{t('remaining')}</span>
               </div>
               <div className="wc-mini-stat animate-width">
                 <span className="val">{Math.round((finishedCount / totalMatches) * 100)}%</span>
-                <span className="lbl">Progress</span>
+                <span className="lbl">{t('progress')}</span>
                 <div className="wc-progress-bar-wrap">
                   <div className="wc-progress-bar" style={{ width: `${(finishedCount / totalMatches) * 100}%` }} />
                 </div>
@@ -420,7 +420,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
         {/* Upcoming / Recent Matches Row */}
         <div className="wc-overview-row">
           <div className="wc-overview-col">
-            <h3 className="wc-section-header">Upcoming Highlights</h3>
+            <h3 className="wc-section-header">{t('upcomingHighlights')}</h3>
             {upcoming.length > 0 ? (
               <div className="wc-list-stack">
                 {upcoming.map(m => (
@@ -431,7 +431,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
                         <img src={m.awayTeam.logo} alt="" className="flag" onError={e => e.currentTarget.style.display = 'none'} />
                         <span className="name">{m.awayTeam.shortName || m.awayTeam.name}</span>
                       </div>
-                      <span className="vs">vs</span>
+                      <span className="vs">{t('vs')}</span>
                       <div className="team home">
                         <img src={m.homeTeam.logo} alt="" className="flag" onError={e => e.currentTarget.style.display = 'none'} />
                         <span className="name">{m.homeTeam.shortName || m.homeTeam.name}</span>
@@ -442,12 +442,12 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
                 ))}
               </div>
             ) : (
-              <div className="wc-empty-box">No upcoming matches scheduled.</div>
+              <div className="wc-empty-box">{t('noUpcomingMatches')}</div>
             )}
           </div>
 
           <div className="wc-overview-col">
-            <h3 className="wc-section-header">Recent Results</h3>
+            <h3 className="wc-section-header">{t('recentResults')}</h3>
             {finished.length > 0 ? (
               <div className="wc-list-stack">
                 {finished.map(m => (
@@ -473,7 +473,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
                 ))}
               </div>
             ) : (
-              <div className="wc-empty-box">No matches completed yet.</div>
+              <div className="wc-empty-box">{t('noMatchesCompleted')}</div>
             )}
           </div>
         </div>
@@ -531,7 +531,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
           {/* Column 1: Round of 32 */}
           {r32.length > 0 && (
             <div className="wc-bracket-col round-32">
-              <h4 className="wc-bracket-col-title">Round of 32</h4>
+              <h4 className="wc-bracket-col-title">{t('roundOf32')}</h4>
               <div className="wc-bracket-nodes-list">
                 {r32.map(renderBracketNode)}
               </div>
@@ -541,7 +541,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
           {/* Column 2: Round of 16 */}
           {r16.length > 0 && (
             <div className="wc-bracket-col round-16">
-              <h4 className="wc-bracket-col-title">Round of 16</h4>
+              <h4 className="wc-bracket-col-title">{t('roundOf16')}</h4>
               <div className="wc-bracket-nodes-list">
                 {r16.map(renderBracketNode)}
               </div>
@@ -551,7 +551,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
           {/* Column 3: Quarterfinals */}
           {qf.length > 0 && (
             <div className="wc-bracket-col quarterfinals">
-              <h4 className="wc-bracket-col-title">Quarterfinals</h4>
+              <h4 className="wc-bracket-col-title">{t('quarterfinals')}</h4>
               <div className="wc-bracket-nodes-list">
                 {qf.map(renderBracketNode)}
               </div>
@@ -561,7 +561,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
           {/* Column 4: Semifinals */}
           {sf.length > 0 && (
             <div className="wc-bracket-col semifinals">
-              <h4 className="wc-bracket-col-title">Semifinals</h4>
+              <h4 className="wc-bracket-col-title">{t('semifinals')}</h4>
               <div className="wc-bracket-nodes-list">
                 {sf.map(renderBracketNode)}
               </div>
@@ -571,7 +571,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
           {/* Column 5: Finals */}
           {finals.length > 0 && (
             <div className="wc-bracket-col finals">
-              <h4 className="wc-bracket-col-title">Finals</h4>
+              <h4 className="wc-bracket-col-title">{t('finals')}</h4>
               <div className="wc-bracket-nodes-list">
                 {finals.map(renderBracketNode)}
               </div>
@@ -585,7 +585,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
   // 3. Sub-Tab: Standings
   const renderStandings = () => {
     if (standings.length === 0) {
-      return <div className="wc-empty-box">Standings are not available.</div>;
+      return <div className="wc-empty-box">{t('standingsNotAvailable')}</div>;
     }
 
     return (
@@ -598,7 +598,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
                 <thead>
                   <tr>
                     <th className="pos">#</th>
-                    <th className="team-header">Team</th>
+                    <th className="team-header">{t('team')}</th>
                     <th className="stat">GP</th>
                     <th className="stat">W</th>
                     <th className="stat">D</th>
@@ -700,7 +700,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
   // 5. Sub-Tab: Teams
   const renderTeams = () => {
     if (Object.keys(teamsByGroup).length === 0) {
-      return <div className="wc-empty-box">No teams data found.</div>;
+      return <div className="wc-empty-box">{t('noTeamsData')}</div>;
     }
 
     return (

@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
+import i18n from '../i18n';
 import './Modal.css';
 
 export type ModalType = 'info' | 'confirm' | 'error' | 'success';
@@ -27,8 +28,8 @@ export function Modal({
     title,
     message,
     type = 'info',
-    confirmText = 'OK',
-    cancelText = 'Cancel',
+    confirmText = i18n.t('common:ok'),
+    cancelText = i18n.t('common:cancel'),
     neutralText,
     onConfirm,
     onCancel,
@@ -98,7 +99,7 @@ export function Modal({
                         {icon}
                     </div>
                     <h3 className="modal-title">{title}</h3>
-                    <button className="modal-close-btn" onClick={handleClose} aria-label="Close">
+                    <button className="modal-close-btn" onClick={handleClose} aria-label={i18n.t('common:close')}>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <line x1="18" y1="6" x2="6" y2="18" />
                             <line x1="6" y1="6" x2="18" y2="18" />
@@ -220,8 +221,8 @@ const initialState: ModalState = {
     title: '',
     message: '',
     type: 'info',
-    confirmText: 'OK',
-    cancelText: 'Cancel',
+    confirmText: i18n.t('common:ok'),
+    cancelText: i18n.t('common:cancel'),
 };
 
 export function useModal() {
@@ -231,7 +232,7 @@ export function useModal() {
         setState({ ...options, isOpen: true });
     }, []);
 
-    const showInfo = useCallback((title: string, message: string, confirmText = 'OK') => {
+    const showInfo = useCallback((title: string, message: string, confirmText = i18n.t('common:ok')) => {
         setState({
             ...initialState,
             isOpen: true,
@@ -242,7 +243,7 @@ export function useModal() {
         });
     }, []);
 
-    const showSuccess = useCallback((title: string, message: string, confirmText = 'OK') => {
+    const showSuccess = useCallback((title: string, message: string, confirmText = i18n.t('common:ok')) => {
         setState({
             ...initialState,
             isOpen: true,
@@ -253,7 +254,7 @@ export function useModal() {
         });
     }, []);
 
-    const showError = useCallback((title: string, message: string, confirmText = 'OK') => {
+    const showError = useCallback((title: string, message: string, confirmText = i18n.t('common:ok')) => {
         setState({
             ...initialState,
             isOpen: true,
@@ -269,8 +270,8 @@ export function useModal() {
         message: string,
         onConfirm: () => void,
         onCancel?: () => void,
-        confirmText = 'Confirm',
-        cancelText = 'Cancel'
+        confirmText = i18n.t('common:confirm'),
+        cancelText = i18n.t('common:cancel')
     ) => {
         setState({
             ...initialState,
@@ -291,9 +292,9 @@ export function useModal() {
         onConfirm: () => void,
         onNeutral: () => void,
         onCancel?: () => void,
-        confirmText = 'Confirm',
-        neutralText = 'Ignore',
-        cancelText = 'Cancel'
+        confirmText = i18n.t('common:confirm'),
+        neutralText = i18n.t('common:ignore'),
+        cancelText = i18n.t('common:cancel')
     ) => {
         setState({
             ...initialState,
@@ -317,8 +318,8 @@ export function useModal() {
         onCancel?: () => void,
         inputPlaceholder = '',
         initialValue = '',
-        confirmText = 'OK',
-        cancelText = 'Cancel',
+        confirmText = i18n.t('common:ok'),
+        cancelText = i18n.t('common:cancel'),
         closeOnOverlayClick = true
     ) => {
         setState({

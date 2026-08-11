@@ -434,7 +434,7 @@ export function PlaybackDetailsModal({
   }, [open, view, onClose]);
 
   // Derived metadata from StremioMeta or VodPlayInfo
-  const title = stremioMeta?.name || vodInfo?.title || 'Unknown Title';
+  const title = stremioMeta?.name || vodInfo?.title || t('unknownTitle');
   const poster = stremioMeta?.poster || vodInfo?.posterUrl || null;
   const backdrop = stremioMeta?.background || vodInfo?.backdropUrl || null;
   const overview =

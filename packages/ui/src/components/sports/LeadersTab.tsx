@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { SportsTeam } from '@ynotv/core';
 import {
   getLeagueLeaders,
@@ -21,6 +22,7 @@ const LEADERS_LEAGUES = [
 ];
 
 export function LeadersTab({ onSearchChannels, onPlayChannel }: LeadersTabProps) {
+  const { t } = useTranslation('sports');
   const [leaders, setLeaders] = useState<LeadersCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +42,7 @@ export function LeadersTab({ onSearchChannels, onPlayChannel }: LeadersTabProps)
       }
     } catch (err) {
       console.error('[LeadersTab] Failed to load:', err);
-      setError('Failed to load leaders. Please try again.');
+      setError(t('failedLoadLeaders'));
     } finally {
       setLoading(false);
     }
@@ -57,7 +59,7 @@ export function LeadersTab({ onSearchChannels, onPlayChannel }: LeadersTabProps)
         onClose={() => setSelectedTeam(null)}
         onChannelClick={onSearchChannels}
         onPlayChannel={onPlayChannel}
-        fromTab="Leaders"
+        fromTab={t('tabs.leaders')}
       />
     );
   }
@@ -66,7 +68,7 @@ export function LeadersTab({ onSearchChannels, onPlayChannel }: LeadersTabProps)
     return (
       <div className="sports-tab-content">
         <div className="leaders-header">
-          <h2>Stat Leaders</h2>
+          <h2>{t('statLeaders')}</h2>
           <div className="leaders-league-tabs">
             {LEADERS_LEAGUES.map(league => (
               <button
@@ -93,7 +95,7 @@ export function LeadersTab({ onSearchChannels, onPlayChannel }: LeadersTabProps)
       <div className="sports-tab-content">
         <div className="sports-error">
           <p>{error}</p>
-          <button className="sports-btn" onClick={loadLeaders}>Retry</button>
+          <button className="sports-btn" onClick={loadLeaders}>{t('retry')}</button>
         </div>
       </div>
     );
@@ -102,7 +104,7 @@ export function LeadersTab({ onSearchChannels, onPlayChannel }: LeadersTabProps)
   return (
     <div className="sports-tab-content">
       <div className="leaders-header">
-        <h2>Stat Leaders</h2>
+        <h2>{t('statLeaders')}</h2>
         <div className="leaders-league-tabs">
           {LEADERS_LEAGUES.map(league => (
             <button
@@ -118,8 +120,8 @@ export function LeadersTab({ onSearchChannels, onPlayChannel }: LeadersTabProps)
 
       {leaders.length === 0 ? (
         <div className="sports-empty">
-          <h3>No Leaders Available</h3>
-          <p>Stat leaders are typically available during the regular season.</p>
+          <h3>{t('noLeadersAvailable')}</h3>
+          <p>{t('statLeadersUnavailable')}</p>
         </div>
       ) : (
         <div className="leaders-container">
@@ -170,6 +172,7 @@ interface LeadersTableProps {
 }
 
 function LeadersTable({ category, selectedLeague, onAthleteClick, onTeamClick }: LeadersTableProps) {
+  const { t } = useTranslation('sports');
   return (
     <div className="leaders-table-wrapper">
       <h3 className="leaders-table-title">{category.displayName}</h3>
@@ -177,9 +180,9 @@ function LeadersTable({ category, selectedLeague, onAthleteClick, onTeamClick }:
         <thead>
           <tr>
             <th className="leaders-table-rank">#</th>
-            <th className="leaders-table-player">Player</th>
-            <th className="leaders-table-team">Team</th>
-            <th className="leaders-table-stat">{category.shortDisplayName || 'Stat'}</th>
+            <th className="leaders-table-player">{t('player')}</th>
+            <th className="leaders-table-team">{t('team')}</th>
+            <th className="leaders-table-stat">{category.shortDisplayName || t('stat')}</th>
           </tr>
         </thead>
         <tbody>

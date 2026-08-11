@@ -5,6 +5,7 @@
  */
 
 import { Component, type ReactNode } from 'react';
+import i18n from '../../../i18n';
 
 interface Props {
   children: ReactNode;
@@ -45,15 +46,15 @@ export class SportsErrorBoundary extends Component<Props, State> {
               <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
           </div>
-          <h3 className="sports-error-title">Something went wrong</h3>
+          <h3 className="sports-error-title">{i18n.t('sports:somethingWentWrong')}</h3>
           <p className="sports-error-message">
-            {this.state.error?.message || 'An unexpected error occurred while loading sports data.'}
+            {this.state.error?.message || i18n.t('sports:unexpectedError')}
           </p>
           <button 
             className="sports-error-retry"
             onClick={() => this.setState({ hasError: false, error: null })}
           >
-            Try Again
+            {i18n.t('sports:tryAgain')}
           </button>
         </div>
       );

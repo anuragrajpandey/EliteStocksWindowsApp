@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import i18n from '../i18n';
 import { db, type StoredCategory, type CategoryFolder } from '../db';
 import { isCategorySortCustomized } from '../utils/categorySortOverrides';
 import './AdvancedSearchModal.css';
@@ -404,9 +405,9 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
               <circle cx="11" cy="11" r="8"></circle>
               <path d="m21 21-4.3-4.3"></path>
             </svg>
-            <h2>Advanced Search</h2>
+            <h2>{i18n.t('epg:advancedSearch')}</h2>
           </div>
-          <button className="advanced-search-close-btn" onClick={onClose} aria-label="Close">
+          <button className="advanced-search-close-btn" onClick={onClose} aria-label={i18n.t('common:close')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
@@ -418,7 +419,7 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
         <div className="advanced-search-body">
           {/* Search Input */}
           <div className="advanced-search-section">
-            <label className="advanced-search-label">Search Term</label>
+            <label className="advanced-search-label">{i18n.t('epg:searchTerm')}</label>
             <div className="advanced-search-input-wrap">
               <svg className="advanced-search-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -427,7 +428,7 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
               <input
                 type="text"
                 className="advanced-search-input"
-                placeholder="Type at least 2 characters..."
+                placeholder={i18n.t('epg:searchTermPlaceholder')}
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -443,7 +444,7 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
 
           {/* Search Scope */}
           <div className="advanced-search-section">
-            <label className="advanced-search-label">Search In</label>
+            <label className="advanced-search-label">{i18n.t('epg:searchIn')}</label>
             <div className="advanced-search-scope">
               <button
                 className={`scope-btn ${scope === 'channels' ? 'active' : ''}`}
@@ -453,7 +454,7 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
                   <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
                   <polyline points="17 2 12 7 7 2"></polyline>
                 </svg>
-                Channels
+                {i18n.t('epg:scopeChannels')}
               </button>
               <button
                 className={`scope-btn ${scope === 'epg' ? 'active' : ''}`}
@@ -465,7 +466,7 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
                   <path d="M8 3v4" />
                   <path d="M4 11h16" />
                 </svg>
-                EPG Only
+                {i18n.t('epg:scopeEpg')}
               </button>
               <button
                 className={`scope-btn ${scope === 'both' ? 'active' : ''}`}
@@ -476,7 +477,7 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
                   <polyline points="17 2 12 7 7 2"></polyline>
                   <path d="M4 11h16" />
                 </svg>
-                Both
+                {i18n.t('epg:scopeBoth')}
               </button>
             </div>
           </div>
@@ -484,11 +485,11 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
           {/* Source / Category Filters */}
           <div className="advanced-search-section">
             <div className="advanced-search-label-row">
-              <label className="advanced-search-label">Sources & Categories</label>
+              <label className="advanced-search-label">{i18n.t('epg:sourcesAndCategories')}</label>
               <div className="advanced-search-actions">
-                <button className="action-link" onClick={handleSelectAll}>Select All</button>
+                <button className="action-link" onClick={handleSelectAll}>{i18n.t('common:selectAll')}</button>
                 <span className="action-divider">|</span>
-                <button className="action-link" onClick={handleClearAll}>Clear</button>
+                <button className="action-link" onClick={handleClearAll}>{i18n.t('epg:clear')}</button>
               </div>
             </div>
 
@@ -496,10 +497,10 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
               {loading ? (
                 <div className="advanced-search-loading">
                   <div className="spinner-small"></div>
-                  <span>Loading sources...</span>
+                  <span>{i18n.t('epg:loadingSources')}</span>
                 </div>
               ) : sources.length === 0 ? (
-                <div className="advanced-search-empty">No enabled sources found</div>
+                <div className="advanced-search-empty">{i18n.t('epg:noEnabledSources')}</div>
               ) : (
                 sources.map(source => {
                   const sourceCategories = categoriesBySource.get(source.id) || [];
@@ -651,7 +652,7 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
               <div className={`toggle-switch ${useForRegular ? 'on' : ''}`}>
                 <div className="toggle-knob"></div>
               </div>
-              <span className="toggle-label">Use these settings for regular title bar searches</span>
+              <span className="toggle-label">{i18n.t('epg:useForRegularSearch')}</span>
             </label>
           </div>
         </div>
@@ -659,7 +660,7 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
         {/* Footer */}
         <div className="advanced-search-footer">
           <button className="advanced-search-btn secondary" onClick={onClose}>
-            Cancel
+            {i18n.t('common:cancel')}
           </button>
           <button
             className={`advanced-search-btn primary ${!canSearch ? 'disabled' : ''}`}
@@ -670,7 +671,7 @@ export function AdvancedSearchModal({ isOpen, initialConfig, onSearch, onClose }
               <circle cx="11" cy="11" r="8"></circle>
               <path d="m21 21-4.3-4.3"></path>
             </svg>
-            Search
+            {i18n.t('epg:search')}
           </button>
         </div>
       </div>

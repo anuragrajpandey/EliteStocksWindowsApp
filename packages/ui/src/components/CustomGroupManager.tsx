@@ -263,7 +263,7 @@ function TreeView({ sourcesAndCategories, searchQuery, expandedNodes, toggleNode
         }
     }, []);
 
-    if (!sourcesAndCategories) return <div className="cgm-empty">Loading sources…</div>;
+    if (!sourcesAndCategories) return <div className="cgm-empty">{t('loadingSources')}</div>;
 
     const { sources, categories } = sourcesAndCategories;
 

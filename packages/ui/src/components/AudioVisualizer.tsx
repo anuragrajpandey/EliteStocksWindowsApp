@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { listen } from '@tauri-apps/api/event';
+import i18n from '../i18n';
 import type { StoredChannel } from '../db';
 import { parseCategoryIds } from '../hooks/useChannels';
 import './AudioVisualizer.css';
@@ -415,7 +416,7 @@ export function AudioVisualizer({
     };
   }, [compact, mode]);
 
-  const channelName = channel?.name || 'Radio Station';
+  const channelName = channel?.name || i18n.t('player:radioStation');
   const logoUrl = channel?.stream_icon;
 
   const getCleanCategoryText = (): string => {
@@ -462,42 +463,42 @@ export function AudioVisualizer({
           <button
             className={`visualizer-picker-btn ${mode === 'spectrum' ? 'active' : ''}`}
             onClick={() => onModeChange('spectrum')}
-            title="Spectrum Bars"
+            title={i18n.t('player:visualizerSpectrum')}
           >
             <span className="picker-icon">📊</span>
-            {!compact && <span className="picker-label">Bars</span>}
+            {!compact && <span className="picker-label">{i18n.t('player:visualizerBars')}</span>}
           </button>
           <button
             className={`visualizer-picker-btn ${mode === 'circular' ? 'active' : ''}`}
             onClick={() => onModeChange('circular')}
-            title="Circular Spectrum"
+            title={i18n.t('player:visualizerCircular')}
           >
             <span className="picker-icon">⭕</span>
-            {!compact && <span className="picker-label">Circular</span>}
+            {!compact && <span className="picker-label">{i18n.t('player:visualizerCircularShort')}</span>}
           </button>
           <button
             className={`visualizer-picker-btn ${mode === 'wave' ? 'active' : ''}`}
             onClick={() => onModeChange('wave')}
-            title="Audio Wave"
+            title={i18n.t('player:visualizerWave')}
           >
             <span className="picker-icon">🌊</span>
-            {!compact && <span className="picker-label">Wave</span>}
+            {!compact && <span className="picker-label">{i18n.t('player:visualizerWaveShort')}</span>}
           </button>
           <button
             className={`visualizer-picker-btn ${mode === 'vinyl' ? 'active' : ''}`}
             onClick={() => onModeChange('vinyl')}
-            title="Vinyl Disc"
+            title={i18n.t('player:visualizerVinylDisc')}
           >
             <span className="picker-icon">💿</span>
-            {!compact && <span className="picker-label">Vinyl</span>}
+            {!compact && <span className="picker-label">{i18n.t('player:visualizerVinylShort')}</span>}
           </button>
           <button
             className={`visualizer-picker-btn ${(mode as string) === 'off' ? 'active' : ''}`}
             onClick={() => onModeChange('off')}
-            title="Off"
+            title={i18n.t('player:visualizerOffTitle')}
           >
             <span className="picker-icon">🚫</span>
-            {!compact && <span className="picker-label">Off</span>}
+            {!compact && <span className="picker-label">{i18n.t('player:visualizerOffShort')}</span>}
           </button>
         </div>
       )}

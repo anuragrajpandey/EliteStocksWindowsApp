@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import './VideoErrorOverlay.css';
 
 interface VideoErrorOverlayProps {
@@ -7,27 +8,28 @@ interface VideoErrorOverlayProps {
 }
 
 export function VideoErrorOverlay({ error, onDismiss, isSmall = false }: VideoErrorOverlayProps) {
+    const { t } = useTranslation('player');
     // Parse error for common HTTP codes
-    let title = 'Playback Error';
+    let title = t('playbackError');
     let message = error;
     let icon = '⚠️';
     let advice = '';
 
     if (error.includes('401')) {
-        title = 'Unauthorized Access';
-        advice = 'Your session may have expired or your credentials are invalid.';
+        title = t('unauthorizedAccess');
+        advice = t('sessionExpiredAdvice');
         icon = '🔒';
     } else if (error.includes('403')) {
-        title = 'Access Forbidden';
-        advice = 'You do not have permission to view this content. Your provider may be blocking this stream or your IP.';
+        title = t('accessForbidden');
+        advice = t('accessForbiddenAdvice');
         icon = '🚫';
     } else if (error.includes('404')) {
-        title = 'Stream Not Found';
-        advice = 'The requested channel or video is no longer available.';
+        title = t('streamNotFound');
+        advice = t('streamNotFoundAdvice');
         icon = '🔍';
     } else if (error.includes('network') || error.includes('connection')) {
-        title = 'Connection Error';
-        advice = 'Failed to connect to the server. Please check your internet connection.';
+        title = t('connectionError');
+        advice = t('connectionErrorAdvice');
         icon = '📡';
     }
 
@@ -47,12 +49,12 @@ export function VideoErrorOverlay({ error, onDismiss, isSmall = false }: VideoEr
 
                 {/* Only show raw details if it's different from the main message (and we are not small) */}
                 {!isSmall && message !== error && (
-                    <div className="video-error-raw">Error details: {error}</div>
+                    <div className="video-error-raw">{t('errorDetails', { error })}</div>
                 )}
 
                 {onDismiss && (
                     <button className="video-error-dismiss" onClick={onDismiss}>
-                        Dismiss
+                        {t('dismiss')}
                     </button>
                 )}
             </div>

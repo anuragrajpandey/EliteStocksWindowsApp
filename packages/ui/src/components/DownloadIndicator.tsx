@@ -21,7 +21,7 @@ export function DownloadIndicator({ size = 'small', className = '' }: DownloadIn
     >
       <div className="download-dot pulse"></div>
       <span className="download-text">
-        {activeCount > 1 ? `DL (${activeCount})` : 'DL'}
+        {activeCount > 1 ? t('dlWithCount', { n: activeCount }) : t('dl')}
       </span>
     </div>
   );

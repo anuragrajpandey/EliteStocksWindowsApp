@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useLayoutEffect, useMemo } from 'react';
+import i18n from '../i18n';
 import type { SportsEvent } from '@ynotv/core';
 import { useSportsPolling } from '../hooks/useSportsPolling';
 import { useSportsSettingsStore } from '../stores/sportsSettingsStore';
@@ -8,7 +9,7 @@ import { isEventLiveOrPastStart } from '../services/sports';
 
 function getStatusDisplay(event: SportsEvent): string {
   if (event.status === 'scheduled' && isEventLiveOrPastStart(event)) {
-    return event.timeElapsed || 'LIVE';
+    return event.timeElapsed || i18n.t('sports:statusLive');
   }
   if (event.status !== 'live') return '';
   const sport = event.league.sport.toLowerCase();
@@ -34,9 +35,9 @@ function getStatusDisplay(event: SportsEvent): string {
       return `${periodLabel || '-'}${event.timeElapsed ? ' ' + event.timeElapsed : ''}`;
     }
     case 'soccer':
-      return event.timeElapsed || 'LIVE';
+      return event.timeElapsed || i18n.t('sports:statusLive');
     default:
-      return event.timeElapsed || 'LIVE';
+      return event.timeElapsed || i18n.t('sports:statusLive');
   }
 }
 
@@ -228,7 +229,7 @@ export function LiveSportsOverlay({ mode, showControls, activeView }: LiveSports
                       {event.awayScore ?? 0}
                     </span>
                   </span>
-                  <span className="live-sports-score-vs">vs</span>
+                  <span className="live-sports-score-vs">{i18n.t('sports:vs')}</span>
                   <span className="live-sports-score-block">
                     <span className={`live-sports-score-value ${homeWinning ? 'winning' : ''}`}>
                       {event.homeScore ?? 0}
@@ -264,13 +265,13 @@ export function LiveSportsOverlay({ mode, showControls, activeView }: LiveSports
             <button
               className="live-sports-restore-btn"
               onClick={handleClearHidden}
-              title="Restore hidden matches"
+              title={i18n.t('sports:restoreHiddenMatches')}
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                 <path d="M3 3v5h5" />
               </svg>
-              <span>Restore ({hiddenIds.length})</span>
+              <span>{i18n.t('sports:restoreCount', { count: hiddenIds.length })}</span>
             </button>
           </div>
         )}
@@ -288,7 +289,7 @@ export function LiveSportsOverlay({ mode, showControls, activeView }: LiveSports
               <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
               <line x1="1" y1="1" x2="23" y2="23" />
             </svg>
-            Hide Match
+            {i18n.t('sports:hideMatch')}
           </div>
           {hasHiddenMatches && (
             <>
@@ -298,7 +299,7 @@ export function LiveSportsOverlay({ mode, showControls, activeView }: LiveSports
                   <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                   <path d="M3 3v5h5" />
                 </svg>
-                Restore All Hidden
+                {i18n.t('sports:restoreAllHidden')}
               </div>
             </>
           )}

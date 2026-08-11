@@ -1008,7 +1008,7 @@ export function ChannelPanel({
 
   const categoryName = playlistCatLink
     ? (playlistCatLink.displayName ?? t('linkedCategory'))
-    : (currentCategory?.category_name ?? 'All Channels');
+    : (currentCategory?.category_name ?? i18n.t('live:allChannels'));
 
   // Get source ID from current category or playlist link
   const sourceId = playlistCatLink
@@ -2384,7 +2384,7 @@ export function ChannelPanel({
                 ) : selectedChannel ? (
                   <>
                     <div className="guide-program-title">
-                      {selectedProgram ? selectedProgram.title : (selectedChannel.name || 'No Program Name')}
+                      {selectedProgram ? selectedProgram.title : (selectedChannel.name || i18n.t('common:noProgramName'))}
                     </div>
                     {selectedProgram?.subtitle && (
                       <div className="guide-program-subtitle">{selectedProgram.subtitle}</div>
@@ -2674,7 +2674,7 @@ export function ChannelPanel({
                             }
                           }}
                           disabled={!isAvailable}
-                          title={isAvailable ? `Jump to ${letter}` : `No channels starting with ${letter}`}
+                          title={isAvailable ? i18n.t('live:jumpToLetterName', { letter }) : i18n.t('live:noChannelsStartingWith', { letter })}
                         >
                           {letter}
                         </button>

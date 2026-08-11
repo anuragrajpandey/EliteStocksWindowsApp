@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LayoutMode, type MultiviewEngineMode } from '../../hooks/useMultiview';
 import './LayoutPicker.css';
 
@@ -11,35 +12,52 @@ interface LayoutPickerProps {
     onOpenChange?: (open: boolean) => void;
 }
 
-const LAYOUTS: { mode: LayoutMode; label: string; description: string }[] = [
+const LAYOUTS: { mode: LayoutMode; labelKey: string; descKey: string }[] = [
     {
         mode: 'main',
-        label: 'Main View',
-        description: 'Single full-screen player',
+        labelKey: 'layoutMain',
+        descKey: 'layoutMainDesc',
     },
     {
         mode: 'pip',
-        label: 'Picture in Picture',
-        description: 'Full player + 1 overlay',
+        labelKey: 'layoutPip',
+        descKey: 'layoutPipDesc',
     },
     {
         mode: 'sbs',
-        label: 'Side by Side',
-        description: 'Two 16:9 players side by side',
+        labelKey: 'layoutSbs',
+        descKey: 'layoutSbsDesc',
     },
     {
         mode: 'bigbottom',
-        label: 'Big + Bottom Bar',
-        description: 'Large main + 3 below',
+        labelKey: 'layoutBigBottom',
+        descKey: 'layoutBigBottomDesc',
     },
     {
         mode: '2x2',
-        label: '2×2 Grid',
-        description: 'Equal 4-panel grid',
+        labelKey: 'layout2x2',
+        descKey: 'layout2x2Desc',
     },
 ];
 
+const LAYOUT_LABEL_KEYS: Record<string, string> = {
+    layoutMain: 'layoutMain',
+    layoutPip: 'layoutPip',
+    layoutSbs: 'layoutSbs',
+    layoutBigBottom: 'layoutBigBottom',
+    layout2x2: 'layout2x2',
+};
+
+const LAYOUT_DESC_KEYS: Record<string, string> = {
+    layoutMainDesc: 'layoutMainDesc',
+    layoutPipDesc: 'layoutPipDesc',
+    layoutSbsDesc: 'layoutSbsDesc',
+    layoutBigBottomDesc: 'layoutBigBottomDesc',
+    layout2x2Desc: 'layout2x2Desc',
+};
+
 export function LayoutPicker({ currentLayout, onSelect, engineMode, onEngineChange, isHeroPage, onOpenChange }: LayoutPickerProps) {
+    const { t } = useTranslation('player');
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -67,30 +85,30 @@ export function LayoutPicker({ currentLayout, onSelect, engineMode, onEngineChan
             <button
                 className={`layout-picker-btn title-bar-settings-btn ${currentLayout !== 'main' ? 'layout-picker-btn-active' : ''}`}
                 onClick={() => setOpen(o => !o)}
-                title={`Layout: ${LAYOUTS.find(l => l.mode === currentLayout)?.label}`}
+                title={t('layoutLabel', { layout: t(LAYOUT_LABEL_KEYS[LAYOUTS.find(l => l.mode === currentLayout)?.labelKey || 'layoutMain'] as never) })}
             >
                 <LayoutIcon mode={currentLayout} />
             </button>
 
             {open && (
                 <div className="layout-picker-dropdown">
-                    <div className="layout-picker-header">View Layout</div>
+                    <div className="layout-picker-header">{t('viewLayout')}</div>
 
                     {/* Viewer Engine toggle */}
                     <div className="lp-engine-row">
-                        <span className="lp-engine-label">Viewer Engine</span>
+                        <span className="lp-engine-label">{t('viewerEngine')}</span>
                         <div className="lp-engine-pills">
                             <button
                                 className={`lp-engine-pill ${engineMode === 'mpv' ? 'lp-engine-pill-active' : ''}`}
                                 onClick={() => onEngineChange('mpv')}
-                                title="Native MPV secondary windows"
+                                title={t('mpvNativeWindows')}
                             >
                                 MPV
                             </button>
                             <button
                                 className={`lp-engine-pill lp-engine-pill-hls ${engineMode === 'hls' ? 'lp-engine-pill-active lp-engine-pill-hls-active' : ''}`}
                                 onClick={() => onEngineChange('hls')}
-                                title="In-browser HLS player — supports overlays"
+                                title={t('hlsInBrowser')}
                             >
                                 HLS
                             </button>
@@ -109,8 +127,8 @@ export function LayoutPicker({ currentLayout, onSelect, engineMode, onEngineChan
                                 <LayoutPreview mode={layout.mode} />
                             </div>
                             <div className="layout-picker-option-text">
-                                <span className="layout-picker-option-label">{layout.label}</span>
-                                <span className="layout-picker-option-desc">{layout.description}</span>
+                                <span className="layout-picker-option-label">{t(LAYOUT_LABEL_KEYS[layout.labelKey] as never)}</span>
+                                <span className="layout-picker-option-desc">{t(LAYOUT_DESC_KEYS[layout.descKey] as never)}</span>
                             </div>
                             {layout.mode === currentLayout && (
                                 <span className="layout-picker-check">✓</span>

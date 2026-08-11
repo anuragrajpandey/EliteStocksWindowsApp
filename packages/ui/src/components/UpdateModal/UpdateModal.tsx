@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { check, Update, DownloadEvent } from '@tauri-apps/plugin-updater';
 import { relaunch } from '@tauri-apps/plugin-process';
 import { getVersion } from '@tauri-apps/api/app';
@@ -88,6 +89,7 @@ interface UpdateModalProps {
 }
 
 export function UpdateModal({ isOpen, onClose }: UpdateModalProps) {
+  const { t } = useTranslation('updates');
   const [update, setUpdate] = useState<Update | null>(null);
   const [status, setStatus] = useState<'checking' | 'available' | 'downloading' | 'installing' | 'uptodate' | 'error'>('checking');
   const [progress, setProgress] = useState(0);
@@ -122,7 +124,7 @@ export function UpdateModal({ isOpen, onClose }: UpdateModalProps) {
     } catch (e) {
       console.error('[UpdateModal] Failed to check for updates:', e);
       setStatus('error');
-      setError('Failed to check for updates. Please try again later.');
+      setError(t('checkFailed'));
     }
   };
 
@@ -159,7 +161,7 @@ export function UpdateModal({ isOpen, onClose }: UpdateModalProps) {
     } catch (e) {
       console.error('[UpdateModal] Failed to download/install update:', e);
       setStatus('error');
-      setError('Failed to download or install the update. Please try again later.');
+      setError(t('installFailed'));
     }
   };
 
@@ -176,12 +178,12 @@ export function UpdateModal({ isOpen, onClose }: UpdateModalProps) {
       <div className="update-modal-panel" onClick={e => e.stopPropagation()}>
         <div className="update-modal-header">
           <h2>
-            {status === 'checking' && 'Checking for Updates'}
-            {status === 'available' && 'Update Available'}
-            {status === 'downloading' && 'Downloading Update'}
-            {status === 'installing' && 'Installing Update'}
-            {status === 'uptodate' && 'Up to Date'}
-            {status === 'error' && 'Update Error'}
+            {status === 'checking' && t('statusChecking')}
+            {status === 'available' && t('statusAvailable')}
+            {status === 'downloading' && t('statusDownloading')}
+            {status === 'installing' && t('statusInstalling')}
+            {status === 'uptodate' && t('statusUpToDate')}
+            {status === 'error' && t('statusError')}
           </h2>
           {status !== 'downloading' && status !== 'installing' && (
             <button className="update-modal-close" onClick={handleClose}>✕</button>
@@ -192,7 +194,7 @@ export function UpdateModal({ isOpen, onClose }: UpdateModalProps) {
           {status === 'checking' && (
             <div className="update-modal-checking">
               <div className="update-modal-spinner" />
-              <p>Checking for available updates...</p>
+              <p>{t('checking')}</p>
             </div>
           )}
 
@@ -200,21 +202,21 @@ export function UpdateModal({ isOpen, onClose }: UpdateModalProps) {
             <div className="update-modal-available">
               <div className="update-modal-icon">🎉</div>
               <p className="update-modal-message">
-                A new version of ynoTV is available!
+                {t('newVersionAvailable')}
               </p>
               <div className="update-modal-version">
                 <div className="version-row">
-                  <span className="version-label">Current:</span>
+                  <span className="version-label">{t('currentLabel')}</span>
                   <span className="version-current">v{update.currentVersion}</span>
                 </div>
                 <div className="version-row">
-                  <span className="version-label">New:</span>
+                  <span className="version-label">{t('newLabel')}</span>
                   <span className="version-new">v{update.version}</span>
                 </div>
               </div>
               {update.body && (
                 <div className="update-modal-notes">
-                  <h4>What's New:</h4>
+                  <h4>{t('whatsNew')}</h4>
                   <div className="update-notes-content">
                     <ChangelogContent body={update.body} />
                   </div>
@@ -222,10 +224,10 @@ export function UpdateModal({ isOpen, onClose }: UpdateModalProps) {
               )}
               <div className="update-modal-actions">
                 <button className="update-modal-btn secondary" onClick={handleClose}>
-                  Later
+                  {t('later')}
                 </button>
                 <button className="update-modal-btn primary" onClick={handleUpdate}>
-                  Update Now
+                  {t('updateNow')}
                 </button>
               </div>
             </div>
@@ -239,16 +241,16 @@ export function UpdateModal({ isOpen, onClose }: UpdateModalProps) {
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <p className="update-modal-progress-text">{progress}% downloaded</p>
-              <p className="update-modal-hint">Please don't close the app</p>
+              <p className="update-modal-progress-text">{t('percentDownloaded', { percent: progress })}</p>
+              <p className="update-modal-hint">{t('dontCloseApp')}</p>
             </div>
           )}
 
           {status === 'installing' && (
             <div className="update-modal-installing">
               <div className="update-modal-spinner" />
-              <p>Installing update...</p>
-              <p className="update-modal-hint">The app will restart automatically</p>
+              <p>{t('installing')}</p>
+              <p className="update-modal-hint">{t('appRestartsAutomatically')}</p>
             </div>
           )}
 
@@ -256,14 +258,14 @@ export function UpdateModal({ isOpen, onClose }: UpdateModalProps) {
             <div className="update-modal-uptodate">
               <div className="update-modal-icon success">✓</div>
               <p className="update-modal-message">
-                You're running the latest version of ynoTV!
+                {t('runningLatest')}
               </p>
               <p className="update-modal-version-text">
-                Current version: v{update?.currentVersion || currentVersion || 'Unknown'}
+                {t('currentVersionText', { version: update?.currentVersion || currentVersion || t('unknown') })}
               </p>
               <div className="update-modal-actions">
                 <button className="update-modal-btn primary" onClick={handleClose}>
-                  OK
+                  {t('ok')}
                 </button>
               </div>
             </div>
@@ -273,14 +275,14 @@ export function UpdateModal({ isOpen, onClose }: UpdateModalProps) {
             <div className="update-modal-error">
               <div className="update-modal-icon error">✕</div>
               <p className="update-modal-message">
-                {error || 'Something went wrong'}
+                {error || t('somethingWentWrong')}
               </p>
               <div className="update-modal-actions">
                 <button className="update-modal-btn secondary" onClick={handleClose}>
-                  Cancel
+                  {t('cancel')}
                 </button>
                 <button className="update-modal-btn primary" onClick={checkForUpdate}>
-                  Try Again
+                  {t('tryAgain')}
                 </button>
               </div>
             </div>

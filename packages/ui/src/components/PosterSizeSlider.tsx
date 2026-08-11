@@ -1,4 +1,5 @@
 import { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import './PosterSizeSlider.css';
 
 export const POSTER_SIZE_PRESETS = [
@@ -19,6 +20,7 @@ interface PosterSizeSliderProps {
 }
 
 export const PosterSizeSlider = memo(function PosterSizeSlider({ value, onChange }: PosterSizeSliderProps) {
+  const { t } = useTranslation('vod');
   // Find the closest preset value to the current value
   const currentIndex = POSTER_SIZE_PRESETS.reduce((bestIndex, current, index) => {
     const currentDiff = Math.abs(current.value - value);
@@ -52,8 +54,8 @@ export const PosterSizeSlider = memo(function PosterSizeSlider({ value, onChange
         className={`poster-size-slider__icon poster-size-slider__icon--small ${!canDecrease ? 'disabled' : ''}`}
         onClick={handleDecrease}
         disabled={!canDecrease}
-        aria-label="Decrease poster size"
-        title="Smaller posters"
+        aria-label={t('posterSizeDecrease')}
+        title={t('posterSizeSmaller')}
         type="button"
       >
         <svg viewBox="0 0 24 24" fill="currentColor">
@@ -69,8 +71,8 @@ export const PosterSizeSlider = memo(function PosterSizeSlider({ value, onChange
           value={currentIndex}
           onChange={handleChange}
           className="poster-size-slider__input"
-          aria-label="Poster size"
-          title={`Poster size: ${POSTER_SIZE_PRESETS[currentIndex]?.label || 'Default'}`}
+          aria-label={t('posterSize')}
+          title={t('posterSizeTitle', { label: POSTER_SIZE_PRESETS[currentIndex]?.label || t('posterSizeDefault') })}
         />
         <div className="poster-size-slider__marks">
           {POSTER_SIZE_PRESETS.map((_, index) => (
@@ -85,8 +87,8 @@ export const PosterSizeSlider = memo(function PosterSizeSlider({ value, onChange
         className={`poster-size-slider__icon poster-size-slider__icon--large ${!canIncrease ? 'disabled' : ''}`}
         onClick={handleIncrease}
         disabled={!canIncrease}
-        aria-label="Increase poster size"
-        title="Larger posters"
+        aria-label={t('posterSizeIncrease')}
+        title={t('posterSizeLarger')}
         type="button"
       >
         <svg viewBox="0 0 24 24" fill="currentColor">

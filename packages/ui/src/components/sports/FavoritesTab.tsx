@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import i18n from '../../i18n';
 import type { SportsTeam, SportsEvent, SportsTabId } from '@ynotv/core';
 import { 
   useFavoriteTeams, 
@@ -296,8 +297,7 @@ function SortableFavoriteCard(props: SortableFavoriteCardProps) {
           onClick={(e) => {
             e.stopPropagation();
             onTogglePin(team.id);
-          }}
-          title={team.isPinned ? 'Unpin team' : 'Pin team to top'}
+          }}            title={team.isPinned ? i18n.t('sports:unpinTeam') : i18n.t('sports:pinTeamToTop')}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill={team.isPinned ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -309,8 +309,7 @@ function SortableFavoriteCard(props: SortableFavoriteCardProps) {
           onClick={(e) => {
             e.stopPropagation();
             onRemove(team.id);
-          }}
-          title="Remove from favorites"
+          }}            title={i18n.t('sports:removeFromFavorites')}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -346,7 +345,7 @@ function SortableFavoriteCard(props: SortableFavoriteCardProps) {
               </span>
             )}
             {!details && (
-              <span className="favorite-card-league">{team.shortName || team.country || 'Team'}</span>
+              <span className="favorite-card-league">{team.shortName || team.country || i18n.t('sports:team')}</span>
             )}
           </div>
         </div>
@@ -404,7 +403,7 @@ function SortableFavoriteCard(props: SortableFavoriteCardProps) {
           </div>
         ) : (
           <div className="favorite-card-no-game-box">
-            <span>No upcoming game scheduled</span>
+            <span>{i18n.t('sports:noUpcomingGameScheduled')}</span>
           </div>
         )}
       </div>
@@ -412,8 +411,7 @@ function SortableFavoriteCard(props: SortableFavoriteCardProps) {
       {/* Actions Row: Search & List Streams Here */}
       <div className="favorite-card-actions-row" onPointerDown={(e) => e.stopPropagation()}>
         <button
-          className="favorite-action-text-btn search-btn"
-          title={`Search EPG for ${searchQuery}`}
+          className="favorite-action-text-btn search-btn"            title={i18n.t('sports:searchEpgForQuery', { query: searchQuery })}
           onClick={(e) => {
             e.stopPropagation();
             onSearchClick(searchQuery);
@@ -427,8 +425,7 @@ function SortableFavoriteCard(props: SortableFavoriteCardProps) {
         </button>
 
         <button
-          className={`favorite-action-text-btn list-btn ${streamsList && streamsList.length > 0 ? 'active' : ''}`}
-          title={streamsList ? 'Hide streams' : 'Find matching live streams'}
+          className={`favorite-action-text-btn list-btn ${streamsList && streamsList.length > 0 ? 'active' : ''}`}            title={streamsList ? i18n.t('sports:hideStreams') : i18n.t('sports:findMatchingLiveStreams')}
           onClick={(e) => {
             e.stopPropagation();
             onToggleInlineStreams(cardKey, searchQuery);
@@ -471,7 +468,7 @@ function SortableFavoriteCard(props: SortableFavoriteCardProps) {
               ))}
             </div>
           ) : (
-            <div className="favorite-no-streams-text">No streams found in current playlists</div>
+            <div className="favorite-no-streams-text">{i18n.t('sports:noStreamsInPlaylists')}</div>
           )}
         </div>
       )}
@@ -729,7 +726,7 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
         onClose={() => setSelectedTeam(null)}
         onChannelClick={handleChannelClick}
         onPlayChannel={onPlayChannel}
-        fromTab="Favorites"
+        fromTab={i18n.t('sports:tabs.favorites')}
       />
     );
   }
@@ -753,8 +750,8 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
           </svg>
         </div>
-        <h3>No Favorite Teams Added</h3>
-        <p>Follow your favorite teams to see live scores, next game countdowns, and instant stream access all in one place.</p>
+        <h3>{i18n.t('sports:noFavoriteTeamsAdded')}</h3>
+        <p>{i18n.t('sports:noFavoriteTeamsHint')}</p>
         {onSetTab && (
           <button className="sports-empty-action-btn" onClick={() => onSetTab('leagues')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -775,7 +772,7 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
         <div className="your-teams-today-header">
           <div className="your-teams-today-title-group">
             <span className="your-teams-today-badge-icon">🔥</span>
-            <h2>Your Teams Today</h2>
+            <h2>{i18n.t('sports:yourTeamsToday')}</h2>
           </div>
           <span className="your-teams-today-count">
             {todayFavoriteGames.length > 0 
@@ -818,7 +815,7 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
                           <span className="your-teams-today-score">{event.homeScore}</span>
                         )}
                       </div>
-                      <span className="your-teams-today-vs">vs</span>
+                      <span className="your-teams-today-vs">{i18n.t('sports:vs')}</span>
                       <div className="your-teams-today-team">
                         {event.awayTeam.logo && (
                           <img src={event.awayTeam.logo} alt="" className="your-teams-today-logo" />
@@ -835,7 +832,7 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
                   <div className="your-teams-today-actions-row">
                     <button
                       className="favorite-action-text-btn search-btn"
-                      title={`Search EPG for ${event.homeTeam.name} vs ${event.awayTeam.name}`}
+                      title={i18n.t('sports:searchEpgForTeam', { home: event.homeTeam.name, away: event.awayTeam.name })}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleChannelClick(searchQuery);
@@ -850,7 +847,7 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
 
                     <button
                       className={`favorite-action-text-btn list-btn ${streamsList && streamsList.length > 0 ? 'active' : ''}`}
-                      title={streamsList ? 'Hide streams' : 'List streams for game'}
+                      title={streamsList ? i18n.t('sports:hideStreams') : i18n.t('sports:listStreamsForGame')}
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleInlineStreams(cardKey, searchQuery);
@@ -893,7 +890,7 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
                           ))}
                         </div>
                       ) : (
-                        <div className="favorite-no-streams-text">No streams found in current playlists</div>
+                        <div className="favorite-no-streams-text">{i18n.t('sports:noStreamsInPlaylists')}</div>
                       )}
                     </div>
                   )}
@@ -904,7 +901,7 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
         ) : (
           <div className="your-teams-today-empty">
             <span className="your-teams-today-empty-icon">📅</span>
-            <span>None of your favorite teams are playing today. Check upcoming schedules below!</span>
+            <span>{i18n.t('sports:noTeamsPlayingToday')}</span>
           </div>
         )}
       </section>
@@ -970,7 +967,7 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
               <button
                 className="sports-add-team-card"
                 onClick={() => onSetTab?.('leagues')}
-                title="Add a new team to favorites"
+                title={i18n.t('sports:addNewTeamToFavorites')}
               >
                 <div className="sports-add-team-icon">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -978,8 +975,8 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
                     <line x1="5" y1="12" x2="19" y2="12" />
                   </svg>
                 </div>
-                <span className="sports-add-team-title">Add Favorite Team</span>
-                <span className="sports-add-team-desc">Browse NFL, NBA, MLB, Premier League & more</span>
+          <span className="sports-add-team-title">{i18n.t('sports:addFavoriteTeam')}</span>
+          <span className="sports-add-team-desc">{i18n.t('sports:browseLeaguesDesc')}</span>
               </button>
             </div>
           </SortableContext>

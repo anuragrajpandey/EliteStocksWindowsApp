@@ -4,6 +4,7 @@ import type { WatchlistItem } from '../db';
 import { useEpgClockFormat } from '../stores/uiStore';
 import { formatTime } from '../utils/dateTime';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import './WatchlistNotification.css';
 
 export interface WatchlistNotificationItem {
@@ -80,7 +81,7 @@ function NotificationItem({
       <div className="watchlist-notification-header">
         <span className="watchlist-notification-icon">{isReminder ? '🔔' : '🔄'}</span>
         <span className="watchlist-notification-title">
-          {isReminder ? 'Program Starting' : 'Auto-Switched'}
+          {isReminder ? i18n.t('common:programStarting') : i18n.t('common:autoSwitched')}
         </span>
         <button className="watchlist-notification-close" onClick={handleDismiss}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -101,7 +102,7 @@ function NotificationItem({
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polygon points="5 3 19 12 5 21 5 3" />
           </svg>
-          {isAutoswitch ? 'Stay Here' : 'Switch Now'}
+          {isAutoswitch ? i18n.t('common:stayHere') : i18n.t('common:switchNow')}
         </button>
         <button className="watchlist-notification-btn dismiss" onClick={handleDismiss}>
           Dismiss

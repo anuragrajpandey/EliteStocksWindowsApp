@@ -7,6 +7,7 @@ import { ChannelLogo } from './ChannelLogo';
 import { useEpgClockFormat } from '../stores/uiStore';
 import { formatTime, formatDate } from '../utils/dateTime';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import './ChannelPanel.css';
 
 // Channel column width is controlled via CSS custom property for resizability
@@ -80,7 +81,7 @@ export function WatchlistRow({
           <button
             className="watchlist-btn-delete"
             onClick={handleDeleteUnavailable}
-            title="Remove from watchlist"
+            title={i18n.t('common:removeFromWatchlist')}
             style={{ marginLeft: 'auto' }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -204,7 +205,7 @@ export function WatchlistRow({
                 e.stopPropagation();
                 setShowEditModal(true);
               }}
-              title="Edit watchlist settings"
+              title={i18n.t('common:editWatchlistSettings')}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -218,7 +219,7 @@ export function WatchlistRow({
                 handleDelete();
               }}
               disabled={isDeleting}
-              title="Remove from watchlist"
+              title={i18n.t('common:removeFromWatchlist')}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="3 6 5 6 21 6" />

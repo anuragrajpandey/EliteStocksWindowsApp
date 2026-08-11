@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import './ChannelLoadingOverlay.css';
 
 interface ChannelLoadingOverlayProps {
@@ -11,18 +12,19 @@ export function ChannelLoadingOverlay({
   loadingState,
   isSmall = false,
 }: ChannelLoadingOverlayProps) {
+  const { t } = useTranslation('player');
   let statusText = '';
   let subtext = '';
   let showSpinner = true;
   let icon = '';
 
   if (loadingState === 'loading') {
-    statusText = `'${channelName}' Working on it...`;
+    statusText = t('workingOnIt', { channel: channelName });
   } else if (loadingState === 'buffering') {
-    statusText = `'${channelName}' Buffering...`;
+    statusText = t('buffering', { channel: channelName });
   } else if (loadingState === 'unavailable') {
-    statusText = `'${channelName}' is currently unavailable`;
-    subtext = 'Unable to reach stream.';
+    statusText = t('channelUnavailable', { channel: channelName });
+    subtext = t('unableToReachStream');
     showSpinner = false;
     icon = '⚠️';
   }

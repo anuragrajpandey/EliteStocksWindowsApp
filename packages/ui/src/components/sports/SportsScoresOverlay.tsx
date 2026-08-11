@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import i18n from '../../i18n';
 import type { SportsEvent } from '@ynotv/core';
 import { GameDetail } from './GameDetail';
 import { isEventLiveOrPastStart } from '../../services/sports';
@@ -16,7 +17,7 @@ function getSportsCache(): SportsCache {
 
 function getStatusDisplay(event: SportsEvent): string {
   if (event.status === 'scheduled' && isEventLiveOrPastStart(event)) {
-    return event.timeElapsed || 'LIVE';
+    return event.timeElapsed || i18n.t('sports:statusLive');
   }
   if (event.status !== 'live') return '';
   const sport = event.league.sport.toLowerCase();
@@ -42,9 +43,9 @@ function getStatusDisplay(event: SportsEvent): string {
       return `${periodLabel || '-'}${event.timeElapsed ? ' ' + event.timeElapsed : ''}`;
     }
     case 'soccer':
-      return event.timeElapsed || 'LIVE';
+      return event.timeElapsed || i18n.t('sports:statusLive');
     default:
-      return event.timeElapsed || 'LIVE';
+      return event.timeElapsed || i18n.t('sports:statusLive');
   }
 }
 
@@ -112,7 +113,7 @@ export function SportsScoresOverlay() {
                       {event.awayScore ?? 0}
                     </span>
                   </span>
-                  <span className="sports-score-vs">vs</span>
+                  <span className="sports-score-vs">{i18n.t('sports:vs')}</span>
                   <span className="sports-score-block">
                     <span className={`sports-score-value ${homeWinning ? 'winning' : ''}`}>
                       {event.homeScore ?? 0}

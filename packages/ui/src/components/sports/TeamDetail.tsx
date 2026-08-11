@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { formatTime, formatDate } from '../../utils/dateTime';
 import { useEpgClockFormat } from '../../stores/uiStore';
 import type { SportsEvent, SportsTeam } from '@ynotv/core';
@@ -193,7 +194,7 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel, bread
 
     const leagueId = (team.leagueId || 'nfl').toLowerCase();
     const info = LEAGUE_INFO_MAP[leagueId] || { sportName: 'Sports', leagueName: leagueId.toUpperCase() };
-    const rootLabel = fromTab || 'Leagues';
+    const rootLabel = fromTab || i18n.t('sports:tabs.leagues');
 
     return [
       { label: rootLabel, onClick: onRootClick || onClose },
@@ -275,7 +276,7 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel, bread
 
   return (
     <div className="sports-tab-content">
-      <nav className="sports-breadcrumbs" aria-label="Breadcrumbs">
+      <nav className="sports-breadcrumbs" aria-label={i18n.t('sports:breadcrumbs')}>
         {activeBreadcrumbs.map((item, idx) => {
           const isLast = idx === activeBreadcrumbs.length - 1;
           return (
@@ -334,7 +335,7 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel, bread
                 <button
                   className={`team-favorite-btn ${isFavorite ? 'is-favorite' : ''}`}
                   onClick={handleToggleFavorite}
-                  title={isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+                  title={isFavorite ? i18n.t('sports:removeFromFavorites') : i18n.t('sports:addToFavorites')}
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -348,18 +349,18 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel, bread
             <div className="team-record-section">
               <div className="team-record-cards">
                 <div className="team-record-card overall">
-                  <span className="team-record-label">Overall</span>
+                  <span className="team-record-label">{i18n.t('sports:overall')}</span>
                   <span className="team-record-value">{details.record.overall}</span>
                 </div>
                 {details.record.home && (
                   <div className="team-record-card">
-                    <span className="team-record-label">Home</span>
+                    <span className="team-record-label">{i18n.t('sports:home')}</span>
                     <span className="team-record-value">{details.record.home}</span>
                   </div>
                 )}
                 {details.record.away && (
                   <div className="team-record-card">
-                    <span className="team-record-label">Away</span>
+                    <span className="team-record-label">{i18n.t('sports:away')}</span>
                     <span className="team-record-value">{details.record.away}</span>
                   </div>
                 )}
@@ -373,10 +374,10 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel, bread
 
             return (
               <div className="team-next-game" onClick={() => setSelectedEvent(nextGame)}>
-                <span className="team-next-label">Next Game</span>
+                <span className="team-next-label">{i18n.t('sports:nextGame')}</span>
                 <div className="team-next-content">
                   <span className="team-next-opponent">
-                    {nextGame.homeTeam.id === team.id ? 'vs ' : '@ '}
+                    {nextGame.homeTeam.id === team.id ? `${i18n.t('sports:vs')} ` : '@ '}
                     {nextGame.homeTeam.id === team.id 
                       ? nextGame.awayTeam.name 
                       : nextGame.homeTeam.name}
@@ -442,7 +443,7 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel, bread
                   <>
                     {upcoming.length > 1 && (
                       <section className="sports-section">
-                        <h3 className="sports-section-title">Upcoming Schedule</h3>
+                        <h3 className="sports-section-title">{i18n.t('sports:upcomingSchedule')}</h3>
                         <div className="team-schedule-grid">
                           {upcoming.slice(1, 6).map(event => (
                             <TeamEventCard
@@ -459,7 +460,7 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel, bread
 
                     {past.length > 0 && (
                       <section className="sports-section">
-                        <h3 className="sports-section-title">Recent Results</h3>
+                        <h3 className="sports-section-title">{i18n.t('sports:recentResults')}</h3>
                         <div className="team-schedule-grid">
                           {past.slice(0, 5).map(event => (
                             <TeamEventCard
@@ -489,13 +490,13 @@ export function TeamDetail({ team, onClose, onChannelClick, onPlayChannel, bread
                 ) : (
                   <>
                     <div className="team-schedule-top-controls">
-                      <h3 className="sports-section-title" style={{ margin: 0 }}>Full Season Schedule</h3>
+                      <h3 className="sports-section-title" style={{ margin: 0 }}>{i18n.t('sports:fullSeasonSchedule')}</h3>
                       <div className="team-schedule-toggle-group">
                         <button
                           className={`team-schedule-toggle-btn${chunkBySeries ? ' active' : ''}`}
                           onClick={() => setChunkBySeries(true)}
                         >
-                          Group by Series
+                          {i18n.t('sports:groupBySeries')}
                         </button>
                         <button
                           className={`team-schedule-toggle-btn${!chunkBySeries ? ' active' : ''}`}
@@ -1094,7 +1095,7 @@ function TeamLeaderCategoryCard({
           style={{ marginTop: '8px', alignSelf: 'center', width: '100%', border: '1px solid rgba(255, 255, 255, 0.1)' }}
           onClick={() => setExpanded(!expanded)}
         >
-          {expanded ? 'Show Top 5' : `Show All (${category.leaders.length})`}
+          {expanded ? i18n.t('sports:showTop5') : i18n.t('sports:showAllCount', { count: category.leaders.length })}
         </button>
       )}
     </div>
