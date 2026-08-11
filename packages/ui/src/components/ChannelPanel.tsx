@@ -22,6 +22,8 @@ import { AudioVisualizer, type VisualizerMode } from './AudioVisualizer';
 import type { StoredChannel, StoredProgram, WatchlistItem } from '../db';
 import { db } from '../db';
 import { matchesSearch } from '../utils/searchNormalization';
+import { formatTime } from '../utils/dateTime';
+import { useTranslation } from 'react-i18next';
 
 function formatSeekTime(seconds: number): string {
   if (!isFinite(seconds) || seconds < 0) return '0:00';
@@ -352,6 +354,7 @@ export function ChannelPanel({
   audioVisualizerMode = 'spectrum',
   onSetAudioVisualizerMode,
 }: ChannelPanelProps) {
+  useTranslation();
   const epgView = useEpgView();
   const epgVisibleHours = useEpgVisibleHours();
   const epgClockFormat = useEpgClockFormat();
@@ -1133,8 +1136,8 @@ export function ChannelPanel({
   const isCustomCategory = isCustomGroup || Boolean(isPlaylistCatLink) || isCustomPlaylistCat || isPlaylistSource;
 
   // Format time
-  const formatTime = useCallback((date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
+  const formatEpgTime = useCallback((date: Date) => {
+    return formatTime(date, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
   }, [epgClockFormat]);
 
   // Generate time slots aligned to the grid
@@ -1681,7 +1684,7 @@ export function ChannelPanel({
   // Format program time
   const formatProgramTime = (date: Date | string) => {
     const d = date instanceof Date ? date : new Date(date);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
+    return formatTime(d, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
   };
 
   // Check if program is currently airing
@@ -2386,7 +2389,7 @@ export function ChannelPanel({
                       <div className="guide-program-subtitle">{selectedProgram.subtitle}</div>
                     )}
                     <div className="guide-program-meta">
-                      <span>{selectedProgram ? `${formatTime(new Date(selectedProgram.start))} - ${formatTime(new Date(selectedProgram.end))}` : ''}</span>
+                      <span>{selectedProgram ? `${formatEpgTime(new Date(selectedProgram.start))} - ${formatEpgTime(new Date(selectedProgram.end))}` : ''}</span>
                       {selectedProgram && (
                         <div className="guide-program-progress-bar">
                           <div className="guide-program-progress-fill" style={{ width: `${progressPercent}%` }} />
@@ -2475,7 +2478,7 @@ export function ChannelPanel({
               </>
             ) : (
               <>
-                <span className="guide-current-time">{formatTime(currentTime)}</span>
+                <span className="guide-current-time">{formatEpgTime(currentTime)}</span>
                 {categoryId === '__favorites__' && (
                   <>
                     <button
@@ -2771,7 +2774,7 @@ export function ChannelPanel({
                 if (position < 0 || position > availableWidth) return null;
                 return (
                   <span key={i} className="guide-time-marker" style={{ left: position }}>
-                    {formatTime(slot)}
+                    {formatEpgTime(slot)}
                   </span>
                 );
               })}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { formatTime } from '../utils/dateTime';
 import type { SportsEvent } from '@ynotv/core';
 import { getLiveScores, getLiveScoresForLeagues, isEventLiveOrPastStart } from '../services/sports';
 import { DEFAULT_LIVE_LEAGUES } from '../services/sports/config';
@@ -542,7 +543,7 @@ export function formatLastUpdated(date: Date | null): string {
   if (seconds < 60) return `${seconds}s ago`;
   if (minutes < 60) return `${minutes}m ago`;
 
-  return date.toLocaleTimeString(undefined, {
+  return formatTime(date, {
     hour: '2-digit',
     minute: '2-digit',
   });

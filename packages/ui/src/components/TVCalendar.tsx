@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from 'react';
 import './TVCalendar.css';
 import { TVShowsManager } from './TVShowsManager';
 import { db, addTvEpisodeToWatchlist, clearAutoAddedEpisodesForShow, type AutoAddEpisode } from '../db';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '../utils/dateTime';
 
 interface CalendarEpisode {
   airdate: string | null;
@@ -36,6 +38,7 @@ interface Props {
 }
 
 export function TVCalendar({ onClose, onPlayChannel }: Props) {
+  useTranslation();
   const [now, setNow] = useState(() => new Date());
   const [episodes, setEpisodes] = useState<CalendarEpisode[]>([]);
   const [loading, setLoading] = useState(true);
@@ -193,7 +196,7 @@ export function TVCalendar({ onClose, onPlayChannel }: Props) {
     return map;
   }, [episodes]);
 
-  const monthLabel = now.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+  const monthLabel = formatDate(now, { month: 'long', year: 'numeric' });
 
   // Debug: log all episodes with their channel names
   useEffect(() => {

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import './SettingsSidebar.css';
 
 export type SettingsTabId =
@@ -56,6 +57,33 @@ const SETTINGS_TABS: SettingsTab[] = [
   { id: 'about', label: 'About' },
 ];
 
+// Literal i18n keys (settings namespace). Kept as a flat lookup so every
+// translated label is greppable and stays in sync with en.json by hand.
+export const SETTINGS_TAB_LABEL_KEYS = {
+  sources: 'tabs.sources',
+  livetv: 'tabs.livetv',
+  playback: 'tabs.playback',
+  metadata: 'tabs.metadata',
+  subtitles: 'tabs.subtitles',
+  strem: 'tabs.strem',
+  nuvio: 'tabs.nuvio',
+  discord: 'tabs.discord',
+  theme: 'tabs.theme',
+  ui: 'tabs.ui',
+  optimization: 'tabs.optimization',
+  navigation: 'tabs.navigation',
+  startup: 'tabs.startup',
+  scrobbling: 'tabs.scrobbling',
+  simkl: 'tabs.simkl',
+  cache: 'tabs.cache',
+  security: 'tabs.security',
+  proxy: 'tabs.proxy',
+  debug: 'tabs.debug',
+  shortcuts: 'tabs.shortcuts',
+  'export-import': 'tabs.export-import',
+  about: 'tabs.about',
+} as const satisfies Record<SettingsTabId, `tabs.${SettingsTabId}`>;
+
 interface SettingsSidebarProps {
   activeTab: SettingsTabId;
   onTabChange: (tab: SettingsTabId) => void;
@@ -67,6 +95,7 @@ export function SettingsSidebar({
   onTabChange,
   hasVodSource,
 }: SettingsSidebarProps) {
+  const { t } = useTranslation('settings');
   return (
     <nav className="settings-sidebar">
       <div className="settings-nav">
@@ -77,7 +106,7 @@ export function SettingsSidebar({
             onClick={() => onTabChange(tab.id)}
           >
             {tab.icon && <span className="icon">{tab.icon}</span>}
-            {tab.label}
+            {t(SETTINGS_TAB_LABEL_KEYS[tab.id])}
           </button>
         ))}
       </div>

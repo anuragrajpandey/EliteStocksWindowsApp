@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import type { WatchlistItem } from '../db';
 import { useEpgClockFormat } from '../stores/uiStore';
+import { formatTime } from '../utils/dateTime';
+import { useTranslation } from 'react-i18next';
 import './WatchlistNotification.css';
 
 export interface WatchlistNotificationItem {
@@ -30,6 +32,7 @@ function NotificationItem({
   onSwitch: (n: WatchlistNotificationItem) => void;
   onDismiss: (id: number) => void;
 }) {
+  useTranslation();
   const [isHiding, setIsHiding] = useState(false);
   const [progress, setProgress] = useState(100);
 
@@ -65,8 +68,8 @@ function NotificationItem({
 
   const epgClockFormat = useEpgClockFormat();
 
-  const formatTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
+  const formatEpgTime = (timestamp: number) => {
+    return formatTime(new Date(timestamp), { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
   };
 
   const isReminder = notification.type === 'reminder';
@@ -90,7 +93,7 @@ function NotificationItem({
       <div className="watchlist-notification-body">
         <div className="watchlist-notification-program">{notification.programTitle}</div>
         <div className="watchlist-notification-channel">{notification.channelName}</div>
-        <div className="watchlist-notification-time">Starts at {formatTime(notification.startTime)}</div>
+        <div className="watchlist-notification-time">Starts at {formatEpgTime(notification.startTime)}</div>
       </div>
 
       <div className="watchlist-notification-actions">

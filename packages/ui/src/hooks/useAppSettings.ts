@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { SavedLayoutState } from './useLayoutPersistence';
 import type { ThemeId, CustomThemeConfig, ShortcutsMap } from '../types/app';
 import { applyCustomTheme } from '../utils/themeHelper';
+import i18n, { isSupportedLocale } from '../i18n';
 
 function getInitialSettingsFromStorage(): Record<string, any> | null {
   try {
@@ -17,6 +18,11 @@ let cachedSettings: Record<string, any> | null = getInitialSettingsFromStorage()
 
 
 export interface AppSettings {
+  // i18n / language — the pinned i18n entry point. `language` is a BCP-47 code
+  // from src/i18n (SUPPORTED_LOCALES); `setLanguage` persists via the dual-write
+  // path AND applies the change live via i18next.changeLanguage().
+  language: string;
+  setLanguage: (lang: string) => Promise<void>;
   // Layout persistence
   rememberLastChannels: boolean;
   reopenLastOnStartup: boolean;
@@ -318,6 +324,15 @@ export function useAppSettings(): AppSettings {
   // Custom scrollbar width settings
   const [enableCustomScrollbarWidth, setEnableCustomScrollbarWidthState] = useState(false);
   const [customScrollbarWidth, setCustomScrollbarWidthState] = useState(12);
+
+  // Language setting (i18n). Initialized synchronously from the cached settings
+  // that were read from localStorage at module load.
+  const [language, setLanguageState] = useState<string>(() => {
+    if (typeof cachedSettings?.language === 'string' && isSupportedLocale(cachedSettings.language)) {
+      return cachedSettings.language;
+    }
+    return i18n.language || 'en';
+  });
 
   // Theme state
   const [theme, setThemeState] = useState<ThemeId>(() => {
@@ -685,6 +700,15 @@ export function useAppSettings(): AppSettings {
           setVodAutoPlayNextEpisodeState(result.data.vodAutoPlayNextEpisode ?? true);
           setVodShowSourceBadgeState(result.data.vodShowSourceBadge ?? false);
           setFailoverGroupShowSourceState(result.data.failoverGroupShowSource ?? false);
+
+          // Load language (i18n) and apply it if it differs from the current runtime locale
+          const loadedLanguage = result.data.language;
+          if (typeof loadedLanguage === 'string' && isSupportedLocale(loadedLanguage)) {
+            setLanguageState(loadedLanguage);
+            if (i18n.language !== loadedLanguage) {
+              i18n.changeLanguage(loadedLanguage);
+            }
+          }
 
           // Load widget scale and apply CSS variable
           const savedScale = result.data.widgetScale ?? 1;
@@ -1512,6 +1536,25 @@ export function useAppSettings(): AppSettings {
     );
   }, []);
 
+  const setLanguage = useCallback(async (lang: string) => {
+    setLanguageState(lang);
+    if (window.storage) {
+      try {
+        await window.storage.updateSettings({ language: lang });
+      } catch (e) {
+        console.error('[useAppSettings] Failed to save language:', e);
+      }
+    }
+    try {
+      const existing = localStorage.getItem('app-settings');
+      const parsed = existing ? JSON.parse(existing) : {};
+      localStorage.setItem('app-settings', JSON.stringify({ ...parsed, language: lang }));
+    } catch (e) {
+      console.warn('[useAppSettings] Failed to save language to localStorage:', e);
+    }
+    await i18n.changeLanguage(lang);
+  }, []);
+
   const setCastEnabled = useCallback(async (enabled: boolean) => {
     setCastEnabledState(enabled);
     if (window.storage) {
@@ -1885,6 +1928,8 @@ export function useAppSettings(): AppSettings {
   }, [enableCustomScrollbarWidth]);
 
   return {
+    language,
+    setLanguage,
     savedCustomThemes,
     setSavedCustomThemes,
     appFontFamily,

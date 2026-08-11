@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useEpgClockFormat } from '../../stores/uiStore';
+import { useTranslation } from 'react-i18next';
+import { formatTime, formatDate } from '../../utils/dateTime';
 import type { SportsEvent, SportsLeague, SportsTeam } from '@ynotv/core';
 import {
   getAvailableLeagues,
@@ -404,6 +406,7 @@ interface DateRailProps {
 }
 
 function HorizontalDateRail({ selectedDate, onSelectDate, onOpenCalendar }: DateRailProps) {
+  useTranslation();
   const [baseDate, setBaseDate] = useState<Date>(() => new Date(selectedDate));
 
   useEffect(() => {
@@ -447,7 +450,7 @@ function HorizontalDateRail({ selectedDate, onSelectDate, onOpenCalendar }: Date
 
   const isTodayActive = isSameDay(selectedDate, new Date());
 
-  const formattedTitle = selectedDate.toLocaleDateString(undefined, {
+  const formattedTitle = formatDate(selectedDate, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -468,7 +471,7 @@ function HorizontalDateRail({ selectedDate, onSelectDate, onOpenCalendar }: Date
         <div className="date-rail-pills">
           {days.map((day) => {
             const active = isSameDay(day, selectedDate);
-            const dayName = day.toLocaleDateString(undefined, { weekday: 'short' });
+            const dayName = formatDate(day, { weekday: 'short' });
             const dayNum = day.getDate();
 
             return (
@@ -538,6 +541,7 @@ interface LeagueGameCardProps {
 }
 
 function LeagueGameCard({ event, isIndividualSport, onChannelClick, onClick }: LeagueGameCardProps) {
+  useTranslation();
   const epgClockFormat = useEpgClockFormat();
   const isLive = event.status === 'live';
   const isFinished = event.status === 'finished';
@@ -556,7 +560,7 @@ function LeagueGameCard({ event, isIndividualSport, onChannelClick, onClick }: L
 
         <div className="game-card-right">
           <div className="game-card-time">
-            {event.startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}
+            {formatTime(event.startTime, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}
           </div>
           {networkName && <span className="game-card-network-badge-btn">{networkName}</span>}
         </div>

@@ -9,6 +9,8 @@ import { TVMazeSearchModal } from './TVMazeSearchModal';
 import { DvrScheduleOptionsModal } from './DvrScheduleOptionsModal';
 import { CatchupDownloadModal } from './CatchupDownloadModal';
 import { useEpgClockFormat } from '../stores/uiStore';
+import { formatTime } from '../utils/dateTime';
+import { useTranslation } from 'react-i18next';
 import './ProgramContextMenu.css';
 
 interface ProgramContextMenuProps {
@@ -30,6 +32,7 @@ export function ProgramContextMenu({
     onClose,
     isCatchupAvailable = false,
 }: ProgramContextMenuProps) {
+    useTranslation();
     const epgClockFormat = useEpgClockFormat();
     const menuRef = useRef<HTMLDivElement>(null);
     const [scheduling, setScheduling] = useState(false);
@@ -495,7 +498,7 @@ export function ProgramContextMenu({
                 isOpen={showOptionsModal}
                 programTitle={program.title}
                 channelName={channelName}
-                timeString={`${new Date(program.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })} - ${new Date(program.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}`}
+                timeString={`${formatTime(new Date(program.start), { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })} - ${formatTime(new Date(program.end), { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}`}
                 defaultStartPadding={defaultStartPadding}
                 defaultEndPadding={defaultEndPadding}
                 onConfirm={handleConfirmSchedule}
@@ -508,7 +511,7 @@ export function ProgramContextMenu({
                 isOpen={showDownloadModal}
                 programTitle={program.title}
                 channelName={channelName}
-                timeString={`${new Date(program.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })} - ${new Date(program.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}`}
+                timeString={`${formatTime(new Date(program.start), { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })} - ${formatTime(new Date(program.end), { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}`}
                 defaultStartPadding={catchupStartPadding}
                 defaultEndPadding={catchupEndPadding}
                 onConfirm={handleConfirmDownload}

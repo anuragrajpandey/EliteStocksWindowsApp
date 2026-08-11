@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '../../utils/dateTime';
 import {
   getAthleteDetails,
   getAthleteGameLog,
@@ -17,6 +19,7 @@ interface AthleteDetailModalProps {
 type TabId = 'overview' | 'stats' | 'gamelog';
 
 export function AthleteDetailModal({ athleteId, leagueId = 'nfl', onClose }: AthleteDetailModalProps) {
+  useTranslation();
   const [profile, setProfile] = useState<AthleteProfileResponse | null>(null);
   const [gamelog, setGamelog] = useState<AthleteGameLogData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -265,7 +268,7 @@ export function AthleteDetailModal({ athleteId, leagueId = 'nfl', onClose }: Ath
                           {gamelog.rows.map((row: AthleteGameLogRow) => (
                             <tr key={row.id}>
                               <td className="gamelog-date">
-                                {new Date(row.gameDate).toLocaleDateString(undefined, {
+                                {formatDate(new Date(row.gameDate), {
                                   month: 'numeric',
                                   day: 'numeric',
                                 })}

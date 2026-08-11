@@ -9,6 +9,8 @@ import type { StoredChannel, StoredProgram } from '../db';
 import { normalizeBoolean } from '../utils/db-helpers';
 import type { RecordingInfo } from '../hooks/useActiveRecordings';
 import { useEpgClockFormat } from '../stores/uiStore';
+import { formatTime, formatDate } from '../utils/dateTime';
+import { useTranslation } from 'react-i18next';
 import './ChannelPanel.css';
 
 interface SearchResultRowProps {
@@ -41,7 +43,7 @@ function formatProgramDate(date: Date | string): string {
 
   if (isToday) return 'Today';
   if (isTomorrow) return 'Tomorrow';
-  return d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+  return formatDate(d, { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
 export const SearchResultRow = memo(function SearchResultRow({
@@ -61,6 +63,7 @@ export const SearchResultRow = memo(function SearchResultRow({
   includeSourceInSearch,
   currentChannel,
 }: SearchResultRowProps) {
+  useTranslation();
   const now = new Date();
   const isCurrentlyPlaying = currentChannel?.stream_id === channel.stream_id;
 
@@ -72,7 +75,7 @@ export const SearchResultRow = memo(function SearchResultRow({
 
   const formatProgramTime = (date: Date | string) => {
     const d = date instanceof Date ? date : new Date(date);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
+    return formatTime(d, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
   };
 
   // Handle context menu on channel

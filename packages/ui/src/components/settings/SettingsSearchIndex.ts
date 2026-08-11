@@ -1,4 +1,10 @@
 import type { SettingsTabId } from './SettingsSidebar';
+import type enJson from '../../i18n/locales/en.json';
+
+type ScalarStringKeys<T> = { [K in keyof T]: T[K] extends string ? K : never }[keyof T];
+
+/** i18n keys (settings namespace) that back a search result label at display time. */
+export type SettingsSearchLabelKey = ScalarStringKeys<typeof enJson.settings>;
 
 export interface SettingsSearchResult {
   id: string;
@@ -8,6 +14,8 @@ export interface SettingsSearchResult {
   tabLabel: string;
   subTabId?: string;
   section?: string;
+  /** Optional i18n key (settings namespace) used to render the label at display time (English `label` remains the search token). */
+  labelKey?: SettingsSearchLabelKey;
 }
 
 export type LiveTVSubTabId = 'epg' | 'logos' | 'font-size' | 'sort-order' | 'search' | 'live-view' | 'widgets';
@@ -180,6 +188,7 @@ const SETTINGS_SEARCH_INDEX: SettingsSearchResult[] = [
   { id: 'window-height', label: 'Window Height', tabId: 'ui', tabLabel: 'UI', section: 'Window Settings' },
   { id: 'window-size', label: 'Window Size', description: 'Custom window dimensions that override auto-saved size.', tabId: 'ui', tabLabel: 'UI', section: 'Window Settings' },
   { id: 'do-not-save-size', label: 'Do not save window size on close', tabId: 'ui', tabLabel: 'UI', section: 'Window Settings' },
+  { id: 'language', label: 'Language', description: 'Select the language for the user interface.', tabId: 'ui', tabLabel: 'UI', section: 'Language', labelKey: 'languageLabel' },
 
   // --- Navigation ---
   { id: 'navigation-tab', label: 'Navigation', tabId: 'navigation', tabLabel: 'Navigation', section: 'Navigation' },

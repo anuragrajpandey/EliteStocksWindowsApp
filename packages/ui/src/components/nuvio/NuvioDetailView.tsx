@@ -16,6 +16,8 @@ import { getMovieDetails, getTvShowDetails, getTmdbImageUrl, tmdbPersonIdByName,
 import { useDownloadStore } from '../../stores/downloadStore';
 import { useNuvioPreselectVideoId, useSetNuvioPreselectVideoId } from '../../stores/uiStore';
 import '../stremio/StremioDetail.css';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '../../utils/dateTime';
 
 export interface NuvioMeta {
   id: string;
@@ -52,7 +54,7 @@ function formatReleaseDate(dStr?: string) {
   try {
     const d = new Date(dStr);
     if (isNaN(d.getTime())) return dStr;
-    return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+    return formatDate(d, { day: 'numeric', month: 'short', year: 'numeric' });
   } catch {
     return dStr;
   }
@@ -84,6 +86,7 @@ export function NuvioDetailView({
   nuvioCacheFetchResults = false,
   nuvioCacheFetchTimeout = 5,
 }: NuvioDetailViewProps) {
+  useTranslation();
   const addons = useNuvioAddonStore((s) => s.enabledAddons);
   const pluginStore = useNuvioPluginStore();
   const token = useNuvioAuthStore((s) => s.token);

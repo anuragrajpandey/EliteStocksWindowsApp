@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '../../utils/dateTime';
 
 interface SportsCalendarModalProps {
   isOpen: boolean;
@@ -16,6 +18,7 @@ export function SportsCalendarModal({
   onSelectDate,
   onClose,
 }: SportsCalendarModalProps) {
+  useTranslation();
   const [viewDate, setViewDate] = useState<Date>(() => new Date(selectedDate));
   const [tempSelectedDate, setTempSelectedDate] = useState<Date>(() => new Date(selectedDate));
 
@@ -144,7 +147,7 @@ export function SportsCalendarModal({
     onClose();
   };
 
-  const formattedSelected = tempSelectedDate.toLocaleDateString(undefined, {
+  const formattedSelected = formatDate(tempSelectedDate, {
     weekday: 'short',
     month: 'short',
     day: 'numeric',

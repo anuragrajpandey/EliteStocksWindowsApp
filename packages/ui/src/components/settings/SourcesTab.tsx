@@ -40,6 +40,8 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useTranslation } from 'react-i18next';
+import { formatTime, formatDate } from '../../utils/dateTime';
 
 export type SourcesSubTabId = 'source' | 'epg' | 'refresh' | 'global_ua';
 
@@ -2860,6 +2862,7 @@ interface GlobalEpgMatchesModalProps {
 }
 
 function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesModalProps) {
+  useTranslation();
   const epgClockFormat = useEpgClockFormat();
   const [channels, setChannels] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -3019,19 +3022,19 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
   };
 
   // Format program times
-  const formatTime = (timeStr: string | Date) => {
+  const formatProgramTime = (timeStr: string | Date) => {
     try {
       const d = new Date(timeStr);
-      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
+      return formatTime(d, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
     } catch {
       return String(timeStr);
     }
   };
 
-  const formatDate = (timeStr: string | Date) => {
+  const formatProgramDate = (timeStr: string | Date) => {
     try {
       const d = new Date(timeStr);
-      return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      return formatDate(d, { month: 'short', day: 'numeric' });
     } catch {
       return '';
     }
@@ -3367,9 +3370,9 @@ function GlobalEpgMatchesModal({ epgLink, sources, onClose }: GlobalEpgMatchesMo
                     </div>
                   ) : (
                     programs.map((prog) => {
-                      const startTime = formatTime(prog.start);
-                      const endTime = formatTime(prog.end);
-                      const dateLabel = formatDate(prog.start);
+                      const startTime = formatProgramTime(prog.start);
+                      const endTime = formatProgramTime(prog.end);
+                      const dateLabel = formatProgramDate(prog.start);
                       return (
                         <div
                           key={prog.id}

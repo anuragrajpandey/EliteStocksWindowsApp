@@ -1,3 +1,5 @@
+import { formatTime, formatDate } from '../../utils/dateTime';
+
 /**
  * Sports Utils
  *
@@ -5,7 +7,7 @@
  */
 
 export function formatEventTime(date: Date, hour12: boolean = true): string {
-  return date.toLocaleTimeString(undefined, {
+  return formatTime(date, {
     hour: '2-digit',
     minute: '2-digit',
     hour12,
@@ -23,7 +25,7 @@ export function formatEventDate(date: Date): string {
   if (date.toDateString() === tomorrow.toDateString()) {
     return 'Tomorrow';
   }
-  return date.toLocaleDateString(undefined, {
+  return formatDate(date, {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
@@ -46,7 +48,7 @@ export function formatLastUpdated(date: Date | null): string {
   if (seconds < 60) return `${seconds}s ago`;
   if (minutes < 60) return `${minutes}m ago`;
   
-  return date.toLocaleTimeString(undefined, {
+  return formatTime(date, {
     hour: '2-digit',
     minute: '2-digit',
   });
@@ -63,7 +65,7 @@ export function formatRelativeDate(date?: Date): string {
   if (hours < 1) return 'Just now';
   if (hours < 24) return `${hours}h ago`;
   if (days < 7) return `${days}d ago`;
-  return date.toLocaleDateString();
+  return formatDate(date);
 }
 
 // Status helpers

@@ -8,8 +8,11 @@ import {
 } from '../../services/playlist-editor';
 import { PlaylistEditorModal } from '../PlaylistEditorModal';
 import { useModal } from '../Modal';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '../../utils/dateTime';
 
 export function PlaylistsTab() {
+  useTranslation();
   const { showPrompt, showConfirm, ModalComponent } = useModal();
   const [editingPlaylist, setEditingPlaylist] = useState<{ id: string; name: string } | null>(null);
 
@@ -155,7 +158,7 @@ export function PlaylistsTab() {
               {playlists.map(playlist => {
                 const catCount = categoryLinkCounts?.get(playlist.playlist_id) || 0;
                 const indivCount = individualCounts?.get(playlist.playlist_id) || 0;
-                const dateStr = new Date(playlist.created_at).toLocaleDateString();
+                const dateStr = formatDate(new Date(playlist.created_at));
 
                 return (
                   <tr key={playlist.playlist_id} style={{ borderBottom: '1px solid var(--surface-border)' }}>

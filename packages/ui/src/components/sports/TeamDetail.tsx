@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
+import { useTranslation } from 'react-i18next';
+import { formatTime, formatDate } from '../../utils/dateTime';
 import { useEpgClockFormat } from '../../stores/uiStore';
 import type { SportsEvent, SportsTeam } from '@ynotv/core';
 import { 
@@ -152,7 +154,7 @@ function groupEventsIntoSeries(events: SportsEvent[], teamId: string): (SportsEv
 function groupEventsByMonth(events: SportsEvent[]): Map<string, SportsEvent[]> {
   const map = new Map<string, SportsEvent[]>();
   for (const event of events) {
-    const monthKey = event.startTime.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    const monthKey = formatDate(event.startTime, { month: 'long', year: 'numeric' });
     if (!map.has(monthKey)) {
       map.set(monthKey, []);
     }
@@ -621,10 +623,11 @@ function SeriesCard({
   onClick?: (event: SportsEvent) => void;
   onChannelClick?: (channelName: string) => void;
 }) {
+  useTranslation();
   const [expanded, setExpanded] = useState(false);
 
-  const startFormatted = series.startDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-  const endFormatted = series.endDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  const startFormatted = formatDate(series.startDate, { month: 'short', day: 'numeric' });
+  const endFormatted = formatDate(series.endDate, { month: 'short', day: 'numeric' });
   const dateRangeStr = startFormatted === endFormatted ? startFormatted : `${startFormatted} – ${endFormatted}`;
 
   const totalFinished = series.wins + series.losses + series.draws;
@@ -701,6 +704,7 @@ function SeriesGameRow({
   onClick?: () => void;
   onChannelClick?: (channelName: string) => void;
 }) {
+  useTranslation();
   const epgClockFormat = useEpgClockFormat();
   const isHome = event.homeTeam.id === teamId;
   const teamScore = isHome ? event.homeScore : event.awayScore;
@@ -721,10 +725,10 @@ function SeriesGameRow({
     <div className={`series-game-row ${resultClass}`} onClick={onClick}>
       <div className="series-game-row-date">
         <span className="series-game-date">
-          {event.startTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+          {formatDate(event.startTime, { weekday: 'short', month: 'short', day: 'numeric' })}
         </span>
         <span className="series-game-time">
-          {event.startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}
+          {formatTime(event.startTime, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}
         </span>
       </div>
 
@@ -770,6 +774,7 @@ interface TeamEventCardProps {
 }
 
 function TeamEventCard({ event, teamId, onClick, onChannelClick }: TeamEventCardProps) {
+  useTranslation();
   const epgClockFormat = useEpgClockFormat();
   const isHome = event.homeTeam.id === teamId;
   const opponent = isHome ? event.awayTeam : event.homeTeam;
@@ -789,10 +794,10 @@ function TeamEventCard({ event, teamId, onClick, onChannelClick }: TeamEventCard
     <div className={`team-schedule-card ${isPast ? getResultClass() : ''}`} onClick={onClick}>
       <div className="team-schedule-card-header">
         <span className="team-schedule-card-date">
-          {event.startTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+          {formatDate(event.startTime, { weekday: 'short', month: 'short', day: 'numeric' })}
         </span>
         <span className="team-schedule-card-time">
-          {event.startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}
+          {formatTime(event.startTime, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' })}
         </span>
         {isLive && <span className="team-schedule-live">LIVE</span>}
       </div>

@@ -1,0 +1,65 @@
+{
+  "common": {
+    "add": "Ajouter",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "delete": "Supprimer",
+    "done": "Terminé",
+    "edit": "Modifier",
+    "no": "Non",
+    "ok": "OK",
+    "save": "Enregistrer",
+    "yes": "Oui"
+  },
+  "nav": {
+    "epgButtons": {
+      "alphabet-jumper": "Saut alphabétique (A-Z)",
+      "channel-search": "Filtre de recherche de chaînes",
+      "epg-shift": "Décalage EPG",
+      "failover-group": "Groupe de bascule",
+      "manage-channels": "Gérer les chaînes",
+      "playlist-editor": "Éditeur de playlist",
+      "refresh-source": "Actualiser la source"
+    },
+    "items": {
+      "calendar": "Calendrier",
+      "cast": "Cast",
+      "dvr": "DVR",
+      "movies": "Films",
+      "nuvio": "Nuvio",
+      "series": "Séries",
+      "sports": "Sports",
+      "stremio": "Strem"
+    }
+  },
+  "settings": {
+    "languageDescription": "Sélectionnez la langue de l'interface utilisateur.",
+    "languageLabel": "Langue",
+    "searchPlaceholder": "Rechercher dans les paramètres...",
+    "tabs": {
+      "about": "À propos",
+      "cache": "Cache",
+      "debug": "Débogage",
+      "discord": "Discord Rich Presence",
+      "export-import": "Exporter / Importer",
+      "livetv": "LiveTV",
+      "metadata": "Métadonnées",
+      "navigation": "Navigation",
+      "nuvio": "Nuvio",
+      "optimization": "Optimisation",
+      "playback": "Lecture",
+      "proxy": "Proxy",
+      "scrobbling": "Trakt",
+      "security": "Sécurité",
+      "shortcuts": "Raccourcis",
+      "simkl": "Simkl",
+      "sources": "Sources",
+      "startup": "Démarrage",
+      "strem": "Strem",
+      "subtitles": "Sous-titres et audio",
+      "theme": "Thème",
+      "ui": "Interface"
+    },
+    "title": "Paramètres"
+  }
+}

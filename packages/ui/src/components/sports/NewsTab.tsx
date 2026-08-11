@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '../../utils/dateTime';
 import {
   getLeagueNews,
   getAvailableLeagues,
@@ -129,7 +131,8 @@ interface NewsCardProps {
 }
 
 function NewsCard({ article }: NewsCardProps) {
-  const formatDate = (date?: Date) => {
+  useTranslation();
+  const formatRelativeDate = (date?: Date) => {
     if (!date) return '';
     const now = new Date();
     const diff = now.getTime() - date.getTime();
@@ -139,7 +142,7 @@ function NewsCard({ article }: NewsCardProps) {
     if (hours < 1) return 'Just now';
     if (hours < 24) return `${hours}h ago`;
     if (days < 7) return `${days}d ago`;
-    return date.toLocaleDateString();
+    return formatDate(date);
   };
 
   return (
@@ -165,7 +168,7 @@ function NewsCard({ article }: NewsCardProps) {
         <div className="news-card-meta">
           <span className="news-card-league">{article.leagueId.replace('-', ' ').toUpperCase()}</span>
           {article.published && (
-            <span className="news-card-date">{formatDate(article.published)}</span>
+            <span className="news-card-date">{formatRelativeDate(article.published)}</span>
           )}
         </div>
         <h3 className="news-card-title">{article.title}</h3>

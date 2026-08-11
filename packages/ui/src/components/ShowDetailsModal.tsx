@@ -4,6 +4,8 @@ import { ChannelSelectorModal } from './ChannelSelectorModal';
 import { ShowNotificationsModal } from './ShowNotificationsModal';
 import { db, addTvEpisodeToWatchlist, clearAutoAddedEpisodesForShow, type AutoAddEpisode, type StoredChannel } from '../db';
 import { useEpgClockFormat } from '../stores/uiStore';
+import { useTranslation } from 'react-i18next';
+import { formatDate, formatTime } from '../utils/dateTime';
 import './ShowDetailsModal.css';
 
 interface Episode {
@@ -89,6 +91,7 @@ interface Props {
 }
 
 export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onClose, onPlayChannel, onChannelSet }: Props) {
+  useTranslation();
   const epgClockFormat = useEpgClockFormat();
   const [data, setData] = useState<ShowDetailsWithEpisodes | null>(null);
   const [loading, setLoading] = useState(true);
@@ -339,9 +342,9 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
     return html.replace(/<[^>]*>/g, '');
   }
 
-  function formatDate(dateStr?: string): string {
+  function formatShowDate(dateStr?: string): string {
     if (!dateStr) return 'TBA';
-    return new Date(dateStr).toLocaleDateString(undefined, {
+    return formatDate(new Date(dateStr), {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -349,7 +352,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
     });
   }
 
-  function formatTime(timeStr?: string): string {
+  function formatAirTime(timeStr?: string): string {
     if (!timeStr) return '';
     return timeStr;
   }
@@ -561,7 +564,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                 <div className="sdm-episode-card sdm-next">
                   <div className="sdm-episode-date">
                     <span className="sdm-episode-day">
-                      {nextEpisode.airdate ? new Date(nextEpisode.airdate).toLocaleDateString(undefined, { weekday: 'short' }) : 'TBA'}
+                      {nextEpisode.airdate ? formatDate(new Date(nextEpisode.airdate), { weekday: 'short' }) : 'TBA'}
                     </span>
                     <span className="sdm-episode-num">
                       {nextEpisode.airdate ? new Date(nextEpisode.airdate).getDate() : '?'}
@@ -576,7 +579,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                     </h4>
                     <div className="sdm-episode-meta">
                       {nextEpisode.airdate && (
-                        <span>{formatDate(nextEpisode.airdate)}</span>
+                        <span>{formatShowDate(nextEpisode.airdate)}</span>
                       )}
                       {/* Use airstamp for accurate local timezone conversion */}
                       {(nextEpisode.airstamp || nextEpisode.airtime) && (
@@ -585,12 +588,12 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                       {(nextEpisode.airstamp || nextEpisode.airtime) && (
                         <span>
                           {nextEpisode.airstamp
-                            ? new Date(nextEpisode.airstamp).toLocaleTimeString(undefined, {
+                            ? formatTime(new Date(nextEpisode.airstamp), {
                                 hour: '2-digit',
                                 minute: '2-digit',
                                 hour12: epgClockFormat !== '24h'
                               })
-                            : formatTime(nextEpisode.airtime)}
+                            : formatAirTime(nextEpisode.airtime)}
                         </span>
                       )}
                       {nextEpisode.runtime && (
@@ -625,7 +628,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                     <div key={episode.id} className="sdm-episode-card">
                       <div className="sdm-episode-date">
                         <span className="sdm-episode-day">
-                          {episode.airdate ? new Date(episode.airdate).toLocaleDateString(undefined, { weekday: 'short' }) : 'TBA'}
+                          {episode.airdate ? formatDate(new Date(episode.airdate), { weekday: 'short' }) : 'TBA'}
                         </span>
                         <span className="sdm-episode-num">
                           {episode.airdate ? new Date(episode.airdate).getDate() : '?'}
@@ -640,7 +643,7 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                         </h4>
                         <div className="sdm-episode-meta">
                           {episode.airdate && (
-                            <span>{formatDate(episode.airdate)}</span>
+                            <span>{formatShowDate(episode.airdate)}</span>
                           )}
                           {/* Use airstamp for accurate local timezone conversion */}
                           {(episode.airstamp || episode.airtime) && (
@@ -649,12 +652,12 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                           {(episode.airstamp || episode.airtime) && (
                             <span>
                               {episode.airstamp
-                                ? new Date(episode.airstamp).toLocaleTimeString(undefined, {
+                                ? formatTime(new Date(episode.airstamp), {
                                     hour: '2-digit',
                                     minute: '2-digit',
                                     hour12: epgClockFormat !== '24h'
                                   })
-                                : formatTime(episode.airtime)}
+                                : formatAirTime(episode.airtime)}
                             </span>
                           )}
                           {episode.runtime && (
@@ -689,14 +692,14 @@ export function ShowDetailsModal({ isOpen, tvmazeId, showName, channelName, onCl
                   {details.premiered && (
                     <>
                       <dt>Premiered</dt>
-                      <dd>{formatDate(details.premiered)}</dd>
+                      <dd>{formatShowDate(details.premiered)}</dd>
                     </>
                   )}
 
                   {details.ended && (
                     <>
                       <dt>Ended</dt>
-                      <dd>{formatDate(details.ended)}</dd>
+                      <dd>{formatShowDate(details.ended)}</dd>
                     </>
                   )}
 

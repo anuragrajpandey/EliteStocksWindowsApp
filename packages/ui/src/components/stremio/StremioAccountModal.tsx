@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useStremioAuthStore } from '../../stores/stremioAuthStore';
+import { useTranslation } from 'react-i18next';
+import { formatTime } from '../../utils/dateTime';
 import './StremioAccountModal.css';
 
 interface StremioAccountModalProps {
@@ -7,6 +9,7 @@ interface StremioAccountModalProps {
 }
 
 export function StremioAccountModal({ onClose }: StremioAccountModalProps) {
+  useTranslation();
   const {
     authKey,
     user,
@@ -52,7 +55,7 @@ export function StremioAccountModal({ onClose }: StremioAccountModalProps) {
 
   const formatLastSync = () => {
     if (!lastSyncTime) return 'Never';
-    return new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    return formatTime(new Date(lastSyncTime), { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   };
 
   return (

@@ -3,6 +3,8 @@ import { useEffect, useState, useMemo } from 'react';
 import './TVShowsManager.css';
 import { db, addTvEpisodeToWatchlist, clearAutoAddedEpisodesForShow, type AutoAddEpisode } from '../db';
 import { matchesSearch } from '../utils/searchNormalization';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '../utils/dateTime';
 
 interface TrackedShow {
   tvmaze_id: number;
@@ -28,6 +30,7 @@ type SortOption = 'name' | 'status' | 'channel' | 'recent';
 type ViewMode = 'grid' | 'list';
 
 export function TVShowsManager({ onClose, onPlayChannel }: Props) {
+  useTranslation();
   const [shows, setShows] = useState<TrackedShow[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -340,7 +343,7 @@ export function TVShowsManager({ onClose, onPlayChannel }: Props) {
                     )}
                     <div className="tvsm-show-meta">
                       {show.last_synced && (
-                        <span>Synced {new Date(show.last_synced).toLocaleDateString()}</span>
+                        <span>Synced {formatDate(new Date(show.last_synced))}</span>
                       )}
                     </div>
                   </div>

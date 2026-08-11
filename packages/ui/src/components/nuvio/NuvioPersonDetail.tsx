@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import type { StremioMeta } from '../../types/stremio';
 import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
 import { getPersonDetails, getTmdbImageUrl } from '../../services/tmdb';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '../../utils/dateTime';
 import './NuvioPersonDetail.css';
 
 // Helper sets for creative roles
@@ -100,7 +102,7 @@ function calcAge(birth: string, death: string | null): number | null {
 function fmtDate(s: string): string {
   const d = parseFlexibleDate(s);
   if (!d) return s;
-  return d.toLocaleDateString(undefined, {
+  return formatDate(d, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -136,6 +138,7 @@ function creditToStremioMeta(c: PersonCredit): StremioMeta {
 }
 
 export function NuvioPersonDetail({ personId, onBack, onItemClick }: NuvioPersonDetailProps) {
+  useTranslation();
   const tmdbToken = useActiveTmdbToken();
   const [person, setPerson] = useState<PersonDetail | null>(null);
   const [loading, setLoading] = useState(true);

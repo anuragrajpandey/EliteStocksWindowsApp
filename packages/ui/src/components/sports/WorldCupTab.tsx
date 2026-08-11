@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '../../utils/dateTime';
 import type { SportsEvent, SportsTeam } from '@ynotv/core';
 import type { StoredChannel } from '../../db';
 import {
@@ -41,6 +43,7 @@ interface GroupStanding {
 }
 
 export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProps) {
+  useTranslation();
   const epgClockFormat = useEpgClockFormat();
   const [activeSubTab, setActiveSubTab] = useState<SubTabId>('overview');
   
@@ -422,7 +425,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
               <div className="wc-list-stack">
                 {upcoming.map(m => (
                   <div key={m.id} className="wc-match-row-item" onClick={() => setSelectedEvent(m)}>
-                    <span className="time">{m.startTime.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} at {formatEventTime(m.startTime, epgClockFormat !== '24h')}</span>
+                    <span className="time">{formatDate(m.startTime, { month: 'short', day: 'numeric' })} at {formatEventTime(m.startTime, epgClockFormat !== '24h')}</span>
                     <div className="teams">
                       <div className="team away">
                         <img src={m.awayTeam.logo} alt="" className="flag" onError={e => e.currentTarget.style.display = 'none'} />
@@ -660,7 +663,7 @@ export function WorldCupTab({ onSearchChannels, onPlayChannel }: WorldCupTabProp
               <option value="all">All Dates</option>
               {matchDates.map(date => {
                 const dateObj = new Date(date + 'T12:00:00'); // prevent timezone shift
-                const label = dateObj.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+                const label = formatDate(dateObj, { weekday: 'short', month: 'short', day: 'numeric' });
                 return <option key={date} value={date}>{label}</option>;
               })}
             </select>

@@ -3,6 +3,8 @@ import type { StoredChannel } from '../db';
 import { useCurrentProgram } from '../hooks/useChannels';
 import { useEpgClockFormat } from '../stores/uiStore';
 import { MetadataBadge } from './MetadataBadge';
+import { formatTime } from '../utils/dateTime';
+import { useTranslation } from 'react-i18next';
 import './ChannelInfoOverlay.css';
 
 interface ChannelInfoOverlayProps {
@@ -26,8 +28,8 @@ interface ChannelInfoOverlayProps {
   duration?: number;
 }
 
-function formatTime(date: Date, epgClockFormat: '12h' | '24h'): string {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
+function formatEpgTime(date: Date, epgClockFormat: '12h' | '24h'): string {
+  return formatTime(date, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
 }
 
 export function ChannelInfoOverlay({
@@ -44,6 +46,7 @@ export function ChannelInfoOverlay({
   position = 0,
   duration = 0,
 }: ChannelInfoOverlayProps) {
+  useTranslation();
   const epgClockFormat = useEpgClockFormat();
   const currentProgram = useCurrentProgram(isCatchup ? null : (channel?.stream_id ?? null));
   const [showDescription, setShowDescription] = useState(false);
@@ -173,7 +176,7 @@ export function ChannelInfoOverlay({
               <>
                 <div className="cio-time-row">
                   <span className="cio-time-range">
-                    {formatTime(new Date(activeProgram.start), epgClockFormat)} - {formatTime(new Date(activeProgram.end), epgClockFormat)}
+                    {formatEpgTime(new Date(activeProgram.start), epgClockFormat)} - {formatEpgTime(new Date(activeProgram.end), epgClockFormat)}
                   </span>
                   {timeRemaining && (
                     <span className="cio-time-remaining">{timeRemaining}</span>

@@ -10,6 +10,8 @@ import { TraktCatalogsModal } from './TraktCatalogsModal';
 import { getEffectiveNuvioUrl, getEffectiveNuvioKey } from '../../services/nuvio-api';
 import type { InstalledAddon, BadgeSource, StreamAutoPlayMode, StreamAutoPlaySourceScope } from '../../types/stremio';
 import { parseBadgePayload, isLightColor, convertArgbToRgba } from '../../utils/streamBadges';
+import { useTranslation } from 'react-i18next';
+import { formatTime } from '../../utils/dateTime';
 
 const isAioMetadataAddon = (addon: InstalledAddon): boolean => {
   const addonId = (addon.manifest?.id || addon.id || '').toLowerCase();
@@ -152,6 +154,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
     nuvioCacheFetchTimeout,
     onNuvioCacheFetchTimeoutChange,
   }, ref) {
+  useTranslation();
   const authStore = useNuvioAuthStore();
   const [pinPromptProfile, setPinPromptProfile] = useState<any | null>(null);
   const [showAddonDialog, setShowAddonDialog] = useState(false);
@@ -871,7 +874,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
                 <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary, var(--text-primary))' }}>{authStore.user?.email}</div>
                 {authStore.lastSyncTime && (
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-muted, var(--text-muted))', marginTop: '4px' }}>
-                    Synced: {new Date(authStore.lastSyncTime).toLocaleTimeString()}
+                    Synced: {formatTime(new Date(authStore.lastSyncTime))}
                   </div>
                 )}
               </div>

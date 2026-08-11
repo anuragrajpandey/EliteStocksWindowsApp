@@ -1,5 +1,7 @@
 import { useMemo, memo } from 'react';
 import { useEpgClockFormat } from '../stores/uiStore';
+import { formatTime } from '../utils/dateTime';
+import { useTranslation } from 'react-i18next';
 import { RecordingIndicator } from './RecordingIndicator';
 import type { StoredProgram, StoredChannel } from '../db';
 import './ProgramBlock.css';
@@ -76,6 +78,7 @@ export const ProgramBlock = memo(function ProgramBlock({
   isScheduled = false,
   isCatchupAvailable = false,
 }: ProgramBlockProps) {
+  useTranslation();
   const style = useMemo(
     () => getProgramStyle(program, windowStart, windowEnd, pixelsPerHour),
     [program, windowStart, windowEnd, pixelsPerHour]
@@ -91,9 +94,9 @@ export const ProgramBlock = memo(function ProgramBlock({
   const epgClockFormat = useEpgClockFormat();
 
   // Format time for tooltip
-  const formatTime = (date: Date | string) => {
+  const formatEpgTime = (date: Date | string) => {
     const d = date instanceof Date ? date : new Date(date);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
+    return formatTime(d, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
   };
 
   const handleProgramClick = () => {
@@ -131,7 +134,7 @@ export const ProgramBlock = memo(function ProgramBlock({
       }}
       onClick={handleProgramClick}
       onContextMenu={onContextMenu}
-      title={`${program.title}${program.subtitle ? `\n${program.subtitle}` : ''}\n${formatTime(program.start)} - ${formatTime(program.end)}${program.description ? `\n\n${program.description}` : ''}${isCatchupAvailable && (isPast || isCurrent) ? '\n\nClick to play Catchup archive' : ''}`}
+      title={`${program.title}${program.subtitle ? `\n${program.subtitle}` : ''}\n${formatEpgTime(program.start)} - ${formatEpgTime(program.end)}${program.description ? `\n\n${program.description}` : ''}${isCatchupAvailable && (isPast || isCurrent) ? '\n\nClick to play Catchup archive' : ''}`}
     >
       {showRecordingIndicator && (
         <div className="program-recording-indicator">

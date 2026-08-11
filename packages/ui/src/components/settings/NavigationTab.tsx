@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import './PlaybackTab.css'; // Reuse existing tab styles
 
 interface NavigationTabProps {
@@ -18,25 +19,51 @@ interface NavigationTabProps {
 }
 
 const NAV_ITEMS = [
-  { id: 'movies', label: 'Movies' },
-  { id: 'series', label: 'Series' },
-  { id: 'dvr', label: 'DVR' },
-  { id: 'sports', label: 'Sports' },
-  { id: 'stremio', label: 'Strem' },
-  { id: 'nuvio', label: 'Nuvio' },
-  { id: 'calendar', label: 'Calendar' },
-  { id: 'cast', label: 'Cast' },
-];
+  { id: 'movies' },
+  { id: 'series' },
+  { id: 'dvr' },
+  { id: 'sports' },
+  { id: 'stremio' },
+  { id: 'nuvio' },
+  { id: 'calendar' },
+  { id: 'cast' },
+] as const;
 
 const EPG_BUTTONS = [
-  { id: 'channel-search', label: 'Channel Search Filter' },
-  { id: 'alphabet-jumper', label: 'Alphabet Jumper (A-Z)' },
-  { id: 'manage-channels', label: 'Manage Channels' },
-  { id: 'refresh-source', label: 'Refresh Source' },
-  { id: 'epg-shift', label: 'EPG Shift' },
-  { id: 'playlist-editor', label: 'Playlist Editor' },
-  { id: 'failover-group', label: 'Failover Group' },
-];
+  { id: 'channel-search' },
+  { id: 'alphabet-jumper' },
+  { id: 'manage-channels' },
+  { id: 'refresh-source' },
+  { id: 'epg-shift' },
+  { id: 'playlist-editor' },
+  { id: 'failover-group' },
+] as const;
+
+type NavItemId = (typeof NAV_ITEMS)[number]['id'];
+type EpgButtonId = (typeof EPG_BUTTONS)[number]['id'];
+
+// Literal i18n keys (nav namespace). Kept as flat lookups so every translated
+// label is greppable and stays in sync with en.json by hand.
+const NAV_ITEM_LABEL_KEYS = {
+  movies: 'items.movies',
+  series: 'items.series',
+  dvr: 'items.dvr',
+  sports: 'items.sports',
+  stremio: 'items.stremio',
+  nuvio: 'items.nuvio',
+  calendar: 'items.calendar',
+  cast: 'items.cast',
+} as const satisfies Record<NavItemId, `items.${NavItemId}`>;
+
+const EPG_BUTTON_LABEL_KEYS = {
+  'channel-search': 'epgButtons.channel-search',
+  'alphabet-jumper': 'epgButtons.alphabet-jumper',
+  'manage-channels': 'epgButtons.manage-channels',
+  'refresh-source': 'epgButtons.refresh-source',
+  'epg-shift': 'epgButtons.epg-shift',
+  'playlist-editor': 'epgButtons.playlist-editor',
+  'failover-group': 'epgButtons.failover-group',
+} as const satisfies Record<EpgButtonId, `epgButtons.${EpgButtonId}`>;
 
 export function NavigationTab({
   navHiddenTabs,
@@ -53,6 +80,7 @@ export function NavigationTab({
   onShowRecentlyViewedChange,
 }: NavigationTabProps) {
   const [activeSubTab, setActiveSubTab] = useState<'titlebar' | 'category' | 'epg'>('titlebar');
+  const { t } = useTranslation('nav');
   const isVisible = (id: string) => !navHiddenTabs.includes(id);
 
   const handleToggle = (id: string, checked: boolean) => {
@@ -120,7 +148,7 @@ export function NavigationTab({
               >
                 <div style={{ flex: 1 }}>
                   <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-                    {item.label}
+                    {t(NAV_ITEM_LABEL_KEYS[item.id])}
                   </div>
                 </div>
                 <input
@@ -234,7 +262,7 @@ export function NavigationTab({
               >
                 <div style={{ flex: 1 }}>
                   <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-                    {item.label}
+                    {t(EPG_BUTTON_LABEL_KEYS[item.id])}
                   </div>
                 </div>
                 <input

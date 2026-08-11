@@ -21,6 +21,8 @@ import { useLazyStremioRecommendations, type RecommendationItem } from '../../ho
 import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
 import { getMovieDetails, getTvShowDetails, getTmdbImageUrl, tmdbPersonIdByName, formatLanguageCode, formatCountryCode, getTmdb } from '../../services/tmdb';
 import { useDownloadStore } from '../../stores/downloadStore';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '../../utils/dateTime';
 import './StremioDetail.css';
 
 interface StremioDetailProps {
@@ -48,7 +50,7 @@ function formatReleaseDate(dStr?: string) {
   try {
     const d = new Date(dStr);
     if (isNaN(d.getTime())) return dStr;
-    return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+    return formatDate(d, { day: 'numeric', month: 'short', year: 'numeric' });
   } catch {
     return dStr;
   }
@@ -66,6 +68,7 @@ export function StremioDetail({
   stremioCacheFetchResults = false,
   stremioCacheFetchTimeout = 5,
 }: StremioDetailProps) {
+  useTranslation();
   const addons = useStremioAddonStore((s) => s.enabledAddons);
   const addonsKey = addons.map((a) => `${a.id}:${a.enabled !== false}`).join(',');
 

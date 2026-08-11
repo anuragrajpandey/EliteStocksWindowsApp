@@ -25,6 +25,8 @@ import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
 import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
 import { useLazyVodTrailer, useTrailerPlayerMode, useTrailerSource } from '../../hooks/useLazyVodTrailer';
 import { SetPlayerDropdown, SplitPlayButton, TrailerSplitButton, type VodPlayerMode } from './SplitPlayButton';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '../../utils/dateTime';
 import './SeriesDetail.css';
 
 export interface SeriesDetailProps {
@@ -39,6 +41,7 @@ export interface SeriesDetailProps {
 }
 
 export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSeason, onCastClick, vodPlayerMode, onSelectVodPlayerMode }: SeriesDetailProps) {
+  useTranslation();
   const seriesProp = series;
   // Read the latest series row from the DB so that enrichment written after
   // episode sync (e.g. tmdb_id backfilled from get_series_info) propagates to
@@ -780,7 +783,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
 function formatAirDate(dateStr: string): string {
   try {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
+    return formatDate(date, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

@@ -73,6 +73,36 @@
   color: var(--text-primary, rgba(255, 255, 255, 0.9));
 }
 
+.settings-language {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+
+.settings-language-label {
+  font-size: 0.75rem;
+  color: var(--text-muted, rgba(255, 255, 255, 0.5));
+  white-space: nowrap;
+}
+
+.settings-language-select {
+  background: var(--bg-tertiary, rgba(40, 40, 40, 0.9));
+  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.1));
+  border-radius: 5px;
+  color: var(--text-primary, rgba(255, 255, 255, 0.9));
+  font-size: 0.78rem;
+  padding: 4px 6px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.settings-language-select:focus-visible {
+  outline: none;
+  border-color: var(--accent-primary, #00d4ff);
+}
+
 .close-btn {
   display: flex;
   align-items: center;

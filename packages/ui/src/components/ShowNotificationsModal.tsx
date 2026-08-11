@@ -1,6 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { addToWatchlist, db, type WatchlistOptions, type StoredChannel } from '../db';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '../utils/dateTime';
 import './ShowNotificationsModal.css';
 
 interface Episode {
@@ -35,6 +37,7 @@ export function ShowNotificationsModal({
   onCancel,
   configureOnly = false,
 }: ShowNotificationsModalProps) {
+  useTranslation();
   const [reminderEnabled, setReminderEnabled] = useState(true);
   const [reminderMinutes, setReminderMinutes] = useState(5);
   const [autoswitchEnabled, setAutoswitchEnabled] = useState(false);
@@ -217,7 +220,7 @@ export function ShowNotificationsModal({
                       )}
                     </span>
                     <span className="show-notifications-episode-date">
-                      {ep.airdate ? new Date(ep.airdate).toLocaleDateString(undefined, {
+                      {ep.airdate ? formatDate(new Date(ep.airdate), {
                         month: 'short',
                         day: 'numeric'
                       }) : 'TBA'}

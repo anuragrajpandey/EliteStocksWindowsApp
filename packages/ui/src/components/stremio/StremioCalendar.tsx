@@ -4,6 +4,8 @@ import { useStremioWatchStore } from '../../stores/stremioWatchStore';
 import type { StremioMeta, StremioVideo } from '../../types/stremio';
 import { useStremioAddonStore } from '../../stores/stremioAddonStore';
 import { fetchMeta } from '../../services/stremio-addon';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '../../utils/dateTime';
 import './StremioCalendar.css';
 
 interface StremioCalendarProps {
@@ -17,8 +19,8 @@ interface CalendarEpisode {
   watched: boolean;
 }
 
-function formatDate(date: Date): string {
-  return date.toLocaleDateString(undefined, {
+function formatCalendarDate(date: Date): string {
+  return formatDate(date, {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
@@ -70,6 +72,7 @@ const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 type ViewMode = 'calendar' | 'list';
 
 export function StremioCalendar({ onItemClick }: StremioCalendarProps) {
+  useTranslation();
   const library = useStremioLibraryStore((s) => s.library);
   const addons = useStremioAddonStore((s) => s.enabledAddons);
   const episodeProgress = useStremioWatchStore((s) => s.episodeProgress || {});
@@ -160,7 +163,7 @@ export function StremioCalendar({ onItemClick }: StremioCalendarProps) {
     }
   };
 
-  const monthLabel = new Date(calendarYear, calendarMonth).toLocaleDateString(undefined, {
+  const monthLabel = formatDate(new Date(calendarYear, calendarMonth), {
     month: 'long',
     year: 'numeric',
   });
@@ -189,7 +192,7 @@ export function StremioCalendar({ onItemClick }: StremioCalendarProps) {
         </div>
         {ep.watched && <div className="stremio-cal-ep-watched-label">Watched</div>}
       </div>
-      <div className="stremio-cal-ep-date">{formatDate(ep.date)}</div>
+      <div className="stremio-cal-ep-date">{formatCalendarDate(ep.date)}</div>
     </div>
   );
 

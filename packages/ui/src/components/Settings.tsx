@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Source } from '@ynotv/core';
 import { useEpgView, useSetEpgView, useSetEpgVisibleHours, useSetEpgClockFormat, useUIStore, useIncludeAllChannelsToPlaylist, useSetIncludeAllChannelsToPlaylist } from '../stores/uiStore';
-import { SettingsSidebar, type SettingsTabId } from './settings/SettingsSidebar';
+import { SettingsSidebar, SETTINGS_TAB_LABEL_KEYS, type SettingsTabId } from './settings/SettingsSidebar';
 import { searchSettings, type SettingsSearchResult } from './settings/SettingsSearchIndex';
 import { SourcesTab } from './settings/SourcesTab';
 import { SecurityTab } from './settings/SecurityTab';
@@ -30,9 +30,16 @@ import { useAppSettings } from '../hooks/useAppSettings';
 import type { ShortcutsMap, ThemeId, CustomThemeConfig } from '../types/app';
 import type { StremioStreamPickerMode, BadgeSource, StreamAutoPlayMode, StreamAutoPlaySourceScope } from '../types/stremio';
 import { DEFAULT_BADGE_SOURCES, mergeDefaultBadgeSources } from '../utils/streamBadges';
+import { useTranslation } from 'react-i18next';
+import { SUPPORTED_LOCALES } from '../i18n';
 import './Settings.css';
 
 interface SettingsProps {
+  // ── i18n entry point ────────────────────────────────────────────────
+  // `language` is the active BCP-47 code (src/i18n SUPPORTED_LOCALES);
+  // `onLanguageChange` persists AND applies it live via i18next.changeLanguage().
+  language: string;
+  onLanguageChange: (lang: string) => void | Promise<void>;
   onClose: () => void;
   onShortcutsChange?: (shortcuts: ShortcutsMap) => void;
   theme?: ThemeId;
@@ -144,6 +151,8 @@ interface SettingsProps {
 }
 
 export function Settings({
+  language,
+  onLanguageChange,
   onClose,
   onShortcutsChange,
   theme,
@@ -321,6 +330,7 @@ export function Settings({
 
   const [pendingSubTab, setPendingSubTab] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const { t } = useTranslation('settings');
 
   // Sync pending sub-tab from parent (e.g., navigating from Cast button)
   useEffect(() => {
@@ -1314,7 +1324,7 @@ export function Settings({
   }
 
   function groupByTab(results: SettingsSearchResult[]) {
-    const map = new Map<string, { tabId: string; tabLabel: string; items: SettingsSearchResult[] }>();
+    const map = new Map<SettingsTabId, { tabId: SettingsTabId; tabLabel: string; items: SettingsSearchResult[] }>();
     for (const r of results) {
       if (!map.has(r.tabId)) {
         map.set(r.tabId, { tabId: r.tabId, tabLabel: r.tabLabel, items: [] });
@@ -2913,7 +2923,20 @@ export function Settings({
     <div className={`settings-overlay${isFullScreen ? ' settings-overlay--fullscreen' : ''}${activeTab === 'theme' ? ' settings-overlay--no-blur' : ''}`}>
       <div className={`settings-panel settings-panel--sidebar${isFullScreen ? ' settings-panel--fullscreen' : ''}`}>
         <div className="settings-header">
-          <h2>Settings</h2>
+          <h2>{t('title')}</h2>
+          <div className="settings-language">
+            <span className="settings-language-label">{t('languageLabel')}</span>
+            <select
+              className="settings-language-select"
+              value={language}
+              onChange={(e) => onLanguageChange(e.target.value)}
+              title={t('languageDescription')}
+            >
+              {SUPPORTED_LOCALES.map((locale) => (
+                <option key={locale.code} value={locale.code}>{locale.label}</option>
+              ))}
+            </select>
+          </div>
           <div className="settings-search" ref={searchRef}>
             <div className="settings-search-input-wrapper">
             <svg className="settings-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -2923,7 +2946,7 @@ export function Settings({
             <input
               type="text"
               className="settings-search-input"
-              placeholder="Search settings..."
+              placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -2937,14 +2960,14 @@ export function Settings({
             <div className="settings-search-results">
               {groupByTab(searchResults).map((group) => (
                 <div key={group.tabId} className="settings-search-group">
-                  <div className="settings-search-group-label">{group.tabLabel}</div>
+                  <div className="settings-search-group-label">{t(SETTINGS_TAB_LABEL_KEYS[group.tabId])}</div>
                   {group.items.map((item) => (
                     <button
                       key={item.id}
                       className="settings-search-item"
                       onClick={() => handleSearchResultClick(item)}
                     >
-                      <div className="settings-search-item-label">{highlightMatch(item.label, searchQuery)}</div>
+                      <div className="settings-search-item-label">{highlightMatch(item.labelKey ? t(item.labelKey) : item.label, searchQuery)}</div>
                       {item.section && (
                         <div className="settings-search-item-section">{item.section}</div>
                       )}

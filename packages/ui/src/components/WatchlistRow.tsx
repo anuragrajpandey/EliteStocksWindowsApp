@@ -5,6 +5,8 @@ import { WatchlistOptionsModal } from './WatchlistOptionsModal';
 import { FavoriteButton } from './FavoriteButton';
 import { ChannelLogo } from './ChannelLogo';
 import { useEpgClockFormat } from '../stores/uiStore';
+import { formatTime, formatDate } from '../utils/dateTime';
+import { useTranslation } from 'react-i18next';
 import './ChannelPanel.css';
 
 // Channel column width is controlled via CSS custom property for resizability
@@ -35,6 +37,8 @@ export function WatchlistRow({
   const [showEditModal, setShowEditModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const rowRef = useRef<HTMLDivElement>(null);
+
+  useTranslation();
 
   const now = new Date();
 
@@ -122,9 +126,9 @@ export function WatchlistRow({
   const epgClockFormat = useEpgClockFormat();
 
   // Format time
-  const formatTime = (timestamp: number | Date) => {
+  const formatEpgTime = (timestamp: number | Date) => {
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
+    return formatTime(date, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
   };
 
   // Status indicators
@@ -182,7 +186,7 @@ export function WatchlistRow({
               {item.program_title}
             </div>
             <div style={{ fontSize: '0.85em', color: 'rgba(255,255,255,0.6)' }}>
-              {new Date(item.start_time).toLocaleDateString()} {formatTime(item.start_time)} - {formatTime(item.end_time)}
+              {formatDate(new Date(item.start_time))} {formatEpgTime(item.start_time)} - {formatEpgTime(item.end_time)}
               {hasReminder && (
                 <span style={{ marginLeft: 8 }} title={`Reminder: ${item.reminder_minutes} min before`}>🔔</span>
               )}

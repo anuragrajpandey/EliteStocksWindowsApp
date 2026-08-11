@@ -276,6 +276,8 @@ function App() {
     setEpgMetadataBadgeFpsSuffix,
     epgMetadataBadgeSound,
     setEpgMetadataBadgeSound,
+    language,
+    setLanguage,
   } = useAppSettings();
   const navHiddenTabs = useUIStore((s) => s.navHiddenTabs);
   const setNavHiddenStore = useUIStore((s) => s.setNavHiddenTabs);
@@ -5119,6 +5121,8 @@ function useTmdbPresencePoster(
       {/* Settings Panel - as popup overlay in main layout, or full view in multiview */}
       {(showSettingsPopup || activeView === 'settings') && (
         <Settings
+          language={language}
+          onLanguageChange={setLanguage}
           discordRichPresence={discordRichPresence}
           onDiscordRichPresenceChange={setDiscordRichPresence}
           discordHideTitle={discordHideTitle}

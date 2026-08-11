@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import type { StoredProgram, StoredChannel, WatchlistOptions } from '../db';
 import type { WatchlistItem } from '../db';
 import { useEpgClockFormat } from '../stores/uiStore';
+import { formatTime } from '../utils/dateTime';
+import { useTranslation } from 'react-i18next';
 import './WatchlistOptionsModal.css';
 
 interface WatchlistOptionsModalProps {
@@ -22,6 +24,7 @@ export function WatchlistOptionsModal({
   onConfirm,
   onCancel,
 }: WatchlistOptionsModalProps) {
+  useTranslation();
   const epgClockFormat = useEpgClockFormat();
   const [reminderEnabled, setReminderEnabled] = useState(true);
   const [reminderMinutes, setReminderMinutes] = useState(0);
@@ -74,9 +77,9 @@ export function WatchlistOptionsModal({
 
   if (!isOpen || !program || !channel) return null;
 
-  const formatTime = (timestamp: number | Date) => {
+  const formatEpgTime = (timestamp: number | Date) => {
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
+    return formatTime(date, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
   };
 
   return createPortal(
@@ -98,7 +101,7 @@ export function WatchlistOptionsModal({
             <div className="watchlist-program-title">{program.title}</div>
             <div className="watchlist-program-channel">{channel.name}</div>
             <div className="watchlist-program-time">
-              {formatTime(new Date(program.start))} - {formatTime(new Date(program.end))}
+              {formatEpgTime(new Date(program.start))} - {formatEpgTime(new Date(program.end))}
             </div>
           </div>
 
