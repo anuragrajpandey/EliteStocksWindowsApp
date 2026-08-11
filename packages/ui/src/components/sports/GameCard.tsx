@@ -6,6 +6,7 @@ import type { StoredChannel } from '../../db';
 import { buildSearchQueryClauses } from '../../utils/searchNormalization';
 import { useSportsSelectedChannels, useSetSportsSelectedChannel, useEpgClockFormat } from '../../stores/uiStore';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './styles/GameCard.css';
 
 /**
@@ -290,7 +291,7 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
       case 'soccer':
         return event.timeElapsed || '';
       default:
-        return event.timeElapsed || (isLive ? 'LIVE' : 'FINAL');
+        return event.timeElapsed || (isLive ? i18n.t('sports:statusLive') : i18n.t('sports:statusFinal'));
     }
   };
 
@@ -357,10 +358,10 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
           {isLive && (
             <span className="gc-status-live">
               <span className="gc-live-dot" />
-              LIVE
+              {i18n.t('sports:statusLive')}
             </span>
           )}
-          {isFinished && <span className="gc-status-final">FINAL</span>}
+          {isFinished && <span className="gc-status-final">{i18n.t('sports:statusFinal')}</span>}
           {isScheduled && <span className="gc-status-scheduled">{formatEventTime(event.startTime, epgClockFormat !== '24h')}</span>}
         </div>
       </div>
@@ -449,9 +450,9 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
           {event.matches && event.matches.length > 0 ? (
             <div className="gc-golf-leaderboard">
               <div className="gc-golf-lb-header">
-                <span>Pos</span>
-                <span>Player</span>
-                <span>Score</span>
+                <span>{i18n.t('sports:pos')}</span>
+                <span>{i18n.t('sports:player')}</span>
+                <span>{i18n.t('sports:score')}</span>
               </div>
               {event.matches.slice(0, 5).map((match) => (
                 <div key={match.id} className={`gc-golf-lb-row ${match.position === 1 ? 'leader' : ''}`}>
@@ -488,7 +489,7 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
                 <div key={match.id} className={`gc-tennis-match ${match.status === 'live' ? 'live' : ''}`}>
                   <div className="gc-tennis-match-header">
                     {match.groupName && <span className="gc-tennis-group">{match.groupName}</span>}
-                    {match.status === 'live' && <span className="gc-tennis-live-badge">LIVE</span>}
+                    {match.status === 'live' && <span className="gc-tennis-live-badge">{i18n.t('sports:statusLive')}</span>}
                   </div>
                   <div className="gc-tennis-players">
                     <div className="gc-tennis-player">
@@ -602,12 +603,12 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
-            Search
+            {i18n.t('sports:search')}
           </button>
           {onChannelClick && (
             <button
               className={`gc-action-text-btn ${localSearchChannels && localSearchChannels.length > 0 ? 'active' : ''}`}
-              title={localSearchChannels && localSearchChannels.length > 0 ? 'Hide search results' : 'Find streams'}
+              title={localSearchChannels && localSearchChannels.length > 0 ? i18n.t('sports:hideSearchResults') : i18n.t('sports:findStreams')}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleLocalSearch();
@@ -625,7 +626,7 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
                   <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z" />
                 </svg>
               )}
-              List Streams Here
+              {i18n.t('sports:listStreamsHere')}
             </button>
           )}
         </div>
@@ -654,7 +655,7 @@ export function GameCard({ event, onClick, onChannelClick, onSearchTeams, onPlay
         </div>
       )}
       {localSearchChannels && localSearchChannels.length === 0 && !isSearching && (
-        <div className="gc-no-results">No streams found</div>
+        <div className="gc-no-results">{i18n.t('sports:noStreamsFound')}</div>
       )}
     </div>
   );

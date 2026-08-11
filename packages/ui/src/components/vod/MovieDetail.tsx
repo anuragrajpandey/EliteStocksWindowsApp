@@ -19,6 +19,8 @@ import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
 import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
 import { useLazyVodTrailer, useTrailerPlayerMode, useTrailerSource } from '../../hooks/useLazyVodTrailer';
 import { SplitPlayButton, TrailerSplitButton, type VodPlayerMode } from './SplitPlayButton';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './MovieDetail.css';
 
 export interface MovieDetailProps {
@@ -32,6 +34,7 @@ export interface MovieDetailProps {
 }
 
 export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPlayerMode, onSelectVodPlayerMode }: MovieDetailProps) {
+  useTranslation();
   // Handle escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -298,7 +301,7 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
                 <svg viewBox="0 0 24 24" fill={isFav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                {isFav ? 'Remove Favorite' : 'Add to Favorites'}
+                {isFav ? i18n.t('vod:removeFavorite') : i18n.t('vod:addFavorite')}
               </button>
 
               {movie.direct_url && (
@@ -306,12 +309,12 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
                   className="movie-detail__btn movie-detail__btn--secondary"
                   onClick={handleDownload}
                   disabled={downloading}
-                  title="Download Movie"
+                  title={i18n.t('vod:download')}
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  {downloading ? 'Resolving...' : 'Download'}
+                  {downloading ? i18n.t('vod:resolving') : i18n.t('vod:download')}
                 </button>
               )}
 
@@ -320,7 +323,7 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
                   className={`movie-detail__btn movie-detail__btn--secondary ${copied ? 'copied' : ''}`}
                   onClick={handleCopy}
                   disabled={copying}
-                  title="Copy Stream URL"
+                  title={i18n.t('vod:copyStreamUrl')}
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     {copied ? (
@@ -329,7 +332,7 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
                       <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" />
                     )}
                   </svg>
-                  {copying ? 'Resolving...' : copied ? 'Copied URL!' : 'Copy Stream URL'}
+                  {copying ? i18n.t('vod:resolving') : copied ? i18n.t('vod:copiedUrl') : i18n.t('vod:copyStreamUrl')}
                 </button>
               )}
 

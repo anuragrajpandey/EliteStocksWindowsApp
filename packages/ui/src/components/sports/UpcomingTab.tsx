@@ -9,6 +9,7 @@ import { GameCard } from './GameCard';
 import { GameDetail } from './GameDetail';
 import { GameCardSkeleton } from './LoadingSkeleton';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './LoadingSkeleton.css';
 
 interface UpcomingTabProps {
@@ -63,14 +64,14 @@ export function UpcomingTab({ onSearchChannels, onPlayChannel }: UpcomingTabProp
     return (
       <div className="sports-tab-content">
         <div className="upcoming-header">
-          <h2>Upcoming Games</h2>
+          <h2>{i18n.t('sports:upcomingGames')}</h2>
           <div className="sports-filters">
-            <label>Show games for:</label>
+            <label>{i18n.t('sports:showGamesFor')}</label>
             <select value={daysAhead} onChange={(e) => setDaysAhead(Number(e.target.value))}>
-              <option value={1}>Today</option>
-              <option value={3}>Next 3 days</option>
-              <option value={7}>Next 7 days</option>
-              <option value={14}>Next 14 days</option>
+              <option value={1}>{i18n.t('time:today')}</option>
+              <option value={3}>{i18n.t('sports:nextDays', { count: 3 })}</option>
+              <option value={7}>{i18n.t('sports:nextDays', { count: 7 })}</option>
+              <option value={14}>{i18n.t('sports:nextDays', { count: 14 })}</option>
             </select>
           </div>
         </div>
@@ -87,7 +88,7 @@ export function UpcomingTab({ onSearchChannels, onPlayChannel }: UpcomingTabProp
     return (
       <div className="sports-error">
         <p>{error}</p>
-        <button className="sports-btn" onClick={loadEvents}>Retry</button>
+        <button className="sports-btn" onClick={loadEvents}>{i18n.t('common:retry')}</button>
       </div>
     );
   }
@@ -95,14 +96,14 @@ export function UpcomingTab({ onSearchChannels, onPlayChannel }: UpcomingTabProp
   return (
     <div className="sports-tab-content">
       <div className="upcoming-header">
-        <h2>Upcoming Games</h2>
+        <h2>{i18n.t('sports:upcomingGames')}</h2>
         <div className="sports-filters">
-          <label>Show games for:</label>
+          <label>{i18n.t('sports:showGamesFor')}</label>
           <select value={daysAhead} onChange={(e) => setDaysAhead(Number(e.target.value))}>
-            <option value={1}>Today</option>
-            <option value={3}>Next 3 days</option>
-            <option value={7}>Next 7 days</option>
-            <option value={14}>Next 14 days</option>
+            <option value={1}>{i18n.t('time:today')}</option>
+            <option value={3}>{i18n.t('sports:nextDays', { count: 3 })}</option>
+            <option value={7}>{i18n.t('sports:nextDays', { count: 7 })}</option>
+            <option value={14}>{i18n.t('sports:nextDays', { count: 14 })}</option>
           </select>
         </div>
       </div>
@@ -117,15 +118,15 @@ export function UpcomingTab({ onSearchChannels, onPlayChannel }: UpcomingTabProp
               <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
           </div>
-          <h3>No Upcoming Games</h3>
-          <p>No games scheduled in the next {daysAhead} day{daysAhead > 1 ? 's' : ''}.</p>
+          <h3>{i18n.t('sports:noUpcomingGames')}</h3>
+          <p>{i18n.t('sports:noGamesScheduled', { count: daysAhead })}</p>
         </div>
       ) : (
         Array.from(groupedEvents.entries()).map(([dateKey, dayEvents]) => (
           <section key={dateKey} className="sports-section">
             <h2 className="sports-section-title">
               {formatEventDate(new Date(dateKey))}
-              <span className="sports-section-count">({dayEvents.length} game{dayEvents.length > 1 ? 's' : ''})</span>
+              <span className="sports-section-count">{i18n.t('sports:gameCount', { count: dayEvents.length })}</span>
             </h2>
             <div className="sports-events-grid">
               {dayEvents.map(event => (

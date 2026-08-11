@@ -10,6 +10,7 @@ import { useSportsPolling, formatLastUpdated } from '../../hooks/useSportsPollin
 import { useSetSportsSelectedTab } from '../../stores/uiStore';
 import { useEpgClockFormat } from '../../stores/uiStore';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { GameCard } from './GameCard';
 import { GameDetail } from './GameDetail';
 import { GameCardSkeleton } from './LoadingSkeleton';
@@ -84,11 +85,11 @@ export function LiveScoresTab({
     <div className="sports-tab-content">
       <div className="live-header">
         <div className="live-header-title">
-          <h2>Live Scores</h2>
+          <h2>{i18n.t('sports:liveScores')}</h2>
           {liveCount > 0 && (
             <span className="live-count">
               <span className="live-count-dot" />
-              {liveCount} Live
+              {i18n.t('sports:liveCount', { count: liveCount })}
             </span>
           )}
         </div>
@@ -97,19 +98,19 @@ export function LiveScoresTab({
           {progress ? (
             <span className="live-last-updated">
               <span className="live-loading-progress-dot" />
-              Fetching leagues ({progress.completed}/{progress.total})
+              {i18n.t('sports:fetchingLeagues', { completed: progress.completed, total: progress.total })}
             </span>
           ) : lastUpdated ? (
             <span className="live-last-updated">
-              Updated {formatLastUpdated(lastUpdated, epgClockFormat !== '24h')}
-              {isPolling && <span className="live-polling-indicator" title="Auto-refreshing" />}
+              {i18n.t('sports:updatedAt', { time: formatLastUpdated(lastUpdated, epgClockFormat !== '24h') })}
+              {isPolling && <span className="live-polling-indicator" title={i18n.t('sports:autoRefreshing')} />}
             </span>
           ) : null}
           <button
             className="live-refresh-btn"
             onClick={refresh}
             disabled={loading}
-            title="Refresh scores"
+            title={i18n.t('sports:refreshScores')}
           >
             <svg
               width="16"
@@ -132,7 +133,7 @@ export function LiveScoresTab({
             className={`live-category-btn ${selectedCategory === 'all' ? 'active' : ''}`}
             onClick={() => setSelectedCategory('all')}
           >
-            All
+            {i18n.t('sports:all')}
           </button>
           {categories.map(cat => {
             const count = events.filter(e => {
@@ -169,30 +170,30 @@ export function LiveScoresTab({
                   onSportsOverlayWidgetChange(null);
                 }
               }}
-              title="Cycle live score overlay modes"
+              title={i18n.t('sports:overlayCycle')}
             >
               {sportsOverlayWidget === 'autohide' && (
                 <>
                   <span className="live-count-dot" style={{ display: 'inline-block', marginRight: '4px', background: '#3b82f6', animation: 'none' }} />
-                  Live Sports Overlay (Autohide)
+                  {i18n.t('sports:overlayAutohide')}
                 </>
               )}
               {sportsOverlayWidget === 'persistent' && (
                 <>
                   <span className="live-count-dot" style={{ display: 'inline-block', marginRight: '4px', background: '#10b981', animation: 'none' }} />
-                  Live Sports Overlay (Persistent)
+                  {i18n.t('sports:overlayPersistent')}
                 </>
               )}
               {sportsOverlayWidget === null && (
                 <>
-                  Enable Live Score Overlay
+                  {i18n.t('sports:overlayEnable')}
                 </>
               )}
             </button>
             <div className="sports-tooltip-container" style={{ marginRight: '8px' }}>
               <span className="sports-tooltip-icon">?</span>
               <div className="sports-tooltip-content">
-                Enables Live Sports Overlay - Shows live scores as widgets at the top when in Main view. Cycles through: Autohide (fades when inactive) and Persistent (always visible).
+                {i18n.t('sports:overlayTooltip')}
               </div>
             </div>
           </>
@@ -201,13 +202,13 @@ export function LiveScoresTab({
           className="live-header-settings-reminder"
           style={{ marginLeft: 0 }}
           onClick={() => setSelectedTab('settings')}
-          title="Configure active leagues in Settings"
+          title={i18n.t('sports:configureLeaguesTooltip')}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="3"/>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
           </svg>
-          Configure Leagues
+          {i18n.t('sports:configureLeagues')}
         </button>
       </div>
 
@@ -220,7 +221,7 @@ export function LiveScoresTab({
       ) : error && events.length === 0 ? (
         <div className="sports-error">
           <p>{error}</p>
-          <button className="sports-btn" onClick={refresh}>Retry</button>
+          <button className="sports-btn" onClick={refresh}>{i18n.t('common:retry')}</button>
         </div>
       ) : sortedLeagues.length === 0 ? (
         <div className="sports-empty">
@@ -230,8 +231,8 @@ export function LiveScoresTab({
               <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" />
             </svg>
           </div>
-          <h3>No Games Available</h3>
-          <p>Check back later or browse by league.</p>
+          <h3>{i18n.t('sports:noGamesAvailable')}</h3>
+          <p>{i18n.t('sports:noGamesCheckBack')}</p>
         </div>
       ) : (
         sortedLeagues.map(leagueName => {

@@ -20,6 +20,9 @@ import {
 import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
 import { useSourceNameMap } from '../../hooks/useChannels';
 import { useAppSettings } from '../../hooks/useAppSettings';
+import { useTranslation } from 'react-i18next';
+import { activeLocale } from '../../utils/dateTime';
+import i18n from '../../i18n';
 import './VodBrowse.css';
 
 // Poster size presets (card width in pixels)
@@ -192,6 +195,7 @@ export function VodBrowse({
   search,
   onItemClick,
 }: VodBrowseProps) {
+  useTranslation();
   const virtuosoRef = useRef<VirtuosoGridHandle>(null);
   const [visibleRange, setVisibleRange] = useState({ startIndex: 0, endIndex: 0 });
   
@@ -434,18 +438,18 @@ export function VodBrowse({
       <div className="vod-browse__toolbar">
         <div className="vod-browse__toolbar-left">
           <span className="vod-browse__category-name">{categoryName}</span>
-          <span className="vod-browse__item-count">{items.length.toLocaleString()} items</span>
+          <span className="vod-browse__item-count">{i18n.t('vod:itemCount', { count: items.length })}</span>
         </div>
         <div className="vod-browse__toolbar-right">
           <div className="vod-browse__sort-container">
-            <span className="vod-browse__sort-label">Sort:</span>
+            <span className="vod-browse__sort-label">{i18n.t('vod:sort')}</span>
             <select
               className="vod-browse__sort-select"
               value={sortBy}
               onChange={(e) => setSortByAndSave(e.target.value as 'name' | 'added')}
             >
-              <option value="name">A-Z</option>
-              <option value="added">Recently Added</option>
+              <option value="name">{i18n.t('vod:sortName')}</option>
+              <option value="added">{i18n.t('vod:sortAdded')}</option>
             </select>
           </div>
           <PosterSizeSlider value={posterSize} onChange={setPosterSize} />

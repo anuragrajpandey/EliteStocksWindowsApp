@@ -15,10 +15,13 @@ import {
 } from '../db';
 import { dbEvents } from '../db/sqlite-adapter';
 import { useModal } from './Modal';
+import { useTranslation } from 'react-i18next';
 import { DvrTab } from './settings/DvrTab';
 import { useDownloadStore } from '../stores/downloadStore';
 import { matchesSearch } from '../utils/searchNormalization';
 import { useEpgClockFormat } from '../stores/uiStore';
+import { activeLocale } from '../utils/dateTime';
+import i18n from '../i18n';
 import './DvrDashboard.css';
 
 const formatBytes = (bytes: number): string => {
@@ -61,6 +64,7 @@ interface DvrDashboardProps {
 type DvrDashboardTab = 'scheduled' | 'recorded' | 'downloads' | 'settings';
 
 export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
+    useTranslation();
     const epgClockFormat = useEpgClockFormat();
     const [activeTab, setActiveTab] = useState<DvrDashboardTab>('scheduled');
     const [scheduled, setScheduled] = useState<DvrSchedule[]>([]);
@@ -263,8 +267,8 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
 
     function handleRename(id: number, currentTitle: string) {
         showPrompt(
-            'Rename Recording',
-            'Enter a new title for this recording:',
+            i18n.t('dvr:renameRecording'),
+            i18n.t('dvr:renameRecordingPrompt'),
             async (newTitle) => {
                 const trimmed = newTitle.trim();
                 if (!trimmed || trimmed === currentTitle) return;
@@ -277,15 +281,15 @@ export function DvrDashboard({ onPlay, onClose }: DvrDashboardProps) {
                 }
             },
             undefined,
-            'Recording Title',
+            i18n.t('dvr:recordingTitle'),
             currentTitle,
-            'Save',
-            'Cancel'
+            i18n.t('dvr:save'),
+            i18n.t('common:cancel')
         );
     }
 
     function formatDateTime(timestamp: number): string {
-        return new Date(timestamp * 1000).toLocaleString([], {
+        return new Date(timestamp * 1000).toLocaleString(activeLocale(), {
             month: 'short',
             day: 'numeric',
             hour: '2-digit',

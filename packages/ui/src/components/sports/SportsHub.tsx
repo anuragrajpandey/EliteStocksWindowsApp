@@ -18,6 +18,8 @@ import { LeadersTab } from './LeadersTab';
 import { SettingsTab } from './SettingsTab';
 import { WorldCupTab } from './WorldCupTab';
 import { SportsScoresOverlay } from './SportsScoresOverlay';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './SportsHub.css';
 
 interface SportsHubProps {
@@ -58,6 +60,7 @@ export function SportsHub({
   sportsOverlayWidget,
   onSportsOverlayWidgetChange,
 }: SportsHubProps) {
+  useTranslation();
   const [transitionCompleted, setTransitionCompleted] = useState(visible === undefined);
 
   useEffect(() => {
@@ -510,21 +513,21 @@ export function SportsHub({
   const getTabLabel = (tab: SportsTabId) => {
     switch (tab) {
       case 'live':
-        return 'Live Now';
+        return i18n.t('sports:tabs.live');
       case 'upcoming':
-        return 'Upcoming';
+        return i18n.t('sports:tabs.upcoming');
       case 'worldcup':
-        return 'World Cup 2026';
+        return i18n.t('sports:tabs.worldcup');
       case 'leagues':
-        return 'Leagues';
+        return i18n.t('sports:tabs.leagues');
       case 'favorites':
-        return 'Favorites';
+        return i18n.t('sports:tabs.favorites');
       case 'news':
-        return 'News';
+        return i18n.t('sports:tabs.news');
       case 'leaders':
-        return 'Leaders';
+        return i18n.t('sports:tabs.leaders');
       case 'settings':
-        return 'Settings';
+        return i18n.t('sports:tabs.settings');
     }
   };
 

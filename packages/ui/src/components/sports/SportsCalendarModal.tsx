@@ -137,10 +137,11 @@ export function SportsCalendarModal({
 
   if (!isOpen) return null;
 
-  const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
+  const monthName = formatDate(new Date(year, month, 1), { month: 'long' });
+  // 2023-01-01 was a Sunday
+  const weekdayNames = Array.from({ length: 7 }, (_, i) =>
+    formatDate(new Date(2023, 0, 1 + i), { weekday: 'short' })
+  );
 
   const handleCellClick = (cellDate: Date) => {
     setTempSelectedDate(cellDate);
@@ -167,10 +168,10 @@ export function SportsCalendarModal({
               <line x1="8" y1="2" x2="8" y2="6" />
               <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
-            <h3>Select Game Date</h3>
+            <h3>{i18n.t('sports:selectGameDate')}</h3>
             {leagueName && <span className="sports-calendar-league-badge">{leagueName}</span>}
           </div>
-          <button className="sports-calendar-modal-close" onClick={onClose} aria-label="Close">
+          <button className="sports-calendar-modal-close" onClick={onClose} aria-label={i18n.t('common:close')}>
             ✕
           </button>
         </div>
@@ -178,39 +179,35 @@ export function SportsCalendarModal({
         {/* Quick Shortcuts */}
         <div className="sports-calendar-shortcuts">
           <button onClick={handleJumpToYesterday} className="sports-calendar-shortcut-btn">
-            Yesterday
+            {i18n.t('sports:yesterday')}
           </button>
           <button onClick={handleJumpToToday} className="sports-calendar-shortcut-btn highlight">
-            Today
+            {i18n.t('time:today')}
           </button>
           <button onClick={handleJumpToTomorrow} className="sports-calendar-shortcut-btn">
-            Tomorrow
+            {i18n.t('time:tomorrow')}
           </button>
         </div>
 
         {/* Month Navigation */}
         <div className="sports-calendar-month-nav">
-          <button onClick={handlePrevMonth} className="sports-calendar-nav-arrow" title="Previous Month">
+          <button onClick={handlePrevMonth} className="sports-calendar-nav-arrow" title={i18n.t('sports:prevMonth')}>
             ‹
           </button>
           <div className="sports-calendar-month-label">
-            <span className="sports-calendar-month-name">{monthNames[month]}</span>
+            <span className="sports-calendar-month-name">{monthName}</span>
             <span className="sports-calendar-year">{year}</span>
           </div>
-          <button onClick={handleNextMonth} className="sports-calendar-nav-arrow" title="Next Month">
+          <button onClick={handleNextMonth} className="sports-calendar-nav-arrow" title={i18n.t('sports:nextMonth')}>
             ›
           </button>
         </div>
 
         {/* Weekday Headers */}
         <div className="sports-calendar-weekdays">
-          <span>Sun</span>
-          <span>Mon</span>
-          <span>Tue</span>
-          <span>Wed</span>
-          <span>Thu</span>
-          <span>Fri</span>
-          <span>Sat</span>
+          {weekdayNames.map((name, idx) => (
+            <span key={idx}>{name}</span>
+          ))}
         </div>
 
         {/* Days Grid */}
@@ -240,11 +237,11 @@ export function SportsCalendarModal({
         {/* Footer */}
         <div className="sports-calendar-modal-footer">
           <div className="sports-calendar-footer-selected">
-            <span className="footer-label">Selected Date:</span>
+            <span className="footer-label">{i18n.t('sports:selectedDate')}</span>
             <span className="footer-date">{formattedSelected}</span>
           </div>
           <button className="sports-calendar-done-btn" onClick={onClose}>
-            Done
+            {i18n.t('common:done')}
           </button>
         </div>
       </div>

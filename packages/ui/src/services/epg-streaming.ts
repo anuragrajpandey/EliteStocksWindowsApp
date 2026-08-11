@@ -14,6 +14,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { bulkOps } from './bulk-ops';
+import { activeLocale } from '../utils/dateTime';
 
 // Re-export types from Rust
 export interface ChannelMapping {
@@ -257,14 +258,14 @@ export function formatProgress(progress: EpgParseProgress): string {
     message += ` ${percent}%`;
   }
 
-  message += ` ${progress.programs_parsed.toLocaleString()} programs parsed`;
+  message += ` ${progress.programs_parsed.toLocaleString(activeLocale())} programs parsed`;
 
   if (progress.programs_matched > 0) {
-    message += `, ${progress.programs_matched.toLocaleString()} matched`;
+    message += `, ${progress.programs_matched.toLocaleString(activeLocale())} matched`;
   }
 
   if (progress.programs_inserted > 0) {
-    message += `, ${progress.programs_inserted.toLocaleString()} inserted`;
+    message += `, ${progress.programs_inserted.toLocaleString(activeLocale())} inserted`;
   }
 
   if (

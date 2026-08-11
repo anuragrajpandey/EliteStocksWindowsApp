@@ -6,6 +6,8 @@ import type { StoredChannel, StoredCategory } from '../db';
 import { ChannelLogo } from './ChannelLogo';
 import { useEpgClockFormat } from '../stores/uiStore';
 import { useAppSettings } from '../hooks/useAppSettings';
+import { useTranslation } from 'react-i18next';
+import { activeLocale } from '../utils/dateTime';
 
 
 import {
@@ -58,7 +60,7 @@ function formatShortDatetime(iso: string, epgClockFormat: '12h' | '24h'): string
   if (!iso) return '';
   const d = new Date(iso);
   if (isNaN(d.getTime())) return '';
-  return d.toLocaleString([], {
+  return d.toLocaleString(activeLocale(), {
     month: 'short', day: 'numeric',
     hour: '2-digit', minute: '2-digit',
     hour12: epgClockFormat !== '24h',
@@ -83,6 +85,7 @@ function ProgramRow({
   onDelete: () => void;
   onRestore: () => void;
 }) {
+  useTranslation();
   const epgClockFormat = useEpgClockFormat();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(prog.title);
@@ -201,6 +204,7 @@ function ProgramRow({
 // ─── Main Modal ───────────────────────────────────────────────────────────────
 
 export function EpgEditorModal({ channel: initialChannel, sourceId, sourceName, onClose }: EpgEditorModalProps) {
+  useTranslation();
   const epgClockFormat = useEpgClockFormat();
   const overlayRef = useRef<HTMLDivElement>(null);
 

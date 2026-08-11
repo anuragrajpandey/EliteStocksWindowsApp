@@ -9,6 +9,8 @@ import {
 } from '../../services/sports';
 import { useEpgClockFormat } from '../../stores/uiStore';
 import { useTranslation } from 'react-i18next';
+import { activeLocale } from '../../utils/dateTime';
+import i18n from '../../i18n';
 
 interface GameDetailProps {
   event: SportsEvent;
@@ -265,16 +267,16 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
 
         {summary.attendance && (
           <div className="game-detail-info-section">
-            <h4>Attendance</h4>
+            <h4>{i18n.t('sports:attendance')}</h4>
             <span className="game-detail-info-attendance">
-              {summary.attendance.toLocaleString()}
+              {summary.attendance.toLocaleString(activeLocale())}
             </span>
           </div>
         )}
 
         {summary.officials && summary.officials.length > 0 && (
           <div className="game-detail-info-section">
-            <h4>Officials</h4>
+            <h4>{i18n.t('sports:officials')}</h4>
             <div className="game-detail-info-officials">
               {summary.officials.map((official, idx) => (
                 <span key={idx} className="game-detail-info-official">{official}</span>
@@ -447,13 +449,13 @@ export function GameDetail({ event, onClose, onChannelClick, onPlayChannel, vari
           )}
           {summary?.attendance !== undefined && summary.attendance > 0 && (
             <div className="game-detail-info-section">
-              <h4>Attendance</h4>
-              <span className="game-detail-info-attendance">{summary.attendance.toLocaleString()}</span>
+              <h4>{i18n.t('sports:attendance')}</h4>
+              <span className="game-detail-info-attendance">{summary.attendance.toLocaleString(activeLocale())}</span>
             </div>
           )}
           {summary?.officials && summary.officials.length > 0 && (
             <div className="game-detail-info-section">
-              <h4>Officials</h4>
+              <h4>{i18n.t('sports:officials')}</h4>
               <div className="game-detail-info-officials">
                 {summary.officials.map((o, i) => <span key={i} className="game-detail-info-official">{o}</span>)}
               </div>

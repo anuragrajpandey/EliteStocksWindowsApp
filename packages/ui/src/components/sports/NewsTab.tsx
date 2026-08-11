@@ -15,6 +15,7 @@ interface NewsTabProps {
 }
 
 export function NewsTab({ }: NewsTabProps) {
+  useTranslation();
   const [news, setNews] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +54,7 @@ export function NewsTab({ }: NewsTabProps) {
       }
     } catch (err) {
       console.error('[NewsTab] Failed to load:', err);
-      setError('Failed to load news. Please try again.');
+      setError(i18n.t('sports:failedLoadNews'));
     } finally {
       setLoading(false);
     }
@@ -67,7 +68,7 @@ export function NewsTab({ }: NewsTabProps) {
     return (
       <div className="sports-tab-content">
         <div className="news-header">
-          <h2>News</h2>
+          <h2>{i18n.t('sports:news')}</h2>
           <div className="skeleton skeleton-badge skeleton-shimmer" style={{ width: '120px', height: '36px' }} />
         </div>
         <div className="skeleton-grid">
@@ -90,7 +91,7 @@ export function NewsTab({ }: NewsTabProps) {
     return (
       <div className="sports-error">
         <p>{error}</p>
-        <button className="sports-btn" onClick={loadNews}>Retry</button>
+        <button className="sports-btn" onClick={loadNews}>{i18n.t('common:retry')}</button>
       </div>
     );
   }
@@ -98,13 +99,13 @@ export function NewsTab({ }: NewsTabProps) {
   return (
     <div className="sports-tab-content">
       <div className="news-header">
-        <h2>News</h2>
+        <h2>{i18n.t('sports:news')}</h2>
         <select
           className="news-league-select"
           value={selectedLeague}
           onChange={(e) => setSelectedLeague(e.target.value)}
         >
-          <option value="all">All Leagues</option>
+          <option value="all">{i18n.t('sports:allLeagues')}</option>
           {leagues.map(league => (
             <option key={league.id} value={league.id}>{league.name}</option>
           ))}
@@ -113,8 +114,8 @@ export function NewsTab({ }: NewsTabProps) {
 
       {news.length === 0 ? (
         <div className="sports-empty">
-          <h3>No News Available</h3>
-          <p>Check back later for the latest sports news.</p>
+          <h3>{i18n.t('sports:noNewsAvailable')}</h3>
+          <p>{i18n.t('sports:noNewsCheckBack')}</p>
         </div>
       ) : (
         <div className="news-grid">

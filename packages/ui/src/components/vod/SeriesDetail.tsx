@@ -27,6 +27,7 @@ import { useLazyVodTrailer, useTrailerPlayerMode, useTrailerSource } from '../..
 import { SetPlayerDropdown, SplitPlayButton, TrailerSplitButton, type VodPlayerMode } from './SplitPlayButton';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../utils/dateTime';
+import i18n from '../../i18n';
 import './SeriesDetail.css';
 
 export interface SeriesDetailProps {
@@ -511,7 +512,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
               )}
               {seasonNumbers.length > 0 && (
                 <span className="series-detail__seasons-count">
-                  {seasonNumbers.length} Season{seasonNumbers.length !== 1 ? 's' : ''}
+                  {i18n.t('vod:seasonCount', { count: seasonNumbers.length })}
                 </span>
               )}
             </div>
@@ -533,7 +534,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
             {/* Credits */}
             {lazyCredits.cast && (
               <div className="series-detail__credits">
-                <span className="series-detail__credit-label">Cast</span>
+                <span className="series-detail__credit-label">{i18n.t('vod:cast')}</span>
                 <span className="series-detail__credit-value">
                   {lazyCredits.cast.split(',').map((name, index, array) => {
                     const cleanName = name.trim();
@@ -570,7 +571,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                 <svg viewBox="0 0 24 24" fill={isFav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                {isFav ? 'Remove Favorite' : 'Add to Favorite'}
+                {isFav ? i18n.t('vod:removeFavorite') : i18n.t('vod:addFavorite')}
               </button>
 
               {(hasTmdbKey || hasSourceTrailer || trailerLoading) && (
@@ -600,7 +601,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                   className={`series-detail__season-btn ${selectedSeason === num ? 'active' : ''}`}
                   onClick={() => setSelectedSeason(num)}
                 >
-                  Season {num}
+                  {i18n.t('vod:seasonNum', { num })}
                 </button>
               ))}
             </div>
@@ -619,7 +620,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3" strokeLinecap="round" strokeLinejoin="round" />
                   )}
                 </svg>
-                {downloadingSeason ? 'Queueing Season...' : `Download Season ${selectedSeason}`}
+                {downloadingSeason ? i18n.t('vod:queueingSeason') : i18n.t('vod:downloadSeason', { num: selectedSeason })}
               </button>
             )}
           </div>
@@ -629,16 +630,16 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
             {loading ? (
               <div className="series-detail__loading">
                 <div className="series-detail__spinner" />
-                <span>Loading episodes...</span>
+                <span>{i18n.t('vod:loadingEpisodes')}</span>
               </div>
             ) : error ? (
               <div className="series-detail__error">
                 <p>{error}</p>
-                <button onClick={refetch}>Try Again</button>
+                <button onClick={refetch}>{i18n.t('common:retry')}</button>
               </div>
             ) : currentEpisodes.length === 0 ? (
               <div className="series-detail__empty">
-                <p>No episodes found for Season {selectedSeason}</p>
+                <p>{i18n.t('vod:noEpisodesFound', { num: selectedSeason })}</p>
               </div>
             ) : (
               <div className="series-detail__episode-grid">

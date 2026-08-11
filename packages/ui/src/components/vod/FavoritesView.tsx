@@ -4,6 +4,9 @@ import { MediaCard } from './MediaCard';
 import type { StoredMovie, StoredSeries } from '../../db';
 import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
 import { useSourceNameMap } from '../../hooks/useChannels';
+import { useTranslation } from 'react-i18next';
+import { activeLocale } from '../../utils/dateTime';
+import i18n from '../../i18n';
 import './VodBrowse.css';
 
 const GridScroller = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -29,6 +32,7 @@ export function FavoritesView({
   loading,
   onItemClick,
 }: FavoritesViewProps) {
+  useTranslation();
   const virtuosoRef = useRef<VirtuosoGridHandle>(null);
   const removeFavorite = useVodFavoritesStore((s) => s.removeFavorite);
   const sourceNameMap = useSourceNameMap();
@@ -107,15 +111,15 @@ export function FavoritesView({
     <div className="vod-browse">
       <div className="vod-browse__toolbar">
         <div className="vod-browse__toolbar-left">
-          <span className="vod-browse__category-name">Favorites</span>
-          <span className="vod-browse__item-count">{items.length.toLocaleString()} items</span>
+          <span className="vod-browse__category-name">{i18n.t('vod:favorites')}</span>
+          <span className="vod-browse__item-count">{i18n.t('vod:itemCount', { count: items.length })}</span>
         </div>
         <div className="vod-browse__toolbar-right">
           <button
             className={`vod-favorites-toggle-btn ${showSourceBadge ? 'active' : ''}`}
             onClick={toggleSourceBadge}
-            title={showSourceBadge ? 'Hide source badge' : 'Show source badge'}
-            aria-label="Toggle source badge"
+            title={showSourceBadge ? i18n.t('vod:hideSourceBadge') : i18n.t('vod:showSourceBadge')}
+            aria-label={i18n.t('vod:toggleSourceBadge')}
             type="button"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">

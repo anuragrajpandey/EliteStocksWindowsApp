@@ -41,7 +41,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
-import { formatTime, formatDate } from '../../utils/dateTime';
+import { formatTime, formatDate, activeLocale } from '../../utils/dateTime';
 import i18n from '../../i18n';
 
 export type SourcesSubTabId = 'source' | 'epg' | 'refresh' | 'global_ua';
@@ -336,18 +336,18 @@ function SortableSourceItem(props: SortableSourceItemProps) {
               {meta.channel_count > 0 && (
                 <span className="stat-chip stat-chip--count">
                   <TvIcon size={11} />
-                  <span>{meta.channel_count.toLocaleString()} channels</span>
+                  <span>{meta.channel_count.toLocaleString(activeLocale())} channels</span>
                 </span>
               )}
               {((meta.vod_movie_count ?? 0) + (meta.vod_series_count ?? 0)) > 0 && (
                 <span className="stat-chip stat-chip--count">
                   <FilmIcon size={11} />
-                  <span>{(meta.vod_movie_count ?? 0).toLocaleString()} movies</span>
+                  <span>{(meta.vod_movie_count ?? 0).toLocaleString(activeLocale())} movies</span>
                   {(meta.vod_series_count ?? 0) > 0 && (
                     <span className="stat-chip-divider" />
                   )}
                   {(meta.vod_series_count ?? 0) > 0 && (
-                    <span>{(meta.vod_series_count ?? 0).toLocaleString()} series</span>
+                    <span>{(meta.vod_series_count ?? 0).toLocaleString(activeLocale())} series</span>
                   )}
                 </span>
               )}
@@ -2540,9 +2540,9 @@ export function SourcesTab({
                         <div className="epg-card-results">
                           <span className="epg-results-total">
                             {epg.lastSyncResult.channelsMatched !== undefined 
-                              ? `${epg.lastSyncResult.channelsMatched.toLocaleString()} channels, ` 
+                              ? `${epg.lastSyncResult.channelsMatched.toLocaleString(activeLocale())} channels, ` 
                               : ''}
-                            {epg.lastSyncResult.totalInserted.toLocaleString()} programs
+                            {epg.lastSyncResult.totalInserted.toLocaleString(activeLocale())} programs
                           </span>
                           <div className="epg-results-breakdown">
                             {Object.entries(epg.lastSyncResult.perSource).map(([srcId, count]) => {
@@ -2550,7 +2550,7 @@ export function SourcesTab({
                               const channelCount = epg.lastSyncResult?.perSourceChannels?.[srcId];
                               return (
                                 <span key={srcId} className="epg-results-item">
-                                  {srcName}: {channelCount !== undefined ? `${channelCount.toLocaleString()} channels, ` : ''}{Number(count).toLocaleString()} programs
+                                  {srcName}: {channelCount !== undefined ? `${channelCount.toLocaleString(activeLocale())} channels, ` : ''}{Number(count).toLocaleString(activeLocale())} programs
                                 </span>
                               );
                             })}

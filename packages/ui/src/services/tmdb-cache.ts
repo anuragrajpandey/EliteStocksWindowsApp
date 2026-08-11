@@ -26,6 +26,7 @@
 
 import { invoke } from '@tauri-apps/api/core';
 import i18n from '../i18n';
+import { activeLocale } from '../utils/dateTime';
 
 /// Cache statistics
 export interface CacheStats {
@@ -330,7 +331,7 @@ export function formatCacheStats(stats: CacheStats): string {
 
   if (stats.movies_cached) {
     parts.push(
-      `${stats.movies_count.toLocaleString()} movies (${formatCacheAge(
+      `${stats.movies_count.toLocaleString(activeLocale())} movies (${formatCacheAge(
         stats.movies_age_hours
       )})`
     );
@@ -340,7 +341,7 @@ export function formatCacheStats(stats: CacheStats): string {
 
   if (stats.series_cached) {
     parts.push(
-      `${stats.series_count.toLocaleString()} series (${formatCacheAge(
+      `${stats.series_count.toLocaleString(activeLocale())} series (${formatCacheAge(
         stats.series_age_hours
       )})`
     );

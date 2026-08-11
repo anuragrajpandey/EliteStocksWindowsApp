@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import './Modal.css';
 import './EpgShiftModal.css';
 
@@ -11,6 +13,7 @@ interface EpgShiftModalProps {
 }
 
 export function EpgShiftModal({ isOpen, currentOffset, onClose, onChange }: EpgShiftModalProps) {
+  useTranslation();
   const [offset, setOffset] = useState(currentOffset);
 
   useEffect(() => {
@@ -42,8 +45,8 @@ export function EpgShiftModal({ isOpen, currentOffset, onClose, onChange }: EpgS
     <div className="modal-overlay epg-shift-overlay" onClick={onClose}>
       <div className="modal-container epg-shift-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3 className="modal-title">EPG Time Offset</h3>
-          <button className="modal-close-btn" onClick={onClose} aria-label="Close">
+          <h3 className="modal-title">{i18n.t('epg:shiftTitle')}</h3>
+          <button className="modal-close-btn" onClick={onClose} aria-label={i18n.t('common:close')}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
@@ -68,7 +71,7 @@ export function EpgShiftModal({ isOpen, currentOffset, onClose, onChange }: EpgS
           </div>
         </div>
         <div className="epg-shift-footer">
-          <button className="modal-btn modal-btn-primary" onClick={onClose}>Close</button>
+          <button className="modal-btn modal-btn-primary" onClick={onClose}>{i18n.t('common:close')}</button>
         </div>
       </div>
     </div>,
