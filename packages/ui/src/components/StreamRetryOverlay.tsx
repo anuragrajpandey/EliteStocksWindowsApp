@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import './StreamRetryOverlay.css';
 
 export interface RetryState {
@@ -14,6 +15,7 @@ interface StreamRetryOverlayProps {
 }
 
 export function StreamRetryOverlay({ retryState, isSmall = false }: StreamRetryOverlayProps) {
+  const { t } = useTranslation('player');
   const { countdown, attempt, maxRetries } = retryState;
   const isConnecting = countdown === 0;
 
@@ -43,12 +45,12 @@ export function StreamRetryOverlay({ retryState, isSmall = false }: StreamRetryO
         </div>
 
         <div className="stream-retry-text">
-          <span className="stream-retry-title">Stream disconnected</span>
+          <span className="stream-retry-title">{t('streamDisconnected')}</span>
           <span className="stream-retry-countdown">
-            {isConnecting ? 'Reconnecting…' : `Retrying in ${countdown}s`}
+            {isConnecting ? t('reconnecting') : t('retryingIn', { seconds: countdown })}
           </span>
           <span className="stream-retry-attempt">
-            Attempt {attempt} of {maxRetries}
+            {t('attemptOf', { attempt, max: maxRetries })}
           </span>
         </div>
       </div>

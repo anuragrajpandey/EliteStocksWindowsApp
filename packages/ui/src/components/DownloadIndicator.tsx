@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useDownloadStore } from '../stores/downloadStore';
 import './DownloadIndicator.css';
 
@@ -7,6 +8,7 @@ interface DownloadIndicatorProps {
 }
 
 export function DownloadIndicator({ size = 'small', className = '' }: DownloadIndicatorProps) {
+  const { t } = useTranslation('player');
   const downloads = useDownloadStore((s) => s.downloads) || [];
   const activeCount = downloads.filter((d) => d.status === 'downloading').length;
 
@@ -15,7 +17,7 @@ export function DownloadIndicator({ size = 'small', className = '' }: DownloadIn
   return (
     <div
       className={`download-indicator ${size} ${className}`}
-      title={`${activeCount} download${activeCount !== 1 ? 's' : ''} in progress`}
+      title={t('downloadsInProgress', { count: activeCount })}
     >
       <div className="download-dot pulse"></div>
       <span className="download-text">

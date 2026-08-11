@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import './SplitPlayButton.css';
 
 export type VodPlayerMode = 'embedded' | 'popout' | 'external';
@@ -34,6 +35,7 @@ export function SplitPlayButton({
 }: SplitPlayButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation('player');
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -79,9 +81,9 @@ export function SplitPlayButton({
   }, [onSelectMode, onPlay]);
 
   const modeLabels: Record<VodPlayerMode, string> = {
-    embedded: 'Embedded',
-    popout: 'Popout',
-    external: 'External',
+    embedded: t('embedded'),
+    popout: t('popout'),
+    external: t('external'),
   };
 
   return (
@@ -96,7 +98,7 @@ export function SplitPlayButton({
           className="split-play-btn__main"
           onClick={handleMainClick}
           disabled={disabled}
-          title={`${label} (${modeLabels[currentMode]} Player)`}
+          title={t('playerModeTitle', { label, mode: modeLabels[currentMode] })}
         >
           {icon ? (
             icon
@@ -122,7 +124,7 @@ export function SplitPlayButton({
           disabled={disabled}
           aria-expanded={isOpen}
           aria-haspopup="true"
-          title={`Choose Player Mode (Current: ${modeLabels[currentMode]})`}
+          title={t('choosePlayerMode', { mode: modeLabels[currentMode] })}
         >
           <svg viewBox="0 0 24 24" fill="currentColor" className="split-play-btn__chevron-icon">
             <path d="M7 10l5 5 5-5z" />
@@ -133,7 +135,7 @@ export function SplitPlayButton({
       {/* Player Selection Dropdown Menu */}
       {isOpen && (
         <div className="split-play-btn__dropdown" role="menu">
-          <div className="split-play-btn__menu-header">Player Options</div>
+          <div className="split-play-btn__menu-header">{t('playerOptions')}</div>
           
           <button
             type="button"
@@ -147,8 +149,8 @@ export function SplitPlayButton({
               <line x1="12" y1="17" x2="12" y2="21" />
             </svg>
             <div className="split-play-btn__option-text">
-              <span className="split-play-btn__option-title">Embedded Player</span>
-              <span className="split-play-btn__option-desc">Play inside main app window</span>
+              <span className="split-play-btn__option-title">{t('embeddedPlayer')}</span>
+              <span className="split-play-btn__option-desc">{t('embeddedPlayerDesc')}</span>
             </div>
             {currentMode === 'embedded' && (
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="split-play-btn__check-icon">
@@ -170,8 +172,8 @@ export function SplitPlayButton({
               <path d="M19 9l-5 5" />
             </svg>
             <div className="split-play-btn__option-text">
-              <span className="split-play-btn__option-title">Popout Player</span>
-              <span className="split-play-btn__option-desc">Play in floating popout window</span>
+              <span className="split-play-btn__option-title">{t('popoutPlayer')}</span>
+              <span className="split-play-btn__option-desc">{t('popoutPlayerDesc')}</span>
             </div>
             {currentMode === 'popout' && (
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="split-play-btn__check-icon">
@@ -192,8 +194,8 @@ export function SplitPlayButton({
               <line x1="10" y1="14" x2="21" y2="3" />
             </svg>
             <div className="split-play-btn__option-text">
-              <span className="split-play-btn__option-title">External Player</span>
-              <span className="split-play-btn__option-desc">Launch configured external app</span>
+              <span className="split-play-btn__option-title">{t('externalPlayer')}</span>
+              <span className="split-play-btn__option-desc">{t('externalPlayerDesc')}</span>
             </div>
             {currentMode === 'external' && (
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="split-play-btn__check-icon">
@@ -230,21 +232,22 @@ export function TrailerSourceToggle({
   onSelect,
   className = '',
 }: TrailerSourceToggleProps) {
+  const { t } = useTranslation('player');
   return (
     <div className={`trailer-source-toggle ${className}`}>
       <button
         type="button"
         className={`trailer-source-toggle__btn ${current === 'source' ? 'active' : ''}`}
         onClick={() => onSelect('source')}
-        title="Use trailer from the IPTV source"
+        title={t('trailerSourceTitle')}
       >
-        Source
+        {t('source')}
       </button>
       <button
         type="button"
         className={`trailer-source-toggle__btn ${current === 'tmdb' ? 'active' : ''}`}
         onClick={() => onSelect('tmdb')}
-        title="Use trailer from TMDB"
+        title={t('trailerTmdbTitle')}
       >
         TMDB
       </button>
@@ -272,16 +275,9 @@ export interface TrailerSplitButtonProps {
   className?: string;
 }
 
-const sourceLabels: Record<TrailerSource, string> = {
-  source: 'Source',
-  tmdb: 'TMDB',
-};
 
-const modeLabels: Record<VodPlayerMode, string> = {
-  embedded: 'Embedded',
-  popout: 'Popout',
-  external: 'External',
-};
+
+
 
 /**
  * Unified Trailer split-button.
@@ -308,6 +304,7 @@ export function TrailerSplitButton({
 }: TrailerSplitButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation('player');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -326,6 +323,16 @@ export function TrailerSplitButton({
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen]);
+
+  const sourceLabels: Record<TrailerSource, string> = {
+    source: t('source'),
+    tmdb: 'TMDB',
+  };
+  const modeLabels: Record<VodPlayerMode, string> = {
+    embedded: t('embedded'),
+    popout: t('popout'),
+    external: t('external'),
+  };
 
   const handleMainClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -365,14 +372,14 @@ export function TrailerSplitButton({
           className="split-play-btn__main"
           onClick={handleMainClick}
           disabled={disabled}
-          title={`Play Trailer (${hasBothSources ? sourceLabels[trailerSource] + ' · ' : ''}${modeLabels[playerMode]} player)`}
+          title={t('playTrailer', { mode: hasBothSources ? `${sourceLabels[trailerSource]} · ${modeLabels[playerMode]}` : modeLabels[playerMode] })}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="split-play-btn__play-icon">
             <polygon points="23 7 16 12 23 17 23 7" />
             <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
           </svg>
           <span className="split-play-btn__label">
-            {loading ? 'Resolving...' : 'Trailer'}
+            {loading ? t('resolving') : t('trailer')}
             {!loading && (
               <span className="split-play-btn__mode-tag">{sourceTag}{modeTag}</span>
             )}
@@ -390,7 +397,7 @@ export function TrailerSplitButton({
           disabled={disabled}
           aria-expanded={isOpen}
           aria-haspopup="true"
-          title="Trailer options"
+          title={t('trailerOptions')}
         >
           <svg viewBox="0 0 24 24" fill="currentColor" className="split-play-btn__chevron-icon">
             <path d="M7 10l5 5 5-5z" />
@@ -404,7 +411,7 @@ export function TrailerSplitButton({
           {/* SOURCE section — only when both trailers are available */}
           {hasBothSources && (
             <>
-              <div className="split-play-btn__menu-header">Source</div>
+              <div className="split-play-btn__menu-header">{t('source')}</div>
               <div className="trailer-split-btn__radio-group">
                 {(['source', 'tmdb'] as TrailerSource[]).map((src) => (
                   <button
@@ -425,7 +432,7 @@ export function TrailerSplitButton({
           )}
 
           {/* PLAYBACK section */}
-          <div className="split-play-btn__menu-header">Playback</div>
+          <div className="split-play-btn__menu-header">{t('playback')}</div>
           <div className="trailer-split-btn__radio-group">
             {(['embedded', 'popout', 'external'] as VodPlayerMode[]).map((mode) => {
               const icons: Record<VodPlayerMode, React.ReactNode> = {
@@ -481,6 +488,7 @@ export function SetPlayerDropdown({
 }: SetPlayerDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation('player');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -512,9 +520,9 @@ export function SetPlayerDropdown({
   }, [onSelectMode]);
 
   const modeLabels: Record<VodPlayerMode, string> = {
-    embedded: 'Embedded',
-    popout: 'Popout',
-    external: 'External',
+    embedded: t('embedded'),
+    popout: t('popout'),
+    external: t('external'),
   };
 
   return (
@@ -528,7 +536,7 @@ export function SetPlayerDropdown({
         }}
         aria-expanded={isOpen}
         aria-haspopup="true"
-        title="Select Default Player Mode"
+        title={t('selectDefaultPlayerMode')}
       >
         {currentMode === 'embedded' && (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="set-player-dropdown-btn__icon">
@@ -554,7 +562,7 @@ export function SetPlayerDropdown({
         )}
 
         <span className="set-player-dropdown-btn__label">
-          Player: {modeLabels[currentMode]}
+          {t('playerLabel', { mode: modeLabels[currentMode] })}
         </span>
 
         <svg viewBox="0 0 24 24" fill="currentColor" className={`set-player-dropdown-btn__chevron ${isOpen ? 'active' : ''}`}>
@@ -564,7 +572,7 @@ export function SetPlayerDropdown({
 
       {isOpen && (
         <div className="split-play-btn__dropdown" role="menu">
-          <div className="split-play-btn__menu-header">Set Default Player</div>
+          <div className="split-play-btn__menu-header">{t('setDefaultPlayer')}</div>
           
           <button
             type="button"
@@ -578,8 +586,8 @@ export function SetPlayerDropdown({
               <line x1="12" y1="17" x2="12" y2="21" />
             </svg>
             <div className="split-play-btn__option-text">
-              <span className="split-play-btn__option-title">Embedded Player</span>
-              <span className="split-play-btn__option-desc">Play inside main app window</span>
+              <span className="split-play-btn__option-title">{t('embeddedPlayer')}</span>
+              <span className="split-play-btn__option-desc">{t('embeddedPlayerDesc')}</span>
             </div>
             {currentMode === 'embedded' && (
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="split-play-btn__check-icon">
@@ -601,8 +609,8 @@ export function SetPlayerDropdown({
               <path d="M19 9l-5 5" />
             </svg>
             <div className="split-play-btn__option-text">
-              <span className="split-play-btn__option-title">Popout Player</span>
-              <span className="split-play-btn__option-desc">Play in floating popout window</span>
+              <span className="split-play-btn__option-title">{t('popoutPlayer')}</span>
+              <span className="split-play-btn__option-desc">{t('popoutPlayerDesc')}</span>
             </div>
             {currentMode === 'popout' && (
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="split-play-btn__check-icon">
@@ -623,8 +631,8 @@ export function SetPlayerDropdown({
               <line x1="10" y1="14" x2="21" y2="3" />
             </svg>
             <div className="split-play-btn__option-text">
-              <span className="split-play-btn__option-title">External Player</span>
-              <span className="split-play-btn__option-desc">Launch configured external app</span>
+              <span className="split-play-btn__option-title">{t('externalPlayer')}</span>
+              <span className="split-play-btn__option-desc">{t('externalPlayerDesc')}</span>
             </div>
             {currentMode === 'external' && (
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="split-play-btn__check-icon">

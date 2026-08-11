@@ -260,7 +260,7 @@ export function NowPlayingBar({
   const handleQuickRecord = useCallback(async () => {
     if (!channel) return;
 
-    const defaultTitle = currentProgram?.title || `Quick Record - ${channel.name}`;
+    const defaultTitle = currentProgram?.title || t('quickRecordTitle', { name: channel.name });
     setRecordTitle(defaultTitle);
     setIsStopAndRecord(false);
 
@@ -280,8 +280,8 @@ export function NowPlayingBar({
     const conflictResult = await detectScheduleConflicts(tempSchedule);
     if (conflictResult.hasConflict) {
       showConfirmThree(
-        'Scheduling Conflict',
-        `This source has a 1 connection limit. Use Stop & Record to stop the playback and watch in DVR tab while recording.`,
+        t('schedulingConflict'),
+        t('schedulingConflictMsg'),
         () => {
           setIsStopAndRecord(true);
           setShowRecordModal(true);
@@ -293,9 +293,9 @@ export function NowPlayingBar({
           setRecordDuration(5);
         },
         undefined,
-        'Stop & Record',
-        'Ignore',
-        'Cancel'
+        t('stopAndRecord'),
+        t('ignore'),
+        t('cancel')
       );
       return;
     }
@@ -316,7 +316,7 @@ export function NowPlayingBar({
       }
       const now = Math.floor(Date.now() / 1000);
       const isStalker = channel.direct_url?.startsWith('stalker_');
-      const defaultTitle = currentProgram?.title || `Quick Record - ${channel.name}`;
+      const defaultTitle = currentProgram?.title || t('quickRecordTitle', { name: channel.name });
       const finalTitle = recordTitle.trim() || defaultTitle;
 
       const schedule: Omit<DvrSchedule, 'id' | 'created_at' | 'status'> = {
@@ -339,14 +339,14 @@ export function NowPlayingBar({
         await new Promise(r => setTimeout(r, 100));
       }
       showSuccess(
-        'Recording Scheduled',
-        `Recording scheduled for ${recordDuration} minutes`
+        t('recordingScheduled'),
+        t('recordingScheduledMsg', { minutes: recordDuration })
       );
     } catch (error: any) {
       console.error('Failed to start quick record:', error);
       showError(
-        'Recording Failed',
-        error?.message || 'Failed to start recording'
+        t('recordingFailed'),
+        error?.message || t('failedToStartRecording')
       );
     } finally {
       setRecording(false);
@@ -659,7 +659,7 @@ export function NowPlayingBar({
                   className="npb-clean-btn"
                   onClick={onToggleMute}
                   disabled={!mpvReady}
-                  title={muted ? 'Unmute (M)' : 'Mute (M)'}
+                  title={muted ? t('unmute') : t('mute')}
                 >
                   <VolumeIcon muted={muted} volume={volume} />
                 </button>
@@ -677,7 +677,7 @@ export function NowPlayingBar({
                   disabled={!mpvReady}
                 />
                 {showVolumePercent && (
-                  <span className="npb-clean-volume-value" title={`Volume ${volume}`}>
+                  <span className="npb-clean-volume-value" title={t('volumeValue', { volume })}>
                     {volume}
                   </span>
                 )}
@@ -706,7 +706,7 @@ export function NowPlayingBar({
                         </span>
                       )}
                       <span className="npb-clean-behind-text">
-                        −{formatTime(timeshiftState.behindLive)} behind live
+                        −{t('behindLive', { time: formatTime(timeshiftState.behindLive) })}
                       </span>
                     </div>
                   ) : (
@@ -722,7 +722,7 @@ export function NowPlayingBar({
                     onClick={onGoToLive}
                     title={t('goToLive')}
                   >
-                    Go Live
+                    {t('goLive')}
                   </button>
                 )}
               </div>
@@ -738,7 +738,7 @@ export function NowPlayingBar({
                       onChannelUp();
                     }}
                     disabled={!canControl}
-                    title={isVod && vodInfo?.type === 'series' ? 'Previous Episode' : 'Previous Channel'}
+                    title={isVod && vodInfo?.type === 'series' ? t('previousEpisode') : t('previousChannel')}
                   >
                     {isVod && vodInfo?.type === 'series' ? <PrevIcon /> : <ChannelUpIcon />}
                   </button>
@@ -753,7 +753,7 @@ export function NowPlayingBar({
                       onChannelDown();
                     }}
                     disabled={!canControl}
-                    title={isVod && vodInfo?.type === 'series' ? 'Next Episode' : 'Next Channel'}
+                    title={isVod && vodInfo?.type === 'series' ? t('nextEpisode') : t('nextChannel')}
                   >
                     {isVod && vodInfo?.type === 'series' ? <NextIcon /> : <ChannelDownIcon />}
                   </button>
@@ -763,7 +763,7 @@ export function NowPlayingBar({
                   className="npb-clean-play-btn"
                   onClick={onTogglePlay}
                   disabled={!canControl}
-                  title={playing ? 'Pause (Space)' : 'Play (Space)'}
+                  title={playing ? t('pauseSpace') : t('playSpace')}
                 >
                   {playing ? <PauseIcon /> : <PlayIcon />}
                 </button>
@@ -799,7 +799,7 @@ export function NowPlayingBar({
                       className={`npb-clean-btn npb-speed-btn${showSpeedMenu ? ' active' : ''}`}
                       onClick={() => setShowSpeedMenu(v => !v)}
                       disabled={!canControl}
-                      title={`Playback Speed: ${speed}x`}
+                      title={t('playbackSpeed', { speed })}
                       style={{ fontWeight: 700, fontSize: '0.8rem', minWidth: '28px' }}
                     >
                       {`${speed}x`}
@@ -886,26 +886,26 @@ export function NowPlayingBar({
                           className={`npb-aspect-item ${audioVisualizerMode === 'spectrum' ? 'active' : ''}`}
                           onClick={() => { onSetAudioVisualizerMode('spectrum'); setShowVisualizerMenu(false); }}
                         >
-                          📊 Spectrum Bars
+                          📊 {t('visualizerSpectrum')}
                         </button>
                         <button
                           className={`npb-aspect-item ${audioVisualizerMode === 'circular' ? 'active' : ''}`}
                           onClick={() => { onSetAudioVisualizerMode('circular'); setShowVisualizerMenu(false); }}
                         >
-                          ⭕ Circular Spectrum
+                          ⭕ {t('visualizerCircular')}
                         </button>
 
                         <button
                           className={`npb-aspect-item ${audioVisualizerMode === 'vinyl' ? 'active' : ''}`}
                           onClick={() => { onSetAudioVisualizerMode('vinyl'); setShowVisualizerMenu(false); }}
                         >
-                          💿 Vinyl Station Card
+                          💿 {t('visualizerVinyl')}
                         </button>
                         <button
                           className={`npb-aspect-item ${audioVisualizerMode === 'off' ? 'active' : ''}`}
                           onClick={() => { onSetAudioVisualizerMode('off'); setShowVisualizerMenu(false); }}
                         >
-                          🚫 Off (Blank Screen)
+                          🚫 {t('visualizerOff')}
                         </button>
                       </div>
                     )}
@@ -946,7 +946,7 @@ export function NowPlayingBar({
                     className="npb-clean-btn"
                     onClick={onTogglePip}
                     disabled={!canControl}
-                    title={pipMode ? 'Exit Picture-in-Picture' : 'Picture-in-Picture (P)'}
+                    title={pipMode ? t('exitPip') : t('pip')}
                   >
                     <PiPIcon active={!!pipMode} />
                   </button>
@@ -1084,7 +1084,7 @@ export function NowPlayingBar({
                       }}
                       title={t('goToLive')}
                     >
-                      Go Live
+                      {t('goLive')}
                     </button>
                   )}
                 </div>
@@ -1143,27 +1143,27 @@ export function NowPlayingBar({
                             </div>
                             {/* Below-bar row: cached duration + mode toggle + live state */}
                             <div className="npb-timeshift-meta">
-                              <span className="npb-timeshift-window">↩ {formatTime(cachedDuration)} buffered</span>
+                              <span className="npb-timeshift-window">↩ {t('buffered', { time: formatTime(cachedDuration) })}</span>
                               {hasEpgCatchup && (
                                 <button
                                   className="npb-scrub-mode-btn"
                                   onClick={() => setScrubMode('epgcatchup')}
                                   title={t('switchToEpgCatchup')}
                                 >
-                                  ⏱ EPG Catchup
+                                  ⏱ {t('epgCatchup')}
                                 </button>
                               )}
                               {isLive ? (
                                 <span className="npb-live-badge">● LIVE</span>
                               ) : (
-                                <span className="npb-behind-live">−{formatTime(behindLive)} behind live</span>
+                                <span className="npb-behind-live">−{t('behindLive', { time: formatTime(behindLive) })}</span>
                               )}
                             </div>
                           </div>
                           <span className="npb-time-remaining">−{formatTime(behindLive)}</span>
                           {!isLive && onTimeshiftCatchUp && (
                             <button className="npb-btn npb-live-btn" onClick={onTimeshiftCatchUp} title={t('catchUpToLive')}>
-                              ⏭ Live
+                              ⏭ {t('live')}
                             </button>
                           )}
                         </>
@@ -1236,7 +1236,7 @@ export function NowPlayingBar({
                       onChannelUp();
                     }}
                     disabled={!canControl}
-                    title={isVod && vodInfo?.type === 'series' ? 'Previous Episode' : 'Previous Channel (Up)'}
+                    title={isVod && vodInfo?.type === 'series' ? t('previousEpisode') : t('previousChannelUp')}
                   >
                     {isVod && vodInfo?.type === 'series' ? <PrevIcon /> : <ChannelUpIcon />}
                   </button>
@@ -1250,7 +1250,7 @@ export function NowPlayingBar({
                       onChannelDown();
                     }}
                     disabled={!canControl}
-                    title={isVod && vodInfo?.type === 'series' ? 'Next Episode' : 'Next Channel (Down)'}
+                    title={isVod && vodInfo?.type === 'series' ? t('nextEpisode') : t('nextChannelDown')}
                   >
                     {isVod && vodInfo?.type === 'series' ? <NextIcon /> : <ChannelDownIcon />}
                   </button>
@@ -1259,7 +1259,7 @@ export function NowPlayingBar({
                   className="npb-btn"
                   onClick={onTogglePlay}
                   disabled={!canControl}
-                  title={playing ? 'Pause (Space)' : 'Play (Space)'}
+                  title={playing ? t('pauseSpace') : t('playSpace')}
                 >
                   {playing ? <PauseIcon /> : <PlayIcon />}
                 </button>
@@ -1380,26 +1380,26 @@ export function NowPlayingBar({
                         className={`npb-aspect-item ${audioVisualizerMode === 'spectrum' ? 'active' : ''}`}
                         onClick={() => { onSetAudioVisualizerMode('spectrum'); setShowVisualizerMenu(false); }}
                       >
-                        📊 Spectrum Bars
+                        📊 {t('visualizerSpectrum')}
                       </button>
                       <button
                         className={`npb-aspect-item ${audioVisualizerMode === 'circular' ? 'active' : ''}`}
                         onClick={() => { onSetAudioVisualizerMode('circular'); setShowVisualizerMenu(false); }}
                       >
-                        ⭕ Circular Spectrum
+                        ⭕ {t('visualizerCircular')}
                       </button>
 
                       <button
                         className={`npb-aspect-item ${audioVisualizerMode === 'vinyl' ? 'active' : ''}`}
                         onClick={() => { onSetAudioVisualizerMode('vinyl'); setShowVisualizerMenu(false); }}
                       >
-                        💿 Vinyl Station Card
+                        💿 {t('visualizerVinyl')}
                       </button>
                       <button
                         className={`npb-aspect-item ${audioVisualizerMode === 'off' ? 'active' : ''}`}
                         onClick={() => { onSetAudioVisualizerMode('off'); setShowVisualizerMenu(false); }}
                       >
-                        🚫 Off (Blank Screen)
+                        🚫 {t('visualizerOff')}
                       </button>
                     </div>
                   )}
@@ -1413,7 +1413,7 @@ export function NowPlayingBar({
                     className={`npb-btn npb-speed-btn${showSpeedMenu ? ' active' : ''}`}
                     onClick={() => setShowSpeedMenu(v => !v)}
                     disabled={!canControl}
-                    title={`Playback Speed: ${speed}x`}
+                    title={t('playbackSpeed', { speed })}
                   >
                     {`${speed}x`}
                   </button>
@@ -1439,7 +1439,7 @@ export function NowPlayingBar({
                   className="npb-btn npb-volume-btn"
                   onClick={onToggleMute}
                   disabled={!mpvReady}
-                  title={muted ? 'Unmute (M)' : 'Mute (M)'}
+                  title={muted ? t('unmute') : t('mute')}
                 >
                   <VolumeIcon muted={muted} volume={volume} />
                 </button>
@@ -1465,7 +1465,7 @@ export function NowPlayingBar({
                   className="npb-btn"
                   onClick={onTogglePip}
                   disabled={!canControl}
-                  title={pipMode ? 'Exit Picture-in-Picture' : 'Picture-in-Picture (P)'}
+                  title={pipMode ? t('exitPip') : t('pip')}
                 >
                   <PiPIcon active={!!pipMode} />
                 </button>
@@ -1555,7 +1555,7 @@ export function NowPlayingBar({
               className="npb-btn npb-volume-btn"
               onClick={onToggleMute}
               disabled={!mpvReady}
-              title={muted ? 'Unmute (M)' : 'Mute (M)'}
+              title={muted ? t('unmute') : t('mute')}
             >
               <VolumeIcon muted={muted} volume={volume} />
             </button>

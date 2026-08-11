@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import './CastButton.css';
@@ -28,6 +29,7 @@ interface CastButtonProps {
 }
 
 export function CastButton({ castEnabled, onCastCurrentStream, onCastEnabledChange }: CastButtonProps) {
+  const { t } = useTranslation(['cast', 'player']);
   const [isOpen, setIsOpen] = useState(false);
   const [devices, setDevices] = useState<DiscoveredDevice[]>([]);
   const [status, setStatus] = useState<CastStatus>({
@@ -137,7 +139,7 @@ export function CastButton({ castEnabled, onCastCurrentStream, onCastEnabledChan
         <button
           className="title-bar-cast-btn disabled"
           onClick={() => setShowEnableDialog(true)}
-          title="Google Cast (disabled)"
+          title={t('disabledTitle')}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -169,22 +171,22 @@ export function CastButton({ castEnabled, onCastCurrentStream, onCastEnabledChan
                   <line x1="2" y1="20" x2="2.01" y2="20" />
                 </svg>
               </div>
-              <h3>Google Cast Disabled</h3>
-              <p>Enable Google Cast to cast content to your devices.</p>
+              <h3>{t('disabledHeading')}</h3>
+              <p>{t('disabledBody')}</p>
               <div className="cast-enable-dialog-warning">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
                   <line x1="12" y1="9" x2="12" y2="13" />
                   <line x1="12" y1="17" x2="12.01" y2="17" />
                 </svg>
-                <span>Enabling may prompt the OS for local network and firewall permissions to discover Cast devices on your network.</span>
+                <span>{t('disabledWarning')}</span>
               </div>
               <div className="cast-enable-dialog-actions">
                 <button
                   className="cast-enable-dialog-cancel"
                   onClick={() => setShowEnableDialog(false)}
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
                 <button
                   className="cast-enable-dialog-confirm"
@@ -193,7 +195,7 @@ export function CastButton({ castEnabled, onCastCurrentStream, onCastEnabledChan
                     onCastEnabledChange?.(true);
                   }}
                 >
-                  Enable
+                  {t('enable')}
                 </button>
               </div>
             </div>
@@ -209,7 +211,7 @@ export function CastButton({ castEnabled, onCastCurrentStream, onCastEnabledChan
       <button
         className={`title-bar-cast-btn ${status.connected ? 'connected' : ''} ${isOpen ? 'active' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
-        title={status.connected ? `Casting to ${status.deviceName}` : 'Google Cast'}
+        title={status.connected ? t('castingTo', { device: status.deviceName }) : t('googleCast')}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -233,7 +235,7 @@ export function CastButton({ castEnabled, onCastCurrentStream, onCastEnabledChan
       {isOpen && (
         <div className="cast-dropdown">
           <div className="cast-dropdown-header">
-            <h4>Google Cast</h4>
+            <h4>{t('googleCast')}</h4>
             <span className="cast-scan-pulse"></span>
           </div>
 
@@ -245,34 +247,34 @@ export function CastButton({ castEnabled, onCastCurrentStream, onCastEnabledChan
                     <div className="cast-device-name-active">{status.deviceName}</div>
                     <div className="cast-device-status-label">
                       {status.playerState === 'PLAYING'
-                        ? 'Playing'
+                        ? t('playing')
                         : status.playerState === 'PAUSED'
-                        ? 'Paused'
-                        : 'Connected'}
+                        ? t('paused')
+                        : t('connected')}
                     </div>
                   </div>
                   <button className="cast-dropdown-disconnect-btn" onClick={handleDisconnect}>
-                    Disconnect
+                    {t('disconnect')}
                   </button>
                 </div>
 
                 <div className="cast-controls-row">
                   {status.playerState === 'PLAYING' ? (
-                    <button className="cast-control-btn" onClick={() => invoke('cast_pause')} title="Pause">
+                    <button className="cast-control-btn" onClick={() => invoke('cast_pause')} title={t('player:pause')}>
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                         <rect x="5" y="4" width="4" height="16" rx="1" />
                         <rect x="15" y="4" width="4" height="16" rx="1" />
                       </svg>
                     </button>
                   ) : (
-                    <button className="cast-control-btn" onClick={() => invoke('cast_play')} title="Play">
+                    <button className="cast-control-btn" onClick={() => invoke('cast_play')} title={t('player:play')}>
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                         <polygon points="6,4 20,12 6,20" />
                       </svg>
                     </button>
                   )}
 
-                  <button className="cast-control-btn" onClick={() => invoke('cast_toggle_mute')} title={status.muted ? "Unmute" : "Mute"}>
+                  <button className="cast-control-btn" onClick={() => invoke('cast_toggle_mute')} title={status.muted ? t('player:unmute') : t('player:mute')}>
                     {status.muted ? (
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M11 5L6 9H2v6h4l5 4V5z" />
@@ -294,13 +296,13 @@ export function CastButton({ castEnabled, onCastCurrentStream, onCastEnabledChan
                     value={Math.round(status.volume * 100)}
                     className="cast-volume-slider"
                     onChange={(e) => invoke('cast_set_volume', { level: parseFloat(e.target.value) / 100 })}
-                    title="Volume"
+                    title={t('player:volume')}
                   />
                 </div>
 
                 {onCastCurrentStream && (
                   <button className="cast-current-stream-btn" onClick={onCastCurrentStream}>
-                    Cast Current Video
+                    {t('castCurrentVideo')}
                   </button>
                 )}
               </div>
@@ -309,7 +311,7 @@ export function CastButton({ castEnabled, onCastCurrentStream, onCastEnabledChan
                 {devices.length === 0 ? (
                   <div className="cast-no-devices">
                     <span className="cast-spinner"></span>
-                    Searching for devices...
+                    {t('searching')}
                   </div>
                 ) : (
                   devices.map((device) => {

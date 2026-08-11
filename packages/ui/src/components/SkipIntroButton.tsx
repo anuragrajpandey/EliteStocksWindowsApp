@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import './SkipIntroButton.css';
 
 interface SkipIntroButtonProps {
@@ -8,6 +9,7 @@ interface SkipIntroButtonProps {
 }
 
 export function SkipIntroButton({ visible, countdown, onSkip }: SkipIntroButtonProps) {
+  const { t } = useTranslation('player');
   const [hiding, setHiding] = useState(false);
   const hasRenderedVisible = useRef(false);
 
@@ -33,7 +35,7 @@ export function SkipIntroButton({ visible, countdown, onSkip }: SkipIntroButtonP
         <polygon points="5 4 15 12 5 20 5 4" />
         <line x1="19" y1="5" x2="19" y2="19" />
       </svg>
-      <span className="skip-intro-btn__text">Skip Intro</span>
+      <span className="skip-intro-btn__text">{t('skipIntro')}</span>
       <span className="skip-intro-btn__countdown">{countdown}s</span>
     </button>
   );

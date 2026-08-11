@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSubtitleDebugStore } from '../stores/subtitleDebugStore';
 import { Bridge } from '../services/tauri-bridge';
 
@@ -8,6 +9,7 @@ interface SubtitleDiagnosticsModalProps {
 }
 
 export function SubtitleDiagnosticsModal({ isOpen, onClose }: SubtitleDiagnosticsModalProps) {
+  const { t } = useTranslation('subtitles');
   const entries = useSubtitleDebugStore((s) => s.entries);
   const clearSubLogs = useSubtitleDebugStore((s) => s.clearSubLogs);
   const [copied, setCopied] = useState(false);
@@ -32,7 +34,7 @@ export function SubtitleDiagnosticsModal({ isOpen, onClose }: SubtitleDiagnostic
         mpvBodyRef.current.scrollTop = mpvBodyRef.current.scrollHeight;
       }
     } catch (e) {
-      setMpvLog(`Failed to read mpv log: ${e}`);
+      setMpvLog(t('failedReadMpvLog', { error: String(e) }));
     } finally {
       setMpvLoading(false);
     }
@@ -63,7 +65,7 @@ export function SubtitleDiagnosticsModal({ isOpen, onClose }: SubtitleDiagnostic
 
   const jsText = entries.length
     ? entries.map((e) => `[${e.time}] (${e.area}) ${e.msg}`).join('\n')
-    : '(No subtitle diagnostics captured yet.)';
+    : t('noDiagnostics');
 
   const copy = async (text: string) => {
     try {
@@ -81,29 +83,29 @@ export function SubtitleDiagnosticsModal({ isOpen, onClose }: SubtitleDiagnostic
     <div className="subtitle-diagnostics-overlay" onClick={onClose}>
       <div className="subtitle-diagnostics" onClick={(e) => e.stopPropagation()}>
         <div className="subtitle-diagnostics-header">
-          <h3>Subtitle Diagnostics</h3>
+          <h3>{t('diagnosticsTitle')}</h3>
           <button className="subtitle-modal-close" onClick={onClose}>×</button>
         </div>
         <div className="subtitle-diagnostics-actions">
           <button className="subtitle-diagnostics-btn" onClick={() => copy(fullText)}>
-            {copied ? 'Copied!' : 'Copy All'}
+            {copied ? t('copied') : t('copyAll')}
           </button>
-          <button className="subtitle-diagnostics-btn" onClick={() => copy(jsText)}>Copy App Log</button>
-          <button className="subtitle-diagnostics-btn" onClick={() => copy(mpvLog)}>Copy MPV Log</button>
+          <button className="subtitle-diagnostics-btn" onClick={() => copy(jsText)}>{t('copyAppLog')}</button>
+          <button className="subtitle-diagnostics-btn" onClick={() => copy(mpvLog)}>{t('copyMpvLog')}</button>
           <button
             className={`subtitle-diagnostics-btn ${verboseOn ? 'subtitle-diagnostics-btn-active' : ''}`}
             onClick={() => refreshMpvLog(!verboseOn)}
           >
-            {verboseOn ? 'Verbose: ON' : 'Enable Verbose'}
+            {verboseOn ? t('verboseOn') : t('enableVerbose')}
           </button>
           <button className="subtitle-diagnostics-btn" onClick={() => refreshMpvLog()}>
-            {mpvLoading ? 'Loading…' : 'Refresh MPV Log'}
+            {mpvLoading ? t('loading') : t('refreshMpvLog')}
           </button>
-          <button className="subtitle-diagnostics-btn" onClick={clearSubLogs}>Clear App Log</button>
+          <button className="subtitle-diagnostics-btn" onClick={clearSubLogs}>{t('clearAppLog')}</button>
         </div>
         <div className="subtitle-diagnostics-tabs">
-          <span className="subtitle-diagnostics-tab">App / JS log ({entries.length})</span>
-          <span className="subtitle-diagnostics-tab">MPV log</span>
+          <span className="subtitle-diagnostics-tab">{t('appJsLog', { count: entries.length })}</span>
+          <span className="subtitle-diagnostics-tab">{t('mpvLog')}</span>
         </div>
         <textarea
           ref={jsBodyRef}
@@ -116,7 +118,7 @@ export function SubtitleDiagnosticsModal({ isOpen, onClose }: SubtitleDiagnostic
           ref={mpvBodyRef}
           className="subtitle-diagnostics-text subtitle-diagnostics-text-mpv"
           readOnly
-          value={mpvLog || '(MPV log is empty — enable verbose logging, reproduce the issue, then Refresh.)'}
+          value={mpvLog || t('mpvLogEmpty')}
           spellCheck={false}
         />
       </div>

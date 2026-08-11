@@ -1,8 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDownloadStore } from '../stores/downloadStore';
 import './StalkerSubtitleModal.css';
 
 export const StalkerSubtitleModal: React.FC = () => {
+  const { t } = useTranslation('subtitles');
   const pending = useDownloadStore((s) => s.pendingStalkerDownload);
   const confirmStalkerDownload = useDownloadStore((s) => s.confirmStalkerDownload);
   const cancelStalkerDownload = useDownloadStore((s) => s.cancelStalkerDownload);
@@ -20,16 +22,16 @@ export const StalkerSubtitleModal: React.FC = () => {
               <line x1="12" y1="7" x2="12" y2="13"></line>
             </svg>
           </div>
-          <h3>Extract Subtitles?</h3>
+          <h3>{t('extractSubtitlesQuestion')}</h3>
         </div>
 
         <div className="stalker-sub-modal-body">
           <p className="stalker-sub-modal-title">{pending.title}</p>
           <p className="stalker-sub-modal-desc">
-            Stalker Portal subtitles are extracted separately during post-processing. Extracting subtitles may take additional time or delay completion.
+            {t('extractDesc')}
           </p>
           <p className="stalker-sub-modal-question">
-            Would you like to extract subtitles for this VOD?
+            {t('extractQuestion')}
           </p>
         </div>
 
@@ -38,19 +40,19 @@ export const StalkerSubtitleModal: React.FC = () => {
             className="stalker-sub-modal-btn primary"
             onClick={() => confirmStalkerDownload(true)}
           >
-            Extract Subtitles
+            {t('extractSubtitles')}
           </button>
           <button
             className="stalker-sub-modal-btn secondary"
             onClick={() => confirmStalkerDownload(false)}
           >
-            Download Video Only
+            {t('downloadVideoOnly')}
           </button>
           <button
             className="stalker-sub-modal-btn cancel"
             onClick={cancelStalkerDownload}
           >
-            Cancel
+            {t('cancel')}
           </button>
         </div>
       </div>

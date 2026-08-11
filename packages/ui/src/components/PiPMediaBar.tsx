@@ -1,4 +1,5 @@
 import { type ChangeEvent, useRef, useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { AspectRatioMode } from '../services/tauri-bridge';
 import { getAspectRatioLabel } from '../services/tauri-bridge';
 import './PiPMediaBar.css';
@@ -57,6 +58,7 @@ export function PiPMediaBar({
   onExitPip,
   onSetAspectRatio,
 }: PiPMediaBarProps) {
+  const { t } = useTranslation('player');
   const [seekHover, setSeekHover] = useState(false);
   const [seekDrag, setSeekDrag] = useState(false);
   const [hoverPos, setHoverPos] = useState(0);
@@ -127,7 +129,7 @@ export function PiPMediaBar({
   return (
     <div className={`pip-media-bar ${visible ? 'visible' : 'hidden'}`}>
       <div className="pip-media-bar-inner">
-        <button className="pip-exit-btn" onClick={onExitPip} title="Exit Picture-in-Picture">
+        <button className="pip-exit-btn" onClick={onExitPip} title={t('exitPip')}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="3" width="20" height="18" rx="2" />
             <rect x="10" y="10" width="10" height="8" rx="1" fill="currentColor" fillOpacity="0.3" />
@@ -135,7 +137,7 @@ export function PiPMediaBar({
           </svg>
         </button>
 
-        <button className="pip-play-btn" onClick={onTogglePlay} title={playing ? 'Pause' : 'Play'}>
+        <button className="pip-play-btn" onClick={onTogglePlay} title={playing ? t('pause') : t('play')}>
           {playing ? (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <rect x="6" y="4" width="4" height="16" rx="1" />
@@ -177,7 +179,7 @@ export function PiPMediaBar({
             <button
               className="pip-ar-btn"
               onClick={() => setShowAr(v => !v)}
-              title={`Aspect Ratio: ${getAspectRatioLabel(aspectRatio)}`}
+              title={t('aspectRatioLabel', { mode: getAspectRatioLabel(aspectRatio) })}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -200,7 +202,7 @@ export function PiPMediaBar({
           </div>
         )}
 
-        <button className="pip-mute-btn" onClick={onToggleMute} title={muted ? 'Unmute' : 'Mute'}>
+        <button className="pip-mute-btn" onClick={onToggleMute} title={muted ? t('unmute') : t('mute')}>
           {muted ? (
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
@@ -219,7 +221,7 @@ export function PiPMediaBar({
           max="100"
           value={volume}
           onChange={onVolumeChange}
-          title="Volume"
+          title={t('volume')}
         />
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { StremioMeta, StremioVideo } from '../types/stremio';
 import type { VodPlayInfo } from '../types/media';
 import { useLazyStremioCast, type StremioCastMember } from '../hooks/useLazyStremioCast';
@@ -28,6 +29,7 @@ function RailWithControls({
   title: string;
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation('player');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = (direction: 'left' | 'right') => {
@@ -49,8 +51,8 @@ function RailWithControls({
           type="button"
           className="playback-details-rail-btn floating left"
           onClick={() => handleScroll('left')}
-          title="Scroll left"
-          aria-label="Scroll left"
+          title={t('scrollLeft')}
+          aria-label={t('scrollLeft')}
         >
           <svg
             width="16"
@@ -72,8 +74,8 @@ function RailWithControls({
           type="button"
           className="playback-details-rail-btn floating right"
           onClick={() => handleScroll('right')}
-          title="Scroll right"
-          aria-label="Scroll right"
+          title={t('scrollRight')}
+          aria-label={t('scrollRight')}
         >
           <svg
             width="16"
@@ -108,6 +110,7 @@ function VodEpisodesSection({
   onPlayVodInfo?: (info: VodPlayInfo) => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation('player');
   const tmdbToken = useActiveTmdbToken();
   const { series } = useSeriesById(seriesId);
   const { episodeExtras } = useLazySeriesExtras(series, tmdbToken);
@@ -136,7 +139,7 @@ function VodEpisodesSection({
   if (loading) {
     return (
       <div style={{ padding: '32px 0', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
-        Loading episodes...
+        {t('loadingEpisodes')}
       </div>
     );
   }
@@ -158,7 +161,7 @@ function VodEpisodesSection({
             cursor: 'pointer',
           }}
         >
-          Try Again
+          {t('tryAgain')}
         </button>
       </div>
     );
@@ -167,7 +170,7 @@ function VodEpisodesSection({
   if (episodes.length === 0) {
     return (
       <div style={{ padding: '32px 0', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
-        No episodes found for Season {selectedSeason}.
+        {t('noEpisodesSeason', { season: selectedSeason })}.
       </div>
     );
   }
@@ -184,7 +187,7 @@ function VodEpisodesSection({
               className={`playback-details-season-pill ${selectedSeason === s ? 'active' : ''}`}
               onClick={() => setSelectedSeason(s)}
             >
-              Season {s}
+              {t('season', { number: s })}
             </button>
           ))}
         </div>
@@ -202,7 +205,7 @@ function VodEpisodesSection({
           const rating = extra?.rating ?? (ep.info?.rating ? parseFloat(String(ep.info.rating)) : null);
           const rawPlot = extra?.summary || ep.info?.plot || ep.plot;
           const plot = typeof rawPlot === 'string' ? rawPlot : null;
-          const epTitle = typeof ep.title === 'string' && ep.title.trim() ? ep.title : `Episode ${ep.episode_num}`;
+          const epTitle = typeof ep.title === 'string' && ep.title.trim() ? ep.title : t('episode', { number: ep.episode_num });
 
           return (
             <div
@@ -281,6 +284,7 @@ function StremioEpisodesSection({
   onPlayEpisode?: (video: StremioVideo) => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation('player');
   const seasonsMap = useMemo(() => {
     const map = new Map<number, StremioVideo[]>();
     for (const v of videos) {
@@ -325,7 +329,7 @@ function StremioEpisodesSection({
               className={`playback-details-season-pill ${selectedSeason === s ? 'active' : ''}`}
               onClick={() => setSelectedSeason(s)}
             >
-              Season {s}
+              {t('season', { number: s })}
             </button>
           ))}
         </div>
@@ -352,7 +356,7 @@ function StremioEpisodesSection({
             >
               <div className="playback-details-ep-thumb-wrap">
                 {thumbnail ? (
-                  <img src={thumbnail} alt={ep.title || `Episode ${ep.episode}`} className="playback-details-ep-thumb" loading="lazy" />
+                  <img src={thumbnail} alt={ep.title || t('episode', { number: ep.episode })} className="playback-details-ep-thumb" loading="lazy" />
                 ) : (
                   <div className="playback-details-ep-thumb-placeholder">
                     <span>E{ep.episode ?? ''}</span>
@@ -399,6 +403,7 @@ export function PlaybackDetailsModal({
   onPlayVodInfo,
   onSelectRecommendation,
 }: PlaybackDetailsModalProps) {
+  const { t } = useTranslation('player');
   const [view, setView] = useState<'title' | 'episodes'>('title');
   const [expandedOverview, setExpandedOverview] = useState(false);
   const tmdbToken = useActiveTmdbToken();
@@ -511,11 +516,11 @@ export function PlaybackDetailsModal({
               >
                 <polyline points="15 18 9 12 15 6" />
               </svg>
-              Back to Overview
+              {t('backToOverview')}
             </button>
           ) : (
             <span className="playback-details-header__title">
-              About this title
+              {t('aboutThisTitle')}
             </span>
           )}
 
@@ -524,8 +529,8 @@ export function PlaybackDetailsModal({
               type="button"
               className="playback-details-header__close-btn"
               onClick={onClose}
-              title="Close"
-              aria-label="Close"
+              title={t('close')}
+              aria-label={t('close')}
             >
               <svg
                 width="18"
@@ -599,7 +604,7 @@ export function PlaybackDetailsModal({
                         >
                           <polygon points="5 3 19 12 5 21 5 3" />
                         </svg>
-                        Episodes
+                        {t('episodes')}
                       </button>
                     )}
 
@@ -617,7 +622,7 @@ export function PlaybackDetailsModal({
                         >
                           <polygon points="5 3 19 12 5 21 5 3" />
                         </svg>
-                        Play
+                        {t('play')}
                       </button>
                     )}
 
@@ -627,7 +632,7 @@ export function PlaybackDetailsModal({
                         className="playback-details-btn--secondary"
                         onClick={onOpenAppDetails}
                       >
-                        {isSeries ? 'All episodes & details' : 'Full details'}
+                        {isSeries ? t('allEpisodesDetails') : t('fullDetails')}
                         <svg
                           width="14"
                           height="14"
@@ -663,7 +668,7 @@ export function PlaybackDetailsModal({
                       className="playback-details-synopsis__toggle"
                       onClick={() => setExpandedOverview(!expandedOverview)}
                     >
-                      {expandedOverview ? 'Show less' : 'Read more'}
+                      {expandedOverview ? t('showLess') : t('readMore')}
                     </button>
                   )}
                 </div>
@@ -671,7 +676,7 @@ export function PlaybackDetailsModal({
 
               {/* Cast Section */}
               {cast && cast.length > 0 && (
-                <RailWithControls title="Cast">
+                <RailWithControls title={t('cast')}>
                   {cast.slice(0, 24).map((c: StremioCastMember) => (
                     <div key={c.id} className="playback-details-cast-card">
                       <div className="playback-details-cast-photo-wrap">
@@ -702,7 +707,7 @@ export function PlaybackDetailsModal({
 
               {/* More Like This Section */}
               {recommendations && recommendations.length > 0 && (
-                <RailWithControls title="More Like This">
+                <RailWithControls title={t('moreLikeThis')}>
                   {recommendations
                     .slice(0, 16)
                     .map((item: RecommendationItem) => (

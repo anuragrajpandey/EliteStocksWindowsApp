@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Bridge } from '../services/tauri-bridge';
 import {
   searchSubSourceMovies,
@@ -216,6 +217,7 @@ export function SubtitleControlModal({
   vodSourceId,
   vodMediaId,
 }: SubtitleControlModalProps) {
+  const { t } = useTranslation('subtitles');
   const [tracks, setTracks] = useState<Track[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -448,12 +450,12 @@ export function SubtitleControlModal({
       console.log('[SubtitleModal] Auto-search result:', result);
 
       if (!result.success) {
-        setSearchError(result.error || 'Auto-search failed');
+        setSearchError(result.error || t('autoSearchFailed'));
         return;
       }
 
       if (!result.movies || result.movies.length === 0) {
-        setSearchError('No movies found for auto-search.');
+        setSearchError(t('noMoviesAutoSearch'));
         return;
       }
 
@@ -464,7 +466,7 @@ export function SubtitleControlModal({
       console.log('[SubtitleModal] Selected target movie:', targetMovie?.title, targetMovie?.movieId);
 
       if (!targetMovie) {
-        setSearchError('No suitable match found for auto-search.');
+        setSearchError(t('noSuitableMatch'));
         return;
       }
 
@@ -515,7 +517,7 @@ export function SubtitleControlModal({
       }
     } catch (e: any) {
       console.error('[SubtitleModal] Auto-search exception:', e);
-      setSearchError(e?.message || 'Auto-search failed');
+      setSearchError(e?.message || t('autoSearchFailed'));
     } finally {
       setSearching(false);
     }
@@ -748,7 +750,7 @@ export function SubtitleControlModal({
     }
 
     if (!token) {
-      setSearchError('Login required in Settings > Subtitles to search OpenSubtitles.');
+      setSearchError(t('loginRequiredSearch'));
       return;
     }
 
@@ -821,14 +823,14 @@ export function SubtitleControlModal({
       }
 
       if (!res || !res.success) {
-        const msg = res?.error || 'OpenSubtitles search failed';
+        const msg = res?.error || t('openSubtitlesSearchFailed');
         setSearchError(msg);
         useToastStore.getState().addToast(msg, 'error');
         return;
       }
 
       if (!res.subtitles || res.subtitles.length === 0) {
-        const msg = `No OpenSubtitles found for "${cleanTitle}".`;
+        const msg = t('noOpenSubtitlesFound', { title: cleanTitle });
         setSearchError(msg);
         return;
       }
@@ -855,7 +857,7 @@ export function SubtitleControlModal({
       setViewState('subtitles');
     } catch (e: any) {
       console.error('[SubtitleModal] OpenSubtitles search error:', e);
-      const msg = e?.message || 'OpenSubtitles search failed';
+      const msg = e?.message || t('openSubtitlesSearchFailed');
       setSearchError(msg);
       useToastStore.getState().addToast(msg, 'error');
     } finally {
@@ -865,7 +867,7 @@ export function SubtitleControlModal({
 
   const handleDownloadOpenSubtitles = async (sub: OpenSubtitlesSubtitle) => {
     if (!openSubtitlesToken) {
-      const msg = 'Login required in Settings > Subtitles';
+      const msg = t('loginRequired');
       setSearchError(msg);
       useToastStore.getState().addToast(msg, 'error');
       return;
@@ -876,7 +878,7 @@ export function SubtitleControlModal({
     try {
       const res = await downloadOpenSubtitlesSubtitle(openSubtitlesToken, sub.fileId);
       if (!res.success || !res.content) {
-        const msg = res.error || 'Failed to download subtitle from OpenSubtitles';
+        const msg = res.error || t('downloadSubtitleFailed');
         setSearchError(msg);
         useToastStore.getState().addToast(msg, 'error');
         return;
@@ -907,7 +909,7 @@ export function SubtitleControlModal({
       setViewState('tracks');
     } catch (e: any) {
       console.error('[SubtitleModal] OpenSubtitles download exception:', e);
-      const msg = e?.message || 'Download failed';
+      const msg = e?.message || t('downloadFailed');
       setSearchError(msg);
       useToastStore.getState().addToast(msg, 'error');
     } finally {
@@ -956,7 +958,7 @@ export function SubtitleControlModal({
     }
 
     if (!apiKey) {
-      setSearchError('Configure API key in Settings > Subtitles');
+      setSearchError(t('configureApiKey'));
       return;
     }
 
@@ -976,12 +978,12 @@ export function SubtitleControlModal({
       console.log('[SubtitleModal] Movie search result:', result);
 
       if (!result.success) {
-        setSearchError(result.error || 'Search failed');
+        setSearchError(result.error || t('searchFailed'));
         return;
       }
 
       if (!result.movies || result.movies.length === 0) {
-        setSearchError('No movies/series found for this query.');
+        setSearchError(t('noResultsQuery'));
         return;
       }
 
@@ -999,7 +1001,7 @@ export function SubtitleControlModal({
       };
     } catch (e: any) {
       console.error('[SubtitleModal] Movie search exception:', e);
-      setSearchError(e?.message || 'Search failed');
+      setSearchError(e?.message || t('searchFailed'));
     } finally {
       setSearching(false);
     }
@@ -1024,13 +1026,13 @@ export function SubtitleControlModal({
       console.log('[SubtitleModal] Subtitle search result:', result);
 
       if (!result.success) {
-        setSearchError(result.error || 'Failed to load subtitles for this movie.');
+        setSearchError(result.error || t('loadSubtitlesFailed'));
         setViewState('tracks');
         return;
       }
 
       if (!result.subtitles || result.subtitles.length === 0) {
-        setSearchError(`No ${LANG_LABELS[searchLang]?.toLowerCase() || searchLang} subtitles found for "${movie.title}".`);
+        setSearchError(t('noLangSubtitles', { lang: LANG_LABELS[searchLang]?.toLowerCase() || searchLang, title: movie.title }));
         setViewState('tracks');
         return;
       }
@@ -1063,7 +1065,7 @@ export function SubtitleControlModal({
       }
     } catch (e: any) {
       console.error('[SubtitleModal] Subtitle fetch exception:', e);
-      setSearchError(e?.message || 'Failed to load subtitles');
+      setSearchError(e?.message || t('loadSubtitlesFailed2'));
       setViewState('tracks');
     } finally {
       setSearching(false);
@@ -1080,7 +1082,7 @@ export function SubtitleControlModal({
     try {
       const content = await decompressZipEntry(zipData, entry);
       if (!content) {
-        setSearchError('Failed to extract subtitle from ZIP.');
+        setSearchError(t('extractZipFailed'));
         return;
       }
 
@@ -1123,7 +1125,7 @@ export function SubtitleControlModal({
       setActiveSubSourceSubtitle(null);
     } catch (e: any) {
       console.error('[SubtitleModal] Extraction exception:', e);
-      setSearchError(e?.message || 'Failed to extract subtitle');
+      setSearchError(e?.message || t('extractSubtitleFailed'));
     } finally {
       setDownloadingSubId(null);
     }
@@ -1143,7 +1145,7 @@ export function SubtitleControlModal({
     try {
       const zipResult = await downloadSubSourceZip(apiKey, sub.subtitleId);
       if (!zipResult.success || !zipResult.data) {
-        setSearchError(zipResult.error || 'Download failed');
+        setSearchError(zipResult.error || t('downloadFailed'));
         return;
       }
 
@@ -1151,7 +1153,7 @@ export function SubtitleControlModal({
       const entries = getZipEntries(zipData);
 
       if (entries.length === 0) {
-        setSearchError('No subtitle files (.srt or .vtt) found in the ZIP archive.');
+        setSearchError(t('noSubtitleFiles'));
         return;
       }
 
@@ -1167,7 +1169,7 @@ export function SubtitleControlModal({
       }
     } catch (e: any) {
       console.error('[SubtitleModal] Download exception:', e);
-      setSearchError(e?.message || 'Failed to download subtitle');
+      setSearchError(e?.message || t('downloadSubtitleFailed2'));
     } finally {
       setDownloadingSubId(null);
     }
@@ -1201,7 +1203,7 @@ export function SubtitleControlModal({
       }
     } catch (e: any) {
       console.error('[SubtitleModal] Failed to load local subtitle file:', e);
-      setSearchError(e?.message || 'Failed to open local subtitle file');
+      setSearchError(e?.message || t('openLocalFileFailed'));
     }
   };
 
@@ -1299,14 +1301,14 @@ export function SubtitleControlModal({
       <div className="subtitle-modal">
         <div className="subtitle-modal-header">
           <div className="subtitle-modal-header-top">
-            <h3>Subtitles</h3>
+            <h3>{t('header')}</h3>
             <div className="subtitle-modal-header-actions">
               <button
                 className="subtitle-diagnostics-open"
                 onClick={() => setShowDiagnostics(true)}
-                title="Open subtitle diagnostics log (copy/paste for support)"
+                title={t('diagnosticsTooltip')}
               >
-                Diagnostics
+                {t('diagnostics')}
               </button>
               <button className="subtitle-modal-close" onClick={onClose}>×</button>
             </div>
@@ -1314,7 +1316,7 @@ export function SubtitleControlModal({
           <div className="subtitle-header-search">
             <input
               type="text"
-              placeholder="Search…"
+              placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -1325,7 +1327,7 @@ export function SubtitleControlModal({
               onClick={handleSearch}
               disabled={searching}
             >
-              {searching ? '…' : 'Search'}
+              {searching ? '…' : t('search')}
             </button>
           </div>
           {searchError && (
@@ -1336,7 +1338,7 @@ export function SubtitleControlModal({
         <div className="subtitle-modal-body">
           {/* ── Column 1: Language ── */}
           <div className="subtitle-col subtitle-col-lang">
-            <div className="subtitle-col-title">Subtitles Languages</div>
+            <div className="subtitle-col-title">{t('languagesTitle')}</div>
             <div className="subtitle-lang-list">
               <button
                 className={`subtitle-lang-btn ${searchLang === 'off' ? 'active' : ''}`}
@@ -1364,21 +1366,21 @@ export function SubtitleControlModal({
           {/* ── Column 2: Loaded Subtitles ── */}
           <div className="subtitle-col subtitle-col-tracks">
             <div className="subtitle-col-title-bar">
-              <div className="subtitle-col-title">Loaded Subtitles</div>
+              <div className="subtitle-col-title">{t('loadedTitle')}</div>
               <button
                 className="subtitle-load-file-btn"
                 onClick={handleLoadLocalFile}
-                title="Load external subtitle file from hard drive"
+                title={t('loadFileTooltip')}
               >
-                📂 Load File…
+                📂 {t('loadFile')}…
               </button>
             </div>
             {loading ? (
-              <div className="subtitle-empty">Loading tracks…</div>
+              <div className="subtitle-empty">{t('loadingTracks')}</div>
             ) : (
               <div className="subtitle-track-list">
                 <button className="subtitle-load-local-action-btn" onClick={handleLoadLocalFile}>
-                  <span>📂 Load Subtitle File from Disk…</span>
+                  <span>📂 {t('loadFromDisk')}…</span>
                 </button>
                 <button
                   className={`subtitle-track-btn ${selectedId === 0 ? 'active' : ''}`}
@@ -1386,10 +1388,10 @@ export function SubtitleControlModal({
                 >
                   <div className="subtitle-track-variant-wrapper">
                     <div className="subtitle-track-variant-title">
-                      None
+                      {t('none')}
                     </div>
                     <div className="subtitle-track-variant-origin">
-                      Subtitles disabled
+                      {t('disabled')}
                     </div>
                   </div>
                   {selectedId === 0 && <span className="subtitle-active-dot"></span>}
@@ -1397,7 +1399,7 @@ export function SubtitleControlModal({
                 {filteredSubTracks.map((track) => {
                   const info = track.external && track['external-filename']
                     ? parseExternalTrack(track['external-filename'])
-                    : { label: track.title || `Track ${track.id}`, origin: 'Embedded' };
+                    : { label: track.title || t('trackLabel', { id: track.id }), origin: t('embedded') };
                   
                   return (
                     <button
@@ -1422,7 +1424,7 @@ export function SubtitleControlModal({
                                   e.stopPropagation();
                                   handleRemoveExternal(track.id);
                                 }}
-                                title="Remove"
+                                title={t('remove')}
                               >
                                 ×
                               </span>
@@ -1433,7 +1435,7 @@ export function SubtitleControlModal({
                       );
                     })}
                 {filteredSubTracks.length === 0 && (
-                  <div className="subtitle-empty">No subtitles loaded for this language</div>
+                  <div className="subtitle-empty">{t('noSubtitlesLang')}</div>
                 )}
               </div>
             )}
@@ -1445,7 +1447,7 @@ export function SubtitleControlModal({
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {viewState === 'movies' && (
                   <button className="subtitle-back-btn" onClick={() => setViewState('tracks')}>
-                    ← Back
+                    ← {t('back')}
                   </button>
                 )}
                 {viewState === 'subtitles' && provider === 'subsource' && selectedMovie && (
@@ -1458,7 +1460,7 @@ export function SubtitleControlModal({
                       setAvailableEpisodes([]);
                     }}
                   >
-                    ← Back
+                    ← {t('back')}
                   </button>
                 )}
                 {viewState === 'subtitles' && provider === 'opensubtitles' && (
@@ -1471,7 +1473,7 @@ export function SubtitleControlModal({
                       setAvailableEpisodes([]);
                     }}
                   >
-                    ← Back
+                    ← {t('back')}
                   </button>
                 )}
                 {viewState === 'zip-files' && (
@@ -1484,11 +1486,11 @@ export function SubtitleControlModal({
                       setActiveSubSourceSubtitle(null);
                     }}
                   >
-                    ← Back
+                    ← {t('back')}
                   </button>
                 )}
                 {viewState === 'tracks' && (
-                  <span>Provider</span>
+                  <span>{t('provider')}</span>
                 )}
               </div>
 
@@ -1516,7 +1518,7 @@ export function SubtitleControlModal({
                     if (openSubtitlesToken) handleProviderChange('opensubtitles');
                   }}
                   disabled={!openSubtitlesToken}
-                  title={!openSubtitlesToken ? 'Login required in Settings > Subtitles to use OpenSubtitles' : 'Search OpenSubtitles'}
+                  title={!openSubtitlesToken ? t('loginRequiredTitle') : t('searchOpenSubtitles')}
                   style={{
                     padding: '3px 8px',
                     fontSize: '0.75rem',
@@ -1539,20 +1541,20 @@ export function SubtitleControlModal({
                 {provider === 'subsource' ? (
                   movies.length > 0 ? (
                     <button className="subtitle-back-btn" onClick={() => setViewState('movies')}>
-                      Show {movies.length} result{movies.length !== 1 ? 's' : ''} →
+                      {t('showResults', { count: movies.length })} →
                     </button>
                   ) : (
-                    'Search above to find subtitles on SubSource'
+                    t('searchAboveSubSource')
                   )
                 ) : (
                   openSubtitlesSubtitles.length > 0 ? (
                     <button className="subtitle-back-btn" onClick={() => setViewState('subtitles')}>
-                      Show {openSubtitlesSubtitles.length} result{openSubtitlesSubtitles.length !== 1 ? 's' : ''} →
+                      {t('showResults', { count: openSubtitlesSubtitles.length })} →
                     </button>
                   ) : openSubtitlesToken ? (
-                    'Search above to find subtitles on OpenSubtitles'
+                    t('searchAboveOpenSubtitles')
                   ) : (
-                    'Log in to OpenSubtitles in Settings > Subtitles to enable OpenSubtitles'
+                    t('loginToEnable')
                   )
                 )}
               </div>
@@ -1576,9 +1578,9 @@ export function SubtitleControlModal({
                     <span className="subtitle-movie-meta">
                       {movie.releaseYear && movie.releaseYear > 0 && movie.releaseYear}
                       {movie.type === 'tvseries' && movie.season !== undefined && movie.season !== null && ` · S${movie.season}`}
-                      {movie.type === 'tvseries' && ' · TV'}
-                      {movie.type === 'movie' && ' · Movie'}
-                      {movie.subtitleCount > 0 && ` · ${movie.subtitleCount} subs`}
+                      {movie.type === 'tvseries' && ` · ${t('tv')}`}
+                      {movie.type === 'movie' && ` · ${t('movie')}`}
+                      {movie.subtitleCount > 0 && ` · ${t('subsCount', { count: movie.subtitleCount })}`}
                     </span>
                   </button>
                 ))}
@@ -1589,7 +1591,7 @@ export function SubtitleControlModal({
             {viewState === 'subtitles' && provider === 'opensubtitles' && (
               <div className="subtitle-result-list">
                 <div className="subtitle-result-header">
-                  OpenSubtitles Results — {LANG_LABELS[searchLang] || searchLang}
+                  {t('resultsHeader', { lang: LANG_LABELS[searchLang] || searchLang })}
                 </div>
 
                 {/* Episode filter bar */}
@@ -1599,7 +1601,7 @@ export function SubtitleControlModal({
                       className={`subtitle-episode-filter ${episodeFilter === null ? 'active' : ''}`}
                       onClick={() => setEpisodeFilter(null)}
                     >
-                      All
+                      {t('all')}
                     </button>
                     {availableEpisodes.map((ep) => (
                       <button
@@ -1639,14 +1641,14 @@ export function SubtitleControlModal({
                       </span>
                     </span>
                     <span className="subtitle-result-action">
-                      {downloadingOsId === sub.id ? '…' : 'Load'}
+                      {downloadingOsId === sub.id ? '…' : t('load')}
                     </span>
                   </button>
                 ))}
 
                 {episodeFilter !== null && filteredOsSubtitles.length === 0 && (
                   <div className="subtitle-empty">
-                    No subtitles found for E{episodeFilter.toString().padStart(2, '0')}.
+                    {t('noSubtitlesForEpisode', { episode: episodeFilter.toString().padStart(2, '0') })}.
                   </div>
                 )}
               </div>
@@ -1669,7 +1671,7 @@ export function SubtitleControlModal({
                       className={`subtitle-episode-filter ${episodeFilter === null ? 'active' : ''}`}
                       onClick={() => setEpisodeFilter(null)}
                     >
-                      All
+                      {t('all')}
                     </button>
                     {availableEpisodes.map((ep) => (
                       <button
@@ -1691,9 +1693,9 @@ export function SubtitleControlModal({
                     disabled={downloadingSubId === sub.subtitleId}
                   >
                     <span className="subtitle-result-info">
-                      <span className="subtitle-result-release" title={sub.releaseInfo?.join(' ') || 'Unknown release'}>
+                      <span className="subtitle-result-release" title={sub.releaseInfo?.join(' ') || t('unknownRelease')}>
                         <span className="subtitle-result-release-inner">
-                          {sub.releaseInfo?.join(' ') || 'Unknown release'}
+                          {sub.releaseInfo?.join(' ') || t('unknownRelease')}
                         </span>
                       </span>
                       <span className="subtitle-result-detail">
@@ -1708,14 +1710,14 @@ export function SubtitleControlModal({
                       </span>
                     </span>
                     <span className="subtitle-result-action">
-                      {downloadingSubId === sub.subtitleId ? '…' : 'Load'}
+                      {downloadingSubId === sub.subtitleId ? '…' : t('load')}
                     </span>
                   </button>
                 ))}
 
                 {episodeFilter !== null && filteredSubtitles.length === 0 && (
                   <div className="subtitle-empty">
-                    No subtitles found for E{episodeFilter.toString().padStart(2, '0')}.
+                    {t('noSubtitlesForEpisode', { episode: episodeFilter.toString().padStart(2, '0') })}.
                   </div>
                 )}
               </div>
@@ -1725,7 +1727,7 @@ export function SubtitleControlModal({
             {viewState === 'zip-files' && (
               <div className="subtitle-result-list">
                 <div className="subtitle-result-header">
-                  Select subtitle file from ZIP archive:
+                  {t('selectZipFile')}
                 </div>
                 <div className="subtitle-movie-list">
                   {zipEntries.map((entry, index) => {
@@ -1746,7 +1748,7 @@ export function SubtitleControlModal({
                           </span>
                         )}
                         <span className="subtitle-movie-meta" style={{ fontSize: '0.75rem', marginTop: '2px' }}>
-                          {(entry.uncompressedSize / 1024).toFixed(1)} KB · Load
+                          {(entry.uncompressedSize / 1024).toFixed(1)} KB · {t('load')}
                         </span>
                       </button>
                     );
@@ -1758,37 +1760,37 @@ export function SubtitleControlModal({
 
           {/* ── Column 3: Subtitles Settings ── */}
           <div className="subtitle-col subtitle-col-controls">
-            <div className="subtitle-col-title">Subtitles Settings</div>
+            <div className="subtitle-col-title">{t('settingsTitle')}</div>
             <div className="subtitle-controls-list">
               <div className="subtitle-control-item">
-                <label>Delay</label>
+                <label>{t('delay')}</label>
                 <div className="subtitle-control-inputs">
                   <button
                     className="subtitle-control-nudge"
                     onClick={() => handleDelayChange(Math.round((delay - 1) * 10) / 10)}
-                    title="-1s delay"
+                    title={t('delayMinus1s')}
                   >-1s</button>
                   <button
                     className="subtitle-control-nudge"
                     onClick={() => handleDelayChange(Math.round((delay - 0.1) * 10) / 10)}
-                    title="-0.1s delay"
+                    title={t('delayMinus01s')}
                   >-</button>
                   <span className="subtitle-control-display">{delay.toFixed(1)}s</span>
                   <button
                     className="subtitle-control-nudge"
                     onClick={() => handleDelayChange(Math.round((delay + 0.1) * 10) / 10)}
-                    title="+0.1s delay"
+                    title={t('delayPlus01s')}
                   >+</button>
                   <button
                     className="subtitle-control-nudge"
                     onClick={() => handleDelayChange(Math.round((delay + 1) * 10) / 10)}
-                    title="+1s delay"
+                    title={t('delayPlus1s')}
                   >+1s</button>
                 </div>
               </div>
 
               <div className="subtitle-control-item">
-                <label>Size</label>
+                <label>{t('size')}</label>
                 <div className="subtitle-control-inputs">
                   <button
                     className="subtitle-control-nudge"
@@ -1803,7 +1805,7 @@ export function SubtitleControlModal({
               </div>
 
               <div className="subtitle-control-item">
-                <label>Vertical Position</label>
+                <label>{t('verticalPosition')}</label>
                 <div className="subtitle-control-inputs">
                   <button
                     className="subtitle-control-nudge"
@@ -1818,7 +1820,7 @@ export function SubtitleControlModal({
               </div>
 
               <div className="subtitle-control-item">
-                <label>Background</label>
+                <label>{t('background')}</label>
                 <div className="subtitle-control-inputs">
                   <label className="subtitle-toggle-switch">
                     <input
@@ -1833,7 +1835,7 @@ export function SubtitleControlModal({
 
               {subBackgroundEnabled && (
                 <div className="subtitle-control-item">
-                  <label>Opacity</label>
+                  <label>{t('opacity')}</label>
                   <div className="subtitle-control-inputs" style={{ flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                     <input
                       type="range"

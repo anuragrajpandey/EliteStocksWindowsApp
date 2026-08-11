@@ -1,4 +1,5 @@
 import { useRef, useState, useLayoutEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MultiviewCell } from '../MultiviewCell/MultiviewCell';
 import { HlsMultiviewCell } from '../MultiviewCell/HlsMultiviewCell';
 import { ViewerSlot, type MultiviewEngineMode } from '../../hooks/useMultiview';
@@ -133,6 +134,7 @@ export function MultiviewLayout({
     activeView,
     syncMpvGeometry,
 }: MultiviewLayoutProps) {
+    const { t } = useTranslation('player');
     const slot2 = slots.find(s => s.id === 2)!;
     const slot3 = slots.find(s => s.id === 3)!;
     const slot4 = slots.find(s => s.id === 4)!;
@@ -206,10 +208,10 @@ export function MultiviewLayout({
 
     const mainControls = (
         <div className="multiview-cell-controls primary-mpv-controls" onClick={(e) => e.stopPropagation()}>
-            <span className="multiview-cell-controls-name">{mainChannelName || 'Main Player'}</span>
+            <span className="multiview-cell-controls-name">{mainChannelName || t('mainPlayer')}</span>
             <div className="multiview-cell-controls-buttons">
                 <div className="multiview-cell-controls-volume" onClick={(e) => e.stopPropagation()}>
-                    <button className="multiview-cell-controls-btn" onClick={onMainToggleMute} title={mainMuted ? 'Unmute' : 'Mute'}>
+                    <button className="multiview-cell-controls-btn" onClick={onMainToggleMute} title={mainMuted ? t('unmute') : t('mute')}>
                         {mainMuted ? (
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" /></svg>
                         ) : (
@@ -223,19 +225,19 @@ export function MultiviewLayout({
                         value={mainMuted ? 0 : mainVolume}
                         onChange={(e) => onMainSetVolume(parseInt(e.target.value))}
                         className="multiview-cell-volume-slider"
-                        title="Volume"
+                        title={t('volume')}
                     />
                 </div>
-                <button className="multiview-cell-controls-btn" onClick={onMainTogglePlayPause} title="Play">
+                <button className="multiview-cell-controls-btn" onClick={onMainTogglePlayPause} title={t('play')}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
                 </button>
-                <button className="multiview-cell-controls-btn" onClick={onMainTogglePlayPause} title="Pause">
+                <button className="multiview-cell-controls-btn" onClick={onMainTogglePlayPause} title={t('pause')}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
                 </button>
-                <button className="multiview-cell-controls-btn" onClick={onMainReload} title="Reload Stream">
+                <button className="multiview-cell-controls-btn" onClick={onMainReload} title={t('reloadStream')}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A8 8 0 1 0 19 12h-2a6 6 0 1 1-2.23-4.69l2.64-2.64 1.42 1.42-3.54 3.54-3.54-3.54 1.41-1.41L13.76 5.1a8 8 0 0 1 3.89 1.25z" /></svg>
                 </button>
-                <button className="multiview-cell-controls-btn danger" onClick={onMainStop} title="Stop">
+                <button className="multiview-cell-controls-btn danger" onClick={onMainStop} title={t('stop')}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z" /></svg>
                 </button>
             </div>
@@ -253,7 +255,7 @@ export function MultiviewLayout({
                                 e.stopPropagation();
                                 onSwitchLayout?.('main');
                             }}
-                            title="Close and return to Main View"
+                            title={t('closeReturnMain')}
                         >
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                 <line x1="18" y1="6" x2="6" y2="18" />
@@ -261,7 +263,7 @@ export function MultiviewLayout({
                             </svg>
                         </button>
                         {cell(slot2)}
-                        <div className="layout-pip-resize" ref={pipResizeRef} title="Drag to resize" />
+                        <div className="layout-pip-resize" ref={pipResizeRef} title={t('dragToResize')} />
                     </div>
                 </div>
             );
