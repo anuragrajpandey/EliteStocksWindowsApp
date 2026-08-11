@@ -22,6 +22,7 @@ import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
 import { getMovieDetails, getTvShowDetails, getTmdbImageUrl, tmdbPersonIdByName, formatLanguageCode, formatCountryCode, getTmdb } from '../../services/tmdb';
 import { useDownloadStore } from '../../stores/downloadStore';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { formatDate } from '../../utils/dateTime';
 import './StremioDetail.css';
 
@@ -340,7 +341,7 @@ export function StremioDetail({
         );
       } catch (error) {
         console.error('[StremioDetail] Stream download failed:', error);
-        alert('Failed to start download');
+        alert(i18n.t('stremio:failedStartDownload'));
       } finally {
         setDownloadingUrl(null);
       }
@@ -440,7 +441,7 @@ export function StremioDetail({
               className={`stremio-detail-stream-download-btn ${downloadingUrl === stream.url ? 'downloading' : ''}`}
               onClick={(e) => handleDownloadStream(stream, e)}
               disabled={downloadingUrl === stream.url}
-              title="Download Stream"
+              title={i18n.t('stremio:downloadStream')}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 {downloadingUrl === stream.url ? (
@@ -918,7 +919,7 @@ export function StremioDetail({
                           {!epFinished && (
                             <div
                               className="stremio-ep-unwatched-badge"
-                              title="Mark as watched"
+                              title={i18n.t('stremio:markWatched')}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 toggleEpisodeWatched(ep.id, meta.id, selectedSeason ?? 1, ep.episode ?? 1);
@@ -933,7 +934,7 @@ export function StremioDetail({
                           {epFinished && (
                             <div
                               className="stremio-ep-watched-badge"
-                              title="Mark as unwatched"
+                              title={i18n.t('stremio:markUnwatched')}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 toggleEpisodeWatched(ep.id, meta.id, selectedSeason ?? 1, ep.episode ?? 1);
@@ -973,7 +974,7 @@ export function StremioDetail({
               <div className="stremio-detail-streams-header">
                 {isSeries && (
                   <button className="stremio-detail-back-to-episodes" onClick={() => setSelectedVideo(null)}>
-                    ← Back to Episodes
+                    ← {i18n.t('stremio:backToEpisodes')}
                   </button>
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '12px' }}>
@@ -1036,22 +1037,22 @@ export function StremioDetail({
                 {streams.length === 0 && loadingStreams ? (
                   <div className="stremio-detail-streams-loading">
                     <div className="stremio-spinner" />
-                    <span>Loading streams...</span>
+                    <span>{i18n.t('stremio:loadingStreams')}</span>
                   </div>
                 ) : streams.length === 0 ? (
                   <div className="stremio-detail-streams-empty">
-                    No streams found. Make sure you have stream provider addons installed.
+                    {i18n.t('stremio:noStreamsFound')}
                   </div>
                 ) : filteredStreams.length === 0 ? (
                   <div className="stremio-detail-streams-empty">
-                    No streams found for the selected addon filter.
+                    {i18n.t('stremio:noStreamsForFilter')}
                   </div>
                 ) : (
                   <>
                     {loadingStreams && (
                       <div className="stremio-detail-streams-loading-mini">
                         <div className="stremio-spinner" style={{ width: 14, height: 14, borderWidth: '1.5px' }} />
-                        <span>Checking more sources...</span>
+                        <span>{i18n.t('stremio:checkingMoreSources')}</span>
                       </div>
                     )}
                     {renderedStreams}

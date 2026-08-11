@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { Virtuoso } from 'react-virtuoso';
 import { useNuvioAuthStore } from '../../stores/nuvioAuthStore';
 import { useNuvioCollectionStore } from '../../stores/nuvioCollectionStore';
@@ -1439,9 +1440,9 @@ function NuvioPageContent({
       }
 
       if (!source) {
-        setFolderError('This folder has no catalog source configured. Edit it in the Collections tab.');
+        setFolderError(t('folderNoSource'));
       } else if (source.provider === 'tmdb' || source.provider === 'trakt') {
-        setFolderError(`Catalog source provider "${source.provider}" is currently not supported in this client. Please configure this folder to use a Stremio addon.`);
+        setFolderError(t('unsupportedProvider', { provider: source.provider }));
       } else if (source.provider && source.provider !== 'addon') {
         setFolderError(`Catalog source provider "${source.provider}" is not recognized. Supported providers: addon, tmdb, trakt. Edit the folder sources in the Collections tab.`);
       } else {
@@ -1514,7 +1515,7 @@ function NuvioPageContent({
     } catch (e) {
       if (!append) {
         console.error('[NuvioPage] Failed to fetch folder items:', e);
-        setFolderError('Failed to load catalog items. Check your connection.');
+        setFolderError(t('failedLoadCatalogItems'));
       }
     } finally {
       if (append) {
@@ -1551,7 +1552,7 @@ function NuvioPageContent({
   };
 
   const handleDeleteCollection = (id: string) => {
-    if (confirm('Are you sure you want to delete this entire collection?')) {
+    if (confirm(i18n.t('nuvio:confirmDeleteCollection'))) {
       const updated = editableCollections.filter(c => c.id !== id);
       setEditableCollections(updated);
       handleSaveCollections(updated);
@@ -1585,7 +1586,7 @@ function NuvioPageContent({
   };
 
   const handleDeleteFolder = (collId: string, folderId: string) => {
-    if (confirm('Are you sure you want to delete this folder?')) {
+    if (confirm(i18n.t('nuvio:confirmDeleteFolder'))) {
       const updated = editableCollections.map(c => {
         if (c.id === collId) {
           return { ...c, folders: c.folders.filter(f => f.id !== folderId) };
@@ -1683,16 +1684,16 @@ function NuvioPageContent({
     setAddonError(null);
     if (!addonUrl.trim()) return;
     if (!token || !profile) {
-      setAddonError('Please log in and select a profile first.');
+      setAddonError(t('loginProfileFirst'));
       return;
     }
     setInstallingAddon(true);
     try {
       await addonsStore.addAddon(token, profile.profile_index, addonUrl.trim());
       setAddonUrl('');
-      alert('Addon installed successfully!');
+      alert(i18n.t('nuvio:addonInstalled'));
     } catch (err: any) {
-      setAddonError(err.message || 'Failed to install addon');
+      setAddonError(err.message || i18n.t('nuvio:failedInstallAddon'));
     } finally {
       setInstallingAddon(false);
     }
@@ -1703,17 +1704,17 @@ function NuvioPageContent({
     try {
       await addonsStore.toggleAddon(token, profile.profile_index, addonId);
     } catch (err: any) {
-      alert(err.message || 'Failed to toggle addon');
+      alert(err.message || i18n.t('nuvio:failedToggleAddon'));
     }
   };
 
   const handleRemoveAddon = async (addonId: string) => {
     if (!token || !profile) return;
-    if (confirm('Are you sure you want to uninstall this addon from Nuvio?')) {
+    if (confirm(i18n.t('nuvio:confirmUninstallAddon'))) {
       try {
         await addonsStore.removeAddon(token, profile.profile_index, addonId);
       } catch (err: any) {
-        alert(err.message || 'Failed to remove addon');
+        alert(err.message || i18n.t('nuvio:failedRemoveAddon'));
       }
     }
   };
@@ -1727,9 +1728,9 @@ function NuvioPageContent({
     try {
       await pluginStore.addRepository(repoUrl.trim());
       setRepoUrl('');
-      alert('Repository installed successfully!');
+      alert(i18n.t('nuvio:repoInstalled'));
     } catch (err: any) {
-      setRepoError(err.message || 'Failed to add repository');
+      setRepoError(err.message || i18n.t('nuvio:failedAddRepository'));
     } finally {
       setInstallingRepo(false);
     }
@@ -1895,7 +1896,7 @@ function NuvioPageContent({
               </div>
               {showProfileMenu && authStore.profiles.length > 0 && (
                 <div className="nuvio-profile-dropdown">
-                  <div className="nuvio-profile-dropdown-header">Switch Profile</div>
+                  <div className="nuvio-profile-dropdown-header">{t('switchProfile')}</div>
                   {authStore.profiles.map((p) => {
                     const isActive = p.profile_index === profile.profile_index;
                     return (
@@ -1954,15 +1955,15 @@ function NuvioPageContent({
                 <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
-              <h3 className="nuvio-login-title">Nuvio Sync Offline</h3>
+              <h3 className="nuvio-login-title">{t('nuvioSyncOffline')}</h3>
               <p className="nuvio-login-desc">
-                Sign in to synchronize your custom collections, starred library items, and continue watching progress across devices.
+                {t('syncOfflineHint')}
               </p>
             </div>
 
             <div className="nuvio-login-card">
               <h4 className="nuvio-login-card-title">
-                {isLoginMode ? 'Sign In to Nuvio' : 'Create a Nuvio Account'}
+                {isLoginMode ? t('signInToNuvio') : t('createNuvioAccount')}
               </h4>
               <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <input
@@ -2005,7 +2006,7 @@ function NuvioPageContent({
                     onClick={() => setIsLoginMode(!isLoginMode)}
                     className="nuvio-login-toggle-btn"
                   >
-                    {isLoginMode ? 'Need an account? Register' : 'Have an account? Login'}
+                    {isLoginMode ? t('needAccountRegister') : t('haveAccountLogin')}
                   </button>
                 </div>
               </form>
@@ -2033,9 +2034,9 @@ function NuvioPageContent({
           </div>
         ) : !profile && authStore.profiles.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 20px', minHeight: '400px' }}>
-            <h2 style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 700, margin: '0 0 8px 0' }}>Select Profile</h2>
+            <h2 style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 700, margin: '0 0 8px 0' }}>{t('selectProfile')}</h2>
             <p style={{ margin: '0 0 36px 0', fontSize: '0.82rem', color: 'rgba(255,255,255,0.4)' }}>
-              Choose a profile to start using Nuvio
+              {t('chooseProfileHint')}
             </p>
             <div style={{ display: 'flex', gap: '28px', flexWrap: 'wrap', justifyContent: 'center' }}>
               {authStore.profiles.map((p) => (
@@ -2096,13 +2097,13 @@ function NuvioPageContent({
               ))}
             </div>
             <div style={{ marginTop: '36px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>
-              Manage profiles in <span onClick={() => navigateToView('settings')} style={{ color: 'var(--accent-primary, #00d4ff)', cursor: 'pointer', textDecoration: 'underline' }}>Settings</span>
+              {t('manageProfilesIn')} <span onClick={() => navigateToView('settings')} style={{ color: 'var(--accent-primary, #00d4ff)', cursor: 'pointer', textDecoration: 'underline' }}>{t('settings')}</span>
             </div>
           </div>
         ) : loading && resolvedWatchProgress.length === 0 && library.length === 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '200px', color: 'rgba(255,255,255,0.4)', gap: '10px' }}>
             <div className="spinner" style={{ width: '28px', height: '28px', borderRadius: '50%', border: '3px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, transparent)', borderTopColor: 'var(--accent-primary, #00d4ff)', animation: 'spin 1s linear infinite' }} />
-            <span style={{ fontSize: '0.82rem' }}>Loading synced data...</span>
+            <span style={{ fontSize: '0.82rem' }}>{t('loadingSyncedData')}</span>
           </div>
         ) : (
           <div>
@@ -2206,12 +2207,12 @@ function NuvioPageContent({
                         {loadingMoreFolderItems && (
                           <div className="nuvio-folder-detail-loading" style={{ padding: '20px 0' }}>
                             <div className="spinner" style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, transparent)', borderTopColor: 'var(--accent-primary, #00d4ff)', animation: 'spin 1s linear infinite' }} />
-                            <span style={{ fontSize: '0.78rem' }}>Loading more...</span>
+                            <span style={{ fontSize: '0.78rem' }}>{t('loadingMore')}</span>
                           </div>
                         )}
                       </>
                     ) : (
-                      <div className="nuvio-folder-detail-empty">No items found in this catalog source.</div>
+                      <div className="nuvio-folder-detail-empty">{t('noItemsInCatalogSource')}</div>
                     )}
                   </div>
                 </div>
@@ -2263,7 +2264,7 @@ function NuvioPageContent({
                   {resolvedWatchProgress.length > 0 && (
                     <div className="nuvio-row nuvio-home-section nuvio-home-section-cw">
                       <div className="nuvio-row-header">
-                        <h3 className="nuvio-row-title">Continue Watching</h3>
+                        <h3 className="nuvio-row-title">{t('continueWatching')}</h3>
                         <div className="stremio-row-nav">
                           <button
                             className="stremio-row-nav-btn"
@@ -2426,7 +2427,7 @@ function NuvioPageContent({
                   {tmdbApiKey && streamingNuvioCatalogsEnabled && enabledStreamingServices.length > 0 && (
                     <div className="nuvio-row nuvio-home-section nuvio-home-section-sp" style={{ marginBottom: '24px', position: 'relative' }}>
                       <div className="nuvio-row-header">
-                        <h3 className="nuvio-row-title">Streaming Platforms</h3>
+                        <h3 className="nuvio-row-title">{t('streamingPlatforms')}</h3>
                         <div className="stremio-row-nav">
                           <button
                             className="stremio-row-nav-btn"
@@ -2490,8 +2491,8 @@ function NuvioPageContent({
                   {filteredRows.length === 0 && filteredTraktRows.length === 0 ? (
                     <div className="nuvio-catalog-filter-empty">
                       {catalogFilter.trim()
-                        ? 'No catalogs match your filter.'
-                        : 'No catalogs available. Add one in the Addons tab.'}
+                        ? t('noCatalogsMatch')
+                        : t('noCatalogsAvailable')}
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -2617,7 +2618,7 @@ function NuvioPageContent({
                 {/* Sync Library */}
                 <div className="nuvio-row">
                   <div className="nuvio-row-header">
-                    <h3 className="nuvio-row-title">Library</h3>
+                    <h3 className="nuvio-row-title">{t('library')}</h3>
                   </div>
                   {library.length > 0 ? (
                     <div className="nuvio-library-grid">
@@ -2683,14 +2684,14 @@ function NuvioPageContent({
             {nuvioView === 'collections' && false && (
               <div className="nuvio-editor-container">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#fff' }}>Collections Manager</h3>
+                  <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#fff' }}>{t('collectionsManager')}</h3>
                   <button className="nuvio-btn nuvio-btn-primary" onClick={handleCreateCollection}>
-                    + Add Collection
+                    + {t('addCollection')}
                   </button>
                 </div>
 
                 {editableCollections.length === 0 ? (
-                  <div className="nuvio-empty-state">No collections configured. Click "+ Add Collection" to start.</div>
+                  <div className="nuvio-empty-state">{t('noCollectionsHint')}</div>
                 ) : (
                   editableCollections.map((coll) => (
                     <div key={coll.id} className="nuvio-editor-section">
@@ -2719,7 +2720,7 @@ function NuvioPageContent({
                           <div key={folder.id} style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '8px', padding: '16px' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '12px' }}>
                               <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}>Folder Title</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}>{t('folderTitle')}</label>
                                 <input
                                   type="text"
                                   value={folder.title}
@@ -2730,7 +2731,7 @@ function NuvioPageContent({
                                 />
                               </div>
                               <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}>Tile Shape</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}>{t('tileShape')}</label>
                                 <select
                                   value={getFolderShapeClass(folder.tileShape)}
                                   className="nuvio-input"
@@ -2744,7 +2745,7 @@ function NuvioPageContent({
                                 </select>
                               </div>
                               <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}>Cover Emoji</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}>{t('coverEmoji')}</label>
                                 <input
                                   type="text"
                                   value={folder.coverEmoji || ''}
@@ -2756,7 +2757,7 @@ function NuvioPageContent({
                                 />
                               </div>
                               <div>
-                                <label style={{ display: 'block', fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}>Cover Image URL</label>
+                                <label style={{ display: 'block', fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}>{t('coverImageUrl')}</label>
                                 <input
                                   type="text"
                                   value={folder.coverImageUrl || ''}
@@ -2771,15 +2772,15 @@ function NuvioPageContent({
                             {/* Folder sources */}
                             <div style={{ marginTop: '16px' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>Catalog Sources</span>
+                                <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{t('catalogSources')}</span>
                                 <button className="nuvio-btn" style={{ padding: '4px 10px', fontSize: '0.7rem' }} onClick={() => handleAddSource(coll.id, folder.id)}>
-                                  + Add Source
+                                  + {t('addSource')}
                                 </button>
                               </div>
 
                               {(!folder.sources || folder.sources.length === 0) ? (
                                 <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.3)', padding: '8px', border: '1px dashed rgba(255,255,255,0.05)', borderRadius: '4px', textAlign: 'center' }}>
-                                  No sources added yet.
+                                  {t('noSourcesYet')}
                                 </div>
                               ) : (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -2789,7 +2790,7 @@ function NuvioPageContent({
                                     return (
                                       <div key={srcIdx} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr)) 40px', gap: '8px', alignItems: 'end', background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '4px' }}>
                                         <div>
-                                          <label style={{ display: 'block', fontSize: '0.62rem', color: 'rgba(255,255,255,0.3)', marginBottom: '3px' }}>Addon Provider</label>
+                                          <label style={{ display: 'block', fontSize: '0.62rem', color: 'rgba(255,255,255,0.3)', marginBottom: '3px' }}>{t('addonProvider')}</label>
                                           <select
                                             value={source.addonId ?? ''}
                                             className="nuvio-input"
@@ -2803,7 +2804,7 @@ function NuvioPageContent({
                                           </select>
                                         </div>
                                         <div>
-                                          <label style={{ display: 'block', fontSize: '0.62rem', color: 'rgba(255,255,255,0.3)', marginBottom: '3px' }}>Catalog</label>
+                                          <label style={{ display: 'block', fontSize: '0.62rem', color: 'rgba(255,255,255,0.3)', marginBottom: '3px' }}>{t('catalog')}</label>
                                           <select
                                             value={source.catalogId ?? ''}
                                             className="nuvio-input"
@@ -2820,7 +2821,7 @@ function NuvioPageContent({
                                           </select>
                                         </div>
                                         <div>
-                                          <label style={{ display: 'block', fontSize: '0.62rem', color: 'rgba(255,255,255,0.3)', marginBottom: '3px' }}>Type</label>
+                                          <label style={{ display: 'block', fontSize: '0.62rem', color: 'rgba(255,255,255,0.3)', marginBottom: '3px' }}>{t('type')}</label>
                                           <select
                                             value={source.type ?? ''}
                                             className="nuvio-input"
@@ -2833,7 +2834,7 @@ function NuvioPageContent({
                                           </select>
                                         </div>
                                         <div>
-                                          <label style={{ display: 'block', fontSize: '0.62rem', color: 'rgba(255,255,255,0.3)', marginBottom: '3px' }}>Genre Filter</label>
+                                          <label style={{ display: 'block', fontSize: '0.62rem', color: 'rgba(255,255,255,0.3)', marginBottom: '3px' }}>{t('genreFilter')}</label>
                                           <input
                                             type="text"
                                             value={source.genre || ''}
@@ -2871,9 +2872,9 @@ function NuvioPageContent({
             {nuvioView === 'addons' && (
               <div className="nuvio-editor-container">
                 <div className="nuvio-editor-section">
-                  <h4 className="nuvio-editor-title">Install Custom Addon</h4>
+                  <h4 className="nuvio-editor-title">{t('installCustomAddon')}</h4>
                   <p style={{ margin: '0 0 16px 0', fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)' }}>
-                    Paste the manifest.json URL of any Stremio-compatible addon to install it into your Nuvio profile.
+                    {t('installCustomAddonHint')}
                   </p>
                   <form onSubmit={handleAddAddon} style={{ display: 'flex', gap: '8px' }}>
                     <input
@@ -2935,12 +2936,12 @@ function NuvioPageContent({
             {nuvioView === 'scrapers' && false && (
               <div className="nuvio-editor-container">
                 <div className="nuvio-editor-section">
-                  <h4 className="nuvio-editor-title">Settings</h4>
+                  <h4 className="nuvio-editor-title">{t('settings')}</h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Enable Scrapers</div>
-                        <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)' }}>Use installed Nuvio scrapers when looking for media streams.</div>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{t('enableScrapers')}</div>
+                        <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)' }}>{t('enableScrapersHint')}</div>
                       </div>
                       <label className="toggle-switch">
                         <input
@@ -2953,8 +2954,8 @@ function NuvioPageContent({
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Group Streams by Repository</div>
-                        <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)' }}>Group streams by their originating plugin scraper repo in stream picker.</div>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{t('groupStreamsByRepo')}</div>
+                        <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)' }}>{t('groupStreamsByRepoHint')}</div>
                       </div>
                       <label className="toggle-switch">
                         <input
@@ -2969,7 +2970,7 @@ function NuvioPageContent({
                 </div>
 
                 <div className="nuvio-editor-section" style={{ marginTop: '20px' }}>
-                  <h4 className="nuvio-editor-title">Install Scraper Plugin Repository</h4>
+                  <h4 className="nuvio-editor-title">{t('installScraperRepo')}</h4>
                   <form onSubmit={handleAddRepository} style={{ display: 'flex', gap: '8px' }}>
                     <input
                       type="text"
@@ -3096,7 +3097,7 @@ function NuvioPageContent({
       <button
         className={`nuvio-scroll-top ${showScrollTop ? 'visible' : ''}`}
         onClick={scrollToTop}
-        aria-label="Scroll to top"
+        aria-label={t('scrollToTop')}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M18 15l-6-6-6 6" />

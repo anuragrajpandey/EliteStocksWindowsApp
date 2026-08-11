@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { fetchCatalog } from '../../services/stremio-addon';
 import type { InstalledAddon, StremioManifestCatalog, StremioMetaPreview } from '../../types/stremio';
 import { useStremioHover } from '../../contexts/StremioHoverContext';
@@ -15,12 +16,20 @@ interface NuvioSearchPageProps {
 }
 
 const TYPE_OPTIONS = [
-  { key: 'movie', label: 'Movies' },
-  { key: 'series', label: 'Series' },
-  { key: 'anime', label: 'Anime' },
-  { key: 'channel', label: 'Channels' },
-  { key: 'tv', label: 'TV' },
+  { key: 'movie', labelKey: 'movies' },
+  { key: 'series', labelKey: 'series' },
+  { key: 'anime', labelKey: 'anime' },
+  { key: 'channel', labelKey: 'channels' },
+  { key: 'tv', labelKey: 'tv' },
 ];
+
+const TYPE_LABEL_KEYS: Record<string, 'nuvio:movies' | 'nuvio:series' | 'nuvio:anime' | 'nuvio:channels' | 'nuvio:tv'> = {
+  movies: 'nuvio:movies',
+  series: 'nuvio:series',
+  anime: 'nuvio:anime',
+  channels: 'nuvio:channels',
+  tv: 'nuvio:tv',
+};
 
 interface DiscoverCatalogInfo {
   key: string;
@@ -36,7 +45,7 @@ interface DiscoverCatalogInfo {
 
 function getTypeLabel(type: string): string {
   const opt = TYPE_OPTIONS.find(o => o.key === type);
-  return opt?.label || type.charAt(0).toUpperCase() + type.slice(1);
+  return opt ? i18n.t(TYPE_LABEL_KEYS[opt.labelKey]) : type.charAt(0).toUpperCase() + type.slice(1);
 }
 
 function catalogSupportsSearch(catalog: StremioManifestCatalog): boolean {
@@ -152,7 +161,7 @@ function NuvioSearchRow({
         </h3>
         <div className="stremio-row-nav">
           <button className="stremio-row-see-all-btn" onClick={onSeeAll}>
-            See all
+            {t('seeAll')}
           </button>
           <button
             className="stremio-row-nav-btn"
@@ -578,7 +587,7 @@ export function NuvioSearchPage({
                 <span>{t('back')}</span>
               </button>
             )}
-            <h2 className="nuvio-discover-title" style={{ margin: 0 }}>Discover</h2>
+            <h2 className="nuvio-discover-title" style={{ margin: 0 }}>{t('discover')}</h2>
           </div>
 
           {/* 3 Dropdown Filters */}
@@ -591,7 +600,7 @@ export function NuvioSearchPage({
                 onChange={(e) => setSelectedType(e.target.value || null)}
               >
                 {availableTypes.map(t => (
-                  <option key={t.key} value={t.key}>{t.label}</option>
+                  <option key={t.key} value={t.key}>{i18n.t(TYPE_LABEL_KEYS[t.labelKey])}</option>
                 ))}
               </select>
               <svg className="nuvio-discover-filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -679,8 +688,8 @@ export function NuvioSearchPage({
           ) : (
             <div className="nuvio-discover-empty">
               {addons.length === 0
-                ? 'No addons installed. Add one in the Addons tab to discover content.'
-                : 'No items found for the selected filters.'}
+                ? t('noAddonsInstalled')
+                : t('noItemsFound')}
             </div>
           )}
         </div>
@@ -720,7 +729,7 @@ export function NuvioSearchPage({
               <span>{t('back')}</span>
             </button>
             <h2 className="nuvio-discover-title" style={{ margin: 0 }}>
-              Search Results: {searchCatalogDetail.addon.manifest?.name || searchCatalogDetail.addon.id} - {searchCatalogDetail.catalog.name}
+              {t('searchResultsFor', { addon: searchCatalogDetail.addon.manifest?.name || searchCatalogDetail.addon.id, catalog: searchCatalogDetail.catalog.name })}
             </h2>
           </div>
 
@@ -766,7 +775,7 @@ export function NuvioSearchPage({
             </>
           ) : (
             <div className="nuvio-discover-empty">
-              No results found in this catalog.
+              {t('noResultsInCatalog')}
             </div>
           )}
         </div>
@@ -792,12 +801,12 @@ export function NuvioSearchPage({
           ) : searchDone && searchResults.length === 0 ? (
             <div className="nuvio-discover-empty">
               {searchCatalogs.length === 0
-                ? 'Your installed addons do not support search.'
-                : 'No results found for your search.'}
+                ? t('addonsNoSearch')
+                : t('noResultsForSearch')}
             </div>
           ) : query.length === 1 ? (
             <div className="nuvio-discover-empty" style={{ color: 'rgba(255,255,255,0.3)' }}>
-              Type at least 2 characters to search.
+              {t('typeAtLeast2Chars')}
             </div>
           ) : null}
         </div>

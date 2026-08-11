@@ -4,6 +4,7 @@ import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
 import { getPersonDetails, getTmdbImageUrl } from '../../services/tmdb';
 import { useStremioNavigate } from '../../stores/uiStore';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { formatDate } from '../../utils/dateTime';
 import './StremioPersonDetail.css';
 
@@ -223,7 +224,7 @@ export function StremioPersonDetail({ personId, onBack, onItemClick }: StremioPe
     return (
       <div className="stremio-person-detail loading">
         <div className="stremio-spinner" />
-        <span>Loading profile...</span>
+        <span>{i18n.t('stremio:loadingProfile')}</span>
       </div>
     );
   }
@@ -231,8 +232,8 @@ export function StremioPersonDetail({ personId, onBack, onItemClick }: StremioPe
   if (!person) {
     return (
       <div className="stremio-person-detail error">
-        <button className="stremio-person-back-btn" onClick={onBack}>← Back</button>
-        <div className="error-message">Profile not found.</div>
+        <button className="stremio-person-back-btn" onClick={onBack}>← {i18n.t('stremio:back')}</button>
+        <div className="error-message">{i18n.t('stremio:profileNotFound')}</div>
       </div>
     );
   }
@@ -294,29 +295,29 @@ export function StremioPersonDetail({ personId, onBack, onItemClick }: StremioPe
         {/* Filmography Rows */}
         <div className="stremio-person-filmography">
           {knownFor.length > 0 && (
-            <FilmRow title="Known For" credits={knownFor} showRole={false} onItemClick={onItemClick} />
+            <FilmRow title={i18n.t('stremio:knownFor')} credits={knownFor} showRole={false} onItemClick={onItemClick} />
           )}
           {movies.length > 0 && (
-            <FilmRow title={`Movies · ${movies.length}`} credits={movies} showRole onItemClick={onItemClick} />
+            <FilmRow title={i18n.t('stremio:moviesCount', { count: movies.length })} credits={movies} showRole onItemClick={onItemClick} />
           )}
           {shows.length > 0 && (
-            <FilmRow title={`TV Shows · ${shows.length}`} credits={shows} showRole onItemClick={onItemClick} />
+            <FilmRow title={i18n.t('stremio:tvShowsCount', { count: shows.length })} credits={shows} showRole onItemClick={onItemClick} />
           )}
           {directing.length > 0 && (
-            <FilmRow title="Directing" credits={directing} showRole onItemClick={onItemClick} />
+            <FilmRow title={i18n.t('stremio:directing')} credits={directing} showRole onItemClick={onItemClick} />
           )}
           {writing.length > 0 && (
-            <FilmRow title="Writing" credits={writing} showRole onItemClick={onItemClick} />
+            <FilmRow title={i18n.t('stremio:writing')} credits={writing} showRole onItemClick={onItemClick} />
           )}
           {producing.length > 0 && (
-            <FilmRow title="Producing" credits={producing} showRole onItemClick={onItemClick} />
+            <FilmRow title={i18n.t('stremio:producing')} credits={producing} showRole onItemClick={onItemClick} />
           )}
           {otherCrew.length > 0 && otherCrew.length > 3 && (
-            <FilmRow title="Other Work" credits={otherCrew.slice(0, 24)} showRole onItemClick={onItemClick} />
+            <FilmRow title={i18n.t('stremio:otherWork')} credits={otherCrew.slice(0, 24)} showRole onItemClick={onItemClick} />
           )}
 
           {sortedCast.length === 0 && sortedCrew.length === 0 && (
-            <div className="no-credits">No filmography on record.</div>
+            <div className="no-credits">{i18n.t('stremio:noFilmography')}</div>
           )}
         </div>
       </div>
@@ -428,8 +429,8 @@ function BirthdayLink({ birthday, age }: { birthday: string; age: number | null 
   if (Number.isNaN(date.getTime())) {
     return (
       <span className="meta-birth">
-        Born {fmt}
-        {age != null && ` · Age ${age}`}
+        {i18n.t('stremio:born')} {fmt}
+        {age != null && ` · ${i18n.t('stremio:age')} ${age}`}
       </span>
     );
   }
@@ -445,10 +446,10 @@ function BirthdayLink({ birthday, age }: { birthday: string; age: number | null 
     <button
       onClick={handleOpen}
       className="meta-birth-link"
-      title="See others born this day"
+      title={i18n.t('stremio:seeOthersBorn')}
     >
-      Born {fmt}
-      {age != null && ` · Age ${age}`}
+      {i18n.t('stremio:born')} {fmt}
+      {age != null && ` · ${i18n.t('stremio:age')} ${age}`}
     </button>
   );
 }
@@ -462,7 +463,7 @@ function PlaceLink({ place }: { place: string }) {
     <button
       onClick={handleOpen}
       className="meta-place-link"
-      title="See others from this place"
+      title={i18n.t('stremio:seeOthersFromPlace')}
     >
       {place}
     </button>

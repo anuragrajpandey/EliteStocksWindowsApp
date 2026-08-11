@@ -1,4 +1,6 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { useStremioHover } from '../../contexts/StremioHoverContext';
 import './StremioHoverCard.css';
 
@@ -15,6 +17,7 @@ export function StremioHoverCard() {
     onHoverCardMouseEnter,
     onHoverCardMouseLeave,
   } = useStremioHover();
+  useTranslation();
 
   // Position calculation
   const style = useMemo<React.CSSProperties | null>(() => {
@@ -122,7 +125,7 @@ export function StremioHoverCard() {
     }
     const seasonsCount = s.size || (details.videos.length > 0 ? 1 : 0);
     const episodesCount = details.videos.length;
-    return `${seasonsCount} Season${seasonsCount !== 1 ? 's' : ''} - ${episodesCount} Episode${episodesCount !== 1 ? 's' : ''}`;
+    return `${i18n.t('stremio:seasonsCount', { count: seasonsCount })} - ${i18n.t('stremio:episodesCount', { count: episodesCount })}`;
   })() : null;
 
   function getInitials(name: string): string {
@@ -180,7 +183,7 @@ export function StremioHoverCard() {
 
         {/* Plot Synopsis */}
         <div className="stremio-hover-plot-section">
-          <div className="stremio-hover-section-title">Plot</div>
+          <div className="stremio-hover-section-title">{i18n.t('stremio:plot')}</div>
           <div className="stremio-hover-plot-text-wrap">
             {loading && !plot ? (
               <div className="stremio-hover-plot-skeleton">
@@ -191,14 +194,14 @@ export function StremioHoverCard() {
             ) : plot ? (
               <p className="stremio-hover-plot-paragraph">{plot}</p>
             ) : (
-              <p className="stremio-hover-plot-empty">No plot synopsis available.</p>
+              <p className="stremio-hover-plot-empty">{i18n.t('stremio:noPlotSynopsis')}</p>
             )}
           </div>
         </div>
 
         {/* Cast Section */}
         <div className="stremio-hover-cast-section">
-          <div className="stremio-hover-section-title">Cast</div>
+          <div className="stremio-hover-section-title">{i18n.t('stremio:cast')}</div>
           {loading && cast.length === 0 ? (
             <div className="stremio-hover-cast-grid">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -252,7 +255,7 @@ export function StremioHoverCard() {
               ))}
             </div>
           ) : (
-            <div className="stremio-hover-cast-empty">No cast information available.</div>
+            <div className="stremio-hover-cast-empty">{i18n.t('stremio:noCastInfo')}</div>
           )}
         </div>
       </div>

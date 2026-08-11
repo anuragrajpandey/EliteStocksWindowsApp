@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import type { InstalledAddon, StremioMetaPreview } from '../../types/stremio';
 import { fetchCatalog } from '../../services/stremio-addon';
 import { useStremioLibraryStore } from '../../stores/stremioLibraryStore';
@@ -10,6 +12,7 @@ interface StremioHeroBannerProps {
 }
 
 export function StremioHeroBanner({ addons, onItemClick }: StremioHeroBannerProps) {
+  useTranslation();
   const addonsKey = addons.map((a) => `${a.id}:${a.enabled !== false}`).join(',');
   const [items, setItems] = useState<StremioMetaPreview[]>([]);
   const [loading, setLoading] = useState(true);
@@ -218,12 +221,12 @@ export function StremioHeroBanner({ addons, onItemClick }: StremioHeroBannerProp
       {/* Slide Navigation Controls */}
       {items.length > 1 && (
         <>
-          <button className="stremio-hero-nav-arrow left" onClick={handlePrev} aria-label="Previous Spotlight">
+          <button className="stremio-hero-nav-arrow left" onClick={handlePrev} aria-label={i18n.t('stremio:prevSpotlight')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
-          <button className="stremio-hero-nav-arrow right" onClick={handleNext} aria-label="Next Spotlight">
+          <button className="stremio-hero-nav-arrow right" onClick={handleNext} aria-label={i18n.t('stremio:nextSpotlight')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M9 18l6-6-6-6" />
             </svg>
@@ -261,7 +264,7 @@ export function StremioHeroBanner({ addons, onItemClick }: StremioHeroBannerProp
           )}
 
           <span className="stremio-hero-meta-text type-badge">
-            {activeItem.type === 'movie' ? 'Movie' : activeItem.type === 'series' ? 'Series' : activeItem.type}
+            {activeItem.type === 'movie' ? i18n.t('stremio:movie') : activeItem.type === 'series' ? i18n.t('stremio:series') : activeItem.type}
           </span>
 
           {activeItem.runtime && (
@@ -296,7 +299,7 @@ export function StremioHeroBanner({ addons, onItemClick }: StremioHeroBannerProp
             <svg viewBox="0 0 24 24" fill="currentColor" className="btn-icon">
               <path d="M8 5v14l11-7z" />
             </svg>
-            Watch Now
+            {i18n.t('stremio:watchNow')}
           </button>
           <button
             className={`stremio-hero-btn-watchlist ${isAdded ? 'in-watchlist' : ''}`}
@@ -307,14 +310,14 @@ export function StremioHeroBanner({ addons, onItemClick }: StremioHeroBannerProp
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="btn-icon">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                In Watchlist
+                {i18n.t('stremio:inWatchlist')}
               </>
             ) : (
               <>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="btn-icon">
                   <path d="M12 5v14M5 12h14" />
                 </svg>
-                Add to Watchlist
+                {i18n.t('stremio:addToWatchlist')}
               </>
             )}
           </button>
@@ -332,7 +335,7 @@ export function StremioHeroBanner({ addons, onItemClick }: StremioHeroBannerProp
                 e.stopPropagation();
                 setActiveIndex(idx);
               }}
-              aria-label={`Go to slide ${idx + 1}`}
+              aria-label={i18n.t('stremio:goToSlide', { index: idx + 1 })}
             />
           ))}
         </div>

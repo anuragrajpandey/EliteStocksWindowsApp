@@ -1,4 +1,6 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import type { StremioStream, StremioStreamBadge } from '../../types/stremio';
 import { useDownloadStore } from '../../stores/downloadStore';
 import { extractStreamBadges, isLightColor, formatVideoSize } from '../../utils/streamBadges';
@@ -27,6 +29,7 @@ export function StreamPickerModal({
   showFileSizeBadges = true,
   streamBadgePlacement = 'bottom',
 }: StreamPickerModalProps) {
+  useTranslation();
   const directStreams = streams.filter(s => s.url);
   const torrentStreams = streams.filter(s => s.infoHash);
 
@@ -47,7 +50,7 @@ export function StreamPickerModal({
             title = `${meta.name}${meta.year ? ` (${meta.year})` : ''}`;
           }
         } else {
-          title = stream.title || stream.name || 'Stremio Stream';
+          title = stream.title || stream.name || i18n.t('stremio:stremioStream');
         }
         await startDownload(
           title,
@@ -59,7 +62,7 @@ export function StreamPickerModal({
         );
       } catch (error) {
         console.error('[StreamPickerModal] Stream download failed:', error);
-        alert('Failed to start download');
+        alert(i18n.t('stremio:failedStartDownload'));
       } finally {
         setDownloadingUrl(null);
       }
@@ -136,18 +139,18 @@ export function StreamPickerModal({
     <div className="stremio-picker-overlay" onClick={onClose}>
       <div className="stremio-picker-modal" onClick={(e) => e.stopPropagation()}>
         <div className="stremio-picker-header">
-          <h3 className="stremio-picker-title">Pick a Stream</h3>
+          <h3 className="stremio-picker-title">{i18n.t('stremio:pickAStream')}</h3>
           <button className="stremio-picker-close" onClick={onClose}>✕</button>
         </div>
 
         <div className="stremio-picker-body">
           {directStreams.length > 0 && (
             <div className="stremio-picker-section">
-              <h4 className="stremio-picker-section-title">Direct Streams</h4>
+              <h4 className="stremio-picker-section-title">{i18n.t('stremio:directStreams')}</h4>
               {directStreams.map((s, i) => {
                 const name = s.name || '';
                 const desc = s.description || s.title || '';
-                const displayName = name || desc || `Stream #${i + 1}`;
+                const displayName = name || desc || `${i18n.t('stremio:streamNum', { num: i + 1 })}`;
                 const displayDesc = name ? desc : '';
                 return (
                   <div key={`direct-${i}`} className="stremio-picker-item-row">
@@ -163,7 +166,7 @@ export function StreamPickerModal({
                         className={`stremio-picker-item-download ${downloadingUrl === s.url ? 'downloading' : ''}`}
                         onClick={(e) => handleDownloadStream(s, e)}
                         disabled={downloadingUrl === s.url}
-                        title="Download Stream"
+                        title={i18n.t('stremio:downloadStream')}
                       >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           {downloadingUrl === s.url ? (
@@ -183,13 +186,13 @@ export function StreamPickerModal({
           {torrentStreams.length > 0 && (
             <div className="stremio-picker-section">
               <h4 className="stremio-picker-section-title">
-                Torrent Streams ({torrentStreams.length})
-                <span className="stremio-picker-section-sub">(resolved via debrid)</span>
+                {i18n.t('stremio:torrentStreams', { count: torrentStreams.length })}
+                <span className="stremio-picker-section-sub">{i18n.t('stremio:resolvedViaDebrid')}</span>
               </h4>
               {torrentStreams.map((s, i) => {
                 const name = s.name || '';
                 const desc = s.description || s.title || '';
-                const displayName = name || desc || `Torrent #${i + 1}`;
+                const displayName = name || desc || `${i18n.t('stremio:torrentNum', { num: i + 1 })}`;
                 const displayDesc = name ? desc : '';
                 return (
                   <button key={`torrent-${i}`} className="stremio-picker-item" onClick={() => onSelect(s)}>
@@ -209,7 +212,7 @@ export function StreamPickerModal({
           )}
 
           {streams.length === 0 && (
-            <div className="stremio-picker-empty">No streams available.</div>
+            <div className="stremio-picker-empty">{i18n.t('stremio:noStreamsAvailable')}</div>
           )}
         </div>
       </div>

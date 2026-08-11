@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { useNuvioAuthStore } from '../../stores/nuvioAuthStore';
 import './NuvioPinModal.css';
 
@@ -9,6 +11,7 @@ interface NuvioPinModalProps {
 }
 
 export function NuvioPinModal({ profile, onClose, onSuccess }: NuvioPinModalProps) {
+  useTranslation();
   const authStore = useNuvioAuthStore();
   const [pin, setPin] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -33,12 +36,12 @@ export function NuvioPinModal({ profile, onClose, onSuccess }: NuvioPinModalProp
         if (onSuccess) onSuccess();
         onClose();
       } else {
-        setError('Failed to unlock profile.');
+        setError(i18n.t('nuvio:failedUnlockProfile'));
         setPin('');
         inputRef.current?.focus();
       }
     } catch (err: any) {
-      setError(err.message || 'Incorrect PIN code');
+      setError(err.message || i18n.t('nuvio:incorrectPin'));
       setPin('');
       inputRef.current?.focus();
     } finally {
@@ -59,13 +62,13 @@ export function NuvioPinModal({ profile, onClose, onSuccess }: NuvioPinModalProp
             if (onSuccess) onSuccess();
             onClose();
           } else {
-            setError('Failed to unlock profile.');
+            setError(i18n.t('nuvio:failedUnlockProfile'));
             setPin('');
             inputRef.current?.focus();
           }
         })
         .catch((err) => {
-          setError(err.message || 'Incorrect PIN code');
+          setError(err.message || i18n.t('nuvio:incorrectPin'));
           setPin('');
           inputRef.current?.focus();
         })
@@ -85,8 +88,8 @@ export function NuvioPinModal({ profile, onClose, onSuccess }: NuvioPinModalProp
           {profile.name.charAt(0).toUpperCase()}
         </div>
         <div className="nuvio-pin-modal-info">
-          <h3>Enter Profile PIN</h3>
-          <p>Profile <strong>{profile.name}</strong> is locked</p>
+          <h3>{i18n.t('nuvio:enterProfilePin')}</h3>
+          <p>{i18n.t('nuvio:profileLocked', { name: profile.name })}</p>
         </div>
         <form onSubmit={handleSubmit} className="nuvio-pin-modal-form">
           <input
@@ -109,14 +112,14 @@ export function NuvioPinModal({ profile, onClose, onSuccess }: NuvioPinModalProp
               className="nuvio-pin-btn nuvio-pin-btn-cancel"
               disabled={submitting}
             >
-              Cancel
+              {i18n.t('nuvio:cancel')}
             </button>
             <button 
               type="submit" 
               className="nuvio-pin-btn nuvio-pin-btn-submit"
               disabled={submitting || pin.length !== 4}
             >
-              {submitting ? 'Verifying...' : 'Unlock'}
+              {submitting ? i18n.t('nuvio:verifying') : i18n.t('nuvio:unlock')}
             </button>
           </div>
         </form>

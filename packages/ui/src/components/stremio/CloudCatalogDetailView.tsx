@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import type { StremioMetaPreview } from '../../types/stremio';
 import { scrobbler, TRAKT_CATALOG_DEFINITIONS, type TraktCatalogType } from '../../services/scrobbler';
 import { useStremioHover } from '../../contexts/StremioHoverContext';
@@ -53,6 +55,7 @@ async function fetchCloudCatalogPage(key: string, page: number): Promise<{ items
 }
 
 export function CloudCatalogDetailView({ cloudCatalogKey, onItemClick, onBack }: CloudCatalogDetailViewProps) {
+  useTranslation();
   const [items, setItems] = useState<StremioMetaPreview[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -85,7 +88,7 @@ export function CloudCatalogDetailView({ cloudCatalogKey, onItemClick, onBack }:
   const typeOptions = useMemo(() => {
     const list = types.map((t) => ({
       value: t,
-      label: t === 'series' ? 'Series' : t.charAt(0).toUpperCase() + t.slice(1) + 's',
+      label: t === 'series' ? i18n.t('stremio:series') : t.charAt(0).toUpperCase() + t.slice(1) + 's',
     }));
     if (hasTrakt) {
       list.push({ value: 'trakt', label: 'Trakt' });
@@ -187,7 +190,7 @@ export function CloudCatalogDetailView({ cloudCatalogKey, onItemClick, onBack }:
   }, [hasMore]);
 
   const currentEntry = availableCatalogs.find((c) => c.key === selectedKey);
-  const title = currentEntry?.title || 'Cloud Catalog';
+  const title = currentEntry?.title || i18n.t('stremio:cloudCatalog');
 
   return (
     <div className="stremio-catalog-detail-view">
@@ -202,9 +205,9 @@ export function CloudCatalogDetailView({ cloudCatalogKey, onItemClick, onBack }:
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
                 <path d="M19 12H5" /><path d="M12 19l-7-7 7-7" />
               </svg>
-              Back
+              {i18n.t('stremio:back')}
             </button>
-            <h3 className="stremio-row-title" style={{ fontSize: '1.2rem' }}>Discover</h3>
+            <h3 className="stremio-row-title" style={{ fontSize: '1.2rem' }}>{i18n.t('stremio:discover')}</h3>
           </div>
 
           <div className="stremio-discover-filters">
@@ -257,9 +260,9 @@ export function CloudCatalogDetailView({ cloudCatalogKey, onItemClick, onBack }:
         </div>
 
         {loading ? (
-          <div className="stremio-loading-text" style={{ padding: '80px 0' }}>Loading catalog...</div>
+          <div className="stremio-loading-text" style={{ padding: '80px 0' }}>{i18n.t('stremio:loadingCatalog')}</div>
         ) : items.length === 0 ? (
-          <div className="stremio-loading-text" style={{ padding: '80px 0' }}>No items in this catalog.</div>
+          <div className="stremio-loading-text" style={{ padding: '80px 0' }}>{i18n.t('stremio:noItemsInCatalog')}</div>
         ) : (
           <>
             <div className="stremio-meta-grid">
@@ -291,7 +294,7 @@ export function CloudCatalogDetailView({ cloudCatalogKey, onItemClick, onBack }:
               ))}
             </div>
             <div className="stremio-loading-text" style={{ padding: '20px 0', textAlign: 'center' }}>
-              Page {page}{hasMore ? ' \u2014 use arrows to navigate' : ''}
+              {i18n.t('stremio:pageIndicator', { page })}{hasMore ? ` ${i18n.t('stremio:useArrowsToNavigate')}` : ''}
             </div>
           </>
         )}

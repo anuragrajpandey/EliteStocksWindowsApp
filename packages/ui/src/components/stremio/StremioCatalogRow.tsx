@@ -1,4 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import type { InstalledAddon, StremioManifestCatalog, StremioMetaPreview } from '../../types/stremio';
 import { fetchCatalog, getCachedCatalog } from '../../services/stremio-addon';
 import { useStremioHover } from '../../contexts/StremioHoverContext';
@@ -27,7 +29,7 @@ export function StremioCatalogRow({
   items: staticItems,
   onItemClick,
   onSeeAll,
-  seeAllLabel = 'See all',
+  seeAllLabel = i18n.t('stremio:seeAll'),
   currentPage,
   hasMore,
   onPageChange,
@@ -251,7 +253,7 @@ export function StremioCatalogRow({
                   {(() => {
                     const pct = (item as any).progress;
                     if (typeof pct === 'number' && pct > 2 && pct < 98) {
-                      return <div className="stremio-rw-card-sub">{Math.round(pct)}% watched</div>;
+                      return <div className="stremio-rw-card-sub">{i18n.t('stremio:percentWatched', { percent: Math.round(pct) })}</div>;
                     }
                     return null;
                   })()}

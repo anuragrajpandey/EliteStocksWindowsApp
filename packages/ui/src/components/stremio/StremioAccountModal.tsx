@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useStremioAuthStore } from '../../stores/stremioAuthStore';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { formatTime } from '../../utils/dateTime';
 import './StremioAccountModal.css';
 
@@ -62,7 +63,7 @@ export function StremioAccountModal({ onClose }: StremioAccountModalProps) {
     <div className="stremio-modal-backdrop" onClick={onClose}>
       <div className="stremio-account-modal" onClick={(e) => e.stopPropagation()}>
         <div className="stremio-modal-header">
-          <h2>Stremio Account</h2>
+          <h2>{i18n.t('stremio:stremioAccount')}</h2>
           <button className="stremio-modal-close" onClick={onClose}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6L6 18M6 6l12 12" />
@@ -74,13 +75,13 @@ export function StremioAccountModal({ onClose }: StremioAccountModalProps) {
           {!authKey ? (
             <form onSubmit={handleLogin} className="stremio-login-form">
               <p className="stremio-login-subtitle">
-                Log in with your Stremio credentials to enable 2-way synchronization of your watchlist, episode progress, and installed addons.
+                {i18n.t('stremio:loginSubtitle')}
               </p>
 
               {localError && <div className="stremio-form-error">{localError}</div>}
 
               <div className="stremio-input-group">
-                <label htmlFor="stremio-email">Email Address</label>
+                <label htmlFor="stremio-email">{i18n.t('stremio:emailAddress')}</label>
                 <input
                   id="stremio-email"
                   type="email"
@@ -92,7 +93,7 @@ export function StremioAccountModal({ onClose }: StremioAccountModalProps) {
               </div>
 
               <div className="stremio-input-group">
-                <label htmlFor="stremio-password">Password</label>
+                <label htmlFor="stremio-password">{i18n.t('stremio:password')}</label>
                 <input
                   id="stremio-password"
                   type="password"
@@ -104,12 +105,12 @@ export function StremioAccountModal({ onClose }: StremioAccountModalProps) {
               </div>
 
               <div className="stremio-sync-settings stremio-login-sync-settings">
-                <h3>Initial Sync Settings</h3>
+                <h3>{i18n.t('stremio:initialSyncSettings')}</h3>
 
                 <div className="stremio-toggle-row">
                   <div className="stremio-toggle-info">
-                    <span className="stremio-toggle-title">Sync Library & Watchlist</span>
-                    <span className="stremio-toggle-desc">Bidirectionally sync your watchlist.</span>
+                    <span className="stremio-toggle-title">{i18n.t('stremio:syncLibraryWatchlist')}</span>
+                    <span className="stremio-toggle-desc">{i18n.t('stremio:syncLibraryWatchlistDescLogin')}</span>
                   </div>
                   <label className="stremio-switch">
                     <input
@@ -124,8 +125,8 @@ export function StremioAccountModal({ onClose }: StremioAccountModalProps) {
 
                 <div className="stremio-toggle-row">
                   <div className="stremio-toggle-info">
-                    <span className="stremio-toggle-title">Sync Playback Progress</span>
-                    <span className="stremio-toggle-desc">Save position and check off watched episodes.</span>
+                    <span className="stremio-toggle-title">{i18n.t('stremio:syncPlaybackProgress')}</span>
+                    <span className="stremio-toggle-desc">{i18n.t('stremio:syncPlaybackProgressDescLogin')}</span>
                   </div>
                   <label className="stremio-switch">
                     <input
@@ -140,8 +141,8 @@ export function StremioAccountModal({ onClose }: StremioAccountModalProps) {
 
                 <div className="stremio-toggle-row">
                   <div className="stremio-toggle-info">
-                    <span className="stremio-toggle-title">Sync Addons</span>
-                    <span className="stremio-toggle-desc">Automatically install and sync addons from Stremio.</span>
+                    <span className="stremio-toggle-title">{i18n.t('stremio:syncAddons')}</span>
+                    <span className="stremio-toggle-desc">{i18n.t('stremio:syncAddonsDescLogin')}</span>
                   </div>
                   <label className="stremio-switch">
                     <input
@@ -160,15 +161,15 @@ export function StremioAccountModal({ onClose }: StremioAccountModalProps) {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="warning-icon">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
-                  <span>Note: Any addons currently installed in YnoTV will be merged with your Stremio cloud account.</span>
+                  <span>{i18n.t('stremio:syncAddonsWarning')}</span>
                 </div>
               )}
 
               <button type="submit" className="stremio-login-btn" disabled={loading}>
-                {loading ? 'Logging in...' : 'Log In'}
+                {loading ? i18n.t('stremio:loggingIn') : i18n.t('stremio:logIn')}
               </button>
               <p className="stremio-login-disclaimer">
-                Disclaimer: ynoTV is an independent open source desktop client and is not affiliated with or endorsed by Stremio. Your login credentials are only used to connect to Stremio's servers directly to sync &mdash; ynoTV never stores or transmits them.
+                {i18n.t('stremio:disclaimer')}
               </p>
             </form>
           ) : (
@@ -178,21 +179,21 @@ export function StremioAccountModal({ onClose }: StremioAccountModalProps) {
                   {user?.fullname ? user.fullname.charAt(0).toUpperCase() : user?.email.charAt(0).toUpperCase() || 'U'}
                 </div>
                 <div className="stremio-user-info">
-                  <div className="stremio-user-name">{user?.fullname || 'Stremio User'}</div>
+                  <div className="stremio-user-name">{user?.fullname || i18n.t('stremio:stremioUser')}</div>
                   <div className="stremio-user-email">{user?.email}</div>
-                  <div className="stremio-status-badge">Connected</div>
+                  <div className="stremio-status-badge">{i18n.t('stremio:connected')}</div>
                 </div>
               </div>
 
               {localError && <div className="stremio-form-error">{localError}</div>}
 
               <div className="stremio-sync-settings">
-                <h3>Sync Settings</h3>
+                <h3>{i18n.t('stremio:syncSettings')}</h3>
 
                 <div className="stremio-toggle-row">
                   <div className="stremio-toggle-info">
-                    <span className="stremio-toggle-title">Sync Library & Watchlist</span>
-                    <span className="stremio-toggle-desc">Bidirectionally sync your movie and series watchlist.</span>
+                    <span className="stremio-toggle-title">{i18n.t('stremio:syncLibraryWatchlist')}</span>
+                    <span className="stremio-toggle-desc">{i18n.t('stremio:syncLibraryWatchlistDesc')}</span>
                   </div>
                   <label className="stremio-switch">
                     <input
@@ -206,8 +207,8 @@ export function StremioAccountModal({ onClose }: StremioAccountModalProps) {
 
                 <div className="stremio-toggle-row">
                   <div className="stremio-toggle-info">
-                    <span className="stremio-toggle-title">Sync Playback Progress</span>
-                    <span className="stremio-toggle-desc">Save Continue Watching position and check off watched episodes.</span>
+                    <span className="stremio-toggle-title">{i18n.t('stremio:syncPlaybackProgress')}</span>
+                    <span className="stremio-toggle-desc">{i18n.t('stremio:syncPlaybackProgressDesc')}</span>
                   </div>
                   <label className="stremio-switch">
                     <input
@@ -221,8 +222,8 @@ export function StremioAccountModal({ onClose }: StremioAccountModalProps) {
 
                 <div className="stremio-toggle-row">
                   <div className="stremio-toggle-info">
-                    <span className="stremio-toggle-title">Sync Addons</span>
-                    <span className="stremio-toggle-desc">Automatically install and sync addons from Stremio cloud.</span>
+                    <span className="stremio-toggle-title">{i18n.t('stremio:syncAddons')}</span>
+                    <span className="stremio-toggle-desc">{i18n.t('stremio:syncAddonsDesc')}</span>
                   </div>
                   <label className="stremio-switch">
                     <input
@@ -237,7 +238,7 @@ export function StremioAccountModal({ onClose }: StremioAccountModalProps) {
 
               <div className="stremio-sync-actions">
                 <div className="stremio-sync-meta">
-                  Last Synced: <span className="sync-time">{formatLastSync()}</span>
+                  {i18n.t('stremio:lastSynced')}: <span className="sync-time">{formatLastSync()}</span>
                 </div>
                 <div className="stremio-action-buttons">
                   <button
@@ -245,10 +246,10 @@ export function StremioAccountModal({ onClose }: StremioAccountModalProps) {
                     onClick={() => syncNow()}
                     disabled={isSyncing}
                   >
-                    {isSyncing ? 'Syncing...' : 'Sync Now'}
+                    {isSyncing ? i18n.t('stremio:syncing') : i18n.t('stremio:syncNow')}
                   </button>
                   <button className="stremio-logout-btn" onClick={logout}>
-                    Log Out
+                    {i18n.t('stremio:logOut')}
                   </button>
                 </div>
               </div>

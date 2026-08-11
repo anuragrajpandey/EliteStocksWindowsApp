@@ -1,4 +1,6 @@
 import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import type { InstalledAddon, StremioMeta, StremioMetaPreview } from '../../types/stremio';
 import { fetchMeta } from '../../services/stremio-addon';
 import { useStremioWatchStore, type StremioWatchEntry } from '../../stores/stremioWatchStore';
@@ -14,6 +16,7 @@ interface StremioRecentlyWatchedProps {
 }
 
 export function StremioRecentlyWatched({ addons, onItemClick }: StremioRecentlyWatchedProps) {
+  useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -177,7 +180,7 @@ export function StremioRecentlyWatched({ addons, onItemClick }: StremioRecentlyW
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
-          Continue Watching
+          {i18n.t('stremio:continueWatching')}
         </h3>
         <div className="stremio-row-nav">
           <button className="stremio-row-nav-btn" onClick={() => scroll('left')} disabled={!canScrollLeft}>
@@ -229,7 +232,7 @@ export function StremioRecentlyWatched({ addons, onItemClick }: StremioRecentlyW
                   {/* Remove button */}
                   <button
                     className="stremio-rw-remove-btn"
-                    title="Remove from Continue Watching"
+                    title={i18n.t('stremio:removeFromContinueWatching')}
                     onClick={(e) => {
                       e.stopPropagation();
                       dismissFromContinueWatching(entry.metaId, entry.type);
@@ -262,7 +265,7 @@ export function StremioRecentlyWatched({ addons, onItemClick }: StremioRecentlyW
                     {!isLoading && (
                       <button
                         className="stremio-rw-play-overlay-btn"
-                        title={`Play ${entry.name}`}
+                        title={i18n.t('stremio:playName', { name: entry.name })}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleItemClick(entry);
@@ -303,10 +306,10 @@ export function StremioRecentlyWatched({ addons, onItemClick }: StremioRecentlyW
                   <div className="stremio-row-card-info">
                     <div className="stremio-row-card-title">{entry.name}</div>
                     {hasNext ? (
-                      <div className="stremio-rw-card-sub stremio-rw-card-sub--next">Next Episode</div>
+                      <div className="stremio-rw-card-sub stremio-rw-card-sub--next">{i18n.t('stremio:nextEpisode')}</div>
                     ) : (
                       showProgress && (
-                        <div className="stremio-rw-card-sub">{progressPercent}% watched</div>
+                        <div className="stremio-rw-card-sub">{i18n.t('stremio:percentWatched', { percent: progressPercent })}</div>
                       )
                     )}
                   </div>

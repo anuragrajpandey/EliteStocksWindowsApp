@@ -17,6 +17,7 @@ import { useDownloadStore } from '../../stores/downloadStore';
 import { useNuvioPreselectVideoId, useSetNuvioPreselectVideoId } from '../../stores/uiStore';
 import '../stremio/StremioDetail.css';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { formatDate } from '../../utils/dateTime';
 
 export interface NuvioMeta {
@@ -557,7 +558,7 @@ export function NuvioDetailView({
         await startDownload(title, stream.url, undefined, undefined, undefined, effectiveMeta.poster);
       } catch (error) {
         console.error('[NuvioDetailView] Download failed:', error);
-        alert('Failed to start download');
+        alert(i18n.t('nuvio:failedStartDownload'));
       } finally {
         setDownloadingUrl(null);
       }
@@ -796,7 +797,7 @@ export function NuvioDetailView({
               className={`stremio-detail-stream-download-btn ${downloadingUrl === stream.url ? 'downloading' : ''}`}
               onClick={(e) => handleDownloadStream(stream, e)}
               disabled={downloadingUrl === stream.url}
-              title="Download Stream"
+              title={i18n.t('nuvio:downloadStream')}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 {downloadingUrl === stream.url ? (
@@ -1109,7 +1110,7 @@ export function NuvioDetailView({
                           {!epFinished && (
                             <div
                               className="stremio-ep-unwatched-badge"
-                              title="Mark as watched"
+                              title={i18n.t('nuvio:markWatched')}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleToggleEpisodeWatched(ep);
@@ -1123,7 +1124,7 @@ export function NuvioDetailView({
                           {epFinished && (
                             <div
                               className="stremio-ep-watched-badge"
-                              title="Mark as unwatched"
+                              title={i18n.t('nuvio:markUnwatched')}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleToggleEpisodeWatched(ep);
@@ -1162,7 +1163,7 @@ export function NuvioDetailView({
               <div className="stremio-detail-streams-header">
                 {isSeries && (
                   <button className="stremio-detail-back-to-episodes" onClick={() => setSelectedVideo(null)}>
-                    ← Back to Episodes
+                    ← {i18n.t('nuvio:backToEpisodes')}
                   </button>
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
@@ -1225,22 +1226,22 @@ export function NuvioDetailView({
                 {streams.length === 0 && loadingStreams ? (
                   <div className="stremio-detail-streams-loading">
                     <div className="stremio-spinner" />
-                    <span>Loading streams...</span>
+                    <span>{i18n.t('nuvio:loadingStreams')}</span>
                   </div>
                 ) : streams.length === 0 ? (
                   <div className="stremio-detail-streams-empty">
-                    No streams found. Make sure you have stream provider addons installed.
+                    {i18n.t('nuvio:noStreamsFound')}
                   </div>
                 ) : filteredStreams.length === 0 ? (
                   <div className="stremio-detail-streams-empty">
-                    No streams found for the selected addon filter.
+                    {i18n.t('nuvio:noStreamsForFilter')}
                   </div>
                 ) : (
                   <>
                     {loadingStreams && (
                       <div className="stremio-detail-streams-loading-mini">
                         <div className="stremio-spinner" style={{ width: 14, height: 14, borderWidth: '1.5px' }} />
-                        <span>Checking more sources...</span>
+                        <span>{i18n.t('nuvio:checkingMoreSources')}</span>
                       </div>
                     )}
                     {renderedStreams}

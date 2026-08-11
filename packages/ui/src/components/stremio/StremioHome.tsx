@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import type { InstalledAddon, StremioMetaPreview, StremioMeta } from '../../types/stremio';
 import { fetchCatalog, fetchMeta } from '../../services/stremio-addon';
 import { scrobbler, TRAKT_CATALOG_DEFINITIONS, type TraktCatalogType } from '../../services/scrobbler';
@@ -55,6 +57,7 @@ function addonHasResource(addon: InstalledAddon, resource: string): boolean {
 }
 
 export function StremioHome({ addons, onItemClick }: StremioHomeProps) {
+  useTranslation();
   const searchQuery = useStremioSearchQuery();
   const view = useStremioView();
   const setView = useSetStremioView();
@@ -515,7 +518,7 @@ export function StremioHome({ addons, onItemClick }: StremioHomeProps) {
                     items={row.items.slice(0, 20)}
                     onItemClick={handleItemClickWrapper}
                     onSeeAll={() => setExpandedSearchRowId((prev) => (prev === row.id ? null : row.id))}
-                    seeAllLabel={expandedSearchRowId === row.id ? 'Collapse' : `See all (${row.items.length})`}
+                    seeAllLabel={expandedSearchRowId === row.id ? i18n.t('stremio:collapse') : i18n.t('stremio:seeAllCount', { count: row.items.length })}
                   />
                   {expandedSearchRowId === row.id && (
                     <div className="stremio-search-expanded">
@@ -557,16 +560,16 @@ export function StremioHome({ addons, onItemClick }: StremioHomeProps) {
           {showLoadingIndicator && (
             <div className="stremio-loading-text stremio-search-progress-indicator" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: hasResults ? '20px 0' : '40px 0', justifyContent: 'center', color: 'rgba(255, 255, 255, 0.45)', fontSize: '0.9rem' }}>
               <div className="stremio-spinner" style={{ width: '14px', height: '14px', borderWidth: '1.5px' }} />
-              <span>Searching in: {searchingAddons.join(', ')}...</span>
+              <span>{i18n.t('stremio:searchingIn', { addons: searchingAddons.join(', ') })}</span>
             </div>
           )}
 
           {!hasResults && !showLoadingIndicator && searchQuery.length >= 2 && (
-            <div className="stremio-loading-text">No results found.</div>
+            <div className="stremio-loading-text">{i18n.t('stremio:noResultsFound')}</div>
           )}
 
           {!hasResults && !showLoadingIndicator && searchQuery.length < 2 && (
-            <div className="stremio-loading-text">Type at least 2 characters to search.</div>
+            <div className="stremio-loading-text">{i18n.t('stremio:typeAtLeast2Chars')}</div>
           )}
         </div>
       </div>
@@ -623,7 +626,7 @@ export function StremioHome({ addons, onItemClick }: StremioHomeProps) {
         <input
           className="stremio-catalog-filter-input"
           type="text"
-          placeholder="Filter catalogs..."
+          placeholder={i18n.t('stremio:filterCatalogs')}
           value={catalogFilter}
           onChange={(e) => setCatalogFilter(e.target.value)}
         />
@@ -650,7 +653,7 @@ export function StremioHome({ addons, onItemClick }: StremioHomeProps) {
           <div className="stremio-row stremio-rw-row" style={{ position: 'relative' }}>
             <div className="stremio-row-header">
               <h3 className="stremio-row-title stremio-rw-title">
-                Streaming Platforms
+                {i18n.t('stremio:streamingPlatforms')}
               </h3>
               <div className="stremio-row-nav">
                 <button
@@ -745,7 +748,7 @@ export function StremioHome({ addons, onItemClick }: StremioHomeProps) {
 
         {filteredRows.length === 0 && filteredCloudRows.length === 0 && (
           <div className="stremio-loading-text">
-            {catalogFilter.trim() ? 'No catalogs match your filter.' : 'No catalogs available. Install an addon to get started.'}
+            {catalogFilter.trim() ? i18n.t('stremio:noCatalogsMatch') : i18n.t('stremio:noCatalogsAvailable')}
           </div>
         )}
 
@@ -768,7 +771,7 @@ export function StremioHome({ addons, onItemClick }: StremioHomeProps) {
       <button
         className={`stremio-scroll-top ${showScrollTop ? 'visible' : ''}`}
         onClick={scrollToTop}
-        aria-label="Scroll to top"
+        aria-label={i18n.t('stremio:scrollToTop')}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M18 15l-6-6-6 6" />

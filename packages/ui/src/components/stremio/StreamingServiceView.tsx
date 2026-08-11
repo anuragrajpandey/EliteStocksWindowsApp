@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import type { InstalledAddon, StremioMetaPreview } from '../../types/stremio';
 import { useTmdbApiKey } from '../../hooks/useTmdbLists';
 import { SERVICES, providerIdsFor, type StreamingService } from '../../constants/streamingProviders';
@@ -16,7 +18,7 @@ interface StreamingServiceViewProps {
 
 type Category = {
   id: string;
-  label: string;
+  labelKey: string;
   fetchMovies: boolean;
   fetchTv: boolean;
   movieGenres: number[];
@@ -24,27 +26,45 @@ type Category = {
 };
 
 const CATEGORIES: Category[] = [
-  { id: "all", label: "All", fetchMovies: true, fetchTv: true, movieGenres: [], tvGenres: [] },
-  { id: "movies", label: "Movies", fetchMovies: true, fetchTv: false, movieGenres: [], tvGenres: [] },
-  { id: "tv", label: "TV Shows", fetchMovies: false, fetchTv: true, movieGenres: [], tvGenres: [] },
-  { id: "docs", label: "Documentaries", fetchMovies: true, fetchTv: true, movieGenres: [99], tvGenres: [99] },
-  { id: "anim", label: "Animation", fetchMovies: true, fetchTv: true, movieGenres: [16], tvGenres: [16] },
-  { id: "kids", label: "Kids & Family", fetchMovies: true, fetchTv: true, movieGenres: [10751], tvGenres: [10751] },
-  { id: "reality", label: "Reality", fetchMovies: false, fetchTv: true, movieGenres: [], tvGenres: [10764] },
-  { id: "action", label: "Action", fetchMovies: true, fetchTv: true, movieGenres: [28], tvGenres: [10759] },
-  { id: "comedy", label: "Comedy", fetchMovies: true, fetchTv: true, movieGenres: [35], tvGenres: [35] },
-  { id: "drama", label: "Drama", fetchMovies: true, fetchTv: true, movieGenres: [18], tvGenres: [18] },
-  { id: "horror", label: "Horror", fetchMovies: true, fetchTv: true, movieGenres: [27], tvGenres: [9648] },
-  { id: "scifi", label: "Sci-Fi & Fantasy", fetchMovies: true, fetchTv: true, movieGenres: [878], tvGenres: [10765] },
-  { id: "thriller", label: "Thriller", fetchMovies: true, fetchTv: false, movieGenres: [53], tvGenres: [] },
-  { id: "romance", label: "Romance", fetchMovies: true, fetchTv: false, movieGenres: [10749], tvGenres: [] },
+  { id: "all", labelKey: "all", fetchMovies: true, fetchTv: true, movieGenres: [], tvGenres: [] },
+  { id: "movies", labelKey: "movies", fetchMovies: true, fetchTv: false, movieGenres: [], tvGenres: [] },
+  { id: "tv", labelKey: "tvShows", fetchMovies: false, fetchTv: true, movieGenres: [], tvGenres: [] },
+  { id: "docs", labelKey: "documentaries", fetchMovies: true, fetchTv: true, movieGenres: [99], tvGenres: [99] },
+  { id: "anim", labelKey: "animation", fetchMovies: true, fetchTv: true, movieGenres: [16], tvGenres: [16] },
+  { id: "kids", labelKey: "kidsFamily", fetchMovies: true, fetchTv: true, movieGenres: [10751], tvGenres: [10751] },
+  { id: "reality", labelKey: "reality", fetchMovies: false, fetchTv: true, movieGenres: [], tvGenres: [10764] },
+  { id: "action", labelKey: "action", fetchMovies: true, fetchTv: true, movieGenres: [28], tvGenres: [10759] },
+  { id: "comedy", labelKey: "comedy", fetchMovies: true, fetchTv: true, movieGenres: [35], tvGenres: [35] },
+  { id: "drama", labelKey: "drama", fetchMovies: true, fetchTv: true, movieGenres: [18], tvGenres: [18] },
+  { id: "horror", labelKey: "horror", fetchMovies: true, fetchTv: true, movieGenres: [27], tvGenres: [9648] },
+  { id: "scifi", labelKey: "sciFiFantasy", fetchMovies: true, fetchTv: true, movieGenres: [878], tvGenres: [10765] },
+  { id: "thriller", labelKey: "thriller", fetchMovies: true, fetchTv: false, movieGenres: [53], tvGenres: [] },
+  { id: "romance", labelKey: "romance", fetchMovies: true, fetchTv: false, movieGenres: [10749], tvGenres: [] },
 ];
+
+const CATEGORY_LABEL_KEYS: Record<string, 'stremio:all' | 'stremio:movies' | 'stremio:tvShows' | 'stremio:documentaries' | 'stremio:animation' | 'stremio:kidsFamily' | 'stremio:reality' | 'stremio:action' | 'stremio:comedy' | 'stremio:drama' | 'stremio:horror' | 'stremio:sciFiFantasy' | 'stremio:thriller' | 'stremio:romance'> = {
+  all: 'stremio:all',
+  movies: 'stremio:movies',
+  tvShows: 'stremio:tvShows',
+  documentaries: 'stremio:documentaries',
+  animation: 'stremio:animation',
+  kidsFamily: 'stremio:kidsFamily',
+  reality: 'stremio:reality',
+  action: 'stremio:action',
+  comedy: 'stremio:comedy',
+  drama: 'stremio:drama',
+  horror: 'stremio:horror',
+  sciFiFantasy: 'stremio:sciFiFantasy',
+  thriller: 'stremio:thriller',
+  romance: 'stremio:romance',
+};
 
 const TMDB_API = 'https://api.themoviedb.org/3';
 const TMDB_IMG = 'https://image.tmdb.org/t/p';
 const PAGE_BATCH = 4; // Fetch 4 pages of results per scroll batch
 
 export function StreamingServiceView({ service, onBack, onItemClick, type }: StreamingServiceViewProps) {
+  useTranslation();
   const tmdbToken = useTmdbApiKey();
   const svcMeta = SERVICES[service as StreamingService];
   
@@ -210,7 +230,7 @@ export function StreamingServiceView({ service, onBack, onItemClick, type }: Str
       setFetchingMore(false);
     } catch (err: any) {
       console.error('[StreamingServiceView] Failed to fetch TMDB catalogs:', err);
-      setError(err.message || 'Failed to load TMDB catalogs.');
+      setError(err.message || i18n.t('stremio:failedLoadTmdb'));
       setLoading(false);
       setFetchingMore(false);
     }
@@ -267,11 +287,11 @@ export function StreamingServiceView({ service, onBack, onItemClick, type }: Str
       />
 
       <div className="stremio-service-header">
-        <button className="stremio-service-back-btn" onClick={onBack} title="Back to Home">
+        <button className="stremio-service-back-btn" onClick={onBack} title={i18n.t('stremio:backToHome')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          Back
+          {i18n.t('stremio:back')}
         </button>
 
         <div className="stremio-service-logo-wrap">
@@ -286,7 +306,7 @@ export function StreamingServiceView({ service, onBack, onItemClick, type }: Str
           />
         </div>
         <p className="stremio-service-desc">
-          Popular movies and series currently streaming on {svcMeta.name} in your region.
+          {i18n.t('stremio:serviceDesc', { service: svcMeta.name })}
         </p>
       </div>
 
@@ -300,7 +320,7 @@ export function StreamingServiceView({ service, onBack, onItemClick, type }: Str
               onClick={() => setActiveCategory(cat)}
               className={`stremio-service-category-pill${isActive ? ' active' : ''}`}
             >
-              {cat.label}
+              {i18n.t(CATEGORY_LABEL_KEYS[cat.labelKey])}
             </button>
           );
         })}
@@ -310,7 +330,7 @@ export function StreamingServiceView({ service, onBack, onItemClick, type }: Str
         {loading ? (
           <div className="stremio-service-loading">
             <div className="stremio-spinner" />
-            <span>Loading catalogs from TMDB...</span>
+            <span>{i18n.t('stremio:loadingTmdb')}</span>
           </div>
         ) : error ? (
           <div className="stremio-service-error">{error}</div>
@@ -318,7 +338,7 @@ export function StreamingServiceView({ service, onBack, onItemClick, type }: Str
           <div className="stremio-service-sections">
             {/* Top 10 Movies Row */}
             {movies.length >= 10 && (
-              <StreamingCatalogRow title={`Top 10 Movies on ${svcMeta.name}`}>
+              <StreamingCatalogRow title={i18n.t('stremio:top10Movies', { service: svcMeta.name })}>
                 {movies.slice(0, 10).map((item, idx) => (
                   <StremioTopRankCard
                     key={`${item.id}-${idx}`}
@@ -335,7 +355,7 @@ export function StreamingServiceView({ service, onBack, onItemClick, type }: Str
 
             {/* More Movies Row */}
             {movies.length > 10 && (
-              <StreamingCatalogRow title="More Movies">
+              <StreamingCatalogRow title={i18n.t('stremio:moreMovies')}>
                 {movies.slice(10, 30).map((item, idx) => (
                   <div
                     key={`${item.id}-${idx}`}
@@ -366,7 +386,7 @@ export function StreamingServiceView({ service, onBack, onItemClick, type }: Str
 
             {/* Top 10 Series Row */}
             {series.length >= 10 && (
-              <StreamingCatalogRow title={`Top 10 Series on ${svcMeta.name}`}>
+              <StreamingCatalogRow title={i18n.t('stremio:top10Series', { service: svcMeta.name })}>
                 {series.slice(0, 10).map((item, idx) => (
                   <StremioTopRankCard
                     key={`${item.id}-${idx}`}
@@ -383,7 +403,7 @@ export function StreamingServiceView({ service, onBack, onItemClick, type }: Str
 
             {/* More Series Row */}
             {series.length > 10 && (
-              <StreamingCatalogRow title="More TV Shows">
+              <StreamingCatalogRow title={i18n.t('stremio:moreTvShows')}>
                 {series.slice(10, 30).map((item, idx) => (
                   <div
                     key={`${item.id}-${idx}`}
@@ -416,7 +436,7 @@ export function StreamingServiceView({ service, onBack, onItemClick, type }: Str
           /* Grid View for Filtered Categories (Movies, TV Shows, genres etc.) */
           <div className="stremio-service-grid-wrap">
             {gridItems.length === 0 ? (
-              <div className="stremio-service-empty">No items match this filter in your region.</div>
+              <div className="stremio-service-empty">{i18n.t('stremio:noItemsMatch')}</div>
             ) : (
               <div className="stremio-service-grid">
                 {gridItems.map((item, idx) => (
@@ -450,7 +470,7 @@ export function StreamingServiceView({ service, onBack, onItemClick, type }: Str
             {fetchingMore && (
               <div className="stremio-service-loading-more">
                 <div className="stremio-spinner" />
-                <span>Loading more titles...</span>
+                <span>{i18n.t('stremio:loadingMoreTitles')}</span>
               </div>
             )}
           </div>

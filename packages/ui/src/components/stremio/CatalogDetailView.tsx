@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import type { InstalledAddon, StremioManifestCatalog, StremioMetaPreview } from '../../types/stremio';
 import { fetchCatalog } from '../../services/stremio-addon';
 import { useStremioAddonStore } from '../../stores/stremioAddonStore';
@@ -23,6 +25,7 @@ interface CatalogDetailViewProps {
 }
 
 export function CatalogDetailView({ addon, catalog, onItemClick }: CatalogDetailViewProps) {
+  useTranslation();
   const catalogKey = `${addon.id}:${catalog.type}:${catalog.id}`;
   const scrollPositions = useStremioCatalogScrollPositions();
   const setScrollPosition = useSetStremioCatalogScrollPosition();
@@ -81,7 +84,7 @@ export function CatalogDetailView({ addon, catalog, onItemClick }: CatalogDetail
   const typeOptions = useMemo(() => {
     const list = types.map((t) => ({
       value: t,
-      label: t === 'series' ? 'Series' : t.charAt(0).toUpperCase() + t.slice(1) + 's',
+      label: t === 'series' ? i18n.t('stremio:series') : t.charAt(0).toUpperCase() + t.slice(1) + 's',
     }));
     if (traktEnabled) {
       list.push({ value: 'trakt', label: 'Trakt' });
@@ -205,7 +208,7 @@ export function CatalogDetailView({ addon, catalog, onItemClick }: CatalogDetail
         setHasMore(false);
       }
     } catch {
-      if (requestId === latestRequestRef.current && replace) setError('Failed to load catalog.');
+      if (requestId === latestRequestRef.current && replace) setError(i18n.t('stremio:failedLoadCatalog'));
     } finally {
       if (requestId === latestRequestRef.current) {
         if (replace) setLoadingInitial(false);
@@ -296,9 +299,9 @@ export function CatalogDetailView({ addon, catalog, onItemClick }: CatalogDetail
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
                 <path d="M19 12H5" /><path d="M12 19l-7-7 7-7" />
               </svg>
-              Back
+              {i18n.t('stremio:back')}
             </button>
-            <h3 className="stremio-row-title" style={{ fontSize: '1.2rem' }}>Discover</h3>
+            <h3 className="stremio-row-title" style={{ fontSize: '1.2rem' }}>{i18n.t('stremio:discover')}</h3>
           </div>
 
           <div className="stremio-discover-filters">
@@ -335,7 +338,7 @@ export function CatalogDetailView({ addon, catalog, onItemClick }: CatalogDetail
                 value={selectedGenre}
                 onChange={(e) => setSelectedGenre(e.target.value)}
               >
-                <option value="">All Genres</option>
+                <option value="">{i18n.t('stremio:allGenres')}</option>
                 {genreOptions.map((g) => (
                   <option key={g} value={g}>
                     {g}
@@ -347,11 +350,11 @@ export function CatalogDetailView({ addon, catalog, onItemClick }: CatalogDetail
         </div>
 
         {loadingInitial ? (
-          <div className="stremio-loading-text" style={{ padding: '80px 0' }}>Loading catalog...</div>
+          <div className="stremio-loading-text" style={{ padding: '80px 0' }}>{i18n.t('stremio:loadingCatalog')}</div>
         ) : error ? (
           <div className="stremio-loading-text" style={{ padding: '80px 0' }}>{error}</div>
         ) : items.length === 0 ? (
-          <div className="stremio-loading-text" style={{ padding: '80px 0' }}>No items in this catalog.</div>
+          <div className="stremio-loading-text" style={{ padding: '80px 0' }}>{i18n.t('stremio:noItemsInCatalog')}</div>
         ) : (
           <>
             <div className="stremio-meta-grid">
@@ -384,7 +387,7 @@ export function CatalogDetailView({ addon, catalog, onItemClick }: CatalogDetail
             </div>
             {hasMore && (
               <div ref={sentinelRef} className="stremio-loading-text" style={{ padding: '20px 0', textAlign: 'center' }}>
-                {loadingMore ? 'Loading more...' : ''}
+                {loadingMore ? i18n.t('stremio:loadingMore') : ''}
               </div>
             )}
           </>

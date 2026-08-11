@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import type { StremioMetaPreview } from '../../types/stremio';
 import { fetchCatalog } from '../../services/stremio-addon';
 import { useNuvioAddonStore } from '../../stores/nuvioAddonStore';
@@ -11,6 +13,7 @@ interface NuvioHeroBannerProps {
 }
 
 export function NuvioHeroBanner({ onItemClick, onAddToLibrary, libraryIds }: NuvioHeroBannerProps) {
+  useTranslation();
   const [items, setItems] = useState<StremioMetaPreview[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -193,12 +196,12 @@ export function NuvioHeroBanner({ onItemClick, onAddToLibrary, libraryIds }: Nuv
 
       {items.length > 1 && (
         <>
-          <button className="stremio-hero-nav-arrow left" onClick={handlePrev} aria-label="Previous Spotlight">
+          <button className="stremio-hero-nav-arrow left" onClick={handlePrev} aria-label={i18n.t('nuvio:prevSpotlight')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
-          <button className="stremio-hero-nav-arrow right" onClick={handleNext} aria-label="Next Spotlight">
+          <button className="stremio-hero-nav-arrow right" onClick={handleNext} aria-label={i18n.t('nuvio:nextSpotlight')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M9 18l6-6-6-6" />
             </svg>
@@ -232,7 +235,7 @@ export function NuvioHeroBanner({ onItemClick, onAddToLibrary, libraryIds }: Nuv
             <span className="stremio-hero-meta-text">{activeItem.releaseInfo}</span>
           )}
           <span className="stremio-hero-meta-text type-badge">
-            {activeItem.type === 'movie' ? 'Movie' : activeItem.type === 'series' ? 'Series' : activeItem.type}
+            {activeItem.type === 'movie' ? i18n.t('nuvio:movie') : activeItem.type === 'series' ? i18n.t('nuvio:series') : activeItem.type}
           </span>
           {activeItem.runtime && (
             <span className="stremio-hero-meta-text">{activeItem.runtime}</span>
@@ -258,7 +261,7 @@ export function NuvioHeroBanner({ onItemClick, onAddToLibrary, libraryIds }: Nuv
             <svg viewBox="0 0 24 24" fill="currentColor" className="btn-icon">
               <path d="M8 5v14l11-7z" />
             </svg>
-            Watch Now
+            {i18n.t('nuvio:watchNow')}
           </button>
           <button
             className={`stremio-hero-btn-watchlist ${isAdded ? 'in-watchlist' : ''}`}
@@ -271,14 +274,14 @@ export function NuvioHeroBanner({ onItemClick, onAddToLibrary, libraryIds }: Nuv
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="btn-icon">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                In Library
+                {i18n.t('nuvio:inLibrary')}
               </>
             ) : (
               <>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="btn-icon">
                   <path d="M12 5v14M5 12h14" />
                 </svg>
-                Add to Library
+                {i18n.t('nuvio:addToLibrary')}
               </>
             )}
           </button>
@@ -295,7 +298,7 @@ export function NuvioHeroBanner({ onItemClick, onAddToLibrary, libraryIds }: Nuv
                 e.stopPropagation();
                 setActiveIndex(idx);
               }}
-              aria-label={`Go to slide ${idx + 1}`}
+              aria-label={i18n.t('nuvio:goToSlide', { index: idx + 1 })}
             />
           ))}
         </div>

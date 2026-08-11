@@ -296,7 +296,7 @@ export function StremioTopbar({ addons, onOpenAddonManager, onOpenAccount }: Str
                   setShowStremioHistory(false);
                 }}
               >
-                Clear search history
+                {t('clearSearchHistory')}
               </div>
             </div>
           )}

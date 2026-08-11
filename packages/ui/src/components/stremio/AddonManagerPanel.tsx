@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { useStremioAddonStore } from '../../stores/stremioAddonStore';
 import { useStremioAuthStore } from '../../stores/stremioAuthStore';
 import type { InstalledAddon } from '../../types/stremio';
@@ -11,6 +13,7 @@ interface AddonManagerPanelProps {
 }
 
 export function AddonManagerPanel({ onClose }: AddonManagerPanelProps) {
+  useTranslation();
   const addons = useStremioAddonStore((s) => s.addons);
   const addAddon = useStremioAddonStore((s) => s.addAddon);
   const removeAddon = useStremioAddonStore((s) => s.removeAddon);
@@ -46,7 +49,7 @@ export function AddonManagerPanel({ onClose }: AddonManagerPanelProps) {
       await addAddon(url.trim());
       if (url === manifestUrl) setManifestUrl('');
     } catch (e: any) {
-      setError(e.message || 'Failed to install addon.');
+      setError(e.message || i18n.t('stremio:failedInstallAddon'));
     } finally {
       setInstalling(false);
     }
@@ -58,7 +61,7 @@ export function AddonManagerPanel({ onClose }: AddonManagerPanelProps) {
     try {
       await syncAddonPositions();
     } catch (e: any) {
-      setError(e.message || 'Failed to sync addon positions.');
+      setError(e.message || i18n.t('stremio:failedSyncPositions'));
     } finally {
       setSyncingPositions(false);
     }
@@ -69,14 +72,14 @@ export function AddonManagerPanel({ onClose }: AddonManagerPanelProps) {
       <div className="stremio-addon-modal" onClick={(e) => e.stopPropagation()}>
         <div className="stremio-addon-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <h3 className="stremio-addon-title">Addon Manager ({addons.length})</h3>
+            <h3 className="stremio-addon-title">{i18n.t('stremio:addonManager', { count: addons.length })}</h3>
             {authKey && syncAddons && addonsReordered && (
               <button
                 className="stremio-addon-sync-btn"
                 onClick={handleSyncPositions}
                 disabled={syncingPositions}
               >
-                {syncingPositions ? 'Syncing...' : 'Sync Addon Positions'}
+                {syncingPositions ? i18n.t('stremio:syncing') : i18n.t('stremio:syncAddonPositions')}
               </button>
             )}
           </div>
@@ -87,9 +90,9 @@ export function AddonManagerPanel({ onClose }: AddonManagerPanelProps) {
           {error && <div className="stremio-addon-error" style={{ marginBottom: '12px' }}>{error}</div>}
 
           <div className="stremio-addon-install-section">
-            <h4 className="stremio-addon-section-title">Install Custom Addon</h4>
+            <h4 className="stremio-addon-section-title">{i18n.t('stremio:installCustomAddon')}</h4>
             <p className="stremio-addon-section-desc">
-              Paste the manifest.json URL of any Stremio-compatible addon.
+              {i18n.t('stremio:installCustomAddonHint')}
             </p>
             <div className="stremio-addon-input-row">
               <input
@@ -105,20 +108,20 @@ export function AddonManagerPanel({ onClose }: AddonManagerPanelProps) {
                 onClick={() => void handleInstall(manifestUrl)}
                 disabled={!!installing || !manifestUrl.trim()}
               >
-                {installing === manifestUrl ? 'Installing...' : 'Install'}
+                {installing === manifestUrl ? i18n.t('stremio:installing') : i18n.t('stremio:install')}
               </button>
             </div>
           </div>
 
           <div className="stremio-addon-list-section">
             <h4 className="stremio-addon-section-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span>Installed Addons</span>
+              <span>{i18n.t('stremio:installedAddons')}</span>
               <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', fontWeight: 'normal' }}>
-                Use arrows to prioritize catalog & stream results
+                {i18n.t('stremio:useArrowsHint')}
               </span>
             </h4>
             {addons.length === 0 ? (
-              <div className="stremio-addon-empty">No addons installed.</div>
+              <div className="stremio-addon-empty">{i18n.t('stremio:noAddonsInstalled')}</div>
             ) : (
               <div className="stremio-addon-list">
                 {addons.map((addon: InstalledAddon, index) => {
@@ -129,7 +132,7 @@ export function AddonManagerPanel({ onClose }: AddonManagerPanelProps) {
                           className="stremio-addon-reorder-btn"
                           disabled={index === 0}
                           onClick={() => reorderAddons(index, 'up')}
-                          title="Move Up (Increase priority)"
+                          title={i18n.t('stremio:moveUpPriority')}
                         >
                           ▲
                         </button>
@@ -137,7 +140,7 @@ export function AddonManagerPanel({ onClose }: AddonManagerPanelProps) {
                           className="stremio-addon-reorder-btn"
                           disabled={index === addons.length - 1}
                           onClick={() => reorderAddons(index, 'down')}
-                          title="Move Down (Decrease priority)"
+                          title={i18n.t('stremio:moveDownPriority')}
                         >
                           ▼
                         </button>
@@ -146,7 +149,7 @@ export function AddonManagerPanel({ onClose }: AddonManagerPanelProps) {
                       <div className="stremio-addon-item-info">
                         <div className="stremio-addon-item-name">
                           {addon.manifest.name}
-                          {addon.isDefault && <span className="stremio-addon-item-badge">default</span>}
+                          {addon.isDefault && <span className="stremio-addon-item-badge">{i18n.t('stremio:default')}</span>}
                         </div>
                         <div className="stremio-addon-item-desc" style={{ whiteSpace: 'normal', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                           {addon.manifest.description}
@@ -157,15 +160,15 @@ export function AddonManagerPanel({ onClose }: AddonManagerPanelProps) {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                         <button
                           className={`stremio-addon-toggle-btn ${addon.enabled === false ? 'disabled' : ''}`}
-                          title={addon.enabled === false ? 'Enable Addon' : 'Disable Addon'}
+                          title={addon.enabled === false ? i18n.t('stremio:enableAddon') : i18n.t('stremio:disableAddon')}
                           onClick={() => toggleAddon(addon.id)}
                         >
-                          {addon.enabled === false ? 'Enable' : 'Disable'}
+                          {addon.enabled === false ? i18n.t('stremio:enable') : i18n.t('stremio:disable')}
                         </button>
                         {!addon.isDefault && (
                           <button
                             className="stremio-addon-configure-btn"
-                            title="Configure Addon"
+                            title={i18n.t('stremio:configureAddon')}
                             onClick={() => openConfigureUrl(addon.baseUrl)}
                           >
                             ⚙
@@ -176,7 +179,7 @@ export function AddonManagerPanel({ onClose }: AddonManagerPanelProps) {
                             className="stremio-addon-remove-btn"
                             onClick={() => removeAddon(addon.id)}
                           >
-                            Uninstall
+                            {i18n.t('stremio:uninstall')}
                           </button>
                         )}
                       </div>
