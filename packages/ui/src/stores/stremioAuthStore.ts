@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import i18n, { translateNativeError } from '../i18n';
 import {
   loginStremio,
   logoutStremio,
@@ -155,7 +156,7 @@ export const useStremioAuthStore = create<StremioAuthStore>()(
           // Perform initial sync
           await get().syncNow();
         } catch (e: any) {
-          set({ error: e.message ?? 'Login failed', isSyncing: false });
+          set({ error: translateNativeError(e.message) || i18n.t('stremio:loginFailed'), isSyncing: false });
           throw e;
         }
       },
@@ -594,7 +595,7 @@ export const useStremioAuthStore = create<StremioAuthStore>()(
 
           set({ lastSyncTime: Date.now(), isSyncing: false });
         } catch (e: any) {
-          set({ error: e.message ?? 'Sync failed', isSyncing: false });
+          set({ error: translateNativeError(e.message) || i18n.t('stremio:syncFailed'), isSyncing: false });
           console.error('[Sync] Error syncing Stremio:', e);
         }
       },

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { useTranslation } from 'react-i18next';
-import i18n from '../../i18n';
+import i18n, { translateNativeError } from '../../i18n';
 import { useStremioAddonStore } from '../../stores/stremioAddonStore';
 import { useStremioAuthStore } from '../../stores/stremioAuthStore';
 import type { InstalledAddon } from '../../types/stremio';
@@ -49,7 +49,7 @@ export function AddonManagerPanel({ onClose }: AddonManagerPanelProps) {
       await addAddon(url.trim());
       if (url === manifestUrl) setManifestUrl('');
     } catch (e: any) {
-      setError(e.message || i18n.t('stremio:failedInstallAddon'));
+      setError(translateNativeError(e.message) || i18n.t('stremio:failedInstallAddon'));
     } finally {
       setInstalling(false);
     }
@@ -61,7 +61,7 @@ export function AddonManagerPanel({ onClose }: AddonManagerPanelProps) {
     try {
       await syncAddonPositions();
     } catch (e: any) {
-      setError(e.message || i18n.t('stremio:failedSyncPositions'));
+      setError(translateNativeError(e.message) || i18n.t('stremio:failedSyncPositions'));
     } finally {
       setSyncingPositions(false);
     }

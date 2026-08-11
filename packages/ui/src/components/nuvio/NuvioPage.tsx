@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import i18n from '../../i18n';
+import i18n, { translateNativeError } from '../../i18n';
 import { Virtuoso } from 'react-virtuoso';
 import { useNuvioAuthStore } from '../../stores/nuvioAuthStore';
 import { useNuvioCollectionStore } from '../../stores/nuvioCollectionStore';
@@ -402,7 +402,7 @@ function NuvioPageContent({
       setLoginEmail('');
       setLoginPassword('');
     } catch (err: any) {
-      setLoginError(err.message || t('authFailed'));
+      setLoginError(translateNativeError(err.message) || t('authFailed'));
     }
   };
 
@@ -1444,7 +1444,7 @@ function NuvioPageContent({
       } else if (source.provider === 'tmdb' || source.provider === 'trakt') {
         setFolderError(t('unsupportedProvider', { provider: source.provider }));
       } else if (source.provider && source.provider !== 'addon') {
-        setFolderError(`Catalog source provider "${source.provider}" is not recognized. Supported providers: addon, tmdb, trakt. Edit the folder sources in the Collections tab.`);
+        setFolderError(i18n.t('nuvio:providerNotRecognized', { provider: source.provider }));
       } else {
         const activeAddons = useNuvioAddonStore.getState().enabledAddons;
         const catalogType = source.type === 'tv' ? 'series' : (source.type || 'movie');
@@ -1474,10 +1474,12 @@ function NuvioPageContent({
                 .map(c => `"${c.id}"`)
                 .join(', ');
               setFolderError(
-                `Catalog "${catalogId}" not found in addon "${resolvedAddon.manifest?.name || resolvedAddon.id}". ` +
-                `Matching addons: ${matchingAddonsForError.map(a => a.manifest?.name || a.id).join(', ')}. ` +
-                `Available catalogs in selected addon: ${availableCatalogs || 'none'}. ` +
-                `Edit the folder sources in the Collections tab to use a valid catalog.`
+                i18n.t('nuvio:catalogNotFoundInAddon', {
+                  catalogId,
+                  addonName: resolvedAddon.manifest?.name || resolvedAddon.id,
+                  matchingAddons: matchingAddonsForError.map(a => a.manifest?.name || a.id).join(', '),
+                  availableCatalogs: availableCatalogs || 'none',
+                })
               );
             }
           } else {
@@ -1508,7 +1510,7 @@ function NuvioPageContent({
         } else {
           if (!append) {
             const missingId = source.addonId || source.catalogId || 'unknown';
-            setFolderError(`Addon matching "${missingId}" was not found among your installed Nuvio addons. Install the required addon from the Addons tab.`);
+            setFolderError(i18n.t('nuvio:addonNotFound', { missingId }));
           }
         }
       }
@@ -1532,7 +1534,7 @@ function NuvioPageContent({
     try {
       await collectionStore.saveCollections(updated);
     } catch (e: any) {
-      alert(e.message || 'Failed to save collections');
+      alert(translateNativeError(e.message) || i18n.t('nuvio:failedSaveCollections'));
     }
   };
 
@@ -1693,7 +1695,7 @@ function NuvioPageContent({
       setAddonUrl('');
       alert(i18n.t('nuvio:addonInstalled'));
     } catch (err: any) {
-      setAddonError(err.message || i18n.t('nuvio:failedInstallAddon'));
+      setAddonError(translateNativeError(err.message) || i18n.t('nuvio:failedInstallAddon'));
     } finally {
       setInstallingAddon(false);
     }
@@ -1704,7 +1706,7 @@ function NuvioPageContent({
     try {
       await addonsStore.toggleAddon(token, profile.profile_index, addonId);
     } catch (err: any) {
-      alert(err.message || i18n.t('nuvio:failedToggleAddon'));
+      alert(translateNativeError(err.message) || i18n.t('nuvio:failedToggleAddon'));
     }
   };
 
@@ -1714,7 +1716,7 @@ function NuvioPageContent({
       try {
         await addonsStore.removeAddon(token, profile.profile_index, addonId);
       } catch (err: any) {
-        alert(err.message || i18n.t('nuvio:failedRemoveAddon'));
+        alert(translateNativeError(err.message) || i18n.t('nuvio:failedRemoveAddon'));
       }
     }
   };
@@ -1730,7 +1732,7 @@ function NuvioPageContent({
       setRepoUrl('');
       alert(i18n.t('nuvio:repoInstalled'));
     } catch (err: any) {
-      setRepoError(err.message || i18n.t('nuvio:failedAddRepository'));
+      setRepoError(translateNativeError(err.message) || i18n.t('nuvio:failedAddRepository'));
     } finally {
       setInstallingRepo(false);
     }

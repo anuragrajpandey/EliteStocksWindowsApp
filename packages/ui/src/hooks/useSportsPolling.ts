@@ -342,7 +342,7 @@ export function useSportsPolling(options: UseSportsPollingOptions = {}): UseSpor
       }
     } catch (err) {
       console.error('[SportsPolling] Failed to fetch:', err);
-      setError('Failed to load scores. Retrying...');
+      setError(i18n.t('sports:failedToLoadScores'));
     } finally {
       setLoading(false);
       setProgress(null);

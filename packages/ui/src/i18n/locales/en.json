@@ -335,7 +335,8 @@
     "primaryUrlFailedTryingBackup": "Primary URL failed. Trying backup: {{url}}...",
     "epgMaxRetriesExceeded": "Max retries exceeded for database operation",
     "epgDownloadInterrupted": "Download interrupted",
-    "epgParseFailed": "Failed to parse EPG"
+    "epgParseFailed": "Failed to parse EPG",
+    "watchingYnotv": "Watching YnoTV"
   },
   "nav": {
     "epgButtons": {
@@ -1351,7 +1352,8 @@
       "importFailed": "Import failed",
       "cwCard": "Card",
       "cwWide": "Wide",
-      "cwPoster": "Poster"
+      "cwPoster": "Poster",
+      "failedResetSettings": "Failed to reset settings"
     },
     "discord": {
       "title": "Discord Rich Presence Settings",
@@ -2179,7 +2181,10 @@
     "nextGameLabel": "NEXT GAME",
     "pinnedLabel": "PINNED",
     "relatedNews": "Related News",
-    "tbd": "TBD"
+    "tbd": "TBD",
+    "failedToLoadData": "Failed to load data",
+    "failedToLoadScores": "Failed to load scores. Retrying...",
+    "failedToLoadUpcomingGames": "Failed to load upcoming games. Retrying..."
   },
   "vod": {
     "itemCount_one": "{{count}} item",
@@ -2288,7 +2293,11 @@
     "posterSizeSmaller": "Smaller posters",
     "posterSizeIncrease": "Increase poster size",
     "posterSizeLarger": "Larger posters",
-    "streamingPlatforms": "Streaming Platforms"
+    "streamingPlatforms": "Streaming Platforms",
+    "seriesNotFound": "Series not found",
+    "sourceNotFound": "Source not found",
+    "failedToFetchEpisodes": "Failed to fetch episodes",
+    "syncFailed": "Sync failed"
   },
   "dvr": {
     "title": "DVR & Downloads",
@@ -2698,7 +2707,22 @@
     "scrapersLabel": "SCRAPERS",
     "addonAlreadyInstalled": "Addon \"{{name}}\" is already installed in Nuvio.",
     "repoAlreadyInstalled": "Repository is already installed",
-    "urlMustBeHttp": "URL must start with http:// or https://"
+    "urlMustBeHttp": "URL must start with http:// or https://",
+    "failedPullAddons": "Failed to pull addons",
+    "failedAddAddon": "Failed to add addon",
+    "failedParseManifest": "Failed to parse plugin manifest JSON",
+    "invalidManifest": "Invalid manifest: missing name or version",
+    "providerNotRecognized": "Catalog source provider \"{{provider}}\" is not recognized. Supported providers: addon, tmdb, trakt. Edit the folder sources in the Collections tab.",
+    "catalogNotFoundInAddon": "Catalog \"{{catalogId}}\" not found in addon \"{{addonName}}\". Matching addons: {{matchingAddons}}. Available catalogs in selected addon: {{availableCatalogs}}. Edit the folder sources in the Collections tab to use a valid catalog.",
+    "addonNotFound": "Addon matching \"{{missingId}}\" was not found among your installed Nuvio addons. Install the required addon from the Addons tab.",
+    "failedSaveCollections": "Failed to save collections",
+    "failedLoadRepository": "Failed to load repository",
+    "loginFailed": "Login failed",
+    "failedUpdateSettings": "Failed to update settings",
+    "failedUpdateHomeCatalog": "Failed to update home catalog settings",
+    "syncFailed": "Sync failed",
+    "refreshFailed": "Refresh failed",
+    "registrationFailed": "Registration failed"
   },
   "player": {
     "alignment": "Alignment",
@@ -2917,7 +2941,12 @@
     "mainWindowNotFound": "Main window not found",
     "mpvNotConnected": "MPV is not connected",
     "mpvTimeout": "Timeout",
-    "mpvChannelClosed": "Channel closed"
+    "mpvChannelClosed": "Channel closed",
+    "failedToResolveStalkerLink": "Failed to resolve Stalker link",
+    "streamUnavailableMaxRetries": "Stream unavailable after maximum retry attempts",
+    "failedToResolveCatchupStream": "Failed to resolve catchup stream",
+    "torrentRequiresTorrServer": "Torrent playback requires TorrServer or a Debrid addon. Raw torrent streams cannot be played directly.",
+    "mpvApiUnavailable": "MPV API not available"
   },
   "stremio": {
     "account": "Account",
@@ -3088,7 +3117,9 @@
     "summaryLabel": "SUMMARY",
     "recommendationsLabel": "RECOMMENDATIONS",
     "watchedLabel": "Watched",
-    "addonAlreadyInstalled": "Addon \"{{name}}\" is already installed."
+    "addonAlreadyInstalled": "Addon \"{{name}}\" is already installed.",
+    "loginFailed": "Login failed",
+    "syncFailed": "Sync failed"
   },
   "cast": {
     "disabledTitle": "Google Cast (disabled)",

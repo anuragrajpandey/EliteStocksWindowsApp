@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef, forwardRef, useImperativeHandle } from 'react';
 import { useTranslation } from 'react-i18next';
-import i18n from '../../i18n';
+import i18n, { translateNativeError } from '../../i18n';
 import { useNuvioAuthStore } from '../../stores/nuvioAuthStore';
 import { useNuvioPluginStore } from '../../stores/nuvioPluginStore';
 import { useNuvioAddonStore } from '../../stores/nuvioAddonStore';
@@ -238,7 +238,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       setBadgeUrl('');
       setBadgePaste('');
     } catch (err: any) {
-      setBadgeImportError(err?.message || i18n.t('settings:nuvio.importFailed'));
+      setBadgeImportError(translateNativeError(err?.message) || i18n.t('settings:nuvio.importFailed'));
     } finally {
       setBadgeImporting(false);
     }
@@ -591,7 +591,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       await authStore.updateHomeCatalogSettings(payload);
       alert(i18n.t('settings:nuvio.savedLayoutAlert'));
     } catch (e: any) {
-      alert(e.message || i18n.t('settings:nuvio.failedSaveLayoutAlert'));
+      alert(translateNativeError(e.message) || i18n.t('settings:nuvio.failedSaveLayoutAlert'));
       throw e;
     }
   }, [localCatalogItems, hideUnreleased, hideUnderline, landscapePosters, authStore]);
@@ -627,7 +627,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
         await authStore.updateHomeCatalogSettings(payload);
         alert(i18n.t('settings:nuvio.resetLayoutAlert'));
       } catch (e: any) {
-        alert(e.message || 'Failed to reset settings');
+        alert(translateNativeError(e.message) || i18n.t('settings:nuvio.failedResetSettings'));
       }
     }
   };
@@ -657,7 +657,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       });
       alert(i18n.t('settings:nuvio.savedSettingsAlert'));
     } catch (e: any) {
-      alert(e.message || i18n.t('settings:nuvio.failedSaveSettingsAlert'));
+      alert(translateNativeError(e.message) || i18n.t('settings:nuvio.failedSaveSettingsAlert'));
     }
   };
 
@@ -677,7 +677,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       setEmail('');
       setPassword('');
     } catch (err: any) {
-      setAuthError(err.message || i18n.t('settings:nuvio.authFailed'));
+      setAuthError(translateNativeError(err.message) || i18n.t('settings:nuvio.authFailed'));
     }
   };
 
@@ -689,7 +689,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       setNewProfileName('');
       setShowCreateProfile(false);
     } catch (err: any) {
-      alert(err.message || i18n.t('settings:nuvio.createProfileFailed'));
+      alert(translateNativeError(err.message) || i18n.t('settings:nuvio.createProfileFailed'));
     }
   };
 
@@ -741,7 +741,7 @@ export const NuvioTab = forwardRef<{ save: () => Promise<void> }, NuvioTabProps>
       await pluginStore.addRepository(repoUrl);
       setRepoUrl('');
     } catch (err: any) {
-      setRepoError(err.message || i18n.t('settings:nuvio.addRepoFailed'));
+      setRepoError(translateNativeError(err.message) || i18n.t('settings:nuvio.addRepoFailed'));
     }
   };
 

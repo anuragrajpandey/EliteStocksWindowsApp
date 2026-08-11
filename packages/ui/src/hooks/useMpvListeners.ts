@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { MpvStatus } from '../types/app';
 import { Bridge } from '../services/tauri-bridge';
+import i18n, { translateNativeError } from '../i18n';
 
 export interface MpvState {
     mpvReady: boolean;
@@ -114,7 +115,7 @@ export function useMpvListeners(options: UseMpvListenersOptions = {}) {
 
     useEffect(() => {
         if (!Bridge.isTauri) {
-            setError('mpv API not available');
+            setError(i18n.t('player:mpvApiUnavailable'));
             return;
         }
 
@@ -195,7 +196,7 @@ export function useMpvListeners(options: UseMpvListenersOptions = {}) {
             });
 
             const unlistenError = await listen('mpv-error', (e: any) => {
-                const err: string = e.payload;
+                const err: string = translateNativeError(e.payload) || e.payload;
                 setError(prev => {
                     // Don't overwrite specific HTTP/contextual errors with generic ones
                     if (prev && prev !== err && (
@@ -212,12 +213,12 @@ export function useMpvListeners(options: UseMpvListenersOptions = {}) {
                 // Suppress HTTP errors for Stalker/MAC sources where auth headers
                 // cause false 401/403 errors but the stream plays fine.
                 if (!ignoreHttpErrorsRef.current) {
-                    setError(e.payload);
+                    setError(translateNativeError(e.payload) || e.payload);
                 }
             });
 
             const unlistenEndFileError = await listen('mpv-end-file-error', (e: any) => {
-                setError(prev => prev ? prev : e.payload);
+                setError(prev => prev ? prev : (translateNativeError(e.payload) || e.payload));
             });
 
             unlistenFns = [

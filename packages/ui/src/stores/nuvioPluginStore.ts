@@ -71,11 +71,11 @@ async function fetchRepositoryData(
   try {
     manifest = JSON.parse(payload);
   } catch (e) {
-    throw new Error('Failed to parse plugin manifest JSON');
+    throw new Error(i18n.t('nuvio:failedParseManifest'));
   }
 
   if (!manifest.name || !manifest.version) {
-    throw new Error('Invalid manifest: missing name or version');
+    throw new Error(i18n.t('nuvio:invalidManifest'));
   }
 
   const cleanUrl = manifestUrl.split('?')[0];
@@ -204,7 +204,7 @@ export const useNuvioPluginStore = create<NuvioPluginState>()(
             nextRepos = nextRepos.map(r => r.manifestUrl === url ? {
               ...r,
               isRefreshing: false,
-              errorMessage: e.message || 'Failed to load repository',
+              errorMessage: translateNativeError(e.message) || i18n.t('nuvio:failedLoadRepository'),
             } : r);
             set({ repositories: [...nextRepos] });
           }
@@ -240,7 +240,7 @@ export const useNuvioPluginStore = create<NuvioPluginState>()(
           set({ repositories: nextRepos, scrapers: nextScrapers });
           await pushToServer(nextRepos);
         } catch (e: any) {
-          set({ error: e.message || 'Failed to add repository' });
+          set({ error: translateNativeError(e.message) || i18n.t('nuvio:failedAddRepository') });
           throw e;
         } finally {
           set({ isLoading: false });
@@ -283,7 +283,7 @@ export const useNuvioPluginStore = create<NuvioPluginState>()(
               r.manifestUrl === manifestUrl ? {
                 ...r,
                 isRefreshing: false,
-                errorMessage: e.message || 'Refresh failed',
+                errorMessage: translateNativeError(e.message) || i18n.t('nuvio:refreshFailed'),
               } : r
             )
           });

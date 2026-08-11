@@ -946,7 +946,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
         resolved = await resolvePlayUrl(channel.source_id, channel.direct_url);
       } catch (e) {
         logError('Stalker resolution failed:', e);
-        setError('Failed to resolve Stalker link');
+        setError(i18n.t('player:failedToResolveStalkerLink'));
         return false;
       }
 
@@ -1094,7 +1094,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
 
     if (retryAttemptRef.current >= maxRetriesRef.current) {
       logError('[Retry] Max retries reached, giving up');
-      setError('Stream unavailable after maximum retry attempts');
+      setError(i18n.t('player:streamUnavailableMaxRetries'));
       setRetryState(null);
       isRetryingRef.current = false;
       retryFailedDuringLoadRef.current = false;
@@ -1144,7 +1144,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
               isRetryingRef.current = false;
               if (retryAttemptRef.current >= maxRetriesRef.current) {
                 logError('[Retry] Max retries reached, giving up');
-                setError('Stream unavailable after maximum retry attempts');
+                setError(i18n.t('player:streamUnavailableMaxRetries'));
                 setRetryState(null);
                 clearWatchdog();
               } else {
@@ -1158,7 +1158,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
             isRetryingRef.current = false;
             if (retryAttemptRef.current >= maxRetriesRef.current) {
               logError('[Retry] Max retries reached, giving up');
-              setError('Stream unavailable after maximum retry attempts');
+              setError(i18n.t('player:streamUnavailableMaxRetries'));
               setRetryState(null);
               clearWatchdog();
             } else {
@@ -1345,7 +1345,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
       // Standard retry path (no failover group configured)
       if (retryAttemptRef.current >= maxRetriesRef.current) {
         logError('[Retry] Max retries reached, giving up');
-        setError('Stream unavailable after maximum retry attempts');
+        setError(i18n.t('player:streamUnavailableMaxRetries'));
         setRetryState(null);
         clearWatchdog();
         return;
@@ -2107,7 +2107,7 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
       });
     } catch (e) {
       console.error('Failed to resolve catchup source:', e);
-      setError('Failed to resolve catchup stream');
+      setError(i18n.t('player:failedToResolveCatchupStream'));
       return;
     }
 
@@ -2159,13 +2159,13 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
       resolved = await resolvePlayUrl(info.source_id, info.url);
     } catch (err) {
       logError('Failed to resolve Source info:', err);
-      setError('Failed to resolve stream URL');
+      setError(i18n.t('common:contextMenu.failedResolveStreamUrl'));
       setVodLoadingInfo(null);
       return;
     }
 
     if (resolved.url.startsWith('infoHash:')) {
-      setError('Torrent playback requires TorrServer or a Debrid addon. Raw torrent streams cannot be played directly.');
+      setError(i18n.t('player:torrentRequiresTorrServer'));
       setVodLoadingInfo(null);
       return;
     }

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import i18n from '../i18n';
+import i18n, { translateNativeError } from '../i18n';
 import {
   loginNuvio,
   signUpNuvio,
@@ -103,7 +103,7 @@ export const useNuvioAuthStore = create<NuvioAuthStore>()(
           // Don't auto-select — the UI shows a profile picker and handles PIN prompts
           set({ error: null });
         } catch (e: any) {
-          set({ error: e.message || 'Login failed' });
+          set({ error: translateNativeError(e.message) || i18n.t('nuvio:loginFailed') });
           throw e;
         } finally {
           set({ isSyncing: false });
@@ -122,7 +122,7 @@ export const useNuvioAuthStore = create<NuvioAuthStore>()(
           });
           await get().fetchProfiles();
         } catch (e: any) {
-          set({ error: e.message || 'Registration failed' });
+          set({ error: translateNativeError(e.message) || i18n.t('nuvio:registrationFailed') });
           throw e;
         } finally {
           set({ isSyncing: false });
@@ -197,7 +197,7 @@ export const useNuvioAuthStore = create<NuvioAuthStore>()(
         if (targetProfile.pin_enabled && pin) {
           const verify = await verifyNuvioProfilePin(token, profileIndex, pin);
           if (!verify.unlocked) {
-            throw new Error(verify.message || i18n.t('nuvio:incorrectPin'));
+            throw new Error(translateNativeError(verify.message) || i18n.t('nuvio:incorrectPin'));
           }
         }
 
@@ -348,7 +348,7 @@ export const useNuvioAuthStore = create<NuvioAuthStore>()(
           }
         } catch (e: any) {
           console.error('[NuvioAuthStore] Failed to update profile settings:', e);
-          set({ error: e.message || 'Failed to update settings' });
+          set({ error: translateNativeError(e.message) || i18n.t('nuvio:failedUpdateSettings') });
           throw e;
         } finally {
           set({ isSyncing: false });
@@ -377,7 +377,7 @@ export const useNuvioAuthStore = create<NuvioAuthStore>()(
           set({ homeCatalogSettings: newSettings, error: null });
         } catch (e: any) {
           console.error('[NuvioAuthStore] Failed to update home catalog settings:', e);
-          set({ error: e.message || 'Failed to update home catalog settings' });
+          set({ error: translateNativeError(e.message) || i18n.t('nuvio:failedUpdateHomeCatalog') });
           throw e;
         } finally {
           set({ isSyncing: false });
@@ -435,7 +435,7 @@ export const useNuvioAuthStore = create<NuvioAuthStore>()(
             set({ lastSyncTime: Date.now(), error: null });
           } catch (e: any) {
             console.error('[NuvioAuthStore] Synchronization failed:', e);
-            set({ error: e.message || 'Sync failed' });
+            set({ error: translateNativeError(e.message) || i18n.t('nuvio:syncFailed') });
           } finally {
             set({ isSyncing: false });
             activeSyncPromise = null;

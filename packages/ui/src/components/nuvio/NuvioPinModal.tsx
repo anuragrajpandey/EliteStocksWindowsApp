@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import i18n from '../../i18n';
+import i18n, { translateNativeError } from '../../i18n';
 import { useNuvioAuthStore } from '../../stores/nuvioAuthStore';
 import './NuvioPinModal.css';
 
@@ -41,7 +41,7 @@ export function NuvioPinModal({ profile, onClose, onSuccess }: NuvioPinModalProp
         inputRef.current?.focus();
       }
     } catch (err: any) {
-      setError(err.message || i18n.t('nuvio:incorrectPin'));
+      setError(translateNativeError(err.message) || i18n.t('nuvio:incorrectPin'));
       setPin('');
       inputRef.current?.focus();
     } finally {
@@ -68,7 +68,7 @@ export function NuvioPinModal({ profile, onClose, onSuccess }: NuvioPinModalProp
           }
         })
         .catch((err) => {
-          setError(err.message || i18n.t('nuvio:incorrectPin'));
+          setError(translateNativeError(err.message) || i18n.t('nuvio:incorrectPin'));
           setPin('');
           inputRef.current?.focus();
         })

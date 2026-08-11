@@ -335,7 +335,8 @@
     "primaryUrlFailedTryingBackup": "Échec de l’URL principale. Tentative avec la sauvegarde : {{url}}...",
     "epgMaxRetriesExceeded": "Nombre maximal de tentatives dépassé pour l’opération de base de données",
     "epgDownloadInterrupted": "Téléchargement interrompu",
-    "epgParseFailed": "Échec de l’analyse de l’EPG"
+    "epgParseFailed": "Échec de l’analyse de l’EPG",
+    "watchingYnotv": "Regarde YnoTV"
   },
   "nav": {
     "epgButtons": {
@@ -1351,7 +1352,8 @@
       "importFailed": "Échec de l'importation",
       "cwCard": "Carte",
       "cwWide": "Large",
-      "cwPoster": "Affiche"
+      "cwPoster": "Affiche",
+      "failedResetSettings": "Échec de la réinitialisation des paramètres"
     },
     "discord": {
       "title": "Paramètres Discord Rich Presence",
@@ -2179,7 +2181,10 @@
     "nextGameLabel": "PROCHAIN MATCH",
     "pinnedLabel": "ÉPINGLÉ",
     "relatedNews": "Actualités liées",
-    "tbd": "À DÉTERMINER"
+    "tbd": "À DÉTERMINER",
+    "failedToLoadData": "Échec du chargement des données",
+    "failedToLoadScores": "Échec du chargement des scores. Nouvelle tentative...",
+    "failedToLoadUpcomingGames": "Échec du chargement des matchs à venir. Nouvelle tentative..."
   },
   "vod": {
     "itemCount_one": "{{count}} élément",
@@ -2288,7 +2293,11 @@
     "posterSizeSmaller": "Affiches plus petites",
     "posterSizeIncrease": "Augmenter la taille des affiches",
     "posterSizeLarger": "Affiches plus grandes",
-    "streamingPlatforms": "Plateformes de streaming"
+    "streamingPlatforms": "Plateformes de streaming",
+    "seriesNotFound": "Série introuvable",
+    "sourceNotFound": "Source introuvable",
+    "failedToFetchEpisodes": "Échec de la récupération des épisodes",
+    "syncFailed": "Échec de la synchronisation"
   },
   "dvr": {
     "title": "DVR et Téléchargements",
@@ -2698,7 +2707,22 @@
     "scrapersLabel": "SCRAPEURS",
     "addonAlreadyInstalled": "L'addon \"{{name}}\" est déjà installé dans Nuvio.",
     "repoAlreadyInstalled": "Le dépôt est déjà installé",
-    "urlMustBeHttp": "L'URL doit commencer par http:// ou https://"
+    "urlMustBeHttp": "L'URL doit commencer par http:// ou https://",
+    "failedPullAddons": "Échec de la récupération des addons",
+    "failedAddAddon": "Échec de l'ajout de l'addon",
+    "failedParseManifest": "Échec de l'analyse du manifeste du plugin JSON",
+    "invalidManifest": "Manifeste invalide : nom ou version manquant",
+    "providerNotRecognized": "Le fournisseur de source de catalogue \"{{provider}}\" n'est pas reconnu. Fournisseurs pris en charge : addon, tmdb, trakt. Modifiez les sources de dossier dans l'onglet Collections.",
+    "catalogNotFoundInAddon": "Catalogue \"{{catalogId}}\" introuvable dans l'addon \"{{addonName}}\". Addons correspondants : {{matchingAddons}}. Catalogues disponibles dans l'addon sélectionné : {{availableCatalogs}}. Modifiez les sources de dossier dans l'onglet Collections pour utiliser un catalogue valide.",
+    "addonNotFound": "Aucun addon correspondant à \"{{missingId}}\" n'a été trouvé parmi vos addons Nuvio installés. Installez l'addon requis depuis l'onglet Addons.",
+    "failedSaveCollections": "Échec de l'enregistrement des collections",
+    "failedLoadRepository": "Échec du chargement du dépôt",
+    "loginFailed": "Échec de la connexion",
+    "failedUpdateSettings": "Échec de la mise à jour des paramètres",
+    "failedUpdateHomeCatalog": "Échec de la mise à jour des paramètres du catalogue d'accueil",
+    "syncFailed": "Échec de la synchronisation",
+    "refreshFailed": "Échec de l'actualisation",
+    "registrationFailed": "Échec de l'inscription"
   },
   "player": {
     "alignment": "Alignement",
@@ -2917,7 +2941,12 @@
     "mainWindowNotFound": "Fenêtre principale introuvable",
     "mpvNotConnected": "MPV n’est pas connecté",
     "mpvTimeout": "Délai dépassé",
-    "mpvChannelClosed": "Canal fermé"
+    "mpvChannelClosed": "Canal fermé",
+    "failedToResolveStalkerLink": "Échec de la résolution du lien Stalker",
+    "streamUnavailableMaxRetries": "Flux indisponible après le nombre maximal de tentatives",
+    "failedToResolveCatchupStream": "Échec de la résolution du flux de rattrapage",
+    "torrentRequiresTorrServer": "La lecture de torrents nécessite TorrServer ou un addon Debrid. Les flux torrent bruts ne peuvent pas être lus directement.",
+    "mpvApiUnavailable": "API MPV indisponible"
   },
   "stremio": {
     "account": "Compte",
@@ -3088,7 +3117,9 @@
     "summaryLabel": "RÉSUMÉ",
     "recommendationsLabel": "RECOMMANDATIONS",
     "watchedLabel": "Regardé",
-    "addonAlreadyInstalled": "L'addon \"{{name}}\" est déjà installé."
+    "addonAlreadyInstalled": "L'addon \"{{name}}\" est déjà installé.",
+    "loginFailed": "Échec de la connexion",
+    "syncFailed": "Échec de la synchronisation"
   },
   "cast": {
     "disabledTitle": "Google Cast (désactivé)",

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import i18n from '../i18n';
+import i18n, { translateNativeError } from '../i18n';
 import type { InstalledAddon } from '../types/stremio';
 import { fetchManifest, clearCatalogCache, cleanAddonUrl, getManifestUrl } from '../services/stremio-addon';
 import { fetchNuvioAddons, pushNuvioAddons, type NuvioAddonRow } from '../services/nuvio-api';
@@ -107,7 +107,7 @@ export const useNuvioAddonStore = create<NuvioAddonStore>()(
           });
         } catch (err: any) {
           console.error('[NuvioAddonStore] Failed to pull Nuvio addons:', err);
-          set({ error: err.message || 'Failed to pull addons' });
+          set({ error: translateNativeError(err.message) || i18n.t('nuvio:failedPullAddons') });
         } finally {
           set({ loading: false });
         }
@@ -145,7 +145,7 @@ export const useNuvioAddonStore = create<NuvioAddonStore>()(
           await pushNuvioAddons(token, profileId, rows);
           set({ addons: updatedAddons, enabledAddons: deriveEnabled(updatedAddons) });
         } catch (err: any) {
-          set({ error: err.message || 'Failed to add addon' });
+          set({ error: translateNativeError(err.message) || i18n.t('nuvio:failedAddAddon') });
           throw err;
         } finally {
           set({ loading: false });
@@ -169,7 +169,7 @@ export const useNuvioAddonStore = create<NuvioAddonStore>()(
           await pushNuvioAddons(token, profileId, rows);
           set({ addons: updatedAddons, enabledAddons: deriveEnabled(updatedAddons) });
         } catch (err: any) {
-          set({ error: err.message || 'Failed to remove addon' });
+          set({ error: translateNativeError(err.message) || i18n.t('nuvio:failedRemoveAddon') });
           throw err;
         } finally {
           set({ loading: false });
@@ -195,7 +195,7 @@ export const useNuvioAddonStore = create<NuvioAddonStore>()(
           await pushNuvioAddons(token, profileId, rows);
           set({ addons: updatedAddons, enabledAddons: deriveEnabled(updatedAddons) });
         } catch (err: any) {
-          set({ error: err.message || 'Failed to toggle addon' });
+          set({ error: translateNativeError(err.message) || i18n.t('nuvio:failedToggleAddon') });
           throw err;
         } finally {
           set({ loading: false });

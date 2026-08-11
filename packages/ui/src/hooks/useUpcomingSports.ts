@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { SportsEvent } from '@ynotv/core';
+import i18n from '../i18n';
 import { getUpcomingEvents } from '../services/sports';
 import { DEFAULT_UPCOMING_LEAGUES } from '../services/sports/config';
 
@@ -174,7 +175,7 @@ export function useUpcomingSports(options: UseUpcomingOptions = {}): UseUpcoming
       }
     } catch (err) {
       console.error('[UpcomingSports] Failed to fetch:', err);
-      setError('Failed to load upcoming games. Retrying...');
+      setError(i18n.t('sports:failedToLoadUpcomingGames'));
     } finally {
       setLoading(false);
       isRefreshingRef.current = false;

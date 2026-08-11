@@ -6,6 +6,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
+import i18n, { translateNativeError } from '../../i18n';
+
 interface UseSportsDataOptions<T> {
   fetchFn: () => Promise<T>;
   enabled?: boolean;
@@ -39,7 +41,7 @@ export function useSportsData<T>({
       setData(result);
     } catch (err) {
       console.error('[useSportsData] Fetch error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load data');
+      setError(translateNativeError(err instanceof Error ? err.message : undefined) || i18n.t('sports:failedToLoadData'));
     } finally {
       setLoading(false);
     }

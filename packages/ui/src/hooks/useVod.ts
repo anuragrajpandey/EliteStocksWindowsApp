@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import i18n, { translateNativeError } from '../i18n';
 import { dbEvents } from '../db/sqlite-adapter';
 import { useLiveQuery } from './useSqliteLiveQuery';
 import { db, type StoredMovie, type StoredSeries, type StoredEpisode, type VodCategory, type VodWatchHistory, getRecentlyWatchedByType } from '../db';
@@ -311,7 +312,7 @@ export function useSeriesDetails(seriesId: string | null) {
       const series = await db.vodSeries.get(seriesId);
       if (!series) {
         console.error('[useSeriesDetails] Series not found in DB:', seriesId);
-        setError('Series not found');
+        setError(i18n.t('vod:seriesNotFound'));
         return;
       }
 
@@ -321,7 +322,7 @@ export function useSeriesDetails(seriesId: string | null) {
 
       if (!source) {
         console.error('[useSeriesDetails] Source not found:', series.source_id);
-        setError('Source not found');
+        setError(i18n.t('vod:sourceNotFound'));
         return;
       }
 
@@ -330,7 +331,7 @@ export function useSeriesDetails(seriesId: string | null) {
       console.log('[useSeriesDetails] Sync complete');
     } catch (err) {
       console.error('[useSeriesDetails] Error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch episodes');
+      setError(translateNativeError(err instanceof Error ? err.message : undefined) || i18n.t('vod:failedToFetchEpisodes'));
     } finally {
       setLoading(false);
     }
@@ -444,7 +445,7 @@ export function useVodSync() {
       const syncResults = await syncAllVod();
       setResults(syncResults);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Sync failed');
+      setError(translateNativeError(err instanceof Error ? err.message : undefined) || i18n.t('vod:syncFailed'));
     } finally {
       setSyncing(false);
     }

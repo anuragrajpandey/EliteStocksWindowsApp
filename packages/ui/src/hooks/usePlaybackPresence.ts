@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import i18n from '../i18n';
 import { setPlaybackPresence } from '../services/discord/presence';
 
 export interface PlaybackState {
@@ -21,7 +22,7 @@ export function usePlaybackPresence(state: PlaybackState): void {
     }
 
     setPlaybackPresence({
-      title: title || 'Watching ynotv',
+      title: title || i18n.t('common:watchingYnotv'),
       subtitle: subtitle || undefined,
       posterUrl: posterUrl || undefined,
       paused,
