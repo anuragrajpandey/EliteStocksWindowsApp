@@ -9,6 +9,8 @@
  */
 
 import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './VerticalSidebar.css';
 
 // Chevron Icon for expand/collapse
@@ -101,6 +103,7 @@ export function VerticalSidebar({
     onSearchSubmit,
     onContextMenu,
 }: VerticalSidebarProps) {
+    useTranslation();
     const [sources, setSources] = useState<Record<string, string>>({});
     const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
     const [isV3, setIsV3] = useState(false);
@@ -222,12 +225,12 @@ export function VerticalSidebar({
                         <button
                             className="vertical-sidebar__back"
                             onClick={onBack}
-                            aria-label="Go back"
+                            aria-label={i18n.t('vod:goBack')}
                         >
                             <span className="vertical-sidebar__back-arrow">
                                 <BackArrow />
                             </span>
-                            <span className="vertical-sidebar__back-text">Back</span>
+                            <span className="vertical-sidebar__back-text">{i18n.t('vod:back')}</span>
                             <span className="vertical-sidebar__back-icon">
                                 {type === 'series' ? <SeriesIcon /> : <MovieIcon />}
                             </span>
@@ -243,7 +246,7 @@ export function VerticalSidebar({
                         <SearchIcon />
                         <input
                             type="text"
-                            placeholder={type === 'series' ? 'Search series...' : 'Search movies...'}
+                            placeholder={type === 'series' ? i18n.t('vod:searchSeries') : i18n.t('vod:searchMovies')}
                             value={searchQuery}
                             onChange={(e) => onSearchChange(e.target.value)}
                             onKeyDown={handleSearchKeyDown}
@@ -252,7 +255,7 @@ export function VerticalSidebar({
                             <button
                                 className="vertical-sidebar__search-clear"
                                 onClick={() => onSearchChange('')}
-                                aria-label="Clear search"
+                                aria-label={i18n.t('vod:clearSearch')}
                             >
                                 <ClearIcon />
                             </button>
@@ -277,7 +280,7 @@ export function VerticalSidebar({
                                         <polyline points="9 22 9 12 15 12 15 22" />
                                     </svg>
                                 </span>
-                                <span className="category-name">Home</span>
+                                <span className="category-name">{i18n.t('vod:home')}</span>
                             </div>
                         </button>
 
@@ -293,7 +296,7 @@ export function VerticalSidebar({
                                         <polyline points="17 2 12 7 7 2" />
                                     </svg>
                                 </span>
-                                <span className="category-name">All {type === 'series' ? 'Series' : 'Movies'}</span>
+                                <span className="category-name">{type === 'series' ? i18n.t('vod:allSeries') : i18n.t('vod:allMovies')}</span>
                             </div>
                         </button>
 
@@ -308,7 +311,7 @@ export function VerticalSidebar({
                                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                                     </svg>
                                 </span>
-                                <span className="category-name">Favorites</span>
+                                <span className="category-name">{i18n.t('vod:favorites')}</span>
                             </div>
                         </button>
 
@@ -324,7 +327,7 @@ export function VerticalSidebar({
                                         <polyline points="12 6 12 12 16 14" />
                                     </svg>
                                 </span>
-                                <span className="category-name">Recent</span>
+                                <span className="category-name">{i18n.t('vod:recent')}</span>
                             </div>
                         </button>
                     </>
@@ -335,7 +338,7 @@ export function VerticalSidebar({
                             className={`vertical-sidebar__item ${selectedId === null ? 'active' : ''}`}
                             onClick={() => onSelect(null)}
                         >
-                            Home
+                            {i18n.t('vod:home')}
                         </button>
 
                         {/* All Link */}
@@ -343,7 +346,7 @@ export function VerticalSidebar({
                             className={`vertical-sidebar__item ${selectedId === 'all' ? 'active' : ''}`}
                             onClick={() => onSelect('all')}
                         >
-                            All {type === 'series' ? 'Series' : 'Movies'}
+                            {type === 'series' ? i18n.t('vod:allSeries') : i18n.t('vod:allMovies')}
                         </button>
 
                         {/* Favorites Link */}
@@ -351,7 +354,7 @@ export function VerticalSidebar({
                             className={`vertical-sidebar__item ${selectedId === 'favorites' ? 'active' : ''}`}
                             onClick={() => onSelect('favorites')}
                         >
-                            Favorites
+                            {i18n.t('vod:favorites')}
                         </button>
 
                         {/* Recent Link */}
@@ -359,7 +362,7 @@ export function VerticalSidebar({
                             className={`vertical-sidebar__item ${selectedId === 'recent' ? 'active' : ''}`}
                             onClick={() => onSelect('recent')}
                         >
-                            Recent
+                            {i18n.t('vod:recent')}
                         </button>
                     </>
                 )}
@@ -377,12 +380,12 @@ export function VerticalSidebar({
                                 onClick={() => toggleSource(sourceId)}
                                 onContextMenu={(e) => {
                                     e.preventDefault();
-                                    onContextMenu?.(e, sourceId, sources[sourceId] || 'Unknown Source');
+                                    onContextMenu?.(e, sourceId, sources[sourceId] || i18n.t('vod:unknownSource'));
                                 }}
                             >
                                 <div className="source-header-left">
                                     <ChevronIcon expanded={isExpanded} />
-                                    <span className="source-name">{sources[sourceId] || 'Loading...'}</span>
+                                    <span className="source-name">{sources[sourceId] || i18n.t('vod:loadingSource')}</span>
                                 </div>
                                 <span className="source-count">{sourceCats.length}</span>
                             </button>

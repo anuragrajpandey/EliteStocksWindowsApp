@@ -73,7 +73,7 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       console.error('[MovieDetail] Failed to copy stream URL:', error);
-      alert('Failed to resolve and copy stream URL');
+      alert(i18n.t('vod:failedResolveCopy'));
     } finally {
       setCopying(false);
     }
@@ -95,14 +95,14 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
 
   const handlePlayTrailer = useCallback((targetMode?: VodPlayerMode) => {
     if (!effectiveTrailerUrl) {
-      alert('No trailer available for this movie');
+      alert(i18n.t('vod:noTrailerMovie'));
       return;
     }
     const modeToUse = targetMode || trailerPlayerMode;
     window.dispatchEvent(new CustomEvent('ynotv:play-url', {
       detail: {
         url: effectiveTrailerUrl,
-        title: `${movie.title || movie.name} - Trailer`,
+        title: `${movie.title || movie.name} ${i18n.t('vod:trailerSuffix')}`,
         backdropUrl,
         logoUrl,
         targetMode: modeToUse,
@@ -159,7 +159,7 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
       );
     } catch (error) {
       console.error('[MovieDetail] Download failed:', error);
-      alert('Failed to start download');
+      alert(i18n.t('vod:failedStartDownload'));
     } finally {
       setDownloading(false);
     }
@@ -185,7 +185,7 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
   const genreSource = movie.genre != null ? movie.genre : lazyGenre;
   const genres = genreSource?.split(',').map((g) => g.trim()).filter(Boolean) ?? [];
   const duration = movie.duration && movie.duration > 0
-    ? `${Math.floor(movie.duration / 60)}h ${movie.duration % 60}m`
+    ? i18n.t('vod:durationHM', { hours: Math.floor(movie.duration / 60), minutes: movie.duration % 60 })
     : null;
 
   return (
@@ -202,12 +202,12 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
         <button
           className="movie-detail__back"
           onClick={onClose}
-          aria-label="Go back"
+          aria-label={i18n.t('vod:goBack')}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M15 18l-6-6 6-6" />
           </svg>
-          Back
+          {i18n.t('vod:back')}
         </button>
       </header>
 
@@ -296,7 +296,7 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
               <button
                 className={`movie-detail__btn movie-detail__btn--secondary ${isFav ? 'favorited' : ''}`}
                 onClick={handleToggleFavorite}
-                title={isFav ? 'Remove from Favorites' : 'Add to Favorites'}
+                title={isFav ? i18n.t('vod:removeFavorite') : i18n.t('vod:addFavorite')}
               >
                 <svg viewBox="0 0 24 24" fill={isFav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeLinecap="round" strokeLinejoin="round" />
@@ -355,7 +355,7 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
         {/* Cast Section */}
         {cast.length > 0 && (
           <div className="movie-detail__cast-section">
-            <h2 className="movie-detail__section-title">Cast</h2>
+            <h2 className="movie-detail__section-title">{i18n.t('vod:cast')}</h2>
             <div className="movie-detail__cast-row">
               {cast.map((member, idx) => (
                 <button
@@ -372,7 +372,7 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
                       }
                     }
                   }}
-                  title={`View ${member.name}`}
+                  title={i18n.t('vod:viewName', { name: member.name })}
                 >
                   <div className="movie-detail__cast-photo">
                     {member.photo ? (

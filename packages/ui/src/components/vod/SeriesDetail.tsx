@@ -119,7 +119,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
         );
       } catch (error) {
         console.error('[SeriesDetail] Episode download failed:', error);
-        alert('Failed to start download');
+        alert(i18n.t('vod:failedStartDownload'));
       } finally {
         setDownloadingId(null);
       }
@@ -150,7 +150,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
         const selected = await open({
           directory: true,
           multiple: false,
-          title: `Select Directory to Save Season ${selectedSeason}`,
+          title: i18n.t('vod:selectDirectorySeason', { season: selectedSeason }),
         });
         if (!selected || typeof selected !== 'string') {
           // User canceled picker
@@ -197,7 +197,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
       }
     } catch (error) {
       console.error('[SeriesDetail] Season download failed:', error);
-      alert('Failed to start season download');
+      alert(i18n.t('vod:failedToStartSeasonDownload'));
     } finally {
       setDownloadingSeason(false);
     }
@@ -363,7 +363,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
         setTimeout(() => setCopiedId(null), 2000);
       } catch (error) {
         console.error('[SeriesDetail] Copy stream URL failed:', error);
-        alert('Failed to resolve and copy stream URL');
+        alert(i18n.t('vod:failedResolveCopy'));
       } finally {
         setCopyingId(null);
       }
@@ -387,14 +387,14 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
 
   const handlePlayTrailer = useCallback((targetMode?: VodPlayerMode) => {
     if (!effectiveTrailerUrl) {
-      alert('No trailer available for this series');
+      alert(i18n.t('vod:noTrailerSeries'));
       return;
     }
     const modeToUse = targetMode || trailerPlayerMode;
     window.dispatchEvent(new CustomEvent('ynotv:play-url', {
       detail: {
         url: effectiveTrailerUrl,
-        title: `${series.title || series.name} - Trailer`,
+        title: `${series.title || series.name} ${i18n.t('vod:trailerSuffix')}`,
         backdropUrl,
         logoUrl,
         targetMode: modeToUse,
@@ -465,12 +465,12 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
         <button
           className="series-detail__back"
           onClick={onClose}
-          aria-label="Go back"
+          aria-label={i18n.t('vod:goBack')}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M15 18l-6-6 6-6" />
           </svg>
-          Back
+          {i18n.t('vod:back')}
         </button>
       </header>
 
@@ -544,7 +544,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                         <button
                           className="series-detail__cast-link-btn"
                           onClick={() => handleCastNameClick(cleanName)}
-                          title={`View ${cleanName}`}
+                          title={i18n.t('vod:viewName', { name: cleanName })}
                         >
                           {cleanName}
                         </button>
@@ -566,7 +566,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
               <button
                 className={`series-detail__fav-btn ${isFav ? 'favorited' : ''}`}
                 onClick={handleToggleFavorite}
-                title={isFav ? 'Remove from Favorites' : 'Add to Favorites'}
+                title={isFav ? i18n.t('vod:removeFavorite') : i18n.t('vod:addFavorite')}
               >
                 <svg viewBox="0 0 24 24" fill={isFav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeLinecap="round" strokeLinejoin="round" />
@@ -611,7 +611,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                 className={`series-detail__download-season-btn ${downloadingSeason ? 'downloading' : ''}`}
                 onClick={handleDownloadSeason}
                 disabled={downloadingSeason}
-                title={`Download all episodes of Season ${selectedSeason}`}
+                title={i18n.t('vod:downloadSeasonTitle', { season: selectedSeason })}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   {downloadingSeason ? (
@@ -658,7 +658,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                       {/* Episode Image */}
                       <div className="series-detail__episode-image">
                         {extra?.image ? (
-                          <img src={extra.image} alt={episode.title || `Episode ${episode.episode_num}`} loading="lazy" />
+                          <img src={extra.image} alt={episode.title || i18n.t('vod:episodeNum', { num: episode.episode_num })} loading="lazy" />
                         ) : (
                           <div className="series-detail__episode-image-placeholder">
                             <span>E{episode.episode_num}</span>
@@ -683,7 +683,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                         <button
                           className={`series-detail__episode-completed-badge ${isCompleted ? 'completed' : ''}`}
                           onClick={(e) => handleToggleWatched(episode, e)}
-                          title={isCompleted ? "Mark as Unwatched" : "Mark as Watched"}
+                          title={isCompleted ? i18n.t('vod:markUnwatched') : i18n.t('vod:markWatched')}
                         >
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={isCompleted ? "3.5" : "2"}>
                             <polyline points="20 6 9 17 4 12" />
@@ -698,7 +698,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                             {episode.episode_num}
                           </span>
                           <span className="series-detail__episode-card-title">
-                            {episode.title || `Episode ${episode.episode_num}`}
+                            {episode.title || i18n.t('vod:episodeNum', { num: episode.episode_num })}
                           </span>
                         </div>
 
@@ -731,7 +731,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                           className={`series-detail__episode-card-copy ${copiedId === episode.id ? 'copied' : ''}`}
                           onClick={(e) => handleCopy(episode, e)}
                           disabled={copyingId === episode.id}
-                          title="Copy Stream URL"
+                          title={i18n.t('vod:copyStreamUrl')}
                         >
                           {copyingId === episode.id ? (
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -755,7 +755,7 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                           className={`series-detail__episode-card-download ${downloadingId === episode.id ? 'downloading' : ''}`}
                           onClick={(e) => handleDownloadEpisode(episode, e)}
                           disabled={downloadingId === episode.id}
-                          title="Download Episode"
+                          title={i18n.t('vod:downloadEpisode')}
                         >
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             {downloadingId === episode.id ? (

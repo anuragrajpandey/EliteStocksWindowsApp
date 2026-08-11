@@ -16,6 +16,8 @@ import {
 } from '../../hooks/useCinemetaCatalogs';
 import { useRecentlyWatchedMovies, useRecentlyWatchedSeries } from '../../hooks/useVod';
 import { SplitPlayButton, type VodPlayerMode } from './SplitPlayButton';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './VodHome.css';
 
 export interface VodHomeProps {
@@ -27,6 +29,7 @@ export interface VodHomeProps {
 }
 
 export function VodHome({ type, onItemClick, onPlay, vodPlayerMode, onSelectVodPlayerMode }: VodHomeProps) {
+  useTranslation();
   const movieType = type === 'movies' ? 'movie' : 'series';
 
   // Cinemeta catalogs
@@ -91,7 +94,7 @@ export function VodHome({ type, onItemClick, onPlay, vodPlayerMode, onSelectVodP
         <div className="vod-home__carousels">
           {recentlyWatchedMovies.length > 0 && (
             <HorizontalCarousel
-              title="Recently Watched"
+              title={i18n.t('vod:recentlyWatched')}
               items={recentlyWatchedMovies}
               type="movie"
               onItemClick={onItemClick}
@@ -103,7 +106,7 @@ export function VodHome({ type, onItemClick, onPlay, vodPlayerMode, onSelectVodP
           )}
 
           <HorizontalCarousel
-            title="Popular"
+            title={i18n.t('vod:popular')}
             items={popularItems as StoredMovie[]}
             type="movie"
             onItemClick={onItemClick}
@@ -112,7 +115,7 @@ export function VodHome({ type, onItemClick, onPlay, vodPlayerMode, onSelectVodP
           />
 
           <HorizontalCarousel
-            title="New Releases"
+            title={i18n.t('vod:newReleases')}
             items={newItems as StoredMovie[]}
             type="movie"
             onItemClick={onItemClick}
@@ -121,7 +124,7 @@ export function VodHome({ type, onItemClick, onPlay, vodPlayerMode, onSelectVodP
           />
 
           <HorizontalCarousel
-            title="Featured"
+            title={i18n.t('vod:featured')}
             items={featuredCatalogItems as StoredMovie[]}
             type="movie"
             onItemClick={onItemClick}
@@ -151,7 +154,7 @@ export function VodHome({ type, onItemClick, onPlay, vodPlayerMode, onSelectVodP
       <div className="vod-home__carousels">
         {recentlyWatchedSeries.length > 0 && (
           <HorizontalCarousel
-            title="Recently Watched"
+            title={i18n.t('vod:recentlyWatched')}
             items={recentlyWatchedSeries}
             type="series"
             onItemClick={onItemClick}
@@ -163,7 +166,7 @@ export function VodHome({ type, onItemClick, onPlay, vodPlayerMode, onSelectVodP
         )}
 
         <HorizontalCarousel
-          title="Popular"
+          title={i18n.t('vod:popular')}
           items={popularItems as StoredSeries[]}
           type="series"
           onItemClick={onItemClick}
@@ -172,7 +175,7 @@ export function VodHome({ type, onItemClick, onPlay, vodPlayerMode, onSelectVodP
         />
 
         <HorizontalCarousel
-          title="New Releases"
+          title={i18n.t('vod:newReleases')}
           items={newItems as StoredSeries[]}
           type="series"
           onItemClick={onItemClick}
@@ -181,7 +184,7 @@ export function VodHome({ type, onItemClick, onPlay, vodPlayerMode, onSelectVodP
         />
 
         <HorizontalCarousel
-          title="Featured"
+          title={i18n.t('vod:featured')}
           items={featuredCatalogItems as StoredSeries[]}
           type="series"
           onItemClick={onItemClick}

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom';
 import { useLiveQuery } from '../../hooks/useSqliteLiveQuery';
 import { db, type VodCategory } from '../../db';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import '../settings/CategoryManager.css'; // Re-use the same CSS
 
 interface ManageVodCategoriesProps {
@@ -12,6 +14,7 @@ interface ManageVodCategoriesProps {
 }
 
 export function ManageVodCategories({ sourceId, sourceName, onClose, onChange }: ManageVodCategoriesProps) {
+    useTranslation();
     const [categories, setCategories] = useState<VodCategory[]>([]);
     const [activeTab, setActiveTab] = useState<'movie' | 'series'>('movie');
     const [isDirty, setIsDirty] = useState(false);
@@ -263,7 +266,7 @@ export function ManageVodCategories({ sourceId, sourceName, onClose, onChange }:
             onClose();
         } catch (err) {
             console.error('[ManageVodCategories] Failed to save:', err);
-            alert('Failed to save changes.');
+            alert(i18n.t('vod:failedSave'));
             isSavingRef.current = false;
         }
     }, [categories, isDirty, onChange, onClose]);
@@ -329,7 +332,7 @@ export function ManageVodCategories({ sourceId, sourceName, onClose, onChange }:
         <div className="category-manager-overlay" onClick={handleSave}>
             <div className="category-manager-modal vertical-flex" onClick={e => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column' }}>
                 <div className="category-manager-header" style={{ flexShrink: 0 }}>
-                    <h2>Manage VOD Categories - {sourceName}</h2>
+                    <h2>{i18n.t('vod:manageVodCategories', { source: sourceName })}</h2>
                     <button className="close-btn" onClick={handleSave}>✕</button>
                 </div>
 
@@ -340,45 +343,45 @@ export function ManageVodCategories({ sourceId, sourceName, onClose, onChange }:
                         style={{ padding: '8px 16px', borderRadius: '4px', background: activeTab === 'movie' ? 'var(--highlight-color, #007bff)' : '#333', color: '#fff', border: 'none', cursor: 'pointer', flex: 1 }}
                         onClick={() => { setActiveTab('movie'); setSearchQuery(''); setHideUnselected(false); }}
                     >
-                        🎬 Movies
+                        🎬 {i18n.t('vod:movies')}
                     </button>
                     <button 
                         className={`tab-btn ${activeTab === 'series' ? 'active' : ''}`}
                         style={{ padding: '8px 16px', borderRadius: '4px', background: activeTab === 'series' ? 'var(--highlight-color, #007bff)' : '#333', color: '#fff', border: 'none', cursor: 'pointer', flex: 1 }}
                         onClick={() => { setActiveTab('series'); setSearchQuery(''); setHideUnselected(false); }}
                     >
-                        📺 Series
+                        📺 {i18n.t('vod:series')}
                     </button>
                 </div>
 
                 <div className="category-manager-stats" style={{ flexShrink: 0 }}>
-                    {enabledCount} of {totalCount} {activeTab === 'movie' ? 'movies' : 'series'} categories enabled
+                    {i18n.t('vod:categoriesEnabled', { enabled: enabledCount, total: totalCount, type: activeTab === 'movie' ? i18n.t('vod:movies') : i18n.t('vod:series') })}
                 </div>
 
                 <div className="category-manager-actions" style={{ flexShrink: 0 }}>
-                    <button onClick={handleSelectAll}>✓ Select All</button>
-                    <button onClick={handleSelectNone}>✗ Select None</button>
+                    <button onClick={handleSelectAll}>✓ {i18n.t('vod:selectAll')}</button>
+                    <button onClick={handleSelectNone}>✗ {i18n.t('vod:selectNone')}</button>
                     <div className="divider-vertical"></div>
                     <button
                         onClick={() => setHideUnselected(!hideUnselected)}
                         className={hideUnselected ? 'active-toggle' : ''}
                     >
-                        {hideUnselected ? '👁 Show All' : '👁‍🗨 Hide Unselected'}
+                        {hideUnselected ? `👁 ${i18n.t('vod:showAll')}` : `👁‍🗨 ${i18n.t('vod:hideUnselected')}`}
                     </button>
                     <button
                         onClick={handleSelectToMoveToggle}
                         className={selectToMoveMode !== 'inactive' ? 'active-toggle' : ''}
                     >
-                        {selectToMoveMode === 'inactive' && '⇈ Select to Move to Top'}
-                        {selectToMoveMode === 'selecting' && `✓ Done Selecting (${selectedForMove.size})`}
-                        {selectToMoveMode === 'ready' && '⇈ Move Selected to Top'}
+                        {selectToMoveMode === 'inactive' && `⇈ ${i18n.t('vod:selectToMoveTop')}`}
+                        {selectToMoveMode === 'selecting' && `✓ ${i18n.t('vod:doneSelecting', { count: selectedForMove.size })}`}
+                        {selectToMoveMode === 'ready' && `⇈ ${i18n.t('vod:moveSelectedTop')}`}
                     </button>
                     {selectToMoveMode !== 'inactive' && (
                         <button
                             onClick={handleSelectToMoveCancel}
                             className="cancel-select-btn"
                         >
-                            Cancel
+                            {i18n.t('common:cancel')}
                         </button>
                     )}
                 </div>
@@ -386,7 +389,7 @@ export function ManageVodCategories({ sourceId, sourceName, onClose, onChange }:
                 <div className="category-search" style={{ flexShrink: 0 }}>
                     <input
                         type="text"
-                        placeholder={`Search ${activeTab === 'movie' ? 'movie' : 'series'} categories...`}
+                        placeholder={activeTab === 'movie' ? i18n.t('vod:searchMovieCategories') : i18n.t('vod:searchSeriesCategories')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -438,7 +441,7 @@ export function ManageVodCategories({ sourceId, sourceName, onClose, onChange }:
                                         className="order-btn"
                                         onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => moveToTop(cat.category_id)}
                                         disabled={tabIdx === 0 || selectToMoveMode !== 'inactive'}
-                                        title="Move to top"
+                                        title={i18n.t('vod:moveToTop')}
                                     >
                                         ↑↑
                                     </button>
@@ -446,7 +449,7 @@ export function ManageVodCategories({ sourceId, sourceName, onClose, onChange }:
                                         className="order-btn"
                                         onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => moveUp(cat.category_id)}
                                         disabled={tabIdx === 0 || selectToMoveMode !== 'inactive'}
-                                        title="Move up"
+                                        title={i18n.t('vod:moveUp')}
                                     >
                                         ↑
                                     </button>
@@ -454,7 +457,7 @@ export function ManageVodCategories({ sourceId, sourceName, onClose, onChange }:
                                         className="order-btn"
                                         onClick={selectToMoveMode !== 'inactive' ? (e) => e.stopPropagation() : () => moveDown(cat.category_id)}
                                         disabled={tabIdx === tabCategories.length - 1 || selectToMoveMode !== 'inactive'}
-                                        title="Move down"
+                                        title={i18n.t('vod:moveDown')}
                                     >
                                         ↓
                                     </button>
@@ -464,7 +467,7 @@ export function ManageVodCategories({ sourceId, sourceName, onClose, onChange }:
                     })}
                     {visibleCategories.length === 0 && (
                         <div className="category-empty-state" style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>
-                            No categories found matching your criteria.
+                            {i18n.t('vod:noCategoriesFound')}
                         </div>
                     )}
                 </div>

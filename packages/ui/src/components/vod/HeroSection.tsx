@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { StoredMovie, StoredSeries } from '../../db';
 import { SplitPlayButton, type VodPlayerMode } from './SplitPlayButton';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 import './HeroSection.css';
 
@@ -52,6 +54,7 @@ export function HeroSection({
   vodPlayerMode,
   onSelectVodPlayerMode,
 }: HeroSectionProps) {
+  useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isContentTransitioning, setIsContentTransitioning] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -120,12 +123,12 @@ export function HeroSection({
           {loading ? (
             <>
               <div className="hero__spinner" />
-              <p>Loading content...</p>
+              <p>{i18n.t('vod:loadingContent')}</p>
             </>
           ) : (
             <>
-              <h1>No content available</h1>
-              <p>Add an Xtream source in Settings to get started</p>
+              <h1>{i18n.t('vod:noContent')}</h1>
+              <p>{i18n.t('vod:addXtreamSourceHint')}</p>
             </>
           )}
         </div>
@@ -168,12 +171,12 @@ export function HeroSection({
 
       {items.length > 1 && (
         <>
-          <button className="hero__nav-arrow hero__nav-arrow--left" onClick={handlePrev} aria-label="Previous">
+          <button className="hero__nav-arrow hero__nav-arrow--left" onClick={handlePrev} aria-label={i18n.t('vod:prev')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
-          <button className="hero__nav-arrow hero__nav-arrow--right" onClick={handleNext} aria-label="Next">
+          <button className="hero__nav-arrow hero__nav-arrow--right" onClick={handleNext} aria-label={i18n.t('vod:next')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M9 18l6-6-6-6" />
             </svg>
@@ -208,7 +211,7 @@ export function HeroSection({
           )}
 
           <span className="hero__type-badge">
-            {type === 'movie' ? 'Movie' : 'Series'}
+            {type === 'movie' ? i18n.t('vod:movie') : i18n.t('vod:series')}
           </span>
 
           {runtime && (
@@ -237,7 +240,7 @@ export function HeroSection({
             <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
               <path d="M8 5v14l11-7z" />
             </svg>
-            <span>Play</span>
+            <span>{i18n.t('vod:play')}</span>
           </button>
         </div>
       </div>
@@ -249,7 +252,7 @@ export function HeroSection({
               key={idx}
               className={`hero__dot ${idx === currentIndex ? 'hero__dot--active' : ''}`}
               onClick={() => handleDotClick(idx)}
-              aria-label={`Go to slide ${idx + 1}`}
+              aria-label={i18n.t('vod:goToSlide', { index: idx + 1 })}
             />
           ))}
         </div>

@@ -111,8 +111,8 @@ const PosterSizeSlider = memo(function PosterSizeSlider({ value, onChange }: Pos
         className={`poster-size-slider__icon poster-size-slider__icon--small ${!canDecrease ? 'disabled' : ''}`}
         onClick={handleDecrease}
         disabled={!canDecrease}
-        aria-label="Decrease poster size"
-        title="Smaller posters"
+        aria-label={i18n.t('vod:decreasePoster')}
+        title={i18n.t('vod:smallerPosters')}
         type="button"
       >
         <svg viewBox="0 0 24 24" fill="currentColor">
@@ -128,8 +128,8 @@ const PosterSizeSlider = memo(function PosterSizeSlider({ value, onChange }: Pos
           value={currentIndex}
           onChange={handleChange}
           className="poster-size-slider__input"
-          aria-label="Poster size"
-          title={`Poster size: ${POSTER_SIZE_PRESETS[currentIndex]?.label || 'Default'}`}
+          aria-label={i18n.t('vod:posterSize')}
+          title={i18n.t('vod:posterSizeTitle', { label: POSTER_SIZE_PRESETS[currentIndex]?.label || i18n.t('vod:posterSizeDefault') })}
         />
         <div className="poster-size-slider__marks">
           {POSTER_SIZE_PRESETS.map((_, index) => (
@@ -144,8 +144,8 @@ const PosterSizeSlider = memo(function PosterSizeSlider({ value, onChange }: Pos
         className={`poster-size-slider__icon poster-size-slider__icon--large ${!canIncrease ? 'disabled' : ''}`}
         onClick={handleIncrease}
         disabled={!canIncrease}
-        aria-label="Increase poster size"
-        title="Larger posters"
+        aria-label={i18n.t('vod:increasePoster')}
+        title={i18n.t('vod:largerPosters')}
         type="button"
       >
         <svg viewBox="0 0 24 24" fill="currentColor">
@@ -163,7 +163,7 @@ const GridFooter = ({ context }: { context?: { loading: boolean } }) => {
   return (
     <div className="vod-browse__loading">
       <div className="vod-browse__spinner" />
-      <span>Loading more...</span>
+      <span>{i18n.t('vod:loadingMore')}</span>
     </div>
   );
 };
@@ -402,7 +402,7 @@ export function VodBrowse({
     return (
       <div className="vod-browse vod-browse--loading-state">
         <div className="vod-browse__spinner"></div>
-        <h3>Loading...</h3>
+        <h3>{i18n.t('vod:loading')}</h3>
         <p>{message}</p>
         {progress > 0 && (
           <div className="vod-browse__progress-bar">
@@ -421,11 +421,11 @@ export function VodBrowse({
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <h3>No {type} found</h3>
+          <h3>{i18n.t('vod:noItemsFound', { type: type === 'movies' ? i18n.t('vod:movies') : i18n.t('vod:series') })}</h3>
           <p>
             {search
-              ? `No results for "${search}" in ${categoryName}`
-              : `No ${type} available in ${categoryName}`}
+              ? i18n.t('vod:noResultsInCategory', { search, category: categoryName })
+              : i18n.t('vod:noItemsInCategory', { type: type === 'movies' ? i18n.t('vod:movies') : i18n.t('vod:series'), category: categoryName })}
           </p>
         </div>
       </div>

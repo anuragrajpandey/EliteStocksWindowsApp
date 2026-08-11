@@ -11,6 +11,8 @@ import type { StoredMovie, StoredSeries } from '../../db';
 import type { RecentlyWatchedItem } from '../../hooks/useVod';
 import { useSourceNameMap } from '../../hooks/useChannels';
 import { useAppSettings } from '../../hooks/useAppSettings';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './VodBrowse.css'; // Reuse VodBrowse styles for consistent grid
 
 // Custom Scroller - force scrollbar always visible
@@ -41,6 +43,7 @@ export function RecentView({
   onRemove,
   onPlayItem,
 }: RecentViewProps) {
+  useTranslation();
   const virtuosoRef = useRef<VirtuosoGridHandle>(null);
   const [visibleRange, setVisibleRange] = useState({ startIndex: 0, endIndex: 0 });
 
@@ -140,7 +143,7 @@ export function RecentView({
       <div className="vod-browse">
         <div className="vod-browse__loading-container">
           <div className="vod-browse__spinner" />
-          <span>Loading recent items...</span>
+          <span>{i18n.t('vod:loadingRecent')}</span>
         </div>
       </div>
     );
@@ -150,8 +153,8 @@ export function RecentView({
     return (
       <div className="vod-browse">
         <div className="vod-browse__empty">
-          <h2>No Recent Items</h2>
-          <p>You haven't watched anything yet. Start watching movies or series to see them here.</p>
+          <h2>{i18n.t('vod:noRecentItems')}</h2>
+          <p>{i18n.t('vod:noRecentItemsHint')}</p>
         </div>
       </div>
     );

@@ -87,7 +87,7 @@ export function FavoritesView({
       <div className="vod-browse">
         <div className="vod-browse__loading-container">
           <div className="vod-browse__spinner" />
-          <span>Loading favorites...</span>
+          <span>{i18n.t('vod:loadingFavorites')}</span>
         </div>
       </div>
     );
@@ -100,8 +100,8 @@ export function FavoritesView({
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="48" height="48" style={{ marginBottom: '16px', opacity: 0.5 }}>
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          <h2>No Favorites Yet</h2>
-          <p>Go to a {type === 'movie' ? 'movie' : 'series'} detail page and click "Add to Favorite" to see it here.</p>
+          <h2>{i18n.t('vod:noFavorites')}</h2>
+          <p>{i18n.t('vod:noFavoritesHint', { type: type === 'movie' ? i18n.t('vod:movie') : i18n.t('vod:series') })}</p>
         </div>
       </div>
     );
@@ -126,7 +126,7 @@ export function FavoritesView({
               <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
               <line x1="7" y1="7" x2="7.01" y2="7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span>Show Source</span>
+            <span>{i18n.t('common:showSource')}</span>
           </button>
         </div>
       </div>

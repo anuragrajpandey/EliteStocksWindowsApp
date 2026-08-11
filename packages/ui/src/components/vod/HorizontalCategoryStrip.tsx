@@ -10,6 +10,8 @@
  */
 
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './HorizontalCategoryStrip.css';
 
 interface Category {
@@ -91,6 +93,7 @@ export function HorizontalCategoryStrip({
   onSearchChange,
   onSearchSubmit,
 }: HorizontalCategoryStripProps) {
+  useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -181,7 +184,7 @@ export function HorizontalCategoryStrip({
         <button
           className="h-category-strip__back"
           onClick={onBack}
-          aria-label="Go back"
+          aria-label={i18n.t('vod:goBack')}
         >
           <span className="h-category-strip__back-arrow">
             <BackArrow />
@@ -197,8 +200,8 @@ export function HorizontalCategoryStrip({
         <button
           className={`h-category-strip__home ${selectedId === null ? 'active' : ''}`}
           onClick={() => onSelect(null)}
-          aria-label="Home"
-          title="Home"
+          aria-label={i18n.t('vod:home')}
+          title={i18n.t('vod:home')}
         >
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2.1L1 12h3v9h6v-6h4v6h6v-9h3L12 2.1z" />
@@ -210,7 +213,7 @@ export function HorizontalCategoryStrip({
       <button
         className={`h-category-strip__arrow h-category-strip__arrow--left ${canScrollLeft ? 'visible' : ''}`}
         onClick={() => scroll('left')}
-        aria-label="Scroll left"
+        aria-label={i18n.t('vod:scrollLeft')}
       >
         <ChevronLeft />
       </button>
@@ -224,7 +227,7 @@ export function HorizontalCategoryStrip({
               className={`h-category-strip__pill ${selectedId === null ? 'active' : ''}`}
               onClick={() => onSelect(null)}
             >
-              Home
+              {i18n.t('vod:home')}
             </button>
           )}
 
@@ -233,7 +236,7 @@ export function HorizontalCategoryStrip({
             className={`h-category-strip__pill ${selectedId === 'all' ? 'active' : ''}`}
             onClick={() => onSelect('all')}
           >
-            All
+            {i18n.t('vod:all')}
           </button>
 
           {/* Category pills */}
@@ -253,7 +256,7 @@ export function HorizontalCategoryStrip({
       <button
         className={`h-category-strip__arrow h-category-strip__arrow--right ${canScrollRight ? 'visible' : ''}`}
         onClick={() => scroll('right')}
-        aria-label="Scroll right"
+        aria-label={i18n.t('vod:scrollRight')}
       >
         <ChevronRight />
       </button>
@@ -264,7 +267,7 @@ export function HorizontalCategoryStrip({
           <SearchIcon />
           <input
             type="text"
-            placeholder={type === 'series' ? 'Search series...' : 'Search movies...'}
+            placeholder={type === 'series' ? i18n.t('vod:searchSeries') : i18n.t('vod:searchMovies')}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             onKeyDown={handleSearchKeyDown}
@@ -273,7 +276,7 @@ export function HorizontalCategoryStrip({
             <button
               className="h-category-strip__search-clear"
               onClick={() => onSearchChange('')}
-              aria-label="Clear search"
+              aria-label={i18n.t('vod:clearSearch')}
             >
               <ClearIcon />
             </button>
