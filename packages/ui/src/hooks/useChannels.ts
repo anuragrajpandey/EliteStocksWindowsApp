@@ -1771,8 +1771,50 @@ export function useCategoriesWithCounts(): CategoryWithCount[] {
   return data ?? [];
 }
 
+/**
+ * Schedules re-querying at a programme boundary: returns a `refreshTick` that
+ * increments shortly after `boundaryTime` passes, and a `scheduleBoundaryRefresh`
+ * call that re-schedules based on the latest programme result. This is needed
+ * because the EPG queries are time-based (start <= now < end) but the live-query
+ * hook only re-runs on channel changes or DB events, so without this the overlay
+ * would keep showing the previous programme after it ends.
+ */
+function useBoundaryRefresh(): [number, (boundaryTime: Date | string | number | null | undefined) => void] {
+  const [refreshTick, setRefreshTick] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scheduleBoundaryRefresh = useCallback((boundaryTime: Date | string | number | null | undefined) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    if (boundaryTime == null) return;
+
+    // Small buffer so we re-query after the old programme is fully past and
+    // the next one is definitely queryable (start <= now).
+    const delay = new Date(boundaryTime).getTime() - Date.now() + 2000;
+    if (delay <= 0 || delay > 2147483647) return;
+
+    timerRef.current = setTimeout(() => {
+      timerRef.current = null;
+      setRefreshTick((t) => t + 1);
+    }, delay);
+  }, []);
+
+  useEffect(() => () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  return [refreshTick, scheduleBoundaryRefresh];
+}
+
 // Hook to get current program for a channel
 export function useCurrentProgram(streamId: string | null): StoredProgram | null {
+  const [refreshTick, scheduleBoundaryRefresh] = useBoundaryRefresh();
+
   const program = useLiveQuery(
     async () => {
       if (!streamId) return null;
@@ -1796,13 +1838,24 @@ export function useCurrentProgram(streamId: string | null): StoredProgram | null
       }
       return null;
     },
-    [streamId]
+    // refreshTick re-runs the query just after the programme's scheduled end,
+    // so the overlay/now-playing info rolls over to the next programme
+    // without needing a channel zap or EPG refresh.
+    [streamId, refreshTick]
   );
+
+  // Re-arm the boundary timer whenever the current programme changes.
+  useEffect(() => {
+    scheduleBoundaryRefresh(program?.end);
+  }, [program, scheduleBoundaryRefresh]);
+
   return program ?? null;
 }
 
 // Hook to get the program airing after the current one on a channel
 export function useNextProgram(streamId: string | null): StoredProgram | null {
+  const [refreshTick, scheduleBoundaryRefresh] = useBoundaryRefresh();
+
   const program = useLiveQuery(
     async () => {
       if (!streamId) return null;
@@ -1834,8 +1887,16 @@ export function useNextProgram(streamId: string | null): StoredProgram | null {
       }
       return null;
     },
-    [streamId]
+    // Refresh just after the next programme's scheduled start, when the
+    // current one has ended and a new "next" programme becomes available.
+    [streamId, refreshTick]
   );
+
+  // Re-arm the boundary timer whenever the next programme changes.
+  useEffect(() => {
+    scheduleBoundaryRefresh(program?.start);
+  }, [program, scheduleBoundaryRefresh]);
+
   return program ?? null;
 }
 
