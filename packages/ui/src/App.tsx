@@ -70,7 +70,7 @@ import { getAdjacentEpisode, recordVodWatch, recordEpisodeWatch, getEpisodeProgr
 import { useVodPlaylistStore } from './stores/vodPlaylistStore';
 import { useActivePlaylistStore, isActivePlaylistItem } from './stores/activePlaylistStore';
 import { PlaylistQueueModal } from './components/vod/PlaylistQueueModal';
-import { playlistItemToVodInfo, recordPlaylistItemWatch } from './utils/playlistPlayback';
+import { playlistItemToVodInfo, recordPlaylistItemWatch, snapshotPlaylistProgress } from './utils/playlistPlayback';
 import type { StoredChannel } from './db';
 import { db } from './db';
 import { VideoErrorOverlay } from './components/VideoErrorOverlay';
@@ -2965,6 +2965,10 @@ function useTmdbPresencePoster(
         // playlist's current item. If the user played something else, the
         // playlist session is stale — drop it so it can't hijack playback.
         if (currentItem && isActivePlaylistItem(vodInfo, currentItem)) {
+          // Freeze the finished item's progress into the localStorage snapshot
+          // so playlists keep "last watched" and resume info after a cache clear.
+          snapshotPlaylistProgress(vodInfo, position, duration);
+
           const plStore = useVodPlaylistStore.getState();
           const playlist = plStore.playlists.find((p) => p.id === activePlaylistId);
 

@@ -1573,7 +1573,8 @@ export async function clearVodData(sourceId: string): Promise<void> {
 
 // Helper to clear ALL cached data (channels, EPG, VOD, metadata)
 // Also clears dvr_schedules/recordings since they reference channels (stale after source clear).
-// Keeps: prefs, Tauri Store settings, source configs, dvr_settings, custom_groups, watchlist.
+// Keeps: prefs, Tauri Store settings, source configs, dvr_settings, custom_groups, watchlist,
+// and localStorage user data (VOD favorites, VOD playlists, UI layout) — never clear those here.
 export async function clearAllCachedData(): Promise<void> {
   // Use the adapter's .clear() rather than raw SQL transactions — Tauri's connection pool
   // means BEGIN/COMMIT may run on different connections, causing "no transaction active" errors.

@@ -1,5 +1,7 @@
 import { recordVodWatch, recordEpisodeWatch, getEpisodeProgress } from '../db';
 import type { Playlist, PlaylistItem } from '../stores/vodPlaylistStore';
+import { useActivePlaylistStore, isActivePlaylistItem } from '../stores/activePlaylistStore';
+import { useVodPlaylistProgressStore, type PlaylistItemProgressSnapshot } from '../stores/vodPlaylistProgressStore';
 import type { PlaylistItemProgress } from '../hooks/usePlaylistProgress';
 import type { VodPlayInfo } from '../types/media';
 
@@ -35,6 +37,93 @@ export function playlistItemToVodInfo(item: PlaylistItem): VodPlayInfo {
  * Find the most recently watched item of a playlist. Items with no watch
  * history (watchedAt 0) are ignored; returns null when nothing was watched.
  */
+/**
+ * Build the progress map for a set of playlist items from the DB history rows
+ * (episode_history + vod_history), filling any gaps from the localStorage
+ * snapshots so playlists keep resume/last-watched info even after a cache
+ * clear wiped the history tables. Keyed by playlist item id.
+ */
+export function buildPlaylistProgressMap(
+  items: PlaylistItem[],
+  episodes: Record<string, { progress_seconds: number; total_duration: number; completed: boolean; watched_at: number }>,
+  movies: Record<string, { progress_seconds: number; total_duration: number; watched_at: number }>,
+  snapshots: Record<string, PlaylistItemProgressSnapshot>
+): Map<string, PlaylistItemProgress> {
+  const next = new Map<string, PlaylistItemProgress>();
+
+  // DB history is the source of truth while it exists (freshest data).
+  for (const item of items) {
+    if (item.itemType === 'episode') {
+      const p = episodes[item.mediaId];
+      if (!p) continue;
+      const dur = p.total_duration;
+      const prog = p.progress_seconds;
+      const completed = p.completed || (dur > 0 && prog / dur >= 0.9);
+      next.set(item.id, {
+        progressSeconds: prog,
+        totalDuration: dur,
+        completed,
+        percent: dur > 0 ? Math.min(100, (prog / dur) * 100) : 0,
+        watchedAt: p.watched_at || 0,
+      });
+    } else {
+      const p = movies[item.mediaId];
+      if (!p) continue;
+      const dur = p.total_duration;
+      const prog = p.progress_seconds;
+      next.set(item.id, {
+        progressSeconds: prog,
+        totalDuration: dur,
+        completed: dur > 0 && prog / dur >= 0.9,
+        percent: dur > 0 ? Math.min(100, (prog / dur) * 100) : 0,
+        watchedAt: p.watched_at || 0,
+      });
+    }
+  }
+
+  // Fall back to localStorage snapshots for items the DB has no history for
+  // (e.g. after "Clear All Cached Data" wiped the history tables).
+  for (const item of items) {
+    if (next.has(item.id)) continue;
+    const snap = snapshots[item.id];
+    if (!snap) continue;
+    const dur = snap.totalDuration;
+    next.set(item.id, {
+      progressSeconds: snap.progressSeconds,
+      totalDuration: dur,
+      completed: snap.completed || (dur > 0 && snap.progressSeconds / dur >= 0.9),
+      percent: dur > 0 ? Math.min(100, (snap.progressSeconds / dur) * 100) : 0,
+      watchedAt: snap.watchedAt || 0,
+    });
+  }
+
+  return next;
+}
+
+/**
+ * Snapshot the currently playing item's progress into the playlist progress
+ * store (localStorage) when a playlist item is what's actually playing. The
+ * DB history this mirrors is wiped by "Clear All Cached Data", so the
+ * snapshot keeps playlists' resume hints and "last watched" info intact.
+ */
+export function snapshotPlaylistProgress(
+  vodInfo: VodPlayInfo | null | undefined,
+  position: number,
+  duration: number
+): void {
+  if (!vodInfo || position <= 0 || duration <= 0) return;
+  const active = useActivePlaylistStore.getState();
+  if (!active.activePlaylistId || active.currentIndex < 0) return;
+  const item = active.items[active.currentIndex];
+  if (!item || !isActivePlaylistItem(vodInfo, item)) return;
+  useVodPlaylistProgressStore.getState().setProgress(item.id, {
+    progressSeconds: Math.floor(position),
+    totalDuration: Math.floor(duration),
+    completed: position / duration >= 0.9,
+    watchedAt: Date.now(),
+  });
+}
+
 export function findLastWatchedItem(
   items: PlaylistItem[],
   progressMap: ReadonlyMap<string, PlaylistItemProgress>

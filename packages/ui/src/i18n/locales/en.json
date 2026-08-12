@@ -1675,7 +1675,7 @@
       "everyWeek": "Every week",
       "simSyncs": "Simultaneous EPG Syncs",
       "clearCache": "Clear Cache",
-      "clearCacheSub": "Clear all cached channel, EPG, and VOD data, then compact the database to reclaim disk space. Use this if you're experiencing issues like duplicate entries, stale EPG, or data not updating properly. Your sources and settings will be preserved.",
+      "clearCacheSub": "Clear all cached channel, EPG, and VOD data, then compact the database to reclaim disk space. Use this if you're experiencing issues like duplicate entries, stale EPG, or data not updating properly. Your sources, settings, favorites, and playlists will be preserved.",
       "clearAllCached": "Clear All Cached Data",
       "deleteCachedConfirm": "Delete all cached data?",
       "yesClear": "Yes, Clear",

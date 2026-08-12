@@ -16,6 +16,7 @@ import { fetchNuvioWatchProgress } from '../services/nuvio-api';
 import type { useMpvListeners } from './useMpvListeners';
 import { logInfo, logWarn, logError } from '../utils/logger';
 import { toSubSourceLang, fromSubSourceLang, LANG_MAP } from '../services/subsource';
+import { snapshotPlaylistProgress } from '../utils/playlistPlayback';
 import i18n, { translateNativeError } from '../i18n';
 
 /**
@@ -821,6 +822,11 @@ export function usePlayback(options: UsePlaybackOptions): PlaybackState {
           useDownloadStore.getState().saveDownloadProgress(currentVodInfo.url, Math.floor(currentPosition), Math.floor(currentDuration));
         }
       } else {
+        // Snapshot playlist-item progress into localStorage so playlists keep
+        // their resume/last-watched info even after a cache clear wipes the
+        // DB history written below.
+        snapshotPlaylistProgress(currentVodInfo, currentPosition, currentDuration);
+
         const mediaId = currentVodInfo.mediaId || (currentVodInfo.source_id && currentVodInfo.url
           ? `${currentVodInfo.source_id}_${currentVodInfo.url}`
           : null);

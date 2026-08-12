@@ -14,6 +14,8 @@ import type { AppSettings } from '../types/app';
 import { Bridge } from '../services/tauri-bridge';
 import { normalizeBoolean } from './db-helpers';
 import type { FavoriteItem } from '../stores/vodFavoritesStore';
+import type { Playlist } from '../stores/vodPlaylistStore';
+import type { PlaylistItemProgressSnapshot } from '../stores/vodPlaylistProgressStore';
 
 export interface ExportData {
     version: number;
@@ -170,6 +172,10 @@ export interface ExportData {
     playlistIndividualChannels?: PlaylistIndividualChannel[];
     // v7 additions (VOD Favorites)
     vodFavorites?: FavoriteItem[];
+    // v10 additions (VOD Playlists)
+    vodPlaylists?: Playlist[];
+    // v10 additions (VOD Playlist progress snapshots)
+    vodPlaylistsProgress?: Record<string, PlaylistItemProgressSnapshot>;
     // v8 additions (UI Layout and Widget Preferences)
     uiLayout?: Record<string, string>;
     // v9 additions (Category Folders)
@@ -182,7 +188,7 @@ export interface ExportData {
     }>;
 }
 
-const EXPORT_VERSION = 9;
+const EXPORT_VERSION = 10;
 
 /**
  * Export all application data to a JSON file
@@ -470,6 +476,34 @@ export async function exportAllData(): Promise<{ success: boolean; filePath?: st
             console.warn('[Export] Failed to parse vod-favorites from localStorage:', e);
         }
 
+        // 14b. Get VOD Playlists from localStorage
+        let vodPlaylists: Playlist[] | undefined = undefined;
+        try {
+            const playlistsRaw = localStorage.getItem('vod-playlists-store');
+            if (playlistsRaw) {
+                const parsed = JSON.parse(playlistsRaw);
+                if (parsed && parsed.state && Array.isArray(parsed.state.playlists)) {
+                    vodPlaylists = parsed.state.playlists;
+                }
+            }
+        } catch (e) {
+            console.warn('[Export] Failed to parse vod-playlists-store from localStorage:', e);
+        }
+
+        // 14c. Get VOD Playlist progress snapshots from localStorage
+        let vodPlaylistsProgress: Record<string, PlaylistItemProgressSnapshot> | undefined = undefined;
+        try {
+            const progressRaw = localStorage.getItem('vod-playlists-progress');
+            if (progressRaw) {
+                const parsed = JSON.parse(progressRaw);
+                if (parsed && parsed.state && parsed.state.byItemId && typeof parsed.state.byItemId === 'object') {
+                    vodPlaylistsProgress = parsed.state.byItemId;
+                }
+            }
+        } catch (e) {
+            console.warn('[Export] Failed to parse vod-playlists-progress from localStorage:', e);
+        }
+
         // 15. Get UI Layout and Widget Preferences from localStorage
         const uiLayoutKeys = [
             'ynotv:pinnedCategories',
@@ -524,6 +558,8 @@ export async function exportAllData(): Promise<{ success: boolean; filePath?: st
             playlistIndividualChannels,
             categoryFolders,
             vodFavorites,
+            vodPlaylists,
+            vodPlaylistsProgress,
             uiLayout
         };
 
@@ -599,6 +635,40 @@ export async function importAllData(): Promise<{ success: boolean; error?: strin
         } else {
             localStorage.removeItem('vod-favorites');
         }
+
+        // Restore VOD Playlists
+        if (data.vodPlaylists) {
+            try {
+                const wrapper = {
+                    state: {
+                        playlists: data.vodPlaylists
+                    },
+                    version: 0
+                };
+                localStorage.setItem('vod-playlists-store', JSON.stringify(wrapper));
+            } catch (e) {
+                console.warn('[Import] Failed to restore vod-playlists-store to localStorage:', e);
+            }
+        }
+        // No vodPlaylists in the backup (e.g. older backups)? Keep the user's
+        // existing playlists instead of wiping them.
+
+        // Restore VOD Playlist progress snapshots
+        if (data.vodPlaylistsProgress && typeof data.vodPlaylistsProgress === 'object') {
+            try {
+                const wrapper = {
+                    state: {
+                        byItemId: data.vodPlaylistsProgress
+                    },
+                    version: 0
+                };
+                localStorage.setItem('vod-playlists-progress', JSON.stringify(wrapper));
+            } catch (e) {
+                console.warn('[Import] Failed to restore vod-playlists-progress to localStorage:', e);
+            }
+        }
+        // Same as playlists: a backup without progress snapshots must not wipe
+        // progress the user has accumulated since.
 
         // Restore UI Layout & Widget Preferences
         if (data.uiLayout && typeof data.uiLayout === 'object') {

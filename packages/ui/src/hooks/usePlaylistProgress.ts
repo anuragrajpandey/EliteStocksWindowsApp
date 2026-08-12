@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { getBulkEpisodeProgress, getBulkMovieProgress } from '../db';
 import { dbEvents } from '../db/sqlite-adapter';
 import type { PlaylistItem } from '../stores/vodPlaylistStore';
+import { useVodPlaylistProgressStore } from '../stores/vodPlaylistProgressStore';
+import { buildPlaylistProgressMap } from '../utils/playlistPlayback';
 
 export interface PlaylistItemProgress {
   /** Saved playback position in seconds. */
@@ -18,10 +20,14 @@ export interface PlaylistItemProgress {
 /**
  * Load playback progress for a set of playlist items with two batched SQL
  * queries (episode_history + vod_history for movies) instead of one query per
- * item. Keyed by playlist item id.
+ * item, then fill any gaps from the localStorage progress snapshots (so
+ * resume/last-watched info survives a cache clear). Keyed by playlist item id.
  */
 export function usePlaylistItemsProgress(items: PlaylistItem[]): Map<string, PlaylistItemProgress> {
   const [map, setMap] = useState<Map<string, PlaylistItemProgress>>(new Map());
+  // localStorage progress snapshots — fill in for items whose DB history was
+  // wiped by "Clear All Cached Data".
+  const snapshots = useVodPlaylistProgressStore((s) => s.byItemId);
 
   useEffect(() => {
     if (items.length === 0) {
@@ -47,36 +53,7 @@ export function usePlaylistItemsProgress(items: PlaylistItem[]): Map<string, Pla
       ]);
       if (cancelled) return;
 
-      const next = new Map<string, PlaylistItemProgress>();
-      for (const item of items) {
-        if (item.itemType === 'episode') {
-          const p = episodes[item.mediaId];
-          if (!p) continue;
-          const dur = p.total_duration;
-          const prog = p.progress_seconds;
-          const completed = p.completed || (dur > 0 && prog / dur >= 0.9);
-          next.set(item.id, {
-            progressSeconds: prog,
-            totalDuration: dur,
-            completed,
-            percent: dur > 0 ? Math.min(100, (prog / dur) * 100) : 0,
-            watchedAt: p.watched_at || 0,
-          });
-        } else {
-          const p = movies[item.mediaId];
-          if (!p) continue;
-          const dur = p.total_duration;
-          const prog = p.progress_seconds;
-          next.set(item.id, {
-            progressSeconds: prog,
-            totalDuration: dur,
-            completed: dur > 0 && prog / dur >= 0.9,
-            percent: dur > 0 ? Math.min(100, (prog / dur) * 100) : 0,
-            watchedAt: p.watched_at || 0,
-          });
-        }
-      }
-      setMap(next);
+      setMap(buildPlaylistProgressMap(items, episodes, movies, snapshots));
     };
 
     // Refetch when watch progress changes (e.g. during/after playback) so the
@@ -90,7 +67,7 @@ export function usePlaylistItemsProgress(items: PlaylistItem[]): Map<string, Pla
       unsubEpisodes();
       unsubMovies();
     };
-  }, [items]);
+  }, [items, snapshots]);
 
   return map;
 }
