@@ -3145,7 +3145,8 @@
     "failedToConnect": "Failed to connect",
     "chromecast": "Chromecast",
     "disconnectCast": "Disconnect Cast",
-    "failedToLaunchReceiver": "Failed to launch media receiver"
+    "failedToLaunchReceiver": "Failed to launch media receiver",
+    "cannotCastLocalFile": "Local files and DVR recordings cannot be cast to Chromecast. Only remote streams are supported."
   },
   "subtitles": {
     "header": "Subtitles",

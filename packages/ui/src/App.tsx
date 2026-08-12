@@ -981,7 +981,7 @@ function App() {
     const isLocalFile = channel.direct_url?.startsWith('file://') || (!channel.direct_url?.startsWith('http://') && !channel.direct_url?.startsWith('https://'));
 
     if (isRecording || isLocalFile) {
-      alert('Local files and DVR recordings cannot be cast to Chromecast. Only remote streams are supported.');
+      alert(i18n.t('cast:cannotCastLocalFile'));
       return;
     }
 
