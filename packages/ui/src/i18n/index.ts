@@ -2,12 +2,26 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import en from './locales/en.json';
 import fr from './locales/fr.json';
+import ar from './locales/ar.json';
 
 /** Locale registry. Locales ship with app code (Vite bundles the JSON imports). */
 export const SUPPORTED_LOCALES: { code: string; label: string }[] = [
   { code: 'en', label: 'English' },
   { code: 'fr', label: 'Français' },
+  { code: 'ar', label: 'العربية' },
 ];
+
+// NOTE: Full RTL mirroring for Arabic is intentionally disabled. Setting
+// dir="rtl" flipped the entire UI, and several surfaces compute positions with
+// physical pixel math in JS (EPG timeline blocks, drag/resize handles, hover
+// cards), which broke under the mirror. The app stays LTR; Arabic text renders
+// correctly inside the LTR container (lang is still synced for fonts/spellcheck).
+// Re-enable RTL only after verifying every JS-positioned surface under dir="rtl".
+function applyDocumentDirection(lng: string): void {
+  if (typeof document === 'undefined') return;
+  document.documentElement.setAttribute('dir', 'ltr');
+  document.documentElement.setAttribute('lang', lng);
+}
 
 export function isSupportedLocale(code: string): boolean {
   return SUPPORTED_LOCALES.some((l) => l.code === code);
@@ -36,6 +50,7 @@ i18n.use(initReactI18next).init({
     // Do not "clean up"; typing it here would fight the runtime structure i18next actually wants.
     en: en as any,
     fr: fr as any,
+    ar: ar as any,
   },
   lng: getInitialLanguage(),
   fallbackLng: 'en',
@@ -54,6 +69,10 @@ i18n.use(initReactI18next).init({
     useSuspense: false,
   },
 });
+
+// Keep the document lang (and an explicit LTR direction) in sync with the active locale.
+i18n.on('languageChanged', applyDocumentDirection);
+applyDocumentDirection(getInitialLanguage());
 
 export default i18n;
 
