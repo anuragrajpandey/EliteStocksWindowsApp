@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import i18n from '../i18n';
+import { isMouseBackButtonActive } from '../constants/shortcuts';
+import { useAppSettings } from '../hooks/useAppSettings';
 import { Virtuoso } from 'react-virtuoso';
 import { HeroSection } from './vod/HeroSection';
 import { HorizontalCarousel } from './vod/HorizontalCarousel';
@@ -154,6 +156,8 @@ interface VodPageProps {
 }
 
 export function VodPage({ type, onPlay, onClose, vodPlayerMode, onSelectVodPlayerMode }: VodPageProps) {
+  const { shortcuts } = useAppSettings();
+
   // Context Menu & Management State (local, not persisted)
   const [contextMenu, setContextMenu] = useState<{ sourceId: string; sourceName: string; x: number; y: number } | null>(null);
   const [manageCategoriesSource, setManageCategoriesSource] = useState<{ id: string; name: string } | null>(null);
@@ -738,7 +742,7 @@ export function VodPage({ type, onPlay, onClose, vodPlayerMode, onSelectVodPlaye
   // Handle mouse back button and browser back - close detail view
   useEffect(() => {
     const handleMouseBack = (e: MouseEvent) => {
-      if (e.button === 3) {
+      if (isMouseBackButtonActive(shortcuts, e.button)) {
         if (activePersonId) {
           e.preventDefault();
           e.stopPropagation();
@@ -789,6 +793,7 @@ export function VodPage({ type, onPlay, onClose, vodPlayerMode, onSelectVodPlaye
       window.removeEventListener('popstate', handlePopState);
     };
   }, [
+    shortcuts,
     selectedItem,
     activePersonId,
     selectedService,

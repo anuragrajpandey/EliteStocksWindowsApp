@@ -1,8 +1,8 @@
 /**
  * useKeyboardShortcuts.ts
  *
- * Attaches a global `keydown` listener and dispatches to action handlers
- * based on the user's configured shortcut map.
+ * Attaches a global `keydown` + `mousedown` (mouse side buttons) listener and
+ * dispatches to action handlers based on the user's configured shortcut map.
  *
  * Uses the "latest ref" pattern to access current state values without
  * triggering re-registrations of the event listener. All options are stored
@@ -11,7 +11,7 @@
 
 import { useEffect, useRef } from 'react';
 import type { ShortcutAction, ShortcutsMap } from '../types/app';
-import { DEFAULT_SHORTCUTS } from '../constants/shortcuts';
+import { DEFAULT_SHORTCUTS, MOUSE_BUTTON_SHORTCUTS } from '../constants/shortcuts';
 import type { StoredChannel } from '../db';
 import type { LayoutMode } from './useMultiview';
 import type { View } from './useNavigation';
@@ -56,11 +56,13 @@ export interface UseKeyboardShortcutsOptions {
     onChannelChangeFlash?: () => void;
     // --- Transparent guide flash on channel zap ---
     onTransparentGuideZapFlash?: () => void;
+    // --- Built-in mouse back-button navigation (close popup / stop / exit view) ---
+    handleMouseBackNavigation: () => void;
 }
 
 /**
- * Registers a global keydown listener that fires the appropriate action when
- * the user presses a configured shortcut key.
+ * Registers a global keydown/mousedown listener that fires the appropriate
+ * action when the user presses a configured shortcut key or mouse button.
  *
  * Uses the latest ref pattern to avoid stale closures - all state is accessed
  * through a single ref that is updated synchronously during render.
@@ -72,18 +74,38 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
     latestRefs.current = options;
 
     useEffect(() => {
-        const handleKeyDown = async (e: KeyboardEvent) => {
-            // Don't handle shortcuts when typing in inputs
-            if (
-                e.target instanceof HTMLInputElement ||
-                e.target instanceof HTMLTextAreaElement
-            ) {
-                return;
+        // Helper to match keys case-insensitively for letters, falling back to physical key code (e.code) for non-English layouts
+        const matches = (action: ShortcutAction, eventKey: string, eventCode: string): boolean => {
+            const storedKey = latestRefs.current.shortcuts[action] || DEFAULT_SHORTCUTS[action];
+            if (!storedKey) return false;
+
+            // 1. Direct character match (case-insensitive for single letters)
+            if (eventKey === storedKey) return true;
+            if (eventKey.length === 1 && storedKey.length === 1 && eventKey.toLowerCase() === storedKey.toLowerCase()) {
+                return true;
             }
 
+            // 2. Physical key position fallback (layout-independent for non-English OS keyboards)
+            if (storedKey.length === 1 && /^[a-zA-Z]$/.test(storedKey)) {
+                if (eventCode === `Key${storedKey.toUpperCase()}`) return true;
+            } else if (storedKey.length === 1 && /^[0-9]$/.test(storedKey)) {
+                if (eventCode === `Digit${storedKey}` || eventCode === `Numpad${storedKey}`) return true;
+            } else if (storedKey === '/') {
+                if (eventCode === 'Slash' || eventCode === 'NumpadDivide') return true;
+            } else if (storedKey === ',') {
+                if (eventCode === 'Comma') return true;
+            } else if (storedKey === ' ') {
+                if (eventCode === 'Space') return true;
+            }
+
+            return false;
+        };
+
+        // Dispatch the configured action for the given event key/code. Mouse
+        // side buttons arrive as 'MouseBack'/'MouseForward' via MOUSE_BUTTON_SHORTCUTS.
+        const dispatchAction = async (e: { preventDefault: () => void }, key: string, code: string) => {
             // Access all values through the latest ref
             const {
-                shortcuts,
                 activeView,
                 showSettingsPopup,
                 categoriesOpen,
@@ -115,61 +137,32 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                 isTransparentGuideZapActive,
                 onChannelChangeFlash,
                 onTransparentGuideZapFlash,
+                handleMouseBackNavigation,
             } = latestRefs.current;
 
-            // Helper to match keys case-insensitively for letters, falling back to physical key code (e.code) for non-English layouts
-            const matches = (action: ShortcutAction): boolean => {
-                const storedKey = shortcuts[action] || DEFAULT_SHORTCUTS[action];
-                if (!storedKey) return false;
-
-                const eventKey = e.key;
-                const eventCode = e.code;
-
-                // 1. Direct character match (case-insensitive for single letters)
-                if (eventKey === storedKey) return true;
-                if (eventKey.length === 1 && storedKey.length === 1 && eventKey.toLowerCase() === storedKey.toLowerCase()) {
-                    return true;
-                }
-
-                // 2. Physical key position fallback (layout-independent for non-English OS keyboards)
-                if (storedKey.length === 1 && /^[a-zA-Z]$/.test(storedKey)) {
-                    if (eventCode === `Key${storedKey.toUpperCase()}`) return true;
-                } else if (storedKey.length === 1 && /^[0-9]$/.test(storedKey)) {
-                    if (eventCode === `Digit${storedKey}` || eventCode === `Numpad${storedKey}`) return true;
-                } else if (storedKey === '/') {
-                    if (eventCode === 'Slash' || eventCode === 'NumpadDivide') return true;
-                } else if (storedKey === ',') {
-                    if (eventCode === 'Comma') return true;
-                } else if (storedKey === ' ') {
-                    if (eventCode === 'Space') return true;
-                }
-
-                return false;
-            };
-
-            if (matches('toggleShortcutsOverlay')) {
+            if (matches('toggleShortcutsOverlay', key, code)) {
                 e.preventDefault();
                 setShowShortcutsOverlay((show) => !show);
-            } else if (matches('togglePlay')) {
+            } else if (matches('togglePlay', key, code)) {
                 e.preventDefault();
                 handleTogglePlay();
-            } else if (matches('toggleMute')) {
+            } else if (matches('toggleMute', key, code)) {
                 handleToggleMute();
-            } else if (matches('toggleStats')) {
+            } else if (matches('toggleStats', key, code)) {
                 e.preventDefault();
                 handleToggleStats();
-            } else if (matches('toggleFullscreen')) {
+            } else if (matches('toggleFullscreen', key, code)) {
                 e.preventDefault();
                 handleToggleFullscreen();
-            } else if (matches('selectSubtitle')) {
+            } else if (matches('selectSubtitle', key, code)) {
                 e.preventDefault();
                 handleShowSubtitleModal();
-            } else if (matches('selectAudio')) {
+            } else if (matches('selectAudio', key, code)) {
                 e.preventDefault();
                 handleShowAudioModal();
-            } else if (matches('toggleGuide')) {
+            } else if (matches('toggleGuide', key, code)) {
                 setActiveView((v) => (v === 'guide' ? 'none' : 'guide'));
-            } else if (matches('toggleTransparentGuide')) {
+            } else if (matches('toggleTransparentGuide', key, code)) {
                 e.preventDefault();
                 setShowControls(true);
                 if (activeView === 'guide') {
@@ -184,9 +177,9 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                     setActiveView('guide');
                     setCategoriesOpen(!categoriesHiddenTransparent);
                 }
-            } else if (matches('toggleCategories')) {
+            } else if (matches('toggleCategories', key, code)) {
                 setCategoriesOpen((open) => !open);
-            } else if (matches('toggleLiveTV')) {
+            } else if (matches('toggleLiveTV', key, code)) {
                 e.preventDefault();
                 setShowControls(true);
                 if (activeView === 'guide') {
@@ -203,34 +196,34 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                     setActiveView('guide');
                     setCategoriesOpen(!categoriesHidden);
                 }
-            } else if (matches('toggleSettings')) {
+            } else if (matches('toggleSettings', key, code)) {
                 e.preventDefault();
                 // Toggle settings popup if in main layout, otherwise toggle full view
                 setShowSettingsPopup((show) => !show);
-            } else if (matches('toggleSports')) {
+            } else if (matches('toggleSports', key, code)) {
                 e.preventDefault();
                 setCategoriesOpen(false);
                 setActiveView((v) => (v === 'sports' ? 'none' : 'sports'));
-            } else if (matches('toggleDvr')) {
+            } else if (matches('toggleDvr', key, code)) {
                 e.preventDefault();
                 setCategoriesOpen(false);
                 setActiveView((v) => (v === 'dvr' ? 'none' : 'dvr'));
-            } else if (matches('toggleCalendar')) {
+            } else if (matches('toggleCalendar', key, code)) {
                 e.preventDefault();
                 setCategoriesOpen(false);
                 setActiveView((v) => (v === 'calendar' ? 'none' : 'calendar'));
-            } else if (matches('toggleNuvio')) {
+            } else if (matches('toggleNuvio', key, code)) {
                 e.preventDefault();
                 setCategoriesOpen(false);
                 setActiveView((v) => (v === 'nuvio' ? 'none' : 'nuvio'));
-            } else if (matches('toggleStrem')) {
+            } else if (matches('toggleStrem', key, code)) {
                 e.preventDefault();
                 setCategoriesOpen(false);
                 setActiveView((v) => (v === 'stremio' ? 'none' : 'stremio'));
-            } else if (matches('toggleEpgView')) {
+            } else if (matches('toggleEpgView', key, code)) {
                 e.preventDefault();
                 handleToggleEpgView();
-            } else if (matches('focusSearch')) {
+            } else if (matches('focusSearch', key, code)) {
                 e.preventDefault();
                 setShowControls(true);
                 if (activeView !== 'guide') {
@@ -240,7 +233,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                 if (titleBarSearchRef.current) {
                     titleBarSearchRef.current.focus();
                 }
-            } else if (matches('close')) {
+            } else if (matches('close', key, code)) {
                 e.preventDefault();
                 if (showShortcutsOverlay) {
                     setShowShortcutsOverlay(false);
@@ -263,25 +256,25 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                 }
                 setCategoriesOpen(false);
                 setShowControls(false);
-            } else if (matches('seekForward')) {
+            } else if (matches('seekForward', key, code)) {
                 e.preventDefault();
                 handleSeek(position + 10);
-            } else if (matches('seekBackward')) {
+            } else if (matches('seekBackward', key, code)) {
                 e.preventDefault();
                 handleSeek(position - 10);
-            } else if (matches('layoutMain')) {
+            } else if (matches('layoutMain', key, code)) {
                 e.preventDefault();
                 switchLayout?.('main');
-            } else if (matches('layoutPip')) {
+            } else if (matches('layoutPip', key, code)) {
                 e.preventDefault();
                 switchLayout?.('pip');
-            } else if (matches('layoutBigBottom')) {
+            } else if (matches('layoutBigBottom', key, code)) {
                 e.preventDefault();
                 switchLayout?.('bigbottom');
-            } else if (matches('layout2x2')) {
+            } else if (matches('layout2x2', key, code)) {
                 e.preventDefault();
                 switchLayout?.('2x2');
-            } else if (matches('channelUp')) {
+            } else if (matches('channelUp', key, code)) {
                 e.preventDefault();
                 if (currentChannels.length > 0 && currentChannel) {
                     const currentIndex = currentChannels.findIndex((ch) => ch.stream_id === currentChannel.stream_id);
@@ -300,7 +293,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                         onTransparentGuideZapFlash?.();
                     }
                 }
-            } else if (matches('channelDown')) {
+            } else if (matches('channelDown', key, code)) {
                 e.preventDefault();
                 if (currentChannels.length > 0 && currentChannel) {
                     const currentIndex = currentChannels.findIndex((ch) => ch.stream_id === currentChannel.stream_id);
@@ -319,15 +312,52 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): void
                         onTransparentGuideZapFlash?.();
                     }
                 }
-            } else if (matches('replayLastStream')) {
+            } else if (matches('replayLastStream', key, code)) {
                 e.preventDefault();
                 if (lastPlayedChannel) {
                     handlePlayChannel(lastPlayedChannel);
                 }
+            } else if (matches('mouseBackNavigation', key, code)) {
+                // Kept last so any action the user has bound to the same mouse
+                // button takes priority over the built-in back navigation.
+                e.preventDefault();
+                handleMouseBackNavigation?.();
             }
         };
 
+        const handleKeyDown = async (e: KeyboardEvent) => {
+            // Don't handle shortcuts when typing in inputs
+            if (
+                e.target instanceof HTMLInputElement ||
+                e.target instanceof HTMLTextAreaElement
+            ) {
+                return;
+            }
+
+            dispatchAction(e, e.key, e.code);
+        };
+
+        const handleMouseDown = (e: MouseEvent) => {
+            // Only mouse side buttons (back/forward) are supported as shortcut keys
+            const key = MOUSE_BUTTON_SHORTCUTS[e.button];
+            if (!key) return;
+
+            // Don't handle shortcuts when typing in inputs
+            if (
+                e.target instanceof HTMLInputElement ||
+                e.target instanceof HTMLTextAreaElement
+            ) {
+                return;
+            }
+
+            dispatchAction(e, key, '');
+        };
+
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        window.addEventListener('mousedown', handleMouseDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('mousedown', handleMouseDown);
+        };
     }, []); // Empty dep array: all state accessed via latest ref
 }

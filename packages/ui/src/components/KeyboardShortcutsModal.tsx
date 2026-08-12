@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import i18n from '../i18n';
 import type { ShortcutsMap, ShortcutAction } from '../types/app';
-import { DEFAULT_SHORTCUTS } from '../constants/shortcuts';
+import { DEFAULT_SHORTCUTS, formatShortcutKey } from '../constants/shortcuts';
 import './KeyboardShortcutsModal.css';
 
 interface KeyboardShortcutsModalProps {
@@ -57,7 +57,8 @@ const GROUPS: ShortcutGroup[] = [
             { action: 'toggleSports', label: 'Toggle Sports' },
             { action: 'toggleCalendar', label: 'Toggle TV Calendar' },
             { action: 'toggleSettings', label: 'Toggle Settings' },
-            { action: 'toggleEpgView', label: 'Toggle EPG View' }
+            { action: 'toggleEpgView', label: 'Toggle EPG View' },
+            { action: 'mouseBackNavigation', label: 'Back Navigation (Mouse Button)' }
         ]
     },
     {
@@ -71,26 +72,9 @@ const GROUPS: ShortcutGroup[] = [
     }
 ];
 
-function formatKey(key: string): string {
-    if (!key) return '';
-    if (key === ' ') return 'Space';
-    if (key === 'ArrowUp') return '↑';
-    if (key === 'ArrowDown') return '↓';
-    if (key === 'ArrowLeft') return '←';
-    if (key === 'ArrowRight') return '→';
-    if (key === 'Escape') return 'Esc';
-    if (key === 'Enter') return 'Enter';
-    if (key === 'Tab') return 'Tab';
-    if (key === 'Control') return 'Ctrl';
-    if (key === 'Meta') return 'Cmd';
-    if (key === 'Alt') return 'Alt';
-    if (key === 'Shift') return 'Shift';
-    return key.length === 1 ? key.toUpperCase() : key;
-}
-
 export function KeyboardShortcutsModal({ isOpen, onClose, shortcuts }: KeyboardShortcutsModalProps) {
     const currentShortcuts = { ...DEFAULT_SHORTCUTS, ...shortcuts };
-    const triggerKey = formatKey(currentShortcuts.toggleShortcutsOverlay || '/');
+    const triggerKey = formatShortcutKey(currentShortcuts.toggleShortcutsOverlay || '/');
 
     useEffect(() => {
         if (!isOpen) return;
@@ -132,7 +116,7 @@ export function KeyboardShortcutsModal({ isOpen, onClose, shortcuts }: KeyboardS
                             <div className="shortcuts-item-list">
                                 {group.items.map((item) => {
                                     const rawKey = currentShortcuts[item.action];
-                                    const formatted = formatKey(rawKey);
+                                    const formatted = formatShortcutKey(rawKey);
 
                                     return (
                                         <div key={item.action} className="shortcut-item-row">

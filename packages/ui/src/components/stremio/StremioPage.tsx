@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useMemo } from 'react';
+import { isMouseBackButtonActive } from '../../constants/shortcuts';
+import { useAppSettings } from '../../hooks/useAppSettings';
 import type { StremioStreamPickerMode, StremioMeta, StremioStream, StremioVideo, BadgeSource } from '../../types/stremio';
 import { compileBadgeSources } from '../../utils/streamBadges';
 import { useStremioAddonStore } from '../../stores/stremioAddonStore';
@@ -72,6 +74,7 @@ export function StremioPage({
   stremioCacheFetchTimeout,
   onStremioCacheFetchTimeoutChange,
 }: StremioPageProps) {
+  const { shortcuts } = useAppSettings();
   const addons = useStremioAddonStore((s) => s.enabledAddons);
   const stremioView = useStremioView();
   const setStremioView = useSetStremioView();
@@ -113,7 +116,7 @@ export function StremioPage({
 
   useEffect(() => {
     const handleMouseBack = (e: MouseEvent) => {
-      if (e.button === 3) {
+      if (isMouseBackButtonActive(shortcuts, e.button)) {
         e.preventDefault();
         e.stopPropagation();
         if (showAccountModal) {
@@ -131,7 +134,7 @@ export function StremioPage({
     };
     window.addEventListener('mousedown', handleMouseBack);
     return () => window.removeEventListener('mousedown', handleMouseBack);
-  }, [showAddonManager, showAccountModal, onClose, stremioGoBack, stremioView, setStremioView]);
+  }, [shortcuts, showAddonManager, showAccountModal, onClose, stremioGoBack, stremioView, setStremioView]);
 
   const handleItemClick = useCallback((meta: StremioMeta) => {
     if (mainRef.current) {

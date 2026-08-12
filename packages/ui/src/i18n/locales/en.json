@@ -1486,7 +1486,7 @@
       "title": "Keyboard Shortcuts",
       "description": "Click on a shortcut to rebind it. Press Esc to cancel listening (unless rebinding Close).",
       "resetDefaults": "Reset to Defaults",
-      "listening": "Press any key...",
+      "listening": "Press a key or mouse button...",
       "resetTitle": "Reset Shortcuts",
       "resetMessage": "Are you sure you want to reset all keyboard shortcuts to their default values?",
       "cancel": "Cancel",
@@ -1528,7 +1528,8 @@
         "toggleTransparentGuide": "Toggle Transparent Guide",
         "toggleNuvio": "Toggle Nuvio",
         "toggleStrem": "Toggle Strem",
-        "toggleShortcutsOverlay": "Toggle Shortcuts Overlay"
+        "toggleShortcutsOverlay": "Toggle Shortcuts Overlay",
+        "mouseBackNavigation": "Back Navigation (Mouse Button)"
       },
       "closeOverlay": "Close shortcuts overlay",
       "unbound": "Unbound",

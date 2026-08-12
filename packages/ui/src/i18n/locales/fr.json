@@ -1486,7 +1486,7 @@
       "title": "Raccourcis clavier",
       "description": "Cliquez sur un raccourci pour le réaffecter. Appuyez sur Échap pour annuler l'écoute (sauf lors de la réaffectation de Fermer).",
       "resetDefaults": "Réinitialiser aux valeurs par défaut",
-      "listening": "Appuyez sur une touche...",
+      "listening": "Appuyez sur une touche ou un bouton de souris...",
       "resetTitle": "Réinitialiser les raccourcis",
       "resetMessage": "Êtes-vous sûr de vouloir réinitialiser tous les raccourcis clavier à leurs valeurs par défaut ?",
       "cancel": "Annuler",
@@ -1528,7 +1528,8 @@
         "toggleTransparentGuide": "Guide transparent",
         "toggleNuvio": "Basculer Nuvio",
         "toggleStrem": "Basculer Strem",
-        "toggleShortcutsOverlay": "Raccourcis en superposition"
+        "toggleShortcutsOverlay": "Raccourcis en superposition",
+        "mouseBackNavigation": "Navigation retour (bouton souris)"
       },
       "closeOverlay": "Fermer la superposition des raccourcis",
       "unbound": "Non attribué",

@@ -69,7 +69,8 @@ export type ShortcutAction =
     | 'toggleTransparentGuide'
     | 'toggleNuvio'
     | 'toggleStrem'
-    | 'toggleShortcutsOverlay';
+    | 'toggleShortcutsOverlay'
+    | 'mouseBackNavigation';
 
 export interface SavedChannelState {
     channelName: string | null;

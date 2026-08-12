@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import type { ShortcutsMap, ShortcutAction } from '../../types/app';
-import { DEFAULT_SHORTCUTS } from '../../constants/shortcuts';
+import { DEFAULT_SHORTCUTS, MOUSE_BUTTON_SHORTCUTS, formatShortcutKey } from '../../constants/shortcuts';
 
 interface ShortcutsTabProps {
     shortcuts: ShortcutsMap;
@@ -42,13 +42,14 @@ const ACTION_LABELS: Record<ShortcutAction, string> = {
     toggleTransparentGuide: 'Toggle Transparent Guide',
     toggleNuvio: 'Toggle Nuvio',
     toggleStrem: 'Toggle Strem',
-    toggleShortcutsOverlay: 'Toggle Shortcuts Overlay'
+    toggleShortcutsOverlay: 'Toggle Shortcuts Overlay',
+    mouseBackNavigation: 'Back Navigation (Mouse Button)'
 };
 
 const GROUPS: Record<string, ShortcutAction[]> = {
     'Playback': ['togglePlay', 'seekForward', 'seekBackward', 'toggleMute', 'selectSubtitle', 'selectAudio', 'toggleFullscreen', 'replayLastStream'],
     'Navigation': ['channelUp', 'channelDown'],
-    'Interface': ['toggleShortcutsOverlay', 'toggleLiveTV', 'toggleGuide', 'toggleTransparentGuide', 'toggleCategories', 'toggleDvr', 'toggleSports', 'toggleCalendar', 'toggleSettings', 'toggleStats', 'focusSearch', 'toggleEpgView', 'close', 'toggleNuvio', 'toggleStrem'],
+    'Interface': ['toggleShortcutsOverlay', 'toggleLiveTV', 'toggleGuide', 'toggleTransparentGuide', 'toggleCategories', 'toggleDvr', 'toggleSports', 'toggleCalendar', 'toggleSettings', 'toggleStats', 'focusSearch', 'toggleEpgView', 'close', 'mouseBackNavigation', 'toggleNuvio', 'toggleStrem'],
     'Layout': ['layoutMain', 'layoutPip', 'layoutBigBottom', 'layout2x2']
 };
 
@@ -80,8 +81,27 @@ export function ShortcutsTab({ shortcuts, onShortcutsChange }: ShortcutsTabProps
             setListeningFor(null);
         };
 
+        const handleMouseDown = (e: MouseEvent) => {
+            // Only mouse side buttons (back/forward) can be recorded as shortcuts
+            const key = MOUSE_BUTTON_SHORTCUTS[e.button];
+            if (!key) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            onShortcutsChange({
+                ...shortcuts,
+                [listeningFor]: key
+            });
+            setListeningFor(null);
+        };
+
         window.addEventListener('keydown', handleKeyDown, { capture: true });
-        return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
+        window.addEventListener('mousedown', handleMouseDown, { capture: true });
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown, { capture: true });
+            window.removeEventListener('mousedown', handleMouseDown, { capture: true });
+        };
     }, [listeningFor, shortcuts, onShortcutsChange]);
 
     const handleReset = () => {
@@ -122,7 +142,7 @@ export function ShortcutsTab({ shortcuts, onShortcutsChange }: ShortcutsTabProps
                                             className={`shortcut-btn ${listeningFor === action ? 'listening' : ''}`}
                                             onClick={() => setListeningFor(action)}
                                         >
-                                            {listeningFor === action ? i18n.t('settings:shortcuts.listening') : (currentShortcuts[action] === ' ' ? 'Space' : currentShortcuts[action])}
+                                            {listeningFor === action ? i18n.t('settings:shortcuts.listening') : formatShortcutKey(currentShortcuts[action])}
                                         </button>
                                     </div>
                                 ))}
