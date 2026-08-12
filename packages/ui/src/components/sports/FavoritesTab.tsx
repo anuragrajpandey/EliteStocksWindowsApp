@@ -42,6 +42,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { eventInvolvesTeam } from './favoritesMatch';
 
 interface FavoritesTabProps {
   onSearchChannels?: (channelName: string) => void;
@@ -533,12 +534,12 @@ export function FavoritesTab({ onSearchChannels, onPlayChannel, onSetTab }: Favo
 
     favorites.forEach((team) => {
       const liveEv = liveEvents.find(
-        (e) => (e.homeTeam.id === team.id || e.awayTeam.id === team.id) && isEventLiveOrPastStart(e)
+        (e) => eventInvolvesTeam(e, team) && isEventLiveOrPastStart(e)
       );
 
       const upcomingEv = liveEvents.find(
         (e) =>
-          (e.homeTeam.id === team.id || e.awayTeam.id === team.id) &&
+          eventInvolvesTeam(e, team) &&
           e.status === 'scheduled' &&
           new Date(e.startTime).getTime() > now.getTime()
       );
