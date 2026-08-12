@@ -67,6 +67,10 @@ import {
   useSetIncludeAllChannelsToPlaylist
 } from './stores/uiStore';
 import { getAdjacentEpisode, recordVodWatch, recordEpisodeWatch, getEpisodeProgress } from './db';
+import { useVodPlaylistStore } from './stores/vodPlaylistStore';
+import { useActivePlaylistStore, isActivePlaylistItem } from './stores/activePlaylistStore';
+import { PlaylistQueueModal } from './components/vod/PlaylistQueueModal';
+import { playlistItemToVodInfo, recordPlaylistItemWatch } from './utils/playlistPlayback';
 import type { StoredChannel } from './db';
 import { db } from './db';
 import { VideoErrorOverlay } from './components/VideoErrorOverlay';
@@ -2951,6 +2955,80 @@ function useTmdbPresencePoster(
     const prevPlaying = prevPlayingRef.current;
     prevPlayingRef.current = playing;
 
+    if (prevPlaying && !playing && vodInfo && duration > 0 && (position >= duration - 5 || position / duration >= 0.90)) {
+      const activeState = useActivePlaylistStore.getState();
+      if (activeState.activePlaylistId && activeState.currentIndex >= 0 && activeState.items.length > 0) {
+        const { activePlaylistId, currentIndex, items } = activeState;
+        const currentItem = items[currentIndex];
+
+        // Only advance/remove when the video that finished is actually the
+        // playlist's current item. If the user played something else, the
+        // playlist session is stale — drop it so it can't hijack playback.
+        if (currentItem && isActivePlaylistItem(vodInfo, currentItem)) {
+          const plStore = useVodPlaylistStore.getState();
+          const playlist = plStore.playlists.find((p) => p.id === activePlaylistId);
+
+          // Mark a finished playlist episode as completed, mirroring normal
+          // series playback, so watch history stays consistent.
+          if (currentItem.itemType === 'episode' && currentItem.seriesId) {
+            const currentEpId = vodInfo.episodeId || (vodInfo.mediaId && vodInfo.mediaId.includes('_ep_') ? vodInfo.mediaId.split('_ep_')[1] : null);
+            if (currentEpId) {
+              void recordEpisodeWatch(
+                currentEpId,
+                currentItem.seriesId,
+                vodInfo.source_id || '',
+                currentItem.seasonNum ?? 0,
+                currentItem.episodeNum ?? 0,
+                '',
+                Math.floor(duration),
+                Math.floor(duration)
+              );
+            }
+          }
+
+          const shouldAutoplay = playlist?.autoplayNext ?? true;
+
+          if (playlist?.removeAfterWatching) {
+            console.log('[Playlist] Removing played item from playlist after watching:', currentItem.title);
+            plStore.removeItemFromPlaylist(activePlaylistId, currentItem.id);
+            useToastStore.getState().addToast(
+              i18n.t('vod:removedAfterWatchingToast', { title: currentItem.title }),
+              'success'
+            );
+
+            // Mirror the removal into the live queue so the overlay matches
+            // the playlist; the next item slides into the current slot and is
+            // returned when autoplay should continue.
+            const nextItem = activeState.removeCurrentAndAdvance(shouldAutoplay);
+            if (nextItem && nextItem.directUrl) {
+              console.log('[Playlist] Autoplaying next playlist item:', nextItem.title);
+              void recordPlaylistItemWatch(nextItem);
+              void handlePlayVod(playlistItemToVodInfo(nextItem));
+              return;
+            }
+            return;
+          }
+
+          if (shouldAutoplay) {
+            const nextItem = activeState.advanceToNext();
+            if (nextItem && nextItem.directUrl) {
+              console.log('[Playlist] Autoplaying next playlist item:', nextItem.title);
+              void recordPlaylistItemWatch(nextItem);
+              void handlePlayVod(playlistItemToVodInfo(nextItem));
+              return;
+            }
+          }
+          // While a playlist item is playing, the queue owns progression —
+          // don't fall through to the series next-episode auto-play.
+          return;
+        }
+
+        // The finished video isn't the playlist's current item — clear the
+        // stale session so it can't affect (or hijack) future playback.
+        useActivePlaylistStore.getState().stopPlayback();
+      }
+    }
+
     if (prevPlaying && !playing && vodInfo?.type === 'series' && duration > 0 && (position >= duration - 5 || position / duration >= 0.90)) {
       const { seriesId, seasonNum, episodeNum, episodeId, title, source_id, year, plot, backdropUrl, logoUrl, mediaId, tmdbId, imdbId } = vodInfo;
       
@@ -3055,6 +3133,37 @@ function useTmdbPresencePoster(
       }
     }
   }, [playing, vodInfo, duration, position, vodAutoPlayNextEpisode, handlePlayVod]);
+
+  // ==========================================================================
+  // Active playlist queue controls (indicator click + prev/next buttons)
+  // ==========================================================================
+  const [playlistQueueOpen, setPlaylistQueueOpen] = useState(false);
+
+  // Jump playback to a queue index (used by the queue overlay and prev/next).
+  const playPlaylistItemAt = useCallback((index: number) => {
+    const { items } = useActivePlaylistStore.getState();
+    const item = items[index];
+    if (!item || !item.directUrl) return;
+    useActivePlaylistStore.getState().setCurrentIndex(index);
+    void recordPlaylistItemWatch(item);
+    void handlePlayVod(playlistItemToVodInfo(item));
+  }, [handlePlayVod]);
+
+  const handlePlaylistPrevious = useCallback(() => {
+    const store = useActivePlaylistStore.getState();
+    // previousItem() mutates the store, so re-read the index after it returns.
+    if (store.previousItem()) {
+      playPlaylistItemAt(useActivePlaylistStore.getState().currentIndex);
+    }
+  }, [playPlaylistItemAt]);
+
+  const handlePlaylistNext = useCallback(() => {
+    const store = useActivePlaylistStore.getState();
+    // advanceToNext() mutates the store, so re-read the index after it returns.
+    if (store.advanceToNext()) {
+      playPlaylistItemAt(useActivePlaylistStore.getState().currentIndex);
+    }
+  }, [playPlaylistItemAt]);
 
   const lastKnownProgressPercentRef = useRef(0);
   const scrobblingMediaRef = useRef<any>(null);
@@ -4670,6 +4779,16 @@ function useTmdbPresencePoster(
         onSkip={skipIntro.handleSkip}
       />
 
+      {/* Active playlist queue overlay */}
+      <PlaylistQueueModal
+        isOpen={playlistQueueOpen}
+        onClose={() => setPlaylistQueueOpen(false)}
+        onPlayItem={(index) => {
+          setPlaylistQueueOpen(false);
+          playPlaylistItemAt(index);
+        }}
+      />
+
       {/* Now Playing Bar (hidden in PiP mode) */}
       <NowPlayingBar
         visible={
@@ -4734,6 +4853,9 @@ function useTmdbPresencePoster(
         }}
         onChannelUp={handleChannelUp}
         onChannelDown={handleChannelDown}
+        onPlaylistQueueClick={() => setPlaylistQueueOpen(true)}
+        onPlaylistPreviousItem={handlePlaylistPrevious}
+        onPlaylistNextItem={handlePlaylistNext}
         aspectRatio={heroAspectRatio}
         onSetAspectRatio={handleSetAspectRatio}
         onNavigateDvr={() => setActiveView('dvr')}

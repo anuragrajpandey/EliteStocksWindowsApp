@@ -19,6 +19,8 @@ import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
 import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
 import { useLazyVodTrailer, useTrailerPlayerMode, useTrailerSource } from '../../hooks/useLazyVodTrailer';
 import { SplitPlayButton, TrailerSplitButton, type VodPlayerMode } from './SplitPlayButton';
+import { AddToPlaylistModal } from './AddToPlaylistModal';
+import { useSourceNameMap } from '../../hooks/useChannels';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import './MovieDetail.css';
@@ -35,6 +37,7 @@ export interface MovieDetailProps {
 
 export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPlayerMode, onSelectVodPlayerMode }: MovieDetailProps) {
   useTranslation();
+  const sourceNameMap = useSourceNameMap();
   // Handle escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -61,6 +64,7 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
     onPlay?.(movie, lazyPlot || movie.plot, backdropUrl, logoUrl);
   }, [movie, onPlay, lazyPlot, backdropUrl, logoUrl]);
 
+  const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [copying, setCopying] = useState(false);
   const handleCopy = useCallback(async () => {
@@ -304,6 +308,22 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
                 {isFav ? i18n.t('vod:removeFavorite') : i18n.t('vod:addFavorite')}
               </button>
 
+              <button
+                className="movie-detail__btn movie-detail__btn--secondary"
+                onClick={() => setIsPlaylistModalOpen(true)}
+                title={i18n.t('vod:addToPlaylist')}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="8" y1="6" x2="21" y2="6" strokeLinecap="round" />
+                  <line x1="8" y1="12" x2="21" y2="12" strokeLinecap="round" />
+                  <line x1="8" y1="18" x2="21" y2="18" strokeLinecap="round" />
+                  <line x1="3" y1="6" x2="3.01" y2="6" strokeLinecap="round" />
+                  <line x1="3" y1="12" x2="3.01" y2="12" strokeLinecap="round" />
+                  <line x1="3" y1="18" x2="3.01" y2="18" strokeLinecap="round" />
+                </svg>
+                {i18n.t('vod:addToPlaylist')}
+              </button>
+
               {movie.direct_url && (
                 <button
                   className="movie-detail__btn movie-detail__btn--secondary"
@@ -392,6 +412,14 @@ export function MovieDetail({ movie, onClose, onPlay, apiKey, onCastClick, vodPl
         )}
       </div>
     </div>
+
+    <AddToPlaylistModal
+      isOpen={isPlaylistModalOpen}
+      onClose={() => setIsPlaylistModalOpen(false)}
+      movie={movie}
+      sourceName={sourceNameMap?.get(movie.source_id)}
+      posterUrl={posterUrl}
+    />
   </>
 );
 }

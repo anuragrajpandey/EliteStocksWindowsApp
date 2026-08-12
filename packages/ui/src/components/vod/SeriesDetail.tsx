@@ -25,6 +25,8 @@ import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
 import { useActiveTmdbToken } from '../../hooks/useTmdbLists';
 import { useLazyVodTrailer, useTrailerPlayerMode, useTrailerSource } from '../../hooks/useLazyVodTrailer';
 import { SetPlayerDropdown, SplitPlayButton, TrailerSplitButton, type VodPlayerMode } from './SplitPlayButton';
+import { AddToPlaylistModal } from './AddToPlaylistModal';
+import { useSourceNameMap } from '../../hooks/useChannels';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../utils/dateTime';
 import i18n from '../../i18n';
@@ -43,6 +45,7 @@ export interface SeriesDetailProps {
 
 export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSeason, onCastClick, vodPlayerMode, onSelectVodPlayerMode }: SeriesDetailProps) {
   useTranslation();
+  const sourceNameMap = useSourceNameMap();
   const seriesProp = series;
   // Read the latest series row from the DB so that enrichment written after
   // episode sync (e.g. tmdb_id backfilled from get_series_info) propagates to
@@ -53,6 +56,8 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
   series = liveSeries ?? seriesProp;
 
   const [selectedSeason, setSelectedSeason] = useState<number>(initialSeason ?? 1);
+  const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
+  const [preselectedEpisode, setPreselectedEpisode] = useState<StoredEpisode | null>(null);
 
   // Fetch episodes
   const { seasons, loading, error, refetch } = useSeriesDetails(series.series_id);
@@ -574,6 +579,25 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                 {isFav ? i18n.t('vod:removeFavorite') : i18n.t('vod:addFavorite')}
               </button>
 
+              <button
+                className="series-detail__fav-btn"
+                onClick={() => {
+                  setPreselectedEpisode(null);
+                  setIsPlaylistModalOpen(true);
+                }}
+                title={i18n.t('vod:addToPlaylist')}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="8" y1="6" x2="21" y2="6" strokeLinecap="round" />
+                  <line x1="8" y1="12" x2="21" y2="12" strokeLinecap="round" />
+                  <line x1="8" y1="18" x2="21" y2="18" strokeLinecap="round" />
+                  <line x1="3" y1="6" x2="3.01" y2="6" strokeLinecap="round" />
+                  <line x1="3" y1="12" x2="3.01" y2="12" strokeLinecap="round" />
+                  <line x1="3" y1="18" x2="3.01" y2="18" strokeLinecap="round" />
+                </svg>
+                {i18n.t('vod:addToPlaylist')}
+              </button>
+
               {(hasTmdbKey || hasSourceTrailer || trailerLoading) && (
                 <TrailerSplitButton
                   loading={trailerLoading}
@@ -725,6 +749,26 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
                         )}
                       </div>
 
+                      {/* Add to Playlist button */}
+                      <button
+                        className="series-detail__episode-card-copy"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPreselectedEpisode(episode);
+                          setIsPlaylistModalOpen(true);
+                        }}
+                        title={i18n.t('vod:addToPlaylist')}
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="8" y1="6" x2="21" y2="6" strokeLinecap="round" />
+                          <line x1="8" y1="12" x2="21" y2="12" strokeLinecap="round" />
+                          <line x1="8" y1="18" x2="21" y2="18" strokeLinecap="round" />
+                          <line x1="3" y1="6" x2="3.01" y2="6" strokeLinecap="round" />
+                          <line x1="3" y1="12" x2="3.01" y2="12" strokeLinecap="round" />
+                          <line x1="3" y1="18" x2="3.01" y2="18" strokeLinecap="round" />
+                        </svg>
+                      </button>
+
                       {/* Copy URL button */}
                       {episode.direct_url && (
                         <button
@@ -777,6 +821,16 @@ export function SeriesDetail({ series, onClose, onPlayEpisode, apiKey, initialSe
         </div>
       </div>
     </div>
+
+    <AddToPlaylistModal
+      isOpen={isPlaylistModalOpen}
+      onClose={() => setIsPlaylistModalOpen(false)}
+      series={series}
+      seasons={seasons}
+      preselectedEpisode={preselectedEpisode}
+      sourceName={sourceNameMap?.get(series.source_id)}
+      posterUrl={posterUrl}
+    />
   </>
 );
 }

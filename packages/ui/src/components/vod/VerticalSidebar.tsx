@@ -315,6 +315,26 @@ export function VerticalSidebar({
                             </div>
                         </button>
 
+                        {/* Playlists Link */}
+                        <button
+                            className={`vertical-sidebar__item category-list-bar ${selectedId === 'playlists' ? 'active' : ''}`}
+                            onClick={() => onSelect('playlists')}
+                        >
+                            <div className="category-item-left">
+                                <span className="category-icon playlist-icon">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="8" y1="6" x2="21" y2="6" />
+                                        <line x1="8" y1="12" x2="21" y2="12" />
+                                        <line x1="8" y1="18" x2="21" y2="18" />
+                                        <line x1="3" y1="6" x2="3.01" y2="6" />
+                                        <line x1="3" y1="12" x2="3.01" y2="12" />
+                                        <line x1="3" y1="18" x2="3.01" y2="18" />
+                                    </svg>
+                                </span>
+                                <span className="category-name">{i18n.t('vod:playlists')}</span>
+                            </div>
+                        </button>
+
                         {/* Recent Link */}
                         <button
                             className={`vertical-sidebar__item category-list-bar ${selectedId === 'recent' ? 'active' : ''}`}
@@ -355,6 +375,14 @@ export function VerticalSidebar({
                             onClick={() => onSelect('favorites')}
                         >
                             {i18n.t('vod:favorites')}
+                        </button>
+
+                        {/* Playlists Link */}
+                        <button
+                            className={`vertical-sidebar__item ${selectedId === 'playlists' ? 'active' : ''}`}
+                            onClick={() => onSelect('playlists')}
+                        >
+                            {i18n.t('vod:playlists')}
                         </button>
 
                         {/* Recent Link */}

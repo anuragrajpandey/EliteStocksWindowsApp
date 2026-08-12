@@ -1,0 +1,593 @@
+/* Playlists View Container — its own scroll region so long playlists scroll
+   with a visible themed scrollbar (same style as the nuvio homepage) */
+.playlists-view {
+  padding: 24px 32px;
+  color: #fff;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  animation: fadeIn 200ms ease;
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-hover, rgba(255, 255, 255, 0.15)) transparent;
+}
+
+.playlists-view:hover {
+  scrollbar-color: var(--accent-primary, rgba(0, 212, 255, 0.5)) transparent;
+}
+
+.playlists-view::-webkit-scrollbar {
+  width: 6px;
+}
+
+.playlists-view::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.playlists-view::-webkit-scrollbar-thumb {
+  background: var(--surface-hover, rgba(255, 255, 255, 0.15));
+  border-radius: 3px;
+}
+
+.playlists-view::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary, rgba(0, 212, 255, 0.5));
+}
+
+.playlists-view__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.playlists-view__title-area {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.playlists-view__title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.playlists-view__back-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 150ms ease;
+}
+
+.playlists-view__back-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.playlists-view__create-btn {
+  background: var(--accent-color, #3b82f6);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 150ms ease;
+}
+
+.playlists-view__create-btn:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+/* Playlists Grid Overview */
+.playlists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.playlist-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 140px;
+  transition: all 200ms ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.playlist-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.playlist-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Poster collage at the top of each playlist card */
+.playlist-card__posters {
+  margin: -20px -20px 14px;
+}
+
+/* Watched completion badge (X of Y) over the poster collage */
+.playlist-card__watched-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #4ade80;
+  background: rgba(10, 20, 35, 0.85);
+  border: 1px solid rgba(74, 222, 128, 0.35);
+  padding: 3px 8px;
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+  user-select: none;
+}
+
+.playlist-card__watched-badge--empty {
+  color: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(10, 20, 35, 0.6);
+}
+
+.playlist-card__poster-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+  height: 150px;
+  overflow: hidden;
+}
+
+.playlist-card__poster-tile {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.playlist-card__poster-tile--empty {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.playlist-card__poster-single {
+  display: block;
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  object-position: center 25%;
+}
+
+.playlist-card__poster-placeholder {
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.playlist-card__name {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.playlist-card__count {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Resume row — plays the last-watched item at its saved position */
+.playlist-card__resume {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.playlist-card__resume-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  color: #60a5fa;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.playlist-card__resume-btn:hover {
+  background: rgba(59, 130, 246, 0.35);
+  color: #fff;
+  border-color: rgba(96, 165, 250, 0.8);
+}
+
+.playlist-card__last-watched {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+
+.playlist-card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.playlist-card__action-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.playlist-card__action-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.playlist-card__action-btn--delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* Playlist Detail View */
+.playlist-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.playlist-detail__header-banner {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.playlist-detail__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.playlist-detail__title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.playlist-detail__meta {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.playlist-detail__toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.playlist-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+  border: none;
+}
+
+.playlist-btn--primary {
+  background: var(--accent-color, #3b82f6);
+  color: #fff;
+}
+
+.playlist-btn--primary:hover {
+  filter: brightness(1.15);
+}
+
+.playlist-btn--secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.playlist-btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.playlist-toggles-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.playlist-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  user-select: none;
+}
+
+.playlist-toggle-input {
+  accent-color: #3b82f6;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Playlist Items List */
+.playlist-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.playlist-item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  gap: 16px;
+  transition: all 150ms ease;
+  /* Full-surface drag (no handle) */
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.playlist-item-card:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.playlist-item-card:active {
+  cursor: grabbing;
+}
+
+.playlist-item-card.dragging {
+  cursor: grabbing;
+}
+
+/* Insertion-line drop indicator — glowing bar on the edge where the dragged
+   item will land (drawn via box-shadow so it sits in the gap between rows). */
+.playlist-item-card.drop-before {
+  box-shadow: 0 -3px 0 0 rgba(96, 165, 250, 0.9), 0 -4px 10px 0 rgba(96, 165, 250, 0.45);
+}
+
+.playlist-item-card.drop-after {
+  box-shadow: 0 3px 0 0 rgba(96, 165, 250, 0.9), 0 4px 10px 0 rgba(96, 165, 250, 0.45);
+}
+
+.playlist-item-card__left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.playlist-item-card__reorder {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.playlist-item-card__reorder-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 2px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.playlist-item-card__reorder-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.playlist-item-card__poster {
+  width: 44px;
+  height: 62px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.playlist-item-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.playlist-item-card__title {
+  font-weight: 600;
+  font-size: 0.98rem;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-item-card__sub {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.playlist-item-card__sourcename {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.playlist-item-card__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* "Watched" completion badge next to the title */
+.playlist-item-card__watched {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  padding: 1px 8px;
+  border-radius: 10px;
+  vertical-align: middle;
+}
+
+/* Thin progress bar under the item details */
+.playlist-item-card__progress {
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  margin-top: 5px;
+  max-width: 240px;
+}
+
+.playlist-item-card__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 2px;
+  transition: width 300ms ease;
+}
+
+/* Resume hint chip for items with saved playback progress — clicking it
+   starts playback, which auto-resumes from the saved position */
+.playlist-item-card__resume {
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 4px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.playlist-item-card__resume:hover {
+  background: rgba(59, 130, 246, 0.3);
+  border-color: rgba(96, 165, 250, 0.6);
+  color: #bfdbfe;
+}
+
+.playlist-item-card__play-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 150ms ease;
+}
+
+.playlist-item-card__play-btn:hover {
+  background: var(--accent-color, #3b82f6);
+  border-color: transparent;
+}
+
+.playlist-item-card__remove-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms ease;
+}
+
+.playlist-item-card__remove-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}

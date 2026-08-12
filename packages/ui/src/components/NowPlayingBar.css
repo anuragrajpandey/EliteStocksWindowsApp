@@ -134,6 +134,61 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
+/* Playlist indicator — active queue context in the Now Playing bar */
+.npb-playlist-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 2px;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* In the clean (default) design the indicator is a compact row above the seekbar */
+.npb-clean-layout .npb-playlist-info {
+  align-self: flex-start;
+  max-width: 100%;
+}
+
+.npb-playlist-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: rgba(147, 197, 253, 0.95);
+  padding: 1px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.npb-playlist-badge svg {
+  flex-shrink: 0;
+}
+
+.npb-playlist-pos {
+  opacity: 0.7;
+}
+
+.npb-playlist-shuffle {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.npb-next-up {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Soft vertical divider with faded top/bottom */
 .npb-divider {
   width: 1px;

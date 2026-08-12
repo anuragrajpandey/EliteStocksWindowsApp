@@ -3115,6 +3115,65 @@ export async function getSeriesEpisodeProgress(seriesId: string): Promise<Episod
 }
 
 /**
+ * Get progress for many episodes in one query (keyed by episode_id).
+ * Used by playlist views to render progress bars/resume hints without
+ * issuing one query per item.
+ */
+export async function getBulkEpisodeProgress(
+  episodeIds: string[]
+): Promise<Record<string, { progress_seconds: number; total_duration: number; completed: boolean; watched_at: number }>> {
+  const result: Record<string, { progress_seconds: number; total_duration: number; completed: boolean; watched_at: number }> = {};
+  if (!episodeIds.length) return result;
+  try {
+    const dbInstance = await (db as any).dbPromise;
+    const placeholders = episodeIds.map(() => '?').join(',');
+    const rows = await dbInstance.select(
+      `SELECT episode_id, progress_seconds, total_duration, completed, watched_at FROM episode_history WHERE episode_id IN (${placeholders})`,
+      episodeIds
+    );
+    for (const row of rows || []) {
+      result[row.episode_id] = {
+        progress_seconds: row.progress_seconds || 0,
+        total_duration: row.total_duration || 0,
+        completed: !!row.completed,
+        watched_at: row.watched_at || 0,
+      };
+    }
+  } catch (error) {
+    console.error('[Episode History] Failed to get bulk episode progress:', error);
+  }
+  return result;
+}
+
+/**
+ * Get progress for many movies in one query (keyed by media_id).
+ */
+export async function getBulkMovieProgress(
+  movieIds: string[]
+): Promise<Record<string, { progress_seconds: number; total_duration: number; watched_at: number }>> {
+  const result: Record<string, { progress_seconds: number; total_duration: number; watched_at: number }> = {};
+  if (!movieIds.length) return result;
+  try {
+    const dbInstance = await (db as any).dbPromise;
+    const placeholders = movieIds.map(() => '?').join(',');
+    const rows = await dbInstance.select(
+      `SELECT media_id, progress_seconds, total_duration, watched_at FROM vod_history WHERE media_type = 'movie' AND media_id IN (${placeholders})`,
+      movieIds
+    );
+    for (const row of rows || []) {
+      result[row.media_id] = {
+        progress_seconds: row.progress_seconds || 0,
+        total_duration: row.total_duration || 0,
+        watched_at: row.watched_at || 0,
+      };
+    }
+  } catch (error) {
+    console.error('[VOD History] Failed to get bulk movie progress:', error);
+  }
+  return result;
+}
+
+/**
  * Mark episode as completed
  */
 export async function markEpisodeCompleted(episodeId: string): Promise<void> {

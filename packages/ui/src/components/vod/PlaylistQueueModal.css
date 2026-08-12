@@ -1,0 +1,377 @@
+/* PlaylistQueueModal Overlay & Container */
+.playlist-queue-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: playlistQueueFadeIn 200ms ease;
+}
+
+@keyframes playlistQueueFadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.playlist-queue-modal {
+  width: 100%;
+  max-width: 560px;
+  max-height: 80vh;
+  background: var(--bg-primary, #121526);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #fff;
+}
+
+.playlist-queue-modal__header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.playlist-queue-modal__title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-queue-modal__count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1px 8px;
+  border-radius: 10px;
+}
+
+.playlist-queue-modal__shuffle {
+  font-size: 0.75rem;
+  color: rgba(147, 197, 253, 0.9);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.playlist-queue-modal__close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms ease;
+  flex-shrink: 0;
+}
+
+.playlist-queue-modal__close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.playlist-queue-modal__body {
+  padding: 12px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.playlist-queue-modal__empty {
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  padding: 30px 0;
+}
+
+.playlist-queue-modal__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.playlist-queue-item {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  color: #fff;
+  overflow: hidden;
+  transition: all 150ms ease;
+}
+
+.playlist-queue-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.playlist-queue-item.is-current {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.45);
+}
+
+.playlist-queue-item.is-next {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Full-surface drag: the whole card is the grab zone (no handle) */
+.playlist-queue-item {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.playlist-queue-item:active {
+  cursor: grabbing;
+}
+
+.playlist-queue-item.dragging {
+  cursor: grabbing;
+}
+
+/* Insertion-line drop indicator — glowing bar on the edge where the dragged
+   item will land. Drawn via box-shadow so it renders in the gap between
+   rows and isn't clipped by the row's overflow:hidden. */
+.playlist-queue-item.drop-before {
+  box-shadow: 0 -3px 0 0 rgba(96, 165, 250, 0.9), 0 -4px 10px 0 rgba(96, 165, 250, 0.45);
+}
+
+.playlist-queue-item.drop-after {
+  box-shadow: 0 3px 0 0 rgba(96, 165, 250, 0.9), 0 4px 10px 0 rgba(96, 165, 250, 0.45);
+}
+
+/* Clickable row body — jumps playback to this item, part of the drag surface */
+.playlist-queue-item__main {
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  transition: background 150ms ease;
+}
+
+.playlist-queue-item__main:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.playlist-queue-item__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 8px;
+  flex-shrink: 0;
+}
+
+.playlist-queue-item__icon-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms ease;
+}
+
+.playlist-queue-item__icon-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.playlist-queue-item__remove:hover {
+  background: rgba(239, 68, 68, 0.28);
+  color: #fca5a5;
+}
+
+/* Pulsing indicator dot on the currently playing row */
+.playlist-queue-item__playing-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #60a5fa;
+  box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.6);
+  animation: playlistQueuePulse 1.6s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes playlistQueuePulse {
+  0% { box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.6); }
+  70% { box-shadow: 0 0 0 6px rgba(96, 165, 250, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(96, 165, 250, 0); }
+}
+
+.playlist-queue-item__poster {
+  width: 40px;
+  height: 58px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.playlist-queue-item__poster--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.playlist-queue-item__details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.playlist-queue-item__title {
+  font-weight: 500;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-queue-item__sub {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* "Watched" completion badge next to the title */
+.playlist-queue-item__watched {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  padding: 1px 6px;
+  border-radius: 10px;
+  vertical-align: middle;
+}
+
+/* Thin progress bar under the item subtitle */
+.playlist-queue-item__progress {
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  margin-top: 4px;
+  max-width: 220px;
+}
+
+.playlist-queue-item__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 2px;
+  transition: width 300ms ease;
+}
+
+/* "Resume m:ss" hint chip for items with saved playback progress — clicking
+   it jumps to that item, which auto-resumes from the saved position */
+.playlist-queue-item__resume {
+  align-self: flex-start;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 1px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  margin-top: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.playlist-queue-item__resume:hover {
+  background: rgba(59, 130, 246, 0.3);
+  border-color: rgba(96, 165, 250, 0.6);
+  color: #bfdbfe;
+}
+
+.playlist-queue-item__resume:focus-visible {
+  outline: 2px solid rgba(96, 165, 250, 0.8);
+  outline-offset: 1px;
+}
+
+.playlist-queue-item__now,
+.playlist-queue-item__next {
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* "Playing X of Y" position readout in the header */
+.playlist-queue-modal__position {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.playlist-queue-item__now {
+  color: #60a5fa;
+}
+
+.playlist-queue-item__next {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.playlist-queue-item__num {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+  min-width: 18px;
+  text-align: center;
+}
+
+.playlist-queue-modal__footer {
+  padding: 12px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+}

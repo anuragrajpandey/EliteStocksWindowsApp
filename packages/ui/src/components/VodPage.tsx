@@ -9,6 +9,10 @@ import { VerticalSidebar } from './vod/VerticalSidebar';
 import { VodBrowse } from './vod/VodBrowse';
 import { RecentView } from './vod/RecentView';
 import { FavoritesView } from './vod/FavoritesView';
+import { PlaylistsView } from './vod/PlaylistsView';
+import { useActivePlaylistStore } from '../stores/activePlaylistStore';
+import type { PlaylistItem, Playlist } from '../stores/vodPlaylistStore';
+import { playlistItemToVodInfo, recordPlaylistItemWatch } from '../utils/playlistPlayback';
 import { MovieDetail } from './vod/MovieDetail';
 import { SeriesDetail } from './vod/SeriesDetail';
 import { SourceContextMenu } from './SourceContextMenu';
@@ -350,6 +354,21 @@ export function VodPage({ type, onPlay, onClose, vodPlayerMode, onSelectVodPlaye
 
   // VOD categories
   const { categories } = useVodCategories(type);
+
+  const handlePlayPlaylistItem = useCallback((item: PlaylistItem, playlist: Playlist, isShuffle?: boolean) => {
+    useActivePlaylistStore.getState().startPlayback(
+      playlist.id,
+      playlist.name,
+      playlist.items,
+      playlist.items.findIndex(i => i.id === item.id),
+      isShuffle
+    );
+
+    // Record the watch (Recent rail + episode progress) like normal VOD
+    // playback does, so playlist plays show up and resume properly.
+    void recordPlaylistItemWatch(item);
+    onPlay?.(playlistItemToVodInfo(item), vodPlayerMode);
+  }, [onPlay, vodPlayerMode]);
 
   // Get selected category name for VodBrowse
   const selectedCategory = categories.find(c => c.category_id === selectedCategoryId);
@@ -878,6 +897,8 @@ export function VodPage({ type, onPlay, onClose, vodPlayerMode, onSelectVodPlaye
             loading={favoritesLoading}
             onItemClick={handleItemClick}
           />
+        ) : selectedCategoryId === 'playlists' ? (
+          <PlaylistsView onPlayPlaylistItem={handlePlayPlaylistItem} />
         ) : selectedCategoryId && selectedCategory ? (
           // Category view: Virtualized grid filtered by category
           <VodBrowse

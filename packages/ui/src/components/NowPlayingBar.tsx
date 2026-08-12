@@ -14,6 +14,7 @@ import { type AspectRatioMode, getAspectRatioLabel, Bridge } from '../services/t
 import { SourcePickerModal } from './SourcePickerModal';
 import type { StremioStream, StremioStreamBadge } from '../types/stremio';
 import type { VisualizerMode } from './AudioVisualizer';
+import { useActivePlaylistStore, isActivePlaylistItem } from '../stores/activePlaylistStore';
 import './NowPlayingBar.css';
 
 interface NowPlayingBarProps {
@@ -64,6 +65,9 @@ interface NowPlayingBarProps {
   onTimeshiftCatchUp?: () => void;
   onChannelUp?: () => void;
   onChannelDown?: () => void;
+  onPlaylistQueueClick?: () => void;
+  onPlaylistPreviousItem?: () => void;
+  onPlaylistNextItem?: () => void;
   aspectRatio?: AspectRatioMode;
   onSetAspectRatio?: (mode: AspectRatioMode) => void;
   overlay?: React.ReactNode;
@@ -132,6 +136,9 @@ export function NowPlayingBar({
   onTimeshiftCatchUp,
   onChannelUp,
   onChannelDown,
+  onPlaylistQueueClick,
+  onPlaylistPreviousItem,
+  onPlaylistNextItem,
   aspectRatio = 'fit',
   onSetAspectRatio,
   overlay,
@@ -166,6 +173,72 @@ export function NowPlayingBar({
   const canControl = mpvReady && channel !== null;
   const currentProgram = useCurrentProgram(channel?.stream_id ?? null);
   const { showSuccess, showError, showConfirmThree, showPrompt, ModalComponent } = useModal();
+
+  // Active playlist context: only reported when the currently playing video is
+  // actually the playlist's current item (a stale session can't show here).
+  const { activePlaylistId, activePlaylistName, items, currentIndex, isShuffle } = useActivePlaylistStore();
+  const isPlaylistActive =
+    activePlaylistId != null &&
+    currentIndex >= 0 &&
+    currentIndex < items.length &&
+    isActivePlaylistItem(vodInfo, items[currentIndex]);
+  const nextUpItem = isPlaylistActive && currentIndex < items.length - 1 ? items[currentIndex + 1] : null;
+
+  // Prev/next navigation: playlist queue takes over while a playlist item is
+  // playing; otherwise fall back to the existing channel/episode navigation.
+  const showPrevNav = isPlaylistActive ? !!onPlaylistPreviousItem : !!(onChannelUp && (!isVod || vodInfo?.type === 'series'));
+  const showNextNav = isPlaylistActive ? !!onPlaylistNextItem : !!(onChannelDown && (!isVod || vodInfo?.type === 'series'));
+  const isEpisodeNav = !isPlaylistActive && isVod && vodInfo?.type === 'series';
+  const handleNavPrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (isPlaylistActive) {
+      onPlaylistPreviousItem?.();
+    } else {
+      onChannelUp?.();
+    }
+  };
+  const handleNavNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (isPlaylistActive) {
+      onPlaylistNextItem?.();
+    } else {
+      onChannelDown?.();
+    }
+  };
+
+  // Shared playlist indicator (playlist name, position, shuffle, next-up preview)
+  const playlistIndicator = isPlaylistActive ? (
+    <div className="npb-playlist-info">
+      <button
+        type="button"
+        className="npb-playlist-badge"
+        onClick={onPlaylistQueueClick}
+        title={`${t('fromPlaylist')}: ${activePlaylistName ?? ''} · ${currentIndex + 1}/${items.length}`}
+      >
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="8" y1="6" x2="21" y2="6" />
+          <line x1="8" y1="12" x2="21" y2="12" />
+          <line x1="8" y1="18" x2="21" y2="18" />
+          <line x1="3" y1="6" x2="3.01" y2="6" />
+          <line x1="3" y1="12" x2="3.01" y2="12" />
+          <line x1="3" y1="18" x2="3.01" y2="18" />
+        </svg>
+        {activePlaylistName}
+        <span className="npb-playlist-pos">{currentIndex + 1}/{items.length}</span>
+        <svg className="npb-playlist-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+      {isShuffle && <span className="npb-playlist-shuffle">· {t('shuffle')}</span>}
+      {nextUpItem && (
+        <span className="npb-next-up" title={`${t('nextUp')}: ${nextUpItem.title}`}>
+          {t('nextUp')}: {nextUpItem.title}
+        </span>
+      )}
+    </div>
+  ) : null;
 
   // Playback speed state
   const [speed, setSpeed] = useState<number>(1);
@@ -598,6 +671,7 @@ export function NowPlayingBar({
         <>
           {isClean ? (
             <div className="npb-clean-layout">
+            {playlistIndicator}
             {/* Top Row: Full-width Seekbar with left & right timestamps and sub-row */}
             <div className="npb-clean-seekbar-row">
               <div className="npb-clean-seekbar-container">
@@ -729,33 +803,25 @@ export function NowPlayingBar({
 
               {/* Center Group: Channel Up, Channel Down, Circular Play/Pause, Stop, Reload */}
               <div className="npb-clean-center">
-                {onChannelUp && (!isVod || vodInfo?.type === 'series') && (
+                {showPrevNav && (
                   <button
                     className="npb-clean-sm-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      onChannelUp();
-                    }}
+                    onClick={handleNavPrev}
                     disabled={!canControl}
-                    title={isVod && vodInfo?.type === 'series' ? t('previousEpisode') : t('previousChannel')}
+                    title={isPlaylistActive ? t('previousPlaylistItem') : (isEpisodeNav ? t('previousEpisode') : t('previousChannel'))}
                   >
-                    {isVod && vodInfo?.type === 'series' ? <PrevIcon /> : <ChannelUpIcon />}
+                    {isPlaylistActive || isEpisodeNav ? <PrevIcon /> : <ChannelUpIcon />}
                   </button>
                 )}
 
-                {onChannelDown && (!isVod || vodInfo?.type === 'series') && (
+                {showNextNav && (
                   <button
                     className="npb-clean-sm-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      onChannelDown();
-                    }}
+                    onClick={handleNavNext}
                     disabled={!canControl}
-                    title={isVod && vodInfo?.type === 'series' ? t('nextEpisode') : t('nextChannel')}
+                    title={isPlaylistActive ? t('nextPlaylistItem') : (isEpisodeNav ? t('nextEpisode') : t('nextChannel'))}
                   >
-                    {isVod && vodInfo?.type === 'series' ? <NextIcon /> : <ChannelDownIcon />}
+                    {isPlaylistActive || isEpisodeNav ? <NextIcon /> : <ChannelDownIcon />}
                   </button>
                 )}
 
@@ -991,6 +1057,8 @@ export function NowPlayingBar({
                           {vodInfo.episodeInfo}
                         </span>
                       )}
+
+                      {playlistIndicator}
                     </>
                   ) : isCatchup && catchupInfo ? (
                     <>
@@ -1227,32 +1295,24 @@ export function NowPlayingBar({
 
               {/* Playback controls */}
               <div className="npb-controls">
-                {onChannelUp && (!isVod || vodInfo?.type === 'series') && (
+                {showPrevNav && (
                   <button
                     className="npb-btn npb-channel-up-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      onChannelUp();
-                    }}
+                    onClick={handleNavPrev}
                     disabled={!canControl}
-                    title={isVod && vodInfo?.type === 'series' ? t('previousEpisode') : t('previousChannelUp')}
+                    title={isPlaylistActive ? t('previousPlaylistItem') : (isEpisodeNav ? t('previousEpisode') : t('previousChannelUp'))}
                   >
-                    {isVod && vodInfo?.type === 'series' ? <PrevIcon /> : <ChannelUpIcon />}
+                    {isPlaylistActive || isEpisodeNav ? <PrevIcon /> : <ChannelUpIcon />}
                   </button>
                 )}
-                {onChannelDown && (!isVod || vodInfo?.type === 'series') && (
+                {showNextNav && (
                   <button
                     className="npb-btn npb-channel-down-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      onChannelDown();
-                    }}
+                    onClick={handleNavNext}
                     disabled={!canControl}
-                    title={isVod && vodInfo?.type === 'series' ? t('nextEpisode') : t('nextChannelDown')}
+                    title={isPlaylistActive ? t('nextPlaylistItem') : (isEpisodeNav ? t('nextEpisode') : t('nextChannelDown'))}
                   >
-                    {isVod && vodInfo?.type === 'series' ? <NextIcon /> : <ChannelDownIcon />}
+                    {isPlaylistActive || isEpisodeNav ? <NextIcon /> : <ChannelDownIcon />}
                   </button>
                 )}
                 <button
