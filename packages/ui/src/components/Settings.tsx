@@ -2942,19 +2942,21 @@ export function Settings({
     <div className={`settings-overlay${isFullScreen ? ' settings-overlay--fullscreen' : ''}${activeTab === 'theme' ? ' settings-overlay--no-blur' : ''}`}>
       <div className={`settings-panel settings-panel--sidebar${isFullScreen ? ' settings-panel--fullscreen' : ''}`}>
         <div className="settings-header">
-          <h2>{t('title')}</h2>
-          <div className="settings-language">
-            <span className="settings-language-label">{t('languageLabel')}</span>
-            <select
-              className="settings-language-select"
-              value={language}
-              onChange={(e) => onLanguageChange(e.target.value)}
-              title={t('languageDescription')}
-            >
-              {SUPPORTED_LOCALES.map((locale) => (
-                <option key={locale.code} value={locale.code}>{locale.label}</option>
-              ))}
-            </select>
+          <div className="settings-header-left">
+            <h2>{t('title')}</h2>
+            <div className="settings-language">
+              <span className="settings-language-label">{t('languageLabel')}</span>
+              <select
+                className="settings-language-select"
+                value={language}
+                onChange={(e) => onLanguageChange(e.target.value)}
+                title={t('languageDescription')}
+              >
+                {SUPPORTED_LOCALES.map((locale) => (
+                  <option key={locale.code} value={locale.code}>{locale.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
           <div className="settings-search" ref={searchRef}>
             <div className="settings-search-input-wrapper">
