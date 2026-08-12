@@ -654,7 +654,8 @@ function RecordedTab({ recorded, onPlay, onDelete, onRename, formatDateTime }: R
             await convertRecording(id, format);
         } catch (error) {
             console.error('Manual conversion failed:', error);
-            alert(i18n.t('dvr:manualConversionFailed', { error: (error instanceof Error ? error.message : String(error)) }));
+            const rawError = error instanceof Error ? error.message : String(error);
+            alert(i18n.t('dvr:manualConversionFailed', { error: translateNativeError(rawError) || rawError }));
         } finally {
             setConvertingIds(prev => ({ ...prev, [id]: false }));
         }

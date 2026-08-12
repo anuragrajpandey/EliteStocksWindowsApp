@@ -258,6 +258,7 @@
     "maximize": "Maximize",
     "restoreDown": "Restore Down",
     "fullscreen": "Fullscreen",
+    "exitFullscreen": "Exit Fullscreen",
     "reminderMinutesBefore": "Reminder: {{minutes}} min before",
     "autoSwitchSecondsBefore": "Auto-switch {{seconds}}s before",
     "searchPlaceholder": "Search...",
@@ -2334,6 +2335,7 @@
     "canceledOrFailed": "Canceled or failed downloads",
     "converting": "Converting…",
     "convertRecording": "Convert recording",
+    "failedToConvertRecording": "Failed to convert recording",
     "convertToMkv": "Convert to MKV",
     "convertToMp4": "Convert to MP4",
     "daily": "Daily",
@@ -3327,6 +3329,7 @@
     "categoryCombined": "Category Combined",
     "categoryEmptyHint": "Category is empty. Mark it as the target and click ＋ Channel in the left panel to insert.",
     "categoryNamePlaceholder": "Category name...",
+    "clickToRename": "Click to rename",
     "channelsCount_one": "{{count}} channel",
     "channelsCount_other": "{{count}} channels",
     "combineError": "Combine Error",
@@ -3603,5 +3606,24 @@
     "welcome": "Welcome! Here's a summary of the latest features, enhancements, and fixes added to ynoTV.",
     "getStarted": "Get Started",
     "close": "Close"
+  },
+  "discord": {
+    "browsingYnotv": "Browsing ynotv",
+    "browsingLiveTv": "Browsing Live TV",
+    "browsingMovies": "Browsing Movies",
+    "browsingSeries": "Browsing Series",
+    "checkingDvrRecordings": "Checking DVR Recordings",
+    "checkingSportsHub": "Checking Sports Hub",
+    "checkingTvCalendar": "Checking TV Calendar",
+    "browsingStremio": "Browsing Stremio",
+    "browsingNuvio": "Browsing Nuvio",
+    "tweakingSettings": "Tweaking Settings",
+    "browsingItem": "Browsing {{title}}",
+    "movie": "Movie",
+    "movieYear": "Movie · {{year}}",
+    "series": "Series",
+    "seriesYear": "Series · {{year}}",
+    "watchingSomething": "Watching something",
+    "paused": "Paused"
   }
 }

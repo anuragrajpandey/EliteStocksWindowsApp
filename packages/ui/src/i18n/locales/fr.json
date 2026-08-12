@@ -258,6 +258,7 @@
     "maximize": "Agrandir",
     "restoreDown": "Restaurer",
     "fullscreen": "Plein écran",
+    "exitFullscreen": "Quitter le plein écran",
     "reminderMinutesBefore": "Rappel : {{minutes}} min avant",
     "autoSwitchSecondsBefore": "Bascule automatique {{seconds}}s avant",
     "searchPlaceholder": "Rechercher…",
@@ -2334,6 +2335,7 @@
     "canceledOrFailed": "Téléchargements annulés ou échoués",
     "converting": "Conversion…",
     "convertRecording": "Convertir l’enregistrement",
+    "failedToConvertRecording": "Échec de la conversion de l'enregistrement",
     "convertToMkv": "Convertir en MKV",
     "convertToMp4": "Convertir en MP4",
     "daily": "Quotidien",
@@ -3327,6 +3329,7 @@
     "categoryCombined": "Catégorie combinée",
     "categoryEmptyHint": "La catégorie est vide. Marquez-la comme cible et cliquez sur ＋ Chaîne dans le panneau de gauche pour insérer.",
     "categoryNamePlaceholder": "Nom de la catégorie...",
+    "clickToRename": "Cliquer pour renommer",
     "channelsCount_one": "{{count}} chaîne",
     "channelsCount_other": "{{count}} chaînes",
     "combineError": "Erreur de combinaison",
@@ -3603,5 +3606,24 @@
     "welcome": "Bienvenue ! Voici un résumé des dernières fonctionnalités, améliorations et corrections ajoutées à ynoTV.",
     "getStarted": "Commencer",
     "close": "Fermer"
+  },
+  "discord": {
+    "browsingYnotv": "Parcourir ynotv",
+    "browsingLiveTv": "Parcourir la TV en direct",
+    "browsingMovies": "Parcourir les films",
+    "browsingSeries": "Parcourir les séries",
+    "checkingDvrRecordings": "Vérifier les enregistrements DVR",
+    "checkingSportsHub": "Consulter le hub sport",
+    "checkingTvCalendar": "Consulter le calendrier TV",
+    "browsingStremio": "Parcourir Stremio",
+    "browsingNuvio": "Parcourir Nuvio",
+    "tweakingSettings": "Modifier les paramètres",
+    "browsingItem": "Parcourir {{title}}",
+    "movie": "Film",
+    "movieYear": "Film · {{year}}",
+    "series": "Série",
+    "seriesYear": "Série · {{year}}",
+    "watchingSomething": "Regarde quelque chose",
+    "paused": "En pause"
   }
 }

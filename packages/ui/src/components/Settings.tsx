@@ -2987,7 +2987,7 @@ export function Settings({
               className="settings-fullscreen-btn"
               type="button"
               onClick={toggleFullScreen}
-              title={isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
+              title={isFullScreen ? i18n.t('common:exitFullscreen') : i18n.t('common:fullscreen')}
             >
               {isFullScreen ? (
                 <svg className="settings-fullscreen-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

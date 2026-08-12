@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import i18n from '../../i18n';
 
 export type DiscordConfig = {
   enabled: boolean;
@@ -59,8 +60,8 @@ function computeBase(): Base {
     if (config.hideTitle) {
       return {
         payload: {
-          details: 'Watching something',
-          state: playback.paused ? 'Paused' : undefined,
+          details: i18n.t('discord:watchingSomething'),
+          state: playback.paused ? i18n.t('discord:paused') : undefined,
           paused: playback.paused,
         },
         key: `hide:${playback.paused}`,
@@ -70,7 +71,7 @@ function computeBase(): Base {
     const remaining = playback.durationSec - playback.positionSec;
     const live = !playback.paused && playback.durationSec > 0 && remaining > 0;
     const state = playback.paused
-      ? 'Paused'
+      ? i18n.t('discord:paused')
       : playback.subtitle || (playback.year != null ? String(playback.year) : undefined);
     return {
       payload: {
@@ -90,13 +91,13 @@ function computeBase(): Base {
   if (browse && config.showWhenBrowsing) {
     if (config.hideTitle) {
       return {
-        payload: { details: 'Browsing ynotv' },
+        payload: { details: i18n.t('discord:browsingYnotv') },
         key: 'browse:hide',
       };
     }
     return {
       payload: {
-        details: browse.details ?? 'Browsing ynotv',
+        details: browse.details ?? i18n.t('discord:browsingYnotv'),
         state: browse.state,
         posterUrl: (config.showPoster && browse.largeImage) || undefined,
         largeText: browse.largeText ?? browse.details,

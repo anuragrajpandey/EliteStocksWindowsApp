@@ -1315,7 +1315,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
               <h2
                 className={`ple-name-title${!isCustomPlaylist ? ' readonly' : ''}`}
                 onClick={() => isCustomPlaylist && setIsEditingName(true)}
-                title={isCustomPlaylist ? "Click to rename" : undefined}
+                title={isCustomPlaylist ? t('clickToRename') : undefined}
               >
                 {currentName} {isCustomPlaylist && <EditIcon />}
               </h2>
@@ -1513,7 +1513,7 @@ export function PlaylistEditorModal({ playlistId, playlistName, onClose }: Playl
                                               e.stopPropagation();
                                               toggleCategoryEnabledGlobal(source.id, cat.category_id, cat.enabled !== false);
                                             }}
-                                            title={cat.enabled === false ? "Show category" : "Hide category"}
+                                            title={cat.enabled === false ? t('showCategory') : t('hideCategory')}
                                           >
                                             {cat.enabled === false ? <EyeSlashIcon /> : <EyeIcon />}
                                           </button>

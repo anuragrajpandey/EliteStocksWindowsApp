@@ -70,6 +70,7 @@ export function translateNativeError(msg: string | null | undefined): string {
   if (msg.startsWith('Conflict:')) return i18n.t('contextMenu.conflictMessage');
   if (msg.startsWith('Failed to schedule recording:')) return i18n.t('contextMenu.failedScheduleRecording');
   if (msg.startsWith('Failed to start instant recording:')) return i18n.t('dvr:failedToStartRecording');
+  if (msg.startsWith('Failed to convert recording:')) return i18n.t('dvr:failedToConvertRecording');
   if (msg.startsWith('Failed to resolve stream URL:')) return i18n.t('contextMenu.failedResolveStreamUrl');
   if (msg.startsWith('Download interrupted by network error:')) return i18n.t('common:epgDownloadInterrupted');
   if (msg.startsWith('Download interrupted:')) return i18n.t('common:epgDownloadInterrupted');

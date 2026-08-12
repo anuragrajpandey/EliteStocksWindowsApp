@@ -824,7 +824,7 @@ export function SubtitleControlModal({
       }
 
       if (!res || !res.success) {
-        const msg = res?.error || t('openSubtitlesSearchFailed');
+        const msg = translateNativeError(res?.error) || t('openSubtitlesSearchFailed');
         setSearchError(msg);
         useToastStore.getState().addToast(msg, 'error');
         return;
@@ -858,7 +858,7 @@ export function SubtitleControlModal({
       setViewState('subtitles');
     } catch (e: any) {
       console.error('[SubtitleModal] OpenSubtitles search error:', e);
-      const msg = e?.message || t('openSubtitlesSearchFailed');
+      const msg = translateNativeError(e?.message) || t('openSubtitlesSearchFailed');
       setSearchError(msg);
       useToastStore.getState().addToast(msg, 'error');
     } finally {
@@ -879,7 +879,7 @@ export function SubtitleControlModal({
     try {
       const res = await downloadOpenSubtitlesSubtitle(openSubtitlesToken, sub.fileId);
       if (!res.success || !res.content) {
-        const msg = res.error || t('downloadSubtitleFailed');
+        const msg = translateNativeError(res.error) || t('downloadSubtitleFailed');
         setSearchError(msg);
         useToastStore.getState().addToast(msg, 'error');
         return;
@@ -910,7 +910,7 @@ export function SubtitleControlModal({
       setViewState('tracks');
     } catch (e: any) {
       console.error('[SubtitleModal] OpenSubtitles download exception:', e);
-      const msg = e?.message || t('downloadFailed');
+      const msg = translateNativeError(e?.message) || t('downloadFailed');
       setSearchError(msg);
       useToastStore.getState().addToast(msg, 'error');
     } finally {

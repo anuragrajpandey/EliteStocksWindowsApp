@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
+import i18n from '../i18n';
 import { useUIStore } from '../stores/uiStore';
 import type { View } from './useNavigation';
-import { configureDiscord, setBrowsePresence, type BrowsePresence } from '../services/discord/presence';
+import { configureDiscord, setBrowsePresence } from '../services/discord/presence';
 
 export interface DiscordSettings {
   discordRichPresence?: boolean;
@@ -12,17 +13,17 @@ export interface DiscordSettings {
   discordShowTimestamp?: boolean;
 }
 
-const VIEW_LABELS: Record<string, BrowsePresence> = {
-  none: { details: 'Browsing ynotv' },
-  guide: { details: 'Browsing Live TV' },
-  movies: { details: 'Browsing Movies' },
-  series: { details: 'Browsing Series' },
-  dvr: { details: 'Checking DVR Recordings' },
-  sports: { details: 'Checking Sports Hub' },
-  calendar: { details: 'Checking TV Calendar' },
-  stremio: { details: 'Browsing Stremio' },
-  nuvio: { details: 'Browsing Nuvio' },
-  settings: { details: 'Tweaking Settings' },
+const VIEW_LABELS: Record<string, string> = {
+  none: 'discord:browsingYnotv',
+  guide: 'discord:browsingLiveTv',
+  movies: 'discord:browsingMovies',
+  series: 'discord:browsingSeries',
+  dvr: 'discord:checkingDvrRecordings',
+  sports: 'discord:checkingSportsHub',
+  calendar: 'discord:checkingTvCalendar',
+  stremio: 'discord:browsingStremio',
+  nuvio: 'discord:browsingNuvio',
+  settings: 'discord:tweakingSettings',
 };
 
 export function useDiscordPresence(
@@ -58,8 +59,8 @@ export function useDiscordPresence(
       const year = itemAny.year ? String(itemAny.year) : undefined;
       const poster = itemAny.cover || itemAny.stream_icon || itemAny.poster || itemAny.poster_path || undefined;
       setBrowsePresence({
-        details: `Browsing ${itemAny.title}`,
-        state: year ? `Movie · ${year}` : 'Movie',
+        details: i18n.t('discord:browsingItem', { title: itemAny.title }),
+        state: year ? i18n.t('discord:movieYear', { year }) : i18n.t('discord:movie'),
         largeImage: poster,
         largeText: itemAny.title,
       });
@@ -71,14 +72,15 @@ export function useDiscordPresence(
       const year = itemAny.year ? String(itemAny.year) : undefined;
       const poster = itemAny.cover || itemAny.stream_icon || itemAny.poster || itemAny.poster_path || undefined;
       setBrowsePresence({
-        details: `Browsing ${itemAny.title}`,
-        state: year ? `Series · ${year}` : 'Series',
+        details: i18n.t('discord:browsingItem', { title: itemAny.title }),
+        state: year ? i18n.t('discord:seriesYear', { year }) : i18n.t('discord:series'),
         largeImage: poster,
         largeText: itemAny.title,
       });
       return;
     }
 
-    setBrowsePresence(VIEW_LABELS[activeView] ?? { details: 'Browsing ynotv' });
+    const labelKey = VIEW_LABELS[activeView] ?? 'discord:browsingYnotv';
+    setBrowsePresence({ details: i18n.t(labelKey, { defaultValue: i18n.t('discord:browsingYnotv') }) });
   }, [activeView, moviesSelectedItem, seriesSelectedItem, settings.discordRichPresence]);
 }
