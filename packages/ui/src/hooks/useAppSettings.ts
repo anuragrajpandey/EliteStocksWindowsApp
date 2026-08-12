@@ -497,6 +497,19 @@ export function useAppSettings(): AppSettings {
       fontValue = "'custom-uploaded-font', sans-serif";
     }
 
+    // CJK font fallback: Chinese locales (zh-CN / zh-TW) need a CJK-capable font for
+    // glyphs the latin UI fonts don't cover. Append the platform CJK stack to whatever
+    // UI font is selected so Chinese text always renders (latin keeps the chosen face).
+    const activeLng = i18n.language || i18n.resolvedLanguage || 'en';
+    if (activeLng.startsWith('zh')) {
+      const cjkStack =
+        activeLng === 'zh-TW'
+          ? "'Microsoft JhengHei', 'PingFang TC', 'Noto Sans CJK TC', 'Heiti TC', sans-serif"
+          : "'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC', 'Source Han Sans SC', sans-serif";
+      const primary = fontValue.split(',')[0];
+      fontValue = `${primary}, ${cjkStack}`;
+    }
+
     // Guard: if the DOM already has this exact value, no work needed.
     // This prevents secondary instances (ChannelLogo, MetadataBadge mounted in Virtuoso
     // rows during EPG scroll) from redundantly re-applying the same font or, on the first
@@ -532,7 +545,7 @@ export function useAppSettings(): AppSettings {
     } else {
       root.style.setProperty('--font-family', fontValue);
     }
-  }, [appFontFamily, appCustomFontBase64, appCustomFontFormat]);
+  }, [appFontFamily, appCustomFontBase64, appCustomFontFormat, i18n.language]);
 
   // Apply theme effect
   useEffect(() => {

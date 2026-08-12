@@ -13,6 +13,15 @@ import sr from './locales/sr.json';
 import hr from './locales/hr.json';
 import bs from './locales/bs.json';
 import sq from './locales/sq.json';
+import ru from './locales/ru.json';
+import el from './locales/el.json';
+import nl from './locales/nl.json';
+import fa from './locales/fa.json';
+import hi from './locales/hi.json';
+import ur from './locales/ur.json';
+import zhCN from './locales/zh-CN.json';
+import zhTW from './locales/zh-TW.json';
+import vi from './locales/vi.json';
 
 /** Locale registry. Locales ship with app code (Vite bundles the JSON imports). */
 export const SUPPORTED_LOCALES: { code: string; label: string }[] = [
@@ -29,6 +38,15 @@ export const SUPPORTED_LOCALES: { code: string; label: string }[] = [
   { code: 'hr', label: 'Hrvatski' },
   { code: 'bs', label: 'Bosanski' },
   { code: 'sq', label: 'Shqip' },
+  { code: 'ru', label: 'Русский' },
+  { code: 'el', label: 'Ελληνικά' },
+  { code: 'nl', label: 'Nederlands' },
+  { code: 'fa', label: 'فارسی' },
+  { code: 'hi', label: 'हिन्दी' },
+  { code: 'ur', label: 'اردو' },
+  { code: 'zh-CN', label: '简体中文' },
+  { code: 'zh-TW', label: '繁體中文' },
+  { code: 'vi', label: 'Tiếng Việt' },
 ];
 
 // NOTE: Full RTL mirroring for Arabic is intentionally disabled. Setting
@@ -81,6 +99,15 @@ i18n.use(initReactI18next).init({
     hr: hr as any,
     bs: bs as any,
     sq: sq as any,
+    ru: ru as any,
+    el: el as any,
+    nl: nl as any,
+    fa: fa as any,
+    hi: hi as any,
+    ur: ur as any,
+    'zh-CN': zhCN as any,
+    'zh-TW': zhTW as any,
+    vi: vi as any,
   },
   lng: getInitialLanguage(),
   fallbackLng: 'en',
