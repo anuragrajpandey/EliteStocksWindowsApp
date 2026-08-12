@@ -84,6 +84,8 @@ interface UIState {
   setEpgVisibleHours: (value: 'auto' | number) => void;
   epgClockFormat: '12h' | '24h';
   setEpgClockFormat: (value: '12h' | '24h') => void;
+  epgShowDate: boolean;
+  setEpgShowDate: (value: boolean) => void;
   includeAllChannelsToPlaylist: boolean;
   setIncludeAllChannelsToPlaylist: (value: boolean) => void;
   sidebarDragHotkey: 'Control' | 'Alt' | 'Shift' | 'Meta' | 'None';
@@ -217,6 +219,8 @@ export const useUIStore = create<UIState>((set) => ({
   setEpgVisibleHours: (value) => set({ epgVisibleHours: value }),
   epgClockFormat: '12h',
   setEpgClockFormat: (value) => set({ epgClockFormat: value }),
+  epgShowDate: false,
+  setEpgShowDate: (value) => set({ epgShowDate: value }),
   includeAllChannelsToPlaylist: false,
   setIncludeAllChannelsToPlaylist: (value) => set({ includeAllChannelsToPlaylist: value }),
   sidebarDragHotkey: (typeof window !== 'undefined' ? (localStorage.getItem('sidebar_drag_hotkey') as any) : null) || 'Control',
@@ -433,6 +437,8 @@ export const useEpgVisibleHours = () => useUIStore((s) => s.epgVisibleHours);
 export const useSetEpgVisibleHours = () => useUIStore((s) => s.setEpgVisibleHours);
 export const useEpgClockFormat = () => useUIStore((s) => s.epgClockFormat);
 export const useSetEpgClockFormat = () => useUIStore((s) => s.setEpgClockFormat);
+export const useEpgShowDate = () => useUIStore((s) => s.epgShowDate);
+export const useSetEpgShowDate = () => useUIStore((s) => s.setEpgShowDate);
 export const useIncludeAllChannelsToPlaylist = () => useUIStore((s) => s.includeAllChannelsToPlaylist);
 export const useSetIncludeAllChannelsToPlaylist = () => useUIStore((s) => s.setIncludeAllChannelsToPlaylist);
 export const useSidebarDragHotkey = () => useUIStore((s) => s.sidebarDragHotkey);

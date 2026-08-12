@@ -16,13 +16,13 @@ import { CustomGroupManager } from './CustomGroupManager';
 import { FailoverGroupListModal } from './FailoverGroupListModal';
 import { PlaylistListModal } from './PlaylistListModal';
 
-import { useChannelSortOrder, useEpgView, useEpgVisibleHours, useEpgClockFormat, useUIStore } from '../stores/uiStore';
+import { useChannelSortOrder, useEpgView, useEpgVisibleHours, useEpgClockFormat, useEpgShowDate, useUIStore } from '../stores/uiStore';
 import { NowPlayingBar } from './NowPlayingBar';
 import { AudioVisualizer, type VisualizerMode } from './AudioVisualizer';
 import type { StoredChannel, StoredProgram, WatchlistItem } from '../db';
 import { db } from '../db';
 import { matchesSearch } from '../utils/searchNormalization';
-import { formatTime } from '../utils/dateTime';
+import { formatTime, formatDate } from '../utils/dateTime';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n';
 
@@ -359,6 +359,7 @@ export function ChannelPanel({
   const epgView = useEpgView();
   const epgVisibleHours = useEpgVisibleHours();
   const epgClockFormat = useEpgClockFormat();
+  const epgShowDate = useEpgShowDate();
   const { epgLazyLoadingEnabled, layoutSettingsLoaded } = useAppSettings();
 
   useEffect(() => {
@@ -1136,10 +1137,15 @@ export function ChannelPanel({
   const isPlaylistSource = !!sourceId && sourceId.startsWith('playlist:');
   const isCustomCategory = isCustomGroup || Boolean(isPlaylistCatLink) || isCustomPlaylistCat || isPlaylistSource;
 
-  // Format time
+  // Format time (and optional date if epgShowDate is enabled)
   const formatEpgTime = useCallback((date: Date) => {
-    return formatTime(date, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
-  }, [epgClockFormat]);
+    const timeStr = formatTime(date, { hour: '2-digit', minute: '2-digit', hour12: epgClockFormat !== '24h' });
+    if (epgShowDate) {
+      const dateStr = formatDate(date, { month: 'numeric', day: 'numeric' });
+      return `${dateStr} ${timeStr}`;
+    }
+    return timeStr;
+  }, [epgClockFormat, epgShowDate]);
 
   // Generate time slots aligned to the grid
   const timeSlots = useMemo(() => {

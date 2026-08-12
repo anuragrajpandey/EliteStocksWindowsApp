@@ -705,6 +705,8 @@
       "epgClockFormatSub": "Select between 12-hour (AM/PM) and 24-hour clock display across EPG grid, search results, watchlist, and recordings.",
       "clock12": "12-Hour Clock (e.g. 2:30 PM)",
       "clock24": "24-Hour Clock (e.g. 14:30)",
+      "epgShowDate": "Show Date in EPG",
+      "epgShowDateSub": "Display the date alongside time markers in the EPG timeline header.",
       "darkenCurrent": "Make EPG Current airing program blocks darker",
       "darkenCurrentSub": "When enabled, the currently airing program in the EPG will have a deeper/darker highlight.",
       "highlightCurrent": "Highlight border around current playing",

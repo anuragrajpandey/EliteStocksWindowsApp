@@ -29,6 +29,8 @@ interface LiveTVTabProps {
   onEpgVisibleHoursChange: (hours: 'auto' | number) => void;
   epgClockFormat: '12h' | '24h';
   onEpgClockFormatChange: (format: '12h' | '24h') => void;
+  epgShowDate?: boolean;
+  onEpgShowDateChange?: (enabled: boolean) => void;
   epgBoldChannelNames: boolean;
   onEpgBoldChannelNamesChange: (enabled: boolean) => void;
   epgBoldTopCategories: boolean;
@@ -153,6 +155,8 @@ export function LiveTVTab({
   onEpgVisibleHoursChange,
   epgClockFormat,
   onEpgClockFormatChange,
+  epgShowDate = false,
+  onEpgShowDateChange,
   epgBoldChannelNames,
   onEpgBoldChannelNamesChange,
   epgBoldTopCategories,
@@ -349,6 +353,22 @@ export function LiveTVTab({
                     <option value="12h">{i18n.t('settings:livetv.clock12')}</option>
                     <option value="24h">{i18n.t('settings:livetv.clock24')}</option>
                   </select>
+                </div>
+
+                {/* Show Date in EPG */}
+                <div className="timeshift-toggle-row">
+                  <div className="timeshift-toggle-info">
+                    <span className="timeshift-toggle-label">{i18n.t('settings:livetv.epgShowDate')}</span>
+                    <span className="timeshift-toggle-sub">{i18n.t('settings:livetv.epgShowDateSub')}</span>
+                  </div>
+                  <label className="toggle-switch">
+                    <input
+                      type="checkbox"
+                      checked={epgShowDate}
+                      onChange={(e) => onEpgShowDateChange?.(e.target.checked)}
+                    />
+                    <span className="toggle-slider" />
+                  </label>
                 </div>
 
                 {/* Enable darker current program block (v1 design only) */}

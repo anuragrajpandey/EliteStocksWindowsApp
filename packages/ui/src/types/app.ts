@@ -164,6 +164,7 @@ export interface AppSettings {
     uiScale?: number;
     epgVisibleHours?: 'auto' | number;
     epgClockFormat?: '12h' | '24h';
+    epgShowDate?: boolean;
     rememberLastChannels?: boolean;
     savedLayoutState?: SavedLayoutState;
     startupView?: 'none' | 'guide' | 'movies' | 'series' | 'dvr' | 'sports' | 'calendar' | 'stremio' | 'nuvio';

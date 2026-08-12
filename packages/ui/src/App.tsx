@@ -63,6 +63,7 @@ import {
   useSetEpgView,
   useSetEpgVisibleHours,
   useSetEpgClockFormat,
+  useSetEpgShowDate,
   useSetIncludeAllChannelsToPlaylist
 } from './stores/uiStore';
 import { getAdjacentEpisode, recordVodWatch, recordEpisodeWatch, getEpisodeProgress } from './db';
@@ -2273,6 +2274,7 @@ function useTmdbPresencePoster(
   const epgView = useEpgView();
   const setEpgVisibleHours = useSetEpgVisibleHours();
   const setEpgClockFormat = useSetEpgClockFormat();
+  const setEpgShowDate = useSetEpgShowDate();
   const setIncludeAllChannelsToPlaylist = useSetIncludeAllChannelsToPlaylist();
 
   const handleToggleEpgView = useCallback(() => {
@@ -3646,6 +3648,9 @@ function useTmdbPresencePoster(
           }
           if (settingsResult.data.epgClockFormat) {
             setEpgClockFormat(settingsResult.data.epgClockFormat as '12h' | '24h');
+          }
+          if (settingsResult.data.epgShowDate !== undefined) {
+            setEpgShowDate(settingsResult.data.epgShowDate);
           }
           if (settingsResult.data.includeAllChannelsToPlaylist !== undefined) {
             setIncludeAllChannelsToPlaylist(settingsResult.data.includeAllChannelsToPlaylist);

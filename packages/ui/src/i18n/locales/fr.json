@@ -705,6 +705,8 @@
       "epgClockFormatSub": "Choisissez entre le format 12h (AM/PM) et 24h sur la grille EPG, la recherche, le calendrier et les enregistrements.",
       "clock12": "Horloge 12h (ex. 2:30 PM)",
       "clock24": "Horloge 24h (ex. 14:30)",
+      "epgShowDate": "Afficher la date dans l'EPG",
+      "epgShowDateSub": "Afficher la date à côté des marqueurs d'heure dans l'en-tête de la chronologie EPG.",
       "darkenCurrent": "Assombrir le bloc du programme en cours",
       "darkenCurrentSub": "Lorsqu'elle est activée, l'émission en cours de diffusion aura un surlignage plus foncé.",
       "highlightCurrent": "Bordure de surlignage sur la chaîne en cours",
