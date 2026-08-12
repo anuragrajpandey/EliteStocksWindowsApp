@@ -1,5 +1,37 @@
 # Changelog
 
+## v2.3.3
+
+### Added
+
+- **Full localisation (i18n)** - Multi-language support has been added for Albanian, Arabic, Bosnian, Brazilian Portuguese, Croatian, Dutch, French, German, Greek, Hindi, Italian, Persian/Farsi, Polish, Russian, Serbian, Simplified Chinese, Spanish, Traditional Chinese, Turkish, Urdu, and Vietnamese. Translations were AI-generated and may contain errors - community corrections are welcome via pull request.
+- **Channel filter in EPG** - A channel filter has been added to the EPG view, allowing quick search through channels within the current category.
+- **VOD playlists and queue** - Create playlists and queue VOD content from the new Playlist tab.
+- **Improved drag-and-drop ordering** - Drag-and-drop reordering has been improved across sources and categories. Hold `Ctrl` (configurable in Shortcuts) to drag and reorder sources and categories in the Live TV sidebar.
+- **Alphabetical sorting for channels and categories** - Channels and categories can be sorted alphabetically in their respective manager.
+- **Jump to Letter in EPG** - Hover over the A-Z button in the EPG for a full alphabetical display, select any letter to jump to that letter in the EPG. Works best when channels are sorted alphabetically.
+- **Sports Favourites page updates** - The Favourites page now displays the next scheduled game and any currently live games for each favourite team.
+- **Subtitle diagnostics tool** - A new diagnostics modal, accessible while a subtitle issue is occurring, captures the app's subtitle selection state alongside an MPV debug log to assist with investigating support issues.
+- **Additional VOD sort options** - VOD content can now be sorted by Year, Rating, and Last Watched.
+- **Mouse side button support** - Mouse Back and Forward buttons can now be bound to shortcuts.
+- **Minimise to system tray on close** - An option to minimise the app to the system tray instead of closing has been added under `Settings → UI`.
+- **EPG date headers** - Dates can now be displayed directly in the EPG grid for easier navigation of catch-up history. Enable under `Settings → Live TV → EPG`.
+- **Sports enhancements** - Team pages now include Roster, Injuries, Depth Chart, and Leaders tabs. League API and logo caching have also been updated.
+- **Save VOD watch progress on app close** - Watch progress for VOD content is now saved automatically when the app is closed.
+- **Source-provided VOD trailers** - Trailers supplied directly by the source are now playable from VOD detail pages.
+- **Collapse VOD categories on startup** - VOD source categories can be set to collapse automatically on launch. Enable under `Settings → UI → Collapse Source Categories on Startup`.
+- **TMDb ID from Xtream Code sources** - TMDb IDs are now retrieved directly from XC sources for VOD content if provided, improving metadata matching accuracy.
+- **Quickly Resume VOD Recent watched** - Click the play icon in the poster to resume playback on a Recently watched
+
+### Fixed
+
+- **High idle GPU usage from background animations** - The animated glass bulb background in the v3 UI was continuously re-blurring large layers every frame, even when idle. The bulbs now render statically with the same appearance, reducing idle GPU usage.
+- **Channel info overlay not updating when the next program starts** - The channel info overlay will now refresh correctly when the current program ends and the next one begins.
+- **Category not loading in EPG when adding a new playlist source** - Categories will now correctly load into the EPG from a newly added source.
+- **Subtitle playback, encoding, and retry reliability** - Various fixes applied to subtitle loading, encoding handling, and retry behaviour.
+- **Trakt token refresh and scrobble reliability** - Trakt token refreshing and scrobble submission have been made more reliable.
+- **VOD episode not being marked complete when over 90% progress** - Episodes will now correctly be marked as complete and show the next episode in Recent tab.
+
 ## v2.3.2
 
 ### Please also read changelogs for v2.3.0-v2.3.1 if you haven't
