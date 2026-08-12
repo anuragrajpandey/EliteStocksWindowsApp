@@ -263,7 +263,14 @@ function getCachedTeams(leagueId: string): SportsTeam[] | null {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.data)) {
-        return parsed.data;
+        // Honour the 7-day TTL. Payloads written without a usable timestamp
+        // (older versions) are treated as expired and re-fetched.
+        const timestamp = typeof parsed.timestamp === 'number' ? parsed.timestamp : 0;
+        if (Date.now() - timestamp < TEAMS_CACHE_TTL_MS) {
+          return parsed.data;
+        }
+        // Expired — remove so the next fetch writes a fresh entry.
+        localStorage.removeItem(TEAMS_CACHE_KEY_PREFIX + leagueId);
       }
     }
   } catch {
