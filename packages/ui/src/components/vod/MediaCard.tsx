@@ -3,6 +3,7 @@ import { getTmdbImageUrl, TMDB_POSTER_SIZES } from '../../services/tmdb';
 import { useRpdbSettings } from '../../hooks/useRpdbSettings';
 import { getRpdbPosterUrl } from '../../services/rpdb';
 import type { StoredMovie, StoredSeries } from '../../db';
+import { getVodDisplayYear } from './vodYear';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import './MediaCard.css';
@@ -64,9 +65,9 @@ export const MediaCard = memo(function MediaCard({ item, type, onClick, onRemove
   // Priority: RPDB (if available) > local poster > TMDB fallback
   const displayUrl = rpdbPosterUrl || posterUrl || getTmdbImageUrl(tmdbPosterPath, TMDB_POSTER_SIZES.medium);
 
-  // Use item.year if available, otherwise extract from release_date
-  const year = item.year
-    || (item.release_date ? item.release_date.slice(0, 4) : null);
+  // Resolve the year the same way sorting does (year column with quoted-value
+  // tolerance, release_date/releaseDate, or a trailing year in the name).
+  const year = getVodDisplayYear(item, type);
 
   // Use clean title if available, otherwise fall back to name
   const displayTitle = item.title || item.name;

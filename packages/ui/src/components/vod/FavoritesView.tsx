@@ -4,10 +4,19 @@ import { MediaCard } from './MediaCard';
 import type { StoredMovie, StoredSeries } from '../../db';
 import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
 import { useSourceNameMap } from '../../hooks/useChannels';
+import { useVodLastWatchedMap } from '../../hooks/useVod';
 import { useTranslation } from 'react-i18next';
-import { activeLocale } from '../../utils/dateTime';
 import i18n from '../../i18n';
+import {
+  DEFAULT_SORT_DIRECTION,
+  sortVodItems,
+  type SortDirection,
+  type VodSortKey,
+} from './vodSort';
 import './VodBrowse.css';
+
+// Sort options available in the Favorites view (in dropdown order)
+const FAVORITES_SORT_KEYS: VodSortKey[] = ['default', 'name', 'year', 'rating', 'lastWatched'];
 
 const GridScroller = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   (props, ref) => (
@@ -35,6 +44,7 @@ export function FavoritesView({
   useTranslation();
   const virtuosoRef = useRef<VirtuosoGridHandle>(null);
   const removeFavorite = useVodFavoritesStore((s) => s.removeFavorite);
+  const favorites = useVodFavoritesStore((s) => s.favorites);
   const sourceNameMap = useSourceNameMap();
 
   const [showSourceBadge, setShowSourceBadge] = useState(() => {
@@ -44,6 +54,75 @@ export function FavoritesView({
     }
     return false;
   });
+
+  // Sort preference (persisted)
+  const [sortKey, setSortKey] = useState<VodSortKey>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('vodFavoritesSortBy');
+      if (saved && (FAVORITES_SORT_KEYS as string[]).includes(saved)) {
+        return saved as VodSortKey;
+      }
+    }
+    return 'default';
+  });
+
+  const [sortDirection, setSortDirection] = useState<SortDirection>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('vodFavoritesSortDir');
+      if (saved === 'asc' || saved === 'desc') {
+        return saved;
+      }
+    }
+    return DEFAULT_SORT_DIRECTION.default;
+  });
+
+  const setSortAndSave = useCallback((key: VodSortKey) => {
+    setSortKey(key);
+    setSortDirection(DEFAULT_SORT_DIRECTION[key]);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('vodFavoritesSortBy', key);
+      localStorage.setItem('vodFavoritesSortDir', DEFAULT_SORT_DIRECTION[key]);
+    }
+  }, []);
+
+  const toggleSortDirection = useCallback(() => {
+    setSortDirection((prev) => {
+      const next = prev === 'asc' ? 'desc' : 'asc';
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('vodFavoritesSortDir', next);
+      }
+      return next;
+    });
+  }, []);
+
+  // Handle selecting the same sort key again: toggle direction instead
+  const handleSortSelect = useCallback((key: VodSortKey) => {
+    if (key === sortKey) {
+      toggleSortDirection();
+      return;
+    }
+    setSortAndSave(key);
+  }, [sortKey, setSortAndSave, toggleSortDirection]);
+
+  // Map of favorite id -> when it was added to favorites
+  const addedAtMap = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const f of favorites) {
+      if (f.type === type) {
+        map.set(f.id, f.addedAt);
+      }
+    }
+    return map;
+  }, [favorites, type]);
+
+  // Last watched timestamps from vod_history (media_id -> watched_at)
+  const lastWatchedMap = useVodLastWatchedMap(type);
+
+  // Sorted items based on the active sort preference
+  const sortedItems = useMemo(
+    () => sortVodItems(items, type, sortKey, sortDirection, { addedAtMap, lastWatchedMap }),
+    [items, type, sortKey, sortDirection, addedAtMap, lastWatchedMap]
+  );
 
   const toggleSourceBadge = useCallback(() => {
     setShowSourceBadge((prev) => {
@@ -63,7 +142,7 @@ export function FavoritesView({
   }, [type, removeFavorite]);
 
   const itemContent = useCallback((index: number) => {
-    const item = items[index];
+    const item = sortedItems[index];
     if (!item) return null;
 
     const sourceName = (showSourceBadge && sourceNameMap)
@@ -80,7 +159,7 @@ export function FavoritesView({
         sourceName={sourceName}
       />
     );
-  }, [items, type, onItemClick, handleRemove, showSourceBadge, sourceNameMap]);
+  }, [sortedItems, type, onItemClick, handleRemove, showSourceBadge, sourceNameMap]);
 
   if (loading) {
     return (
@@ -115,6 +194,40 @@ export function FavoritesView({
           <span className="vod-browse__item-count">{i18n.t('vod:itemCount', { count: items.length })}</span>
         </div>
         <div className="vod-browse__toolbar-right">
+          <div className="vod-browse__sort-container">
+            <span className="vod-browse__sort-label">{i18n.t('vod:sort')}</span>
+            <select
+              className="vod-browse__sort-select"
+              value={sortKey}
+              onChange={(e) => handleSortSelect(e.target.value as VodSortKey)}
+              aria-label={i18n.t('vod:sort')}
+            >
+              <option value="default">{i18n.t('vod:sortAdded')}</option>
+              <option value="name">{i18n.t('vod:sortName')}</option>
+              <option value="year">{i18n.t('vod:sortYear')}</option>
+              <option value="rating">{i18n.t('vod:sortRating')}</option>
+              <option value="lastWatched">{i18n.t('vod:sortLastWatched')}</option>
+            </select>
+            <button
+              className={`vod-sort-dir-btn ${sortDirection === 'desc' ? 'active' : ''}`}
+              onClick={toggleSortDirection}
+              title={sortDirection === 'asc' ? i18n.t('vod:sortAscending') : i18n.t('vod:sortDescending')}
+              aria-label={sortDirection === 'asc' ? i18n.t('vod:sortAscending') : i18n.t('vod:sortDescending')}
+              type="button"
+            >
+              {sortDirection === 'asc' ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                  <path d="M12 19V5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M5 12l7-7 7 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                  <path d="M12 5v14" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M19 12l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </button>
+          </div>
           <button
             className={`vod-favorites-toggle-btn ${showSourceBadge ? 'active' : ''}`}
             onClick={toggleSourceBadge}
@@ -134,8 +247,8 @@ export function FavoritesView({
       <VirtuosoGrid
         ref={virtuosoRef}
         className="vod-browse__grid"
-        data={items}
-        totalCount={items.length}
+        data={sortedItems}
+        totalCount={sortedItems.length}
         itemContent={itemContent}
         components={{
           Scroller: GridScroller,

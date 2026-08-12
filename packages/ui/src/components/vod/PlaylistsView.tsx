@@ -505,7 +505,10 @@ export function PlaylistsView({ onPlayPlaylistItem }: PlaylistsViewProps) {
                           {i18n.t('vod:resumeFrom', { time: resumeTime })}
                         </button>
                       )}
-                      <span className="playlist-card__last-watched" title={i18n.t('vod:lastWatched')}>
+                      <span
+                        className="playlist-card__last-watched"
+                        title={`${i18n.t('vod:lastWatched')}: ${lastWatched.title}`}
+                      >
                         {i18n.t('vod:lastWatched')}: {lastWatched.title}
                       </span>
                     </div>

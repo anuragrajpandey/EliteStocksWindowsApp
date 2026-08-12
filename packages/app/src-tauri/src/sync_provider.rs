@@ -450,6 +450,18 @@ fn is_valid_stream_icon(icon: &str) -> bool {
     true
 }
 
+/// Convert a serde_json::Value to a plain string without JSON encoding.
+/// `serde_json::Value::to_string()` keeps the surrounding quotes for string
+/// values (e.g. "2021" -> `"\"2021\""`), which would be stored verbatim in
+/// the DB. This unwraps strings and numbers to their plain representation.
+fn json_value_to_plain_string(v: &serde_json::Value) -> Option<String> {
+    match v {
+        serde_json::Value::String(s) => Some(s.clone()),
+        serde_json::Value::Number(n) => Some(n.to_string()),
+        _ => None,
+    }
+}
+
 #[derive(Debug, Deserialize)]
 pub struct XtreamVodStream {
     pub stream_id: serde_json::Value,
@@ -819,8 +831,8 @@ pub async fn sync_xtream_vod_movies(
             base_url, username, password, stream_id_str, ext
         );
 
-        let rating_str = stream.rating.map(|v| v.to_string());
-        let year_str = stream.year.map(|v| v.to_string());
+        let rating_str = stream.rating.as_ref().and_then(json_value_to_plain_string);
+        let year_str = stream.year.as_ref().and_then(json_value_to_plain_string);
         
         let added_str = match stream.added {
             Some(serde_json::Value::Number(n)) => Some(n.to_string()),
@@ -1014,8 +1026,8 @@ pub async fn sync_xtream_vod_series(
             }
         }
 
-        let rating_str = stream.rating.map(|v| v.to_string());
-        let year_str = stream.year.map(|v| v.to_string());
+        let rating_str = stream.rating.as_ref().and_then(json_value_to_plain_string);
+        let year_str = stream.year.as_ref().and_then(json_value_to_plain_string);
         
         let added_val = stream.added.clone().or_else(|| stream.last_modified.clone());
         let added_str = match added_val {
@@ -1045,9 +1057,9 @@ pub async fn sync_xtream_vod_series(
             release_date: stream.releaseDate.and_then(|v| if let serde_json::Value::String(s) = v { Some(s) } else { None }),
             rating: rating_str,
             youtube_trailer: stream.youtube_trailer,
-            episode_run_time: stream.episode_run_time.map(|v| v.to_string()),
+            episode_run_time: stream.episode_run_time.as_ref().and_then(json_value_to_plain_string),
             title: stream.title,
-            last_modified: stream.last_modified.map(|v| v.to_string()),
+            last_modified: stream.last_modified.as_ref().and_then(json_value_to_plain_string),
             year: year_str,
             stream_type: Some("series".to_string()),
             stream_icon: None,

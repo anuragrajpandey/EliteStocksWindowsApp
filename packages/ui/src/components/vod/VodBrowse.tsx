@@ -16,13 +16,19 @@ import {
   useAlphabetIndex,
   useCurrentLetter,
   useLazyStalkerLoader,
+  useVodLastWatchedMap,
 } from '../../hooks/useVod';
 import { useVodFavoritesStore } from '../../stores/vodFavoritesStore';
 import { useSourceNameMap } from '../../hooks/useChannels';
 import { useAppSettings } from '../../hooks/useAppSettings';
 import { useTranslation } from 'react-i18next';
-import { activeLocale } from '../../utils/dateTime';
 import i18n from '../../i18n';
+import {
+  DEFAULT_SORT_DIRECTION,
+  sortVodItems,
+  type SortDirection,
+  type VodSortKey,
+} from './vodSort';
 import './VodBrowse.css';
 
 // Poster size presets (card width in pixels)
@@ -37,6 +43,9 @@ const POSTER_SIZE_PRESETS = [
 ] as const;
 
 type PosterSizeValue = typeof POSTER_SIZE_PRESETS[number]['value'];
+
+// Sort options available in the browse view (in dropdown order)
+const VOD_BROWSE_SORT_KEYS: VodSortKey[] = ['added', 'name', 'year', 'rating', 'lastWatched'];
 
 // Hook to persist poster size preference
 function usePosterSizePreference(): [PosterSizeValue, (value: PosterSizeValue) => void] {
@@ -202,23 +211,58 @@ export function VodBrowse({
   // Poster size preference
   const [posterSize, setPosterSize] = usePosterSizePreference();
 
-  // Sort preference
-  const [sortBy, setSortBy] = useState<'name' | 'added'>(() => {
+  // Sort preference (persisted)
+  const [sortBy, setSortBy] = useState<VodSortKey>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('vodSortBy');
-      if (saved === 'added' || saved === 'name') {
-        return saved;
+      if (saved && (VOD_BROWSE_SORT_KEYS as string[]).includes(saved)) {
+        return saved as VodSortKey;
       }
     }
     return 'name';
   });
 
-  const setSortByAndSave = useCallback((val: 'name' | 'added') => {
+  const [sortDirection, setSortDirection] = useState<SortDirection>(() => {
+    if (typeof window !== 'undefined') {
+      const savedDir = localStorage.getItem('vodSortDir');
+      if (savedDir === 'asc' || savedDir === 'desc') {
+        return savedDir;
+      }
+      const savedBy = localStorage.getItem('vodSortBy');
+      if (savedBy && (VOD_BROWSE_SORT_KEYS as string[]).includes(savedBy)) {
+        return DEFAULT_SORT_DIRECTION[savedBy as VodSortKey];
+      }
+    }
+    return DEFAULT_SORT_DIRECTION.name;
+  });
+
+  const setSortAndSave = useCallback((val: VodSortKey) => {
     setSortBy(val);
+    setSortDirection(DEFAULT_SORT_DIRECTION[val]);
     if (typeof window !== 'undefined') {
       localStorage.setItem('vodSortBy', val);
+      localStorage.setItem('vodSortDir', DEFAULT_SORT_DIRECTION[val]);
     }
   }, []);
+
+  const toggleSortDirection = useCallback(() => {
+    setSortDirection((prev) => {
+      const next = prev === 'asc' ? 'desc' : 'asc';
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('vodSortDir', next);
+      }
+      return next;
+    });
+  }, []);
+
+  // Handle selecting the same sort key again: toggle direction instead
+  const handleSortSelect = useCallback((val: VodSortKey) => {
+    if (val === sortBy) {
+      toggleSortDirection();
+      return;
+    }
+    setSortAndSave(val);
+  }, [sortBy, setSortAndSave, toggleSortDirection]);
 
   const { includeSourceInVodSearch, vodShowSourceBadge } = useAppSettings();
   const sourceNameMap = useSourceNameMap();
@@ -243,13 +287,25 @@ export function VodBrowse({
 
   // Get paginated data (using debounced search)
   // Pass 'completed' as refreshTrigger so data reloads when lazy loading finishes
-  const moviesData = usePaginatedMovies(type === 'movies' ? categoryId : null, debouncedSearch, sortBy, completed);
-  const seriesData = usePaginatedSeries(type === 'series' ? categoryId : null, debouncedSearch, sortBy, completed);
+  // The hooks only understand 'name'/'added' SQL ordering; year/rating/lastWatched
+  // are applied on top via sortedItems below.
+  const hookSort = sortBy === 'added' ? 'added' : 'name';
+  const moviesData = usePaginatedMovies(type === 'movies' ? categoryId : null, debouncedSearch, hookSort, completed);
+  const seriesData = usePaginatedSeries(type === 'series' ? categoryId : null, debouncedSearch, hookSort, completed);
 
   const { items, loading: dataLoading, hasMore, loadMore } = type === 'movies' ? moviesData : seriesData;
 
   // Combine loading states
   const loading = dataLoading || lazyLoading;
+
+  // Last watched timestamps from vod_history (media_id -> watched_at)
+  const lastWatchedMap = useVodLastWatchedMap(type === 'movies' ? 'movie' : 'series');
+
+  // Sorted items based on the active sort preference + direction
+  const sortedItems = useMemo(
+    () => sortVodItems(items, type === 'movies' ? 'movie' : 'series', sortBy, sortDirection, { lastWatchedMap }),
+    [items, type, sortBy, sortDirection, lastWatchedMap]
+  );
 
   // Favorites - single store subscription, compute Set of IDs for current type
   const allFavorites = useVodFavoritesStore((s) => s.favorites);
@@ -266,9 +322,9 @@ export function VodBrowse({
   const removeFavorite = useVodFavoritesStore((s) => s.removeFavorite);
 
 
-  // Alphabet navigation
-  const alphabetIndex = useAlphabetIndex(items);
-  const currentLetter = useCurrentLetter(items, visibleRange.startIndex);
+  // Alphabet navigation (only meaningful when sorted A-Z)
+  const alphabetIndex = useAlphabetIndex(sortedItems);
+  const currentLetter = useCurrentLetter(sortedItems, visibleRange.startIndex);
 
   // Available letters (ones that have content)
   const availableLetters = useMemo(() => {
@@ -438,7 +494,7 @@ export function VodBrowse({
       <div className="vod-browse__toolbar">
         <div className="vod-browse__toolbar-left">
           <span className="vod-browse__category-name">{categoryName}</span>
-          <span className="vod-browse__item-count">{i18n.t('vod:itemCount', { count: items.length })}</span>
+          <span className="vod-browse__item-count">{i18n.t('vod:itemCount', { count: sortedItems.length })}</span>
         </div>
         <div className="vod-browse__toolbar-right">
           <div className="vod-browse__sort-container">
@@ -446,11 +502,34 @@ export function VodBrowse({
             <select
               className="vod-browse__sort-select"
               value={sortBy}
-              onChange={(e) => setSortByAndSave(e.target.value as 'name' | 'added')}
+              onChange={(e) => handleSortSelect(e.target.value as VodSortKey)}
+              aria-label={i18n.t('vod:sort')}
             >
-              <option value="name">{i18n.t('vod:sortName')}</option>
               <option value="added">{i18n.t('vod:sortAdded')}</option>
+              <option value="name">{i18n.t('vod:sortName')}</option>
+              <option value="year">{i18n.t('vod:sortYear')}</option>
+              <option value="rating">{i18n.t('vod:sortRating')}</option>
+              <option value="lastWatched">{i18n.t('vod:sortLastWatched')}</option>
             </select>
+            <button
+              className={`vod-sort-dir-btn ${sortDirection === 'desc' ? 'active' : ''}`}
+              onClick={toggleSortDirection}
+              title={sortDirection === 'asc' ? i18n.t('vod:sortAscending') : i18n.t('vod:sortDescending')}
+              aria-label={sortDirection === 'asc' ? i18n.t('vod:sortAscending') : i18n.t('vod:sortDescending')}
+              type="button"
+            >
+              {sortDirection === 'asc' ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                  <path d="M12 19V5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M5 12l7-7 7 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                  <path d="M12 5v14" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M19 12l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </button>
           </div>
           <PosterSizeSlider value={posterSize} onChange={setPosterSize} />
         </div>
@@ -459,7 +538,7 @@ export function VodBrowse({
       <VirtuosoGrid
         ref={virtuosoRef}
         className="vod-browse__grid"
-        data={items}
+        data={sortedItems}
         context={{ loading }}
         computeItemKey={computeItemKey}
         itemContent={ItemContent}
@@ -474,12 +553,13 @@ export function VodBrowse({
         }}
       />
 
-      {items.length > 0 && (
+      {/* Alphabet rail only makes sense in A-Z order */}
+      {sortedItems.length > 0 && sortBy === 'name' && (
         <AlphabetRail
           currentLetter={currentLetter}
           availableLetters={availableLetters}
           onLetterSelect={handleLetterSelect}
-          count={items.length}
+          count={sortedItems.length}
         />
       )}
     </div>

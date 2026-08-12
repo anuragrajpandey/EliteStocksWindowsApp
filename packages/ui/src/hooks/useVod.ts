@@ -1377,3 +1377,24 @@ export function useSeriesEpisodeProgress(seriesId: string | null) {
     refresh,
   };
 }
+
+/**
+ * Map of media_id -> last watched timestamp (watched_at) for a VOD type.
+ * Used for the "Last Watched" sort in browse and favorites views.
+ */
+export function useVodLastWatchedMap(type: 'movie' | 'series'): Map<string, number> {
+  return useLiveQuery<Map<string, number>>(
+    async () => {
+      const dbInstance = await (db as any).dbPromise;
+      const result = await dbInstance.select(
+        'SELECT media_id, MAX(watched_at) AS watched_at FROM vod_history WHERE media_type = ? GROUP BY media_id',
+        [type]
+      );
+      return new Map<string, number>(
+        (result || []).map((r: any) => [String(r.media_id), Number(r.watched_at) || 0])
+      );
+    },
+    [type],
+    new Map<string, number>()
+  ) ?? new Map<string, number>();
+}

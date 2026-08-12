@@ -492,3 +492,36 @@
   background: #14141e;
   color: #ffffff;
 }
+
+/* Sort direction toggle button (browse + favorites) */
+.vod-sort-dir-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.vod-sort-dir-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.vod-sort-dir-btn.active {
+  background: var(--accent-primary-transparent, rgba(229, 9, 20, 0.2));
+  border-color: var(--accent-primary, #e50914);
+  color: var(--accent-primary, #e50914);
+}
+
+.vod-sort-dir-btn svg {
+  display: block;
+}
