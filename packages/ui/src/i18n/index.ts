@@ -3,12 +3,32 @@ import { initReactI18next } from 'react-i18next';
 import en from './locales/en.json';
 import fr from './locales/fr.json';
 import ar from './locales/ar.json';
+import tr from './locales/tr.json';
+import es from './locales/es.json';
+import ptBR from './locales/pt-BR.json';
+import it from './locales/it.json';
+import de from './locales/de.json';
+import pl from './locales/pl.json';
+import sr from './locales/sr.json';
+import hr from './locales/hr.json';
+import bs from './locales/bs.json';
+import sq from './locales/sq.json';
 
 /** Locale registry. Locales ship with app code (Vite bundles the JSON imports). */
 export const SUPPORTED_LOCALES: { code: string; label: string }[] = [
   { code: 'en', label: 'English' },
   { code: 'fr', label: 'Français' },
   { code: 'ar', label: 'العربية' },
+  { code: 'tr', label: 'Türkçe' },
+  { code: 'es', label: 'Español' },
+  { code: 'pt-BR', label: 'Português (Brasil)' },
+  { code: 'it', label: 'Italiano' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'pl', label: 'Polski' },
+  { code: 'sr', label: 'Srpski' },
+  { code: 'hr', label: 'Hrvatski' },
+  { code: 'bs', label: 'Bosanski' },
+  { code: 'sq', label: 'Shqip' },
 ];
 
 // NOTE: Full RTL mirroring for Arabic is intentionally disabled. Setting
@@ -51,6 +71,16 @@ i18n.use(initReactI18next).init({
     en: en as any,
     fr: fr as any,
     ar: ar as any,
+    tr: tr as any,
+    es: es as any,
+    'pt-BR': ptBR as any,
+    it: it as any,
+    de: de as any,
+    pl: pl as any,
+    sr: sr as any,
+    hr: hr as any,
+    bs: bs as any,
+    sq: sq as any,
   },
   lng: getInitialLanguage(),
   fallbackLng: 'en',

@@ -13,7 +13,7 @@ const localesDir = join(root, '..', 'packages', 'ui', 'src', 'i18n', 'locales');
 const indexFile = join(root, '..', 'packages', 'ui', 'src', 'i18n', 'index.ts');
 
 const registrySource = readFileSync(indexFile, 'utf8');
-const registered = [...registrySource.matchAll(/code:\s*'([a-z0-9-]+)'/g)].map((m) => m[1]);
+const registered = [...registrySource.matchAll(/code:\s*'([a-zA-Z0-9-]+)'/g)].map((m) => m[1]);
 
 const files = readdirSync(localesDir).filter((f) => f.endsWith('.json'));
 const fileCodes = [...new Set(files.map((f) => f.replace(/\.json$/, '')))];
