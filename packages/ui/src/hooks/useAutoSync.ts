@@ -27,7 +27,7 @@ let hasInitialSyncTriggered = false;
  * Runs the startup sync check once on mount:
  *   - Reads user settings (shortcuts, theme, font sizes)
  *   - Syncs stale channel/EPG sources in batches
- *   - Syncs stale VOD sources for Xtream sources
+ *   - Syncs stale VOD sources (Xtream & Stalker)
  *   - Periodically checks (every 10 min) if sources need refreshing based on Data Refresh settings
  *
  * Extracted from App.tsx lines ~1015-1157.
@@ -90,10 +90,11 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                 const vodRefreshHours = settingsResult.data?.vodRefreshHours ?? 24;
 
                 const enabledSources = result.data.filter((s: any) => s.enabled && !s.vod_only);
-                const xtreamSources = result.data.filter((s: any) => s.type === 'xtream' && s.enabled && !s.live_tv_only);
+                // VOD sources eligible for auto-sync (Xtream & Stalker, not Live-TV-only)
+                const vodSources = result.data.filter((s: any) => (s.type === 'xtream' || s.type === 'stalker') && s.enabled && !s.live_tv_only);
 
                 const hasCustomEpgRefresh = enabledSources.some((s: any) => s.custom_refresh_interval !== undefined && s.custom_refresh_interval !== null && s.custom_refresh_interval > 0);
-                const hasCustomVodRefresh = xtreamSources.some((s: any) => s.custom_vod_refresh_interval !== undefined && s.custom_vod_refresh_interval !== null && s.custom_vod_refresh_interval > 0);
+                const hasCustomVodRefresh = vodSources.some((s: any) => s.custom_vod_refresh_interval !== undefined && s.custom_vod_refresh_interval !== null && s.custom_vod_refresh_interval > 0);
 
                 const epgActive = epgRefreshHours > 0 || hasCustomEpgRefresh;
                 const vodActive = vodRefreshHours > 0 || hasCustomVodRefresh;
@@ -141,11 +142,11 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                     }
                 }
 
-                // ── VOD sync (Xtream only) ──────────────────────────────────────────
+                // ── VOD sync (Xtream & Stalker) ─────────────────────────────────────
                 if (vodActive) {
-                    if (xtreamSources.length > 0) {
+                    if (vodSources.length > 0) {
                         const staleVod: any[] = [];
-                        for (const source of xtreamSources) {
+                        for (const source of vodSources) {
                             if (await isVodStale(source.id, vodRefreshHours)) staleVod.push(source);
                         }
                         if (staleVod.length > 0) {
@@ -240,10 +241,11 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
 
                 // Filter out VOD-only sources from channel sync
                 const enabledSources = result.data.filter((s: any) => s.enabled && !s.vod_only);
-                const xtreamSources = result.data.filter((s: any) => s.type === 'xtream' && s.enabled && !s.live_tv_only);
+                // VOD sources eligible for auto-sync (Xtream & Stalker, not Live-TV-only)
+                const vodSources = result.data.filter((s: any) => (s.type === 'xtream' || s.type === 'stalker') && s.enabled && !s.live_tv_only);
 
                 const hasCustomEpgRefresh = enabledSources.some((s: any) => s.custom_refresh_interval !== undefined && s.custom_refresh_interval !== null && s.custom_refresh_interval > 0);
-                const hasCustomVodRefresh = xtreamSources.some((s: any) => s.custom_vod_refresh_interval !== undefined && s.custom_vod_refresh_interval !== null && s.custom_vod_refresh_interval > 0);
+                const hasCustomVodRefresh = vodSources.some((s: any) => s.custom_vod_refresh_interval !== undefined && s.custom_vod_refresh_interval !== null && s.custom_vod_refresh_interval > 0);
 
                 const epgActive = epgRefreshHours > 0 || hasCustomEpgRefresh;
                 const vodActive = vodRefreshHours > 0 || hasCustomVodRefresh;
@@ -281,11 +283,11 @@ export function useAutoSync(callbacks: AutoSyncSettings = {}) {
                     }
                 }
 
-                // ── VOD sync (Xtream only) ──────────────────────────────────────────
+                // ── VOD sync (Xtream & Stalker) ─────────────────────────────────────
                 if (vodActive) {
-                    if (xtreamSources.length > 0) {
+                    if (vodSources.length > 0) {
                         const staleVod: any[] = [];
-                        for (const source of xtreamSources) {
+                        for (const source of vodSources) {
                             if (await isVodStale(source.id, vodRefreshHours)) staleVod.push(source);
                         }
                         if (staleVod.length > 0) {

@@ -3795,10 +3795,11 @@ function useTmdbPresencePoster(
 
         // Filter out VOD-only sources from channel sync
         const enabledSources = sourcesResult.data.filter((s: any) => s.enabled && !s.vod_only);
-        const xtreamSources = sourcesResult.data.filter((s: any) => s.type === 'xtream' && s.enabled && !s.live_tv_only);
+        // VOD sources eligible for auto-sync (Xtream & Stalker, not Live-TV-only)
+        const vodSources = sourcesResult.data.filter((s: any) => (s.type === 'xtream' || s.type === 'stalker') && s.enabled && !s.live_tv_only);
 
         const hasCustomEpgRefresh = enabledSources.some((s: any) => s.custom_refresh_interval !== undefined && s.custom_refresh_interval !== null && s.custom_refresh_interval > 0);
-        const hasCustomVodRefresh = xtreamSources.some((s: any) => s.custom_vod_refresh_interval !== undefined && s.custom_vod_refresh_interval !== null && s.custom_vod_refresh_interval > 0);
+        const hasCustomVodRefresh = vodSources.some((s: any) => s.custom_vod_refresh_interval !== undefined && s.custom_vod_refresh_interval !== null && s.custom_vod_refresh_interval > 0);
 
         const epgActive = epgRefreshHours > 0 || hasCustomEpgRefresh;
         const vodActive = vodRefreshHours > 0 || hasCustomVodRefresh;
@@ -3851,11 +3852,11 @@ function useTmdbPresencePoster(
           }
         }
 
-        // ── VOD sync (Xtream only) ──────────────────────────────────────────
+        // ── VOD sync (Xtream & Stalker) ─────────────────────────────────────
         if (vodActive) {
-          if (xtreamSources.length > 0) {
+          if (vodSources.length > 0) {
             const staleVod: any[] = [];
-            for (const source of xtreamSources) {
+            for (const source of vodSources) {
               if (await isVodStale(source.id, vodRefreshHours)) staleVod.push(source);
             }
             if (staleVod.length > 0) {
