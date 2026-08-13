@@ -566,7 +566,7 @@ export function CustomGroupManager({ groupId, groupName, onClose }: CustomGroupM
                                         items={groupChannels.map((ch) => ch.stream_id)}
                                         strategy={verticalListSortingStrategy}
                                     >
-                                        <div className="group-channels-list">
+                                        <div className="channel-list-container">
                                             {groupChannels.map((ch) => (
                                                 <SortableGroupChannelItem
                                                     key={ch.stream_id}

@@ -34,6 +34,10 @@ export interface Playlist {
 
 interface VodPlaylistState {
   playlists: Playlist[];
+  // Stack of pre-randomize item-id orders per playlist (newest last). Each
+  // randomize pushes the order it replaced, so undo can step back through
+  // multiple shuffles. Kept out of persistence (see partialize below).
+  randomizeHistory: Record<string, string[][]>;
   createPlaylist: (name: string) => Playlist;
   deletePlaylist: (id: string) => void;
   renamePlaylist: (id: string, name: string) => void;
@@ -42,6 +46,7 @@ interface VodPlaylistState {
   removeItemFromPlaylist: (playlistId: string, itemId: string) => void;
   reorderPlaylistItems: (playlistId: string, fromIndex: number, toIndex: number) => void;
   randomizePlaylistItems: (playlistId: string) => void;
+  undoRandomizePlaylistItems: (playlistId: string) => void;
   toggleRemoveAfterWatching: (playlistId: string) => void;
   toggleAutoplayNext: (playlistId: string) => void;
   toggleShowSourceName: (playlistId: string) => void;
@@ -51,6 +56,7 @@ export const useVodPlaylistStore = create<VodPlaylistState>()(
   persist(
     (set, get) => ({
       playlists: [],
+      randomizeHistory: {},
 
       createPlaylist: (name) => {
         const trimmed = name.trim() || 'My Playlist';
@@ -70,9 +76,14 @@ export const useVodPlaylistStore = create<VodPlaylistState>()(
         return newPlaylist;
       },
 
-      deletePlaylist: (id) => set((state) => ({
-        playlists: state.playlists.filter((p) => p.id !== id),
-      })),
+      deletePlaylist: (id) => set((state) => {
+        const nextHistory = { ...state.randomizeHistory };
+        delete nextHistory[id];
+        return {
+          playlists: state.playlists.filter((p) => p.id !== id),
+          randomizeHistory: nextHistory,
+        };
+      }),
 
       renamePlaylist: (id, name) => set((state) => ({
         playlists: state.playlists.map((p) =>
@@ -143,21 +154,54 @@ export const useVodPlaylistStore = create<VodPlaylistState>()(
         }),
       })),
 
-      randomizePlaylistItems: (playlistId) => set((state) => ({
-        playlists: state.playlists.map((p) => {
-          if (p.id !== playlistId) return p;
-          const shuffled = [...p.items];
-          for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-          }
-          return {
-            ...p,
-            items: shuffled,
-            updatedAt: Date.now(),
-          };
-        }),
-      })),
+      randomizePlaylistItems: (playlistId) => set((state) => {
+        const target = state.playlists.find((p) => p.id === playlistId);
+        if (!target || target.items.length === 0) return state;
+        const shuffled = [...target.items];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return {
+          playlists: state.playlists.map((p) =>
+            p.id === playlistId ? { ...p, items: shuffled, updatedAt: Date.now() } : p
+          ),
+          randomizeHistory: {
+            ...state.randomizeHistory,
+            [playlistId]: [...(state.randomizeHistory[playlistId] || []), target.items.map((item) => item.id)],
+          },
+        };
+      }),
+
+      undoRandomizePlaylistItems: (playlistId) => set((state) => {
+        const history = state.randomizeHistory[playlistId];
+        if (!history || history.length === 0) return state;
+        const originalIds = history[history.length - 1];
+        const nextHistory = { ...state.randomizeHistory };
+        const remaining = history.slice(0, -1);
+        if (remaining.length === 0) {
+          delete nextHistory[playlistId];
+        } else {
+          nextHistory[playlistId] = remaining;
+        }
+        return {
+          playlists: state.playlists.map((p) => {
+            if (p.id !== playlistId) return p;
+            const byId = new Map(p.items.map((item) => [item.id, item]));
+            const restored = originalIds
+              .map((id) => byId.get(id))
+              .filter((item): item is PlaylistItem => Boolean(item));
+            // Append items that were added after the randomize
+            const addedAfter = p.items.filter((item) => !originalIds.includes(item.id));
+            return {
+              ...p,
+              items: [...restored, ...addedAfter],
+              updatedAt: Date.now(),
+            };
+          }),
+          randomizeHistory: nextHistory,
+        };
+      }),
 
       toggleRemoveAfterWatching: (playlistId) => set((state) => ({
         playlists: state.playlists.map((p) =>
@@ -185,6 +229,9 @@ export const useVodPlaylistStore = create<VodPlaylistState>()(
     }),
     {
       name: 'vod-playlists-store',
+      // Keep the persisted shape unchanged (playlists only) — the randomize
+      // undo snapshot is session-only state.
+      partialize: (state) => ({ playlists: state.playlists }),
     }
   )
 );

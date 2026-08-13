@@ -4815,11 +4815,221 @@ html[data-theme="light"] .stremio-service-category-pill.active {
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25) !important;
 }
 
+/* ==================== ADD TO PLAYLIST MODAL (LIGHT THEME) ==================== */
 
+[data-theme="light"] .add-to-playlist-modal,
+html[data-theme="light"] .add-to-playlist-modal,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-modal {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2) !important;
+  color: #0f172a !important;
+}
 
+/* Header & Close */
+[data-theme="light"] .add-to-playlist-modal__header,
+html[data-theme="light"] .add-to-playlist-modal__header,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-modal__header {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+}
 
+[data-theme="light"] .add-to-playlist-modal__title,
+html[data-theme="light"] .add-to-playlist-modal__title,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-modal__title {
+  color: #0f172a !important;
+}
 
+[data-theme="light"] .add-to-playlist-modal__close,
+html[data-theme="light"] .add-to-playlist-modal__close,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-modal__close {
+  color: #64748b !important;
+}
 
+[data-theme="light"] .add-to-playlist-modal__close:hover,
+html[data-theme="light"] .add-to-playlist-modal__close:hover,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-modal__close:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
 
+/* Media Preview */
+[data-theme="light"] .add-to-playlist-preview,
+html[data-theme="light"] .add-to-playlist-preview,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-preview {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
 
+[data-theme="light"] .add-to-playlist-preview__title,
+html[data-theme="light"] .add-to-playlist-preview__title,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-preview__title {
+  color: #0f172a !important;
+}
 
+[data-theme="light"] .add-to-playlist-preview__sub,
+html[data-theme="light"] .add-to-playlist-preview__sub,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-preview__sub {
+  color: #64748b !important;
+}
+
+/* Season & Episode Selector */
+[data-theme="light"] .add-to-playlist-episodes-section,
+html[data-theme="light"] .add-to-playlist-episodes-section,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-episodes-section {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .add-to-playlist-season-label,
+html[data-theme="light"] .add-to-playlist-season-label,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-season-label {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .add-to-playlist-season-select,
+html[data-theme="light"] .add-to-playlist-season-select,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-season-select {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .add-to-playlist-season-select option,
+html[data-theme="light"] .add-to-playlist-season-select option,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-season-select option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .add-to-playlist-episode-row,
+html[data-theme="light"] .add-to-playlist-episode-row,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-episode-row {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .add-to-playlist-episode-row:hover,
+html[data-theme="light"] .add-to-playlist-episode-row:hover,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-episode-row:hover {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .add-to-playlist-episode-title,
+html[data-theme="light"] .add-to-playlist-episode-title,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-episode-title {
+  color: #334155 !important;
+}
+
+/* Playlists List */
+[data-theme="light"] .add-to-playlist-empty,
+html[data-theme="light"] .add-to-playlist-empty,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-empty {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .add-to-playlist-item,
+html[data-theme="light"] .add-to-playlist-item,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-item {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .add-to-playlist-item:hover,
+html[data-theme="light"] .add-to-playlist-item:hover,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-item:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .add-to-playlist-item__name,
+html[data-theme="light"] .add-to-playlist-item__name,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-item__name {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .add-to-playlist-item__count,
+html[data-theme="light"] .add-to-playlist-item__count,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-item__count {
+  color: #64748b !important;
+}
+
+/* Create Playlist Form */
+[data-theme="light"] .add-to-playlist-create,
+html[data-theme="light"] .add-to-playlist-create,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-create {
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .add-to-playlist-create__input,
+html[data-theme="light"] .add-to-playlist-create__input,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-create__input {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .add-to-playlist-create__input::placeholder,
+html[data-theme="light"] .add-to-playlist-create__input::placeholder,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-create__input::placeholder {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .add-to-playlist-create__input:focus,
+html[data-theme="light"] .add-to-playlist-create__input:focus,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-create__input:focus {
+  border-color: var(--accent-primary, #0066cc) !important;
+  background: #ffffff !important;
+}
+
+[data-theme="light"] .add-to-playlist-create__btn,
+html[data-theme="light"] .add-to-playlist-create__btn,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-create__btn {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .add-to-playlist-create__btn:hover,
+html[data-theme="light"] .add-to-playlist-create__btn:hover,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-create__btn:hover {
+  background: #e2e8f0 !important;
+}
+
+/* Scrollbars */
+[data-theme="light"] .add-to-playlist-modal__body,
+[data-theme="light"] .add-to-playlist-list,
+[data-theme="light"] .add-to-playlist-episodes-list,
+html[data-theme="light"] .add-to-playlist-modal__body,
+html[data-theme="light"] .add-to-playlist-list,
+html[data-theme="light"] .add-to-playlist-episodes-list,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-modal__body,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-list,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-episodes-list {
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent !important;
+}
+
+[data-theme="light"] .add-to-playlist-modal__body::-webkit-scrollbar-thumb,
+[data-theme="light"] .add-to-playlist-list::-webkit-scrollbar-thumb,
+[data-theme="light"] .add-to-playlist-episodes-list::-webkit-scrollbar-thumb,
+html[data-theme="light"] .add-to-playlist-modal__body::-webkit-scrollbar-thumb,
+html[data-theme="light"] .add-to-playlist-list::-webkit-scrollbar-thumb,
+html[data-theme="light"] .add-to-playlist-episodes-list::-webkit-scrollbar-thumb,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-modal__body::-webkit-scrollbar-thumb,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-list::-webkit-scrollbar-thumb,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-episodes-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-theme="light"] .add-to-playlist-modal__body::-webkit-scrollbar-thumb:hover,
+[data-theme="light"] .add-to-playlist-list::-webkit-scrollbar-thumb:hover,
+[data-theme="light"] .add-to-playlist-episodes-list::-webkit-scrollbar-thumb:hover,
+html[data-theme="light"] .add-to-playlist-modal__body::-webkit-scrollbar-thumb:hover,
+html[data-theme="light"] .add-to-playlist-list::-webkit-scrollbar-thumb:hover,
+html[data-theme="light"] .add-to-playlist-episodes-list::-webkit-scrollbar-thumb:hover,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-modal__body::-webkit-scrollbar-thumb:hover,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-list::-webkit-scrollbar-thumb:hover,
+html.modern-ui-v3[data-theme="light"] .add-to-playlist-episodes-list::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary, #0066cc) !important;
+}

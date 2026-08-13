@@ -29,7 +29,7 @@ export function AddToPlaylistModal({
 }: AddToPlaylistModalProps) {
   useTranslation();
   const { playlists, createPlaylist, addItemToPlaylist, addItemsToPlaylist } = useVodPlaylistStore();
-  const { showError, ModalComponent } = useModal();
+  const { showError, showConfirm, ModalComponent } = useModal();
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const [addedToast, setAddedToast] = useState<string | null>(null);
 
@@ -104,25 +104,45 @@ export function AddToPlaylistModal({
     setSelectedEpisodeIds(new Set());
   };
 
+  const doAddMovie = (playlistId: string, playlistName: string) => {
+    if (!movie) return;
+    const item: Omit<PlaylistItem, 'id' | 'playlistId' | 'addedAt'> = {
+      itemType: 'movie',
+      mediaId: movie.stream_id,
+      title: movie.title || movie.name,
+      poster: posterUrl || movie.stream_icon,
+      backdropUrl: movie.backdrop_path || movie.stream_icon,
+      directUrl: movie.direct_url,
+      sourceId: movie.source_id,
+      sourceName: sourceName || undefined,
+      duration: movie.duration ? movie.duration * 60 : undefined,
+    };
+    addItemToPlaylist(playlistId, item);
+    setAddedToast(i18n.t('vod:addedToPlaylist', { name: playlistName }));
+    setTimeout(() => {
+      setAddedToast(null);
+      onClose();
+    }, 1200);
+  };
+
   const handleAddToPlaylist = (playlistId: string, playlistName: string) => {
     if (movie) {
-      const item: Omit<PlaylistItem, 'id' | 'playlistId' | 'addedAt'> = {
-        itemType: 'movie',
-        mediaId: movie.stream_id,
-        title: movie.title || movie.name,
-        poster: posterUrl || movie.stream_icon,
-        backdropUrl: movie.backdrop_path || movie.stream_icon,
-        directUrl: movie.direct_url,
-        sourceId: movie.source_id,
-        sourceName: sourceName || undefined,
-        duration: movie.duration ? movie.duration * 60 : undefined,
-      };
-      addItemToPlaylist(playlistId, item);
-      setAddedToast(i18n.t('vod:addedToPlaylist', { name: playlistName }));
-      setTimeout(() => {
-        setAddedToast(null);
-        onClose();
-      }, 1200);
+      const playlist = playlists.find((p) => p.id === playlistId);
+      const alreadyInPlaylist = playlist?.items.some(
+        (it) => it.itemType === 'movie' && it.mediaId === movie.stream_id && it.sourceId === movie.source_id
+      );
+      if (alreadyInPlaylist) {
+        showConfirm(
+          i18n.t('vod:movieAlreadyInPlaylistTitle'),
+          i18n.t('vod:movieAlreadyInPlaylistMsg', { movie: movie.title || movie.name, name: playlistName }),
+          () => doAddMovie(playlistId, playlistName),
+          undefined,
+          i18n.t('vod:addAnyway'),
+          i18n.t('common:cancel')
+        );
+        return;
+      }
+      doAddMovie(playlistId, playlistName);
     } else if (series) {
       // Gather selected episodes across seasons or current season
       const episodesToAdd: StoredEpisode[] = [];
@@ -215,7 +235,7 @@ export function AddToPlaylistModal({
           {series && (
             <div className="add-to-playlist-episodes-section">
               <div className="add-to-playlist-season-selector">
-                <label style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
+                <label className="add-to-playlist-season-label">
                   {i18n.t('vod:selectSeason')}:
                 </label>
                 <select
@@ -285,7 +305,7 @@ export function AddToPlaylistModal({
               {/* Playlists List */}
               <div className="add-to-playlist-list">
                 {playlists.length === 0 ? (
-                  <p style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', margin: '10px 0', fontSize: '0.9rem' }}>
+                  <p className="add-to-playlist-empty">
                     {i18n.t('vod:noPlaylistsFound')}
                   </p>
                 ) : (

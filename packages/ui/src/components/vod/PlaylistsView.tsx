@@ -207,6 +207,8 @@ export function PlaylistsView({ onPlayPlaylistItem }: PlaylistsViewProps) {
     removeItemFromPlaylist,
     reorderPlaylistItems,
     randomizePlaylistItems,
+    undoRandomizePlaylistItems,
+    randomizeHistory,
     toggleRemoveAfterWatching,
     toggleAutoplayNext,
     toggleShowSourceName,
@@ -217,6 +219,8 @@ export function PlaylistsView({ onPlayPlaylistItem }: PlaylistsViewProps) {
   const [editingNameValue, setEditingNameValue] = useState('');
 
   const selectedPlaylist = playlists.find((p) => p.id === selectedPlaylistId);
+  // How many shuffles can be undone for the currently open playlist
+  const undoDepth = selectedPlaylist ? (randomizeHistory[selectedPlaylist.id]?.length || 0) : 0;
 
   // The view's scroll container. Focused on mount / playlist change so arrow and
   // Page keys scroll it (same pattern as SeriesDetail / the nuvio homepage).
@@ -591,6 +595,19 @@ export function PlaylistsView({ onPlayPlaylistItem }: PlaylistsViewProps) {
                 </svg>
                 {i18n.t('vod:randomizePlaylist')}
               </button>
+
+              {undoDepth > 0 && (
+                <button
+                  className="playlist-btn playlist-btn--secondary"
+                  onClick={() => undoRandomizePlaylistItems(selectedPlaylist.id)}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="1 4 1 10 7 10" />
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                  </svg>
+                  {i18n.t('vod:undoRandomize')} ({undoDepth})
+                </button>
+              )}
             </div>
 
             {/* Options Toggles */}
