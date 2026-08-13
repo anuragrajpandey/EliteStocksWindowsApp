@@ -4,7 +4,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: var(--glass-overlay-bg, rgba(0, 0, 0, 0.75));
+  backdrop-filter: var(--glass-overlay-filter, none);
+  -webkit-backdrop-filter: var(--glass-overlay-filter, none);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -19,14 +21,18 @@
 }
 
 .subtitle-modal {
-  background: var(--surface-color, #1e1e2e);
-  border-radius: 10px;
+  background: var(--glass-modal-bg, var(--surface-color, #1e1e2e));
+  border: var(--glass-modal-border, none);
+  border-radius: var(--glass-modal-radius, 10px);
   width: 92%;
   max-width: 960px;
   max-height: 72vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  backdrop-filter: var(--glass-modal-filter, none);
+  -webkit-backdrop-filter: var(--glass-modal-filter, none);
+  box-shadow: var(--glass-modal-shadow, 0 12px 40px rgba(0, 0, 0, 0.6));
+  color: var(--glass-modal-color, inherit);
   animation: subtitleSlideDown 0.15s ease;
   overflow: hidden;
 }

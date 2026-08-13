@@ -233,8 +233,8 @@
 
 /* ==================== CATEGORY SIDEBAR ==================== */
 [data-theme="light"] .category-strip {
-  background: #edf2f7 !important;
-  border-right: 1px solid #cbd5e1 !important;
+  background: var(--glass-surface-bg, #edf2f7);
+  border-right: var(--glass-surface-border-right, 1px solid #cbd5e1);
 }
 
 [data-theme="light"] .category-strip-header {
@@ -810,7 +810,7 @@ html.modern-ui-v3[data-theme="light"] .guide-channel-logo .logo-placeholder {
 
 /* ==================== EPG GRID & TIME HEADER ==================== */
 [data-theme="light"] .guide-grid-section {
-  background: #f1f5f9 !important;
+  background: var(--glass-surface-bg, #f1f5f9);
 }
 
 [data-theme="light"] .guide-time-header {
@@ -996,8 +996,8 @@ html.modern-ui-v3[data-theme="light"] .program-block.current .program-block-desc
 }
 
 [data-theme="light"] .guide-info-pane {
-  background: #ffffff !important;
-  border-top: 1px solid #e2e8f0 !important;
+  background: var(--glass-surface-bg, #ffffff);
+  border-top: var(--glass-surface-border, 1px solid #e2e8f0);
 }
 
 [data-theme="light"] .guide-program-title {
@@ -1025,8 +1025,8 @@ html.modern-ui-v3[data-theme="light"] .program-block.current .program-block-desc
 
 /* ==================== TV CALENDAR PAGE ==================== */
 [data-theme="light"] .tvcp-page {
-  background: #f1f5f9 !important;
-  color: #0f172a !important;
+  background: var(--glass-surface-bg, #f1f5f9);
+  color: #0f172a;
 }
 
 [data-theme="light"] .tvcp-sidebar {
@@ -1215,8 +1215,8 @@ html.modern-ui-v3[data-theme="light"] .program-block.current .program-block-desc
 
 /* ==================== SPORTS HUB ==================== */
 [data-theme="light"] .sports-hub {
-  background: #f1f5f9 !important;
-  color: #0f172a !important;
+  background: var(--glass-sports-bg, #f1f5f9);
+  color: #0f172a;
 }
 
 [data-theme="light"] .sports-hub.with-preview {
@@ -1370,8 +1370,8 @@ html.modern-ui-v3[data-theme="light"] .program-block.current .program-block-desc
 
 /* ==================== VOD VERTICAL SIDEBAR ==================== */
 [data-theme="light"] .vertical-sidebar {
-  background: #edf2f7 !important;
-  border-right: 1px solid #cbd5e1 !important;
+  background: var(--glass-surface-bg, #edf2f7);
+  border-right: var(--glass-surface-border-right, 1px solid #cbd5e1);
 }
 
 [data-theme="light"] .vertical-sidebar::before {
@@ -1548,7 +1548,7 @@ html.modern-ui-v3[data-theme="light"] .program-block.current .program-block-desc
 
 /* ==================== STREMIO PAGE / CALENDAR ==================== */
 [data-theme="light"] .stremio-page {
-  background: rgba(255, 255, 255, 0.92) !important;
+  background: var(--glass-surface-bg, rgba(255, 255, 255, 0.92));
 }
 
 [data-theme="light"] .stremio-main::-webkit-scrollbar-thumb {
@@ -2163,10 +2163,9 @@ html.modern-ui-v3[data-theme="light"] .category-manager-footer .cancel-btn:hover
 /* ==================== DVR SETTINGS PAGE ==================== */
 
 [data-theme="light"] .dvr-dashboard,
-html[data-theme="light"] .dvr-dashboard,
-html.modern-ui-v3[data-theme="light"] .dvr-dashboard {
-  background: #f8fafc !important;
-  color: #000000 !important;
+html[data-theme="light"] .dvr-dashboard {
+  background: var(--glass-dvr-bg, #f8fafc);
+  color: #000000;
 }
 
 [data-theme="light"] .dvr-main-header,

@@ -22,12 +22,15 @@
 }
 
 .advanced-search-modal {
-  background: var(--surface-color, rgba(30, 30, 40, 0.97));
-  backdrop-filter: blur(var(--glass-blur, 24px)) saturate(var(--glass-saturation, 160%));
-  -webkit-backdrop-filter: blur(var(--glass-blur, 24px)) saturate(var(--glass-saturation, 160%));
-  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-  box-shadow: var(--glass-shadow, 0 16px 48px rgba(0, 0, 0, 0.6));
-  border-radius: 16px;
+  /* Consumes the v3 glass tokens with v1/v2 fallbacks (see ModernV3.css);
+     the v3 override rule was deleted in the token migration. */
+  background: var(--glass-modal-bg, var(--surface-color, rgba(30, 30, 40, 0.97)));
+  backdrop-filter: blur(var(--glass-modal-blur, var(--glass-blur, 24px))) saturate(var(--glass-modal-saturation, var(--glass-saturation, 160%)));
+  -webkit-backdrop-filter: blur(var(--glass-modal-blur, var(--glass-blur, 24px))) saturate(var(--glass-modal-saturation, var(--glass-saturation, 160%)));
+  border: var(--glass-modal-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+  box-shadow: var(--glass-modal-shadow, var(--glass-shadow, 0 16px 48px rgba(0, 0, 0, 0.6)));
+  border-radius: var(--glass-modal-radius, 16px);
+  color: #fff;
   width: 100%;
   max-width: 520px;
   max-height: 85vh;

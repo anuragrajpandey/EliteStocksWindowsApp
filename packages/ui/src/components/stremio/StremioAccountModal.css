@@ -4,8 +4,9 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
+  background: var(--glass-overlay-bg, rgba(0, 0, 0, 0.75));
+  backdrop-filter: var(--glass-overlay-filter, blur(8px));
+  -webkit-backdrop-filter: var(--glass-overlay-filter, blur(8px));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,10 +17,12 @@
 .stremio-account-modal {
   width: 100%;
   max-width: 480px;
-  background: var(--bg-secondary, #13131a);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--glass-modal-bg, var(--bg-secondary, #13131a));
+  border: var(--glass-modal-border, 1px solid rgba(255, 255, 255, 0.08));
   border-radius: 16px;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+  backdrop-filter: var(--glass-modal-filter-strong, var(--glass-modal-filter, none));
+  -webkit-backdrop-filter: var(--glass-modal-filter-strong, var(--glass-modal-filter, none));
+  box-shadow: var(--glass-modal-shadow, 0 24px 48px rgba(0, 0, 0, 0.5));
   overflow: hidden;
   animation: stremio-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }

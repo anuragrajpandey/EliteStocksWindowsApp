@@ -18,6 +18,9 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Browser-debug only: temporarily add <script src="/tauri-mock.js"></script> here
+         to run the UI in a plain browser. NEVER ship it — it replaces
+         window.__TAURI_INTERNALS__ and would break the real Tauri app. -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

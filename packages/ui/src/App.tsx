@@ -91,9 +91,10 @@ import { ToastContainer } from './components/Toast';
 import { useToastStore } from './stores/toastStore';
 import { MultiviewLayout } from './components/MultiviewLayout/MultiviewLayout';
 import { LayoutPicker } from './components/LayoutPicker/LayoutPicker';
-import './themes.css';
-import './components/ModernTheme.css'; // Modern UI enhancements
-import './light-theme-overrides.css'; // Overrides to fix light theme readability
+import './styles/themes.css';
+import './styles/ModernThemeBase.css'; // Modern UI shared base (fonts, keyframes, unscoped rules)
+// ModernV2.css / ModernV3.css / light-theme-overrides.css are loaded at runtime by applyUiDesign()
+// so each UI design version only downloads the CSS it needs.
 import { useTimeshift } from './hooks/useTimeshift';
 import { useDvrEvents } from './hooks/useDvrEvents';
 import { useDvrUrlResolver } from './hooks/useDvrUrlResolver';
@@ -124,6 +125,11 @@ import { PlaybackDetailsModal } from './components/PlaybackDetailsModal';
 import { SourcePickerModal } from './components/SourcePickerModal';
 import type { RecommendationItem } from './hooks/useLazyStremioRecommendations';
 import { DEFAULT_BADGE_SOURCES, mergeDefaultBadgeSources, compileBadgeSources } from './utils/streamBadges';
+import { applyUiDesign, initUiDesign } from './utils/uiDesign';
+
+// Apply the persisted UI design (v1/v2/v3) before first paint — the sync effect
+// below re-applies it authoritatively once settings finish loading.
+initUiDesign();
 
 // NEW: Extracted hooks
 import { useAppSettings } from './hooks/useAppSettings';
@@ -3777,12 +3783,7 @@ function useTmdbPresencePoster(
             setLiveTvDesign(design);
           }
 
-          document.documentElement.classList.remove('modern-ui', 'modern-ui-v3');
-          if (design === 'v3') {
-            document.documentElement.classList.add('modern-ui', 'modern-ui-v3');
-          } else if (design === 'v2') {
-            document.documentElement.classList.add('modern-ui');
-          }
+          applyUiDesign(design);
         }
 
         const epgRefreshHours = settingsResult.data?.epgRefreshHours ?? 6;

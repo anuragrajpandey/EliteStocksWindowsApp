@@ -1,0 +1,838 @@
+/* ==========================================================================
+   MODERN THEME — SHARED BASE (fonts, keyframes, unscoped rules)
+   Split from ModernTheme.css — see git history for the original monolith.
+   Loaded at runtime by src/utils/uiDesign.ts (applyUiDesign).
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap');
+
+@import url('https://api.fontshare.com/v2/css?f[]=switzer@300,400,500,600,700&f[]=cabinet-grotesk@300,400,500,600,700,800&f[]=sentient@300,400,500,600,700&display=swap');
+
+/* Override font-display from CDN stylesheets (which use 'swap') to 'block'.
+ * font-display: swap causes FOUT (Flash of Unstyled Text) — the browser renders
+ * text with a fallback font first, then swaps when the real font loads. In the
+ * EPG's Virtuoso virtual list, newly rendered rows during scroll get the fallback
+ * temporarily, then swap, causing every visible row to jitter (resize/shake).
+ * font-display: block gives a short invisible period instead, eliminating the swap
+ * mid-scroll. These blocks don't re-download fonts; they only override display behavior. */
+@font-face {
+  font-family: 'Switzer';
+  src: local('Switzer');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Sentient';
+  src: local('Sentient');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: local('Cabinet Grotesk');
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Fraunces';
+  src: local('Fraunces');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+
+html, body, button, input, select, textarea {
+  font-family: var(--font-family, 'Inter', system-ui, sans-serif);
+}
+
+* {
+  font-family: var(--font-family, 'Inter', system-ui, sans-serif);
+}
+
+@keyframes scroll-text {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes modern-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* --------------------------------------------------
+   7. ANIMATIONS
+   -------------------------------------------------- */
+@keyframes accent-glow {
+  0%, 100% { opacity: 1; box-shadow: 0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent); }
+  50% { opacity: 0.7; box-shadow: 0 0 16px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent); }
+}
+
+@keyframes live-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 6px rgba(255, 59, 59, 0.8);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+    box-shadow: 0 0 2px rgba(255, 59, 59, 0.4);
+  }
+}
+
+/* ============================================
+   MODERN UI VIEW TRANSITIONS
+   ============================================ */
+.view-transition-container {
+  position: fixed;
+  top: 32px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate3d(0, 15px, 0);
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.view-transition-container.view-enter-active {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  pointer-events: auto;
+}
+
+.view-transition-container.view-exit-active {
+  opacity: 0;
+  transform: translate3d(0, 15px, 0);
+  pointer-events: none;
+}
+
+/* Override child page positioning inside transition container to fix the double top spacing gap */
+.view-transition-container > .vod-page,
+.view-transition-container > .dvr-dashboard,
+.view-transition-container > .sports-hub,
+.view-transition-container > .stremio-page,
+.view-transition-container > .tvcp-page,
+.view-transition-container > .nuvio-page {
+  top: 0 !important;
+  height: 100% !important;
+}
+
+/* ==========================================================================
+   MODERN UI V3 - LIQUID GLASS THEME
+   ========================================================================== */
+/* 1. Dynamic Moving Blob Background */
+.livetv-liquid-glass-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  overflow: hidden;
+  background: linear-gradient(135deg, 
+    #02000a 0%, 
+    #070114 25%, 
+    #02050b 50%, 
+    #09031c 75%, 
+    #01030a 100%
+  ) !important;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.livetv-liquid-glass-bg::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+  top: -200px;
+  left: -100px;
+  pointer-events: none;
+  z-index: 1;
+  animation: ambient-float-1 20s infinite ease-in-out alternate;
+}
+
+.livetv-liquid-glass-bg::after {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+  bottom: -150px;
+  right: -100px;
+  pointer-events: none;
+  z-index: 1;
+  animation: ambient-float-2 25s infinite ease-in-out alternate;
+}
+
+@keyframes ambient-float-1 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(60px, 40px) scale(1.08); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes ambient-float-2 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-45px, 60px) scale(1.12); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+.livetv-liquid-glass-bg .glass-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.18 !important;
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+
+/* Color Scheme: Apple visionOS (Cool/Warm Harmony) */
+.livetv-liquid-glass-bg.scheme-apple .blob-1 {
+  background: radial-gradient(circle, rgba(0, 191, 255, 0.55) 0%, transparent 70%);
+  width: 50vw;
+  height: 50vw;
+  top: -10%;
+  left: -5%;
+  animation: glass-float-1 25s infinite alternate ease-in-out;
+}
+
+.livetv-liquid-glass-bg.scheme-apple .blob-2 {
+  background: radial-gradient(circle, rgba(255, 20, 147, 0.45) 0%, transparent 70%);
+  width: 55vw;
+  height: 55vw;
+  bottom: -15%;
+  right: -5%;
+  animation: glass-float-2 30s infinite alternate ease-in-out;
+}
+
+.livetv-liquid-glass-bg.scheme-apple .blob-3 {
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.35) 0%, transparent 70%);
+  width: 45vw;
+  height: 45vw;
+  top: 35%;
+  right: 15%;
+  animation: glass-float-3 28s infinite alternate ease-in-out;
+}
+
+.livetv-liquid-glass-bg.scheme-apple .blob-4 {
+  background: radial-gradient(circle, rgba(50, 205, 50, 0.3) 0%, transparent 70%);
+  width: 48vw;
+  height: 48vw;
+  bottom: 10%;
+  left: 20%;
+  animation: glass-float-4 32s infinite alternate ease-in-out;
+}
+
+/* Color Scheme: Sunset Dunes (Warm & Moody) */
+.livetv-liquid-glass-bg.scheme-sunset .blob-1 {
+  background: radial-gradient(circle, rgba(255, 99, 71, 0.55) 0%, transparent 70%);
+  width: 55vw;
+  height: 55vw;
+  top: -15%;
+  left: 10%;
+  animation: glass-float-1 22s infinite alternate ease-in-out;
+}
+
+.livetv-liquid-glass-bg.scheme-sunset .blob-2 {
+  background: radial-gradient(circle, rgba(138, 43, 226, 0.5) 0%, transparent 70%);
+  width: 50vw;
+  height: 50vw;
+  bottom: -10%;
+  right: -5%;
+  animation: glass-float-2 28s infinite alternate ease-in-out;
+}
+
+.livetv-liquid-glass-bg.scheme-sunset .blob-3 {
+  background: radial-gradient(circle, rgba(255, 165, 0, 0.4) 0%, transparent 70%);
+  width: 48vw;
+  height: 48vw;
+  top: 30%;
+  left: 40%;
+  animation: glass-float-3 26s infinite alternate ease-in-out;
+}
+
+.livetv-liquid-glass-bg.scheme-sunset .blob-4 {
+  background: radial-gradient(circle, rgba(218, 112, 214, 0.4) 0%, transparent 70%);
+  width: 60vw;
+  height: 60vw;
+  bottom: 10%;
+  left: -10%;
+  animation: glass-float-4 35s infinite alternate ease-in-out;
+}
+
+/* Color Scheme: Aurora Sky (Mystical Greens/Blues) */
+.livetv-liquid-glass-bg.scheme-aurora .blob-1 {
+  background: radial-gradient(circle, rgba(0, 255, 204, 0.5) 0%, transparent 70%);
+  width: 52vw;
+  height: 52vw;
+  top: -10%;
+  right: 10%;
+  animation: glass-float-1 24s infinite alternate ease-in-out;
+}
+
+.livetv-liquid-glass-bg.scheme-aurora .blob-2 {
+  background: radial-gradient(circle, rgba(75, 0, 130, 0.45) 0%, transparent 70%);
+  width: 58vw;
+  height: 58vw;
+  bottom: -15%;
+  left: -5%;
+  animation: glass-float-2 32s infinite alternate ease-in-out;
+}
+
+.livetv-liquid-glass-bg.scheme-aurora .blob-3 {
+  background: radial-gradient(circle, rgba(30, 144, 255, 0.4) 0%, transparent 70%);
+  width: 45vw;
+  height: 45vw;
+  top: 40%;
+  left: 30%;
+  animation: glass-float-3 27s infinite alternate ease-in-out;
+}
+
+.livetv-liquid-glass-bg.scheme-aurora .blob-4 {
+  background: radial-gradient(circle, rgba(0, 255, 127, 0.35) 0%, transparent 70%);
+  width: 50vw;
+  height: 50vw;
+  bottom: 20%;
+  right: 0%;
+  animation: glass-float-4 30s infinite alternate ease-in-out;
+}
+
+/* Color Scheme: Forest Shade (Organic Deep Greens) */
+.livetv-liquid-glass-bg.scheme-forest .blob-1 {
+  background: radial-gradient(circle, rgba(34, 139, 34, 0.5) 0%, transparent 70%);
+  width: 50vw;
+  height: 50vw;
+  top: -5%;
+  left: 20%;
+  animation: glass-float-1 25s infinite alternate ease-in-out;
+}
+
+.livetv-liquid-glass-bg.scheme-forest .blob-2 {
+  background: radial-gradient(circle, rgba(0, 128, 128, 0.45) 0%, transparent 70%);
+  width: 55vw;
+  height: 55vw;
+  bottom: -20%;
+  right: 10%;
+  animation: glass-float-2 29s infinite alternate ease-in-out;
+}
+
+.livetv-liquid-glass-bg.scheme-forest .blob-3 {
+  background: radial-gradient(circle, rgba(144, 238, 144, 0.3) 0%, transparent 70%);
+  width: 42vw;
+  height: 42vw;
+  top: 30%;
+  right: 40%;
+  animation: glass-float-3 26s infinite alternate ease-in-out;
+}
+
+.livetv-liquid-glass-bg.scheme-forest .blob-4 {
+  background: radial-gradient(circle, rgba(32, 178, 170, 0.35) 0%, transparent 70%);
+  width: 48vw;
+  height: 48vw;
+  bottom: 15%;
+  left: -5%;
+  animation: glass-float-4 31s infinite alternate ease-in-out;
+}
+
+/* Keyframes for Organic Floating Motion */
+@keyframes glass-float-1 {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  100% { transform: translate(12vw, 8vh) scale(1.1) rotate(120deg); }
+}
+
+@keyframes glass-float-2 {
+  0% { transform: translate(0, 0) scale(1.05) rotate(0deg); }
+  100% { transform: translate(-8vw, -12vh) scale(0.9) rotate(-180deg); }
+}
+
+@keyframes glass-float-3 {
+  0% { transform: translate(0, 0) scale(0.95) rotate(0deg); }
+  100% { transform: translate(-10vw, 10vh) scale(1.15) rotate(90deg); }
+}
+
+@keyframes glass-float-4 {
+  0% { transform: translate(0, 0) scale(1.1) rotate(0deg); }
+  100% { transform: translate(6vw, -6vh) scale(0.95) rotate(-90deg); }
+}
+
+/* ==========================================================================
+   V3 LIQUID GLASS - LIGHT THEME OVERRIDES
+   Applies adaptive styling for Light Theme settings modals.
+   ========================================================================== */
+html[data-theme="light"] .category-manager-overlay,
+html[data-theme="light"] .channel-manager-overlay,
+html[data-theme="light"] .source-form-overlay,
+html[data-theme="light"] .failover-group-list-overlay,
+html[data-theme="light"] .custom-group-manager-overlay,
+html[data-theme="light"] .playlist-list-overlay,
+html[data-theme="light"] .playlist-editor-backdrop {
+  background: rgba(15, 23, 42, 0.35) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+html[data-theme="light"] .category-manager-modal,
+html[data-theme="light"] .channel-manager-modal,
+html[data-theme="light"] .source-form,
+html[data-theme="light"] .failover-group-list-modal,
+html[data-theme="light"] .custom-group-manager-modal,
+html[data-theme="light"] .playlist-list-modal,
+html[data-theme="light"] .playlist-editor-modal {
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(30px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(190%) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 20px 50px rgba(0, 0, 0, 0.18),
+    0 4px 16px rgba(0, 0, 0, 0.08) !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .category-manager-header,
+html[data-theme="light"] .channel-manager-header,
+html[data-theme="light"] .source-form h3,
+html[data-theme="light"] .failover-group-list-header,
+html[data-theme="light"] .custom-group-manager-header,
+html[data-theme="light"] .playlist-list-header,
+html[data-theme="light"] .playlist-editor-header {
+  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .category-manager-header h2,
+html[data-theme="light"] .channel-manager-header h2,
+html[data-theme="light"] .failover-group-list-header h2,
+html[data-theme="light"] .playlist-list-header h2,
+html[data-theme="light"] .playlist-editor-header h2,
+html[data-theme="light"] .custom-group-manager-header h2 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .source-form label,
+html[data-theme="light"] .source-form .form-group label {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+html[data-theme="light"] .source-form .checkbox-label {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+html[data-theme="light"] .source-form input[type="checkbox"] {
+  accent-color: #2563eb !important;
+  width: 16px !important;
+  height: 16px !important;
+  cursor: pointer !important;
+}
+
+html[data-theme="light"] .category-manager-stats,
+html[data-theme="light"] .channel-manager-stats {
+  color: rgba(0, 0, 0, 0.6) !important;
+  border-bottom-color: rgba(0, 0, 0, 0.06) !important;
+  background: rgba(0, 0, 0, 0.01) !important;
+}
+
+html[data-theme="light"] .category-manager-header .close-btn,
+html[data-theme="light"] .channel-manager-header .close-btn,
+html[data-theme="light"] .failover-group-list-header .close-btn,
+html[data-theme="light"] .custom-group-manager-header .close-btn,
+html[data-theme="light"] .playlist-list-header .close-btn {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+html[data-theme="light"] .category-manager-header .close-btn:hover,
+html[data-theme="light"] .channel-manager-header .close-btn:hover,
+html[data-theme="light"] .failover-group-list-header .close-btn:hover,
+html[data-theme="light"] .custom-group-manager-header .close-btn:hover,
+html[data-theme="light"] .playlist-list-header .close-btn:hover {
+  background: rgba(0, 0, 0, 0.08) !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+  color: #000 !important;
+}
+
+html[data-theme="light"] .category-search input,
+html[data-theme="light"] .channel-search input,
+html[data-theme="light"] .source-form input,
+html[data-theme="light"] .source-form textarea,
+html[data-theme="light"] .filter-words-input-row input {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+}
+
+html[data-theme="light"] .category-search input:focus,
+html[data-theme="light"] .channel-search input:focus,
+html[data-theme="light"] .source-form input:focus,
+html[data-theme="light"] .source-form textarea:focus,
+html[data-theme="light"] .filter-words-input-row input:focus {
+  background: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+  outline: none !important;
+}
+
+html[data-theme="light"] .source-form input::placeholder,
+html[data-theme="light"] .source-form textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="light"] .source-form input[readOnly] {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .category-item,
+html[data-theme="light"] .channel-item {
+  background: rgba(0, 0, 0, 0.01) !important;
+  border-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+html[data-theme="light"] .category-item:hover,
+html[data-theme="light"] .channel-item:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+html[data-theme="light"] .category-item.selected-for-move {
+  background: color-mix(in srgb, var(--accent-primary, #8b5cf6) 8%, rgba(0, 0, 0, 0.02)) !important;
+  border-color: var(--accent-primary, #8b5cf6) !important;
+}
+
+html[data-theme="light"] .category-name,
+html[data-theme="light"] .channel-name {
+  color: rgba(0, 0, 0, 0.85) !important;
+}
+
+html[data-theme="light"] .drag-handle {
+  color: rgba(0, 0, 0, 0.25) !important;
+}
+
+html[data-theme="light"] .category-item:hover .drag-handle,
+html[data-theme="light"] .channel-item:hover .drag-handle {
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+
+html[data-theme="light"] .category-manager-actions,
+html[data-theme="light"] .channel-manager-actions {
+  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-theme="light"] .type-selector button {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+  font-weight: 500 !important;
+}
+
+html[data-theme="light"] .type-selector button:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .type-selector button.active {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+}
+
+html[data-theme="light"] .source-form .import-btn,
+html[data-theme="light"] .source-form .change-file-btn,
+html[data-theme="light"] .source-form .add-backup-btn,
+html[data-theme="light"] .source-form .confirm-btn,
+html[data-theme="light"] .source-form .swap-btn,
+html[data-theme="light"] .category-manager-actions button,
+html[data-theme="light"] .channel-manager-actions button,
+html[data-theme="light"] .order-btn,
+html[data-theme="light"] .filter-add-btn,
+html[data-theme="light"] .category-manager-stats button {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+  font-weight: 500 !important;
+}
+
+html[data-theme="light"] .source-form .import-btn {
+  border-style: dashed !important;
+}
+
+html[data-theme="light"] .source-form .import-btn:hover,
+html[data-theme="light"] .source-form .change-file-btn:hover,
+html[data-theme="light"] .source-form .add-backup-btn:hover,
+html[data-theme="light"] .source-form .confirm-btn:hover,
+html[data-theme="light"] .source-form .swap-btn:hover,
+html[data-theme="light"] .category-manager-actions button:hover,
+html[data-theme="light"] .channel-manager-actions button:hover,
+html[data-theme="light"] .order-btn:hover:not(:disabled),
+html[data-theme="light"] .filter-add-btn:hover,
+html[data-theme="light"] .category-manager-stats button:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .category-manager-actions button.active-toggle,
+html[data-theme="light"] .channel-manager-actions button.active-toggle {
+  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, rgba(0, 0, 0, 0.04)) !important;
+  color: var(--accent-primary, #00d4ff) !important;
+  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(0, 0, 0, 0.1)) !important;
+}
+
+html[data-theme="light"] .filter-words-panel {
+  background: rgba(0, 0, 0, 0.01) !important;
+  border-top-color: rgba(0, 0, 0, 0.06) !important;
+  border-bottom-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+html[data-theme="light"] .filter-word-tag {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: rgba(0, 0, 0, 0.8) !important;
+}
+
+html[data-theme="light"] .source-form .hint,
+html[data-theme="light"] .source-form .form-hint,
+html[data-theme="light"] .source-form .section-description {
+  color: #64748b !important;
+}
+
+html[data-theme="light"] .source-form .or-divider::before,
+html[data-theme="light"] .source-form .or-divider::after {
+  background: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .source-form .or-divider span {
+  color: #64748b !important;
+  font-weight: 500 !important;
+}
+
+html[data-theme="light"] .source-form .form-details {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+}
+
+html[data-theme="light"] .source-form .form-details-summary {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  font-weight: 600 !important;
+}
+
+html[data-theme="light"] .source-form .form-details-summary:hover {
+  background: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .source-form .form-details-content {
+  border-top-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .source-form .backup-item {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+html[data-theme="light"] .source-form .backup-val {
+  color: #1e293b !important;
+}
+
+html[data-theme="light"] .source-form .epg-url-display {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .source-form .password-toggle-btn {
+  color: #64748b !important;
+}
+
+html[data-theme="light"] .source-form .password-toggle-btn:hover {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .category-manager-footer,
+html[data-theme="light"] .channel-manager-footer,
+html[data-theme="light"] .source-form .form-actions {
+  border-top-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-theme="light"] .source-form .cancel-btn {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+
+html[data-theme="light"] .source-form .cancel-btn:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+html[data-theme="light"] .source-form .save-btn {
+  background: #2563eb !important;
+  border: 1px solid #2563eb !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+}
+
+html[data-theme="light"] .source-form .save-btn:hover:not(:disabled) {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}
+
+/* V3 Liquid Glass Background — static render (low GPU).
+   The bulbs keep their exact visual (colored glows, blur) but are drawn once
+   and cached by the compositor instead of being re-blurred every frame by the
+   continuous float animations. This removes the idle 10-15% GPU cost. */
+.livetv-liquid-glass-bg .glass-blob,
+.livetv-liquid-glass-bg::before,
+.livetv-liquid-glass-bg::after {
+  animation: none !important;
+  will-change: auto !important; /* De-promote layering; no per-frame re-blur */
+}
+
+/* ==========================================================================
+   THEME OPTIMIZATION OVERRIDES
+   ========================================================================== */
+/* 1. Disable Glass Backdrop Blur */
+html.disable-theme-backdrop-blur * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ==========================================================================
+   THEME OPTIMIZATION OVERRIDES
+   ========================================================================== */
+/* 1. Disable Glass Backdrop Blur */
+html.disable-theme-backdrop-blur * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* 3. Disable EPG Card Shadows & Transitions */
+html.disable-epg-transitions .program-block {
+  transition: none !important;
+  box-shadow: none !important;
+}
+
+html.disable-epg-transitions .program-block:hover {
+  transition: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Also suppress channel info column and row background transitions */
+html.disable-epg-transitions .guide-channel-info {
+  transition: none !important;
+}
+
+html.disable-epg-transitions .guide-channel-row {
+  transition: none !important;
+}
+
+/* Stop the marquee scroll animation on hover when transitions are disabled */
+html.disable-epg-transitions .guide-channel-info:hover .guide-channel-name {
+  animation: none !important;
+  overflow: hidden !important;
+  display: block !important;
+}
+
+/* 4. Reduce EPG Scroll Rendering Work
+   Adds CSS contain to isolate repaints per row and per program grid.
+   content-visibility: auto lets the browser skip off-screen program block painting.
+   No visual change — purely rendering hints. */
+html.epg-reduce-gpu-layers .guide-channels {
+  will-change: auto !important;
+}
+
+html.epg-reduce-gpu-layers .guide-channel-row {
+  will-change: auto !important;
+  contain: layout style !important;
+}
+
+html.epg-reduce-gpu-layers .guide-program-grid {
+  contain: layout style !important;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 56px;
+}
+
+/* 5. Disable EPG Channel Name Gradient Fade
+   Removes the mask-image gradient on channel name containers (each creates a GPU compositing layer)
+   and switches programmatic scrolls to instant instead of smooth.
+   Visual trade-off: long channel names show ellipsis (…) instead of soft gradient fade. */
+html.epg-disable-channel-fade .guide-channel-name-container {
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+
+html.epg-disable-channel-fade .guide-channels {
+  scroll-behavior: auto !important;
+}
+
+
+/* ==========================================================================
+   UI DESIGN V1/V2 — LAYOUT TOKENS
+   Per-version layout values consumed by the page components (VodPage, DVR,
+   TVCP, Sports, Stremio, Nuvio, guide, titlebar) and the titlebar nav. v1/v2
+   pages span the full window and cover the frameless titlebar with top
+   padding; v3 pages float inset via their own rules/tokens.
+   ========================================================================== */
+
+html[data-ui-version="v1"],
+html[data-ui-version="v2"] {
+  /* Page layout — full-bleed, titlebar covered by content padding */
+  --page-top: 0px;
+  --page-pad-top: 32px;
+  --page-height: 100%;
+  --view-transition-top: 0px;
+  --view-transition-height: 100%;
+  /* Solid covers that prevent desktop bleed-through behind the titlebar */
+  --titlebar-cover-bg: var(--bg-primary, #0d0d0d);
+  --topbar-cover-bg: var(--bg-primary, #0f0f0f);
+  --guide-solid-bg: var(--bg-primary, #050505);
+  /* Unified titlebar nav pill — dark glass for readability */
+  --titlebar-unified-bg: rgba(0, 0, 0, 0.45);
+  --titlebar-unified-blur-filter: blur(12px);
+  --titlebar-unified-border-color: rgba(255, 255, 255, 0.16);
+  --titlebar-unified-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 12px rgba(0, 0, 0, 0.6);
+  --seg-btn-color: rgba(255, 255, 255, 0.8);
+  --seg-btn-hover-bg: rgba(255, 255, 255, 0.08);
+  --seg-btn-active-bg: rgba(255, 255, 255, 0.16);
+  --seg-btn-active-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Non-transparent LiveTV guide: cover the video behind the guide surfaces so
+   solid themes don't bleed through. v3 redefines --guide-solid-bg to the glass
+   token, so this single rule serves all versions. */
+.app.active-view-guide:not(.guide-transparent) .category-strip,
+.app.active-view-guide:not(.guide-transparent) .guide-grid-section,
+.app.active-view-guide:not(.guide-transparent) .guide-info-pane {
+  background: var(--guide-solid-bg, var(--bg-primary, #050505));
+}

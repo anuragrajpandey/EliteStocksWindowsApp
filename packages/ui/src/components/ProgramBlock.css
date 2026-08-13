@@ -1,35 +1,61 @@
-/* Individual program block in the EPG grid */
+/* Individual program block in the EPG grid
+   (per-version --prog-* tokens from ModernV2/ModernV3) */
 .program-block {
   position: absolute;
-  top: 4px;
-  bottom: 4px;
+  top: var(--prog-top, 4px);
+  bottom: var(--prog-bottom, 4px);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 4px;
-  border-left: 2px solid transparent;
+  padding: var(--prog-padding, 4px 10px);
+  background: var(--prog-bg, rgba(255, 255, 255, 0.04));
+  border-radius: var(--prog-radius, 4px);
+  border: var(--prog-border, none);
+  border-left: var(--prog-border-left, 2px solid transparent);
   cursor: pointer;
   overflow: hidden;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: var(--prog-transition, background 0.15s ease, border-color 0.15s ease);
+  box-shadow: var(--prog-shadow, none);
   box-sizing: border-box;
   min-width: 0;
   z-index: 10;
 }
 
 .program-block:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--prog-hover-bg, rgba(255, 255, 255, 0.08));
+  border-color: var(--prog-hover-border-color, transparent);
+  box-shadow: var(--prog-hover-shadow, none);
+  transform: var(--prog-hover-transform, none);
+  transition: var(--prog-hover-transition, var(--prog-transition, background 0.15s ease, border-color 0.15s ease));
+  z-index: var(--prog-hover-z, 10);
+}
+
+/* Past programs — slightly dimmed (v2/v3 via tokens; no-op in v1) */
+.program-block.past {
+  background: var(--prog-past-bg, none);
+  border-color: var(--prog-past-border-color, transparent);
+  opacity: var(--prog-past-opacity, 1);
+}
+
+.program-block.past .program-block-title {
+  color: var(--prog-past-title-color, inherit);
+}
+
+.program-block.past .program-block-desc {
+  color: var(--prog-past-desc-color, inherit);
 }
 
 /* Current program (contains "now") */
 .program-block.current {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 8%, transparent);
-  border-left-color: var(--accent-primary, #00d4ff);
+  background: var(--prog-current-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 8%, transparent));
+  border-color: var(--prog-current-border-color, var(--accent-primary, #00d4ff));
+  box-shadow: var(--prog-current-shadow, none);
 }
 
 .program-block.current:hover {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent);
+  background: var(--prog-current-hover-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent));
+  border-color: var(--prog-current-hover-border-color, var(--accent-primary, #00d4ff));
+  box-shadow: var(--prog-current-hover-shadow, none);
 }
 
 /* Darker highlight when epg-darken-current is enabled on document */
@@ -46,8 +72,9 @@
 
 /* Empty state (no EPG data) */
 .program-block.empty {
-  background: rgba(255, 255, 255, 0.02);
-  border-left-color: transparent;
+  background: var(--prog-empty-bg, rgba(255, 255, 255, 0.02));
+  border-color: var(--prog-empty-border-color, transparent);
+  border-style: var(--prog-empty-border-style, none);
   cursor: default;
 }
 
@@ -58,50 +85,56 @@
 
 /* Program title */
 .program-block-title {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: var(--prog-title-font-size, 0.85rem);
+  font-weight: var(--prog-title-font-weight, 400);
+  color: var(--prog-title-color, rgba(255, 255, 255, 0.8));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.3;
+  line-height: var(--prog-title-line-height, 1.3);
 }
 
 .program-block.current .program-block-title {
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--prog-current-title-color, rgba(255, 255, 255, 0.95));
+  font-weight: var(--prog-current-title-font-weight, inherit);
 }
 
 /* Program description (shown when block is wide enough) */
 .program-block-desc {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: var(--prog-desc-font-size, 0.75rem);
+  font-weight: var(--prog-desc-font-weight, 400);
+  color: var(--prog-desc-color, rgba(255, 255, 255, 0.4));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: 2px;
-  line-height: 1.2;
+  margin-top: var(--prog-desc-margin-top, 2px);
+  line-height: var(--prog-desc-line-height, 1.2);
+  opacity: var(--prog-desc-opacity, 1);
 }
 
 .program-block.current .program-block-desc {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--prog-current-desc-color, rgba(255, 255, 255, 0.5));
 }
 
 /* Recording indicator in program block */
 .program-recording-indicator,
 .program-scheduled-indicator {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: var(--prog-indicator-top, 4px);
+  right: var(--prog-indicator-right, 4px);
   z-index: 5;
 }
 
 /* Recording state styling */
 .program-block.is-recording {
-  background: rgba(204, 34, 34, 0.08);
-  border-left-color: #c22;
+  background: var(--prog-rec-bg, rgba(204, 34, 34, 0.08));
+  border-color: var(--prog-rec-border-color, #c22);
 }
 
 .program-block.is-recording:hover {
-  background: rgba(204, 34, 34, 0.12);
+  background: var(--prog-rec-hover-bg, rgba(204, 34, 34, 0.12));
+  border-color: var(--prog-rec-hover-border-color, #c22);
+  box-shadow: var(--prog-rec-hover-shadow, none);
 }
 
 .program-block.is-recording .program-block-title {
@@ -111,12 +144,14 @@
 
 /* Scheduled state styling */
 .program-block.is-scheduled {
-  background: rgba(60, 60, 60, 0.15);
-  border-left-color: #666;
+  background: var(--prog-sched-bg, rgba(60, 60, 60, 0.15));
+  border-color: var(--prog-sched-border-color, #666);
+  border-style: var(--prog-sched-border-style, solid);
 }
 
 .program-block.is-scheduled:hover {
-  background: rgba(80, 80, 80, 0.2);
+  background: var(--prog-sched-hover-bg, rgba(80, 80, 80, 0.2));
+  border-color: var(--prog-sched-hover-border-color, #666);
 }
 
 .program-block.is-scheduled .program-block-title {
@@ -126,16 +161,19 @@
 
 /* Catchup available styling */
 .program-block.catchup-available {
-  border-left-color: #e5a00d;
+  border-color: var(--prog-catch-border-color, #e5a00d);
 }
 
 .program-block.catchup-available:hover {
-  background: rgba(229, 160, 13, 0.15);
+  background: var(--prog-catch-hover-bg, rgba(229, 160, 13, 0.15));
+  border-color: var(--prog-catch-hover-border-color, #e5a00d);
 }
 
-.program-block.catchup-available .program-block-title::before {
-  content: '↺ ';
-  color: #e5a00d;
-  font-size: 1.1em;
-  vertical-align: middle;
+/* Catchup icon — only on the first title line (title, not subtitle), so the
+   icon appears once per block instead of once per line. */
+.program-block.catchup-available .program-block-title:first-of-type::before {
+  content: var(--prog-catch-icon-content, '↺ ');
+  color: var(--prog-catch-icon-color, #e5a00d);
+  font-size: var(--prog-catch-icon-font-size, 1.1em);
+  vertical-align: var(--prog-catch-icon-valign, middle);
 }

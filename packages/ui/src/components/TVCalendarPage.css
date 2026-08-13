@@ -2,13 +2,20 @@
 
 .tvcp-page {
   position: fixed;
-  top: 32px;
+  top: var(--page-top, 32px);
   left: 0;
   right: 0;
   bottom: 0;
+  padding-top: var(--page-pad-top, 0);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  background: var(--bg-primary, #0f0f0f);
+  background: var(--glass-surface-bg, var(--bg-primary, #0f0f0f));
+  backdrop-filter: var(--glass-surface-filter, none);
+  -webkit-backdrop-filter: var(--glass-surface-filter, none);
+  border: var(--glass-surface-border, none);
+  border-radius: var(--glass-panel-radius, 0);
+  box-shadow: var(--glass-surface-shadow, none);
   color: var(--text-primary, #ffffff);
   z-index: 100;
   overflow: hidden;

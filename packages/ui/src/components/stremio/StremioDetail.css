@@ -287,15 +287,15 @@
 
 .stremio-detail-right {
   flex: 1;
-  background: rgba(8, 6, 15, 0.82) !important;
-  backdrop-filter: blur(32px) saturate(120%) !important;
-  -webkit-backdrop-filter: blur(32px) saturate(120%) !important;
+  background: var(--glass-stremio-right-bg, rgba(8, 6, 15, 0.82)) !important;
+  backdrop-filter: var(--glass-stremio-right-filter, blur(32px) saturate(120%)) !important;
+  -webkit-backdrop-filter: var(--glass-stremio-right-filter, blur(32px) saturate(120%)) !important;
   isolation: isolate;
   position: relative;
   z-index: 10;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1),
-              0 8px 32px rgba(0, 0, 0, 0.4) !important;
+  border: var(--glass-stremio-right-border, 1px solid rgba(255, 255, 255, 0.1)) !important;
+  box-shadow: var(--glass-stremio-right-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.1),
+              0 8px 32px rgba(0, 0, 0, 0.4)) !important;
   border-radius: 12px;
   margin: 8px 8px 8px 0;
   height: calc(100% - 16px);

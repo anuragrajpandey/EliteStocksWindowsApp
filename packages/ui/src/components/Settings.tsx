@@ -30,6 +30,7 @@ import { useAppSettings } from '../hooks/useAppSettings';
 import type { ShortcutsMap, ThemeId, CustomThemeConfig } from '../types/app';
 import type { StremioStreamPickerMode, BadgeSource, StreamAutoPlayMode, StreamAutoPlaySourceScope } from '../types/stremio';
 import { DEFAULT_BADGE_SOURCES, mergeDefaultBadgeSources } from '../utils/streamBadges';
+import { applyUiDesign } from '../utils/uiDesign';
 import { useTranslation } from 'react-i18next';
 import i18n, { SUPPORTED_LOCALES } from '../i18n';
 import './Settings.css';
@@ -1067,12 +1068,7 @@ export function Settings({
 
       // Apply modern UI class on load
       const design = loadedModernUi === 'v3' ? 'v3' : (loadedModernUi === false || loadedModernUi === 'v1' ? 'v1' : 'v2');
-      document.documentElement.classList.remove('modern-ui', 'modern-ui-v3');
-      if (design === 'v3') {
-        document.documentElement.classList.add('modern-ui', 'modern-ui-v3');
-      } else if (design === 'v2') {
-        document.documentElement.classList.add('modern-ui');
-      }
+      applyUiDesign(design);
       if (onLiveTvDesignChange) {
         onLiveTvDesignChange(design);
       }
@@ -2329,12 +2325,7 @@ export function Settings({
     // Apply/remove the modern-ui class when modernUiEnabled changes
     if (newSettings.modernUiEnabled !== undefined) {
       const design = newSettings.modernUiEnabled === 'v3' ? 'v3' : (newSettings.modernUiEnabled === false || newSettings.modernUiEnabled === 'v1' ? 'v1' : 'v2');
-      document.documentElement.classList.remove('modern-ui', 'modern-ui-v3');
-      if (design === 'v3') {
-        document.documentElement.classList.add('modern-ui', 'modern-ui-v3');
-      } else if (design === 'v2') {
-        document.documentElement.classList.add('modern-ui');
-      }
+      applyUiDesign(design);
       if (onLiveTvDesignChange) {
         onLiveTvDesignChange(design);
       }

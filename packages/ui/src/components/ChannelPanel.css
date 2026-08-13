@@ -3,9 +3,10 @@
   position: fixed;
   left: 0;
   right: 0;
-  top: 32px;
+  top: var(--page-top, 32px);
   bottom: 0;
   padding-left: 0;
+  padding-top: var(--page-pad-top, 0);
   /* No sidebar space by default */
   box-sizing: border-box;
   /* Transparent background to allow MPV video to show through preview area */
@@ -118,7 +119,11 @@
   aspect-ratio: 16 / 9;
   /* Fully transparent to show video - NO OVERLAY */
   background: transparent;
-  border-right: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
+  border-right: var(--guide-preview-border-right, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+  border-bottom: var(--guide-preview-border-bottom, none);
+  margin-bottom: var(--guide-preview-margin-bottom, 0);
+  border-radius: var(--guide-preview-radius, 0);
+  box-shadow: var(--guide-preview-shadow, none);
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -131,7 +136,8 @@
   width: 100%;
   aspect-ratio: auto;
   border-right: none;
-  border-bottom: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
+  border-bottom: var(--guide-preview-border-bottom, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+  margin-bottom: var(--guide-preview-margin-bottom, 0);
 }
 
 /* Video container that holds the MPV video */
@@ -143,6 +149,8 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border-radius: var(--guide-preview-video-radius, 0);
+  box-shadow: var(--guide-preview-video-shadow, none);
   min-height: 0;
   cursor: pointer;
 }
@@ -153,14 +161,17 @@
 
 /* Optional: Indicate it is a preview area if no video is selected */
 .guide-preview-placeholder {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 1.2rem;
-  background: var(--surface-color, rgba(0, 0, 0, 0.5));
-  backdrop-filter: blur(var(--glass-blur, 10px));
-  -webkit-backdrop-filter: blur(var(--glass-blur, 10px));
-  padding: 20px 30px;
-  border-radius: 12px;
-  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
+  color: var(--guide-placeholder-color, rgba(255, 255, 255, 0.5));
+  font-size: var(--guide-placeholder-font-size, 1.2rem);
+  font-weight: var(--guide-placeholder-font-weight, 400);
+  letter-spacing: var(--guide-placeholder-letter-spacing, normal);
+  background: var(--guide-placeholder-bg, var(--surface-color, rgba(0, 0, 0, 0.5)));
+  backdrop-filter: var(--guide-placeholder-filter, blur(var(--glass-blur, 10px)));
+  -webkit-backdrop-filter: var(--guide-placeholder-filter, blur(var(--glass-blur, 10px)));
+  padding: var(--guide-placeholder-padding, 20px 30px);
+  border-radius: var(--guide-placeholder-radius, 12px);
+  border: var(--guide-placeholder-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+  box-shadow: var(--guide-placeholder-shadow, none);
   position: absolute;
   top: 50%;
   left: 50%;
@@ -480,10 +491,14 @@
   bottom: 0;
   right: 0;
   left: var(--preview-width, 42%);
-  background: var(--bg-overlay, rgba(0, 0, 0, 0.95));
-  backdrop-filter: blur(var(--glass-blur, 20px));
-  -webkit-backdrop-filter: blur(var(--glass-blur, 20px));
-  padding: 30px;
+  background: var(--glass-info-bg, var(--bg-overlay, rgba(0, 0, 0, 0.95)));
+  backdrop-filter: var(--glass-info-filter, blur(var(--glass-blur, 20px)));
+  -webkit-backdrop-filter: var(--glass-info-filter, blur(var(--glass-blur, 20px)));
+  border: var(--glass-surface-border, none);
+  border-left: var(--glass-info-border-left, var(--glass-surface-border, none));
+  border-radius: var(--glass-surface-radius, 0);
+  box-shadow: var(--glass-info-shadow, var(--glass-surface-shadow, none));
+  padding: var(--glass-info-padding, 30px);
   display: flex;
   flex-direction: column;
   border-bottom: var(--glass-border, 1px solid rgba(255, 255, 255, 0.08));
@@ -533,9 +548,12 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--bg-overlay, rgba(0, 0, 0, 0.95));
-  backdrop-filter: blur(var(--glass-blur, 20px));
-  -webkit-backdrop-filter: blur(var(--glass-blur, 20px));
+  background: var(--glass-grid-bg, var(--bg-overlay, rgba(0, 0, 0, 0.95)));
+  backdrop-filter: var(--glass-grid-filter, blur(var(--glass-blur, 20px)));
+  -webkit-backdrop-filter: var(--glass-grid-filter, blur(var(--glass-blur, 20px)));
+  border: var(--glass-surface-border, none);
+  border-radius: var(--glass-panel-radius, 0);
+  box-shadow: var(--glass-grid-shadow, var(--glass-surface-shadow, none));
   overflow: hidden;
   /* Ensure virtual list scrolls inside */
   position: relative;
@@ -571,13 +589,21 @@
   box-shadow: 0 0 8px var(--accent-primary, #00d4ff);
 }
 
-/* Program Details Styles */
+/* Program Details Styles (typography driven by per-version --guide-* tokens;
+   v1 uses the fallbacks, v2/v3 supply the modern fonts via ModernV2.css) */
 .guide-program-title {
-  font-size: var(--epg-title-font-size, 32px);
-  font-weight: 600;
+  font-size: var(--guide-title-font-size, var(--epg-title-font-size, 32px));
+  font-weight: var(--guide-title-font-weight, 600);
   margin-bottom: 8px;
   color: var(--text-primary, white);
   word-wrap: break-word;
+  letter-spacing: var(--guide-title-letter-spacing, normal);
+  line-height: var(--guide-title-line-height, normal);
+  text-shadow: var(--guide-title-text-shadow, none);
+  background: var(--guide-title-bg, none);
+  -webkit-background-clip: var(--guide-title-bg-clip, border-box);
+  -webkit-text-fill-color: var(--guide-title-fill, currentColor);
+  background-clip: var(--guide-title-bg-clip, border-box);
 }
 
 .guide-program-meta {
@@ -585,8 +611,10 @@
   align-items: center;
   gap: 16px;
   margin-bottom: 16px;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
-  font-size: 1rem;
+  margin-top: var(--guide-meta-margin-top, 0);
+  color: var(--guide-meta-color, var(--text-secondary, rgba(255, 255, 255, 0.7)));
+  font-size: var(--guide-meta-font-size, 1rem);
+  font-weight: var(--guide-meta-font-weight, 400);
 }
 
 .guide-program-progress-bar {
@@ -603,10 +631,12 @@
 }
 
 .guide-program-description {
-  font-size: var(--epg-body-font-size, 16px);
-  line-height: 1.5;
-  color: var(--text-muted, rgba(255, 255, 255, 0.6));
+  font-size: var(--guide-desc-font-size, var(--epg-body-font-size, 16px));
+  line-height: var(--guide-desc-line-height, 1.5);
+  color: var(--guide-desc-color, var(--text-muted, rgba(255, 255, 255, 0.6)));
   word-wrap: break-word;
+  margin-top: var(--guide-desc-margin-top, 0);
+  letter-spacing: var(--guide-desc-letter-spacing, normal);
 }
 
 .guide-top-section.alternate-view .guide-program-title {
@@ -691,9 +721,9 @@
   justify-content: space-between;
   padding: 12px 24px;
   border-bottom: var(--glass-border, 1px solid rgba(255, 255, 255, 0.08));
-  background: var(--surface-color, rgba(20, 20, 20, 0.85));
-  backdrop-filter: blur(var(--glass-blur, 10px));
-  -webkit-backdrop-filter: blur(var(--glass-blur, 10px));
+  background: var(--guide-header-bg, var(--surface-color, rgba(20, 20, 20, 0.85)));
+  backdrop-filter: var(--guide-header-filter, blur(var(--glass-blur, 10px)));
+  -webkit-backdrop-filter: var(--guide-header-filter, blur(var(--glass-blur, 10px)));
   flex-shrink: 0;
   position: relative;
   z-index: 200;
@@ -706,15 +736,17 @@
 }
 
 .guide-current-time {
-  font-size: 1.4rem;
+  font-size: var(--guide-clock-font-size, 1.4rem);
   font-weight: 300;
   color: var(--accent-primary, #00d4ff);
   font-variant-numeric: tabular-nums;
+  letter-spacing: var(--guide-clock-letter-spacing, normal);
+  text-shadow: var(--guide-clock-text-shadow, none);
 }
 
 .guide-category {
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: var(--guide-category-font-size, 1rem);
+  font-weight: var(--guide-category-font-weight, 500);
   color: var(--text-primary, white);
 }
 
@@ -781,19 +813,21 @@
 }
 
 /* Manage Channels Button */
-/* Manage Channels, Refresh Source, EPG Shift & Action Buttons */
+/* Manage Channels, Refresh Source, EPG Shift & Action Buttons
+   (per-version --guide-btn-* tokens from ModernV2/ModernV3) */
 .guide-manage-channels-btn,
 .guide-refresh-source-btn,
 .guide-epg-shift-btn {
-  padding: 6px 8px;
-  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.2));
-  background: var(--surface-color, rgba(255, 255, 255, 0.08));
-  color: var(--text-secondary, rgba(255, 255, 255, 0.8));
+  padding: var(--guide-btn-padding, 6px 8px);
+  border: var(--guide-btn-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.2)));
+  background: var(--guide-btn-bg, var(--surface-color, rgba(255, 255, 255, 0.08)));
+  color: var(--guide-btn-color, var(--text-secondary, rgba(255, 255, 255, 0.8)));
   cursor: pointer;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  border-radius: var(--guide-btn-radius, 6px);
+  font-size: var(--guide-btn-font-size, 0.75rem);
+  font-weight: var(--guide-btn-font-weight, 500);
+  letter-spacing: var(--guide-btn-letter-spacing, normal);
+  transition: var(--guide-btn-transition, all 0.2s ease);
   display: flex;
   align-items: center;
   gap: 0;
@@ -804,10 +838,12 @@
 .guide-manage-channels-btn:hover,
 .guide-refresh-source-btn:hover:not(:disabled),
 .guide-epg-shift-btn:hover {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.15));
-  border-color: var(--accent-primary, rgba(255, 255, 255, 0.35));
-  color: var(--text-primary, white);
+  background: var(--guide-btn-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.15)));
+  border-color: var(--guide-btn-hover-border-color, var(--accent-primary, rgba(255, 255, 255, 0.35)));
+  color: var(--guide-btn-hover-color, var(--text-primary, white));
   padding: 6px 10px;
+  transform: var(--guide-btn-hover-transform, none);
+  box-shadow: var(--guide-btn-hover-shadow, none);
 }
 
 .guide-header-left button .btn-label {
@@ -828,13 +864,15 @@
 }
 
 .guide-refresh-source-btn:disabled {
-  opacity: 0.7;
+  opacity: var(--guide-btn-disabled-opacity, 0.7);
   cursor: not-allowed;
+  background: var(--guide-btn-disabled-bg, var(--surface-color, rgba(255, 255, 255, 0.08)));
 }
 
 .guide-refresh-source-btn .sync-spinner {
   display: inline-block;
-  animation: spin 1s linear infinite;
+  animation: var(--guide-spinner-anim, spin 1s linear infinite);
+  font-size: var(--guide-spinner-font-size, 1em);
 }
 
 @keyframes spin {
@@ -929,37 +967,41 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-  background: var(--surface-color, transparent);
-  color: var(--text-muted, rgba(255, 255, 255, 0.5));
+  border: var(--guide-navbtn-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+  background: var(--guide-navbtn-bg, var(--surface-color, transparent));
+  color: var(--guide-navbtn-color, var(--text-muted, rgba(255, 255, 255, 0.5)));
   cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.15s ease;
+  border-radius: var(--guide-navbtn-radius, 4px);
+  transition: var(--guide-navbtn-transition, all 0.15s ease);
 }
 
 .guide-nav-btn:hover {
-  border-color: var(--accent-primary, rgba(255, 255, 255, 0.25));
-  background: var(--surface-hover, rgba(255, 255, 255, 0.05));
-  color: var(--text-primary, white);
+  border-color: var(--guide-btn-hover-border-color, var(--accent-primary, rgba(255, 255, 255, 0.25)));
+  background: var(--guide-navbtn-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.05)));
+  color: var(--guide-btn-hover-color, var(--text-primary, white));
+  transform: var(--guide-navbtn-hover-transform, none);
+  box-shadow: var(--guide-navbtn-hover-shadow, none);
 }
 
 .guide-now-btn {
   padding: 4px 12px;
-  border: 1px solid var(--accent-primary, rgba(0, 212, 255, 0.4));
-  background: var(--surface-glow, rgba(0, 212, 255, 0.15));
-  color: var(--accent-primary, #00d4ff);
+  border: var(--guide-nowbtn-border, 1px solid var(--accent-primary, rgba(0, 212, 255, 0.4)));
+  background: var(--guide-nowbtn-bg, var(--surface-glow, rgba(0, 212, 255, 0.15)));
+  color: var(--guide-nowbtn-color, var(--accent-primary, #00d4ff));
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: var(--guide-nowbtn-radius, 4px);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: var(--guide-nowbtn-font-weight, 600);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  transition: all 0.15s ease;
+  letter-spacing: var(--guide-nowbtn-letter-spacing, 0.03em);
+  transition: var(--guide-nowbtn-transition, all 0.15s ease);
 }
 
 .guide-now-btn:hover:not(:disabled) {
-  background: var(--surface-hover, rgba(0, 212, 255, 0.25));
+  background: var(--guide-nowbtn-hover-bg, var(--surface-hover, rgba(0, 212, 255, 0.25)));
   border-color: var(--accent-primary, rgba(0, 212, 255, 0.6));
+  transform: var(--guide-nowbtn-hover-transform, none);
+  box-shadow: var(--guide-nowbtn-hover-shadow, none);
 }
 
 .guide-now-btn.inactive {
@@ -975,18 +1017,20 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-  background: var(--surface-color, transparent);
-  color: var(--text-muted, rgba(255, 255, 255, 0.5));
+  border: var(--guide-navbtn-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+  background: var(--guide-navbtn-bg, var(--surface-color, transparent));
+  color: var(--guide-navbtn-color, var(--text-muted, rgba(255, 255, 255, 0.5)));
   cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.15s ease;
+  border-radius: var(--guide-navbtn-radius, 4px);
+  transition: var(--guide-navbtn-transition, all 0.15s ease);
 }
 
 .guide-close:hover {
-  border-color: var(--accent-primary, rgba(255, 255, 255, 0.25));
-  background: var(--surface-hover, rgba(255, 255, 255, 0.05));
-  color: var(--text-primary, white);
+  border-color: var(--guide-btn-hover-border-color, var(--accent-primary, rgba(255, 255, 255, 0.25)));
+  background: var(--guide-navbtn-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.05)));
+  color: var(--guide-btn-hover-color, var(--text-primary, white));
+  transform: var(--guide-navbtn-hover-transform, none);
+  box-shadow: var(--guide-navbtn-hover-shadow, none);
 }
 
 /* Time Header - Aligned to grid */
@@ -1022,16 +1066,19 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.8rem;
-  color: var(--text-muted, rgba(255, 255, 255, 0.5));
+  font-size: var(--guide-marker-font-size, 0.8rem);
+  font-weight: var(--guide-marker-font-weight, inherit);
+  color: var(--guide-marker-color, var(--text-muted, rgba(255, 255, 255, 0.5)));
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  padding-left: 8px;
+  padding-left: var(--guide-marker-padding-left, 8px);
+  letter-spacing: var(--guide-marker-letter-spacing, normal);
   border-left: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
 }
 
 .guide-time-marker:first-child {
-  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+  font-weight: var(--guide-marker-first-weight, inherit);
+  color: var(--guide-marker-first-color, var(--text-secondary, rgba(255, 255, 255, 0.7)));
 }
 
 /* Content Area */
@@ -1073,17 +1120,30 @@
 .guide-channel-row {
   display: flex;
   align-items: stretch;
-  min-height: 56px;
-  border-bottom: 1px solid var(--surface-border, rgba(255, 255, 255, 0.04));
+  min-height: var(--guide-row-min-height, 56px);
+  border-bottom: var(--guide-row-border-bottom, 1px solid var(--surface-border, rgba(255, 255, 255, 0.04)));
   position: relative;
+  transition: var(--guide-row-transition, none);
 }
 
 .guide-channel-row.has-playlist-name {
-  min-height: 76px;
+  min-height: var(--guide-row-playlist-min-height, 76px);
 }
 
 .guide-channel-row.has-playlist-name .guide-channel-info {
-  padding-bottom: 26px; /* Shift content up to clear metadata badge vertically */
+  padding-bottom: var(--guide-row-playlist-info-padding-bottom, 26px); /* Shift content up to clear metadata badge vertically */
+}
+
+/* Soft gradient divider under each row (v3 via tokens; hidden otherwise) */
+.guide-channel-row::after {
+  content: var(--guide-row-divider-content, none);
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  background: var(--guide-row-divider-bg, none);
+  pointer-events: none;
 }
 
 .guide-channel-row:hover,
@@ -1091,9 +1151,33 @@
   background: var(--surface-hover, rgba(255, 255, 255, 0.03));
 }
 
-/* Currently playing channel highlight - matches hover style */
+/* Currently playing channel highlight (v2/v3 accent tint + glow bar via tokens) */
 .guide-channel-row.currently-playing {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.03));
+  background: var(--guide-row-current-bg, var(--surface-hover, rgba(255, 255, 255, 0.03)));
+}
+
+.guide-channel-row.currently-playing:hover {
+  background: var(--guide-row-current-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.03)));
+}
+
+.guide-channel-row.currently-playing .guide-channel-name {
+  color: var(--guide-row-current-name-color, var(--text-secondary, rgba(255, 255, 255, 0.9)));
+  text-shadow: var(--guide-row-current-name-shadow, none);
+}
+
+/* Left accent glow bar on the currently playing channel (v2/v3 via tokens) */
+.guide-channel-row.currently-playing::before {
+  content: var(--guide-row-current-bar-content, none);
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  background: var(--guide-row-current-bar-bg, none);
+  border-radius: 0 3px 3px 0;
+  box-shadow: var(--guide-row-current-bar-shadow, none);
+  animation: var(--guide-row-current-bar-anim, none);
+  pointer-events: none;
 }
 
 .guide-channel-row.currently-playing .guide-channel-info {
@@ -1121,11 +1205,11 @@ html.epg-highlight-border-current .guide-channel-row.currently-playing::after {
 .guide-channel-info {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
+  gap: var(--guide-info-gap, 12px);
+  padding: var(--guide-info-padding, 8px 16px);
   border-right: var(--glass-border, 1px solid rgba(255, 255, 255, 0.06));
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: var(--guide-info-transition, background 0.15s ease);
   flex-shrink: 0;
   box-sizing: border-box;
   /* Critical for matching header width */
@@ -1200,9 +1284,11 @@ html.epg-highlight-border-current .guide-channel-row.currently-playing::after {
 .guide-channel-logo {
   width: var(--channel-logo-size, 42px);
   height: var(--channel-logo-size, 42px);
-  border-radius: var(--channel-logo-radius, 6px);
+  border-radius: var(--guide-logo-radius, var(--channel-logo-radius, 6px));
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--guide-logo-bg, rgba(255, 255, 255, 0.08));
+  border: var(--guide-logo-border, none);
+  box-shadow: var(--guide-logo-shadow, none);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1217,7 +1303,7 @@ html.logo-padded-tiles .guide-channel-logo,
 }
 
 .guide-channel-logo.logo-on-light {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--guide-logo-onlight-bg, rgba(255, 255, 255, 0.9));
 }
 
 .guide-channel-logo.logo-on-light .logo-placeholder {
@@ -1239,27 +1325,27 @@ html.logo-padded-tiles .guide-channel-logo,
 /* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled on document or logo-shape-rectangle class is present */
 html.epg-rectangle-logos .guide-channel-logo,
 .guide-channel-logo.logo-shape-rectangle {
-  width: calc(var(--channel-logo-size, 42px) * 1.833);
-  height: calc(var(--channel-logo-size, 42px) * 0.888);
-  border-radius: var(--channel-logo-radius, 4px);
+  width: var(--guide-logo-rect-w, calc(var(--channel-logo-size, 42px) * 1.833));
+  height: var(--guide-logo-rect-h, calc(var(--channel-logo-size, 42px) * 0.888));
+  border-radius: var(--guide-logo-rect-radius, var(--channel-logo-radius, 4px));
   padding: 0;
-  background: transparent;
+  background: var(--guide-logo-rect-bg, transparent);
 }
 html.epg-rectangle-logos .guide-channel-logo.logo-on-light,
 .guide-channel-logo.logo-shape-rectangle.logo-on-light {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--guide-logo-onlight-bg, rgba(255, 255, 255, 0.9));
 }
 
 /* Per-source square override when the global setting is rectangle - must beat the same specificity above */
 html.epg-rectangle-logos .guide-channel-logo.logo-shape-square {
   width: var(--channel-logo-size, 42px);
   height: var(--channel-logo-size, 42px);
-  border-radius: var(--channel-logo-radius, 4px);
+  border-radius: var(--guide-logo-square-radius, var(--channel-logo-radius, 4px));
   padding: 0;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--guide-logo-square-bg, rgba(255, 255, 255, 0.08));
 }
 html.epg-rectangle-logos .guide-channel-logo.logo-shape-square.logo-on-light {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--guide-logo-onlight-bg, rgba(255, 255, 255, 0.9));
 }
 
 /* Sharp edge override when round edges is disabled */
@@ -1957,8 +2043,8 @@ html.epg-disable-channel-fade .guide-channels {
 [data-theme]:not([data-theme*="glass-"]) .guide-info-pane,
 [data-theme]:not([data-theme*="glass-"]) .guide-grid-section,
 [data-theme]:not([data-theme*="glass-"]) .guide-header {
-  background: var(--bg-primary, #1e1e1e) !important;
-  background-attachment: fixed !important;
+  background: var(--glass-surface-bg, var(--bg-primary, #1e1e1e));
+  background-attachment: var(--glass-surface-bg-attachment, fixed);
 }
 
 /* ==========================================================================

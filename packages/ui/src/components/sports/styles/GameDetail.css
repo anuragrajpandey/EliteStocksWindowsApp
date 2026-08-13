@@ -13,7 +13,10 @@
 }
 
 .game-detail-modal {
-  background: var(--bg-primary, #0f0f0f);
+  background: var(--glass-detail-bg, var(--bg-primary, #0f0f0f));
+  backdrop-filter: var(--glass-detail-filter, none);
+  -webkit-backdrop-filter: var(--glass-detail-filter, none);
+  box-shadow: var(--glass-detail-shadow, none);
   border-radius: 16px;
   width: 100%;
   max-width: 900px;
@@ -21,7 +24,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border-color, #2a2a2a);
+  border: var(--glass-detail-border, 1px solid var(--border-color, #2a2a2a));
   animation: modalSlideIn 0.3s ease;
 }
 

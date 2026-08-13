@@ -1,0 +1,1124 @@
+/* ==========================================================================
+   MODERN THEME — V2 (applies to both V2 and V3 via .modern-ui)
+   Split from ModernTheme.css — see git history for the original monolith.
+   Loaded at runtime by src/utils/uiDesign.ts (applyUiDesign).
+   ========================================================================== */
+
+/* Modern Glass-Morphism UI Enhancement
+ * This file contains modern styling that can be toggled on/off via Settings
+ */
+/* ── V2 surface tokens ────────────────────────────────────────────────────
+   Component bases consume these so the v2 look is data, not an override
+   layer. V3 redefines the glass tokens (--strip-*, --glass-info-*,
+   --glass-grid-*, --guide-placeholder-*) in ModernV3.css; the guide-header
+   filter, preview-pane radius, and guide typography tokens are shared with
+   v3 unchanged. */
+.modern-ui {
+  --strip-bg: linear-gradient(180deg,
+    color-mix(in srgb, var(--bg-primary, rgba(10, 10, 15, 0.95)) 95%, transparent) 0%,
+    color-mix(in srgb, var(--bg-primary, rgba(10, 10, 15, 0.9)) 85%, transparent) 100%);
+  --strip-filter: blur(24px) saturate(180%);
+  --strip-border-right: 1px solid rgba(255, 255, 255, 0.1);
+  --strip-transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  --glass-info-bg: linear-gradient(180deg,
+    color-mix(in srgb, var(--bg-overlay, rgba(0, 0, 0, 0.95)), white 2%) 0%,
+    var(--bg-overlay, rgba(0, 0, 0, 0.95)) 100%);
+  --glass-info-filter: blur(var(--glass-blur, 24px)) saturate(180%);
+  --glass-grid-bg: linear-gradient(180deg,
+    color-mix(in srgb, var(--bg-overlay, rgba(0, 0, 0, 0.95)), white 1%) 0%,
+    var(--bg-overlay, rgba(0, 0, 0, 0.95)) 100%);
+  --guide-header-bg: linear-gradient(180deg,
+    color-mix(in srgb, var(--surface-color, rgba(20, 20, 20, 0.85)), white 3%) 0%,
+    var(--surface-color, rgba(20, 20, 20, 0.85)) 100%);
+  --guide-header-filter: blur(var(--glass-blur, 16px)) saturate(140%);
+  --glass-info-border-left: var(--glass-surface-border, 1px solid rgba(255, 255, 255, 0.04));
+  --glass-info-padding: 24px 28px;
+  --guide-preview-radius: 0 0 20px 0;
+  --guide-preview-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04);
+  --guide-preview-video-radius: 0 0 16px 0;
+  --guide-placeholder-bg: linear-gradient(135deg,
+    color-mix(in srgb, var(--bg-primary, rgba(0, 0, 0, 0.5)), white 4%) 0%,
+    var(--bg-primary, rgba(0, 0, 0, 0.5)) 100%);
+  --guide-placeholder-filter: blur(var(--glass-blur, 20px)) saturate(150%);
+  --guide-placeholder-padding: 24px 36px;
+  --guide-placeholder-radius: var(--glass-feature-radius, 16px);
+  --guide-placeholder-border: 1px solid rgba(255, 255, 255, 0.08);
+  --guide-placeholder-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  --guide-placeholder-font-size: 1rem;
+  --guide-placeholder-font-weight: 500;
+  --guide-placeholder-color: rgba(255, 255, 255, 0.4);
+  --guide-placeholder-letter-spacing: 0.02em;
+  /* Guide typography — info-pane program details, time header, now-playing bar.
+     V3 shares these unchanged (no redefinition in ModernV3.css). */
+  --guide-title-font-size: var(--epg-title-font-size, 2.4rem);
+  --guide-title-font-weight: 800;
+  --guide-title-letter-spacing: -0.03em;
+  --guide-title-line-height: 1.1;
+  --guide-title-text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  --guide-title-bg: linear-gradient(135deg, white 0%, rgba(255, 255, 255, 0.85) 100%);
+  --guide-title-bg-clip: text;
+  --guide-title-fill: transparent;
+  --guide-meta-margin-top: 12px;
+  --guide-meta-color: rgba(255, 255, 255, 0.6);
+  --guide-meta-font-size: 0.9rem;
+  --guide-meta-font-weight: 500;
+  --guide-desc-font-size: var(--epg-body-font-size, 1.05rem);
+  --guide-desc-line-height: 1.65;
+  --guide-desc-color: rgba(255, 255, 255, 0.65);
+  --guide-desc-margin-top: 16px;
+  --guide-desc-letter-spacing: 0.01em;
+  --guide-marker-font-size: 0.82rem;
+  --guide-marker-font-weight: 500;
+  --guide-marker-color: rgba(255, 255, 255, 0.5);
+  --guide-marker-padding-left: 14px;
+  --guide-marker-letter-spacing: 0.02em;
+  --guide-marker-first-weight: 600;
+  --guide-marker-first-color: rgba(255, 255, 255, 0.7);
+  --guide-clock-font-size: 1.6rem;
+  --guide-clock-letter-spacing: 0.02em;
+  --guide-clock-text-shadow: 0 0 20px color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
+  --npb-title-font-size: 0.85rem;
+  --npb-title-font-weight: 500;
+  --npb-title-color: rgba(255, 255, 255, 0.7);
+  /* Guide header buttons — manage/refresh/epg-shift share a look, nav/close another,
+     the "now" button is unique. V3 redefines these to its pill buttons. */
+  --guide-btn-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  --guide-btn-border: 1px solid rgba(255, 255, 255, 0.15);
+  --guide-btn-radius: 10px;
+  --guide-btn-font-weight: 600;
+  --guide-btn-letter-spacing: 0.02em;
+  --guide-btn-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --guide-btn-padding: 6px 14px;
+  --guide-btn-font-size: 0.8rem;
+  --guide-btn-hover-transform: translateY(-1px);
+  --guide-btn-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --guide-btn-hover-border-color: var(--accent-primary, rgba(0, 212, 255, 0.5));
+  --guide-btn-hover-color: var(--accent-primary, #00d4ff);
+  --guide-btn-disabled-opacity: 0.6;
+  --guide-btn-disabled-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  --guide-spinner-anim: modern-spin 1s linear infinite;
+  --guide-spinner-font-size: 0.9em;
+  --guide-navbtn-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+  --guide-navbtn-border: 1px solid rgba(255, 255, 255, 0.1);
+  --guide-navbtn-radius: 10px;
+  --guide-navbtn-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --guide-navbtn-hover-transform: scale(1.1);
+  --guide-navbtn-hover-shadow: 0 0 12px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
+  --guide-nowbtn-bg: linear-gradient(135deg, color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent) 0%, color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, transparent) 100%);
+  --guide-nowbtn-border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
+  --guide-nowbtn-radius: 10px;
+  --guide-nowbtn-font-weight: 700;
+  --guide-nowbtn-letter-spacing: 0.08em;
+  --guide-nowbtn-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --guide-nowbtn-hover-transform: translateY(-1px);
+  --guide-nowbtn-hover-shadow: 0 4px 16px color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
+  --guide-category-font-size: 1.1rem;
+  --guide-category-font-weight: 600;
+  /* Channel rows — currently-playing accent glow */
+  --guide-row-min-height: 64px;
+  --guide-row-playlist-min-height: 84px;
+  --guide-row-playlist-info-padding-bottom: 28px;
+  --guide-row-transition: background 0.2s ease;
+  --guide-row-current-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 5%, transparent);
+  --guide-row-current-hover-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 6%, transparent);
+  --guide-row-current-name-color: white;
+  --guide-row-current-name-shadow: 0 0 12px color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent);
+  --guide-row-current-bar-content: '';
+  --guide-row-current-bar-bg: linear-gradient(180deg, var(--accent-primary, #00d4ff) 0%, color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent) 100%);
+  --guide-row-current-bar-shadow: 0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent);
+  --guide-row-current-bar-anim: accent-glow 3s ease-in-out infinite;
+  /* Channel info column */
+  --guide-info-gap: 14px;
+  --guide-info-padding: 10px 18px;
+  --guide-info-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Channel logos */
+  --guide-logo-radius: var(--channel-logo-radius, 10px);
+  --guide-logo-bg: rgba(255, 255, 255, 0.06);
+  --guide-logo-border: none;
+  --guide-logo-shadow: none;
+  --guide-logo-onlight-bg: rgba(255, 255, 255, 0.92);
+  --guide-logo-rect-w: calc(var(--channel-logo-size, 42px) * 1.76);
+  --guide-logo-rect-h: calc(var(--channel-logo-size, 42px) * 0.904);
+  --guide-logo-rect-radius: var(--channel-logo-radius, 8px);
+  --guide-logo-rect-bg: transparent;
+  --guide-logo-square-radius: var(--channel-logo-radius, 8px);
+  --guide-logo-square-bg: transparent;
+  /* Program blocks — "Timeline Cards" look. V3 redefines these to its own
+     rounded-block look (ModernV3.css). */
+  --prog-top: 5px;
+  --prog-bottom: 5px;
+  --prog-padding: 6px 12px;
+  --prog-bg: rgba(255, 255, 255, 0.035);
+  --prog-radius: 10px;
+  --prog-border: 1px solid rgba(255, 255, 255, 0.04);
+  --prog-border-left: 1px solid rgba(255, 255, 255, 0.04);
+  --prog-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --prog-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --prog-hover-bg: rgba(255, 255, 255, 0.08);
+  --prog-hover-border-color: rgba(255, 255, 255, 0.1);
+  --prog-hover-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  --prog-hover-z: 20;
+  --prog-past-bg: rgba(255, 255, 255, 0.02);
+  --prog-past-border-color: rgba(255, 255, 255, 0.03);
+  --prog-past-title-color: rgba(255, 255, 255, 0.55);
+  --prog-past-desc-color: rgba(255, 255, 255, 0.3);
+  --prog-current-bg: linear-gradient(135deg, color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, rgba(255, 255, 255, 0.04)) 0%, color-mix(in srgb, var(--accent-primary, #00d4ff) 5%, rgba(255, 255, 255, 0.02)) 100%);
+  --prog-current-border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
+  --prog-current-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent) inset, 0 2px 8px rgba(0, 0, 0, 0.2);
+  --prog-current-hover-bg: linear-gradient(135deg, color-mix(in srgb, var(--accent-primary, #00d4ff) 14%, rgba(255, 255, 255, 0.06)) 0%, color-mix(in srgb, var(--accent-primary, #00d4ff) 7%, rgba(255, 255, 255, 0.03)) 100%);
+  --prog-current-hover-border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 45%, transparent);
+  --prog-current-hover-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) inset, 0 6px 24px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(0, 0, 0, 0.3));
+  --prog-title-font-size: 0.88rem;
+  --prog-title-font-weight: 500;
+  --prog-title-color: rgba(255, 255, 255, 0.85);
+  --prog-title-line-height: 1.35;
+  --prog-current-title-color: rgba(255, 255, 255, 0.95);
+  --prog-current-title-font-weight: 600;
+  --prog-desc-font-size: 0.78rem;
+  --prog-desc-color: rgba(255, 255, 255, 0.4);
+  --prog-desc-margin-top: 3px;
+  --prog-desc-line-height: 1.25;
+  --prog-current-desc-color: rgba(255, 255, 255, 0.55);
+  --prog-rec-bg: linear-gradient(135deg, rgba(204, 34, 34, 0.1) 0%, rgba(204, 34, 34, 0.04) 100%);
+  --prog-rec-border-color: rgba(204, 34, 34, 0.35);
+  --prog-rec-hover-bg: linear-gradient(135deg, rgba(204, 34, 34, 0.15) 0%, rgba(204, 34, 34, 0.07) 100%);
+  --prog-rec-hover-border-color: rgba(204, 34, 34, 0.5);
+  --prog-rec-hover-shadow: 0 4px 16px rgba(204, 34, 34, 0.15);
+  --prog-sched-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+  --prog-sched-border-color: rgba(255, 255, 255, 0.12);
+  --prog-sched-border-style: dashed;
+  --prog-catch-border-color: rgba(229, 160, 13, 0.4);
+  --prog-catch-hover-bg: rgba(229, 160, 13, 0.1);
+  --prog-catch-hover-border-color: rgba(229, 160, 13, 0.6);
+  --prog-catch-icon-content: '↺ ';
+  --prog-catch-icon-color: #e5a00d;
+  --prog-catch-icon-font-size: 1em;
+  --prog-catch-icon-valign: middle;
+  --prog-indicator-top: 6px;
+  --prog-indicator-right: 6px;
+  --prog-empty-bg: rgba(255, 255, 255, 0.015);
+  --prog-empty-border-color: rgba(255, 255, 255, 0.03);
+  --prog-empty-border-style: dashed;
+  /* Now-playing bar controls */
+  --npb-bar-bg: linear-gradient(180deg, rgba(15, 15, 20, 0.85) 0%, rgba(8, 8, 12, 0.95) 100%);
+  --npb-bar-filter: blur(24px) saturate(160%);
+  --npb-bar-border-top: 1px solid rgba(255, 255, 255, 0.1);
+  --npb-bar-padding: 8px 20px;
+  --npb-bar-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  --npb-bar-transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  --npb-logo-w: 44px;
+  --npb-logo-h: 44px;
+  --npb-logo-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  --npb-logo-radius: 10px;
+  --npb-logo-border: 1px solid rgba(255, 255, 255, 0.08);
+  --npb-logo-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --npb-name-font-size: 0.95rem;
+  --npb-name-font-weight: 700;
+  --npb-name-letter-spacing: 0.01em;
+  --npb-name-color: white;
+  --npb-prog-bg: rgba(255, 255, 255, 0.1);
+  --npb-prog-height: 4px;
+  --npb-prog-radius: 2px;
+  --npb-prog-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) inset;
+  --npb-prog-fill-bg: linear-gradient(90deg, var(--accent-primary, #00d4ff) 0%, color-mix(in srgb, var(--accent-primary, #00d4ff) 80%, white) 100%);
+  --npb-prog-fill-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
+  --npb-scrub-w: 14px;
+  --npb-scrub-h: 14px;
+  --npb-scrub-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 0 2px var(--accent-primary, #00d4ff);
+  --npb-scrub-transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --npb-btn-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  --npb-btn-border: 1px solid rgba(255, 255, 255, 0.12);
+  --npb-btn-radius: 10px;
+  --npb-btn-color: rgba(255, 255, 255, 0.9);
+  --npb-btn-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --npb-btn-hover-transform: scale(1.1);
+  --npb-btn-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent) inset;
+  --npb-vol-height: 4px;
+  --npb-vol-bg: rgba(255, 255, 255, 0.15);
+  --npb-vol-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) inset;
+  --npb-vol-thumb-w: 14px;
+  --npb-vol-thumb-h: 14px;
+  --npb-vol-thumb-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  --npb-modal-bg: linear-gradient(135deg, color-mix(in srgb, var(--surface-color, #1a1a1a), white 3%) 0%, var(--surface-color, #1a1a1a) 100%);
+  --npb-modal-border: 1px solid rgba(255, 255, 255, 0.12);
+  --npb-modal-radius: 16px;
+  --npb-modal-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  --npb-modal-header-bg: rgba(255, 255, 255, 0.02);
+  --npb-modal-close-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  --npb-modal-close-border: 1px solid rgba(255, 255, 255, 0.15);
+  --npb-modal-close-radius: 10px;
+  --npb-modal-close-transition: all 0.2s ease;
+  --npb-modal-input-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+  --npb-modal-input-border: 1px solid rgba(255, 255, 255, 0.12);
+  --npb-modal-input-radius: 10px;
+  --npb-modal-input-transition: all 0.25s ease;
+  --npb-modal-input-focus-border: color-mix(in srgb, var(--accent-color, #007acc) 70%, transparent);
+  --npb-modal-input-focus-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color, #007acc) 15%, transparent);
+  --npb-modal-footer-bg: rgba(255, 255, 255, 0.02);
+  --npb-modal-primary-bg: linear-gradient(135deg, var(--accent-color, #007acc) 0%, color-mix(in srgb, var(--accent-color, #007acc) 80%, black) 100%);
+  --npb-modal-primary-border: 1px solid var(--accent-color, #007acc);
+  --npb-modal-primary-shadow: 0 4px 12px color-mix(in srgb, var(--accent-color, #007acc) 30%, transparent);
+  --npb-modal-primary-hover-transform: translateY(-1px);
+  --npb-modal-primary-hover-shadow: 0 6px 16px color-mix(in srgb, var(--accent-color, #007acc) 40%, transparent), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  --npb-ts-height: 10px;
+  --npb-ts-bg: rgba(255, 255, 255, 0.12);
+  --npb-ts-radius: 5px;
+  --npb-ts-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) inset;
+  --npb-ts-fill-bg: linear-gradient(90deg, var(--accent-primary, #00d4ff) 0%, color-mix(in srgb, var(--accent-primary, #00d4ff) 80%, white) 100%);
+  --npb-ts-fill-shadow: 0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent);
+  --npb-ts-handle-w: 16px;
+  --npb-ts-handle-h: 16px;
+  --npb-ts-handle-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), 0 0 0 2px var(--accent-primary, #00d4ff);
+  --npb-live-badge-shadow: 0 0 10px rgba(255, 64, 64, 0.5);
+  --npb-live-edge-shadow: 0 0 10px rgba(255, 64, 64, 0.6);
+  --npb-livebtn-bg: linear-gradient(135deg, rgba(255, 80, 80, 0.2) 0%, rgba(255, 60, 60, 0.12) 100%);
+  --npb-livebtn-border: 1px solid rgba(255, 100, 100, 0.5);
+  --npb-livebtn-radius: 10px;
+  --npb-livebtn-font-weight: 700;
+  --npb-livebtn-letter-spacing: 0.02em;
+  --npb-livebtn-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --npb-livebtn-hover-transform: translateY(-1px);
+  --npb-livebtn-hover-shadow: 0 4px 16px rgba(255, 64, 64, 0.3), 0 0 0 1px rgba(255, 100, 100, 0.2) inset;
+}
+
+/* Modern Category Strip Header */
+.modern-ui .category-strip-header {
+  padding: 12px 16px 8px; /* Reduced padding for more compact header */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modern-ui .category-strip-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 16px; /* Match new horizontal padding */
+  right: 16px; /* Match new horizontal padding */
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent) 50%,
+    transparent 100%
+  );
+}
+
+.modern-ui .category-strip-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent-primary, #00d4ff);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modern-ui .category-strip-title::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--accent-primary, #00d4ff);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-primary, #00d4ff);
+}
+
+/* Modern Search */
+.modern-ui .category-search-container {
+  padding: 4px 0;
+  border-bottom: none;
+}
+
+.modern-ui .category-search-input-wrapper {
+  margin: 4px 12px;
+  width: calc(100% - 24px);
+  padding: 6px 12px;
+  background: 
+    linear-gradient(135deg, 
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.modern-ui .category-search-input-wrapper:hover {
+  transform: translateX(2px);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modern-ui .category-search-input-wrapper.focused {
+  background: 
+    linear-gradient(135deg, 
+      color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, transparent) 0%,
+      rgba(255, 255, 255, 0.08) 100%
+    );
+  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent);
+  box-shadow: 
+    0 0 0 2px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent),
+    0 3px 12px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
+  transform: translateX(2px);
+}
+
+/* Modern Category Items - Enhanced to match source headers */
+.modern-ui .category-item {
+  padding: 8px 12px 8px 8px; /* Reduced left padding from 12px to 8px to prevent text cut-off */
+  margin: 3px 0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-ui .category-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 0;
+  background: var(--accent-primary, #00d4ff);
+  border-radius: 0 2px 2px 0;
+  transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 6px var(--accent-primary, #00d4ff);
+}
+
+.modern-ui .category-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent);
+  transform: translateX(3px);
+}
+
+.modern-ui .category-item:hover::before {
+  height: 16px;
+}
+
+.modern-ui .category-item.nested {
+  padding-left: 12px;
+  font-size: calc(var(--category-font-size, 13px) * 0.9);
+  border-radius: 8px;
+  margin: 2px 0;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.modern-ui .category-item.selected {
+  background: 
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent) 0%,
+      color-mix(in srgb, var(--accent-primary, #00d4ff) 6%, transparent) 100%
+    );
+  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    0 0 0 1px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent) inset;
+}
+
+.modern-ui .category-item.selected::before {
+  height: 50%;
+}
+
+.modern-ui .category-item.selected .category-count {
+  background: 
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent) 0%,
+      color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) 100%
+    );
+  color: white;
+  box-shadow: 0 2px 4px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
+}
+
+.modern-ui .category-name {
+  font-weight: 500;
+  font-size: var(--category-font-size, 13px);
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Scroll text animation on hover - only when text overflows */
+.modern-ui .category-item:hover .category-name.overflowing {
+  overflow: visible;
+  display: inline-block;
+  animation: scroll-text 8s linear infinite;
+  padding-right: 20px;
+}
+
+.modern-ui .category-count {
+  font-size: calc(var(--category-font-size, 13px) * 0.85);
+  font-weight: 700;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+  transition: all 0.25s ease;
+  min-width: 24px;
+  text-align: center;
+}
+
+.modern-ui .category-item:hover .category-count {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Modern Category Count */
+.modern-ui .category-count {
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  min-width: 28px;
+  transition: all 0.25s ease;
+}
+
+/* Modern Category List Bar Overrides */
+.modern-ui .category-list-bar {
+  width: 100%;
+  padding: 8px 12px;
+  background: 
+    linear-gradient(135deg, 
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.01) 100%
+    );
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-ui .category-list-bar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 0;
+  background: var(--accent-primary, #00d4ff);
+  border-radius: 0 2px 2px 0;
+  transition: height 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 6px var(--accent-primary, #00d4ff);
+}
+
+.modern-ui .category-list-bar:hover {
+  background: 
+    linear-gradient(135deg, 
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.02) 100%
+    ) !important;
+  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) !important;
+  transform: translateX(3px) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
+.modern-ui .category-list-bar:hover::before {
+  height: 14px;
+}
+
+.modern-ui .category-list-bar.selected {
+  background: 
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent) 0%,
+      color-mix(in srgb, var(--accent-primary, #00d4ff) 5%, transparent) 100%
+    ) !important;
+  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent) !important;
+  box-shadow: 
+    0 3px 10px rgba(0, 0, 0, 0.2),
+    0 0 0 1px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent) inset !important;
+}
+
+.modern-ui .category-list-bar.selected::before {
+  height: 50%;
+}
+
+.modern-ui .category-list-bar .category-name {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.modern-ui .category-list-bar .category-count {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  min-width: 20px;
+  border-radius: 12px;
+}
+
+/* Modern Category Icons */
+.modern-ui .category-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.modern-ui .category-icon svg {
+  width: 11px;
+  height: 11px;
+}
+
+/* All Channels Icon Accent */
+.modern-ui .all-channels-icon {
+  background: rgba(0, 212, 255, 0.08);
+  color: #00d4ff;
+  border-color: rgba(0, 212, 255, 0.15);
+}
+
+.modern-ui .category-list-bar:hover .all-channels-icon,
+.modern-ui .category-list-bar.selected .all-channels-icon {
+  background: rgba(0, 212, 255, 0.16);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+  color: #33e0ff;
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+/* Favorites Icon Accent */
+.modern-ui .favorites-icon {
+  background: rgba(255, 196, 0, 0.08);
+  color: #ffc400;
+  border-color: rgba(255, 196, 0, 0.15);
+}
+
+.modern-ui .category-list-bar:hover .favorites-icon,
+.modern-ui .category-list-bar.selected .favorites-icon {
+  background: rgba(255, 196, 0, 0.16);
+  box-shadow: 0 0 10px rgba(255, 196, 0, 0.4);
+  color: #ffd033;
+  border-color: rgba(255, 196, 0, 0.3);
+}
+
+/* Watchlist Icon Accent */
+.modern-ui .watchlist-icon {
+  background: rgba(99, 102, 241, 0.08);
+  color: #6366f1;
+  border-color: rgba(99, 102, 241, 0.15);
+}
+
+.modern-ui .category-list-bar:hover .watchlist-icon,
+.modern-ui .category-list-bar.selected .watchlist-icon {
+  background: rgba(99, 102, 241, 0.16);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+  color: #818cf8;
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+/* Recently Viewed Icon Accent */
+.modern-ui .recent-icon {
+  background: rgba(244, 63, 94, 0.08);
+  color: #f43f5e;
+  border-color: rgba(244, 63, 94, 0.15);
+}
+
+.modern-ui .category-list-bar:hover .recent-icon,
+.modern-ui .category-list-bar.selected .recent-icon {
+  background: rgba(244, 63, 94, 0.16);
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.4);
+  color: #fb7185;
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+/* Custom Groups Folder Icon Accent */
+.modern-ui .custom-group-icon {
+  background: rgba(16, 185, 129, 0.08);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.15);
+}
+
+.modern-ui .category-list-bar:hover .custom-group-icon,
+.modern-ui .category-list-bar.selected .custom-group-icon {
+  background: rgba(16, 185, 129, 0.16);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+/* Modern Section Headers */
+.modern-ui .sidebar-section-header {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  padding: 16px 16px 8px;
+  letter-spacing: 0.1em;
+}
+
+.modern-ui .sidebar-section-header::after {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+}
+
+/* Modern Source Groups - Clean styling */
+.modern-ui .category-strip .category-source-group {
+  margin: 4px 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  /* Note: removed overflow: hidden as it breaks sticky positioning */
+}
+
+/* Let base CSS handle sticky, only add visual enhancements */
+.modern-ui .category-strip button.category-source-header {
+  padding: 10px 12px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.modern-ui .category-strip button.category-source-header:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: white !important;
+  border-top-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) !important;
+}
+
+/* Explicit sticky positioning for expanded headers in modern theme */
+.modern-ui .category-strip .category-source-group.is-expanded button.category-source-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  background: rgba(20, 20, 25, 0.98) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.modern-ui .category-strip .category-source-group.is-expanded button.category-source-header:hover {
+  background: rgba(35, 35, 45, 0.98) !important;
+}
+
+.modern-ui .category-strip .source-header-left {
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.modern-ui .category-strip .source-name {
+  font-weight: 500;
+  font-size: var(--category-font-size, 13px);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+.modern-ui .category-strip button.category-source-header .source-count {
+  font-size: calc(var(--category-font-size, 13px) * 0.85) !important;
+  font-weight: 600 !important;
+  padding: 2px 8px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  border-radius: 10px !important;
+  line-height: 1.2 !important;
+  transition: all 0.15s ease !important;
+}
+
+.modern-ui .category-strip button.category-source-header:hover .source-count {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.modern-ui .category-strip .category-source-content {
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Modern Add Group Button */
+.modern-ui .category-strip-header .add-group-btn {
+  background: 
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, rgba(255,255,255,0.1)) 0%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+  border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
+  color: var(--accent-primary, #00d4ff);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+}
+
+.modern-ui .add-group-btn:hover {
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
+}
+
+/* Modern Custom Groups Section */
+.modern-ui .custom-groups-section {
+  margin: 0;
+}
+
+.modern-ui .custom-groups-section .category-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.modern-ui .custom-groups-section .category-item::before {
+  background: var(--accent-primary, #00d4ff);
+  box-shadow: 0 0 6px var(--accent-primary, #00d4ff);
+}
+
+.modern-ui .custom-groups-section .category-item.selected {
+  background: 
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent) 0%,
+      color-mix(in srgb, var(--accent-primary, #00d4ff) 6%, transparent) 100%
+    );
+  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
+}
+
+.modern-ui .custom-groups-section .category-item.selected .category-count {
+  background: 
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent) 0%,
+      color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) 100%
+    );
+  color: white;
+}
+
+/* Modern Section Divider - matches header border style */
+.modern-ui .section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent) 50%,
+    transparent 100%
+  );
+  margin: 4px auto 8px;
+  width: calc(100% - 40px);
+}
+
+/* Modern Scrollbar */
+.modern-ui .category-strip-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modern-ui .category-strip-scrollable::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent) 20%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent) 80%,
+    transparent 100%
+  );
+}
+
+/* Hide the old list scrollbar when modern UI is enabled */
+.modern-ui .category-strip-list {
+  display: none;
+}
+
+/* ============================================
+   MODERN EPG / CHANNEL PANEL
+   ============================================ */
+/* Modern Current Time Indicator */
+.modern-ui .guide-current-time-indicator {
+  background: linear-gradient(to bottom, 
+    var(--accent-primary, #00d4ff) 0%, 
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent) 50%,
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 10px var(--accent-primary, #00d4ff),
+    0 0 20px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
+}
+
+.modern-ui .guide-time-header .guide-current-time-indicator::before {
+  filter: drop-shadow(0 0 6px var(--accent-primary, #00d4ff));
+}
+
+/* Modern Program Progress (typography folded into ChannelPanel.css tokens) */
+.modern-ui .guide-program-progress-bar {
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2) inset;
+}
+
+.modern-ui .guide-program-progress-fill {
+  background: linear-gradient(90deg,
+    var(--accent-primary, #00d4ff) 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, white) 100%
+  );
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
+}
+
+/* Modern Time Header */
+.modern-ui .guide-time-header {
+  background: 
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--surface-color, rgba(0,0,0,0.3)), white 2%) 0%,
+      var(--surface-color, rgba(0,0,0,0.3)) 100%
+    );
+  backdrop-filter: blur(var(--glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
+}
+
+/* Modern Scrollbar */
+.modern-ui .guide-channels::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modern-ui .guide-channels::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 20%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 80%,
+    transparent 100%
+  );
+}
+
+/* Alternate view NowPlayingBar: compact layout (modern UI only — no v1 base
+   equivalent, kept as additive layout, not an override) */
+.modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-progress-section {
+  flex: 1 1 0%;
+  max-width: none;
+}
+
+.modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-controls-row {
+  flex-wrap: wrap;
+  gap: 10px;
+  row-gap: 6px;
+}
+
+.modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-extra-controls {
+  margin-left: 0;
+  padding-left: 8px;
+}
+
+.modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-volume-slider {
+  width: 50px;
+}
+
+.modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-description-section,
+.modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-divider {
+  display: none;
+}
+
+.modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-channel-section {
+  max-width: 220px;
+}
+
+@media (max-width: 1000px) {
+  .modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-extra-controls {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-channel-up-btn,
+  .modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-channel-down-btn {
+    display: none;
+  }
+}
+
+/* Modern Video Preview Resizer */
+.modern-ui .guide-preview-resizer {
+  position: absolute;
+  bottom: -12px;
+  right: -12px;
+  width: 28px;
+  height: 28px;
+  cursor: nwse-resize;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.modern-ui .guide-preview-resizer.vertical {
+  width: 44px;
+  height: 18px;
+  bottom: -9px;
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.modern-ui .resizer-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent);
+  box-shadow: 
+    0 0 0 2px rgba(0, 0, 0, 0.5),
+    0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modern-ui .guide-preview-resizer.vertical .resizer-dot {
+  width: 36px;
+  height: 8px;
+  border-radius: 4px;
+}
+
+.modern-ui .guide-preview-resizer:hover .resizer-dot {
+  background: var(--accent-primary, #00d4ff);
+  transform: scale(1.4);
+  box-shadow: 
+    0 0 0 3px rgba(0, 0, 0, 0.4),
+    0 0 16px color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent);
+}
+
+.modern-ui .guide-preview-resizer.vertical:hover .resizer-dot {
+  transform: scaleY(1.4);
+}
+
+.modern-ui .guide-preview-resizer:active .resizer-dot {
+  transform: scale(1.1);
+  background: white;
+  box-shadow: 
+    0 0 0 2px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+.modern-ui .guide-preview-resizer.vertical:active .resizer-dot {
+  transform: scaleY(1.1);
+}
+
+/* Modern Scrollbars for VOD */
+.modern-ui .vertical-sidebar__scrollable::-webkit-scrollbar,
+.modern-ui .vod-browse::-webkit-scrollbar,
+.modern-ui .vod-browse *::-webkit-scrollbar,
+.modern-ui .vod-page__content::-webkit-scrollbar,
+.modern-ui .vod-page__content *::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.modern-ui .vertical-sidebar__scrollable::-webkit-scrollbar-thumb,
+.modern-ui .vod-browse::-webkit-scrollbar-thumb,
+.modern-ui .vod-browse *::-webkit-scrollbar-thumb,
+.modern-ui .vod-page__content::-webkit-scrollbar-thumb,
+.modern-ui .vod-page__content *::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 20%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 80%,
+    transparent 100%
+  ) !important;
+  border-radius: 3px !important;
+}
+
+/* --------------------------------------------------
+   3. PROGRAM BLOCKS - "Timeline Cards" (surface values folded into
+   ProgramBlock.css tokens; time-header remains below)
+   -------------------------------------------------- */
+
+/* --------------------------------------------------
+   4. TIME HEADER - "Minimal Timeline"
+   -------------------------------------------------- */
+.modern-ui .guide-time-header {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--surface-color, rgba(0,0,0,0.3)), white 2%) 0%,
+    color-mix(in srgb, var(--surface-color, rgba(0,0,0,0.3)), white 1%) 100%
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(var(--glass-blur, 16px)) saturate(140%);
+}
+
+.modern-ui .guide-time-header-spacer {
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* --------------------------------------------------
+   5. PREVIEW PANE - "Cinematic View"
+   -------------------------------------------------- */
+.modern-ui .guide-program-progress-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.modern-ui .guide-program-progress-fill {
+  background: linear-gradient(90deg,
+    var(--accent-primary, #00d4ff) 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, white) 100%
+  );
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent);
+  border-radius: 2px;
+}
+
+/* --------------------------------------------------
+   6. CONTEXT MENUS
+   -------------------------------------------------- */
+.modern-ui .program-context-menu {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--surface-color, #1a1a1a), white 4%) 0%,
+    var(--surface-color, #1a1a1a) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  backdrop-filter: blur(24px) saturate(160%);
+  padding: 6px;
+}
+
+.modern-ui .context-menu-item {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.modern-ui .context-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.modern-ui .context-menu-separator {
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 20%,
+    rgba(255, 255, 255, 0.08) 80%,
+    transparent 100%
+  );
+  margin: 4px 8px;
+}
+
+/* Glow and accent colors for vertical sidebar icons when active */
+.modern-ui .vertical-sidebar__item.active .all-channels-icon {
+  background: rgba(0, 212, 255, 0.16) !important;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.4) !important;
+  color: #33e0ff !important;
+  border-color: rgba(0, 212, 255, 0.3) !important;
+}
+
+.modern-ui .vertical-sidebar__item.active .favorites-icon {
+  background: rgba(255, 196, 0, 0.16) !important;
+  box-shadow: 0 0 10px rgba(255, 196, 0, 0.4) !important;
+  color: #ffd033 !important;
+  border-color: rgba(255, 196, 0, 0.3) !important;
+}
+
+.modern-ui .vertical-sidebar__item.active .watchlist-icon {
+  background: rgba(99, 102, 241, 0.16) !important;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4) !important;
+  color: #818cf8 !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+.modern-ui .vertical-sidebar__item.active .recent-icon {
+  background: rgba(244, 63, 94, 0.16) !important;
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.4) !important;
+  color: #fb7185 !important;
+  border-color: rgba(244, 63, 94, 0.3) !important;
+}

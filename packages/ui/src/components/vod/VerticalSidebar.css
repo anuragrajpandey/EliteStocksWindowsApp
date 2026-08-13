@@ -3,8 +3,13 @@
     flex-direction: column;
     width: 240px;
     height: 100%;
-    background: var(--bg-secondary, #1a1a1a);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--glass-surface-bg, var(--bg-secondary, #1a1a1a));
+    backdrop-filter: var(--glass-surface-filter, none);
+    -webkit-backdrop-filter: var(--glass-surface-filter, none);
+    border: var(--glass-surface-border, none);
+    border-right: var(--glass-surface-border-right, 1px solid rgba(255, 255, 255, 0.1));
+    border-radius: var(--glass-surface-radius, 0);
+    box-shadow: var(--glass-surface-shadow, none);
     overflow: hidden;
     flex-shrink: 0;
     z-index: 10;

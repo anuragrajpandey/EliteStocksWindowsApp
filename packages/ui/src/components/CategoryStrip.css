@@ -2,17 +2,22 @@
   position: fixed;
   left: 0;
   /* Full bleed to left edge */
-  top: 32px;
+  top: var(--page-top, 32px);
   /* Below title bar */
   bottom: 0;
   width: var(--category-strip-content-width, 240px);
   /* Just content width when no sidebar */
   padding-left: 0;
   /* No sidebar space by default */
+  padding-top: var(--page-pad-top, 0);
   box-sizing: border-box;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--strip-bg, rgba(0, 0, 0, 0.85));
+  backdrop-filter: var(--strip-filter, blur(20px));
+  -webkit-backdrop-filter: var(--strip-filter, blur(20px));
+  border: var(--glass-surface-border, none);
+  border-right: var(--strip-border-right, 1px solid rgba(255, 255, 255, 0.1));
+  border-radius: var(--glass-surface-radius, 0);
+  box-shadow: var(--glass-surface-shadow, none);
   display: flex;
   flex-direction: column;
   z-index: 90;
@@ -22,7 +27,7 @@
   transform: translateX(-100%);
   opacity: 0;
   /* Removed transform/width/padding transitions for instant snapping */
-  transition: opacity 0.15s ease;
+  transition: var(--strip-transition, opacity 0.15s ease);
 }
 
 /* Two-section layout: fixed top + scrollable bottom */
@@ -641,8 +646,8 @@
    tinting them with their default overlay colors for contrast.
    ========================================================================== */
 [data-theme]:not([data-theme*="glass-"]) .category-strip {
-  background: var(--bg-primary, #1a1a1a) !important;
-  background-attachment: fixed !important;
+  background: var(--glass-surface-bg, var(--bg-primary, #1a1a1a));
+  background-attachment: var(--glass-surface-bg-attachment, fixed);
 }
 
 /* ==========================================================================

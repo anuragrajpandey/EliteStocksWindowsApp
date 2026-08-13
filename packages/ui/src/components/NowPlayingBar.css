@@ -1,17 +1,20 @@
-/* Now Playing Bar - cable box style, two-row layout */
+/* Now Playing Bar - cable box style, two-row layout
+   (per-version --npb-* tokens from ModernV2/ModernV3) */
 .now-playing-bar {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(10, 10, 10, 0.92);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 10px 16px;
+  background: var(--npb-bar-bg, rgba(10, 10, 10, 0.92));
+  backdrop-filter: var(--npb-bar-filter, blur(20px));
+  -webkit-backdrop-filter: var(--npb-bar-filter, blur(20px));
+  border-top: var(--npb-bar-border-top, 1px solid rgba(255, 255, 255, 0.08));
+  padding: var(--npb-bar-padding, 10px 16px);
   display: flex;
   flex-direction: column;
   gap: 8px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  box-shadow: var(--npb-bar-shadow, none);
+  transition: var(--npb-bar-transition, transform 0.3s ease, opacity 0.3s ease);
   z-index: 50;
   /* Ensure padding is included in width so the bar never overflows
      its containing block and get clipped by ancestor overflow:hidden */
@@ -69,11 +72,13 @@
 }
 
 .npb-channel-logo {
-  width: 36px;
-  height: 36px;
+  width: var(--npb-logo-w, 36px);
+  height: var(--npb-logo-h, 36px);
   object-fit: contain;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--npb-logo-radius, 4px);
+  background: var(--npb-logo-bg, rgba(255, 255, 255, 0.05));
+  border: var(--npb-logo-border, none);
+  box-shadow: var(--npb-logo-shadow, none);
   flex-shrink: 0;
 }
 
@@ -104,9 +109,10 @@
 }
 
 .npb-channel-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
+  font-size: var(--npb-name-font-size, 0.85rem);
+  font-weight: var(--npb-name-font-weight, 600);
+  color: var(--npb-name-color, rgba(255, 255, 255, 0.95));
+  letter-spacing: var(--npb-name-letter-spacing, normal);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -114,9 +120,9 @@
 }
 
 .npb-program-title {
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.65);
+  font-size: var(--npb-title-font-size, 0.78rem);
+  font-weight: var(--npb-title-font-weight, 500);
+  color: var(--npb-title-color, rgba(255, 255, 255, 0.65));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -238,16 +244,18 @@
 
 .npb-progress-bar {
   flex: 1;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  height: var(--npb-prog-height, 3px);
+  background: var(--npb-prog-bg, rgba(255, 255, 255, 0.1));
+  border-radius: var(--npb-prog-radius, 2px);
+  box-shadow: var(--npb-prog-shadow, none);
   overflow: hidden;
 }
 
 .npb-progress-fill {
   height: 100%;
-  background: var(--accent-primary, #00d4ff);
+  background: var(--npb-prog-fill-bg, var(--accent-primary, #00d4ff));
   border-radius: 2px;
+  box-shadow: var(--npb-prog-fill-shadow, none);
   transition: width 0.5s ease;
 }
 
@@ -285,13 +293,13 @@
 .npb-scrubber-handle {
   position: absolute;
   top: 50%;
-  width: 12px;
-  height: 12px;
+  width: var(--npb-scrub-w, 12px);
+  height: var(--npb-scrub-h, 12px);
   background: white;
   border-radius: 50%;
   transform: translate(-50%, -50%) scale(0);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-  transition: transform 0.15s ease;
+  box-shadow: var(--npb-scrub-shadow, 0 1px 4px rgba(0, 0, 0, 0.3));
+  transition: var(--npb-scrub-transition, transform 0.15s ease);
   pointer-events: none;
 }
 
@@ -421,17 +429,19 @@
   justify-content: center;
   width: 34px;
   height: 34px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  color: rgba(255, 255, 255, 0.9);
+  background: var(--npb-btn-bg, rgba(255, 255, 255, 0.08));
+  border: var(--npb-btn-border, 1px solid rgba(255, 255, 255, 0.1));
+  border-radius: var(--npb-btn-radius, 6px);
+  color: var(--npb-btn-color, rgba(255, 255, 255, 0.9));
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--npb-btn-transition, all 0.15s ease);
 }
 
 .npb-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.2);
+  transform: var(--npb-btn-hover-transform, none);
+  box-shadow: var(--npb-btn-hover-shadow, none);
 }
 
 .npb-btn:active:not(:disabled) {
@@ -477,21 +487,23 @@
 
 .npb-volume-slider {
   width: 70px;
-  height: 3px;
+  height: var(--npb-vol-height, 3px);
   -webkit-appearance: none;
   appearance: none;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--npb-vol-bg, rgba(255, 255, 255, 0.15));
   border-radius: 2px;
+  box-shadow: var(--npb-vol-shadow, none);
   cursor: pointer;
 }
 
 .npb-volume-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 10px;
-  height: 10px;
+  width: var(--npb-vol-thumb-w, 10px);
+  height: var(--npb-vol-thumb-h, 10px);
   background: white;
   border-radius: 50%;
+  box-shadow: var(--npb-vol-thumb-shadow, none);
   cursor: pointer;
   transition: transform 0.1s ease;
 }
@@ -625,12 +637,12 @@
 }
 
 .npb-modal {
-  background: var(--surface-color, #1a1a1a);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  background: var(--npb-modal-bg, var(--surface-color, #1a1a1a));
+  border: var(--npb-modal-border, 1px solid rgba(255, 255, 255, 0.1));
+  border-radius: var(--npb-modal-radius, 12px);
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--npb-modal-shadow, 0 8px 32px rgba(0, 0, 0, 0.4));
 }
 
 .npb-modal-header {
@@ -639,6 +651,7 @@
   justify-content: space-between;
   padding: 16px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--npb-modal-header-bg, transparent);
 }
 
 .npb-modal-header h3 {
@@ -649,16 +662,16 @@
 }
 
 .npb-modal-close {
-  background: none;
-  border: none;
+  background: var(--npb-modal-close-bg, none);
+  border: var(--npb-modal-close-border, none);
   color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: all 0.15s ease;
+  border-radius: var(--npb-modal-close-radius, 4px);
+  transition: var(--npb-modal-close-transition, all 0.15s ease);
 }
 
 .npb-modal-close:hover {
@@ -695,18 +708,20 @@
 .npb-form-group input {
   width: 100%;
   padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
+  background: var(--npb-modal-input-bg, rgba(255, 255, 255, 0.05));
+  border: var(--npb-modal-input-border, 1px solid rgba(255, 255, 255, 0.1));
+  border-radius: var(--npb-modal-input-radius, 6px);
   color: var(--text-primary, #fff);
   font-size: 1rem;
   box-sizing: border-box;
+  transition: var(--npb-modal-input-transition, none);
 }
 
 .npb-form-group input:focus {
   outline: none;
-  border-color: var(--accent-color, #007acc);
+  border-color: var(--npb-modal-input-focus-border, var(--accent-color, #007acc));
   background: rgba(255, 255, 255, 0.08);
+  box-shadow: var(--npb-modal-input-focus-shadow, none);
 }
 
 .npb-modal-footer {
@@ -715,6 +730,7 @@
   gap: 10px;
   padding: 16px 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--npb-modal-footer-bg, transparent);
 }
 
 .npb-modal-footer .npb-btn {
@@ -733,13 +749,16 @@
 }
 
 .npb-modal-footer .npb-btn.primary {
-  background: var(--accent-color, #007acc);
+  background: var(--npb-modal-primary-bg, var(--accent-color, #007acc));
   border: 1px solid var(--accent-color, #007acc);
+  box-shadow: var(--npb-modal-primary-shadow, none);
 }
 
 .npb-modal-footer .npb-btn.primary:hover {
   background: var(--accent-hover, #005fa3);
   border-color: var(--accent-hover, #005fa3);
+  transform: var(--npb-modal-primary-hover-transform, none);
+  box-shadow: var(--npb-modal-primary-hover-shadow, none);
 }
 
 /* ─── TimeShift Scrubber ─────────────────────────────────────── */
@@ -757,9 +776,10 @@
 /* The timeshift scrubber bar - infinite style like YouTube Live */
 .npb-ts-scrubber {
   position: relative;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
+  height: var(--npb-ts-height, 8px);
+  background: var(--npb-ts-bg, rgba(255, 255, 255, 0.15));
+  border-radius: var(--npb-ts-radius, 4px);
+  box-shadow: var(--npb-ts-shadow, none);
   cursor: pointer;
   overflow: visible;
   transition: height 0.15s ease;
@@ -775,8 +795,9 @@
   left: 0;
   top: 0;
   height: 100%;
-  background: var(--accent-primary, #00d4ff);
+  background: var(--npb-ts-fill-bg, var(--accent-primary, #00d4ff));
   border-radius: 4px;
+  box-shadow: var(--npb-ts-fill-shadow, none);
   transition: width 0.1s linear;
 }
 
@@ -784,12 +805,12 @@
 .npb-ts-handle {
   position: absolute;
   top: 50%;
-  width: 14px;
-  height: 14px;
+  width: var(--npb-ts-handle-w, 14px);
+  height: var(--npb-ts-handle-h, 14px);
   background: white;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--npb-ts-handle-shadow, 0 2px 6px rgba(0, 0, 0, 0.4));
   pointer-events: none;
   z-index: 2;
 }
@@ -818,6 +839,7 @@
   font-size: 0.75rem;
   letter-spacing: 0.03em;
   margin-left: auto;
+  text-shadow: var(--npb-live-badge-shadow, none);
 }
 
 .npb-behind-live {
@@ -835,6 +857,7 @@
   height: calc(100% + 6px);
   background: #ff4040;
   border-radius: 2px;
+  box-shadow: var(--npb-live-edge-shadow, none);
   pointer-events: none;
 }
 
@@ -874,16 +897,17 @@
 /* Go Live / Catch Up button */
 .npb-live-btn {
   padding: 4px 12px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 64, 64, 0.4);
-  background: rgba(255, 64, 64, 0.12);
+  border-radius: var(--npb-livebtn-radius, 6px);
+  border: var(--npb-livebtn-border, 1px solid rgba(255, 64, 64, 0.4));
+  background: var(--npb-livebtn-bg, rgba(255, 64, 64, 0.12));
   color: #ff6060;
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: var(--npb-livebtn-font-weight, 600);
+  letter-spacing: var(--npb-livebtn-letter-spacing, normal);
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: all 0.15s;
+  transition: var(--npb-livebtn-transition, all 0.15s);
 }
 
 .npb-live-btn:hover {

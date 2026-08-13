@@ -1,14 +1,20 @@
 .stremio-page {
   position: fixed;
-  top: 32px;
+  top: var(--page-top, 32px);
   left: 0;
   width: 100%;
-  height: calc(100% - 32px);
+  height: var(--page-height, calc(100% - 32px));
+  padding-top: var(--page-pad-top, 0);
+  box-sizing: border-box;
   z-index: 100;
   display: flex;
   flex-direction: column;
-  background: var(--bg-overlay, rgba(0, 0, 0, 0.85));
-  backdrop-filter: blur(16px);
+  background: var(--glass-surface-bg, var(--bg-overlay, rgba(0, 0, 0, 0.85)));
+  backdrop-filter: var(--glass-surface-filter, blur(16px));
+  -webkit-backdrop-filter: var(--glass-surface-filter, blur(16px));
+  border: var(--glass-surface-border, none);
+  border-radius: var(--glass-panel-radius, 0);
+  box-shadow: var(--glass-surface-shadow, none);
   -webkit-backdrop-filter: blur(16px);
   overflow: hidden;
 }

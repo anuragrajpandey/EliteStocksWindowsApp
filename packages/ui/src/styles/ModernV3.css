@@ -1,984 +1,209 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap');
-@import url('https://api.fontshare.com/v2/css?f[]=switzer@300,400,500,600,700&f[]=cabinet-grotesk@300,400,500,600,700,800&f[]=sentient@300,400,500,600,700&display=swap');
-
-/* Override font-display from CDN stylesheets (which use 'swap') to 'block'.
- * font-display: swap causes FOUT (Flash of Unstyled Text) — the browser renders
- * text with a fallback font first, then swaps when the real font loads. In the
- * EPG's Virtuoso virtual list, newly rendered rows during scroll get the fallback
- * temporarily, then swap, causing every visible row to jitter (resize/shake).
- * font-display: block gives a short invisible period instead, eliminating the swap
- * mid-scroll. These blocks don't re-download fonts; they only override display behavior. */
-@font-face {
-  font-family: 'Switzer';
-  src: local('Switzer');
-  font-weight: 300 700;
-  font-style: normal;
-  font-display: block;
-}
-@font-face {
-  font-family: 'Sentient';
-  src: local('Sentient');
-  font-weight: 300 700;
-  font-style: normal;
-  font-display: block;
-}
-@font-face {
-  font-family: 'Cabinet Grotesk';
-  src: local('Cabinet Grotesk');
-  font-weight: 300 800;
-  font-style: normal;
-  font-display: block;
-}
-@font-face {
-  font-family: 'Fraunces';
-  src: local('Fraunces');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: block;
-}
-
-html, body, button, input, select, textarea {
-  font-family: var(--font-family, 'Inter', system-ui, sans-serif);
-}
-
-* {
-  font-family: var(--font-family, 'Inter', system-ui, sans-serif);
-}
-
-/* Modern Glass-Morphism UI Enhancement
- * This file contains modern styling that can be toggled on/off via Settings
- */
-
-
-/* Modern Category Strip - Fixed Widths */
-.modern-ui .category-strip {
-  width: var(--category-strip-content-width, 260px);
-  background: 
-    linear-gradient(180deg, 
-      color-mix(in srgb, var(--bg-primary, rgba(10, 10, 15, 0.95)) 95%, transparent) 0%,
-      color-mix(in srgb, var(--bg-primary, rgba(10, 10, 15, 0.9)) 85%, transparent) 100%
-    );
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  transition: 
-    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.3s ease;
-}
-
-/* Modern Guide Panel Padding - Match new widths */
-.modern-ui .guide-panel.with-categories {
-  padding-left: var(--category-strip-content-width, 260px);
-}
-
-/* Modern Category Strip Header */
-.modern-ui .category-strip-header {
-  padding: 12px 16px 8px; /* Reduced padding for more compact header */
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.modern-ui .category-strip-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 16px; /* Match new horizontal padding */
-  right: 16px; /* Match new horizontal padding */
-  height: 1px;
-  background: linear-gradient(90deg, 
-    transparent 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent) 50%,
-    transparent 100%
-  );
-}
-
-.modern-ui .category-strip-title {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--accent-primary, #00d4ff);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.modern-ui .category-strip-title::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  background: var(--accent-primary, #00d4ff);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--accent-primary, #00d4ff);
-}
-
-/* Modern Search */
-.modern-ui .category-search-container {
-  padding: 4px 0;
-  border-bottom: none;
-}
-
-.modern-ui .category-search-input-wrapper {
-  margin: 4px 12px;
-  width: calc(100% - 24px);
-  padding: 6px 12px;
-  background: 
-    linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 255, 255, 0.03) 100%
-    );
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-sizing: border-box;
-}
-
-.modern-ui .category-search-input-wrapper:hover {
-  transform: translateX(2px);
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-}
-
-.modern-ui .category-search-input-wrapper.focused {
-  background: 
-    linear-gradient(135deg, 
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, transparent) 0%,
-      rgba(255, 255, 255, 0.08) 100%
-    );
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent);
-  box-shadow: 
-    0 0 0 2px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent),
-    0 3px 12px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
-  transform: translateX(2px);
-}
-
-/* Modern Category Items - Enhanced to match source headers */
-.modern-ui .category-item {
-  padding: 8px 12px 8px 8px; /* Reduced left padding from 12px to 8px to prevent text cut-off */
-  margin: 3px 0;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.modern-ui .category-item::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2px;
-  height: 0;
-  background: var(--accent-primary, #00d4ff);
-  border-radius: 0 2px 2px 0;
-  transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 0 6px var(--accent-primary, #00d4ff);
-}
-
-.modern-ui .category-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent);
-  transform: translateX(3px);
-}
-
-.modern-ui .category-item:hover::before {
-  height: 16px;
-}
-
-.modern-ui .category-item.nested {
-  padding-left: 12px;
-  font-size: calc(var(--category-font-size, 13px) * 0.9);
-  border-radius: 8px;
-  margin: 2px 0;
-  background: rgba(255, 255, 255, 0.01);
-}
-
-.modern-ui .category-item.selected {
-  background: 
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent) 0%,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 6%, transparent) 100%
-    );
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.2),
-    0 0 0 1px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent) inset;
-}
-
-.modern-ui .category-item.selected::before {
-  height: 50%;
-}
-
-.modern-ui .category-item.selected .category-count {
-  background: 
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent) 0%,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) 100%
-    );
-  color: white;
-  box-shadow: 0 2px 4px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
-}
-
-.modern-ui .category-name {
-  font-weight: 500;
-  font-size: var(--category-font-size, 13px);
-  letter-spacing: 0.01em;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Scroll text animation on hover - only when text overflows */
-.modern-ui .category-item:hover .category-name.overflowing {
-  overflow: visible;
-  display: inline-block;
-  animation: scroll-text 8s linear infinite;
-  padding-right: 20px;
-}
-
-@keyframes scroll-text {
-  0% {
-    transform: translateX(0);
-  }
-  20% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
-}
-
-.modern-ui .category-count {
-  font-size: calc(var(--category-font-size, 13px) * 0.85);
-  font-weight: 700;
-  padding: 2px 8px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.6);
-  border-radius: 20px;
-  transition: all 0.25s ease;
-  min-width: 24px;
-  text-align: center;
-}
-
-.modern-ui .category-item:hover .category-count {
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* Modern Category Count */
-.modern-ui .category-count {
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 20px;
-  min-width: 28px;
-  transition: all 0.25s ease;
-}
-
-/* Modern Category List Bar Overrides */
-.modern-ui .category-list-bar {
-  width: 100%;
-  padding: 8px 12px;
-  background: 
-    linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.03) 0%,
-      rgba(255, 255, 255, 0.01) 100%
-    );
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.modern-ui .category-list-bar::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 0;
-  background: var(--accent-primary, #00d4ff);
-  border-radius: 0 2px 2px 0;
-  transition: height 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 0 6px var(--accent-primary, #00d4ff);
-}
-
-.modern-ui .category-list-bar:hover {
-  background: 
-    linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.06) 0%,
-      rgba(255, 255, 255, 0.02) 100%
-    ) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) !important;
-  transform: translateX(3px) !important;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2) !important;
-}
-
-.modern-ui .category-list-bar:hover::before {
-  height: 14px;
-}
-
-.modern-ui .category-list-bar.selected {
-  background: 
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent) 0%,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 5%, transparent) 100%
-    ) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent) !important;
-  box-shadow: 
-    0 3px 10px rgba(0, 0, 0, 0.2),
-    0 0 0 1px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent) inset !important;
-}
-
-.modern-ui .category-list-bar.selected::before {
-  height: 50%;
-}
-
-.modern-ui .category-list-bar .category-name {
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.modern-ui .category-list-bar .category-count {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 6px;
-  min-width: 20px;
-  border-radius: 12px;
-}
-
-/* Modern Category Icons */
-.modern-ui .category-icon {
-  width: 20px;
-  height: 20px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.modern-ui .category-icon svg {
-  width: 11px;
-  height: 11px;
-}
-
-/* All Channels Icon Accent */
-.modern-ui .all-channels-icon {
-  background: rgba(0, 212, 255, 0.08);
-  color: #00d4ff;
-  border-color: rgba(0, 212, 255, 0.15);
-}
-.modern-ui .category-list-bar:hover .all-channels-icon,
-.modern-ui .category-list-bar.selected .all-channels-icon {
-  background: rgba(0, 212, 255, 0.16);
-  box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
-  color: #33e0ff;
-  border-color: rgba(0, 212, 255, 0.3);
-}
-
-/* Favorites Icon Accent */
-.modern-ui .favorites-icon {
-  background: rgba(255, 196, 0, 0.08);
-  color: #ffc400;
-  border-color: rgba(255, 196, 0, 0.15);
-}
-.modern-ui .category-list-bar:hover .favorites-icon,
-.modern-ui .category-list-bar.selected .favorites-icon {
-  background: rgba(255, 196, 0, 0.16);
-  box-shadow: 0 0 10px rgba(255, 196, 0, 0.4);
-  color: #ffd033;
-  border-color: rgba(255, 196, 0, 0.3);
-}
-
-/* Watchlist Icon Accent */
-.modern-ui .watchlist-icon {
-  background: rgba(99, 102, 241, 0.08);
-  color: #6366f1;
-  border-color: rgba(99, 102, 241, 0.15);
-}
-.modern-ui .category-list-bar:hover .watchlist-icon,
-.modern-ui .category-list-bar.selected .watchlist-icon {
-  background: rgba(99, 102, 241, 0.16);
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
-  color: #818cf8;
-  border-color: rgba(99, 102, 241, 0.3);
-}
-
-/* Recently Viewed Icon Accent */
-.modern-ui .recent-icon {
-  background: rgba(244, 63, 94, 0.08);
-  color: #f43f5e;
-  border-color: rgba(244, 63, 94, 0.15);
-}
-.modern-ui .category-list-bar:hover .recent-icon,
-.modern-ui .category-list-bar.selected .recent-icon {
-  background: rgba(244, 63, 94, 0.16);
-  box-shadow: 0 0 10px rgba(244, 63, 94, 0.4);
-  color: #fb7185;
-  border-color: rgba(244, 63, 94, 0.3);
-}
-
-/* Custom Groups Folder Icon Accent */
-.modern-ui .custom-group-icon {
-  background: rgba(16, 185, 129, 0.08);
-  color: #10b981;
-  border-color: rgba(16, 185, 129, 0.15);
-}
-.modern-ui .category-list-bar:hover .custom-group-icon,
-.modern-ui .category-list-bar.selected .custom-group-icon {
-  background: rgba(16, 185, 129, 0.16);
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
-  color: #34d399;
-  border-color: rgba(16, 185, 129, 0.3);
-}
-
-/* Modern Section Headers */
-.modern-ui .sidebar-section-header {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.35);
-  padding: 16px 16px 8px;
-  letter-spacing: 0.1em;
-}
-
-.modern-ui .sidebar-section-header::after {
-  background: linear-gradient(90deg, 
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-}
-
-/* Modern Source Groups - Clean styling */
-.modern-ui .category-strip .category-source-group {
-  margin: 4px 0;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  /* Note: removed overflow: hidden as it breaks sticky positioning */
-}
-
-/* Let base CSS handle sticky, only add visual enhancements */
-.modern-ui .category-strip button.category-source-header {
-  padding: 10px 12px !important;
-  background: rgba(255, 255, 255, 0.03) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-}
-
-.modern-ui .category-strip button.category-source-header:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: white !important;
-  border-top-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) !important;
-}
-
-/* Explicit sticky positioning for expanded headers in modern theme */
-.modern-ui .category-strip .category-source-group.is-expanded button.category-source-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 100 !important;
-  background: rgba(20, 20, 25, 0.98) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-}
-
-.modern-ui .category-strip .category-source-group.is-expanded button.category-source-header:hover {
-  background: rgba(35, 35, 45, 0.98) !important;
-}
-
-
-.modern-ui .category-strip .source-header-left {
-  gap: 8px;
-  position: relative;
-  z-index: 1;
-}
-
-.modern-ui .category-strip .source-name {
-  font-weight: 500;
-  font-size: var(--category-font-size, 13px);
-  letter-spacing: 0.01em;
-  line-height: 1.2;
-}
-
-.modern-ui .category-strip button.category-source-header .source-count {
-  font-size: calc(var(--category-font-size, 13px) * 0.85) !important;
-  font-weight: 600 !important;
-  padding: 2px 8px !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: rgba(255, 255, 255, 0.7) !important;
-  border-radius: 10px !important;
-  line-height: 1.2 !important;
-  transition: all 0.15s ease !important;
-}
-
-.modern-ui .category-strip button.category-source-header:hover .source-count {
-  background: rgba(255, 255, 255, 0.15) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-.modern-ui .category-strip .category-source-content {
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.2);
-}
-
-/* Modern Add Group Button */
-.modern-ui .category-strip-header .add-group-btn {
-  background: 
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, rgba(255,255,255,0.1)) 0%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
-  color: var(--accent-primary, #00d4ff);
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.25s ease;
-}
-
-.modern-ui .add-group-btn:hover {
-  transform: scale(1.1) rotate(90deg);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
-}
-
-/* Modern Custom Groups Section */
-.modern-ui .custom-groups-section {
-  margin: 0;
-}
-
-.modern-ui .custom-groups-section .category-item {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.modern-ui .custom-groups-section .category-item::before {
-  background: var(--accent-primary, #00d4ff);
-  box-shadow: 0 0 6px var(--accent-primary, #00d4ff);
-}
-
-.modern-ui .custom-groups-section .category-item.selected {
-  background: 
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent) 0%,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 6%, transparent) 100%
-    );
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
-}
-
-.modern-ui .custom-groups-section .category-item.selected .category-count {
-  background: 
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent) 0%,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) 100%
-    );
-  color: white;
-}
-
-
-
-/* Modern Section Divider - matches header border style */
-.modern-ui .section-divider {
-  height: 1px;
-  background: linear-gradient(90deg, 
-    transparent 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent) 50%,
-    transparent 100%
-  );
-  margin: 4px auto 8px;
-  width: calc(100% - 40px);
-}
-
-/* Modern Scrollbar */
-.modern-ui .category-strip-scrollable::-webkit-scrollbar {
-  width: 6px;
-}
-
-.modern-ui .category-strip-scrollable::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg,
-    transparent 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent) 20%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent) 80%,
-    transparent 100%
-  );
-}
-
-/* Hide the old list scrollbar when modern UI is enabled */
-.modern-ui .category-strip-list {
-  display: none;
-}
-
-/* ============================================
-   MODERN EPG / CHANNEL PANEL
-   ============================================ */
-
-/* Modern Guide Panel */
-.modern-ui .guide-panel {
-  /* Only transition opacity like the non-ModernUI version - no transform animation */
-  transition: opacity 0.15s ease;
-}
-
-/* Modern Current Time Indicator */
-.modern-ui .guide-current-time-indicator {
-  background: linear-gradient(to bottom, 
-    var(--accent-primary, #00d4ff) 0%, 
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent) 50%,
-    transparent 100%
-  );
-  box-shadow: 
-    0 0 10px var(--accent-primary, #00d4ff),
-    0 0 20px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
-}
-
-.modern-ui .guide-time-header .guide-current-time-indicator::before {
-  filter: drop-shadow(0 0 6px var(--accent-primary, #00d4ff));
-}
-
-/* Modern Preview Pane */
-.modern-ui .guide-preview-pane {
-  border-radius: 0 0 16px 0;
-  /* overflow: hidden removed to allow resizer to be visible outside */
-}
-
-.modern-ui .guide-preview-placeholder {
-  background: 
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--bg-primary, rgba(0,0,0,0.5)), white 5%) 0%,
-      var(--bg-primary, rgba(0,0,0,0.5)) 100%
-    );
-  backdrop-filter: blur(var(--glass-blur, 20px)) saturate(150%);
-  -webkit-backdrop-filter: blur(var(--glass-blur, 20px)) saturate(150%);
-  padding: 24px 36px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-}
-
-/* Modern Mini Media Bar */
-.modern-ui .guide-preview-minibar {
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.88) 0%,
-    rgba(0, 0, 0, 0.58) 55%,
-    rgba(0, 0, 0, 0.18) 85%,
-    transparent 100%
-  ) !important;
-  backdrop-filter: blur(12px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
-  border: none;
-  box-shadow: none;
-}
-
-/* Modern Info Pane */
-.modern-ui .guide-info-pane {
-  background: 
-    linear-gradient(180deg,
-      color-mix(in srgb, var(--bg-overlay, rgba(0,0,0,0.95)), white 2%) 0%,
-      var(--bg-overlay, rgba(0,0,0,0.95)) 100%
-    );
-  backdrop-filter: blur(var(--glass-blur, 24px)) saturate(180%);
-  -webkit-backdrop-filter: blur(var(--glass-blur, 24px)) saturate(180%);
-}
-
-/* Modern Program Title */
-.modern-ui .guide-program-title {
-  font-size: 2.2rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-}
-
-.modern-ui .guide-program-meta {
-  gap: 20px;
-}
-
-.modern-ui .guide-program-progress-bar {
-  box-shadow: 0 1px 2px rgba(0,0,0,0.2) inset;
-}
-
-.modern-ui .guide-program-progress-fill {
-  background: linear-gradient(90deg,
-    var(--accent-primary, #00d4ff) 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, white) 100%
-  );
-  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
-}
-
-.modern-ui .guide-program-description {
-  font-size: 1.05rem;
-  line-height: 1.6;
-  letter-spacing: 0.01em;
-}
-
-/* Modern Grid Section */
-.modern-ui .guide-grid-section {
-  background: 
-    linear-gradient(180deg,
-      color-mix(in srgb, var(--bg-overlay, rgba(0,0,0,0.95)), white 1%) 0%,
-      var(--bg-overlay, rgba(0,0,0,0.95)) 100%
-    );
-  /* Removed backdrop-filter to prevent text blurriness */
-}
-
-/* Modern Header */
-.modern-ui .guide-header {
-  background: 
-    linear-gradient(180deg,
-      color-mix(in srgb, var(--surface-color, rgba(20,20,20,0.85)), white 3%) 0%,
-      var(--surface-color, rgba(20,20,20,0.85)) 100%
-    );
-  backdrop-filter: blur(var(--glass-blur, 16px)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--glass-blur, 16px)) saturate(140%);
-}
-
-.modern-ui .guide-current-time {
-  font-size: 1.6rem;
-  font-weight: 300;
-  letter-spacing: 0.02em;
-  text-shadow: 0 0 20px color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
-}
-
-.modern-ui .guide-category {
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-/* Modern Manage Channels Button */
-.modern-ui .guide-manage-channels-btn {
-  background: 
-    linear-gradient(135deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  padding: 6px 14px;
-  font-size: 0.8rem;
-}
-
-.modern-ui .guide-manage-channels-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  border-color: var(--accent-primary, rgba(0, 212, 255, 0.5));
-  color: var(--accent-primary, #00d4ff);
-}
-
-/* Modern Refresh Source Button - matches Manage Channels */
-.modern-ui .guide-refresh-source-btn {
-  background: 
-    linear-gradient(135deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  padding: 6px 14px;
-  font-size: 0.8rem;
-}
-
-.modern-ui .guide-refresh-source-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  border-color: var(--accent-primary, rgba(0, 212, 255, 0.5));
-  color: var(--accent-primary, #00d4ff);
-}
-
-.modern-ui .guide-refresh-source-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background: 
-    linear-gradient(135deg,
-      rgba(255, 255, 255, 0.05) 0%,
-      rgba(255, 255, 255, 0.02) 100%
-    );
-}
-
-.modern-ui .guide-refresh-source-btn .sync-spinner {
-  display: inline-block;
-  animation: modern-spin 1s linear infinite;
-  font-size: 0.9em;
-}
-
-@keyframes modern-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Modern EPG Shift Button */
-.modern-ui .guide-epg-shift-btn {
-  background:
-    linear-gradient(135deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  padding: 6px 14px;
-  font-size: 0.8rem;
-}
-
-.modern-ui .guide-epg-shift-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  border-color: var(--accent-primary, rgba(0, 212, 255, 0.5));
-  color: var(--accent-primary, #00d4ff);
-}
-
-/* Modern Navigation Controls */
-.modern-ui .guide-nav-btn {
-  background: 
-    linear-gradient(135deg,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 255, 255, 0.03) 100%
-    );
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.modern-ui .guide-nav-btn:hover {
-  transform: scale(1.1);
-  border-color: var(--accent-primary, rgba(0, 212, 255, 0.5));
-  color: var(--accent-primary, #00d4ff);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
-}
-
-.modern-ui .guide-now-btn {
-  background: 
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent) 0%,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, transparent) 100%
-    );
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
-  border-radius: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.modern-ui .guide-now-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
+/* ==========================================================================
+   MODERN THEME — V3 (.modern-ui-v3, loaded only for V3)
+   Split from ModernTheme.css — see git history for the original monolith.
+   Loaded at runtime by src/utils/uiDesign.ts (applyUiDesign).
+   ========================================================================== */
+
+/* ── V3 design tokens ──────────────────────────────────────────────────────
+   The v3 "liquid glass" look is defined here once and referenced everywhere
+   via var(). Components may also consume these directly (with v1/v2 fallbacks)
+   so overrides can eventually be deleted instead of stacked. */
+html.modern-ui-v3 {
+  /* Standard glass surfaces (panels, pages, sidebars) */
+  --glass-surface-bg: rgba(255, 255, 255, 0.06);
+  --glass-surface-bg-attachment: scroll;
+  --glass-surface-blur: 24px;
+  --glass-surface-saturation: 180%;
+  --glass-surface-filter: blur(var(--glass-surface-blur)) saturate(var(--glass-surface-saturation));
+  --glass-surface-border: 1px solid rgba(255, 255, 255, 0.12);
+  --glass-surface-border-right: var(--glass-surface-border);
+  --glass-surface-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent);
+  --glass-surface-radius: 20px; /* category strip, info pane, sidebars */
+  --glass-panel-radius: 24px;   /* larger floating pages (guide grid, VOD, DVR, Nuvio, TVCP, Sports) */
+  --glass-mini-radius: 16px;    /* compact bars (sports preview minibar) */
+  /* Modal glass — deeper drop shadow for floating cards */
+  --glass-modal-bg: rgba(255, 255, 255, 0.06);
+  --glass-modal-blur: 24px;
+  --glass-modal-saturation: 180%;
+  --glass-modal-filter: blur(var(--glass-modal-blur)) saturate(var(--glass-modal-saturation));
+  --glass-modal-filter-strong: var(--glass-modal-filter);
+  --glass-modal-border: 1px solid rgba(255, 255, 255, 0.12);
+  --glass-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05), 0 20px 50px rgba(0, 0, 0, 0.6), 0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent);
+  --glass-modal-radius: 20px;
+  --glass-modal-width: 720px;      /* source picker */
+  --glass-modal-color: #fff;       /* track/subtitle modal text */
+  --glass-modal-overflow: hidden;  /* track/subtitle modal clipping */
+  /* Overlays behind modals (source picker, stremio, nuvio, track, subtitle, settings) */
+  --glass-overlay-bg: rgba(8, 8, 12, 0.4);
+  --glass-overlay-filter: blur(10px);
+  --glass-overlay-bg-noblur: rgba(0, 0, 0, 0.15);
+  --glass-overlay-filter-noblur: none;
+  /* Settings panel — dense glass with extra-strong blur */
+  --glass-settings-bg: rgba(16, 12, 26, 0.82);
+  --glass-settings-filter: blur(35px) saturate(180%);
+  --glass-settings-border: 1px solid rgba(255, 255, 255, 0.12);
+  --glass-settings-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05), 0 20px 50px rgba(0, 0, 0, 0.6), 0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent);
+  --glass-settings-radius: 24px;
+  /* V2-fold surfaces — v2 gradients in ModernV2.css, glass here (Task 2) */
+  --strip-bg: var(--glass-surface-bg);
+  --strip-filter: var(--glass-surface-filter);
+  --strip-border-right: var(--glass-surface-border-right);
+  --glass-info-bg: var(--glass-surface-bg);
+  --glass-info-filter: var(--glass-surface-filter);
+  /* Info pane shadow — insets + subtle accent glow only. The full --glass-surface-shadow
+     carries a 0 8px 32px outer drop that bleeds ~40px BELOW the pane's bottom edge,
+     painting a dark band over the top of the guide header at the seam with the grid. */
+  --glass-info-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05), 0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent);
+  --glass-grid-bg: var(--glass-surface-bg);
+  --glass-grid-filter: var(--glass-surface-filter);
+  /* Grid shadow — insets + subtle accent glow only. The full --glass-surface-shadow
+     carries a 0 8px 32px outer drop that bleeds ~24px ABOVE the grid section's top
+     edge, painting a dark band over the bottom of the preview/info panes right at
+     the top of the EPG grid panel. */
+  --glass-grid-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05), 0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent);
+  --guide-placeholder-bg: var(--glass-feature-bg);
+  --guide-placeholder-filter: var(--glass-feature-filter);
+  --guide-placeholder-radius: var(--glass-feature-radius);
+  --guide-placeholder-border: var(--glass-feature-border);
+  --guide-placeholder-shadow: var(--glass-feature-shadow);
+  /* Preview pane — borderless, bottom-aligned with the info pane */
+  --guide-preview-border-right: none;
+  --guide-preview-border-bottom: none;
+  --guide-preview-margin-bottom: 16px;
+  /* Preview video — rounded glass video card */
+  --guide-preview-video-radius: 20px;
+  /* Video card shadow — insets + subtle accent glow only (no outer drop: the
+     0 8px 32px drop bled onto the guide header at the seam below). */
+  --guide-preview-video-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05), 0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent);
+  /* Featured cards (hero, guide preview placeholder) — lighter drop than surfaces */
+  --glass-feature-bg: rgba(255, 255, 255, 0.06);
+  --glass-feature-filter: blur(24px) saturate(180%);
+  --glass-feature-border: 1px solid rgba(255, 255, 255, 0.12);
+  --glass-feature-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.25);
+  --glass-feature-radius: 20px;
+  /* Sports hub — blurred solid whose bg follows the theme, same frame as surfaces */
+  --glass-sports-bg: var(--bg-primary, #0b131e);
+  /* Deep detail modal (game detail) — heavier drop than the standard modal */
+  --glass-detail-bg: rgba(255, 255, 255, 0.06);
+  --glass-detail-filter: blur(24px) saturate(180%);
+  --glass-detail-border: 1px solid rgba(255, 255, 255, 0.12);
+  --glass-detail-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05), 0 24px 50px rgba(0, 0, 0, 0.6), 0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent);
+  /* Side detail panel (nuvio) — left-edge shadow */
+  --glass-sidepanel-bg: rgba(255, 255, 255, 0.06);
+  --glass-sidepanel-filter: blur(24px) saturate(180%);
+  --glass-sidepanel-border: 1px solid rgba(255, 255, 255, 0.12);
+  --glass-sidepanel-border-all: none;
+  --glass-sidepanel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05), -10px 0 30px rgba(0, 0, 0, 0.5), 0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent);
+  /* Stremio detail right panel — deep purple glass, heavier blur */
+  --glass-stremio-right-bg: rgba(8, 6, 15, 0.82);
+  --glass-stremio-right-filter: blur(32px) saturate(120%);
+  --glass-stremio-right-border: 1px solid rgba(255, 255, 255, 0.1);
+  --glass-stremio-right-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 32px rgba(0, 0, 0, 0.4);
+  /* Guide sub-elements — redefines the v2 tokens to the v3 look
+     (program blocks, guide buttons, channel-row dividers) */
+  --guide-btn-bg: rgba(255, 255, 255, 0.04);
+  --guide-btn-border: 1px solid rgba(255, 255, 255, 0.1);
+  --guide-btn-radius: 20px;
+  --guide-btn-color: var(--text-primary, #fff);
+  --guide-btn-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --guide-btn-hover-bg: rgba(255, 255, 255, 0.12);
+  --guide-btn-hover-border-color: rgba(255, 255, 255, 0.2);
+  --guide-btn-hover-transform: translateY(-1px);
+  --guide-btn-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --guide-btn-hover-color: var(--text-primary, #fff);
+  --guide-navbtn-bg: rgba(255, 255, 255, 0.04);
+  --guide-navbtn-border: 1px solid rgba(255, 255, 255, 0.1);
+  --guide-navbtn-radius: 20px;
+  --guide-navbtn-color: var(--text-primary, #fff);
+  --guide-navbtn-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --guide-navbtn-hover-bg: rgba(255, 255, 255, 0.12);
+  --guide-navbtn-hover-transform: translateY(-1px);
+  --guide-navbtn-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --guide-nowbtn-bg: rgba(255, 255, 255, 0.04);
+  --guide-nowbtn-border: 1px solid rgba(255, 255, 255, 0.1);
+  --guide-nowbtn-radius: 20px;
+  --guide-nowbtn-color: var(--text-primary, #fff);
+  --guide-nowbtn-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --guide-nowbtn-hover-bg: rgba(255, 255, 255, 0.12);
+  --guide-nowbtn-hover-transform: translateY(-1px);
+  --guide-nowbtn-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  /* Channel rows — soft gradient divider (the 1px bottom border is set by the
+     [data-theme] row rule, which must win the cascade) */
+  --guide-row-divider-content: '';
+  --guide-row-divider-bg: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 25%, rgba(255, 255, 255, 0.08) 75%, transparent 100%);
+  /* Program blocks — rounded liquid-glass cards */
+  --prog-top: 4px;
+  --prog-bottom: 4px;
+  --prog-bg: rgba(255, 255, 255, 0.025);
+  --prog-radius: 12px;
+  --prog-border: 1px solid rgba(255, 255, 255, 0.06);
+  --prog-border-left: 1px solid rgba(255, 255, 255, 0.06);
+  --prog-transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --prog-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --prog-hover-bg: rgba(255, 255, 255, 0.08);
+  --prog-hover-border-color: rgba(255, 255, 255, 0.2);
+  --prog-hover-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 8px 24px rgba(0, 0, 0, 0.3);
+  --prog-hover-transform: translateY(-1px) scale(1.01);
+  --prog-hover-transition: all 0.2s ease;
+  --prog-hover-z: 20;
+  --prog-past-bg: rgba(255, 255, 255, 0.01);
+  --prog-past-border-color: rgba(255, 255, 255, 0.02);
+  --prog-past-opacity: 0.65;
+  --prog-title-font-size: 0.82rem;
+  --prog-desc-font-size: 0.75rem;
+  --prog-desc-opacity: 0.55;
+  /* Guide solids — in v3 the non-transparent EPG surfaces are glass too */
+  --guide-solid-bg: var(--glass-surface-bg);
+  /* Unified titlebar nav pill — dark glass (v3 light falls back to the light base) */
+  --titlebar-unified-bg: rgba(0, 0, 0, 0.45);
+  --titlebar-unified-blur-filter: blur(12px);
+  --titlebar-unified-border-color: rgba(255, 255, 255, 0.16);
+  --titlebar-unified-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 12px rgba(0, 0, 0, 0.6);
+  --seg-btn-hover-bg: rgba(255, 255, 255, 0.08);
+  --seg-btn-active-bg: rgba(255, 255, 255, 0.16);
+  --seg-btn-active-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* v3 light theme — redefine the glass tokens so the same base rules produce the
+   light liquid-glass look without any per-surface override rules. */
+html.modern-ui-v3[data-theme="light"] {
+  --glass-surface-bg: rgba(255, 255, 255, 0.45);
+  --glass-surface-bg-attachment: scroll;
+  --glass-surface-filter: blur(30px) saturate(190%);
+  --glass-surface-border: 1px solid rgba(0, 0, 0, 0.08);
+  --glass-surface-border-right: var(--glass-surface-border);
+  --glass-surface-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.02);
+  --glass-sports-bg: #f1f5f9;
+  --glass-dvr-bg: #f8fafc;
+  --glass-detail-bg: rgba(255, 255, 255, 0.45);
+  --glass-detail-filter: blur(30px) saturate(190%);
+  --glass-detail-border: 1px solid rgba(0, 0, 0, 0.08);
+  --glass-detail-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.02);
+  --glass-sidepanel-bg: rgba(255, 255, 255, 0.45);
+  --glass-sidepanel-filter: blur(30px) saturate(190%);
+  --glass-sidepanel-border: 1px solid rgba(0, 0, 0, 0.08);
+  --glass-sidepanel-border-all: 1px solid rgba(0, 0, 0, 0.08);
+  --glass-sidepanel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.02);
+  --glass-grid-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 2px 8px rgba(0, 0, 0, 0.02);
+  --glass-stremio-right-bg: rgba(255, 255, 255, 0.45);
+  --glass-stremio-right-filter: blur(30px) saturate(190%);
+  --glass-stremio-right-border: var(--glass-surface-border);
+  --glass-stremio-right-shadow: var(--glass-surface-shadow);
+  --glass-info-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 2px 8px rgba(0, 0, 0, 0.02);
+  --glass-modal-bg: rgba(255, 255, 255, 0.45);
+  --glass-modal-filter-strong: blur(30px) saturate(190%);
+  --glass-modal-border: 1px solid rgba(0, 0, 0, 0.08);
+  --glass-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.02);
+  --glass-modal-color: #000;
+  --glass-overlay-bg: rgba(0, 0, 0, 0.3);
+  --glass-overlay-filter-noblur: blur(10px);
+  --glass-overlay-bg-noblur: rgba(0, 0, 0, 0.3);
+  --glass-settings-bg: rgba(255, 255, 255, 0.94);
+  --glass-settings-border: 1px solid rgba(0, 0, 0, 0.12);
+  --glass-settings-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 20px 50px rgba(0, 0, 0, 0.15), 0 2px 8px color-mix(in srgb, var(--accent-primary, #0066cc) 10%, transparent);
 }
-
-.modern-ui .guide-close {
-  background: 
-    linear-gradient(135deg,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 255, 255, 0.03) 100%
-    );
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.modern-ui .guide-close:hover {
-  transform: scale(1.1);
-  border-color: var(--accent-primary, rgba(0, 212, 255, 0.5));
-  color: var(--accent-primary, #00d4ff);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
-}
-
-/* Modern Time Header */
-.modern-ui .guide-time-header {
-  background: 
-    linear-gradient(180deg,
-      color-mix(in srgb, var(--surface-color, rgba(0,0,0,0.3)), white 2%) 0%,
-      var(--surface-color, rgba(0,0,0,0.3)) 100%
-    );
-  backdrop-filter: blur(var(--glass-blur, 12px));
-  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
-}
-
-.modern-ui .guide-time-marker {
-  font-size: 0.85rem;
-  font-weight: 500;
-  padding-left: 12px;
-}
-
-.modern-ui .guide-time-marker:first-child {
-  font-weight: 600;
-}
-
-/* Modern Channel Rows */
-.modern-ui .guide-channel-row {
-  min-height: 64px;
-  transition: background 0.2s ease;
-}
-
-.modern-ui .guide-channel-row.has-playlist-name {
-  min-height: 84px;
-}
-
-.modern-ui .guide-channel-row.has-playlist-name .guide-channel-info {
-  padding-bottom: 28px; /* Shift content up to clear metadata badge vertically */
-}
-
-.modern-ui .guide-channel-row.currently-playing {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 5%, transparent);
-}
-
-/* Modern Channel Info */
-.modern-ui .guide-channel-info {
-  gap: 14px;
-  padding: 10px 18px;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Remove horizontal padding on favorite star so it hugs the left edge and logo */
-.modern-ui .guide-channel-info .favorite-btn {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.modern-ui .guide-channel-logo {
-  width: var(--channel-logo-size, 42px);
-  height: var(--channel-logo-size, 42px);
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: var(--channel-logo-radius, 10px);
-  border: none;
-  box-shadow: none;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.modern-ui .guide-channel-logo.logo-on-light {
-  background: rgba(255, 255, 255, 0.92);
-}
-
-.modern-ui .guide-channel-logo.logo-on-light .logo-placeholder {
-  color: rgba(0, 0, 0, 0.55);
-}
-
 /* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled */
-html.epg-rectangle-logos.modern-ui .guide-channel-logo,
-.modern-ui .guide-channel-logo.logo-shape-rectangle,
+
 html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-rectangle {
   width: calc(var(--channel-logo-size, 42px) * 1.76);
   height: calc(var(--channel-logo-size, 42px) * 0.904);
@@ -986,14 +211,13 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-rectangle {
   padding: 0;
   background: transparent;
 }
-html.epg-rectangle-logos.modern-ui .guide-channel-logo.logo-on-light,
-.modern-ui .guide-channel-logo.logo-shape-rectangle.logo-on-light,
+
 html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-rectangle.logo-on-light {
   background: rgba(255, 255, 255, 0.92);
 }
 
 /* Per-source square override when the global setting is rectangle - must beat the same specificity above */
-html.epg-rectangle-logos.modern-ui .guide-channel-logo.logo-shape-square,
+
 html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-square {
   width: var(--channel-logo-size, 42px);
   height: var(--channel-logo-size, 42px);
@@ -1001,20 +225,17 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-square {
   padding: 0;
   background: transparent;
 }
-html.epg-rectangle-logos.modern-ui .guide-channel-logo.logo-shape-square.logo-on-light,
+
 html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-square.logo-on-light {
   background: rgba(255, 255, 255, 0.92);
 }
 
 /* No-padding overrides for modern UI and rectangle channel logos */
-.modern-ui .guide-channel-logo.no-padding,
-html.epg-rectangle-logos.modern-ui .guide-channel-logo.no-padding,
+
 html.modern-ui-v3[data-theme] .guide-channel-logo.no-padding {
   padding: 0 !important;
 }
 
-.modern-ui .guide-channel-logo.no-padding img,
-html.epg-rectangle-logos.modern-ui .guide-channel-logo.no-padding img,
 html.modern-ui-v3[data-theme] .guide-channel-logo.no-padding img {
   width: 100% !important;
   height: 100% !important;
@@ -1022,11 +243,11 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.no-padding img {
 }
 
 /* Smart trim: auto-crop baked-in transparent padding so opaque content fills the tile */
-.modern-ui .guide-channel-logo.logo-smart-trim,
+
 html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim {
   position: relative !important;
 }
-.modern-ui .guide-channel-logo.logo-smart-trim img,
+
 html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
   position: absolute !important;
   left: var(--smart-trim-x) !important;
@@ -1038,1013 +259,8 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
   object-fit: fill !important;
 }
 
-/* Modern Scrollbar */
-.modern-ui .guide-channels::-webkit-scrollbar {
-  width: 6px;
-}
-
-.modern-ui .guide-channels::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg,
-    transparent 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 20%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 80%,
-    transparent 100%
-  );
-}
-
-/* Modern Now Playing Bar */
-.modern-ui .now-playing-bar {
-  background: 
-    linear-gradient(180deg,
-      rgba(15, 15, 20, 0.85) 0%,
-      rgba(8, 8, 12, 0.95) 100%
-    );
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 8px 20px;
-  box-shadow: 
-    0 -8px 32px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
-  transition: 
-    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.3s ease;
-}
-
-.modern-ui .npb-channel-logo {
-  width: 44px;
-  height: 44px;
-  background: 
-    linear-gradient(135deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.modern-ui .npb-channel-name {
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  color: white;
-}
-
-.modern-ui .npb-program-title {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-/* Alternate view NowPlayingBar: compact layout (modern UI specific) */
-.modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-progress-section {
-  flex: 1 1 0%;
-  max-width: none;
-}
-
-.modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-controls-row {
-  flex-wrap: wrap;
-  gap: 10px;
-  row-gap: 6px;
-}
-
-.modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-extra-controls {
-  margin-left: 0;
-  padding-left: 8px;
-}
-
-.modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-volume-slider {
-  width: 50px;
-}
-
-.modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-description-section,
-.modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-divider {
-  display: none;
-}
-
-.modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-channel-section {
-  max-width: 220px;
-}
-
-@media (max-width: 1000px) {
-  .modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-extra-controls {
-    display: none;
-  }
-}
-
-@media (max-width: 600px) {
-  .modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-channel-up-btn,
-  .modern-ui .guide-top-section.alternate-view .now-playing-bar .npb-channel-down-btn {
-    display: none;
-  }
-}
-
-/* Modern Progress Bar */
-.modern-ui .npb-progress-bar {
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.3) inset;
-}
-
-.modern-ui .npb-progress-fill {
-  background: linear-gradient(90deg, 
-    var(--accent-primary, #00d4ff) 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 80%, white) 100%
-  );
-  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
-}
-
-/* Modern Scrubber */
-.modern-ui .npb-scrubber-handle {
-  width: 14px;
-  height: 14px;
-  background: white;
-  border-radius: 50%;
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.4),
-    0 0 0 2px var(--accent-primary, #00d4ff);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Modern Buttons */
-.modern-ui .npb-btn {
-  background: 
-    linear-gradient(135deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  color: rgba(255, 255, 255, 0.9);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.modern-ui .npb-btn:hover:not(:disabled) {
-  transform: scale(1.1);
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.3),
-    0 0 0 1px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent) inset;
-}
-
-/* Modern Volume Slider */
-.modern-ui .npb-volume-slider {
-  height: 4px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 2px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.2) inset;
-}
-
-.modern-ui .npb-volume-slider::-webkit-slider-thumb {
-  width: 14px;
-  height: 14px;
-  background: white;
-  border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  transition: transform 0.15s ease;
-}
-
-.modern-ui .npb-volume-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-}
-
-/* Modern Modal */
-.modern-ui .npb-modal {
-  background: 
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--surface-color, #1a1a1a), white 3%) 0%,
-      var(--surface-color, #1a1a1a) 100%
-    );
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
-  box-shadow: 
-    0 16px 48px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-}
-
-.modern-ui .npb-modal-header {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.modern-ui .npb-modal-close {
-  background: 
-    linear-gradient(135deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  transition: all 0.2s ease;
-}
-
-.modern-ui .npb-modal-body input {
-  background: 
-    linear-gradient(135deg,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 255, 255, 0.04) 100%
-    );
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  transition: all 0.25s ease;
-}
-
-.modern-ui .npb-modal-body input:focus {
-  border-color: color-mix(in srgb, var(--accent-color, #007acc) 70%, transparent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color, #007acc) 15%, transparent);
-}
-
-.modern-ui .npb-modal-footer {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.modern-ui .npb-modal-footer .npb-btn.primary {
-  background: 
-    linear-gradient(135deg,
-      var(--accent-color, #007acc) 0%,
-      color-mix(in srgb, var(--accent-color, #007acc) 80%, black) 100%
-    );
-  border: 1px solid var(--accent-color, #007acc);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-color, #007acc) 30%, transparent);
-}
-
-.modern-ui .npb-modal-footer .npb-btn.primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 
-    0 6px 16px color-mix(in srgb, var(--accent-color, #007acc) 40%, transparent),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-}
-
-/* Modern TimeShift */
-.modern-ui .npb-ts-scrubber {
-  height: 10px;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 5px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.2) inset;
-}
-
-.modern-ui .npb-ts-fill {
-  background: linear-gradient(90deg, 
-    var(--accent-primary, #00d4ff) 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 80%, white) 100%
-  );
-  box-shadow: 0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent);
-}
-
-.modern-ui .npb-ts-handle {
-  width: 16px;
-  height: 16px;
-  box-shadow: 
-    0 3px 8px rgba(0, 0, 0, 0.4),
-    0 0 0 2px var(--accent-primary, #00d4ff);
-}
-
-.modern-ui .npb-live-badge {
-  text-shadow: 0 0 10px rgba(255, 64, 64, 0.5);
-}
-
-.modern-ui .npb-live-edge-marker {
-  box-shadow: 0 0 10px rgba(255, 64, 64, 0.6);
-}
-
-/* Modern Live Button */
-.modern-ui .npb-live-btn {
-  background: 
-    linear-gradient(135deg,
-      rgba(255, 80, 80, 0.2) 0%,
-      rgba(255, 60, 60, 0.12) 100%
-    );
-  border: 1px solid rgba(255, 100, 100, 0.5);
-  border-radius: 10px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.modern-ui .npb-live-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 
-    0 4px 16px rgba(255, 64, 64, 0.3),
-    0 0 0 1px rgba(255, 100, 100, 0.2) inset;
-}
-
-/* Modern Video Preview Resizer */
-.modern-ui .guide-preview-resizer {
-  position: absolute;
-  bottom: -12px;
-  right: -12px;
-  width: 28px;
-  height: 28px;
-  cursor: nwse-resize;
-  z-index: 110;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-}
-
-.modern-ui .guide-preview-resizer.vertical {
-  width: 44px;
-  height: 18px;
-  bottom: -9px;
-  right: auto;
-  left: 50%;
-  transform: translateX(-50%);
-  cursor: ns-resize;
-}
-
-.modern-ui .resizer-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent);
-  box-shadow: 
-    0 0 0 2px rgba(0, 0, 0, 0.5),
-    0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.modern-ui .guide-preview-resizer.vertical .resizer-dot {
-  width: 36px;
-  height: 8px;
-  border-radius: 4px;
-}
-
-.modern-ui .guide-preview-resizer:hover .resizer-dot {
-  background: var(--accent-primary, #00d4ff);
-  transform: scale(1.4);
-  box-shadow: 
-    0 0 0 3px rgba(0, 0, 0, 0.4),
-    0 0 16px color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent);
-}
-
-.modern-ui .guide-preview-resizer.vertical:hover .resizer-dot {
-  transform: scaleY(1.4);
-}
-
-.modern-ui .guide-preview-resizer:active .resizer-dot {
-  transform: scale(1.1);
-  background: white;
-  box-shadow: 
-    0 0 0 2px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(255, 255, 255, 0.5);
-}
-
-.modern-ui .guide-preview-resizer.vertical:active .resizer-dot {
-  transform: scaleY(1.1);
-}
-
-
-/* Modern Scrollbars for VOD */
-.modern-ui .vertical-sidebar__scrollable::-webkit-scrollbar,
-.modern-ui .vod-browse::-webkit-scrollbar,
-.modern-ui .vod-browse *::-webkit-scrollbar,
-.modern-ui .vod-page__content::-webkit-scrollbar,
-.modern-ui .vod-page__content *::-webkit-scrollbar {
-  width: 6px !important;
-}
-
-.modern-ui .vertical-sidebar__scrollable::-webkit-scrollbar-thumb,
-.modern-ui .vod-browse::-webkit-scrollbar-thumb,
-.modern-ui .vod-browse *::-webkit-scrollbar-thumb,
-.modern-ui .vod-page__content::-webkit-scrollbar-thumb,
-.modern-ui .vod-page__content *::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg,
-    transparent 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 20%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 80%,
-    transparent 100%
-  ) !important;
-  border-radius: 3px !important;
-}
-
-/* --------------------------------------------------
-   2. CHANNEL ROWS - Currently Playing Glow
-   -------------------------------------------------- */
-
-.modern-ui .guide-channel-row {
-  position: relative;
-}
-
-/* Currently playing channel - left accent glow bar */
-.modern-ui .guide-channel-row.currently-playing::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 12px;
-  bottom: 12px;
-  width: 3px;
-  background: linear-gradient(180deg,
-    var(--accent-primary, #00d4ff) 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent) 100%
-  );
-  border-radius: 0 3px 3px 0;
-  box-shadow: 0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent);
-  animation: accent-glow 3s ease-in-out infinite;
-}
-
-.modern-ui .guide-channel-row.currently-playing {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 4%, transparent);
-}
-
-.modern-ui .guide-channel-row.currently-playing:hover {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 6%, transparent);
-}
-
-.modern-ui .guide-channel-row.currently-playing .guide-channel-name {
-  color: white;
-  text-shadow: 0 0 12px color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent);
-}
-
-/* --------------------------------------------------
-   3. PROGRAM BLOCKS - "Timeline Cards"
-   -------------------------------------------------- */
-
-.modern-ui .program-block {
-  top: 5px;
-  bottom: 5px;
-  padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.035);
-  border-radius: 10px;
-  border-left: none;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.modern-ui .program-block:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  z-index: 20;
-}
-
-/* Past programs - slightly dimmed */
-.modern-ui .program-block.past {
-  background: rgba(255, 255, 255, 0.02);
-  border-color: rgba(255, 255, 255, 0.03);
-}
-
-.modern-ui .program-block.past .program-block-title {
-  color: rgba(255, 255, 255, 0.55);
-}
-
-.modern-ui .program-block.past .program-block-desc {
-  color: rgba(255, 255, 255, 0.3);
-}
-
-/* Current program - accent glow with live indicator */
-.modern-ui .program-block.current {
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, rgba(255, 255, 255, 0.04)) 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 5%, rgba(255, 255, 255, 0.02)) 100%
-  );
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent) inset,
-    0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.modern-ui .program-block.current:hover {
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 14%, rgba(255, 255, 255, 0.06)) 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 7%, rgba(255, 255, 255, 0.03)) 100%
-  );
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 45%, transparent);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) inset,
-    0 6px 24px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(0, 0, 0, 0.3));
-}
-
-/* Program title */
-.modern-ui .program-block-title {
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.35;
-}
-
-.modern-ui .program-block.current .program-block-title {
-  color: rgba(255, 255, 255, 0.95);
-  font-weight: 600;
-}
-
-/* Program description */
-.modern-ui .program-block-desc {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.4);
-  margin-top: 3px;
-  line-height: 1.25;
-}
-
-.modern-ui .program-block.current .program-block-desc {
-  color: rgba(255, 255, 255, 0.55);
-}
-
-/* Recording state */
-.modern-ui .program-block.is-recording {
-  background: linear-gradient(135deg,
-    rgba(204, 34, 34, 0.1) 0%,
-    rgba(204, 34, 34, 0.04) 100%
-  );
-  border-color: rgba(204, 34, 34, 0.35);
-}
-
-.modern-ui .program-block.is-recording:hover {
-  background: linear-gradient(135deg,
-    rgba(204, 34, 34, 0.15) 0%,
-    rgba(204, 34, 34, 0.07) 100%
-  );
-  border-color: rgba(204, 34, 34, 0.5);
-  box-shadow: 0 4px 16px rgba(204, 34, 34, 0.15);
-}
-
-/* Scheduled state */
-.modern-ui .program-block.is-scheduled {
-  background: linear-gradient(135deg,
-    rgba(255, 255, 255, 0.06) 0%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-  border-color: rgba(255, 255, 255, 0.12);
-  border-style: dashed;
-}
-
-/* Catchup available */
-.modern-ui .program-block.catchup-available {
-  border-color: rgba(229, 160, 13, 0.4);
-}
-
-.modern-ui .program-block.catchup-available:hover {
-  background: rgba(229, 160, 13, 0.1);
-  border-color: rgba(229, 160, 13, 0.6);
-}
-
-.modern-ui .program-block.catchup-available .program-block-title::before {
-  content: '↺ ';
-  color: #e5a00d;
-  font-size: 1em;
-  vertical-align: middle;
-}
-
-/* Recording / scheduled indicators inside program block */
-.modern-ui .program-recording-indicator,
-.modern-ui .program-scheduled-indicator {
-  top: 6px;
-  right: 6px;
-}
-
-/* Empty program block */
-.modern-ui .program-block.empty {
-  background: rgba(255, 255, 255, 0.015);
-  border-color: rgba(255, 255, 255, 0.03);
-  border-style: dashed;
-}
-
-/* --------------------------------------------------
-   4. TIME HEADER - "Minimal Timeline"
-   -------------------------------------------------- */
-
-.modern-ui .guide-time-header {
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--surface-color, rgba(0,0,0,0.3)), white 2%) 0%,
-    color-mix(in srgb, var(--surface-color, rgba(0,0,0,0.3)), white 1%) 100%
-  );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(var(--glass-blur, 16px)) saturate(140%);
-}
-
-.modern-ui .guide-time-header-spacer {
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.modern-ui .guide-time-marker {
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.5);
-  padding-left: 14px;
-  letter-spacing: 0.02em;
-}
-
-.modern-ui .guide-time-marker:first-child {
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-/* --------------------------------------------------
-   5. PREVIEW PANE - "Cinematic View"
-   -------------------------------------------------- */
-
-.modern-ui .guide-preview-pane {
-  border-radius: 0 0 20px 0;
-  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04);
-}
-
-.modern-ui .guide-preview-video {
-  border-radius: 0 0 16px 0;
-  overflow: hidden;
-}
-
-.modern-ui .guide-preview-placeholder {
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--bg-primary, rgba(0,0,0,0.5)), white 4%) 0%,
-    var(--bg-primary, rgba(0,0,0,0.5)) 100%
-  );
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-  font-size: 1rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.4);
-  letter-spacing: 0.02em;
-}
-
-/* Info pane */
-.modern-ui .guide-info-pane {
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--bg-overlay, rgba(0,0,0,0.95)), white 2%) 0%,
-    var(--bg-overlay, rgba(0,0,0,0.95)) 100%
-  );
-  border-left: 1px solid rgba(255, 255, 255, 0.04);
-  padding: 24px 28px;
-}
-
-.modern-ui .guide-program-title {
-  font-size: var(--epg-title-font-size, 2.4rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
-  background: linear-gradient(135deg, white 0%, rgba(255, 255, 255, 0.85) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.modern-ui .guide-program-meta {
-  margin-top: 12px;
-  gap: 16px;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.modern-ui .guide-program-progress-bar {
-  height: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-top: 8px;
-}
-
-.modern-ui .guide-program-progress-fill {
-  background: linear-gradient(90deg,
-    var(--accent-primary, #00d4ff) 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, white) 100%
-  );
-  box-shadow: 0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent);
-  border-radius: 2px;
-}
-
-.modern-ui .guide-program-description {
-  font-size: var(--epg-body-font-size, 1.05rem);
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.65);
-  margin-top: 16px;
-}
-
-/* --------------------------------------------------
-   6. CONTEXT MENUS
-   -------------------------------------------------- */
-
-.modern-ui .program-context-menu {
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--surface-color, #1a1a1a), white 4%) 0%,
-    var(--surface-color, #1a1a1a) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  box-shadow:
-    0 16px 48px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-  backdrop-filter: blur(24px) saturate(160%);
-  padding: 6px;
-}
-
-.modern-ui .context-menu-item {
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 0.88rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.modern-ui .context-menu-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.modern-ui .context-menu-separator {
-  height: 1px;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.08) 20%,
-    rgba(255, 255, 255, 0.08) 80%,
-    transparent 100%
-  );
-  margin: 4px 8px;
-}
-
-/* --------------------------------------------------
-   7. ANIMATIONS
-   -------------------------------------------------- */
-
-@keyframes accent-glow {
-  0%, 100% { opacity: 1; box-shadow: 0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent); }
-  50% { opacity: 0.7; box-shadow: 0 0 16px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent); }
-}
-
-@keyframes live-pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-    box-shadow: 0 0 6px rgba(255, 59, 59, 0.8);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(0.8);
-    box-shadow: 0 0 2px rgba(255, 59, 59, 0.4);
-  }
-}
-
-/* ============================================
-   MODERN UI VIEW TRANSITIONS
-   ============================================ */
-
-.view-transition-container {
-  position: fixed;
-  top: 32px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 100;
-  pointer-events: none;
-  opacity: 0;
-  transform: translate3d(0, 15px, 0);
-  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.view-transition-container.view-enter-active {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-  pointer-events: auto;
-}
-
-.view-transition-container.view-exit-active {
-  opacity: 0;
-  transform: translate3d(0, 15px, 0);
-  pointer-events: none;
-}
-
-/* Override child page positioning inside transition container to fix the double top spacing gap */
-.view-transition-container > .vod-page,
-.view-transition-container > .dvr-dashboard,
-.view-transition-container > .sports-hub,
-.view-transition-container > .stremio-page,
-.view-transition-container > .tvcp-page,
-.view-transition-container > .nuvio-page {
-  top: 0 !important;
-  height: 100% !important;
-}
-
-/* ==========================================================================
-   MODERN UI V3 - LIQUID GLASS THEME
-   ========================================================================== */
-
-/* 1. Dynamic Moving Blob Background */
-.livetv-liquid-glass-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 2;
-  overflow: hidden;
-  background: linear-gradient(135deg, 
-    #02000a 0%, 
-    #070114 25%, 
-    #02050b 50%, 
-    #09031c 75%, 
-    #01030a 100%
-  ) !important;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
-}
-
-.livetv-liquid-glass-bg::before {
-  content: '';
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
-  top: -200px;
-  left: -100px;
-  pointer-events: none;
-  z-index: 1;
-  animation: ambient-float-1 20s infinite ease-in-out alternate;
-}
-
-.livetv-liquid-glass-bg::after {
-  content: '';
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
-  bottom: -150px;
-  right: -100px;
-  pointer-events: none;
-  z-index: 1;
-  animation: ambient-float-2 25s infinite ease-in-out alternate;
-}
-
-@keyframes ambient-float-1 {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(60px, 40px) scale(1.08); }
-  100% { transform: translate(0, 0) scale(1); }
-}
-
-@keyframes ambient-float-2 {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-45px, 60px) scale(1.12); }
-  100% { transform: translate(0, 0) scale(1); }
-}
-
-.livetv-liquid-glass-bg .glass-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.18 !important;
-  mix-blend-mode: screen;
-  will-change: transform;
-}
-
-/* Color Scheme: Apple visionOS (Cool/Warm Harmony) */
-.livetv-liquid-glass-bg.scheme-apple .blob-1 {
-  background: radial-gradient(circle, rgba(0, 191, 255, 0.55) 0%, transparent 70%);
-  width: 50vw;
-  height: 50vw;
-  top: -10%;
-  left: -5%;
-  animation: glass-float-1 25s infinite alternate ease-in-out;
-}
-.livetv-liquid-glass-bg.scheme-apple .blob-2 {
-  background: radial-gradient(circle, rgba(255, 20, 147, 0.45) 0%, transparent 70%);
-  width: 55vw;
-  height: 55vw;
-  bottom: -15%;
-  right: -5%;
-  animation: glass-float-2 30s infinite alternate ease-in-out;
-}
-.livetv-liquid-glass-bg.scheme-apple .blob-3 {
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.35) 0%, transparent 70%);
-  width: 45vw;
-  height: 45vw;
-  top: 35%;
-  right: 15%;
-  animation: glass-float-3 28s infinite alternate ease-in-out;
-}
-.livetv-liquid-glass-bg.scheme-apple .blob-4 {
-  background: radial-gradient(circle, rgba(50, 205, 50, 0.3) 0%, transparent 70%);
-  width: 48vw;
-  height: 48vw;
-  bottom: 10%;
-  left: 20%;
-  animation: glass-float-4 32s infinite alternate ease-in-out;
-}
-
-/* Color Scheme: Sunset Dunes (Warm & Moody) */
-.livetv-liquid-glass-bg.scheme-sunset .blob-1 {
-  background: radial-gradient(circle, rgba(255, 99, 71, 0.55) 0%, transparent 70%);
-  width: 55vw;
-  height: 55vw;
-  top: -15%;
-  left: 10%;
-  animation: glass-float-1 22s infinite alternate ease-in-out;
-}
-.livetv-liquid-glass-bg.scheme-sunset .blob-2 {
-  background: radial-gradient(circle, rgba(138, 43, 226, 0.5) 0%, transparent 70%);
-  width: 50vw;
-  height: 50vw;
-  bottom: -10%;
-  right: -5%;
-  animation: glass-float-2 28s infinite alternate ease-in-out;
-}
-.livetv-liquid-glass-bg.scheme-sunset .blob-3 {
-  background: radial-gradient(circle, rgba(255, 165, 0, 0.4) 0%, transparent 70%);
-  width: 48vw;
-  height: 48vw;
-  top: 30%;
-  left: 40%;
-  animation: glass-float-3 26s infinite alternate ease-in-out;
-}
-.livetv-liquid-glass-bg.scheme-sunset .blob-4 {
-  background: radial-gradient(circle, rgba(218, 112, 214, 0.4) 0%, transparent 70%);
-  width: 60vw;
-  height: 60vw;
-  bottom: 10%;
-  left: -10%;
-  animation: glass-float-4 35s infinite alternate ease-in-out;
-}
-
-/* Color Scheme: Aurora Sky (Mystical Greens/Blues) */
-.livetv-liquid-glass-bg.scheme-aurora .blob-1 {
-  background: radial-gradient(circle, rgba(0, 255, 204, 0.5) 0%, transparent 70%);
-  width: 52vw;
-  height: 52vw;
-  top: -10%;
-  right: 10%;
-  animation: glass-float-1 24s infinite alternate ease-in-out;
-}
-.livetv-liquid-glass-bg.scheme-aurora .blob-2 {
-  background: radial-gradient(circle, rgba(75, 0, 130, 0.45) 0%, transparent 70%);
-  width: 58vw;
-  height: 58vw;
-  bottom: -15%;
-  left: -5%;
-  animation: glass-float-2 32s infinite alternate ease-in-out;
-}
-.livetv-liquid-glass-bg.scheme-aurora .blob-3 {
-  background: radial-gradient(circle, rgba(30, 144, 255, 0.4) 0%, transparent 70%);
-  width: 45vw;
-  height: 45vw;
-  top: 40%;
-  left: 30%;
-  animation: glass-float-3 27s infinite alternate ease-in-out;
-}
-.livetv-liquid-glass-bg.scheme-aurora .blob-4 {
-  background: radial-gradient(circle, rgba(0, 255, 127, 0.35) 0%, transparent 70%);
-  width: 50vw;
-  height: 50vw;
-  bottom: 20%;
-  right: 0%;
-  animation: glass-float-4 30s infinite alternate ease-in-out;
-}
-
-/* Color Scheme: Forest Shade (Organic Deep Greens) */
-.livetv-liquid-glass-bg.scheme-forest .blob-1 {
-  background: radial-gradient(circle, rgba(34, 139, 34, 0.5) 0%, transparent 70%);
-  width: 50vw;
-  height: 50vw;
-  top: -5%;
-  left: 20%;
-  animation: glass-float-1 25s infinite alternate ease-in-out;
-}
-.livetv-liquid-glass-bg.scheme-forest .blob-2 {
-  background: radial-gradient(circle, rgba(0, 128, 128, 0.45) 0%, transparent 70%);
-  width: 55vw;
-  height: 55vw;
-  bottom: -20%;
-  right: 10%;
-  animation: glass-float-2 29s infinite alternate ease-in-out;
-}
-.livetv-liquid-glass-bg.scheme-forest .blob-3 {
-  background: radial-gradient(circle, rgba(144, 238, 144, 0.3) 0%, transparent 70%);
-  width: 42vw;
-  height: 42vw;
-  top: 30%;
-  right: 40%;
-  animation: glass-float-3 26s infinite alternate ease-in-out;
-}
-.livetv-liquid-glass-bg.scheme-forest .blob-4 {
-  background: radial-gradient(circle, rgba(32, 178, 170, 0.35) 0%, transparent 70%);
-  width: 48vw;
-  height: 48vw;
-  bottom: 15%;
-  left: -5%;
-  animation: glass-float-4 31s infinite alternate ease-in-out;
-}
-
-/* Keyframes for Organic Floating Motion */
-@keyframes glass-float-1 {
-  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-  100% { transform: translate(12vw, 8vh) scale(1.1) rotate(120deg); }
-}
-@keyframes glass-float-2 {
-  0% { transform: translate(0, 0) scale(1.05) rotate(0deg); }
-  100% { transform: translate(-8vw, -12vh) scale(0.9) rotate(-180deg); }
-}
-@keyframes glass-float-3 {
-  0% { transform: translate(0, 0) scale(0.95) rotate(0deg); }
-  100% { transform: translate(-10vw, 10vh) scale(1.15) rotate(90deg); }
-}
-@keyframes glass-float-4 {
-  0% { transform: translate(0, 0) scale(1.1) rotate(0deg); }
-  100% { transform: translate(6vw, -6vh) scale(0.95) rotate(-90deg); }
-}
-
 /* Placeholder styling for v3 UI - transparent, borderless, just the SVG logo on the background */
+
 .modern-ui-v3 .placeholder {
   background: transparent !important;
   border: none !important;
@@ -2055,22 +271,13 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
 }
 
 /* 2. Floating Glassmorphism Panels Layout */
+
 .modern-ui-v3 .category-strip {
-  top: 48px !important;
-  bottom: 16px !important;
-  left: 16px !important;
-  height: calc(100% - 64px) !important;
-  border-radius: 20px !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease !important;
+  top: 48px;
+  bottom: 16px;
+  left: 16px;
+  height: calc(100% - 64px);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
 }
 
 .modern-ui-v3 .guide-panel {
@@ -2091,20 +298,11 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
 }
 
 .modern-ui-v3 .guide-grid-section {
-  border-radius: 24px !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
   overflow: hidden;
 }
 
 /* EPG Transparent overlay grid alignment to not overlap sidebar in v3 */
+
 .modern-ui-v3 .guide-panel.guide-transparent-mode.with-categories .guide-grid-section {
   left: calc(var(--category-strip-content-width, 260px) + 32px) !important;
 }
@@ -2114,25 +312,10 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
 }
 
 /* 3. Rounded Floating Info & Preview Panes */
-.modern-ui-v3 .guide-preview-pane {
-  border-right: none !important;
-  border-bottom: none !important;
-  margin-bottom: 16px !important; /* Align bottom with the info pane */
-}
-
-.modern-ui-v3 .guide-preview-video {
-  border-radius: 20px !important;
-  overflow: hidden !important;
-  background: transparent !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-}
 
 
 /* Glass border around the rounded video */
+
 .modern-ui-v3 .video-glass-border {
   position: absolute;
   top: 0;
@@ -2149,31 +332,9 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
 }
 
 .modern-ui-v3 .guide-info-pane {
-  border-radius: 20px !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-  margin-left: 16px !important;
-  margin-bottom: 16px !important;
-  padding: 20px !important;
-}
-
-.modern-ui-v3 .guide-preview-placeholder {
-  border-radius: 20px !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.25) !important;
+  margin-left: 16px;
+  margin-bottom: 16px;
+  padding: 20px;
 }
 
 .modern-ui-v3 .guide-preview-minibar {
@@ -2193,27 +354,7 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
   border-radius: 0 0 12px 12px !important;
 }
 
-/* 4. Soft Gradient Dividers */
-.modern-ui-v3 .guide-channel-row {
-  border-bottom: none !important;
-  position: relative;
-}
-
-.modern-ui-v3 .guide-channel-row::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 20px;
-  right: 20px;
-  height: 1px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(255, 255, 255, 0.08) 25%, 
-    rgba(255, 255, 255, 0.08) 75%, 
-    transparent 100%
-  ) !important;
-  pointer-events: none;
-}
+/* 4. Soft Gradient Dividers (channel-row divider moved into base tokens) */
 
 .modern-ui-v3 .guide-time-marker {
   background: linear-gradient(to bottom, 
@@ -2240,33 +381,17 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
 }
 
 /* Allow program block hover effects to overflow the grid into the channel column */
+
 .modern-ui-v3 .guide-program-grid {
   overflow: visible !important;
 }
 
-/* 5. Rounded Program Blocks & Hover Animations */
-.modern-ui-v3 .program-block {
-  top: 4px;
-  bottom: 4px;
-  border-radius: 12px !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  background: rgba(255, 255, 255, 0.025) !important;
-  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
-}
-
-.modern-ui-v3 .program-block:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 8px 24px rgba(0, 0, 0, 0.3) !important;
-  transform: translateY(-1px) scale(1.01) !important;
-  transition: all 0.2s ease !important;
-  z-index: 20 !important;
-}
+/* 5. Rounded Program Blocks & Hover Animations (base look folded into --prog-*
+   tokens; the state overrides below must stay !important to beat the base
+   .current rules and the [data-theme]/light overrides) */
 
 /* Gently highlighted block for currently airing programs (ambient glow, not solid block) */
+
 html.modern-ui-v3 .program-block.current {
   background: color-mix(in srgb, var(--accent-primary) 22%, transparent) !important;
   border-top: 1px solid color-mix(in srgb, var(--accent-primary) 45%, transparent) !important;
@@ -2285,6 +410,7 @@ html.modern-ui-v3 .program-block.current:hover {
 }
 
 /* Slightly stronger highlight for the active channel you are currently watching */
+
 html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current {
   background: color-mix(in srgb, var(--accent-primary) 32%, transparent) !important;
   border: 1px solid color-mix(in srgb, var(--accent-primary) 55%, transparent) !important;
@@ -2300,37 +426,10 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
   z-index: 20 !important;
 }
 
-.modern-ui-v3 .program-block.past {
-  background: rgba(255, 255, 255, 0.01) !important;
-  border-color: rgba(255, 255, 255, 0.02) !important;
-  opacity: 0.65;
-}
-
-/* 6. Rounded Pill Control Buttons */
-.modern-ui-v3 .guide-nav-btn,
-.modern-ui-v3 .guide-now-btn,
-.modern-ui-v3 .guide-refresh-source-btn,
-.modern-ui-v3 .guide-epg-shift-btn,
-.modern-ui-v3 .guide-manage-channels-btn {
-  border-radius: 20px !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  color: var(--text-primary, #fff) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.modern-ui-v3 .guide-nav-btn:hover,
-.modern-ui-v3 .guide-now-btn:hover:not(:disabled),
-.modern-ui-v3 .guide-refresh-source-btn:hover,
-.modern-ui-v3 .guide-epg-shift-btn:hover,
-.modern-ui-v3 .guide-manage-channels-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}
+/* 6. Rounded Pill Control Buttons (folded into --guide-*-btn tokens) */
 
 /* 7. Illuminated Floating Category Items */
+
 .modern-ui-v3 .category-item {
   border-radius: 12px !important;
   margin: 4px 8px !important;
@@ -2364,6 +463,7 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 /* 8a. LiveTV Top Categories match VOD sidebar styling in V3 */
+
 .modern-ui-v3 .category-strip-top .category-list-bar:not(.custom-group-item) {
   border-radius: 0 !important;
   margin: 2px 8px !important;
@@ -2416,6 +516,7 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 /* 8a2. LiveTV Custom Groups match the Top Categories clean look in V3 */
+
 .modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item {
   border-radius: 0 !important;
   margin: 2px 8px !important;
@@ -2468,6 +569,7 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 /* 8b. LiveTV source category items match VOD sidebar styling in V3 */
+
 .modern-ui-v3 .category-source-content .category-item.nested {
   border-radius: 0 !important;
   margin: 2px 0 !important;
@@ -2612,6 +714,7 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 /* 8a2. LiveTV Custom Groups match the Top Categories clean look in V3 */
+
 .modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item {
   border-radius: 0 !important;
   margin: 2px 8px !important;
@@ -2664,6 +767,7 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 /* 8b. LiveTV source category items match VOD sidebar styling in V3 */
+
 .modern-ui-v3 .category-source-content .category-item.nested {
   border-radius: 0 !important;
   margin: 2px 0 !important;
@@ -2771,6 +875,7 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 /* 8c. LiveTV source headers match VOD sidebar source header styling in V3 */
+
 .modern-ui-v3 .category-strip .category-source-group {
   margin: 0 !important;
   border-radius: 0 !important;
@@ -2831,6 +936,7 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 /* Sidebar Search wrapper */
+
 .modern-ui-v3 .category-search-input-wrapper {
   border-radius: 12px !important;
   background: rgba(255, 255, 255, 0.04) !important;
@@ -2844,10 +950,6 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 /* Header & Spacer Transparent styling */
-.modern-ui-v3 .guide-header {
-  background: rgba(255, 255, 255, 0.015) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
 
 .modern-ui-v3 .guide-time-header {
   background: rgba(255, 255, 255, 0.005) !important;
@@ -2865,24 +967,15 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 /* 8. VOD Pages (Movies and Series) Liquid Glass Styling */
+
 .modern-ui-v3 .vod-page {
   background: transparent !important;
 }
 
 .modern-ui-v3 .vertical-sidebar {
-  margin: 16px 0 16px 16px !important;
-  height: calc(100% - 32px) !important;
-  align-self: flex-start !important;
-  border-radius: 20px !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
+  margin: 16px 0 16px 16px;
+  height: calc(100% - 32px);
+  align-self: flex-start;
 }
 
 .modern-ui-v3 .vertical-sidebar::before {
@@ -2971,6 +1064,7 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 /* Ensure category-item-left is styled properly in VOD sidebar */
+
 .modern-ui-v3 .vertical-sidebar .category-item-left {
   display: flex !important;
   align-items: center !important;
@@ -2985,32 +1079,6 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
   text-overflow: ellipsis !important;
   font-size: var(--category-font-size, 14px) !important;
   font-weight: 500 !important;
-}
-
-/* Glow and accent colors for vertical sidebar icons when active */
-.modern-ui .vertical-sidebar__item.active .all-channels-icon {
-  background: rgba(0, 212, 255, 0.16) !important;
-  box-shadow: 0 0 10px rgba(0, 212, 255, 0.4) !important;
-  color: #33e0ff !important;
-  border-color: rgba(0, 212, 255, 0.3) !important;
-}
-.modern-ui .vertical-sidebar__item.active .favorites-icon {
-  background: rgba(255, 196, 0, 0.16) !important;
-  box-shadow: 0 0 10px rgba(255, 196, 0, 0.4) !important;
-  color: #ffd033 !important;
-  border-color: rgba(255, 196, 0, 0.3) !important;
-}
-.modern-ui .vertical-sidebar__item.active .watchlist-icon {
-  background: rgba(99, 102, 241, 0.16) !important;
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4) !important;
-  color: #818cf8 !important;
-  border-color: rgba(99, 102, 241, 0.3) !important;
-}
-.modern-ui .vertical-sidebar__item.active .recent-icon {
-  background: rgba(244, 63, 94, 0.16) !important;
-  box-shadow: 0 0 10px rgba(244, 63, 94, 0.4) !important;
-  color: #fb7185 !important;
-  border-color: rgba(244, 63, 94, 0.3) !important;
 }
 
 .modern-ui-v3 .vertical-sidebar__separator {
@@ -3044,6 +1112,7 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 /* Opaque styling for sticky header when expanded in V3 */
+
 .modern-ui-v3 .vertical-sidebar__source-group.is-expanded .vertical-sidebar__source-header {
   position: sticky !important;
   top: 0 !important;
@@ -3061,37 +1130,16 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 .modern-ui-v3 .vod-page__content {
-  margin: 16px 16px 16px 16px !important;
-  border-radius: 24px !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
+  margin: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* 8. VOD Pages (Movies and Series) Liquid Glass Styling Extensions */
+
 .modern-ui-v3 .vod-browse,
 .modern-ui-v3 .streaming-service-view {
   background: transparent !important;
-}
-
-.modern-ui-v3 .hero {
-  border-radius: 20px !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.25) !important;
 }
 
 .modern-ui-v3 .hero__overlay-left {
@@ -3209,8 +1257,10 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 /* NOTE: Use explicit color values (#0c0e18 or rgba) for color stops inside linear-gradient.
+
    Do NOT use var(--bg-primary) as a color stop because in themes where --bg-primary is a gradient (e.g. solid-* themes),
    nesting a gradient variable inside linear-gradient causes CSS color-stop syntax invalidation, causing the browser to drop the background rule. */
+
 .modern-ui-v3 .movie-detail::before,
 .modern-ui-v3 .series-detail::before,
 .modern-ui-v3 .movie-detail-fixed-backdrop-gradient,
@@ -3279,23 +1329,14 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 /* 9. DVR Pages Liquid Glass Styling */
+
 .modern-ui-v3 .dvr-dashboard {
-  top: 16px !important;
-  bottom: 16px !important;
-  left: 16px !important;
-  right: 16px !important;
-  height: calc(100% - 32px) !important;
-  border-radius: 24px !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-  box-sizing: border-box !important;
+  top: 16px;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  height: calc(100% - 32px);
+  box-sizing: border-box;
 }
 
 .modern-ui-v3 .dvr-topbar {
@@ -3359,26 +1400,14 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 }
 
 /* 10. Sports Hub Liquid Glass Styling */
-.modern-ui-v3 .sports-hub {
-  top: 16px !important;
-  bottom: 16px !important;
-  left: 16px !important;
-  right: 16px !important;
-  height: calc(100% - 32px) !important;
-  border-radius: 24px !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-  box-sizing: border-box !important;
-}
 
-.modern-ui-v3 .sports-hub:not(.with-preview) {
-  background: var(--bg-primary, #0b131e) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+.modern-ui-v3 .sports-hub {
+  top: 16px;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  height: calc(100% - 32px);
+  box-sizing: border-box;
 }
 
 .modern-ui-v3 .sports-topbar {
@@ -3482,16 +1511,7 @@ html.modern-ui-v3[data-theme="light"] .sports-hub.with-preview .sports-content {
 }
 
 .modern-ui-v3 .sports-preview-minibar {
-  border-radius: 16px !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.3) !important;
-  margin: 12px !important;
+  margin: 12px;
 }
 
 .modern-ui-v3 .game-card {
@@ -3510,25 +1530,15 @@ html.modern-ui-v3[data-theme="light"] .sports-hub.with-preview .sports-content {
 }
 
 /* Sports Match Detail Modals Liquid Glass Styling */
+
 .modern-ui-v3 .game-detail-overlay {
   background: rgba(8, 8, 12, 0.4) !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
 }
 
-.modern-ui-v3 .game-detail-modal {
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 24px 50px rgba(0, 0, 0, 0.6),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-}
-
 /* Inner Sections Transparency */
+
 .modern-ui-v3 .game-detail-header,
 .modern-ui-v3 .game-detail-scoreboard,
 .modern-ui-v3 .ufc-detail-title-bar,
@@ -3556,6 +1566,7 @@ html.modern-ui-v3[data-theme="light"] .sports-hub.with-preview .sports-content {
 }
 
 /* Tabs */
+
 .modern-ui-v3 .game-detail-tab {
   color: rgba(255, 255, 255, 0.6) !important;
   transition: all 0.2s ease !important;
@@ -3574,6 +1585,7 @@ html.modern-ui-v3[data-theme="light"] .sports-hub.with-preview .sports-content {
 }
 
 /* Tables and Lists */
+
 .modern-ui-v3 .game-detail-stats-table th,
 .modern-ui-v3 .game-detail-players-table th {
   border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
@@ -3592,6 +1604,7 @@ html.modern-ui-v3[data-theme="light"] .sports-hub.with-preview .sports-content {
 }
 
 /* Channel buttons & scoring plays */
+
 .modern-ui-v3 .game-detail-channel-btn {
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -3619,6 +1632,7 @@ html.modern-ui-v3[data-theme="light"] .sports-hub.with-preview .sports-content {
 }
 
 /* Light theme overrides */
+
 html.modern-ui-v3[data-theme="light"] .game-detail-header,
 html.modern-ui-v3[data-theme="light"] .game-detail-scoreboard,
 html.modern-ui-v3[data-theme="light"] .ufc-detail-title-bar,
@@ -3685,6 +1699,7 @@ html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
 }
 
 /* 11. Alphabet Rail Glass Styling */
+
 .modern-ui-v3 .alphabet-rail {
   background: rgba(12, 14, 24, 0.3) !important;
   backdrop-filter: blur(10px) !important;
@@ -3698,26 +1713,17 @@ html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
 }
 
 /* 12. Stremio & Nuvio Liquid Glass Styling */
+
 .modern-ui-v3 .stremio-page,
 .modern-ui-v3 .nuvio-page {
-  top: 16px !important;
-  bottom: 16px !important;
-  left: 16px !important;
-  right: 16px !important;
-  width: calc(100% - 32px) !important;
-  height: calc(100% - 32px) !important;
-  border-radius: 24px !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
+  top: 16px;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  width: calc(100% - 32px);
+  height: calc(100% - 32px);
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .modern-ui-v3 .stremio-main,
@@ -3781,6 +1787,7 @@ html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
 }
 
 /* Cards & Posters */
+
 .modern-ui-v3 .stremio-meta-card,
 .modern-ui-v3 .stremio-row-card,
 .modern-ui-v3 .stremio-detail-stream-card,
@@ -3821,6 +1828,7 @@ html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
 }
 
 /* Detail Views & Overlays */
+
 .modern-ui-v3 .stremio-detail,
 .modern-ui-v3 .nuvio-folder-detail-page-container {
   background: transparent !important;
@@ -3841,35 +1849,8 @@ html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
   -webkit-backdrop-filter: blur(10px) !important;
 }
 
-.modern-ui-v3 .nuvio-detail-panel {
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    -10px 0 30px rgba(0, 0, 0, 0.5),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-}
-
-.modern-ui-v3 .stremio-detail-right {
-  background: rgba(8, 6, 15, 0.82) !important;
-  backdrop-filter: blur(32px) saturate(120%) !important;
-  -webkit-backdrop-filter: blur(32px) saturate(120%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1),
-              0 8px 32px rgba(0, 0, 0, 0.4) !important;
-  border-radius: 12px !important;
-  margin: 8px 8px 8px 0 !important;
-  height: calc(100% - 16px) !important;
-  overflow: hidden !important;
-  isolation: isolate !important;
-  position: relative !important;
-  z-index: 10 !important;
-}
-
 /* Stremio & Nuvio Detail Views Elements (Liquid Glass Styles) */
+
 .modern-ui-v3 .stremio-detail-back-btn,
 .modern-ui-v3 .nuvio-folder-detail-back-btn,
 .modern-ui-v3 .nuvio-person-back-btn {
@@ -4096,6 +2077,7 @@ html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
 }
 
 /* Cast Photos Liquid Glass Border */
+
 .modern-ui-v3 .stremio-detail-cast-photo {
   border: none !important;
   position: relative !important;
@@ -4130,6 +2112,7 @@ html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
 }
 
 /* Addon filters & loadings */
+
 .modern-ui-v3 .stremio-addon-filter-btn {
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -4167,6 +2150,7 @@ html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
 }
 
 /* Divider before Recommendations */
+
 .modern-ui-v3 .stremio-detail-section.stremio-detail-recs-section {
   border-top: none !important;
   position: relative !important;
@@ -4190,6 +2174,7 @@ html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
 }
 
 /* Episode cards (Series detail view) */
+
 .modern-ui-v3 .stremio-detail-video-card {
   background: rgba(255, 255, 255, 0.02) !important;
   border: 1px solid rgba(255, 255, 255, 0.03) !important;
@@ -4256,6 +2241,7 @@ html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
 }
 
 /* Light Theme overrides for Stremio/Nuvio detail views */
+
 html.modern-ui-v3[data-theme="light"] .stremio-detail-back-btn,
 html.modern-ui-v3[data-theme="light"] .nuvio-folder-detail-back-btn,
 html.modern-ui-v3[data-theme="light"] .nuvio-person-back-btn,
@@ -4395,38 +2381,8 @@ html.modern-ui-v3[data-theme="light"] .stremio-ep-unwatched-badge svg {
 }
 
 /* Modals */
-.modern-ui-v3 .stremio-addon-overlay,
-.modern-ui-v3 .stremio-modal-backdrop,
-.modern-ui-v3 .stremio-picker-overlay,
-.modern-ui-v3 .nuvio-pin-modal-overlay,
-.modern-ui-v3 .spm-overlay {
-  background: rgba(8, 8, 12, 0.4) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-}
-
-.modern-ui-v3 .stremio-addon-modal,
-.modern-ui-v3 .stremio-account-modal,
-.modern-ui-v3 .stremio-picker-modal,
-.modern-ui-v3 .nuvio-pin-modal-card,
-.modern-ui-v3 .spm-modal {
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 20px 50px rgba(0, 0, 0, 0.6),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-}
 
 /* Source Picker Modal V3 Glassmorphism overrides */
-.modern-ui-v3 .spm-modal {
-  width: 720px !important;
-  max-width: 90vw !important;
-  border-radius: 20px !important;
-}
 
 .modern-ui-v3 .spm-header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
@@ -4522,14 +2478,6 @@ html.modern-ui-v3[data-theme="light"] .stremio-ep-unwatched-badge svg {
 }
 
 /* Light theme overrides for Source Picker Modal */
-html.modern-ui-v3[data-theme="light"] .spm-modal {
-  background: rgba(255, 255, 255, 0.45) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 8px 32px rgba(0, 0, 0, 0.08),
-    0 2px 8px rgba(0, 0, 0, 0.02) !important;
-}
 
 html.modern-ui-v3[data-theme="light"] .spm-close {
   background: rgba(0, 0, 0, 0.04) !important;
@@ -4592,30 +2540,6 @@ html.modern-ui-v3[data-theme="light"] .spm-item-active-tag {
 }
 
 /* Settings Modal Glassmorphism Overrides */
-.modern-ui-v3 .settings-overlay {
-  background: rgba(8, 8, 12, 0.4) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-}
-
-.modern-ui-v3 .settings-overlay.settings-overlay--no-blur {
-  background: rgba(0, 0, 0, 0.15) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-.modern-ui-v3 .settings-panel {
-  background: rgba(16, 12, 26, 0.82) !important;
-  backdrop-filter: blur(35px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(35px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 20px 50px rgba(0, 0, 0, 0.6),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-  border-radius: 24px !important;
-}
 
 .modern-ui-v3 .settings-sidebar {
   background: transparent !important;
@@ -4688,6 +2612,7 @@ html.modern-ui-v3[data-theme="light"] .spm-item-active-tag {
 }
 
 /* V3 Form Controls */
+
 .modern-ui-v3 .form-group input,
 .modern-ui-v3 .settings-content select,
 .modern-ui-v3 .type-selector button {
@@ -4723,6 +2648,7 @@ html.modern-ui-v3[data-theme="light"] .spm-item-active-tag {
 }
 
 /* Buttons in Settings modal */
+
 .modern-ui-v3 .save-btn,
 .modern-ui-v3 .settings-fullscreen-btn {
   background: var(--accent-primary, #00d4ff) !important;
@@ -4782,25 +2708,19 @@ html.modern-ui-v3[data-theme="light"] .spm-item-active-tag {
 }
 
 /* ==========================================================================
+
    V3 DYNAMIC THEME & LIQUID GLASS ADAPTATIONS
+
    Overrides solid theme backgrounds when the modern-ui-v3 layout is active.
+
    ========================================================================== */
 
-/* 1. Neutralize solid/opaque backgrounds and apply adaptive glassmorphism */
-html.modern-ui-v3[data-theme] .category-strip {
-  background: rgba(255, 255, 255, 0.06) !important;
-  background-attachment: scroll !important; /* reset from fixed */
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-}
+/* The per-surface liquid glass is applied by the component bases + theme rules
+   (all consuming the --glass-* tokens). Only the transparent-EPG special case
+   and the settings panel keep dedicated rules below. */
 
 /* Respect Category Sidebar Opacity setting in V3 Transparent EPG Mode */
+
 html.modern-ui-v3[data-theme]:has(.guide-transparent-mode) .category-strip {
   background: rgba(0, 0, 0, var(--transparent-guide-sidebar-opacity, 0)) !important;
   backdrop-filter: none !important;
@@ -4810,53 +2730,8 @@ html.modern-ui-v3[data-theme]:has(.guide-transparent-mode) .category-strip {
   box-shadow: none !important;
 }
 
-html.modern-ui-v3[data-theme] .guide-grid-section,
-html.modern-ui-v3[data-theme] .guide-info-pane,
-html.modern-ui-v3[data-theme] .vertical-sidebar,
-html.modern-ui-v3[data-theme] .vod-page__content,
-html.modern-ui-v3[data-theme] .dvr-dashboard,
-html.modern-ui-v3[data-theme] .stremio-page,
-html.modern-ui-v3[data-theme] .nuvio-page,
-html.modern-ui-v3[data-theme] .tvcp-page {
-  background: rgba(255, 255, 255, 0.06) !important;
-  background-attachment: scroll !important; /* reset from fixed */
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-}
-
-html.modern-ui-v3[data-theme] .sports-hub:not(.with-preview) {
-  background: var(--bg-primary, #0b131e) !important;
-  background-attachment: scroll !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-}
-
-html.modern-ui-v3[data-theme]:not([data-theme="light"]) .settings-panel {
-  background: rgba(16, 12, 26, 0.82) !important;
-  background-attachment: scroll !important;
-  backdrop-filter: blur(35px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(35px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 20px 50px rgba(0, 0, 0, 0.6),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-}
-
 /* Source Items & Buttons - Liquid Glass for v3 */
+
 html.modern-ui-v3[data-theme] .source-item {
   background: rgba(255, 255, 255, 0.05) !important;
   backdrop-filter: blur(16px) saturate(160%) !important;
@@ -4938,6 +2813,7 @@ html.modern-ui-v3[data-theme] .action-icon-btn.delete:hover {
 }
 
 /* ── Stat chips — v3 unified accent ── */
+
 html.modern-ui-v3[data-theme] .source-details {
   gap: 6px !important;
 }
@@ -4954,6 +2830,7 @@ html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip {
 }
 
 /* All count chips — identical neutral white, no accent tint */
+
 html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--count {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.13) !important;
@@ -4970,6 +2847,7 @@ html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip-divider {
 }
 
 /* Expiry — muted by default */
+
 html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--expiry {
   background: rgba(255, 255, 255, 0.04) !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
@@ -4977,6 +2855,7 @@ html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--expiry {
 }
 
 /* Expiry — red when within 30 days or expired */
+
 html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--expiry.stat-chip--expiry-warn {
   background: rgba(239, 68, 68, 0.12) !important;
   border-color: rgba(239, 68, 68, 0.28) !important;
@@ -4989,6 +2868,7 @@ html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--expiry.stat-
 }
 
 /* ── Source Type Badge — neutral muted glass pill ── */
+
 html.modern-ui-v3[data-theme] .source-type {
   display: inline-flex !important;
   align-items: center !important;
@@ -5010,6 +2890,7 @@ html.modern-ui-v3[data-theme] .source-type {
 }
 
 /* ── Source card enabled / disabled border accent ── */
+
 html.modern-ui-v3[data-theme] .source-item.source-enabled {
   border-left: 3px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 55%, transparent) !important;
 }
@@ -5020,6 +2901,7 @@ html.modern-ui-v3[data-theme] .source-item.source-disabled {
 }
 
 /* ── Action button hierarchy — v3 glass ── */
+
 html.modern-ui-v3[data-theme] .src-btn {
   backdrop-filter: blur(8px) saturate(130%) !important;
   -webkit-backdrop-filter: blur(8px) saturate(130%) !important;
@@ -5058,8 +2940,8 @@ html.modern-ui-v3[data-theme] .src-btn--secondary:hover:not(:disabled) {
   color: rgba(255, 255, 255, 0.9) !important;
 }
 
-
 /* Neutralize child backgrounds in Category Strip */
+
 html.modern-ui-v3[data-theme] .category-strip .category-source-group.is-expanded button.category-source-header {
   position: sticky !important;
   top: 0 !important;
@@ -5080,7 +2962,9 @@ html.modern-ui-v3[data-theme] .category-strip .category-source-content {
 }
 
 /* EPG Rows & Channels glass adjustments */
+
 /* Force ALL rows to identical background — no zebra striping in glass UI */
+
 html.modern-ui-v3[data-theme] .guide-channel-row,
 html.modern-ui-v3[data-theme] .guide-channel-row:nth-child(odd),
 html.modern-ui-v3[data-theme] .guide-channel-row:nth-child(even),
@@ -5126,6 +3010,7 @@ html.modern-ui-v3[data-theme] .guide-time-header-spacer {
 }
 
 /* EPG Text readability on glass */
+
 html.modern-ui-v3[data-theme] .program-block-title,
 html.modern-ui-v3[data-theme] .program-block-desc,
 html.modern-ui-v3[data-theme] .guide-channel-name,
@@ -5135,6 +3020,7 @@ html.modern-ui-v3[data-theme] .guide-channel-playlist-name {
 }
 
 /* Title Bar V3 Glassmorphism Override - frosted glass with a bottom border separator */
+
 html.modern-ui-v3[data-theme] .title-bar {
   background: transparent !important;
   backdrop-filter: none !important;
@@ -5144,6 +3030,7 @@ html.modern-ui-v3[data-theme] .title-bar {
 }
 
 /* Video Active: remove frosted glass when video is playing */
+
 html.modern-ui-v3[data-theme] .title-bar.video-active {
   background: transparent !important;
   backdrop-filter: none !important;
@@ -5153,6 +3040,7 @@ html.modern-ui-v3[data-theme] .title-bar.video-active {
 }
 
 /* Specific inner components reset */
+
 html.modern-ui-v3[data-theme] .guide-header {
   background: rgba(255, 255, 255, 0.015) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -5165,6 +3053,7 @@ html.modern-ui-v3[data-theme] .guide-header {
 }
 
 /* VOD Sticky Source Headers - glass theme-matching background */
+
 html.modern-ui-v3[data-theme] .vertical-sidebar__source-group.is-expanded .vertical-sidebar__source-header {
   background: rgba(15, 12, 25, 0.96) !important;
   backdrop-filter: blur(8px) !important;
@@ -5181,15 +3070,15 @@ html.modern-ui-v3[data-theme] .vertical-sidebar__source-group.is-expanded .verti
 }
 
 /* TV Calendar V3 Glassmorphism Layout */
+
 html.modern-ui-v3[data-theme] .tvcp-page {
-  top: 16px !important;
-  bottom: 16px !important;
-  left: 16px !important;
-  right: 16px !important;
-  width: calc(100% - 32px) !important;
-  height: calc(100% - 32px) !important;
-  border-radius: 24px !important;
-  box-sizing: border-box !important;
+  top: 16px !important; /* must beat .view-transition-container > .tvcp-page (top:0) */
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  width: calc(100% - 32px);
+  height: calc(100% - 32px);
+  box-sizing: border-box;
 }
 
 html.modern-ui-v3[data-theme] .tvcp-topbar {
@@ -5224,6 +3113,7 @@ html.modern-ui-v3[data-theme] .tvcp-main {
 /* 2. Theme-Coordinated Glass Blob Animations */
 
 /* Red/Crimson/Pink Themes (Crimson, Cherry, Ruby, Rose, Berry, Volcano, Dragonfruit, Hot Pink, Magenta) */
+
 html.modern-ui-v3[data-theme*="crimson"] .livetv-liquid-glass-bg,
 html.modern-ui-v3[data-theme*="pink"] .livetv-liquid-glass-bg,
 html.modern-ui-v3[data-theme*="rose"] .livetv-liquid-glass-bg,
@@ -5242,6 +3132,7 @@ html.modern-ui-v3[data-theme*="volcano"] .livetv-liquid-glass-bg {
     #0d020d 100%
   ) !important;
 }
+
 html.modern-ui-v3[data-theme*="crimson"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="pink"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="rose"] .livetv-liquid-glass-bg .blob-1,
@@ -5254,6 +3145,7 @@ html.modern-ui-v3[data-theme*="magenta"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="volcano"] .livetv-liquid-glass-bg .blob-1 {
   background: radial-gradient(circle, rgba(255, 0, 80, 0.55) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="crimson"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="pink"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="rose"] .livetv-liquid-glass-bg .blob-2,
@@ -5266,6 +3158,7 @@ html.modern-ui-v3[data-theme*="magenta"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="volcano"] .livetv-liquid-glass-bg .blob-2 {
   background: radial-gradient(circle, rgba(186, 8, 80, 0.45) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="crimson"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="pink"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="rose"] .livetv-liquid-glass-bg .blob-3,
@@ -5278,6 +3171,7 @@ html.modern-ui-v3[data-theme*="magenta"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="volcano"] .livetv-liquid-glass-bg .blob-3 {
   background: radial-gradient(circle, rgba(239, 68, 68, 0.35) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="crimson"] .livetv-liquid-glass-bg .blob-4,
 html.modern-ui-v3[data-theme*="pink"] .livetv-liquid-glass-bg .blob-4,
 html.modern-ui-v3[data-theme*="rose"] .livetv-liquid-glass-bg .blob-4,
@@ -5292,6 +3186,7 @@ html.modern-ui-v3[data-theme*="volcano"] .livetv-liquid-glass-bg .blob-4 {
 }
 
 /* Cyan/Blue/Indigo/Slate/Arctic Themes (Cyan, Blue, Indigo, Ocean, Sapphire, Deep Ocean, Arctic, Slate, Turquoise, Electric, Miami) */
+
 html.modern-ui-v3[data-theme*="cyan"] .livetv-liquid-glass-bg,
 html.modern-ui-v3[data-theme*="blue"] .livetv-liquid-glass-bg,
 html.modern-ui-v3[data-theme*="ocean"] .livetv-liquid-glass-bg,
@@ -5310,6 +3205,7 @@ html.modern-ui-v3[data-theme*="miami"] .livetv-liquid-glass-bg {
     #020a1a 100%
   ) !important;
 }
+
 html.modern-ui-v3[data-theme*="cyan"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="blue"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="ocean"] .livetv-liquid-glass-bg .blob-1,
@@ -5322,6 +3218,7 @@ html.modern-ui-v3[data-theme*="electric"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="miami"] .livetv-liquid-glass-bg .blob-1 {
   background: radial-gradient(circle, rgba(0, 191, 255, 0.55) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="cyan"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="blue"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="ocean"] .livetv-liquid-glass-bg .blob-2,
@@ -5334,6 +3231,7 @@ html.modern-ui-v3[data-theme*="electric"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="miami"] .livetv-liquid-glass-bg .blob-2 {
   background: radial-gradient(circle, rgba(0, 100, 255, 0.45) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="cyan"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="blue"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="ocean"] .livetv-liquid-glass-bg .blob-3,
@@ -5346,6 +3244,7 @@ html.modern-ui-v3[data-theme*="electric"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="miami"] .livetv-liquid-glass-bg .blob-3 {
   background: radial-gradient(circle, rgba(147, 51, 234, 0.35) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="cyan"] .livetv-liquid-glass-bg .blob-4,
 html.modern-ui-v3[data-theme*="blue"] .livetv-liquid-glass-bg .blob-4,
 html.modern-ui-v3[data-theme*="ocean"] .livetv-liquid-glass-bg .blob-4,
@@ -5360,6 +3259,7 @@ html.modern-ui-v3[data-theme*="miami"] .livetv-liquid-glass-bg .blob-4 {
 }
 
 /* Green/Forest/Mint/Lime/Zen Themes (Emerald, Lime, Forest, Mint, Zen Garden, Chartreuse) */
+
 html.modern-ui-v3[data-theme*="emerald"] .livetv-liquid-glass-bg,
 html.modern-ui-v3[data-theme*="forest"] .livetv-liquid-glass-bg,
 html.modern-ui-v3[data-theme*="mint"] .livetv-liquid-glass-bg,
@@ -5374,6 +3274,7 @@ html.modern-ui-v3[data-theme*="chartreuse"] .livetv-liquid-glass-bg {
     #02140a 100%
   ) !important;
 }
+
 html.modern-ui-v3[data-theme*="emerald"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="forest"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="mint"] .livetv-liquid-glass-bg .blob-1,
@@ -5382,6 +3283,7 @@ html.modern-ui-v3[data-theme*="zengarden"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="chartreuse"] .livetv-liquid-glass-bg .blob-1 {
   background: radial-gradient(circle, rgba(0, 230, 118, 0.55) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="emerald"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="forest"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="mint"] .livetv-liquid-glass-bg .blob-2,
@@ -5390,6 +3292,7 @@ html.modern-ui-v3[data-theme*="zengarden"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="chartreuse"] .livetv-liquid-glass-bg .blob-2 {
   background: radial-gradient(circle, rgba(34, 139, 34, 0.45) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="emerald"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="forest"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="mint"] .livetv-liquid-glass-bg .blob-3,
@@ -5398,6 +3301,7 @@ html.modern-ui-v3[data-theme*="zengarden"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="chartreuse"] .livetv-liquid-glass-bg .blob-3 {
   background: radial-gradient(circle, rgba(0, 191, 255, 0.35) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="emerald"] .livetv-liquid-glass-bg .blob-4,
 html.modern-ui-v3[data-theme*="forest"] .livetv-liquid-glass-bg .blob-4,
 html.modern-ui-v3[data-theme*="mint"] .livetv-liquid-glass-bg .blob-4,
@@ -5408,6 +3312,7 @@ html.modern-ui-v3[data-theme*="chartreuse"] .livetv-liquid-glass-bg .blob-4 {
 }
 
 /* Purple/Lavender/Cosmic/Galaxy/Amethyst/Nebula Themes (Purple, Midnight, Amethyst, Cosmic, Lavender, Galaxy, Nebula, Neon, Violet) */
+
 html.modern-ui-v3[data-theme*="purple"] .livetv-liquid-glass-bg,
 html.modern-ui-v3[data-theme*="midnight"] .livetv-liquid-glass-bg,
 html.modern-ui-v3[data-theme*="amethyst"] .livetv-liquid-glass-bg,
@@ -5425,6 +3330,7 @@ html.modern-ui-v3[data-theme*="violet"] .livetv-liquid-glass-bg {
     #01030a 100%
   ) !important;
 }
+
 html.modern-ui-v3[data-theme*="purple"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="midnight"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="amethyst"] .livetv-liquid-glass-bg .blob-1,
@@ -5436,6 +3342,7 @@ html.modern-ui-v3[data-theme*="neon"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="violet"] .livetv-liquid-glass-bg .blob-1 {
   background: radial-gradient(circle, rgba(147, 51, 234, 0.55) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="purple"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="midnight"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="amethyst"] .livetv-liquid-glass-bg .blob-2,
@@ -5447,6 +3354,7 @@ html.modern-ui-v3[data-theme*="neon"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="violet"] .livetv-liquid-glass-bg .blob-2 {
   background: radial-gradient(circle, rgba(76, 29, 149, 0.45) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="purple"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="midnight"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="amethyst"] .livetv-liquid-glass-bg .blob-3,
@@ -5458,6 +3366,7 @@ html.modern-ui-v3[data-theme*="neon"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="violet"] .livetv-liquid-glass-bg .blob-3 {
   background: radial-gradient(circle, rgba(236, 72, 153, 0.35) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="purple"] .livetv-liquid-glass-bg .blob-4,
 html.modern-ui-v3[data-theme*="midnight"] .livetv-liquid-glass-bg .blob-4,
 html.modern-ui-v3[data-theme*="amethyst"] .livetv-liquid-glass-bg .blob-4,
@@ -5471,6 +3380,7 @@ html.modern-ui-v3[data-theme*="violet"] .livetv-liquid-glass-bg .blob-4 {
 }
 
 /* Orange/Amber/Gold/Sunset/Horizon/Copper/Yellow/Autumn Themes (Orange, Amber, Gold, Sunset, Tropicana, Horizon, Copper, Yellow, Autumn) */
+
 html.modern-ui-v3[data-theme*="orange"] .livetv-liquid-glass-bg,
 html.modern-ui-v3[data-theme*="amber"] .livetv-liquid-glass-bg,
 html.modern-ui-v3[data-theme*="gold"] .livetv-liquid-glass-bg,
@@ -5488,6 +3398,7 @@ html.modern-ui-v3[data-theme*="autumn"] .livetv-liquid-glass-bg {
     #140a02 100%
   ) !important;
 }
+
 html.modern-ui-v3[data-theme*="orange"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="amber"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="gold"] .livetv-liquid-glass-bg .blob-1,
@@ -5499,6 +3410,7 @@ html.modern-ui-v3[data-theme*="yellow"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme*="autumn"] .livetv-liquid-glass-bg .blob-1 {
   background: radial-gradient(circle, rgba(249, 115, 22, 0.55) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="orange"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="amber"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="gold"] .livetv-liquid-glass-bg .blob-2,
@@ -5510,6 +3422,7 @@ html.modern-ui-v3[data-theme*="yellow"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme*="autumn"] .livetv-liquid-glass-bg .blob-2 {
   background: radial-gradient(circle, rgba(217, 119, 6, 0.45) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="orange"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="amber"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="gold"] .livetv-liquid-glass-bg .blob-3,
@@ -5521,6 +3434,7 @@ html.modern-ui-v3[data-theme*="yellow"] .livetv-liquid-glass-bg .blob-3,
 html.modern-ui-v3[data-theme*="autumn"] .livetv-liquid-glass-bg .blob-3 {
   background: radial-gradient(circle, rgba(239, 68, 68, 0.35) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme*="orange"] .livetv-liquid-glass-bg .blob-4,
 html.modern-ui-v3[data-theme*="amber"] .livetv-liquid-glass-bg .blob-4,
 html.modern-ui-v3[data-theme*="gold"] .livetv-liquid-glass-bg .blob-4,
@@ -5534,6 +3448,7 @@ html.modern-ui-v3[data-theme*="autumn"] .livetv-liquid-glass-bg .blob-4 {
 }
 
 /* 3. Light Theme Liquid Glass Adjustments */
+
 html.modern-ui-v3[data-theme="light"] .livetv-liquid-glass-bg {
   background: var(--bg-primary, #f5f5f5) !important;
 }
@@ -5550,37 +3465,6 @@ html.modern-ui-v3[data-theme="light"] .livetv-liquid-glass-bg::after {
 }
 
 /* Light Theme Panel and Titlebar Overrides for readability */
-html.modern-ui-v3[data-theme="light"] .category-strip,
-html.modern-ui-v3[data-theme="light"] .guide-grid-section,
-html.modern-ui-v3[data-theme="light"] .guide-info-pane,
-html.modern-ui-v3[data-theme="light"] .vertical-sidebar,
-html.modern-ui-v3[data-theme="light"] .vod-page__content,
-html.modern-ui-v3[data-theme="light"] .dvr-dashboard,
-html.modern-ui-v3[data-theme="light"] .sports-hub:not(.with-preview),
-html.modern-ui-v3[data-theme="light"] .stremio-page,
-html.modern-ui-v3[data-theme="light"] .nuvio-page,
-html.modern-ui-v3[data-theme="light"] .tvcp-page,
-html.modern-ui-v3[data-theme="light"] .settings-panel,
-html.modern-ui-v3[data-theme="light"] .stremio-addon-modal,
-html.modern-ui-v3[data-theme="light"] .stremio-account-modal,
-html.modern-ui-v3[data-theme="light"] .stremio-picker-modal,
-html.modern-ui-v3[data-theme="light"] .nuvio-pin-modal-card,
-html.modern-ui-v3[data-theme="light"] .nuvio-detail-panel,
-html.modern-ui-v3[data-theme="light"] .game-detail-modal,
-html.modern-ui-v3[data-theme="light"] .stremio-detail-right {
-  background: rgba(255, 255, 255, 0.45) !important;
-  backdrop-filter: blur(30px) saturate(190%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(190%) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 8px 32px rgba(0, 0, 0, 0.08),
-    0 2px 8px rgba(0, 0, 0, 0.02) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .sports-hub:not(.with-preview) {
-  background: #f1f5f9 !important;
-}
 
 html.modern-ui-v3[data-theme="light"] .title-bar {
   background: transparent !important;
@@ -5639,24 +3523,6 @@ html.modern-ui-v3[data-theme="light"] .settings-nav-item.active {
   background: color-mix(in srgb, var(--accent-primary, #8b5cf6) 15%, rgba(0, 0, 0, 0.05)) !important;
   color: var(--accent-primary, #8b5cf6) !important;
   border-color: color-mix(in srgb, var(--accent-primary, #8b5cf6) 30%, rgba(0, 0, 0, 0.08)) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-overlay {
-  background: rgba(0, 0, 0, 0.3) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-panel {
-  background: rgba(255, 255, 255, 0.94) !important;
-  backdrop-filter: blur(35px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(35px) saturate(180%) !important;
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    0 20px 50px rgba(0, 0, 0, 0.15),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #0066cc) 10%, transparent) !important;
-  color: #0f172a !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-header {
@@ -5918,6 +3784,7 @@ html.modern-ui-v3[data-theme="light"] .settings-tab-content::-webkit-scrollbar-t
 }
 
 /* Disable glow text-shadows in light theme EPG for clean readability */
+
 html.modern-ui-v3[data-theme="light"] .program-block-title,
 html.modern-ui-v3[data-theme="light"] .program-block-desc,
 html.modern-ui-v3[data-theme="light"] .guide-channel-name,
@@ -5926,8 +3793,8 @@ html.modern-ui-v3[data-theme="light"] .guide-channel-playlist-name {
   text-shadow: none !important;
 }
 
-
 /* DVR, Sports, Stremio, Nuvio topbar active/hover tabs in light theme */
+
 html.modern-ui-v3[data-theme="light"] .dvr-topbar-item.active,
 html.modern-ui-v3[data-theme="light"] .dvr-topbar-item:hover,
 html.modern-ui-v3[data-theme="light"] .sports-topbar-item.active,
@@ -5940,6 +3807,7 @@ html.modern-ui-v3[data-theme="light"] .nuvio-topbar-item:hover {
 }
 
 /* Sports World Cup page container in light theme - styled dark so all EPG/stats text is legible */
+
 html.modern-ui-v3[data-theme="light"] .wc-hub-container {
   background: rgba(16, 12, 26, 0.92) !important;
   border-radius: 16px !important;
@@ -5952,6 +3820,7 @@ html.modern-ui-v3[data-theme="light"] .wc-hub-container {
 }
 
 /* Nuvio login form page styling overrides for Light Theme */
+
 html.modern-ui-v3[data-theme="light"] .nuvio-login-input {
   background: rgba(255, 255, 255, 0.6) !important;
   border: 1px solid rgba(0, 0, 0, 0.12) !important;
@@ -5988,36 +3857,58 @@ html.modern-ui-v3[data-theme="light"] .nuvio-login-card {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
 }
 
-
 /* ==========================================================================
+
    4. True Dark Themes (Solid/Static Near-Black Backgrounds)
+
    Bypasses the V3 animated glass gradient background for solid dark themes.
+
    ========================================================================== */
+
 html.modern-ui-v3[data-theme="dark"] .livetv-liquid-glass-bg {
   background: #050508 !important;
 }
+
 html.modern-ui-v3[data-theme="dark-crimson"] .livetv-liquid-glass-bg { background: #0c0205 !important; }
+
 html.modern-ui-v3[data-theme="dark-cyan"] .livetv-liquid-glass-bg { background: #020a0d !important; }
+
 html.modern-ui-v3[data-theme="dark-purple"] .livetv-liquid-glass-bg { background: #06020c !important; }
+
 html.modern-ui-v3[data-theme="dark-emerald"] .livetv-liquid-glass-bg { background: #020c06 !important; }
+
 html.modern-ui-v3[data-theme="dark-orange"] .livetv-liquid-glass-bg { background: #0d0602 !important; }
+
 html.modern-ui-v3[data-theme="dark-pink"] .livetv-liquid-glass-bg { background: #0d0208 !important; }
+
 html.modern-ui-v3[data-theme="dark-blue"] .livetv-liquid-glass-bg { background: #02050e !important; }
+
 html.modern-ui-v3[data-theme="dark-gold"] .livetv-liquid-glass-bg { background: #0c0a02 !important; }
+
 html.modern-ui-v3[data-theme="dark-lime"] .livetv-liquid-glass-bg { background: #050c02 !important; }
+
 html.modern-ui-v3[data-theme="dark-indigo"] .livetv-liquid-glass-bg { background: #02030f !important; }
+
 html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg { background: linear-gradient(135deg, #161718 0%, #1a1c1e 40%, #141516 100%) !important; }
+
 html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg .glass-blob { display: block !important; opacity: 0.28 !important; }
+
 html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg .blob-1,
 html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg .blob-3 { background: radial-gradient(circle, rgba(180, 185, 200, 0.2) 0%, transparent 70%) !important; }
+
 html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg .blob-2,
 html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg .blob-4 { background: radial-gradient(circle, rgba(160, 165, 180, 0.15) 0%, transparent 70%) !important; }
+
 html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg::before { display: block !important; background: radial-gradient(circle, rgba(180, 185, 200, 0.08) 0%, transparent 70%) !important; }
+
 html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg::after { display: block !important; background: radial-gradient(circle, rgba(160, 165, 180, 0.06) 0%, transparent 70%) !important; }
+
 html.modern-ui-v3[data-theme="dark-warmgrey"] .livetv-liquid-glass-bg { background: #080808 !important; }
+
 html.modern-ui-v3[data-theme="dark-steel"] .livetv-liquid-glass-bg { background: #080808 !important; }
 
 /* Hide animated blobs and ambient glows for standard dark and dark-color themes */
+
 html.modern-ui-v3[data-theme="dark"] .livetv-liquid-glass-bg .glass-blob,
 html.modern-ui-v3[data-theme="dark"] .livetv-liquid-glass-bg::before,
 html.modern-ui-v3[data-theme="dark"] .livetv-liquid-glass-bg::after,
@@ -6027,12 +3918,14 @@ html.modern-ui-v3[data-theme*="dark-"] .livetv-liquid-glass-bg::after {
   display: none !important;
 }
 
-
 /* ==========================================================================
+
    LiveTV V3 Theme Text Readability Overrides (Excludes Light Theme)
+
    ========================================================================== */
 
 /* 1. Base Text Colors: Sidebar Category Names, Channel Names, and EPG Program Titles */
+
 html.modern-ui-v3:not([data-theme="light"]) .category-name,
 html.modern-ui-v3:not([data-theme="light"]) .source-name,
 html.modern-ui-v3:not([data-theme="light"]) .guide-channel-name,
@@ -6041,11 +3934,13 @@ html.modern-ui-v3:not([data-theme="light"]) .program-block-title {
 }
 
 /* Ensure currently playing channel name is not tinted with accent color */
+
 html.modern-ui-v3:not([data-theme="light"]) .guide-channel-row.currently-playing .guide-channel-name {
   color: rgba(255, 255, 255, 0.9) !important;
 }
 
 /* 2. Active/Selected Category Item Text (Keep/Use Accent Color) */
+
 html.modern-ui-v3:not([data-theme="light"]) .category-item.selected .category-name,
 html.modern-ui-v3:not([data-theme="light"]) .category-list-bar.selected .category-name,
 html.modern-ui-v3:not([data-theme="light"]) .category-item.active .category-name,
@@ -6054,6 +3949,7 @@ html.modern-ui-v3:not([data-theme="light"]) .category-list-bar.active .category-
 }
 
 /* 3. Hover States: Brighter Full White, No Accent Color */
+
 html.modern-ui-v3:not([data-theme="light"]) .category-item:hover:not(.selected) .category-name,
 html.modern-ui-v3:not([data-theme="light"]) .category-list-bar:hover:not(.selected) .category-name,
 html.modern-ui-v3:not([data-theme="light"]) button.category-source-header:hover .source-name,
@@ -6064,11 +3960,13 @@ html.modern-ui-v3:not([data-theme="light"]) .program-block:hover .program-block-
 }
 
 /* Ensure currently playing channel name is full white on hover (no accent) */
+
 html.modern-ui-v3:not([data-theme="light"]) .guide-channel-row.currently-playing:hover .guide-channel-name {
   color: rgba(255, 255, 255, 1) !important;
 }
 
 /* 5. Secondary/Subtitle Text: Dimmed White, Never a Tinted Accent Color */
+
 html.modern-ui-v3:not([data-theme="light"]) .category-count,
 html.modern-ui-v3:not([data-theme="light"]) .source-count,
 html.modern-ui-v3:not([data-theme="light"]) .program-block-desc,
@@ -6078,7 +3976,9 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* 6. Typography & Weight Hierarchy Overrides */
+
 /* Sidebar category names (parent sources) */
+
 .modern-ui-v3 .category-strip button.category-source-header,
 .modern-ui-v3 .category-strip button.category-source-header .source-name {
   font-weight: 600 !important;
@@ -6088,6 +3988,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* Sidebar child category names */
+
 .modern-ui-v3 .category-item .category-name,
 .modern-ui-v3 .category-list-bar .category-name {
   font-weight: 500 !important;
@@ -6095,25 +3996,16 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* Channel names in EPG left column */
+
 .modern-ui-v3 .guide-channel-name {
   font-weight: 600 !important;
   font-size: var(--channel-font-size, 0.78rem) !important;
 }
 
-/* EPG program titles */
-.modern-ui-v3 .program-block-title {
-  font-weight: 500 !important;
-  font-size: 0.82rem !important;
-}
-
-/* EPG program descriptions */
-.modern-ui-v3 .program-block-desc {
-  font-weight: 400 !important;
-  font-size: 0.75rem !important;
-  opacity: 0.55 !important;
-}
+/* EPG program titles/descriptions (folded into the prog title/desc tokens) */
 
 /* Time stamps and counts (tabular-nums to prevent live shifts) */
+
 .modern-ui-v3 .guide-time-header,
 .modern-ui-v3 .guide-program-meta,
 .modern-ui-v3 .category-count,
@@ -6128,16 +4020,20 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* Info pane show title (right panel) */
+
 .modern-ui-v3 .guide-info-pane .guide-program-title {
   font-weight: 700 !important;
   letter-spacing: -0.02em !important;
 }
 
 /* ==========================================================================
+
    Nuvio V3 Liquid Glass Theme Alignment
+
    ========================================================================== */
 
 /* 1. Hero Buttons */
+
 .modern-ui-v3 .stremio-hero-btn-watch {
   background: rgba(255, 255, 255, 0.15) !important;
   backdrop-filter: blur(12px) !important;
@@ -6196,6 +4092,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* 2. Genre Tags */
+
 .modern-ui-v3 .stremio-hero-genre-tag {
   background: rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
@@ -6208,6 +4105,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* 3. Filter Catalogs Bar */
+
 .modern-ui-v3 .nuvio-catalog-filter {
   background: rgba(255, 255, 255, 0.04) !important;
   backdrop-filter: blur(20px) !important;
@@ -6217,6 +4115,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* 4. Thumbnail Cards */
+
 .modern-ui-v3 .nuvio-card,
 .modern-ui-v3 .nuvio-cw-card,
 .modern-ui-v3 .nuvio-cw-wide-card,
@@ -6240,6 +4139,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* 6. Hero Banner Container */
+
 .modern-ui-v3 .stremio-hero-banner {
   border-radius: 12px !important;
   overflow: hidden !important;
@@ -6249,11 +4149,15 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* ==========================================================================
+
    V3 LIQUID GLASS - SETTINGS MODALS OVERRIDES
+
    Upgrades Manage Categories, Manage Channels, and Add/Edit Source modals.
+
    ========================================================================== */
 
 /* 1. Backdrop Overlays */
+
 .modern-ui-v3 .category-manager-overlay,
 .modern-ui-v3 .channel-manager-overlay,
 .modern-ui-v3 .source-form-overlay,
@@ -6267,6 +4171,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* 2. Modal Card Containers */
+
 .modern-ui-v3 .category-manager-modal,
 .modern-ui-v3 .channel-manager-modal,
 .modern-ui-v3 .source-form,
@@ -6288,6 +4193,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* 3. Headers */
+
 .modern-ui-v3 .category-manager-header,
 .modern-ui-v3 .channel-manager-header,
 .modern-ui-v3 .source-form h3,
@@ -6319,6 +4225,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* 4. Close Buttons & Stats */
+
 .modern-ui-v3 .category-manager-header .close-btn,
 .modern-ui-v3 .channel-manager-header .close-btn,
 .modern-ui-v3 .failover-group-list-header .close-btn,
@@ -6356,6 +4263,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* Inline stats buttons customize order/reset alphabetical overrides */
+
 .modern-ui-v3 .category-manager-stats button {
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -6371,6 +4279,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* 5. Inputs & Search Fields */
+
 .modern-ui-v3 .category-search input,
 .modern-ui-v3 .channel-search input,
 .modern-ui-v3 .source-form input,
@@ -6394,6 +4303,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* 6. List Scrollbar Styling */
+
 .modern-ui-v3 .category-list,
 .modern-ui-v3 .channel-list {
   background: transparent !important;
@@ -6413,6 +4323,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* 7. List Items (Categories & Channels) */
+
 .modern-ui-v3 .category-item,
 .modern-ui-v3 .channel-item {
   background: rgba(255, 255, 255, 0.02) !important;
@@ -6468,12 +4379,14 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 .modern-ui-v3 .drag-handle {
   color: rgba(255, 255, 255, 0.25) !important;
 }
+
 .modern-ui-v3 .category-item:hover .drag-handle,
 .modern-ui-v3 .channel-item:hover .drag-handle {
   color: rgba(255, 255, 255, 0.6) !important;
 }
 
 /* 8. Action Buttons & Toggles */
+
 .modern-ui-v3 .category-manager-actions,
 .modern-ui-v3 .channel-manager-actions {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -6554,6 +4467,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* 9. Filter Words Panel specific styles */
+
 .modern-ui-v3 .filter-words-panel {
   background: rgba(255, 255, 255, 0.02) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
@@ -6569,6 +4483,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* 10. Form Details / Catchup */
+
 .modern-ui-v3 .form-details {
   background: rgba(255, 255, 255, 0.02) !important;
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
@@ -6596,6 +4511,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 /* 11. Footers & Action buttons (Save/Cancel) */
+
 .modern-ui-v3 .category-manager-footer,
 .modern-ui-v3 .channel-manager-footer,
 .modern-ui-v3 .form-actions {
@@ -6648,333 +4564,8 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* ==========================================================================
-   V3 LIQUID GLASS - LIGHT THEME OVERRIDES
-   Applies adaptive styling for Light Theme settings modals.
-   ========================================================================== */
-
-html[data-theme="light"] .category-manager-overlay,
-html[data-theme="light"] .channel-manager-overlay,
-html[data-theme="light"] .source-form-overlay,
-html[data-theme="light"] .failover-group-list-overlay,
-html[data-theme="light"] .custom-group-manager-overlay,
-html[data-theme="light"] .playlist-list-overlay,
-html[data-theme="light"] .playlist-editor-backdrop {
-  background: rgba(15, 23, 42, 0.35) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-}
-
-html[data-theme="light"] .category-manager-modal,
-html[data-theme="light"] .channel-manager-modal,
-html[data-theme="light"] .source-form,
-html[data-theme="light"] .failover-group-list-modal,
-html[data-theme="light"] .custom-group-manager-modal,
-html[data-theme="light"] .playlist-list-modal,
-html[data-theme="light"] .playlist-editor-modal {
-  background: rgba(255, 255, 255, 0.96) !important;
-  backdrop-filter: blur(30px) saturate(190%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(190%) !important;
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 20px 50px rgba(0, 0, 0, 0.18),
-    0 4px 16px rgba(0, 0, 0, 0.08) !important;
-  color: #0f172a !important;
-}
-
-html[data-theme="light"] .category-manager-header,
-html[data-theme="light"] .channel-manager-header,
-html[data-theme="light"] .source-form h3,
-html[data-theme="light"] .failover-group-list-header,
-html[data-theme="light"] .custom-group-manager-header,
-html[data-theme="light"] .playlist-list-header,
-html[data-theme="light"] .playlist-editor-header {
-  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
-  color: #0f172a !important;
-}
-
-html[data-theme="light"] .category-manager-header h2,
-html[data-theme="light"] .channel-manager-header h2,
-html[data-theme="light"] .failover-group-list-header h2,
-html[data-theme="light"] .playlist-list-header h2,
-html[data-theme="light"] .playlist-editor-header h2,
-html[data-theme="light"] .custom-group-manager-header h2 {
-  color: #0f172a !important;
-}
-
-html[data-theme="light"] .source-form label,
-html[data-theme="light"] .source-form .form-group label {
-  color: #334155 !important;
-  font-weight: 600 !important;
-}
-
-html[data-theme="light"] .source-form .checkbox-label {
-  color: #0f172a !important;
-  font-weight: 600 !important;
-}
-
-html[data-theme="light"] .source-form input[type="checkbox"] {
-  accent-color: #2563eb !important;
-  width: 16px !important;
-  height: 16px !important;
-  cursor: pointer !important;
-}
-
-html[data-theme="light"] .category-manager-stats,
-html[data-theme="light"] .channel-manager-stats {
-  color: rgba(0, 0, 0, 0.6) !important;
-  border-bottom-color: rgba(0, 0, 0, 0.06) !important;
-  background: rgba(0, 0, 0, 0.01) !important;
-}
-
-html[data-theme="light"] .category-manager-header .close-btn,
-html[data-theme="light"] .channel-manager-header .close-btn,
-html[data-theme="light"] .failover-group-list-header .close-btn,
-html[data-theme="light"] .custom-group-manager-header .close-btn,
-html[data-theme="light"] .playlist-list-header .close-btn {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.6) !important;
-}
-html[data-theme="light"] .category-manager-header .close-btn:hover,
-html[data-theme="light"] .channel-manager-header .close-btn:hover,
-html[data-theme="light"] .failover-group-list-header .close-btn:hover,
-html[data-theme="light"] .custom-group-manager-header .close-btn:hover,
-html[data-theme="light"] .playlist-list-header .close-btn:hover {
-  background: rgba(0, 0, 0, 0.08) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
-}
-
-html[data-theme="light"] .category-search input,
-html[data-theme="light"] .channel-search input,
-html[data-theme="light"] .source-form input,
-html[data-theme="light"] .source-form textarea,
-html[data-theme="light"] .filter-words-input-row input {
-  background: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #0f172a !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important;
-}
-html[data-theme="light"] .category-search input:focus,
-html[data-theme="light"] .channel-search input:focus,
-html[data-theme="light"] .source-form input:focus,
-html[data-theme="light"] .source-form textarea:focus,
-html[data-theme="light"] .filter-words-input-row input:focus {
-  background: #ffffff !important;
-  border-color: #2563eb !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
-  outline: none !important;
-}
-
-html[data-theme="light"] .source-form input::placeholder,
-html[data-theme="light"] .source-form textarea::placeholder {
-  color: #94a3b8 !important;
-}
-
-html[data-theme="light"] .source-form input[readOnly] {
-  background: #f1f5f9 !important;
-  border-color: #cbd5e1 !important;
-  color: #334155 !important;
-}
-
-html[data-theme="light"] .category-item,
-html[data-theme="light"] .channel-item {
-  background: rgba(0, 0, 0, 0.01) !important;
-  border-color: rgba(0, 0, 0, 0.04) !important;
-}
-html[data-theme="light"] .category-item:hover,
-html[data-theme="light"] .channel-item:hover {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
-}
-html[data-theme="light"] .category-item.selected-for-move {
-  background: color-mix(in srgb, var(--accent-primary, #8b5cf6) 8%, rgba(0, 0, 0, 0.02)) !important;
-  border-color: var(--accent-primary, #8b5cf6) !important;
-}
-
-html[data-theme="light"] .category-name,
-html[data-theme="light"] .channel-name {
-  color: rgba(0, 0, 0, 0.85) !important;
-}
-
-html[data-theme="light"] .drag-handle {
-  color: rgba(0, 0, 0, 0.25) !important;
-}
-html[data-theme="light"] .category-item:hover .drag-handle,
-html[data-theme="light"] .channel-item:hover .drag-handle {
-  color: rgba(0, 0, 0, 0.5) !important;
-}
-
-html[data-theme="light"] .category-manager-actions,
-html[data-theme="light"] .channel-manager-actions {
-  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
-}
-
-html[data-theme="light"] .type-selector button {
-  background: #f1f5f9 !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #334155 !important;
-  font-weight: 500 !important;
-}
-
-html[data-theme="light"] .type-selector button:hover {
-  background: #e2e8f0 !important;
-  color: #0f172a !important;
-}
-
-html[data-theme="light"] .type-selector button.active {
-  background: #2563eb !important;
-  border-color: #2563eb !important;
-  color: #ffffff !important;
-  font-weight: 600 !important;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
-}
-
-html[data-theme="light"] .source-form .import-btn,
-html[data-theme="light"] .source-form .change-file-btn,
-html[data-theme="light"] .source-form .add-backup-btn,
-html[data-theme="light"] .source-form .confirm-btn,
-html[data-theme="light"] .source-form .swap-btn,
-html[data-theme="light"] .category-manager-actions button,
-html[data-theme="light"] .channel-manager-actions button,
-html[data-theme="light"] .order-btn,
-html[data-theme="light"] .filter-add-btn,
-html[data-theme="light"] .category-manager-stats button {
-  background: #f8fafc !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #334155 !important;
-  font-weight: 500 !important;
-}
-
-html[data-theme="light"] .source-form .import-btn {
-  border-style: dashed !important;
-}
-
-html[data-theme="light"] .source-form .import-btn:hover,
-html[data-theme="light"] .source-form .change-file-btn:hover,
-html[data-theme="light"] .source-form .add-backup-btn:hover,
-html[data-theme="light"] .source-form .confirm-btn:hover,
-html[data-theme="light"] .source-form .swap-btn:hover,
-html[data-theme="light"] .category-manager-actions button:hover,
-html[data-theme="light"] .channel-manager-actions button:hover,
-html[data-theme="light"] .order-btn:hover:not(:disabled),
-html[data-theme="light"] .filter-add-btn:hover,
-html[data-theme="light"] .category-manager-stats button:hover {
-  background: #f1f5f9 !important;
-  border-color: #94a3b8 !important;
-  color: #0f172a !important;
-}
-
-html[data-theme="light"] .category-manager-actions button.active-toggle,
-html[data-theme="light"] .channel-manager-actions button.active-toggle {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, rgba(0, 0, 0, 0.04)) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(0, 0, 0, 0.1)) !important;
-}
-
-html[data-theme="light"] .filter-words-panel {
-  background: rgba(0, 0, 0, 0.01) !important;
-  border-top-color: rgba(0, 0, 0, 0.06) !important;
-  border-bottom-color: rgba(0, 0, 0, 0.06) !important;
-}
-
-html[data-theme="light"] .filter-word-tag {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.8) !important;
-}
-
-html[data-theme="light"] .source-form .hint,
-html[data-theme="light"] .source-form .form-hint,
-html[data-theme="light"] .source-form .section-description {
-  color: #64748b !important;
-}
-
-html[data-theme="light"] .source-form .or-divider::before,
-html[data-theme="light"] .source-form .or-divider::after {
-  background: #cbd5e1 !important;
-}
-
-html[data-theme="light"] .source-form .or-divider span {
-  color: #64748b !important;
-  font-weight: 500 !important;
-}
-
-html[data-theme="light"] .source-form .form-details {
-  background: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 8px !important;
-}
-html[data-theme="light"] .source-form .form-details-summary {
-  background: #f1f5f9 !important;
-  color: #1e293b !important;
-  font-weight: 600 !important;
-}
-html[data-theme="light"] .source-form .form-details-summary:hover {
-  background: #e2e8f0 !important;
-}
-html[data-theme="light"] .source-form .form-details-content {
-  border-top-color: #e2e8f0 !important;
-}
-
-html[data-theme="light"] .source-form .backup-item {
-  background: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
-}
-
-html[data-theme="light"] .source-form .backup-val {
-  color: #1e293b !important;
-}
-
-html[data-theme="light"] .source-form .epg-url-display {
-  background: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #0f172a !important;
-}
-
-html[data-theme="light"] .source-form .password-toggle-btn {
-  color: #64748b !important;
-}
-
-html[data-theme="light"] .source-form .password-toggle-btn:hover {
-  color: #0f172a !important;
-}
-
-html[data-theme="light"] .category-manager-footer,
-html[data-theme="light"] .channel-manager-footer,
-html[data-theme="light"] .source-form .form-actions {
-  border-top-color: rgba(0, 0, 0, 0.08) !important;
-}
-
-html[data-theme="light"] .source-form .cancel-btn {
-  background: #f1f5f9 !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #475569 !important;
-  font-weight: 600 !important;
-}
-html[data-theme="light"] .source-form .cancel-btn:hover {
-  background: #e2e8f0 !important;
-  color: #0f172a !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
-}
-
-html[data-theme="light"] .source-form .save-btn {
-  background: #2563eb !important;
-  border: 1px solid #2563eb !important;
-  color: #ffffff !important;
-  font-weight: 600 !important;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
-}
-
-html[data-theme="light"] .source-form .save-btn:hover:not(:disabled) {
-  background: #1d4ed8 !important;
-  border-color: #1d4ed8 !important;
-}
-
 /* Failover Groups and Playlist Editor Inner Layout overrides */
+
 .modern-ui-v3 .group-channels-pane,
 .modern-ui-v3 .playlist-editor-left {
   background: rgba(0, 0, 0, 0.15) !important;
@@ -6993,6 +4584,7 @@ html[data-theme="light"] .source-form .save-btn:hover:not(:disabled) {
 }
 
 /* Playlist Editor specific buttons */
+
 .modern-ui-v3 .ple-close-btn {
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -7024,6 +4616,7 @@ html[data-theme="light"] .source-form .save-btn:hover:not(:disabled) {
 }
 
 /* Custom & Failover Group Manager list items inside pane */
+
 .modern-ui-v3 .group-channel-item {
   background: rgba(255, 255, 255, 0.02) !important;
   border: 1px solid rgba(255, 255, 255, 0.04) !important;
@@ -7037,6 +4630,7 @@ html[data-theme="light"] .source-form .save-btn:hover:not(:disabled) {
 }
 
 /* Footer alignment */
+
 .modern-ui-v3 .failover-group-list-footer,
 .modern-ui-v3 .custom-group-manager-footer,
 .modern-ui-v3 .playlist-list-footer {
@@ -7045,6 +4639,7 @@ html[data-theme="light"] .source-form .save-btn:hover:not(:disabled) {
 }
 
 /* ────────── Light Theme overrides ────────── */
+
 html.modern-ui-v3[data-theme="light"] .group-channels-pane,
 html.modern-ui-v3[data-theme="light"] .playlist-editor-left {
   background: rgba(0, 0, 0, 0.02) !important;
@@ -7099,6 +4694,7 @@ html.modern-ui-v3[data-theme="light"] .group-channel-item:hover {
 }
 
 /* Input Fields inside Failover/Playlist/Group managers */
+
 .modern-ui-v3 .pll-create-input,
 .modern-ui-v3 .pll-edit-input,
 .modern-ui-v3 .fgl-create-input,
@@ -7168,6 +4764,7 @@ html.modern-ui-v3[data-theme="light"] .search-bar input:focus {
 }
 
 /* Glowing Scrollbar Overrides for Failover Groups and Managers */
+
 .modern-ui-v3 .failover-group-list-content,
 .modern-ui-v3 .channel-list-container,
 .modern-ui-v3 .selector-content {
@@ -7216,6 +4813,7 @@ html.modern-ui-v3[data-theme="light"] .search-bar input:focus {
 }
 
 /* Light Theme Scrollbar Glow Overrides */
+
 html.modern-ui-v3[data-theme="light"] .failover-group-list-content,
 html.modern-ui-v3[data-theme="light"] .channel-list-container,
 html.modern-ui-v3[data-theme="light"] .selector-content {
@@ -7246,38 +4844,16 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
   background: var(--accent-primary, #00d4ff) !important;
 }
 
-
-
 /* ==========================================================================
+
    V3 LIQUID GLASS - AUDIO & SUBTITLE SELECTOR MODALS OVERRIDES
+
    ========================================================================== */
 
 /* 1. Backdrop Overlays */
-.modern-ui-v3 .track-modal-overlay,
-.modern-ui-v3 .subtitle-modal-overlay {
-  background: rgba(8, 8, 12, 0.4) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-}
-
-/* 2. Modal Card Containers */
-.modern-ui-v3 .track-modal,
-.modern-ui-v3 .subtitle-modal {
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 20px 50px rgba(0, 0, 0, 0.6),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-  border-radius: 20px !important;
-  color: #fff !important;
-  overflow: hidden !important;
-}
 
 /* 3. Headers & Footers */
+
 .modern-ui-v3 .track-modal-header,
 .modern-ui-v3 .subtitle-modal-header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -7300,6 +4876,7 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 }
 
 /* 4. Close Buttons */
+
 .modern-ui-v3 .track-modal-close,
 .modern-ui-v3 .subtitle-modal-close {
   border-radius: 50% !important;
@@ -7323,6 +4900,7 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 }
 
 /* 5. SubSource Search Input Controls */
+
 .modern-ui-v3 .subtitle-header-search-input {
   border-radius: 10px !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -7357,15 +4935,18 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 }
 
 /* 6. List Separator Borders & Titles */
+
 .modern-ui-v3 .subtitle-col {
   border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
+
 .modern-ui-v3 .subtitle-col-title {
   color: rgba(255, 255, 255, 0.45) !important;
   font-size: 0.7rem !important;
   font-weight: 700 !important;
   letter-spacing: 0.06em !important;
 }
+
 .modern-ui-v3 .track-section-title {
   color: rgba(255, 255, 255, 0.45) !important;
   font-size: 0.72rem !important;
@@ -7373,6 +4954,7 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 }
 
 /* 7. Modal Items & List Buttons */
+
 .modern-ui-v3 .track-item,
 .modern-ui-v3 .subtitle-lang-btn,
 .modern-ui-v3 .subtitle-track-btn,
@@ -7431,6 +5013,7 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 }
 
 /* 8. Subtitle Settings Controls (Delay, Size, Offset) */
+
 .modern-ui-v3 .subtitle-control-nudge {
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -7457,6 +5040,7 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 }
 
 /* 9. Action Buttons */
+
 .modern-ui-v3 .track-modal-btn {
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -7505,6 +5089,7 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 }
 
 /* 10. Scrollbar customization */
+
 .modern-ui-v3 .track-modal-content::-webkit-scrollbar-thumb,
 .modern-ui-v3 .subtitle-col::-webkit-scrollbar-thumb,
 .modern-ui-v3 .subtitle-search-results::-webkit-scrollbar-thumb {
@@ -7519,19 +5104,10 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 }
 
 /* ==========================================================================
-   V3 LIQUID GLASS - LIGHT THEME OVERRIDES FOR AUDIO/SUBTITLE SELECTORS
-   ========================================================================== */
 
-html.modern-ui-v3[data-theme="light"] .track-modal,
-html.modern-ui-v3[data-theme="light"] .subtitle-modal {
-  background: rgba(255, 255, 255, 0.45) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 8px 32px rgba(0, 0, 0, 0.08),
-    0 2px 8px rgba(0, 0, 0, 0.02) !important;
-  color: #000 !important;
-}
+   V3 LIQUID GLASS - LIGHT THEME OVERRIDES FOR AUDIO/SUBTITLE SELECTORS
+
+   ========================================================================== */
 
 html.modern-ui-v3[data-theme="light"] .track-modal-header,
 html.modern-ui-v3[data-theme="light"] .subtitle-modal-header {
@@ -7671,33 +5247,21 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 }
 
 /* ==========================================================================
+
    V3 LIQUID GLASS - ADVANCED SEARCH MODAL OVERRIDES
+
    ========================================================================== */
 
 /* 1. Backdrop Overlays */
+
 .modern-ui-v3 .advanced-search-overlay {
   background: rgba(8, 8, 12, 0.4) !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
 }
 
-/* 2. Modal Card Containers */
-.modern-ui-v3 .advanced-search-modal {
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 20px 50px rgba(0, 0, 0, 0.6),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, transparent) !important;
-  border-radius: 20px !important;
-  color: #fff !important;
-  overflow: hidden !important;
-}
-
 /* 3. Headers & Footers */
+
 .modern-ui-v3 .advanced-search-header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
   background: transparent !important;
@@ -7722,6 +5286,7 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 }
 
 /* 4. Close Buttons */
+
 .modern-ui-v3 .advanced-search-close-btn {
   border-radius: 50% !important;
   width: 32px !important;
@@ -7742,6 +5307,7 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 }
 
 /* 5. Labels & Links */
+
 .modern-ui-v3 .advanced-search-label {
   color: rgba(255, 255, 255, 0.45) !important;
   font-size: 0.7rem !important;
@@ -7763,6 +5329,7 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 }
 
 /* 6. Search Input Controls */
+
 .modern-ui-v3 .advanced-search-input-wrap {
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -7800,6 +5367,7 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 }
 
 /* 7. Scope Buttons */
+
 .modern-ui-v3 .scope-btn {
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -7822,6 +5390,7 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 }
 
 /* 8. Filters & Checkboxes */
+
 .modern-ui-v3 .advanced-search-filters {
   background: rgba(0, 0, 0, 0.15) !important;
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
@@ -7868,6 +5437,7 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 }
 
 /* 9. Loading & Empty States */
+
 .modern-ui-v3 .advanced-search-loading {
   color: rgba(255, 255, 255, 0.5) !important;
 }
@@ -7882,6 +5452,7 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 }
 
 /* 10. Toggles & Switches */
+
 .modern-ui-v3 .advanced-search-modal .toggle-switch {
   background: rgba(255, 255, 255, 0.15) !important;
 }
@@ -7895,6 +5466,7 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 }
 
 /* 11. Footer buttons */
+
 .modern-ui-v3 .advanced-search-btn.primary {
   background: var(--accent-primary, #00d4ff) !important;
   color: #121424 !important;
@@ -7922,6 +5494,7 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 }
 
 /* 12. Scrollbar customization */
+
 .modern-ui-v3 .advanced-search-filters::-webkit-scrollbar-thumb,
 .modern-ui-v3 .advanced-search-body::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.08) !important;
@@ -7933,7 +5506,9 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 }
 
 /* ==========================================================================
+
    V3 LIQUID GLASS - ADVANCED SEARCH LIGHT THEME OVERRIDES
+
    ========================================================================== */
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-modal {
@@ -8092,12 +5667,14 @@ html.modern-ui-v3[data-theme="light"] .advanced-search-btn.secondary:hover {
   color: #000 !important;
 }
 
-
 /* ============================================
+
    V3 LIQUID GLASS — NOW PLAYING BAR
+
    ============================================ */
 
 /* Floating glass panel — lifts off the bottom edge */
+
 html.modern-ui-v3 .now-playing-bar {
   bottom: 12px !important;
   left: 16px !important;
@@ -8117,6 +5694,7 @@ html.modern-ui-v3 .now-playing-bar {
 }
 
 /* Smooth slide-in from below for v3 */
+
 html.modern-ui-v3 .now-playing-bar.hidden {
   transform: translateY(calc(100% + 12px)) !important;
 }
@@ -8126,12 +5704,14 @@ html.modern-ui-v3 .now-playing-bar.visible {
 }
 
 /* Overlay slot adjusts for floating bar */
+
 html.modern-ui-v3 .now-playing-bar .npb-overlay-slot {
   margin-bottom: 8px !important;
   padding-right: 0 !important;
 }
 
 /* ── Info row divider — subtle gradient ── */
+
 html.modern-ui-v3 .now-playing-bar .npb-divider {
   background: linear-gradient(to bottom,
     transparent 0%,
@@ -8142,6 +5722,7 @@ html.modern-ui-v3 .now-playing-bar .npb-divider {
 }
 
 /* ── Channel logo — glass pill ── */
+
 html.modern-ui-v3 .now-playing-bar .npb-channel-logo {
   border-radius: 8px !important;
   background: rgba(255, 255, 255, 0.08) !important;
@@ -8150,6 +5731,7 @@ html.modern-ui-v3 .now-playing-bar .npb-channel-logo {
 }
 
 /* ── Text hierarchy ── */
+
 html.modern-ui-v3 .now-playing-bar .npb-channel-name {
   color: rgba(255, 255, 255, 0.98) !important;
   letter-spacing: 0.01em !important;
@@ -8169,6 +5751,7 @@ html.modern-ui-v3 .now-playing-bar .npb-time-remaining {
 }
 
 /* ── Progress bars — accent glow ── */
+
 html.modern-ui-v3 .now-playing-bar .npb-progress-bar {
   background: rgba(255, 255, 255, 0.08) !important;
   border-radius: 6px !important;
@@ -8186,6 +5769,7 @@ html.modern-ui-v3 .now-playing-bar .npb-progress-fill {
 }
 
 /* Interactive progress bar hover expand */
+
 html.modern-ui-v3 .now-playing-bar .npb-progress-interactive {
   height: 4px !important;
   border-radius: 6px !important;
@@ -8196,6 +5780,7 @@ html.modern-ui-v3 .now-playing-bar .npb-progress-interactive.active {
 }
 
 /* Scrubber handle — glass white bubble */
+
 html.modern-ui-v3 .now-playing-bar .npb-scrubber-handle {
   background: #ffffff !important;
   box-shadow:
@@ -8204,6 +5789,7 @@ html.modern-ui-v3 .now-playing-bar .npb-scrubber-handle {
 }
 
 /* Time tooltip — glass pill */
+
 html.modern-ui-v3 .now-playing-bar .npb-time-tooltip {
   background: rgba(15, 12, 25, 0.88) !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
@@ -8221,6 +5807,7 @@ html.modern-ui-v3 .now-playing-bar .npb-time-tooltip::after {
 }
 
 /* ── TimeShift scrubber ── */
+
 html.modern-ui-v3 .now-playing-bar .npb-ts-scrubber {
   background: rgba(255, 255, 255, 0.08) !important;
   border-radius: 6px !important;
@@ -8267,6 +5854,7 @@ html.modern-ui-v3 .now-playing-bar .npb-timeshift-window {
 }
 
 /* ── Control buttons — glass pill style ── */
+
 html.modern-ui-v3 .now-playing-bar .npb-btn {
   background: rgba(255, 255, 255, 0.06) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -8300,6 +5888,7 @@ html.modern-ui-v3 .now-playing-bar .npb-btn:disabled {
 }
 
 /* ── Volume slider ── */
+
 html.modern-ui-v3 .now-playing-bar .npb-volume-slider {
   background: rgba(255, 255, 255, 0.1) !important;
   border-radius: 4px !important;
@@ -8317,12 +5906,14 @@ html.modern-ui-v3 .now-playing-bar .npb-volume-value {
 }
 
 /* ── Divider between extra controls ── */
+
 html.modern-ui-v3 .now-playing-bar .npb-extra-controls,
 html.modern-ui-v3 .now-playing-bar .npb-aspect-controls {
   border-left-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 /* ── Aspect ratio popup — glass card ── */
+
 html.modern-ui-v3 .now-playing-bar .npb-aspect-menu {
   background: rgba(12, 10, 22, 0.82) !important;
   backdrop-filter: blur(20px) saturate(180%) !important;
@@ -8352,6 +5943,7 @@ html.modern-ui-v3 .now-playing-bar .npb-aspect-item.active {
 }
 
 /* ── Mode toggle buttons ── */
+
 html.modern-ui-v3 .now-playing-bar .npb-scrub-mode-btn {
   border-radius: 20px !important;
   background: color-mix(in srgb, var(--accent-primary, #00d4ff) 8%, transparent) !important;
@@ -8380,6 +5972,7 @@ html.modern-ui-v3 .now-playing-bar .npb-scrub-mode-btn--back:hover {
 }
 
 /* ── Go Live / Catch Up button ── */
+
 html.modern-ui-v3 .now-playing-bar .npb-live-btn {
   border-radius: 20px !important;
   background: rgba(255, 64, 96, 0.1) !important;
@@ -8392,12 +5985,17 @@ html.modern-ui-v3 .now-playing-bar .npb-live-btn {
 }
 
 /* ============================================
+
    V3 LIQUID GLASS — TITLE BAR SCRIM
+
    Gradient vignette so the nav is always
+
    readable over bright video content.
+
    ============================================ */
 
 /* Much darker backing — readable on any video */
+
 html.modern-ui-v3 .title-bar {
   background: transparent !important;
   backdrop-filter: none !important;
@@ -8406,9 +6004,8 @@ html.modern-ui-v3 .title-bar {
   box-shadow: none !important;
 }
 
-
-
 /* Nav text & icons — strong drop-shadow on every element */
+
 html.modern-ui-v3:not([data-theme="light"]) .title-bar .segmented-btn,
 html.modern-ui-v3:not([data-theme="light"]) .title-bar .title-bar-logo,
 html.modern-ui-v3:not([data-theme="light"]) .title-bar .title-bar-settings-btn,
@@ -8417,16 +6014,11 @@ html.modern-ui-v3:not([data-theme="light"]) .title-bar .title-bar-recording-indi
   filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.95)) !important;
 }
 
-/* Unified nav pill — dark glass for high contrast */
-html.modern-ui-v3:not([data-theme="light"]) .title-bar-unified {
-  background: rgba(0, 0, 0, 0.45) !important;
-  border-color: rgba(255, 255, 255, 0.16) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 2px 12px rgba(0, 0, 0, 0.6) !important;
-}
+/* Unified nav pill — driven by the --titlebar-unified-* tokens (v3 dark values
+   defined in the token block; v3 light falls back to the light base). */
 
 /* Active nav segment */
+
 html.modern-ui-v3:not([data-theme="light"]) .title-bar .segmented-btn.active {
   background: rgba(255, 255, 255, 0.16) !important;
   box-shadow:
@@ -8435,6 +6027,7 @@ html.modern-ui-v3:not([data-theme="light"]) .title-bar .segmented-btn.active {
 }
 
 /* All nav text fully white in v3 */
+
 html.modern-ui-v3:not([data-theme="light"]) .title-bar .segmented-btn {
   color: rgba(255, 255, 255, 0.9) !important;
 }
@@ -8444,9 +6037,11 @@ html.modern-ui-v3:not([data-theme="light"]) .title-bar .segmented-btn:hover {
 }
 
 /* Custom Theme - V3 Liquid Glass Background & Bulb Adaptations */
+
 html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg {
   background: var(--bg-primary) !important;
 }
+
 html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg .glass-blob,
 html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg::before,
 html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg::after {
@@ -8454,38 +6049,21 @@ html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg::after {
   visibility: var(--glass-blob-visibility, visible) !important;
   will-change: var(--glass-blob-will-change, transform) !important;
 }
+
 html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg .blob-1 {
   background: radial-gradient(circle, var(--custom-blob-1, rgba(0, 191, 255, 0.55)) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg .blob-2 {
   background: radial-gradient(circle, var(--custom-blob-2, rgba(255, 20, 147, 0.45)) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg .blob-3 {
   background: radial-gradient(circle, var(--custom-blob-3, rgba(255, 215, 0, 0.35)) 0%, transparent 70%) !important;
 }
+
 html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg .blob-4 {
   background: radial-gradient(circle, var(--custom-blob-4, rgba(118, 255, 3, 0.3)) 0%, transparent 70%) !important;
-}
-
-/* V3 Liquid Glass Background — static render (low GPU).
-   The bulbs keep their exact visual (colored glows, blur) but are drawn once
-   and cached by the compositor instead of being re-blurred every frame by the
-   continuous float animations. This removes the idle 10-15% GPU cost. */
-.livetv-liquid-glass-bg .glass-blob,
-.livetv-liquid-glass-bg::before,
-.livetv-liquid-glass-bg::after {
-  animation: none !important;
-  will-change: auto !important; /* De-promote layering; no per-frame re-blur */
-}
-
-/* ==========================================================================
-   THEME OPTIMIZATION OVERRIDES
-   ========================================================================== */
-
-/* 1. Disable Glass Backdrop Blur */
-html.disable-theme-backdrop-blur * {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
 }
 
 html.modern-ui-v3 .now-playing-bar .npb-btn:active:not(:disabled) {
@@ -8499,65 +6077,3 @@ html.modern-ui-v3 .now-playing-bar .npb-btn:disabled {
   opacity: 0.25 !important;
 }
 
-/* ==========================================================================
-   THEME OPTIMIZATION OVERRIDES
-   ========================================================================== */
-
-/* 1. Disable Glass Backdrop Blur */
-html.disable-theme-backdrop-blur * {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* 3. Disable EPG Card Shadows & Transitions */
-html.disable-epg-transitions .program-block {
-  transition: none !important;
-  box-shadow: none !important;
-}
-html.disable-epg-transitions .program-block:hover {
-  transition: none !important;
-  box-shadow: none !important;
-  transform: none !important;
-}
-/* Also suppress channel info column and row background transitions */
-html.disable-epg-transitions .guide-channel-info {
-  transition: none !important;
-}
-html.disable-epg-transitions .guide-channel-row {
-  transition: none !important;
-}
-/* Stop the marquee scroll animation on hover when transitions are disabled */
-html.disable-epg-transitions .guide-channel-info:hover .guide-channel-name {
-  animation: none !important;
-  overflow: hidden !important;
-  display: block !important;
-}
-
-/* 4. Reduce EPG Scroll Rendering Work
-   Adds CSS contain to isolate repaints per row and per program grid.
-   content-visibility: auto lets the browser skip off-screen program block painting.
-   No visual change — purely rendering hints. */
-html.epg-reduce-gpu-layers .guide-channels {
-  will-change: auto !important;
-}
-html.epg-reduce-gpu-layers .guide-channel-row {
-  will-change: auto !important;
-  contain: layout style !important;
-}
-html.epg-reduce-gpu-layers .guide-program-grid {
-  contain: layout style !important;
-  content-visibility: auto;
-  contain-intrinsic-size: 0 56px;
-}
-
-/* 5. Disable EPG Channel Name Gradient Fade
-   Removes the mask-image gradient on channel name containers (each creates a GPU compositing layer)
-   and switches programmatic scrolls to instant instead of smooth.
-   Visual trade-off: long channel names show ellipsis (…) instead of soft gradient fade. */
-html.epg-disable-channel-fade .guide-channel-name-container {
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
-}
-html.epg-disable-channel-fade .guide-channels {
-  scroll-behavior: auto !important;
-}

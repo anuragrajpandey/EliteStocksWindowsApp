@@ -1,13 +1,15 @@
 .hero {
   position: relative;
   height: 480px;
-  background-color: #0c0c10;
-  border-radius: 16px;
+  background-color: var(--glass-feature-bg, #0c0c10);
+  backdrop-filter: var(--glass-feature-filter, none);
+  -webkit-backdrop-filter: var(--glass-feature-filter, none);
+  border-radius: var(--glass-feature-radius, 16px);
   overflow: hidden;
   margin-bottom: 32px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--glass-feature-shadow, 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 0, 0, 0.2));
   z-index: 10;
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  border: var(--glass-feature-border, 1px solid rgba(255, 255, 255, 0.03));
 }
 
 .hero--empty {

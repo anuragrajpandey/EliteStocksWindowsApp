@@ -1122,12 +1122,12 @@
 
 /* Settings panel glass effect */
 [data-theme*="glass-"] .settings-panel {
-  background: var(--surface-color);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  border: var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  border-radius: 16px;
+  background: var(--glass-settings-bg, var(--surface-color));
+  backdrop-filter: var(--glass-settings-filter, blur(var(--glass-blur)) saturate(var(--glass-saturation)));
+  -webkit-backdrop-filter: var(--glass-settings-filter, blur(var(--glass-blur)) saturate(var(--glass-saturation)));
+  border: var(--glass-settings-border, var(--glass-border));
+  box-shadow: var(--glass-settings-shadow, var(--glass-shadow));
+  border-radius: var(--glass-settings-radius, 16px);
 }
 
 [data-theme*="glass-"] .settings-sidebar {
@@ -1135,23 +1135,23 @@
   border-right: var(--glass-border);
 }
 
-/* Sidebar glass effect */
+/* Sidebar glass effect (v3 re-skins these via the --glass-* tokens) */
 [data-theme*="glass-"] .sidebar,
 [data-theme*="glass-"] .sports-sidebar,
 [data-theme*="glass-"] .vertical-sidebar,
 [data-theme*="glass-"] .dvr-sidebar {
-  background: var(--surface-color);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  border-right: var(--glass-border);
+  background: var(--glass-surface-bg, var(--surface-color));
+  backdrop-filter: var(--glass-surface-filter, blur(var(--glass-blur)) saturate(var(--glass-saturation)));
+  -webkit-backdrop-filter: var(--glass-surface-filter, blur(var(--glass-blur)) saturate(var(--glass-saturation)));
+  border-right: var(--glass-surface-border-right, var(--glass-border));
 }
 
 /* Category strip glass effect */
 [data-theme*="glass-"] .category-strip {
-  background: var(--surface-color);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  border-right: var(--glass-border);
+  background: var(--strip-bg, var(--surface-color));
+  backdrop-filter: var(--strip-filter, blur(var(--glass-blur)) saturate(var(--glass-saturation)));
+  -webkit-backdrop-filter: var(--strip-filter, blur(var(--glass-blur)) saturate(var(--glass-saturation)));
+  border-right: var(--strip-border-right, var(--glass-border));
 }
 
 /* Channel panel glass effect */
@@ -1194,17 +1194,17 @@
 
 /* Track selection modal glass effect */
 [data-theme*="glass-"] .track-modal {
-  background: var(--surface-color);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  border: var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  background: var(--glass-modal-bg, var(--surface-color));
+  backdrop-filter: var(--glass-modal-filter, blur(var(--glass-blur)) saturate(var(--glass-saturation)));
+  -webkit-backdrop-filter: var(--glass-modal-filter, blur(var(--glass-blur)) saturate(var(--glass-saturation)));
+  border: var(--glass-modal-border, var(--glass-border));
+  box-shadow: var(--glass-modal-shadow, var(--glass-shadow));
 }
 
 [data-theme*="glass-"] .track-modal-overlay {
-  background: var(--bg-overlay);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  background: var(--glass-overlay-bg, var(--bg-overlay));
+  backdrop-filter: var(--glass-overlay-filter, blur(5px));
+  -webkit-backdrop-filter: var(--glass-overlay-filter, blur(5px));
 }
 
 /* Form elements with glass effect */
@@ -1318,9 +1318,9 @@
    STREMIO THEME INTEGRATION
    ============================================ */
 
-/* Stremio page background */
+/* Stremio page background (v3 re-skins it via the --glass-* tokens) */
 [data-theme*="glass-"] .stremio-page {
-  background: var(--bg-overlay);
+  background: var(--glass-surface-bg, var(--bg-overlay));
 }
 
 /* Stremio topbar glass enhancement */
@@ -2726,11 +2726,19 @@
 [data-theme*="solid-"] .now-playing-bar,
 [data-theme*="solid-"] .title-bar,
 [data-theme*="solid-"] .sidebar,
-[data-theme*="solid-"] .category-strip,
-[data-theme*="solid-"] .channel-panel,
-[data-theme*="solid-"] .settings-panel {
+[data-theme*="solid-"] .channel-panel {
   background: var(--surface-color);
   border-color: var(--surface-border);
+}
+
+[data-theme*="solid-"] .category-strip {
+  background: var(--strip-bg, var(--surface-color));
+  border-color: var(--surface-border);
+}
+
+[data-theme*="solid-"] .settings-panel {
+  background: var(--glass-settings-bg, var(--surface-color));
+  border: var(--glass-settings-border, 1px solid var(--surface-border));
 }
 
 /* Video active: strip solid background from titlebar */
@@ -3240,8 +3248,8 @@ html.modern-ui-v3[data-theme="dark-slate"] .category-list-bar.selected .category
 
 [data-theme="dark-crimson"] .settings-panel,
 [data-theme^="dark-"] .settings-panel {
-  background: var(--bg-secondary);
-  border-color: var(--surface-border);
+  background: var(--glass-settings-bg, var(--bg-secondary));
+  border: var(--glass-settings-border, 1px solid var(--surface-border));
 }
 
 [data-theme="dark-crimson"] .settings-tab.active,
@@ -3417,7 +3425,7 @@ html.modern-ui-v3[data-theme="dark-slate"] .category-list-bar.selected .category
 
 [data-theme="dark-crimson"] .dvr-dashboard,
 [data-theme^="dark-"] .dvr-dashboard {
-  background: var(--bg-primary);
+  background: var(--glass-surface-bg, var(--bg-primary));
 }
 
 [data-theme="dark-crimson"] .tv-calendar,
