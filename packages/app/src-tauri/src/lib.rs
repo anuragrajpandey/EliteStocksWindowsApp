@@ -1444,12 +1444,24 @@ async fn popout_seek<R: Runtime>(app: AppHandle<R>, seconds: f64) -> Result<(), 
 // ============================================================================
 
 /// Initialize the DVR system
+///
+/// DVR state is managed asynchronously after setup (so the main thread is never
+/// blocked opening a large database), so wait briefly for it to be ready rather
+/// than failing the frontend's startup call with "state not managed".
 #[tauri::command]
-async fn init_dvr(
-    app: AppHandle,
-    state: tauri::State<'_, DvrState>,
-) -> Result<(), String> {
+async fn init_dvr(app: AppHandle) -> Result<(), String> {
     info!("[DVR Command] init_dvr called");
+
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(20);
+    let state = loop {
+        if let Some(state) = app.try_state::<DvrState>() {
+            break state.inner().clone();
+        }
+        if std::time::Instant::now() >= deadline {
+            return Err("DVR failed to initialize in time".to_string());
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+    };
 
     state.start_background_tasks().await
         .map_err(|e| format!("Failed to start DVR: {}", e))?;
@@ -4454,6 +4466,20 @@ pub fn run() {
         .setup(|app| {
             app.manage(WindowStateTracker::default());
 
+            // Show the main window immediately and restore its saved position
+            // BEFORE any potentially slow initialization (DVR database open /
+            // WAL recovery) runs. The window is transparent, so until React
+            // paints it has no visible content - making it visible early means
+            // a slow startup shows the boot splash instead of "no window".
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.unminimize();
+                let _ = window.set_focus();
+            }
+            // Restore saved window position only (not size - size is controlled by UI settings)
+            // Position is restored so the window opens in the same place it was closed
+            restore_window_position(app.handle());
+
             // Apply SOCKS5 proxy settings if configured
             apply_proxy_settings(app.handle());
 
@@ -4476,7 +4502,12 @@ pub fn run() {
                 }
             }
 
-            // Initialize DVR system FIRST before anything else
+            // Initialize DVR system in the background instead of blocking the
+            // main thread with block_on. Opening the SQLite database (and
+            // recovering a large WAL after a force-close) can take a while on a
+            // big app.db; doing it off the main thread lets the window paint
+            // and the frontend load immediately. State is managed once ready -
+            // commands that need DVR wait for it (see init_dvr).
             let app_handle = app.handle().clone();
 
             // Run log cleanup based on user settings
@@ -4524,21 +4555,21 @@ pub fn run() {
             // For now, disable verbose logging by default (sqlx logs are too noisy)
             dvr::init_logging(false);
 
-            match tauri::async_runtime::block_on(async move {
+            tauri::async_runtime::spawn(async move {
                 info!("[DVR Setup] Starting DVR initialization...");
-                DvrState::new(app_handle).await
-            }) {
-                Ok(dvr_state) => {
-                    info!("[DVR Setup] System initialized successfully, managing state...");
-                    app.manage(dvr_state);
-                    info!("[DVR Setup] State managed successfully");
+                match DvrState::new(app_handle.clone()).await {
+                    Ok(dvr_state) => {
+                        info!("[DVR Setup] System initialized successfully, managing state...");
+                        app_handle.manage(dvr_state);
+                        info!("[DVR Setup] State managed successfully");
+                    }
+                    Err(e) => {
+                        error!("[DVR Setup] WARNING: Failed to initialize full DVR: {}", e);
+                        error!("[DVR Setup] DVR features (recording) will be unavailable.");
+                        error!("[DVR Setup] Bulk sync operations may also be affected.");
+                    }
                 }
-                Err(e) => {
-                    error!("[DVR Setup] WARNING: Failed to initialize full DVR: {}", e);
-                    error!("[DVR Setup] DVR features (recording) will be unavailable.");
-                    error!("[DVR Setup] Bulk sync operations may also be affected.");
-                }
-            }
+            });
 
             // Register PopoutMpvState for standalone popout player
             app.manage(PopoutMpvState::new());
@@ -4585,12 +4616,9 @@ pub fn run() {
             let discord_handle = app.handle().clone();
             std::thread::spawn(move || discord_rp::run_loop(discord_handle));
 
-            // Restore saved window position only (not size - size is controlled by UI settings)
-            // Position is restored so the window opens in the same place it was closed
-            restore_window_position(app.handle());
-
             // Note: Window size is applied by the frontend after settings are loaded
             // to ensure the user-defined startupWidth/startupHeight from Settings -> UI is respected
+            // (window position was already restored at the top of setup)
 
             Ok(())
         })
@@ -4609,6 +4637,9 @@ pub fn run() {
                     }
                     discord_rp::shutdown(&window.app_handle());
                     save_window_state(&window.app_handle());
+                    // Flush the WAL so the next launch doesn't have to recover a
+                    // potentially huge WAL left behind by a large database.
+                    checkpoint_databases(&window.app_handle());
                 }
                 tauri::WindowEvent::Resized(_) | tauri::WindowEvent::Moved(_) => {
                     if !window.is_fullscreen().unwrap_or(false) {
@@ -4817,12 +4848,29 @@ pub fn run() {
         });
 }
 
+/// Flush the SQLite WAL back into ynotv.db on a clean close/exit.
+///
+/// Without this, a large database that was force-closed mid-sync leaves a
+/// multi-GB WAL that must be recovered on the next launch, blocking the first
+/// queries and leaving the (transparent) window blank during startup.
+fn checkpoint_databases(app: &tauri::AppHandle) {
+    if let Some(dvr) = app.try_state::<DvrState>() {
+        if let Err(e) = dvr.db.checkpoint() {
+            warn!("[DB] WAL checkpoint on close failed: {}", e);
+        }
+    }
+}
+
 /// Ask before quitting if a recording is currently in progress.
 ///
 /// If no recording is active we let the exit proceed normally. Otherwise we
 /// prevent the exit and show a dialog so the user can either keep the app open
 /// (and keep recording) or stop the recording and quit.
 fn handle_exit_requested(app_handle: &tauri::AppHandle, api: tauri::ExitRequestApi) {
+    // Flush the SQLite WAL back into the main DB before exiting so the next
+    // launch doesn't have to recover a large WAL (which blocked startup).
+    checkpoint_databases(app_handle);
+
     use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind, MessageDialogResult};
 
     let recording_active = app_handle

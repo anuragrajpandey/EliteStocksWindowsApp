@@ -363,6 +363,47 @@ impl DvrDatabase {
         Ok(())
     }
 
+    /// Checkpoint the WAL back into the main database file.
+    ///
+    /// Run on a clean close/exit so a large database doesn't leave behind a
+    /// multi-GB WAL that must be recovered on the next launch (which can block
+    /// startup and leave the window blank). TRUNCATE rewrites and empties the
+    /// WAL; if another connection is mid-write it falls back to a PASSIVE
+    /// checkpoint instead of failing.
+    pub fn checkpoint(&self) -> Result<()> {
+        let conn = self.get_conn()?;
+
+        match conn.query_row("PRAGMA wal_checkpoint(TRUNCATE)", [], |row| {
+            Ok((
+                row.get::<_, i64>(0)?, // busy: connections blocking the checkpoint
+                row.get::<_, i64>(1)?, // log:  total WAL frames
+                row.get::<_, i64>(2)?, // checkpointed: frames written back
+            ))
+        }) {
+            Ok((busy, log, checkpointed)) => {
+                if busy > 0 {
+                    warn!(
+                        "[DVR DB] WAL checkpoint blocked by {} busy connection(s); WAL left intact (log={})",
+                        busy, log
+                    );
+                } else if log > checkpointed {
+                    warn!(
+                        "[DVR DB] WAL checkpoint partial (log={}, checkpointed={})",
+                        log, checkpointed
+                    );
+                } else {
+                    info!("[DVR DB] WAL checkpoint complete (log={})", log);
+                }
+                Ok(())
+            }
+            Err(e) => {
+                warn!("[DVR DB] wal_checkpoint(TRUNCATE) failed ({}), retrying PASSIVE", e);
+                conn.execute("PRAGMA wal_checkpoint(PASSIVE)", [])?;
+                Ok(())
+            }
+        }
+    }
+
     /// Get all scheduled recordings that need to start
     pub fn get_scheduled_recordings(
         &self,

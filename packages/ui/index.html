@@ -14,10 +14,55 @@
         overflow: hidden;
         background: transparent;
       }
+
+      /* Startup splash - the window is transparent until React mounts, so show
+         a solid loading screen immediately. Otherwise a slow startup (e.g. a
+         large database opening) looks like "no window appeared". React
+         replaces #root's contents on mount, removing this automatically. */
+      #boot-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        background: #0b0e14;
+        color: #9aa3b2;
+        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        user-select: none;
+      }
+
+      #boot-splash .boot-logo {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        color: #00d4ff;
+      }
+
+      #boot-splash .boot-spinner {
+        width: 28px;
+        height: 28px;
+        border: 3px solid rgba(255, 255, 255, 0.12);
+        border-top-color: #00d4ff;
+        border-radius: 50%;
+        animation: boot-spin 0.9s linear infinite;
+      }
+
+      @keyframes boot-spin {
+        to { transform: rotate(360deg); }
+      }
     </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="boot-splash">
+        <div class="boot-logo">ynoTV</div>
+        <div class="boot-spinner"></div>
+        <div>Loading…</div>
+      </div>
+    </div>
     <!-- Browser-debug only: temporarily add <script src="/tauri-mock.js"></script> here
          to run the UI in a plain browser. NEVER ship it — it replaces
          window.__TAURI_INTERNALS__ and would break the real Tauri app. -->
