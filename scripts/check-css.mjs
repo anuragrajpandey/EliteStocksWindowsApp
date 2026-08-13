@@ -1,6 +1,24 @@
 import fs from 'node:fs';
+import path from 'node:path';
 
-const files = process.argv.slice(2);
+// Accept files and/or directories; directories are walked recursively for .css.
+const args = process.argv.slice(2);
+const files = [];
+for (const a of args) {
+  if (fs.statSync(a).isDirectory()) {
+    const walk = (dir) => {
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) walk(p);
+        else if (e.name.endsWith('.css')) files.push(p);
+      }
+    };
+    walk(a);
+  } else {
+    files.push(a);
+  }
+}
+
 let ok = true;
 for (const f of files) {
   const css = fs.readFileSync(f, 'utf8');

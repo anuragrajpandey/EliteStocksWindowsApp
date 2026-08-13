@@ -646,22 +646,24 @@
   box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
 }
 
-/* Modern Custom Groups Section */
-.modern-ui .custom-groups-section {
+/* Modern Custom Groups Section — v2 pill look. Scoped to v2 on purpose: these
+   hardcoded v2 values would otherwise beat the token-driven bases in v3 (v3 loads
+   this sheet too), and v3's clean list-bar look comes from --cat-list-* tokens. */
+.modern-ui:not(.modern-ui-v3) .custom-groups-section {
   margin: 0;
 }
 
-.modern-ui .custom-groups-section .category-item {
+.modern-ui:not(.modern-ui-v3) .custom-groups-section .category-item {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.modern-ui .custom-groups-section .category-item::before {
+.modern-ui:not(.modern-ui-v3) .custom-groups-section .category-item::before {
   background: var(--accent-primary, #00d4ff);
   box-shadow: 0 0 6px var(--accent-primary, #00d4ff);
 }
 
-.modern-ui .custom-groups-section .category-item.selected {
+.modern-ui:not(.modern-ui-v3) .custom-groups-section .category-item.selected {
   background: 
     linear-gradient(135deg,
       color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent) 0%,
@@ -670,7 +672,7 @@
   border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
 }
 
-.modern-ui .custom-groups-section .category-item.selected .category-count {
+.modern-ui:not(.modern-ui-v3) .custom-groups-section .category-item.selected .category-count {
   background: 
     linear-gradient(135deg,
       color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent) 0%,

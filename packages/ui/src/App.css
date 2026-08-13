@@ -78,6 +78,7 @@ html[data-ui-version="v2"] .view-transition-container {
   width: auto;
   opacity: 0.8;
   color: white;
+  filter: var(--titlebar-nav-filter, none);
 }
 
 .window-controls {
@@ -187,6 +188,21 @@ html[data-ui-version="v2"] .view-transition-container {
 
 .segmented-btn svg {
   flex-shrink: 0;
+}
+
+/* Titlebar nav buttons — v3 dark glass text + drop-shadow (v1/v2 fall back to
+   the shared tokens; the light sheet's !important rules still win in light). */
+.title-bar .segmented-btn {
+  color: var(--titlebar-seg-color, var(--seg-btn-color, rgba(255, 255, 255, 0.7)));
+  filter: var(--titlebar-nav-filter, none);
+}
+
+.title-bar .segmented-btn:hover {
+  color: var(--titlebar-seg-hover-color, #ffffff);
+}
+
+.title-bar .segmented-btn.active {
+  color: var(--titlebar-seg-active-color, #ffffff);
 }
 
 /* Divider between segmented buttons and search */
@@ -378,6 +394,7 @@ html[data-ui-version="v2"] .view-transition-container {
   align-items: center;
   animation: fadeIn 0.3s ease-out;
   z-index: 10;
+  filter: var(--titlebar-nav-filter, none);
 }
 
 @keyframes fadeIn {
@@ -406,6 +423,7 @@ html[data-ui-version="v2"] .view-transition-container {
   transition: all 0.2s ease;
   -webkit-app-region: no-drag;
   margin-right: 8px;
+  filter: var(--titlebar-nav-filter, none);
 }
 
 .title-bar-settings-btn:hover {
@@ -434,6 +452,7 @@ html[data-ui-version="v2"] .view-transition-container {
   -webkit-app-region: no-drag;
   margin-right: 8px;
   font-size: 18px;
+  filter: var(--titlebar-nav-filter, none);
 }
 
 .title-bar-calendar-btn:hover {

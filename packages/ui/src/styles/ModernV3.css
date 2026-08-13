@@ -352,6 +352,29 @@ html.modern-ui-v3 {
   --seg-btn-hover-bg: rgba(255, 255, 255, 0.08);
   --seg-btn-active-bg: rgba(255, 255, 255, 0.16);
   --seg-btn-active-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 2px 8px rgba(0, 0, 0, 0.4);
+  /* Title-bar nav buttons — v3 dark text (scoped tokens so the shared
+     --seg-btn-color stays untouched for modal segmented controls) */
+  --titlebar-seg-color: rgba(255, 255, 255, 0.9);
+  --titlebar-seg-active-color: rgba(255, 255, 255, 0.9);
+  /* Title bar — transparent scrim over content (v3 light keeps the same
+     transparent state; the light sheet's white .title-bar rule must not win) */
+  --titlebar-bg: transparent;
+  --titlebar-backdrop: none;
+  --titlebar-border-bottom: none;
+  --titlebar-shadow: none;
+  /* Nav text & icons — strong drop-shadow on every element (v3 light
+     redefines this to none so the dark-only look is preserved) */
+  --titlebar-nav-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.95));
+  /* Modal/editor text inputs (pll/fgl/cgm/ple + search-bar) — unified v3 liquid glass */
+  --modal-input-bg: rgba(255, 255, 255, 0.04);
+  --modal-input-border-color: rgba(255, 255, 255, 0.08);
+  --modal-input-color: #fff;
+  --modal-input-radius: 10px;
+  --modal-input-padding: 8px 12px;
+  --modal-input-transition: all 0.2s ease;
+  --modal-input-focus-bg: rgba(255, 255, 255, 0.08);
+  --modal-input-focus-border-color: rgba(255, 255, 255, 0.2);
+  --modal-input-focus-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
   /* Stremio detail action buttons — dark glass pill (v3 light overrides below) */
   --sd-act-bg: rgba(255, 255, 255, 0.04);
   --sd-act-border: 1px solid rgba(255, 255, 255, 0.08);
@@ -542,6 +565,115 @@ html.modern-ui-v3 {
   --prog-current-playing-hover-border-left-color: color-mix(in srgb, var(--accent-primary) 100%, transparent);
   --prog-current-playing-hover-transform: translateY(-1px) scale(1.01);
   --prog-current-playing-hover-z: 20;
+  /* Now Playing Bar — floating liquid-glass panel (v3 values; light inherits) */
+  --npb-bar-bottom: 12px;
+  --npb-bar-left: 16px;
+  --npb-bar-right: 16px;
+  --npb-bar-radius: 20px;
+  --npb-bar-bg: rgba(8, 7, 16, 0.78);
+  --npb-bar-filter: blur(40px) saturate(160%) brightness(0.9);
+  --npb-bar-border: 1px solid rgba(255, 255, 255, 0.12);
+  --npb-bar-border-top: 1px solid rgba(255, 255, 255, 0.12);
+  --npb-bar-padding: 12px 20px;
+  --npb-bar-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 rgba(255, 255, 255, 0.04), 0 12px 48px rgba(0, 0, 0, 0.65), 0 4px 16px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --npb-bar-hidden-transform: translateY(calc(100% + 12px));
+  --npb-bar-visible-transform: translateY(0);
+  --npb-overlay-margin-bottom: 8px;
+  --npb-overlay-padding-right: 0;
+  --npb-divider-bg: linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.14) 25%, rgba(255, 255, 255, 0.14) 75%, transparent 100%);
+  --npb-logo-radius: 8px;
+  --npb-logo-bg: rgba(255, 255, 255, 0.08);
+  --npb-logo-border: 1px solid rgba(255, 255, 255, 0.12);
+  --npb-logo-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  --npb-name-color: rgba(255, 255, 255, 0.98);
+  --npb-name-letter-spacing: 0.01em;
+  --npb-title-color: rgba(255, 255, 255, 0.6);
+  --npb-desc-color: rgba(255, 255, 255, 0.42);
+  --npb-elapsed-color: rgba(255, 255, 255, 0.55);
+  --npb-remaining-color: rgba(255, 255, 255, 0.55);
+  --npb-prog-bg: rgba(255, 255, 255, 0.08);
+  --npb-prog-radius: 6px;
+  --npb-prog-height: 4px;
+  --npb-prog-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  --npb-prog-fill-bg: linear-gradient(90deg, var(--accent-primary, #00d4ff) 0%, color-mix(in srgb, var(--accent-primary, #00d4ff) 75%, white) 100%);
+  --npb-prog-fill-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent);
+  --npb-prog-fill-radius: 6px;
+  --npb-prog-interactive-height: 4px;
+  --npb-prog-interactive-radius: 6px;
+  --npb-prog-interactive-active-height: 7px;
+  --npb-scrub-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --npb-tooltip-bg: rgba(15, 12, 25, 0.88);
+  --npb-tooltip-border: 1px solid rgba(255, 255, 255, 0.14);
+  --npb-tooltip-filter: blur(12px);
+  --npb-tooltip-radius: 8px;
+  --npb-tooltip-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 16px rgba(0, 0, 0, 0.5);
+  --npb-tooltip-color: rgba(255, 255, 255, 0.95);
+  --npb-ts-bg: rgba(255, 255, 255, 0.08);
+  --npb-ts-radius: 6px;
+  --npb-ts-height: 5px;
+  --npb-ts-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  --npb-ts-hover-height: 8px;
+  --npb-ts-fill-bg: linear-gradient(90deg, var(--accent-primary, #00d4ff) 0%, color-mix(in srgb, var(--accent-primary, #00d4ff) 75%, white) 100%);
+  --npb-ts-fill-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
+  --npb-ts-fill-radius: 6px;
+  --npb-ts-handle-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --npb-live-edge-bg: #ff4560;
+  --npb-live-edge-shadow: 0 0 6px rgba(255, 69, 96, 0.7);
+  --npb-live-badge-color: #ff4560;
+  --npb-live-badge-shadow: 0 0 8px rgba(255, 69, 96, 0.6);
+  --npb-behind-live-color: rgba(255, 196, 0, 0.9);
+  --npb-ts-window-color: rgba(255, 255, 255, 0.38);
+  --npb-btn-bg: rgba(255, 255, 255, 0.06);
+  --npb-btn-border: 1px solid rgba(255, 255, 255, 0.1);
+  --npb-btn-radius: 12px;
+  --npb-btn-color: rgba(255, 255, 255, 0.88);
+  --npb-btn-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 6px rgba(0, 0, 0, 0.2);
+  --npb-btn-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --npb-btn-hover-bg: rgba(255, 255, 255, 0.13);
+  --npb-btn-hover-border-color: rgba(255, 255, 255, 0.22);
+  --npb-btn-hover-color: #ffffff;
+  --npb-btn-hover-transform: translateY(-1px);
+  --npb-btn-hover-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 14px rgba(0, 0, 0, 0.3);
+  --npb-btn-active-transform: scale(0.94);
+  --npb-btn-active-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 4px rgba(0, 0, 0, 0.2);
+  --npb-btn-disabled-opacity: 0.25;
+  --npb-vol-bg: rgba(255, 255, 255, 0.1);
+  --npb-vol-radius: 4px;
+  --npb-vol-thumb-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, transparent), 0 1px 4px rgba(0, 0, 0, 0.35);
+  --npb-vol-value-color: rgba(255, 255, 255, 0.45);
+  --npb-extra-border-left-color: rgba(255, 255, 255, 0.08);
+  --npb-menu-bg: rgba(12, 10, 22, 0.82);
+  --npb-menu-filter: blur(20px) saturate(180%);
+  --npb-menu-border: 1px solid rgba(255, 255, 255, 0.14);
+  --npb-menu-radius: 14px;
+  --npb-menu-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 12px 40px rgba(0, 0, 0, 0.55);
+  --npb-menu-item-radius: 8px;
+  --npb-menu-item-color: rgba(255, 255, 255, 0.75);
+  --npb-menu-item-transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  --npb-menu-item-active-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, transparent);
+  --npb-menu-item-active-color: var(--accent-primary, #00d4ff);
+  --npb-scrub-radius: 20px;
+  --npb-scrub-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 8%, transparent);
+  --npb-scrub-border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 28%, transparent);
+  --npb-scrub-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 90%, white);
+  --npb-scrub-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --npb-scrub-hover-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, transparent);
+  --npb-scrub-hover-border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 55%, transparent);
+  --npb-scrub-hover-color: var(--accent-primary, #00d4ff);
+  --npb-scrub-hover-transform: translateY(-1px);
+  --npb-scrub-back-bg: rgba(160, 120, 255, 0.08);
+  --npb-scrub-back-border-color: rgba(160, 120, 255, 0.28);
+  --npb-scrub-back-color: rgba(160, 120, 255, 0.88);
+  --npb-scrub-back-hover-bg: rgba(160, 120, 255, 0.18);
+  --npb-scrub-back-hover-border-color: rgba(160, 120, 255, 0.55);
+  --npb-scrub-back-hover-color: #b08fff;
+  --npb-scrub-back-hover-transform: translateY(-1px);
+  --npb-livebtn-bg: rgba(255, 64, 96, 0.1);
+  --npb-livebtn-border: 1px solid rgba(255, 64, 96, 0.32);
+  --npb-livebtn-radius: 20px;
+  --npb-livebtn-color: #ff6080;
+  --npb-livebtn-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 8px rgba(255, 64, 96, 0.15);
+  --npb-livebtn-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* v3 light theme — redefine the glass tokens so the same base rules produce the
@@ -705,6 +837,15 @@ html.modern-ui-v3[data-theme="light"] {
   --prog-current-hover-border-left-color: color-mix(in srgb, var(--accent-primary, #8b5cf6) 30%, rgba(0, 0, 0, 0.1));
   --prog-current-hover-transform: translateY(-1px) scale(1.01);
   --prog-current-hover-z: 20;
+  /* Titlebar nav filter — v3 light keeps no drop-shadow (dark-only look) */
+  --titlebar-nav-filter: none;
+  /* Modal/editor text inputs — light */
+  --modal-input-bg: rgba(0, 0, 0, 0.02);
+  --modal-input-border-color: rgba(0, 0, 0, 0.08);
+  --modal-input-color: #000;
+  --modal-input-focus-bg: rgba(0, 0, 0, 0.05);
+  --modal-input-focus-border-color: rgba(0, 0, 0, 0.15);
+  --modal-input-focus-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03);
 }
 /* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled */
 
@@ -2658,24 +2799,19 @@ html.modern-ui-v3[data-theme] .guide-channel-playlist-name {
 
 /* Title Bar V3 Glassmorphism Override - frosted glass with a bottom border separator */
 
-html.modern-ui-v3[data-theme] .title-bar {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-bottom: none !important;
-  box-shadow: none !important;
-}
+/* Token-driven thin consumer: v3 keeps a transparent scrim over content. It must
+   stay !important because the light sheet's white .title-bar rule would otherwise
+   win in v3+light (light-theme-overrides loads last). Values come from the
+   --titlebar-* tokens, so no hardcoded surface values live here. */
 
-/* Video Active: remove frosted glass when video is playing */
-
+html.modern-ui-v3[data-theme] .title-bar,
 html.modern-ui-v3[data-theme] .title-bar.video-active {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-bottom: none !important;
-  box-shadow: none !important;
+  background: var(--titlebar-bg, transparent) !important;
+  backdrop-filter: var(--titlebar-backdrop, none) !important;
+  -webkit-backdrop-filter: var(--titlebar-backdrop, none) !important;
+  border-bottom: var(--titlebar-border-bottom, none) !important;
+  box-shadow: var(--titlebar-shadow, none) !important;
 }
-
 /* Specific inner components reset */
 
 html.modern-ui-v3[data-theme] .guide-header {
@@ -2731,347 +2867,104 @@ html.modern-ui-v3[data-theme] .tvcp-main {
   background: transparent !important;
 }
 
-/* 2. Theme-Coordinated Glass Blob Animations */
+/* 2. Theme-Coordinated Glass Blob Animations
+   The liquid-glass background is token-driven: App.tsx's .livetv-liquid-glass-bg
+   (and its blob consumers in ModernThemeBase) resolve --lgb-* tokens, and each
+   theme family defines its palette here instead of overriding surfaces. */
 
-/* Red/Crimson/Pink Themes (Crimson, Cherry, Ruby, Rose, Berry, Volcano, Dragonfruit, Hot Pink, Magenta) */
+/* Red/Crimson/Pink family (Crimson, Cherry, Ruby, Rose, Berry, Volcano, Dragonfruit, Hot Pink, Magenta) */
 
-html.modern-ui-v3[data-theme*="crimson"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="pink"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="rose"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="berry"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="cherry"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="ruby"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="red"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="dragonfruit"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="magenta"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="volcano"] .livetv-liquid-glass-bg {
-  background: linear-gradient(135deg,
-    #1f0210 0%,
-    #2a0518 25%,
-    #0a0208 50%,
-    #310521 75%,
-    #0d020d 100%
-  ) !important;
+html.modern-ui-v3[data-theme*="crimson"],
+html.modern-ui-v3[data-theme*="pink"],
+html.modern-ui-v3[data-theme*="rose"],
+html.modern-ui-v3[data-theme*="berry"],
+html.modern-ui-v3[data-theme*="cherry"],
+html.modern-ui-v3[data-theme*="ruby"],
+html.modern-ui-v3[data-theme*="red"],
+html.modern-ui-v3[data-theme*="dragonfruit"],
+html.modern-ui-v3[data-theme*="magenta"],
+html.modern-ui-v3[data-theme*="volcano"] {
+  --lgb-bg: linear-gradient(135deg, #1f0210 0%, #2a0518 25%, #0a0208 50%, #310521 75%, #0d020d 100%);
+  --lgb-blob1: radial-gradient(circle, rgba(255, 0, 80, 0.55) 0%, transparent 70%);
+  --lgb-blob2: radial-gradient(circle, rgba(186, 8, 80, 0.45) 0%, transparent 70%);
+  --lgb-blob3: radial-gradient(circle, rgba(239, 68, 68, 0.35) 0%, transparent 70%);
+  --lgb-blob4: radial-gradient(circle, rgba(147, 51, 234, 0.3) 0%, transparent 70%);
 }
 
-html.modern-ui-v3[data-theme*="crimson"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="pink"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="rose"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="berry"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="cherry"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="ruby"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="red"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="dragonfruit"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="magenta"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="volcano"] .livetv-liquid-glass-bg .blob-1 {
-  background: radial-gradient(circle, rgba(255, 0, 80, 0.55) 0%, transparent 70%) !important;
+/* Cyan/Blue family (Cyan, Blue, Indigo, Ocean, Sapphire, Deep Ocean, Arctic, Slate, Turquoise, Electric, Miami) */
+
+html.modern-ui-v3[data-theme*="cyan"],
+html.modern-ui-v3[data-theme*="blue"],
+html.modern-ui-v3[data-theme*="ocean"],
+html.modern-ui-v3[data-theme*="sapphire"],
+html.modern-ui-v3[data-theme*="arctic"],
+html.modern-ui-v3[data-theme*="slate"],
+html.modern-ui-v3[data-theme*="turquoise"],
+html.modern-ui-v3[data-theme*="indigo"],
+html.modern-ui-v3[data-theme*="electric"],
+html.modern-ui-v3[data-theme*="miami"] {
+  --lgb-bg: linear-gradient(135deg, #020f21 0%, #051833 25%, #020b14 50%, #08253d 75%, #020a1a 100%);
+  --lgb-blob1: radial-gradient(circle, rgba(0, 191, 255, 0.55) 0%, transparent 70%);
+  --lgb-blob2: radial-gradient(circle, rgba(0, 100, 255, 0.45) 0%, transparent 70%);
+  --lgb-blob3: radial-gradient(circle, rgba(147, 51, 234, 0.35) 0%, transparent 70%);
+  --lgb-blob4: radial-gradient(circle, rgba(0, 255, 204, 0.3) 0%, transparent 70%);
 }
 
-html.modern-ui-v3[data-theme*="crimson"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="pink"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="rose"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="berry"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="cherry"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="ruby"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="red"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="dragonfruit"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="magenta"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="volcano"] .livetv-liquid-glass-bg .blob-2 {
-  background: radial-gradient(circle, rgba(186, 8, 80, 0.45) 0%, transparent 70%) !important;
+/* Green family (Emerald, Lime, Forest, Mint, Zen Garden, Chartreuse) */
+
+html.modern-ui-v3[data-theme*="emerald"],
+html.modern-ui-v3[data-theme*="forest"],
+html.modern-ui-v3[data-theme*="mint"],
+html.modern-ui-v3[data-theme*="lime"],
+html.modern-ui-v3[data-theme*="zengarden"],
+html.modern-ui-v3[data-theme*="chartreuse"] {
+  --lgb-bg: linear-gradient(135deg, #021a0d 0%, #052414 25%, #020f08 50%, #08331d 75%, #02140a 100%);
+  --lgb-blob1: radial-gradient(circle, rgba(0, 230, 118, 0.55) 0%, transparent 70%);
+  --lgb-blob2: radial-gradient(circle, rgba(34, 139, 34, 0.45) 0%, transparent 70%);
+  --lgb-blob3: radial-gradient(circle, rgba(0, 191, 255, 0.35) 0%, transparent 70%);
+  --lgb-blob4: radial-gradient(circle, rgba(198, 255, 0, 0.3) 0%, transparent 70%);
 }
 
-html.modern-ui-v3[data-theme*="crimson"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="pink"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="rose"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="berry"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="cherry"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="ruby"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="red"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="dragonfruit"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="magenta"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="volcano"] .livetv-liquid-glass-bg .blob-3 {
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.35) 0%, transparent 70%) !important;
+/* Purple family (Purple, Midnight, Amethyst, Cosmic, Lavender, Galaxy, Nebula, Neon, Violet) */
+
+html.modern-ui-v3[data-theme*="purple"],
+html.modern-ui-v3[data-theme*="midnight"],
+html.modern-ui-v3[data-theme*="amethyst"],
+html.modern-ui-v3[data-theme*="cosmic"],
+html.modern-ui-v3[data-theme*="lavender"],
+html.modern-ui-v3[data-theme*="galaxy"],
+html.modern-ui-v3[data-theme*="nebula"],
+html.modern-ui-v3[data-theme*="neon"],
+html.modern-ui-v3[data-theme*="violet"] {
+  --lgb-bg: linear-gradient(135deg, #02000a 0%, #070114 25%, #02050b 50%, #09031c 75%, #01030a 100%);
+  --lgb-blob1: radial-gradient(circle, rgba(147, 51, 234, 0.55) 0%, transparent 70%);
+  --lgb-blob2: radial-gradient(circle, rgba(76, 29, 149, 0.45) 0%, transparent 70%);
+  --lgb-blob3: radial-gradient(circle, rgba(236, 72, 153, 0.35) 0%, transparent 70%);
+  --lgb-blob4: radial-gradient(circle, rgba(30, 144, 255, 0.3) 0%, transparent 70%);
 }
 
-html.modern-ui-v3[data-theme*="crimson"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="pink"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="rose"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="berry"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="cherry"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="ruby"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="red"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="dragonfruit"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="magenta"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="volcano"] .livetv-liquid-glass-bg .blob-4 {
-  background: radial-gradient(circle, rgba(147, 51, 234, 0.3) 0%, transparent 70%) !important;
-}
+/* Orange family (Orange, Amber, Gold, Sunset, Tropicana, Horizon, Copper, Yellow, Autumn) */
 
-/* Cyan/Blue/Indigo/Slate/Arctic Themes (Cyan, Blue, Indigo, Ocean, Sapphire, Deep Ocean, Arctic, Slate, Turquoise, Electric, Miami) */
-
-html.modern-ui-v3[data-theme*="cyan"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="blue"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="ocean"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="sapphire"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="arctic"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="slate"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="turquoise"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="indigo"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="electric"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="miami"] .livetv-liquid-glass-bg {
-  background: linear-gradient(135deg,
-    #020f21 0%,
-    #051833 25%,
-    #020b14 50%,
-    #08253d 75%,
-    #020a1a 100%
-  ) !important;
-}
-
-html.modern-ui-v3[data-theme*="cyan"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="blue"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="ocean"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="sapphire"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="arctic"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="slate"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="turquoise"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="indigo"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="electric"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="miami"] .livetv-liquid-glass-bg .blob-1 {
-  background: radial-gradient(circle, rgba(0, 191, 255, 0.55) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme*="cyan"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="blue"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="ocean"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="sapphire"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="arctic"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="slate"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="turquoise"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="indigo"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="electric"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="miami"] .livetv-liquid-glass-bg .blob-2 {
-  background: radial-gradient(circle, rgba(0, 100, 255, 0.45) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme*="cyan"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="blue"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="ocean"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="sapphire"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="arctic"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="slate"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="turquoise"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="indigo"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="electric"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="miami"] .livetv-liquid-glass-bg .blob-3 {
-  background: radial-gradient(circle, rgba(147, 51, 234, 0.35) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme*="cyan"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="blue"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="ocean"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="sapphire"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="arctic"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="slate"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="turquoise"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="indigo"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="electric"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="miami"] .livetv-liquid-glass-bg .blob-4 {
-  background: radial-gradient(circle, rgba(0, 255, 204, 0.3) 0%, transparent 70%) !important;
-}
-
-/* Green/Forest/Mint/Lime/Zen Themes (Emerald, Lime, Forest, Mint, Zen Garden, Chartreuse) */
-
-html.modern-ui-v3[data-theme*="emerald"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="forest"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="mint"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="lime"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="zengarden"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="chartreuse"] .livetv-liquid-glass-bg {
-  background: linear-gradient(135deg,
-    #021a0d 0%,
-    #052414 25%,
-    #020f08 50%,
-    #08331d 75%,
-    #02140a 100%
-  ) !important;
-}
-
-html.modern-ui-v3[data-theme*="emerald"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="forest"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="mint"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="lime"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="zengarden"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="chartreuse"] .livetv-liquid-glass-bg .blob-1 {
-  background: radial-gradient(circle, rgba(0, 230, 118, 0.55) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme*="emerald"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="forest"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="mint"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="lime"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="zengarden"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="chartreuse"] .livetv-liquid-glass-bg .blob-2 {
-  background: radial-gradient(circle, rgba(34, 139, 34, 0.45) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme*="emerald"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="forest"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="mint"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="lime"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="zengarden"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="chartreuse"] .livetv-liquid-glass-bg .blob-3 {
-  background: radial-gradient(circle, rgba(0, 191, 255, 0.35) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme*="emerald"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="forest"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="mint"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="lime"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="zengarden"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="chartreuse"] .livetv-liquid-glass-bg .blob-4 {
-  background: radial-gradient(circle, rgba(198, 255, 0, 0.3) 0%, transparent 70%) !important;
-}
-
-/* Purple/Lavender/Cosmic/Galaxy/Amethyst/Nebula Themes (Purple, Midnight, Amethyst, Cosmic, Lavender, Galaxy, Nebula, Neon, Violet) */
-
-html.modern-ui-v3[data-theme*="purple"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="midnight"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="amethyst"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="cosmic"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="lavender"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="galaxy"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="nebula"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="neon"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="violet"] .livetv-liquid-glass-bg {
-  background: linear-gradient(135deg, 
-    #02000a 0%, 
-    #070114 25%, 
-    #02050b 50%, 
-    #09031c 75%, 
-    #01030a 100%
-  ) !important;
-}
-
-html.modern-ui-v3[data-theme*="purple"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="midnight"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="amethyst"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="cosmic"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="lavender"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="galaxy"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="nebula"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="neon"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="violet"] .livetv-liquid-glass-bg .blob-1 {
-  background: radial-gradient(circle, rgba(147, 51, 234, 0.55) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme*="purple"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="midnight"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="amethyst"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="cosmic"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="lavender"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="galaxy"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="nebula"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="neon"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="violet"] .livetv-liquid-glass-bg .blob-2 {
-  background: radial-gradient(circle, rgba(76, 29, 149, 0.45) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme*="purple"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="midnight"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="amethyst"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="cosmic"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="lavender"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="galaxy"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="nebula"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="neon"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="violet"] .livetv-liquid-glass-bg .blob-3 {
-  background: radial-gradient(circle, rgba(236, 72, 153, 0.35) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme*="purple"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="midnight"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="amethyst"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="cosmic"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="lavender"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="galaxy"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="nebula"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="neon"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="violet"] .livetv-liquid-glass-bg .blob-4 {
-  background: radial-gradient(circle, rgba(30, 144, 255, 0.3) 0%, transparent 70%) !important;
-}
-
-/* Orange/Amber/Gold/Sunset/Horizon/Copper/Yellow/Autumn Themes (Orange, Amber, Gold, Sunset, Tropicana, Horizon, Copper, Yellow, Autumn) */
-
-html.modern-ui-v3[data-theme*="orange"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="amber"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="gold"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="sunset"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="tropicana"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="horizon"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="copper"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="yellow"] .livetv-liquid-glass-bg,
-html.modern-ui-v3[data-theme*="autumn"] .livetv-liquid-glass-bg {
-  background: linear-gradient(135deg,
-    #1a0c02 0%,
-    #241205 25%,
-    #0f0802 50%,
-    #331808 75%,
-    #140a02 100%
-  ) !important;
-}
-
-html.modern-ui-v3[data-theme*="orange"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="amber"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="gold"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="sunset"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="tropicana"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="horizon"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="copper"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="yellow"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme*="autumn"] .livetv-liquid-glass-bg .blob-1 {
-  background: radial-gradient(circle, rgba(249, 115, 22, 0.55) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme*="orange"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="amber"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="gold"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="sunset"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="tropicana"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="horizon"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="copper"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="yellow"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme*="autumn"] .livetv-liquid-glass-bg .blob-2 {
-  background: radial-gradient(circle, rgba(217, 119, 6, 0.45) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme*="orange"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="amber"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="gold"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="sunset"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="tropicana"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="horizon"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="copper"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="yellow"] .livetv-liquid-glass-bg .blob-3,
-html.modern-ui-v3[data-theme*="autumn"] .livetv-liquid-glass-bg .blob-3 {
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.35) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme*="orange"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="amber"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="gold"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="sunset"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="tropicana"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="horizon"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="copper"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="yellow"] .livetv-liquid-glass-bg .blob-4,
-html.modern-ui-v3[data-theme*="autumn"] .livetv-liquid-glass-bg .blob-4 {
-  background: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%) !important;
+html.modern-ui-v3[data-theme*="orange"],
+html.modern-ui-v3[data-theme*="amber"],
+html.modern-ui-v3[data-theme*="gold"],
+html.modern-ui-v3[data-theme*="sunset"],
+html.modern-ui-v3[data-theme*="tropicana"],
+html.modern-ui-v3[data-theme*="horizon"],
+html.modern-ui-v3[data-theme*="copper"],
+html.modern-ui-v3[data-theme*="yellow"],
+html.modern-ui-v3[data-theme*="autumn"] {
+  --lgb-bg: linear-gradient(135deg, #1a0c02 0%, #241205 25%, #0f0802 50%, #331808 75%, #140a02 100%);
+  --lgb-blob1: radial-gradient(circle, rgba(249, 115, 22, 0.55) 0%, transparent 70%);
+  --lgb-blob2: radial-gradient(circle, rgba(217, 119, 6, 0.45) 0%, transparent 70%);
+  --lgb-blob3: radial-gradient(circle, rgba(239, 68, 68, 0.35) 0%, transparent 70%);
+  --lgb-blob4: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%);
 }
 
 /* 3. Light Theme Liquid Glass Adjustments */
 
-html.modern-ui-v3[data-theme="light"] .livetv-liquid-glass-bg {
-  background: var(--bg-primary, #f5f5f5) !important;
+html.modern-ui-v3[data-theme="light"] {
+  --lgb-bg: var(--bg-primary, #f5f5f5);
 }
 
 html.modern-ui-v3[data-theme="light"] .livetv-liquid-glass-bg .glass-blob,
@@ -3085,15 +2978,8 @@ html.modern-ui-v3[data-theme="light"] .livetv-liquid-glass-bg::after {
   will-change: auto !important;
 }
 
-/* Light Theme Panel and Titlebar Overrides for readability */
-
-html.modern-ui-v3[data-theme="light"] .title-bar {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-bottom: none !important;
-  box-shadow: none !important;
-}
+/* Light Theme Panel and Titlebar Overrides for readability
+   (the v3 light titlebar surface is covered by the token-driven consumer + tokens) */
 
 html.modern-ui-v3[data-theme="light"] .program-block {
   background: rgba(255, 255, 255, 0.3) !important;
@@ -3451,47 +3337,43 @@ html.modern-ui-v3[data-theme="light"] .nuvio-login-card {
 
    ========================================================================== */
 
-html.modern-ui-v3[data-theme="dark"] .livetv-liquid-glass-bg {
-  background: #050508 !important;
+html.modern-ui-v3[data-theme="dark"] {
+  --lgb-bg: #050508;
 }
 
-html.modern-ui-v3[data-theme="dark-crimson"] .livetv-liquid-glass-bg { background: #0c0205 !important; }
+html.modern-ui-v3[data-theme="dark-crimson"] { --lgb-bg: #0c0205; }
 
-html.modern-ui-v3[data-theme="dark-cyan"] .livetv-liquid-glass-bg { background: #020a0d !important; }
+html.modern-ui-v3[data-theme="dark-cyan"] { --lgb-bg: #020a0d; }
 
-html.modern-ui-v3[data-theme="dark-purple"] .livetv-liquid-glass-bg { background: #06020c !important; }
+html.modern-ui-v3[data-theme="dark-purple"] { --lgb-bg: #06020c; }
 
-html.modern-ui-v3[data-theme="dark-emerald"] .livetv-liquid-glass-bg { background: #020c06 !important; }
+html.modern-ui-v3[data-theme="dark-emerald"] { --lgb-bg: #020c06; }
 
-html.modern-ui-v3[data-theme="dark-orange"] .livetv-liquid-glass-bg { background: #0d0602 !important; }
+html.modern-ui-v3[data-theme="dark-orange"] { --lgb-bg: #0d0602; }
 
-html.modern-ui-v3[data-theme="dark-pink"] .livetv-liquid-glass-bg { background: #0d0208 !important; }
+html.modern-ui-v3[data-theme="dark-pink"] { --lgb-bg: #0d0208; }
 
-html.modern-ui-v3[data-theme="dark-blue"] .livetv-liquid-glass-bg { background: #02050e !important; }
+html.modern-ui-v3[data-theme="dark-blue"] { --lgb-bg: #02050e; }
 
-html.modern-ui-v3[data-theme="dark-gold"] .livetv-liquid-glass-bg { background: #0c0a02 !important; }
+html.modern-ui-v3[data-theme="dark-gold"] { --lgb-bg: #0c0a02; }
 
-html.modern-ui-v3[data-theme="dark-lime"] .livetv-liquid-glass-bg { background: #050c02 !important; }
+html.modern-ui-v3[data-theme="dark-lime"] { --lgb-bg: #050c02; }
 
-html.modern-ui-v3[data-theme="dark-indigo"] .livetv-liquid-glass-bg { background: #02030f !important; }
+html.modern-ui-v3[data-theme="dark-indigo"] { --lgb-bg: #02030f; }
 
-html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg { background: linear-gradient(135deg, #161718 0%, #1a1c1e 40%, #141516 100%) !important; }
+html.modern-ui-v3[data-theme="dark-warmgrey"] { --lgb-bg: #080808; }
 
-html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg .glass-blob { display: block !important; opacity: 0.28 !important; }
+html.modern-ui-v3[data-theme="dark-steel"] { --lgb-bg: #080808; }
 
-html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg .blob-1,
-html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg .blob-3 { background: radial-gradient(circle, rgba(180, 185, 200, 0.2) 0%, transparent 70%) !important; }
-
-html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg .blob-2,
-html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg .blob-4 { background: radial-gradient(circle, rgba(160, 165, 180, 0.15) 0%, transparent 70%) !important; }
-
-html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg::before { display: block !important; background: radial-gradient(circle, rgba(180, 185, 200, 0.08) 0%, transparent 70%) !important; }
-
-html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg::after { display: block !important; background: radial-gradient(circle, rgba(160, 165, 180, 0.06) 0%, transparent 70%) !important; }
-
-html.modern-ui-v3[data-theme="dark-warmgrey"] .livetv-liquid-glass-bg { background: #080808 !important; }
-
-html.modern-ui-v3[data-theme="dark-steel"] .livetv-liquid-glass-bg { background: #080808 !important; }
+html.modern-ui-v3[data-theme="dark-slate"] {
+  --lgb-bg: linear-gradient(135deg, #161718 0%, #1a1c1e 40%, #141516 100%);
+  --lgb-blob1: radial-gradient(circle, rgba(180, 185, 200, 0.2) 0%, transparent 70%);
+  --lgb-blob3: radial-gradient(circle, rgba(180, 185, 200, 0.2) 0%, transparent 70%);
+  --lgb-blob2: radial-gradient(circle, rgba(160, 165, 180, 0.15) 0%, transparent 70%);
+  --lgb-blob4: radial-gradient(circle, rgba(160, 165, 180, 0.15) 0%, transparent 70%);
+  --lgb-before: radial-gradient(circle, rgba(180, 185, 200, 0.08) 0%, transparent 70%);
+  --lgb-after: radial-gradient(circle, rgba(160, 165, 180, 0.06) 0%, transparent 70%);
+}
 
 /* Hide animated blobs and ambient glows for standard dark and dark-color themes */
 
@@ -3502,6 +3384,18 @@ html.modern-ui-v3[data-theme*="dark-"] .livetv-liquid-glass-bg .glass-blob,
 html.modern-ui-v3[data-theme*="dark-"] .livetv-liquid-glass-bg::before,
 html.modern-ui-v3[data-theme*="dark-"] .livetv-liquid-glass-bg::after {
   display: none !important;
+}
+
+/* Dark-slate re-enables the blobs (more specific than the dark-* hide rule) */
+
+html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg .glass-blob {
+  display: block !important;
+  opacity: 0.28 !important;
+}
+
+html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg::before,
+html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg::after {
+  display: block !important;
 }
 
 /* ==========================================================================
@@ -4230,60 +4124,27 @@ html.modern-ui-v3[data-theme="light"] .group-channel-item:hover {
 
 /* Input Fields inside Failover/Playlist/Group managers */
 
-.modern-ui-v3 .pll-create-input,
-.modern-ui-v3 .pll-edit-input,
-.modern-ui-v3 .fgl-create-input,
-.modern-ui-v3 .fgl-edit-input,
-.modern-ui-v3 .cgm-rename-input,
-.modern-ui-v3 .ple-name-input,
-.modern-ui-v3 .ple-search-input,
-.modern-ui-v3 .search-bar input {
-  border-radius: 10px !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  color: #fff !important;
-  padding: 8px 12px !important;
-  transition: all 0.2s ease !important;
-}
+/* Modal/editor text inputs (pll/fgl/cgm/ple + search-bar) are token-driven via
+   the --modal-input-* tokens in the component bases. These thin light consumers
+   stay only where light-theme-overrides.css also styles the same class — it loads
+   last with !important, so the tokens would otherwise lose in v3+light. */
 
-.modern-ui-v3 .pll-create-input:focus,
-.modern-ui-v3 .pll-edit-input:focus,
-.modern-ui-v3 .fgl-create-input:focus,
-.modern-ui-v3 .fgl-edit-input:focus,
-.modern-ui-v3 .cgm-rename-input:focus,
-.modern-ui-v3 .ple-name-input:focus,
-.modern-ui-v3 .ple-search-input:focus,
-.modern-ui-v3 .search-bar input:focus {
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) !important;
-  outline: none !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .pll-create-input,
-html.modern-ui-v3[data-theme="light"] .pll-edit-input,
-html.modern-ui-v3[data-theme="light"] .fgl-create-input,
-html.modern-ui-v3[data-theme="light"] .fgl-edit-input,
 html.modern-ui-v3[data-theme="light"] .cgm-rename-input,
 html.modern-ui-v3[data-theme="light"] .ple-name-input,
 html.modern-ui-v3[data-theme="light"] .ple-search-input,
 html.modern-ui-v3[data-theme="light"] .search-bar input {
-  background: rgba(0, 0, 0, 0.02) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: #000 !important;
+  background: var(--modal-input-bg, rgba(0, 0, 0, 0.02)) !important;
+  border-color: var(--modal-input-border-color, rgba(0, 0, 0, 0.08)) !important;
+  color: var(--modal-input-color, #000) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .pll-create-input:focus,
-html.modern-ui-v3[data-theme="light"] .pll-edit-input:focus,
-html.modern-ui-v3[data-theme="light"] .fgl-create-input:focus,
-html.modern-ui-v3[data-theme="light"] .fgl-edit-input:focus,
 html.modern-ui-v3[data-theme="light"] .cgm-rename-input:focus,
 html.modern-ui-v3[data-theme="light"] .ple-name-input:focus,
 html.modern-ui-v3[data-theme="light"] .ple-search-input:focus,
 html.modern-ui-v3[data-theme="light"] .search-bar input:focus {
-  background: rgba(0, 0, 0, 0.05) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03) !important;
+  background: var(--modal-input-focus-bg, rgba(0, 0, 0, 0.05)) !important;
+  border-color: var(--modal-input-focus-border-color, rgba(0, 0, 0, 0.15)) !important;
+  box-shadow: var(--modal-input-focus-shadow, 0 0 0 2px rgba(0, 0, 0, 0.03)) !important;
 }
 
 .modern-ui-v3 .pll-create-btn,
@@ -5056,316 +4917,8 @@ html.modern-ui-v3[data-theme="light"] .advanced-search-btn.secondary:hover {
 
    ============================================ */
 
-/* Floating glass panel — lifts off the bottom edge */
-
-html.modern-ui-v3 .now-playing-bar {
-  bottom: 12px !important;
-  left: 16px !important;
-  right: 16px !important;
-  border-radius: 20px !important;
-  background: rgba(8, 7, 16, 0.78) !important;
-  backdrop-filter: blur(40px) saturate(160%) brightness(0.9) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(160%) brightness(0.9) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
-    0 12px 48px rgba(0, 0, 0, 0.65),
-    0 4px 16px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.04) !important;
-  padding: 12px 20px !important;
-}
-
-/* Smooth slide-in from below for v3 */
-
-html.modern-ui-v3 .now-playing-bar.hidden {
-  transform: translateY(calc(100% + 12px)) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar.visible {
-  transform: translateY(0) !important;
-}
-
-/* Overlay slot adjusts for floating bar */
-
-html.modern-ui-v3 .now-playing-bar .npb-overlay-slot {
-  margin-bottom: 8px !important;
-  padding-right: 0 !important;
-}
-
-/* ── Info row divider — subtle gradient ── */
-
-html.modern-ui-v3 .now-playing-bar .npb-divider {
-  background: linear-gradient(to bottom,
-    transparent 0%,
-    rgba(255, 255, 255, 0.14) 25%,
-    rgba(255, 255, 255, 0.14) 75%,
-    transparent 100%
-  ) !important;
-}
-
-/* ── Channel logo — glass pill ── */
-
-html.modern-ui-v3 .now-playing-bar .npb-channel-logo {
-  border-radius: 8px !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* ── Text hierarchy ── */
-
-html.modern-ui-v3 .now-playing-bar .npb-channel-name {
-  color: rgba(255, 255, 255, 0.98) !important;
-  letter-spacing: 0.01em !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-program-title {
-  color: rgba(255, 255, 255, 0.6) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-program-desc {
-  color: rgba(255, 255, 255, 0.42) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-time-elapsed,
-html.modern-ui-v3 .now-playing-bar .npb-time-remaining {
-  color: rgba(255, 255, 255, 0.55) !important;
-}
-
-/* ── Progress bars — accent glow ── */
-
-html.modern-ui-v3 .now-playing-bar .npb-progress-bar {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-radius: 6px !important;
-  height: 4px !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-progress-fill {
-  background: linear-gradient(90deg,
-    var(--accent-primary, #00d4ff) 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 75%, white) 100%
-  ) !important;
-  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent) !important;
-  border-radius: 6px !important;
-}
-
-/* Interactive progress bar hover expand */
-
-html.modern-ui-v3 .now-playing-bar .npb-progress-interactive {
-  height: 4px !important;
-  border-radius: 6px !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-progress-interactive.active {
-  height: 7px !important;
-}
-
-/* Scrubber handle — glass white bubble */
-
-html.modern-ui-v3 .now-playing-bar .npb-scrubber-handle {
-  background: #ffffff !important;
-  box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent),
-    0 2px 8px rgba(0, 0, 0, 0.4) !important;
-}
-
-/* Time tooltip — glass pill */
-
-html.modern-ui-v3 .now-playing-bar .npb-time-tooltip {
-  background: rgba(15, 12, 25, 0.88) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border-radius: 8px !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 4px 16px rgba(0, 0, 0, 0.5) !important;
-  color: rgba(255, 255, 255, 0.95) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-time-tooltip::after {
-  border-top-color: rgba(15, 12, 25, 0.88) !important;
-}
-
-/* ── TimeShift scrubber ── */
-
-html.modern-ui-v3 .now-playing-bar .npb-ts-scrubber {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-radius: 6px !important;
-  height: 5px !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-ts-scrubber:hover {
-  height: 8px !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-ts-fill {
-  background: linear-gradient(90deg,
-    var(--accent-primary, #00d4ff) 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 75%, white) 100%
-  ) !important;
-  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) !important;
-  border-radius: 6px !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-ts-handle {
-  background: #ffffff !important;
-  box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent),
-    0 2px 8px rgba(0, 0, 0, 0.4) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-live-edge-marker {
-  background: #ff4560 !important;
-  box-shadow: 0 0 6px rgba(255, 69, 96, 0.7) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-live-badge {
-  color: #ff4560 !important;
-  text-shadow: 0 0 8px rgba(255, 69, 96, 0.6) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-behind-live {
-  color: rgba(255, 196, 0, 0.9) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-timeshift-window {
-  color: rgba(255, 255, 255, 0.38) !important;
-}
-
-/* ── Control buttons — glass pill style ── */
-
-html.modern-ui-v3 .now-playing-bar .npb-btn {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 12px !important;
-  color: rgba(255, 255, 255, 0.88) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 2px 6px rgba(0, 0, 0, 0.2) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.13) !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
-  color: #ffffff !important;
-  transform: translateY(-1px) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 4px 14px rgba(0, 0, 0, 0.3) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-btn:active:not(:disabled) {
-  transform: scale(0.94) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 1px 4px rgba(0, 0, 0, 0.2) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-btn:disabled {
-  opacity: 0.25 !important;
-}
-
-/* ── Volume slider ── */
-
-html.modern-ui-v3 .now-playing-bar .npb-volume-slider {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-radius: 4px !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-volume-slider::-webkit-slider-thumb {
-  background: #ffffff !important;
-  box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, transparent),
-    0 1px 4px rgba(0, 0, 0, 0.35) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-volume-value {
-  color: rgba(255, 255, 255, 0.45) !important;
-}
-
-/* ── Divider between extra controls ── */
-
-html.modern-ui-v3 .now-playing-bar .npb-extra-controls,
-html.modern-ui-v3 .now-playing-bar .npb-aspect-controls {
-  border-left-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-/* ── Aspect ratio popup — glass card ── */
-
-html.modern-ui-v3 .now-playing-bar .npb-aspect-menu {
-  background: rgba(12, 10, 22, 0.82) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  border-radius: 14px !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    0 12px 40px rgba(0, 0, 0, 0.55) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-aspect-item {
-  border-radius: 8px !important;
-  color: rgba(255, 255, 255, 0.75) !important;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-aspect-item:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: #fff !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-aspect-item.active {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, transparent) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-  font-weight: 600 !important;
-}
-
-/* ── Mode toggle buttons ── */
-
-html.modern-ui-v3 .now-playing-bar .npb-scrub-mode-btn {
-  border-radius: 20px !important;
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 8%, transparent) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 28%, transparent) !important;
-  color: color-mix(in srgb, var(--accent-primary, #00d4ff) 90%, white) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-scrub-mode-btn:hover {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, transparent) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 55%, transparent) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-  transform: translateY(-1px) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-scrub-mode-btn--back {
-  background: rgba(160, 120, 255, 0.08) !important;
-  border-color: rgba(160, 120, 255, 0.28) !important;
-  color: rgba(160, 120, 255, 0.88) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-scrub-mode-btn--back:hover {
-  background: rgba(160, 120, 255, 0.18) !important;
-  border-color: rgba(160, 120, 255, 0.55) !important;
-  color: #b08fff !important;
-  transform: translateY(-1px) !important;
-}
-
-/* ── Go Live / Catch Up button ── */
-
-html.modern-ui-v3 .now-playing-bar .npb-live-btn {
-  border-radius: 20px !important;
-  background: rgba(255, 64, 96, 0.1) !important;
-  border-color: rgba(255, 64, 96, 0.32) !important;
-  color: #ff6080 !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 2px 8px rgba(255, 64, 96, 0.15) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
+/* Folded into the NowPlayingBar.css base via the --npb-* token family
+   (v3 values defined in the token block; v2 keeps its own token set). */
 
 /* ============================================
 
@@ -5379,50 +4932,17 @@ html.modern-ui-v3 .now-playing-bar .npb-live-btn {
 
 /* Much darker backing — readable on any video */
 
-html.modern-ui-v3 .title-bar {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-bottom: none !important;
-  box-shadow: none !important;
-}
-
-/* Nav text & icons — strong drop-shadow on every element */
-
-html.modern-ui-v3:not([data-theme="light"]) .title-bar .segmented-btn,
-html.modern-ui-v3:not([data-theme="light"]) .title-bar .title-bar-logo,
-html.modern-ui-v3:not([data-theme="light"]) .title-bar .title-bar-settings-btn,
-html.modern-ui-v3:not([data-theme="light"]) .title-bar .title-bar-calendar-btn,
-html.modern-ui-v3:not([data-theme="light"]) .title-bar .title-bar-recording-indicator {
-  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.95)) !important;
-}
-
-/* Unified nav pill — driven by the --titlebar-unified-* tokens (v3 dark values
-   defined in the token block; v3 light falls back to the light base). */
-
-/* Active nav segment */
-
-html.modern-ui-v3:not([data-theme="light"]) .title-bar .segmented-btn.active {
-  background: rgba(255, 255, 255, 0.16) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 2px 8px rgba(0, 0, 0, 0.4) !important;
-}
-
-/* All nav text fully white in v3 */
-
-html.modern-ui-v3:not([data-theme="light"]) .title-bar .segmented-btn {
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-html.modern-ui-v3:not([data-theme="light"]) .title-bar .segmented-btn:hover {
-  color: #ffffff !important;
-}
+/* Title-bar nav is token-driven (see the .title-bar / .segmented-btn bases in
+   App.css consuming --titlebar-* and --seg-btn-* tokens). */
 
 /* Custom Theme - V3 Liquid Glass Background & Bulb Adaptations */
 
-html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg {
-  background: var(--bg-primary) !important;
+html.modern-ui-v3[data-theme="custom"] {
+  --lgb-bg: var(--bg-primary);
+  --lgb-blob1: radial-gradient(circle, var(--custom-blob-1, rgba(0, 191, 255, 0.55)) 0%, transparent 70%);
+  --lgb-blob2: radial-gradient(circle, var(--custom-blob-2, rgba(255, 20, 147, 0.45)) 0%, transparent 70%);
+  --lgb-blob3: radial-gradient(circle, var(--custom-blob-3, rgba(255, 215, 0, 0.35)) 0%, transparent 70%);
+  --lgb-blob4: radial-gradient(circle, var(--custom-blob-4, rgba(118, 255, 3, 0.3)) 0%, transparent 70%);
 }
 
 html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg .glass-blob,
@@ -5431,32 +4951,5 @@ html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg::after {
   opacity: var(--glass-blob-opacity, 0.18) !important;
   visibility: var(--glass-blob-visibility, visible) !important;
   will-change: var(--glass-blob-will-change, transform) !important;
-}
-
-html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg .blob-1 {
-  background: radial-gradient(circle, var(--custom-blob-1, rgba(0, 191, 255, 0.55)) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg .blob-2 {
-  background: radial-gradient(circle, var(--custom-blob-2, rgba(255, 20, 147, 0.45)) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg .blob-3 {
-  background: radial-gradient(circle, var(--custom-blob-3, rgba(255, 215, 0, 0.35)) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3[data-theme="custom"] .livetv-liquid-glass-bg .blob-4 {
-  background: radial-gradient(circle, var(--custom-blob-4, rgba(118, 255, 3, 0.3)) 0%, transparent 70%) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-btn:active:not(:disabled) {
-  transform: scale(0.94) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 1px 4px rgba(0, 0, 0, 0.2) !important;
-}
-
-html.modern-ui-v3 .now-playing-bar .npb-btn:disabled {
-  opacity: 0.25 !important;
 }
 

@@ -3,7 +3,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const root = 'packages/ui/src';
+// Resolve the ui package whether this runs from the repo root or from packages/ui.
+const cwd = process.cwd();
+const uiDir = fs.existsSync(path.join(cwd, 'packages/ui/src')) ? path.join(cwd, 'packages/ui') : cwd;
+const root = path.join(uiDir, 'src');
 const files = [];
 function walk(dir) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -43,7 +46,7 @@ if (undefinedTokens.length === 0) console.log('(none)');
 
 // Tokens defined ONLY in ModernV3.css (v3-gated) consumed in base/component files
 // without a fallback -> would be undefined in v1/v2.
-const v3File = 'packages/ui/src/styles/ModernV3.css';
+const v3File = path.join(uiDir, 'src/styles/ModernV3.css');
 const v3Only = [...defined.entries()].filter(([, f]) => f === v3File).map(([t]) => t);
 console.log('\n=== v3-ONLY TOKENS consumed in base/component files WITHOUT fallback ===');
 let risky = 0;
@@ -59,7 +62,7 @@ for (const u of used) {
 if (risky === 0) console.log('(none — all v3-only tokens consumed with fallbacks in base rules)');
 
 // Tokens defined in ModernV2.css consumed in base files without fallback (v1 risk)
-const v2File = 'packages/ui/src/styles/ModernV2.css';
+const v2File = path.join(uiDir, 'src/styles/ModernV2.css');
 const v2Only = [...defined.entries()].filter(([, f]) => f === v2File).map(([t]) => t);
 console.log('\n=== v2-ONLY TOKENS consumed in base/component files WITHOUT fallback ===');
 let risky2 = 0;
@@ -73,3 +76,10 @@ for (const u of used) {
   }
 }
 if (risky2 === 0) console.log('(none)');
+
+// Fail the build when a v2/v3-only token is consumed without a fallback in a
+// base/component rule — that is the cascade-collision bug class the migration
+// exists to prevent. (The undefined-token section above stays informational:
+// several tokens are injected at runtime via setProperty and are intentionally
+// not defined in CSS.)
+process.exit(risky > 0 || risky2 > 0 ? 1 : 0);

@@ -119,14 +119,22 @@
 
 .pll-create-input {
     flex: 1;
-    padding: 8px 12px;
-    border-radius: 7px;
-    border: 1px solid var(--accent-primary, #00d4ff);
-    background: rgba(0, 0, 0, 0.3);
-    color: var(--text-primary, #fff);
+    padding: var(--modal-input-padding, 8px 12px);
+    border-radius: var(--modal-input-radius, 7px);
+    border: 1px solid var(--modal-input-border-color, var(--accent-primary, #00d4ff));
+    background: var(--modal-input-bg, rgba(0, 0, 0, 0.3));
+    color: var(--modal-input-color, var(--text-primary, #fff));
     font-size: 0.9rem;
     outline: none;
     font-family: inherit;
+    transition: var(--modal-input-transition, none);
+}
+
+.pll-create-input:focus {
+    background: var(--modal-input-focus-bg, var(--modal-input-bg, rgba(0, 0, 0, 0.3)));
+    border-color: var(--modal-input-focus-border-color, var(--accent-primary, #00d4ff));
+    box-shadow: var(--modal-input-focus-shadow, none);
+    outline: none;
 }
 
 .pll-create-ok,
@@ -266,14 +274,22 @@
 
 .pll-edit-input {
     flex: 1;
-    padding: 6px 10px;
-    border-radius: 6px;
-    border: 1px solid var(--accent-primary, #00d4ff);
-    background: rgba(0, 0, 0, 0.3);
-    color: var(--text-primary, #fff);
+    padding: var(--modal-input-padding, 6px 10px);
+    border-radius: var(--modal-input-radius, 6px);
+    border: 1px solid var(--modal-input-border-color, var(--accent-primary, #00d4ff));
+    background: var(--modal-input-bg, rgba(0, 0, 0, 0.3));
+    color: var(--modal-input-color, var(--text-primary, #fff));
     font-size: 0.9rem;
     outline: none;
     font-family: inherit;
+    transition: var(--modal-input-transition, none);
+}
+
+.pll-edit-input:focus {
+    background: var(--modal-input-focus-bg, var(--modal-input-bg, rgba(0, 0, 0, 0.3)));
+    border-color: var(--modal-input-focus-border-color, var(--accent-primary, #00d4ff));
+    box-shadow: var(--modal-input-focus-shadow, none);
+    outline: none;
 }
 
 .pll-edit-ok {

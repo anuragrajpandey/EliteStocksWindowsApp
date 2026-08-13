@@ -71,14 +71,22 @@
 .ple-name-input {
     font-size: 1.15rem;
     font-weight: 600;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid var(--accent-primary, #00d4ff);
-    color: #fff;
-    border-radius: 6px;
-    padding: 4px 8px;
+    background: var(--modal-input-bg, rgba(0, 0, 0, 0.4));
+    border: 1px solid var(--modal-input-border-color, var(--accent-primary, #00d4ff));
+    color: var(--modal-input-color, #fff);
+    border-radius: var(--modal-input-radius, 6px);
+    padding: var(--modal-input-padding, 4px 8px);
     outline: none;
     font-family: inherit;
     width: 300px;
+    transition: var(--modal-input-transition, none);
+}
+
+.ple-name-input:focus {
+    background: var(--modal-input-focus-bg, var(--modal-input-bg, rgba(0, 0, 0, 0.4)));
+    border-color: var(--modal-input-focus-border-color, var(--accent-primary, #00d4ff));
+    box-shadow: var(--modal-input-focus-shadow, none);
+    outline: none;
 }
 
 .ple-header-right {
@@ -166,20 +174,21 @@
 
 .ple-search-input {
     width: 100%;
-    padding: 8px 36px 8px 12px;
-    border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(0, 0, 0, 0.3);
-    color: #fff;
+    padding: var(--modal-input-padding, 8px 36px 8px 12px);
+    border-radius: var(--modal-input-radius, 6px);
+    border: 1px solid var(--modal-input-border-color, rgba(255, 255, 255, 0.12));
+    background: var(--modal-input-bg, rgba(0, 0, 0, 0.3));
+    color: var(--modal-input-color, #fff);
     font-size: 0.85rem;
     outline: none;
     font-family: inherit;
-    transition: all 0.2s;
+    transition: var(--modal-input-transition, all 0.2s);
 }
 
 .ple-search-input:focus {
-    border-color: var(--accent-primary, #00d4ff);
-    box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.15);
+    border-color: var(--modal-input-focus-border-color, var(--accent-primary, #00d4ff));
+    background: var(--modal-input-focus-bg, var(--modal-input-bg, rgba(0, 0, 0, 0.3)));
+    box-shadow: var(--modal-input-focus-shadow, 0 0 0 2px rgba(0, 212, 255, 0.15));
 }
 
 .ple-search-clear {

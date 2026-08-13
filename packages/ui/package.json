@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node ../../scripts/check-globals.mjs && tsc && vite build",
+    "build": "node ../../scripts/check-globals.mjs && node ../../scripts/audit-tokens.mjs && node ../../scripts/check-css.mjs src && tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc --noEmit && node ../../scripts/check-locales.mjs",
