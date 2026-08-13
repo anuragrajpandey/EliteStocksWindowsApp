@@ -164,6 +164,12 @@
   --prog-past-desc-color: rgba(255, 255, 255, 0.3);
   --prog-current-bg: linear-gradient(135deg, color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, rgba(255, 255, 255, 0.04)) 0%, color-mix(in srgb, var(--accent-primary, #00d4ff) 5%, rgba(255, 255, 255, 0.02)) 100%);
   --prog-current-border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
+  /* Per-side borders — v2's current program carries the 1px outline on all
+     four sides (width/style from --prog-border, color from border-color). */
+  --prog-current-border-top: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
+  --prog-current-border-bottom: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
+  --prog-current-border-left: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
+  --prog-current-border-right: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
   --prog-current-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent) inset, 0 2px 8px rgba(0, 0, 0, 0.2);
   --prog-current-hover-bg: linear-gradient(135deg, color-mix(in srgb, var(--accent-primary, #00d4ff) 14%, rgba(255, 255, 255, 0.06)) 0%, color-mix(in srgb, var(--accent-primary, #00d4ff) 7%, rgba(255, 255, 255, 0.03)) 100%);
   --prog-current-hover-border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 45%, transparent);
@@ -431,6 +437,36 @@
   --cat-list-count-padding: 2px 6px;
   --cat-list-count-min-width: 20px;
   --cat-list-count-radius: 12px;
+  /* VOD sidebar active-item icon glows — per-icon accent colors (v3 inherits;
+     light sheet redefines with the light values) */
+  --vs-icon-glow-bg: rgba(0, 212, 255, 0.16);
+  --vs-icon-glow-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+  --vs-icon-glow-color: #33e0ff;
+  --vs-icon-glow-border: rgba(0, 212, 255, 0.3);
+  --vs-icon-fav-bg: rgba(255, 196, 0, 0.16);
+  --vs-icon-fav-shadow: 0 0 10px rgba(255, 196, 0, 0.4);
+  --vs-icon-fav-color: #ffd033;
+  --vs-icon-fav-border: rgba(255, 196, 0, 0.3);
+  --vs-icon-watch-bg: rgba(99, 102, 241, 0.16);
+  --vs-icon-watch-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+  --vs-icon-watch-color: #818cf8;
+  --vs-icon-watch-border: rgba(99, 102, 241, 0.3);
+  --vs-icon-recent-bg: rgba(244, 63, 94, 0.16);
+  --vs-icon-recent-shadow: 0 0 10px rgba(244, 63, 94, 0.4);
+  --vs-icon-recent-color: #fb7185;
+  --vs-icon-recent-border: rgba(244, 63, 94, 0.3);
+  /* VOD scrollbars — accent gradient thumb (v2; v3 inherits; light sheet
+     redefines with the light solid values) */
+  --vs-scrollbar-thumb-bg: linear-gradient(180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 20%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 80%,
+    transparent 100%);
+  --vs-scrollbar-thumb-hover-bg: linear-gradient(180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent) 20%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent) 80%,
+    transparent 100%);
 }
 
 /* Modern Category Strip Header */
@@ -841,29 +877,6 @@
   transform: scaleY(1.1);
 }
 
-/* Modern Scrollbars for VOD */
-.modern-ui .vertical-sidebar__scrollable::-webkit-scrollbar,
-.modern-ui .vod-browse::-webkit-scrollbar,
-.modern-ui .vod-browse *::-webkit-scrollbar,
-.modern-ui .vod-page__content::-webkit-scrollbar,
-.modern-ui .vod-page__content *::-webkit-scrollbar {
-  width: 6px !important;
-}
-
-.modern-ui .vertical-sidebar__scrollable::-webkit-scrollbar-thumb,
-.modern-ui .vod-browse::-webkit-scrollbar-thumb,
-.modern-ui .vod-browse *::-webkit-scrollbar-thumb,
-.modern-ui .vod-page__content::-webkit-scrollbar-thumb,
-.modern-ui .vod-page__content *::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg,
-    transparent 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 20%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 80%,
-    transparent 100%
-  ) !important;
-  border-radius: 3px !important;
-}
-
 /* --------------------------------------------------
    3. PROGRAM BLOCKS - "Timeline Cards" (surface values folded into
    ProgramBlock.css tokens; time-header remains below)
@@ -945,31 +958,3 @@
   margin: 4px 8px;
 }
 
-/* Glow and accent colors for vertical sidebar icons when active */
-.modern-ui .vertical-sidebar__item.active .all-channels-icon {
-  background: rgba(0, 212, 255, 0.16) !important;
-  box-shadow: 0 0 10px rgba(0, 212, 255, 0.4) !important;
-  color: #33e0ff !important;
-  border-color: rgba(0, 212, 255, 0.3) !important;
-}
-
-.modern-ui .vertical-sidebar__item.active .favorites-icon {
-  background: rgba(255, 196, 0, 0.16) !important;
-  box-shadow: 0 0 10px rgba(255, 196, 0, 0.4) !important;
-  color: #ffd033 !important;
-  border-color: rgba(255, 196, 0, 0.3) !important;
-}
-
-.modern-ui .vertical-sidebar__item.active .watchlist-icon {
-  background: rgba(99, 102, 241, 0.16) !important;
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4) !important;
-  color: #818cf8 !important;
-  border-color: rgba(99, 102, 241, 0.3) !important;
-}
-
-.modern-ui .vertical-sidebar__item.active .recent-icon {
-  background: rgba(244, 63, 94, 0.16) !important;
-  box-shadow: 0 0 10px rgba(244, 63, 94, 0.4) !important;
-  color: #fb7185 !important;
-  border-color: rgba(244, 63, 94, 0.3) !important;
-}

@@ -549,49 +549,6 @@ html[data-ui-version="v2"] .view-transition-container {
   pointer-events: auto;
 }
 
-/* Channel Info Overlay - TV style */
-.channel-info {
-  position: absolute;
-  top: 50px;
-  right: 40px;
-  background: rgba(0, 0, 0, 0.85);
-  padding: 20px 30px;
-  border-radius: 8px;
-  border-left: 4px solid #00d4ff;
-  animation: slideIn 0.2s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.channel-number {
-  font-size: 3rem;
-  font-weight: 700;
-  color: #00d4ff;
-  line-height: 1;
-}
-
-.channel-name {
-  font-size: 1.5rem;
-  margin-top: 5px;
-  font-weight: 300;
-}
-
-.channel-hint {
-  font-size: 0.8rem;
-  opacity: 0.6;
-  margin-top: 10px;
-}
-
 /* Error Banner */
 .error-banner {
   position: absolute;

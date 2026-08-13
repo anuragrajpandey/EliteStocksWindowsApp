@@ -185,20 +185,22 @@
 }
 
 .stremio-detail-tag {
-  background: var(--surface-color, rgba(255, 255, 255, 0.05));
-  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.06));
-  color: var(--text-secondary, rgba(255, 255, 255, 0.85));
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  transition: all 0.15s;
+  background: var(--sd-tag-bg, var(--surface-color, rgba(255, 255, 255, 0.05)));
+  border: var(--sd-tag-border, 1px solid var(--surface-border, rgba(255, 255, 255, 0.06)));
+  color: var(--sd-tag-color, var(--text-secondary, rgba(255, 255, 255, 0.85)));
+  padding: var(--sd-tag-pad, 6px 14px);
+  border-radius: var(--sd-tag-radius, 20px);
+  font-size: var(--sd-tag-font-size, 0.8rem);
+  font-weight: var(--sd-tag-weight, 500);
+  transition: var(--sd-tag-transition, all 0.15s);
 }
 
 .stremio-detail-tag:hover {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.12));
-  border-color: var(--accent-primary, rgba(255, 255, 255, 0.2));
-  color: var(--text-primary, white);
+  background: var(--sd-tag-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.12)));
+  border-color: var(--sd-tag-hover-border, var(--accent-primary, rgba(255, 255, 255, 0.2)));
+  color: var(--sd-tag-hover-color, var(--text-primary, white));
+  transform: var(--sd-tag-hover-transform, none);
+  box-shadow: var(--sd-tag-hover-shadow, none);
 }
 
 .stremio-detail-desc {
@@ -222,50 +224,57 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--surface-color, rgba(255, 255, 255, 0.06));
-  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.08));
-  color: var(--text-primary, white);
-  padding: 8px 20px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  background: var(--sd-act-bg, var(--surface-color, rgba(255, 255, 255, 0.06)));
+  border: var(--sd-act-border, 1px solid var(--surface-border, rgba(255, 255, 255, 0.08)));
+  color: var(--sd-act-color, var(--text-primary, white));
+  padding: var(--sd-act-pad, 8px 20px);
+  border-radius: var(--sd-act-radius, 8px);
+  font-size: var(--sd-act-font-size, 0.85rem);
+  font-weight: var(--sd-act-font-weight, 600);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--sd-act-transition, all 0.15s);
+  backdrop-filter: var(--sd-act-filter, none);
+  -webkit-backdrop-filter: var(--sd-act-filter, none);
 }
 
 .stremio-detail-action-btn:hover {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.12));
-  border-color: var(--accent-primary, rgba(255, 255, 255, 0.2));
-  transform: translateY(-1px);
-  box-shadow: 0 0 15px var(--accent-glow, rgba(0, 212, 255, 0.05));
+  background: var(--sd-act-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.12)));
+  border-color: var(--sd-act-hover-border, var(--accent-primary, rgba(255, 255, 255, 0.2)));
+  color: var(--sd-act-hover-color, inherit);
+  transform: var(--sd-act-hover-transform, translateY(-1px));
+  box-shadow: var(--sd-act-hover-shadow, 0 0 15px var(--accent-glow, rgba(0, 212, 255, 0.05)));
 }
 
 .stremio-detail-action-btn.btn-trailer {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: white;
-  padding: 8px 20px;
+  background: var(--sd-act-trailer-bg, rgba(255, 255, 255, 0.1));
+  border: var(--sd-act-trailer-border, 1px solid rgba(255, 255, 255, 0.2));
+  border-radius: var(--sd-act-trailer-radius, 8px);
+  backdrop-filter: var(--sd-act-trailer-filter, blur(8px));
+  -webkit-backdrop-filter: var(--sd-act-trailer-filter, blur(8px));
+  color: var(--sd-act-trailer-color, white);
+  padding: var(--sd-act-trailer-pad, 8px 20px);
 }
 
 .stremio-detail-action-btn.btn-trailer:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: var(--sd-act-trailer-hover-bg, rgba(255, 255, 255, 0.18));
+  border-color: var(--sd-act-trailer-hover-border, rgba(255, 255, 255, 0.3));
+  box-shadow: none;
 }
 
 .stremio-detail-action-btn.btn-add-library {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent);
-  border-radius: 8px;
-  color: white;
-  padding: 8px 20px;
+  background: var(--sd-act-lib-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent));
+  border: var(--sd-act-lib-border, 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent));
+  border-radius: var(--sd-act-lib-radius, 8px);
+  color: var(--sd-act-lib-color, white);
+  padding: var(--sd-act-lib-pad, 8px 20px);
+  backdrop-filter: var(--sd-act-lib-filter, none);
+  -webkit-backdrop-filter: var(--sd-act-lib-filter, none);
 }
 
 .stremio-detail-action-btn.btn-add-library:hover {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent);
+  background: var(--sd-act-lib-hover-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent));
+  border-color: var(--sd-act-lib-hover-border, color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent));
+  box-shadow: none;
 }
 
 .stremio-detail-action-btn svg {
@@ -273,14 +282,18 @@
 }
 
 .stremio-detail-action-btn.in-library {
-  background: var(--accent-glow, rgba(0, 212, 255, 0.15));
-  border-color: var(--accent-primary, rgba(0, 212, 255, 0.35));
-  color: var(--accent-primary, #00d4ff);
+  background: var(--sd-act-inlib-bg, var(--accent-glow, rgba(0, 212, 255, 0.15)));
+  border-color: var(--sd-act-inlib-border, var(--accent-primary, rgba(0, 212, 255, 0.35)));
+  color: var(--sd-act-inlib-color, var(--accent-primary, #00d4ff));
+  box-shadow: var(--sd-act-inlib-shadow, none);
 }
 
 .stremio-detail-action-btn.in-library:hover {
-  background: var(--accent-glow, rgba(0, 212, 255, 0.22));
-  border-color: var(--accent-primary, rgba(0, 212, 255, 0.5));
+  background: var(--sd-act-inlib-hover-bg, var(--accent-glow, rgba(0, 212, 255, 0.22)));
+  border-color: var(--sd-act-inlib-hover-border, var(--accent-primary, rgba(0, 212, 255, 0.5)));
+  color: var(--sd-act-inlib-color, var(--accent-primary, #00d4ff));
+  transform: var(--sd-act-hover-transform, translateY(-1px));
+  box-shadow: var(--sd-act-inlib-hover-shadow, none);
 }
 
 /* ─── Right Panel: Sidebar Lists ───────────────────────────── */
@@ -325,46 +338,50 @@
 }
 
 .stremio-detail-nav-btn {
-  background: var(--surface-color, rgba(255, 255, 255, 0.05));
-  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.08));
-  color: var(--text-secondary, rgba(255, 255, 255, 0.8));
-  padding: 7px 14px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  background: var(--sd-nav-bg, var(--surface-color, rgba(255, 255, 255, 0.05)));
+  border: var(--sd-nav-border, 1px solid var(--surface-border, rgba(255, 255, 255, 0.08)));
+  color: var(--sd-nav-color, var(--text-secondary, rgba(255, 255, 255, 0.8)));
+  padding: var(--sd-nav-pad, 7px 14px);
+  border-radius: var(--sd-nav-radius, 6px);
+  font-size: var(--sd-nav-font-size, 0.8rem);
+  font-weight: var(--sd-nav-weight, 600);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--sd-nav-transition, all 0.15s);
 }
 
 .stremio-detail-nav-btn:hover:not(:disabled) {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.12));
-  border-color: var(--accent-primary, rgba(255, 255, 255, 0.15));
-  color: var(--text-primary, white);
+  background: var(--sd-nav-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.12)));
+  border-color: var(--sd-nav-hover-border, var(--accent-primary, rgba(255, 255, 255, 0.15)));
+  color: var(--sd-nav-hover-color, var(--text-primary, white));
+  transform: var(--sd-nav-hover-transform, none);
+  box-shadow: var(--sd-nav-hover-shadow, none);
 }
 
 .stremio-detail-nav-btn:disabled {
-  opacity: 0.25;
+  opacity: var(--sd-nav-disabled-opacity, 0.25);
   cursor: not-allowed;
 }
 
 .stremio-detail-season-select {
   flex: 1;
-  background: var(--surface-color, rgba(255, 255, 255, 0.07));
-  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.1));
-  color: var(--text-primary, white);
-  padding: 7px 12px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 700;
+  background: var(--sd-season-bg, var(--surface-color, rgba(255, 255, 255, 0.07)));
+  border: var(--sd-season-border, 1px solid var(--surface-border, rgba(255, 255, 255, 0.1)));
+  color: var(--sd-season-color, var(--text-primary, white));
+  padding: var(--sd-season-pad, 7px 12px);
+  border-radius: var(--sd-season-radius, 6px);
+  font-size: var(--sd-season-font-size, 0.85rem);
+  font-weight: var(--sd-season-weight, 700);
   outline: none;
   cursor: pointer;
   text-align: center;
-  transition: all 0.15s;
+  transition: var(--sd-season-transition, all 0.15s);
 }
 
 .stremio-detail-season-select:hover {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.12));
-  border-color: var(--accent-primary, rgba(255, 255, 255, 0.2));
+  background: var(--sd-season-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.12)));
+  border-color: var(--sd-season-hover-border, var(--accent-primary, rgba(255, 255, 255, 0.2)));
+  color: var(--sd-season-hover-color, inherit);
+  box-shadow: var(--sd-season-hover-shadow, none);
 }
 
 .stremio-detail-season-select option {
@@ -393,21 +410,21 @@
 
 .stremio-detail-search-videos input {
   width: 100%;
-  background: var(--surface-color, rgba(255, 255, 255, 0.04));
-  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.08));
-  color: var(--text-primary, white);
-  border-radius: 8px;
+  background: var(--sd-search-bg, var(--surface-color, rgba(255, 255, 255, 0.04)));
+  border: var(--sd-search-border, 1px solid var(--surface-border, rgba(255, 255, 255, 0.08)));
+  color: var(--sd-search-color, var(--text-primary, white));
+  border-radius: var(--sd-search-radius, 8px);
   padding: 8px 12px 8px 36px;
   font-size: 0.85rem;
   outline: none;
   box-sizing: border-box;
-  transition: all 0.15s;
+  transition: var(--sd-search-transition, all 0.15s);
 }
 
 .stremio-detail-search-videos input:focus {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.08));
-  border-color: var(--accent-primary, rgba(0, 212, 255, 0.4));
-  box-shadow: 0 0 10px var(--accent-glow, rgba(0, 212, 255, 0.05));
+  background: var(--sd-search-focus-bg, var(--surface-hover, rgba(255, 255, 255, 0.08)));
+  border-color: var(--sd-search-focus-border, var(--accent-primary, rgba(0, 212, 255, 0.4)));
+  box-shadow: var(--sd-search-focus-shadow, 0 0 10px var(--accent-glow, rgba(0, 212, 255, 0.05)));
 }
 
 .stremio-video-search-clear {

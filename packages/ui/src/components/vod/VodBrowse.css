@@ -49,137 +49,6 @@
   font-weight: 400;
 }
 
-/* Poster Size Slider */
-.poster-size-slider {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.poster-size-slider__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.35);
-  transition: color 0.2s ease, transform 0.15s ease;
-  background: transparent;
-  border: none;
-  padding: 4px;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.poster-size-slider__icon:hover:not(:disabled) {
-  color: rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.08);
-  transform: scale(1.1);
-}
-
-.poster-size-slider__icon:active:not(:disabled) {
-  transform: scale(0.95);
-}
-
-.poster-size-slider__icon:disabled,
-.poster-size-slider__icon.disabled {
-  color: rgba(255, 255, 255, 0.15);
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.poster-size-slider__icon svg {
-  width: 12px;
-  height: 12px;
-}
-
-.poster-size-slider__icon--large svg {
-  width: 18px;
-  height: 18px;
-}
-
-.poster-size-slider:hover .poster-size-slider__icon:not(:disabled) {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.poster-size-slider__track {
-  position: relative;
-  width: 140px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-}
-
-.poster-size-slider__input {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  cursor: pointer;
-  margin: 0;
-  position: relative;
-  z-index: 2;
-}
-
-.poster-size-slider__input::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #fff;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.poster-size-slider__input::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
-}
-
-.poster-size-slider__input::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #fff;
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.poster-size-slider__input::-moz-range-thumb:hover {
-  transform: scale(1.15);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
-}
-
-.poster-size-slider__marks {
-  position: absolute;
-  top: 50%;
-  left: 7px;
-  right: 7px;
-  height: 4px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  pointer-events: none;
-  transform: translateY(-50%);
-}
-
-.poster-size-slider__mark {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  transition: background 0.2s ease;
-}
-
-.poster-size-slider__mark.active {
-  background: rgba(255, 255, 255, 0.6);
-}
-
 /* Dark scrollbar styling - matches EPG */
 .vod-browse::-webkit-scrollbar,
 .vod-browse *::-webkit-scrollbar {
@@ -193,13 +62,13 @@
 
 .vod-browse::-webkit-scrollbar-thumb,
 .vod-browse *::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--vs-scrollbar-thumb-bg, rgba(255, 255, 255, 0.1));
   border-radius: 3px;
 }
 
 .vod-browse::-webkit-scrollbar-thumb:hover,
 .vod-browse *::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--vs-scrollbar-thumb-hover-bg, rgba(255, 255, 255, 0.2));
 }
 
 /* Firefox */
@@ -320,20 +189,70 @@
   .vod-browse__category-name {
     font-size: 0.9rem;
   }
-  
-  .poster-size-slider__track {
-    width: 100px;
-  }
-  
-  .poster-size-slider__icon svg {
-    width: 10px;
-    height: 10px;
-  }
-  
-  .poster-size-slider__icon--large svg {
-    width: 14px;
-    height: 14px;
-  }
+}
+
+/* Poster Size Slider — VOD keeps its original (larger) look. The shared
+   PosterSizeSlider.css is the smaller variant used by Stremio/Nuvio; these
+   scoped rules restore the historical VOD dimensions. */
+.vod-browse .poster-size-slider {
+  gap: 10px;
+  margin-left: 0;
+}
+
+.vod-browse .poster-size-slider__icon {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.vod-browse .poster-size-slider__icon:hover:not(:disabled) {
+  color: rgba(255, 255, 255, 0.7);
+  transform: scale(1.1);
+}
+
+.vod-browse .poster-size-slider__icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.vod-browse .poster-size-slider__icon--large svg {
+  width: 18px;
+  height: 18px;
+}
+
+.vod-browse .poster-size-slider:hover .poster-size-slider__icon:not(:disabled) {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.vod-browse .poster-size-slider__track {
+  width: 140px;
+}
+
+.vod-browse .poster-size-slider__input {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.vod-browse .poster-size-slider__input::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+}
+
+.vod-browse .poster-size-slider__input::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+}
+
+.vod-browse .poster-size-slider__marks {
+  left: 7px;
+  right: 7px;
+}
+
+.vod-browse .poster-size-slider__mark {
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.vod-browse .poster-size-slider__mark.active {
+  background: rgba(255, 255, 255, 0.6);
 }
 
 @media (max-width: 480px) {
@@ -346,7 +265,7 @@
     width: 100%;
   }
   
-  .poster-size-slider {
+  .vod-browse .poster-size-slider {
     margin-left: auto;
   }
 }

@@ -352,6 +352,196 @@ html.modern-ui-v3 {
   --seg-btn-hover-bg: rgba(255, 255, 255, 0.08);
   --seg-btn-active-bg: rgba(255, 255, 255, 0.16);
   --seg-btn-active-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 2px 8px rgba(0, 0, 0, 0.4);
+  /* Stremio detail action buttons — dark glass pill (v3 light overrides below) */
+  --sd-act-bg: rgba(255, 255, 255, 0.04);
+  --sd-act-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sd-act-color: var(--text-secondary, rgba(255, 255, 255, 0.85));
+  --sd-act-pad: 8px 18px;
+  --sd-act-radius: 20px;
+  --sd-act-font-size: 0.85rem;
+  --sd-act-font-weight: 600;
+  --sd-act-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --sd-act-filter: blur(8px);
+  --sd-act-hover-bg: rgba(255, 255, 255, 0.12);
+  --sd-act-hover-border: rgba(255, 255, 255, 0.2);
+  --sd-act-hover-color: #fff;
+  --sd-act-hover-transform: translateY(-1px);
+  --sd-act-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --sd-act-trailer-bg: rgba(255, 255, 255, 0.1);
+  --sd-act-trailer-border: 1px solid rgba(255, 255, 255, 0.2);
+  --sd-act-trailer-radius: 8px;
+  --sd-act-trailer-filter: blur(8px);
+  --sd-act-trailer-color: #fff;
+  --sd-act-trailer-pad: 8px 20px;
+  --sd-act-trailer-hover-bg: rgba(255, 255, 255, 0.18);
+  --sd-act-trailer-hover-border: rgba(255, 255, 255, 0.3);
+  --sd-act-lib-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
+  --sd-act-lib-border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent);
+  --sd-act-lib-radius: 8px;
+  --sd-act-lib-color: #fff;
+  --sd-act-lib-pad: 8px 20px;
+  --sd-act-lib-filter: none;
+  --sd-act-lib-hover-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
+  --sd-act-lib-hover-border: color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent);
+  --sd-act-inlib-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(255, 255, 255, 0.05));
+  --sd-act-inlib-border: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15));
+  --sd-act-inlib-color: var(--accent-primary, #00d4ff);
+  --sd-act-inlib-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, transparent);
+  --sd-act-inlib-hover-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(255, 255, 255, 0.1));
+  --sd-act-inlib-hover-border: color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, rgba(255, 255, 255, 0.25));
+  --sd-act-inlib-hover-shadow: 0 6px 16px rgba(0, 0, 0, 0.2), 0 0 15px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
+  /* Stremio detail tag / nav buttons / season select / search input —
+     shared dark glass pill values (v3 light overrides below) */
+  --sd-tag-bg: rgba(255, 255, 255, 0.04);
+  --sd-tag-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sd-tag-color: var(--text-secondary, rgba(255, 255, 255, 0.8));
+  --sd-tag-pad: 6px 14px;
+  --sd-tag-radius: 20px;
+  --sd-tag-font-size: 0.8rem;
+  --sd-tag-weight: 500;
+  --sd-tag-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --sd-tag-hover-bg: rgba(255, 255, 255, 0.12);
+  --sd-tag-hover-border: rgba(255, 255, 255, 0.2);
+  --sd-tag-hover-color: #fff;
+  --sd-tag-hover-transform: translateY(-1px);
+  --sd-tag-hover-shadow: none;
+  --sd-nav-bg: rgba(255, 255, 255, 0.04);
+  --sd-nav-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sd-nav-color: var(--text-secondary, rgba(255, 255, 255, 0.8));
+  --sd-nav-pad: 6px 14px;
+  --sd-nav-radius: 20px;
+  --sd-nav-font-size: 0.8rem;
+  --sd-nav-weight: 600;
+  --sd-nav-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --sd-nav-hover-bg: rgba(255, 255, 255, 0.12);
+  --sd-nav-hover-border: rgba(255, 255, 255, 0.2);
+  --sd-nav-hover-color: #fff;
+  --sd-nav-hover-transform: translateY(-1px);
+  --sd-nav-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --sd-nav-disabled-opacity: 0.25;
+  --sd-season-hover-shadow: none;
+  --sd-season-hover-color: inherit;
+  --sd-season-bg: rgba(255, 255, 255, 0.04);
+  --sd-season-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sd-season-color: var(--text-primary, #fff);
+  --sd-season-weight: 600;
+  --sd-season-pad: 6px 12px;
+  --sd-season-radius: 20px;
+  --sd-season-font-size: 0.8rem;
+  --sd-season-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --sd-season-hover-bg: rgba(255, 255, 255, 0.08);
+  --sd-season-hover-border: rgba(255, 255, 255, 0.15);
+  --sd-search-bg: rgba(255, 255, 255, 0.03);
+  --sd-search-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sd-search-color: var(--text-primary, #fff);
+  --sd-search-radius: 20px;
+  --sd-search-transition: all 0.2s ease;
+  --sd-search-focus-bg: rgba(255, 255, 255, 0.08);
+  --sd-search-focus-border: var(--accent-primary, #00d4ff);
+  --sd-search-focus-shadow: 0 0 10px var(--accent-glow, rgba(0, 212, 255, 0.15));
+  /* Audio/subtitle selector modals — close, search, result, episode filter, nudge */
+  --sm-close-bg: rgba(255, 255, 255, 0.04);
+  --sm-close-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-close-color: rgba(255, 255, 255, 0.6);
+  --sm-close-radius: 50%;
+  --sm-close-size: 32px;
+  --sm-close-font-size: 1.4rem;
+  --sm-close-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --sm-close-hover-bg: rgba(255, 255, 255, 0.12);
+  --sm-close-hover-border: rgba(255, 255, 255, 0.2);
+  --sm-close-hover-color: #fff;
+  --sm-search-input-bg: rgba(255, 255, 255, 0.04);
+  --sm-search-input-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-search-input-color: #fff;
+  --sm-search-input-pad: 8px 12px;
+  --sm-search-input-radius: 10px;
+  --sm-search-input-transition: all 0.2s ease;
+  --sm-search-input-focus-bg: rgba(255, 255, 255, 0.08);
+  --sm-search-input-focus-border: rgba(255, 255, 255, 0.2);
+  --sm-search-input-focus-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+  --sm-search-btn-bg: rgba(255, 255, 255, 0.04);
+  --sm-search-btn-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-search-btn-color: rgba(255, 255, 255, 0.8);
+  --sm-search-btn-radius: 10px;
+  --sm-search-btn-pad: 8px 14px;
+  --sm-search-btn-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --sm-search-btn-hover-bg: rgba(255, 255, 255, 0.12);
+  --sm-search-btn-hover-border: rgba(255, 255, 255, 0.2);
+  --sm-search-btn-hover-color: #fff;
+  --sm-search-btn-hover-opacity: 1;
+  --sm-result-bg: rgba(255, 255, 255, 0.02);
+  --sm-result-border: 1px solid rgba(255, 255, 255, 0.04);
+  --sm-result-radius: 8px;
+  --sm-result-margin: 4px 8px;
+  --sm-result-pad: 10px 12px;
+  --sm-result-color: rgba(255, 255, 255, 0.8);
+  --sm-result-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --sm-result-hover-bg: rgba(255, 255, 255, 0.06);
+  --sm-result-hover-border: rgba(255, 255, 255, 0.12);
+  --sm-result-hover-color: #fff;
+  --sm-result-hover-transform: translateY(-0.5px);
+  --sm-ep-filter-bg: rgba(255, 255, 255, 0.04);
+  --sm-ep-filter-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-ep-filter-color: rgba(255, 255, 255, 0.6);
+  --sm-ep-filter-transition: all 0.2s ease;
+  --sm-ep-filter-hover-bg: rgba(255, 255, 255, 0.12);
+  --sm-ep-filter-hover-border: rgba(255, 255, 255, 0.2);
+  --sm-ep-filter-hover-color: #fff;
+  --sm-ep-filter-active-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, rgba(255, 255, 255, 0.06));
+  --sm-ep-filter-active-border: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15));
+  --sm-ep-filter-active-color: #fff;
+  --sm-ep-filter-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --sm-nudge-bg: rgba(255, 255, 255, 0.04);
+  --sm-nudge-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-nudge-color: #fff;
+  --sm-nudge-radius: 6px;
+  --sm-nudge-transition: all 0.2s ease;
+  --sm-nudge-hover-bg: rgba(255, 255, 255, 0.12);
+  --sm-nudge-hover-border: rgba(255, 255, 255, 0.2);
+  /* Settings type-selector buttons (base / hover / focus / active) */
+  --type-sel-bg: rgba(255, 255, 255, 0.04);
+  --type-sel-border: 1px solid rgba(255, 255, 255, 0.08);
+  --type-sel-color: rgba(255, 255, 255, 0.8);
+  --type-sel-radius: 8px;
+  --type-sel-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --type-sel-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --type-sel-weight: 500;
+  --type-sel-hover-bg: rgba(255, 255, 255, 0.12);
+  --type-sel-hover-border: rgba(255, 255, 255, 0.2);
+  --type-sel-hover-color: #fff;
+  --type-sel-hover-transform: translateY(-1px);
+  --type-sel-focus-bg: rgba(255, 255, 255, 0.08);
+  --type-sel-focus-border: rgba(255, 255, 255, 0.2);
+  --type-sel-focus-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+  --type-sel-active-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, rgba(255, 255, 255, 0.08));
+  --type-sel-active-color: #fff;
+  --type-sel-active-border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15));
+  --type-sel-active-border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15));
+  --type-sel-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --type-sel-active-weight: 600;
+  /* EPG program-block current state (v3 glass highlight) */
+  --prog-current-bg: color-mix(in srgb, var(--accent-primary) 22%, transparent);
+  --prog-current-border-top: 1px solid color-mix(in srgb, var(--accent-primary) 45%, transparent);
+  --prog-current-border-bottom: 1px solid color-mix(in srgb, var(--accent-primary) 45%, transparent);
+  --prog-current-border-left: 3px solid color-mix(in srgb, var(--accent-primary) 80%, transparent);
+  --prog-current-border-right: none;
+  --prog-current-shadow: none;
+  --prog-current-hover-bg: color-mix(in srgb, var(--accent-primary) 28%, transparent);
+  --prog-current-hover-border-color: color-mix(in srgb, var(--accent-primary) 55%, transparent);
+  --prog-current-hover-border-left-color: color-mix(in srgb, var(--accent-primary) 90%, transparent);
+  --prog-current-hover-transform: translateY(-1px) scale(1.01);
+  --prog-current-hover-z: 20;
+  --prog-current-playing-bg: color-mix(in srgb, var(--accent-primary) 32%, transparent);
+  --prog-current-playing-border-top: 1px solid color-mix(in srgb, var(--accent-primary) 55%, transparent);
+  --prog-current-playing-border-bottom: 1px solid color-mix(in srgb, var(--accent-primary) 55%, transparent);
+  --prog-current-playing-border-left: 3px solid color-mix(in srgb, var(--accent-primary) 90%, transparent);
+  --prog-current-playing-border-right: 1px solid color-mix(in srgb, var(--accent-primary) 55%, transparent);
+  --prog-current-playing-shadow: 0 0 16px color-mix(in srgb, var(--accent-primary) 25%, transparent);
+  --prog-current-playing-hover-bg: color-mix(in srgb, var(--accent-primary) 38%, transparent);
+  --prog-current-playing-hover-border-color: color-mix(in srgb, var(--accent-primary) 70%, transparent);
+  --prog-current-playing-hover-border-left-color: color-mix(in srgb, var(--accent-primary) 100%, transparent);
+  --prog-current-playing-hover-transform: translateY(-1px) scale(1.01);
+  --prog-current-playing-hover-z: 20;
 }
 
 /* v3 light theme — redefine the glass tokens so the same base rules produce the
@@ -411,6 +601,110 @@ html.modern-ui-v3[data-theme="light"] {
   --cat-item-selected-count-color: #0f172a;
   --src-count-color: var(--text-secondary, #888);
   --src-count-font-weight: 600;
+  /* Stremio detail action buttons — light */
+  --sd-act-bg: rgba(0, 0, 0, 0.04);
+  --sd-act-border: 1px solid rgba(0, 0, 0, 0.08);
+  --sd-act-color: rgba(0, 0, 0, 0.8);
+  --sd-act-hover-bg: rgba(0, 0, 0, 0.08);
+  --sd-act-hover-border: rgba(0, 0, 0, 0.15);
+  --sd-act-hover-color: #000;
+  --sd-act-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --sd-act-inlib-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(0, 0, 0, 0.04));
+  --sd-act-inlib-border: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(0, 0, 0, 0.08));
+  --sd-act-inlib-hover-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(0, 0, 0, 0.08));
+  --sd-act-inlib-hover-border: color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, rgba(0, 0, 0, 0.15));
+  /* Stremio detail tag / nav buttons / season select / search input — light */
+  --sd-tag-bg: rgba(0, 0, 0, 0.04);
+  --sd-tag-border: 1px solid rgba(0, 0, 0, 0.08);
+  --sd-tag-color: rgba(0, 0, 0, 0.8);
+  --sd-tag-hover-bg: rgba(0, 0, 0, 0.08);
+  --sd-tag-hover-border: rgba(0, 0, 0, 0.15);
+  --sd-tag-hover-color: #000;
+  --sd-tag-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --sd-nav-bg: rgba(0, 0, 0, 0.04);
+  --sd-nav-border: 1px solid rgba(0, 0, 0, 0.08);
+  --sd-nav-color: rgba(0, 0, 0, 0.8);
+  --sd-nav-hover-bg: rgba(0, 0, 0, 0.08);
+  --sd-nav-hover-border: rgba(0, 0, 0, 0.15);
+  --sd-nav-hover-color: #000;
+  --sd-nav-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --sd-season-bg: rgba(0, 0, 0, 0.04);
+  --sd-season-border: 1px solid rgba(0, 0, 0, 0.08);
+  --sd-season-color: rgba(0, 0, 0, 0.8);
+  --sd-season-hover-bg: rgba(0, 0, 0, 0.08);
+  --sd-season-hover-border: rgba(0, 0, 0, 0.15);
+  --sd-season-hover-color: #000;
+  --sd-season-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --sd-search-bg: rgba(0, 0, 0, 0.03);
+  --sd-search-border: 1px solid rgba(0, 0, 0, 0.08);
+  --sd-search-color: #000;
+  --sd-search-focus-bg: rgba(0, 0, 0, 0.06);
+  --sd-search-focus-border: var(--accent-primary, #00d4ff);
+  /* Audio/subtitle selector modals — light */
+  --sm-close-bg: rgba(0, 0, 0, 0.04);
+  --sm-close-border: 1px solid rgba(0, 0, 0, 0.08);
+  --sm-close-color: rgba(0, 0, 0, 0.6);
+  --sm-close-hover-bg: rgba(0, 0, 0, 0.08);
+  --sm-close-hover-border: rgba(0, 0, 0, 0.15);
+  --sm-close-hover-color: #000;
+  --sm-search-input-bg: rgba(0, 0, 0, 0.02);
+  --sm-search-input-border: 1px solid rgba(0, 0, 0, 0.08);
+  --sm-search-input-color: #000;
+  --sm-search-input-focus-bg: rgba(0, 0, 0, 0.05);
+  --sm-search-input-focus-border: rgba(0, 0, 0, 0.15);
+  --sm-search-input-focus-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03);
+  --sm-search-btn-bg: rgba(0, 0, 0, 0.03);
+  --sm-search-btn-border: 1px solid rgba(0, 0, 0, 0.08);
+  --sm-search-btn-color: rgba(0, 0, 0, 0.75);
+  --sm-search-btn-hover-bg: rgba(0, 0, 0, 0.06);
+  --sm-search-btn-hover-border: rgba(0, 0, 0, 0.15);
+  --sm-search-btn-hover-color: #000;
+  --sm-result-bg: rgba(0, 0, 0, 0.01);
+  --sm-result-border: 1px solid rgba(0, 0, 0, 0.04);
+  --sm-result-color: rgba(0, 0, 0, 0.8);
+  --sm-result-hover-bg: rgba(0, 0, 0, 0.04);
+  --sm-result-hover-border: rgba(0, 0, 0, 0.08);
+  --sm-result-hover-color: #000;
+  --sm-ep-filter-bg: rgba(0, 0, 0, 0.03);
+  --sm-ep-filter-border: 1px solid rgba(0, 0, 0, 0.08);
+  --sm-ep-filter-color: rgba(0, 0, 0, 0.7);
+  --sm-ep-filter-hover-bg: rgba(0, 0, 0, 0.06);
+  --sm-ep-filter-hover-border: rgba(0, 0, 0, 0.15);
+  --sm-ep-filter-hover-color: #000;
+  --sm-ep-filter-active-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, rgba(0, 0, 0, 0.03));
+  --sm-ep-filter-active-border: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(0, 0, 0, 0.08));
+  --sm-ep-filter-active-color: #000;
+  --sm-nudge-bg: rgba(0, 0, 0, 0.03);
+  --sm-nudge-border: 1px solid rgba(0, 0, 0, 0.08);
+  --sm-nudge-color: #000;
+  --sm-nudge-hover-bg: rgba(0, 0, 0, 0.06);
+  --sm-nudge-hover-border: rgba(0, 0, 0, 0.15);
+  /* Settings type-selector buttons — light */
+  --type-sel-bg: rgba(0, 0, 0, 0.03);
+  --type-sel-border: 1px solid rgba(0, 0, 0, 0.1);
+  --type-sel-color: #475569;
+  --type-sel-hover-bg: rgba(0, 0, 0, 0.06);
+  --type-sel-hover-border: rgba(0, 0, 0, 0.1);
+  --type-sel-hover-color: #0f172a;
+  --type-sel-focus-bg: rgba(0, 0, 0, 0.05);
+  --type-sel-focus-border: rgba(0, 0, 0, 0.15);
+  --type-sel-focus-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03);
+  --type-sel-active-bg: color-mix(in srgb, var(--accent-primary, #0066cc) 12%, #ffffff);
+  --type-sel-active-color: var(--accent-primary, #0066cc);
+  --type-sel-active-border: 1px solid color-mix(in srgb, var(--accent-primary, #0066cc) 35%, rgba(0, 0, 0, 0.1));
+  --type-sel-active-border-color: color-mix(in srgb, var(--accent-primary, #0066cc) 35%, rgba(0, 0, 0, 0.1));
+  /* EPG program-block current state — light */
+  --prog-current-bg: color-mix(in srgb, var(--accent-primary, #8b5cf6) 12%, rgba(255, 255, 255, 0.5));
+  --prog-current-border-top: 1px solid color-mix(in srgb, var(--accent-primary, #8b5cf6) 30%, rgba(0, 0, 0, 0.1));
+  --prog-current-border-bottom: 1px solid color-mix(in srgb, var(--accent-primary, #8b5cf6) 30%, rgba(0, 0, 0, 0.1));
+  --prog-current-border-left: 3px solid color-mix(in srgb, var(--accent-primary, #8b5cf6) 30%, rgba(0, 0, 0, 0.1));
+  --prog-current-border-right: none;
+  --prog-current-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 2px 10px color-mix(in srgb, var(--accent-primary, #8b5cf6) 8%, rgba(0, 0, 0, 0.04));
+  --prog-current-hover-bg: color-mix(in srgb, var(--accent-primary, #8b5cf6) 12%, rgba(255, 255, 255, 0.5));
+  --prog-current-hover-border-color: color-mix(in srgb, var(--accent-primary, #8b5cf6) 30%, rgba(0, 0, 0, 0.1));
+  --prog-current-hover-border-left-color: color-mix(in srgb, var(--accent-primary, #8b5cf6) 30%, rgba(0, 0, 0, 0.1));
+  --prog-current-hover-transform: translateY(-1px) scale(1.01);
+  --prog-current-hover-z: 20;
 }
 /* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled */
 
@@ -596,45 +890,8 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
   overflow: visible !important;
 }
 
-/* 5. Rounded Program Blocks & Hover Animations (base look folded into --prog-*
-   tokens; the state overrides below must stay !important to beat the base
-   .current rules and the [data-theme]/light overrides) */
-
-/* Gently highlighted block for currently airing programs (ambient glow, not solid block) */
-
-html.modern-ui-v3 .program-block.current {
-  background: color-mix(in srgb, var(--accent-primary) 22%, transparent) !important;
-  border-top: 1px solid color-mix(in srgb, var(--accent-primary) 45%, transparent) !important;
-  border-bottom: 1px solid color-mix(in srgb, var(--accent-primary) 45%, transparent) !important;
-  border-left: 3px solid color-mix(in srgb, var(--accent-primary) 80%, transparent) !important;
-  border-right: none !important;
-  box-shadow: none !important;
-}
-
-html.modern-ui-v3 .program-block.current:hover {
-  background: color-mix(in srgb, var(--accent-primary) 28%, transparent) !important;
-  border-color: color-mix(in srgb, var(--accent-primary) 55%, transparent) !important;
-  border-left-color: color-mix(in srgb, var(--accent-primary) 90%, transparent) !important;
-  transform: translateY(-1px) scale(1.01) !important;
-  z-index: 20 !important;
-}
-
-/* Slightly stronger highlight for the active channel you are currently watching */
-
-html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current {
-  background: color-mix(in srgb, var(--accent-primary) 32%, transparent) !important;
-  border: 1px solid color-mix(in srgb, var(--accent-primary) 55%, transparent) !important;
-  border-left: 3px solid color-mix(in srgb, var(--accent-primary) 90%, transparent) !important;
-  box-shadow: 0 0 16px color-mix(in srgb, var(--accent-primary) 25%, transparent) !important;
-}
-
-html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:hover {
-  background: color-mix(in srgb, var(--accent-primary) 38%, transparent) !important;
-  border-color: color-mix(in srgb, var(--accent-primary) 70%, transparent) !important;
-  border-left-color: color-mix(in srgb, var(--accent-primary) 100%, transparent) !important;
-  transform: translateY(-1px) scale(1.01) !important;
-  z-index: 20 !important;
-}
+/* 5. Rounded Program Blocks & Hover Animations (base + current/currently-playing
+   states folded into --prog-* tokens) */
 
 /* 6. Rounded Pill Control Buttons (folded into --guide-*-btn tokens) */
 
@@ -1469,149 +1726,14 @@ html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
   color: rgba(200, 180, 255, 0.9) !important;
 }
 
-.modern-ui-v3 .stremio-detail-tag {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.8)) !important;
-  padding: 6px 14px !important;
-  border-radius: 20px !important;
-  font-size: 0.8rem !important;
-  font-weight: 500 !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
 
-.modern-ui-v3 .stremio-detail-tag:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}
 
-.modern-ui-v3 .stremio-detail-action-btn {
-  border-radius: 20px !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.85)) !important;
-  padding: 8px 18px !important;
-  font-size: 0.85rem !important;
-  font-weight: 600 !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
 
-.modern-ui-v3 .stremio-detail-action-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}
 
-.modern-ui-v3 .stremio-detail-action-btn.btn-trailer {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  border-radius: 8px !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-  color: white !important;
-  padding: 8px 20px !important;
-}
 
-.modern-ui-v3 .stremio-detail-action-btn.btn-trailer:hover {
-  background: rgba(255, 255, 255, 0.18) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
-  box-shadow: none !important;
-}
 
-.modern-ui-v3 .stremio-detail-action-btn.btn-add-library {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent) !important;
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent) !important;
-  border-radius: 8px !important;
-  color: white !important;
-  padding: 8px 20px !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
 
-.modern-ui-v3 .stremio-detail-action-btn.btn-add-library:hover {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent) !important;
-  box-shadow: none !important;
-}
 
-.modern-ui-v3 .stremio-detail-action-btn.in-library {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(255, 255, 255, 0.05)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15)) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, transparent) !important;
-}
-
-.modern-ui-v3 .stremio-detail-action-btn.in-library:hover {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(255, 255, 255, 0.1)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, rgba(255, 255, 255, 0.25)) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 
-    0 6px 16px rgba(0, 0, 0, 0.2),
-    0 0 15px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent) !important;
-}
-
-.modern-ui-v3 .stremio-detail-nav-btn {
-  border-radius: 20px !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.8)) !important;
-  padding: 6px 14px !important;
-  font-size: 0.8rem !important;
-  font-weight: 600 !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.modern-ui-v3 .stremio-detail-nav-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}
-
-.modern-ui-v3 .stremio-detail-nav-btn:disabled {
-  opacity: 0.25 !important;
-  cursor: not-allowed !important;
-}
-
-.modern-ui-v3 .stremio-detail-season-select {
-  border-radius: 20px !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-primary, #fff) !important;
-  font-weight: 600 !important;
-  padding: 6px 12px !important;
-  font-size: 0.8rem !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.modern-ui-v3 .stremio-detail-season-select:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.15) !important;
-}
-
-.modern-ui-v3 .stremio-detail-search-videos input {
-  border-radius: 20px !important;
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  transition: all 0.2s ease !important;
-}
-
-.modern-ui-v3 .stremio-detail-search-videos input:focus {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: var(--accent-primary, #00d4ff) !important;
-  box-shadow: 0 0 10px var(--accent-glow, rgba(0, 212, 255, 0.15)) !important;
-}
 
 /* Cast Photos Liquid Glass Border */
 
@@ -1781,11 +1903,7 @@ html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
 
 html.modern-ui-v3[data-theme="light"] .stremio-detail-back-btn,
 html.modern-ui-v3[data-theme="light"] .nuvio-folder-detail-back-btn,
-html.modern-ui-v3[data-theme="light"] .nuvio-person-back-btn,
-html.modern-ui-v3[data-theme="light"] .stremio-detail-tag,
-html.modern-ui-v3[data-theme="light"] .stremio-detail-action-btn,
-html.modern-ui-v3[data-theme="light"] .stremio-detail-nav-btn,
-html.modern-ui-v3[data-theme="light"] .stremio-detail-season-select {
+html.modern-ui-v3[data-theme="light"] .nuvio-person-back-btn {
   background: rgba(0, 0, 0, 0.04) !important;
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
   color: rgba(0, 0, 0, 0.8) !important;
@@ -1793,11 +1911,7 @@ html.modern-ui-v3[data-theme="light"] .stremio-detail-season-select {
 
 html.modern-ui-v3[data-theme="light"] .stremio-detail-back-btn:hover,
 html.modern-ui-v3[data-theme="light"] .nuvio-folder-detail-back-btn:hover,
-html.modern-ui-v3[data-theme="light"] .nuvio-person-back-btn:hover,
-html.modern-ui-v3[data-theme="light"] .stremio-detail-tag:hover,
-html.modern-ui-v3[data-theme="light"] .stremio-detail-action-btn:hover,
-html.modern-ui-v3[data-theme="light"] .stremio-detail-nav-btn:hover:not(:disabled),
-html.modern-ui-v3[data-theme="light"] .stremio-detail-season-select:hover {
+html.modern-ui-v3[data-theme="light"] .nuvio-person-back-btn:hover {
   background: rgba(0, 0, 0, 0.08) !important;
   border-color: rgba(0, 0, 0, 0.15) !important;
   color: #000 !important;
@@ -1824,28 +1938,6 @@ html.modern-ui-v3[data-theme="light"] .back-button-overlay__btn:hover {
 
 html.modern-ui-v3[data-theme="light"] .back-button-overlay__icon {
   color: rgba(139, 92, 246, 0.8) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stremio-detail-action-btn.in-library {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(0, 0, 0, 0.04)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(0, 0, 0, 0.08)) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stremio-detail-action-btn.in-library:hover {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(0, 0, 0, 0.08)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, rgba(0, 0, 0, 0.15)) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stremio-detail-search-videos input {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  color: #000 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stremio-detail-search-videos input:focus {
-  background: rgba(0, 0, 0, 0.06) !important;
-  border-color: var(--accent-primary, #00d4ff) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .stremio-detail-cast-photo-placeholder {
@@ -2151,8 +2243,7 @@ html.modern-ui-v3[data-theme="light"] .spm-item-active-tag {
 /* V3 Form Controls */
 
 .modern-ui-v3 .form-group input,
-.modern-ui-v3 .settings-content select,
-.modern-ui-v3 .type-selector button {
+.modern-ui-v3 .settings-content select {
   border-radius: 10px !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   background: rgba(255, 255, 255, 0.04) !important;
@@ -2162,21 +2253,50 @@ html.modern-ui-v3[data-theme="light"] .spm-item-active-tag {
 }
 
 .modern-ui-v3 .form-group input:focus,
-.modern-ui-v3 .settings-content select:focus,
-.modern-ui-v3 .type-selector button:focus-within {
+.modern-ui-v3 .settings-content select:focus {
   border-color: rgba(255, 255, 255, 0.2) !important;
   background: rgba(255, 255, 255, 0.08) !important;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) !important;
   outline: none !important;
 }
 
+/* v3-only focus state for the settings type-selector buttons (v1/v2 keep the
+   default browser focus ring; active wins over focus like the original layer) */
+.modern-ui-v3 .type-selector button:focus-within:not(.active) {
+  border-color: var(--type-sel-focus-border);
+  background: var(--type-sel-focus-bg);
+  box-shadow: var(--type-sel-focus-shadow);
+  outline: none;
+}
+
+/* Settings type-selector buttons — v3 glass look via --type-sel-* tokens.
+   These thin rules only exist to win the cascade over the version-agnostic
+   theme layers (themes.css dark-active and ModernThemeBase light), which have
+   higher specificity than the component base. Values are pure token refs. */
 .modern-ui-v3 .type-selector button.active {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.05) inset !important;
+  background: var(--type-sel-active-bg);
+  border-color: var(--type-sel-active-border-color);
+  color: var(--type-sel-active-color);
+  box-shadow: var(--type-sel-active-shadow);
+  font-weight: var(--type-sel-active-weight);
+}
+
+html.modern-ui-v3[data-theme="light"] .type-selector button {
+  background: var(--type-sel-bg) !important;
+  border: var(--type-sel-border) !important;
+  color: var(--type-sel-color) !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .type-selector button:hover {
+  background: var(--type-sel-hover-bg) !important;
+  border-color: var(--type-sel-hover-border) !important;
+  color: var(--type-sel-hover-color) !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .type-selector button.active {
+  background: var(--type-sel-active-bg) !important;
+  border-color: var(--type-sel-active-border-color) !important;
+  color: var(--type-sel-active-color) !important;
 }
 
 .modern-ui-v3 .settings-content select option {
@@ -2989,15 +3109,6 @@ html.modern-ui-v3[data-theme="light"] .program-block:hover {
     0 4px 12px rgba(0, 0, 0, 0.06) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .program-block.current {
-  background: color-mix(in srgb, var(--accent-primary, #8b5cf6) 12%, rgba(255, 255, 255, 0.5)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #8b5cf6) 30%, rgba(0, 0, 0, 0.1)) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    0 2px 10px color-mix(in srgb, var(--accent-primary, #8b5cf6) 8%, rgba(0, 0, 0, 0.04)) !important;
-}
-
-
 html.modern-ui-v3[data-theme="light"] .settings-sidebar {
   border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
 }
@@ -3110,23 +3221,6 @@ html.modern-ui-v3[data-theme="light"] .form-group input:focus {
 
 html.modern-ui-v3[data-theme="light"] .form-group input::placeholder {
   color: #94a3b8 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .type-selector button {
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  color: #475569 !important;
-  background: rgba(0, 0, 0, 0.03) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .type-selector button:hover {
-  background: rgba(0, 0, 0, 0.06) !important;
-  color: #0f172a !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .type-selector button.active {
-  background: color-mix(in srgb, var(--accent-primary, #0066cc) 12%, #ffffff) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #0066cc) 35%, rgba(0, 0, 0, 0.1)) !important;
-  color: var(--accent-primary, #0066cc) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .cancel-btn {
@@ -3840,7 +3934,6 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 
 .modern-ui-v3 .category-manager-actions button,
 .modern-ui-v3 .channel-manager-actions button,
-.modern-ui-v3 .type-selector button,
 .modern-ui-v3 .import-btn,
 .modern-ui-v3 .change-file-btn,
 .modern-ui-v3 .add-backup-btn,
@@ -3858,7 +3951,6 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 
 .modern-ui-v3 .category-manager-actions button:hover,
 .modern-ui-v3 .channel-manager-actions button:hover,
-.modern-ui-v3 .type-selector button:hover,
 .modern-ui-v3 .import-btn:hover,
 .modern-ui-v3 .change-file-btn:hover,
 .modern-ui-v3 .add-backup-btn:hover,
@@ -3873,8 +3965,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 }
 
 .modern-ui-v3 .category-manager-actions button.active-toggle,
-.modern-ui-v3 .channel-manager-actions button.active-toggle,
-.modern-ui-v3 .type-selector button.active {
+.modern-ui-v3 .channel-manager-actions button.active-toggle {
   background: color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, rgba(255, 255, 255, 0.08)) !important;
   color: #fff !important;
   border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15)) !important;
@@ -4321,63 +4412,6 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 
 /* 4. Close Buttons */
 
-.modern-ui-v3 .track-modal-close,
-.modern-ui-v3 .subtitle-modal-close {
-  border-radius: 50% !important;
-  width: 32px !important;
-  height: 32px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.6) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  font-size: 1.4rem !important;
-}
-
-.modern-ui-v3 .track-modal-close:hover,
-.modern-ui-v3 .subtitle-modal-close:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-}
-
-/* 5. SubSource Search Input Controls */
-
-.modern-ui-v3 .subtitle-header-search-input {
-  border-radius: 10px !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  color: #fff !important;
-  padding: 8px 12px !important;
-  transition: all 0.2s ease !important;
-}
-
-.modern-ui-v3 .subtitle-header-search-input:focus {
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) !important;
-  outline: none !important;
-}
-
-.modern-ui-v3 .subtitle-header-search-btn {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-  border-radius: 10px !important;
-  padding: 8px 14px !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  font-weight: 600 !important;
-}
-
-.modern-ui-v3 .subtitle-header-search-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  opacity: 1 !important;
-}
-
 /* 6. List Separator Borders & Titles */
 
 .modern-ui-v3 .subtitle-col {
@@ -4402,8 +4436,7 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 .modern-ui-v3 .track-item,
 .modern-ui-v3 .subtitle-lang-btn,
 .modern-ui-v3 .subtitle-track-btn,
-.modern-ui-v3 .subtitle-movie-btn,
-.modern-ui-v3 .subtitle-result-btn {
+.modern-ui-v3 .subtitle-movie-btn {
   background: rgba(255, 255, 255, 0.02) !important;
   border: 1px solid rgba(255, 255, 255, 0.04) !important;
   border-radius: 8px !important;
@@ -4425,8 +4458,7 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 .modern-ui-v3 .track-item:hover,
 .modern-ui-v3 .subtitle-lang-btn:hover,
 .modern-ui-v3 .subtitle-track-btn:hover,
-.modern-ui-v3 .subtitle-movie-btn:hover,
-.modern-ui-v3 .subtitle-result-btn:hover:not(:disabled) {
+.modern-ui-v3 .subtitle-movie-btn:hover {
   background: rgba(255, 255, 255, 0.06) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
   color: #fff !important;
@@ -4435,8 +4467,7 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 
 .modern-ui-v3 .track-item.selected,
 .modern-ui-v3 .subtitle-lang-btn.active,
-.modern-ui-v3 .subtitle-track-btn.active,
-.modern-ui-v3 .subtitle-episode-filter.active {
+.modern-ui-v3 .subtitle-track-btn.active {
   background: color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, rgba(255, 255, 255, 0.06)) !important;
   color: #fff !important;
   border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15)) !important;
@@ -4457,19 +4488,6 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 }
 
 /* 8. Subtitle Settings Controls (Delay, Size, Offset) */
-
-.modern-ui-v3 .subtitle-control-nudge {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: #fff !important;
-  border-radius: 6px !important;
-  transition: all 0.2s ease !important;
-}
-
-.modern-ui-v3 .subtitle-control-nudge:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-}
 
 .modern-ui-v3 .subtitle-control-item input[type="range"] {
   accent-color: var(--accent-primary, #00d4ff) !important;
@@ -4513,25 +4531,6 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
   border-color: var(--accent-primary, #00d4ff) !important;
 }
 
-.modern-ui-v3 .subtitle-episode-filter {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.6) !important;
-  transition: all 0.2s ease !important;
-}
-
-.modern-ui-v3 .subtitle-episode-filter:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-}
-
-.modern-ui-v3 .subtitle-episode-filter.active {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, rgba(255, 255, 255, 0.06)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15)) !important;
-  color: #fff !important;
-}
-
 /* 10. Scrollbar customization */
 
 .modern-ui-v3 .track-modal-content::-webkit-scrollbar-thumb,
@@ -4567,44 +4566,6 @@ html.modern-ui-v3[data-theme="light"] .track-modal-footer {
   border-top-color: rgba(0, 0, 0, 0.08) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .track-modal-close,
-html.modern-ui-v3[data-theme="light"] .subtitle-modal-close {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.6) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .track-modal-close:hover,
-html.modern-ui-v3[data-theme="light"] .subtitle-modal-close:hover {
-  background: rgba(0, 0, 0, 0.08) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .subtitle-header-search-input {
-  background: rgba(0, 0, 0, 0.02) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: #000 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .subtitle-header-search-input:focus {
-  background: rgba(0, 0, 0, 0.05) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .subtitle-header-search-btn {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.75) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .subtitle-header-search-btn:hover:not(:disabled) {
-  background: rgba(0, 0, 0, 0.06) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
-}
-
 html.modern-ui-v3[data-theme="light"] .subtitle-col {
   border-right-color: rgba(0, 0, 0, 0.06) !important;
 }
@@ -4621,8 +4582,7 @@ html.modern-ui-v3[data-theme="light"] .track-section-title {
 html.modern-ui-v3[data-theme="light"] .track-item,
 html.modern-ui-v3[data-theme="light"] .subtitle-lang-btn,
 html.modern-ui-v3[data-theme="light"] .subtitle-track-btn,
-html.modern-ui-v3[data-theme="light"] .subtitle-movie-btn,
-html.modern-ui-v3[data-theme="light"] .subtitle-result-btn {
+html.modern-ui-v3[data-theme="light"] .subtitle-movie-btn {
   background: rgba(0, 0, 0, 0.01) !important;
   border-color: rgba(0, 0, 0, 0.04) !important;
   color: rgba(0, 0, 0, 0.8) !important;
@@ -4631,8 +4591,7 @@ html.modern-ui-v3[data-theme="light"] .subtitle-result-btn {
 html.modern-ui-v3[data-theme="light"] .track-item:hover,
 html.modern-ui-v3[data-theme="light"] .subtitle-lang-btn:hover,
 html.modern-ui-v3[data-theme="light"] .subtitle-track-btn:hover,
-html.modern-ui-v3[data-theme="light"] .subtitle-movie-btn:hover,
-html.modern-ui-v3[data-theme="light"] .subtitle-result-btn:hover:not(:disabled) {
+html.modern-ui-v3[data-theme="light"] .subtitle-movie-btn:hover {
   background: rgba(0, 0, 0, 0.04) !important;
   border-color: rgba(0, 0, 0, 0.08) !important;
   color: #000 !important;
@@ -4640,45 +4599,25 @@ html.modern-ui-v3[data-theme="light"] .subtitle-result-btn:hover:not(:disabled) 
 
 html.modern-ui-v3[data-theme="light"] .track-item.selected,
 html.modern-ui-v3[data-theme="light"] .subtitle-lang-btn.active,
-html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active,
-html.modern-ui-v3[data-theme="light"] .subtitle-episode-filter.active {
+html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active {
   background: color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, rgba(0, 0, 0, 0.03)) !important;
   border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(0, 0, 0, 0.08)) !important;
   color: #000 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .subtitle-control-nudge {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: #000 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .subtitle-control-nudge:hover {
-  background: rgba(0, 0, 0, 0.06) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .subtitle-toggle-slider {
   background: rgba(0, 0, 0, 0.08) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .track-modal-btn,
-html.modern-ui-v3[data-theme="light"] .subtitle-episode-filter {
+html.modern-ui-v3[data-theme="light"] .track-modal-btn {
   background: rgba(0, 0, 0, 0.03) !important;
   border-color: rgba(0, 0, 0, 0.08) !important;
   color: rgba(0, 0, 0, 0.7) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .track-modal-btn:hover,
-html.modern-ui-v3[data-theme="light"] .subtitle-episode-filter:hover {
+html.modern-ui-v3[data-theme="light"] .track-modal-btn:hover {
   background: rgba(0, 0, 0, 0.06) !important;
   border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .subtitle-episode-filter.active {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, rgba(0, 0, 0, 0.03)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(0, 0, 0, 0.08)) !important;
   color: #000 !important;
 }
 

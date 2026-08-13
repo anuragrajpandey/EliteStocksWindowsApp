@@ -692,26 +692,31 @@
 .type-selector button {
   flex: 1;
   padding: 10px;
-  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-  border-radius: 4px;
-  background: var(--surface-color, transparent);
-  color: var(--text-muted, rgba(255, 255, 255, 0.5));
+  border: var(--type-sel-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+  border-radius: var(--type-sel-radius, 4px);
+  background: var(--type-sel-bg, var(--surface-color, transparent));
+  color: var(--type-sel-color, var(--text-muted, rgba(255, 255, 255, 0.5)));
   cursor: pointer;
   font-size: 0.8rem;
-  font-weight: 500;
-  transition: all 0.15s ease;
+  font-weight: var(--type-sel-weight, 500);
+  transition: var(--type-sel-transition, all 0.15s ease);
+  box-shadow: var(--type-sel-shadow, none);
 }
 
 .type-selector button:hover {
-  border-color: var(--accent-primary, rgba(255, 255, 255, 0.2));
-  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
-  background: var(--surface-hover, rgba(255, 255, 255, 0.05));
+  border-color: var(--type-sel-hover-border, var(--accent-primary, rgba(255, 255, 255, 0.2)));
+  color: var(--type-sel-hover-color, var(--text-secondary, rgba(255, 255, 255, 0.7)));
+  background: var(--type-sel-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.05)));
+  transform: var(--type-sel-hover-transform, none);
 }
 
 .type-selector button.active {
-  border-color: var(--accent-primary, rgba(0, 212, 255, 0.5));
-  background: var(--surface-glow, rgba(0, 212, 255, 0.1));
-  color: var(--accent-primary, #00d4ff);
+  border: var(--type-sel-active-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+  border-color: var(--type-sel-active-border-color, var(--accent-primary, rgba(0, 212, 255, 0.5)));
+  background: var(--type-sel-active-bg, var(--surface-glow, rgba(0, 212, 255, 0.1)));
+  color: var(--type-sel-active-color, var(--accent-primary, #00d4ff));
+  box-shadow: var(--type-sel-active-shadow, none);
+  font-weight: var(--type-sel-active-weight, 500);
 }
 
 /* Inline Warning */

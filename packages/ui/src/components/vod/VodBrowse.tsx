@@ -5,8 +5,9 @@
  * and alphabet quick-nav rail.
  */
 
-import { useState, useCallback, useMemo, useRef, forwardRef, useEffect, memo } from 'react';
+import { useState, useCallback, useMemo, useRef, forwardRef, useEffect } from 'react';
 import { VirtuosoGrid, VirtuosoGridHandle } from 'react-virtuoso';
+import { PosterSizeSlider, type PosterSizePreset } from '../PosterSizeSlider';
 import { MediaCard } from './MediaCard';
 import { AlphabetRail } from './AlphabetRail';
 import type { StoredMovie, StoredSeries } from '../../db';
@@ -31,38 +32,40 @@ import {
 } from './vodSort';
 import './VodBrowse.css';
 
-// Poster size presets (card width in pixels)
-const POSTER_SIZE_PRESETS = [
-  { value: 100, label: 'XS', columns: 'Many' },
-  { value: 120, label: 'S', columns: 'More' },
-  { value: 140, label: 'M', columns: 'Medium' },
-  { value: 160, label: 'L', columns: 'Default' },
-  { value: 180, label: 'XL', columns: 'Bigger' },
-  { value: 200, label: '2XL', columns: 'Big' },
-  { value: 240, label: '3XL', columns: 'Huge' },
-] as const;
+// Poster size presets (card width in pixels) — VodBrowse's historical list,
+// passed to the shared PosterSizeSlider so saved/default sizes keep working
+// unchanged (default 160px).
+const VOD_POSTER_SIZE_PRESETS = [
+  { value: 100, label: 'XS' },
+  { value: 120, label: 'S' },
+  { value: 140, label: 'M' },
+  { value: 160, label: 'L' },
+  { value: 180, label: 'XL' },
+  { value: 200, label: '2XL' },
+  { value: 240, label: '3XL' },
+] as const satisfies readonly PosterSizePreset[];
 
-type PosterSizeValue = typeof POSTER_SIZE_PRESETS[number]['value'];
+type VodPosterSizeValue = (typeof VOD_POSTER_SIZE_PRESETS)[number]['value'];
 
 // Sort options available in the browse view (in dropdown order)
 const VOD_BROWSE_SORT_KEYS: VodSortKey[] = ['added', 'name', 'year', 'rating', 'lastWatched'];
 
 // Hook to persist poster size preference
-function usePosterSizePreference(): [PosterSizeValue, (value: PosterSizeValue) => void] {
-  const [size, setSize] = useState<PosterSizeValue>(() => {
+function usePosterSizePreference(): [VodPosterSizeValue, (value: VodPosterSizeValue) => void] {
+  const [size, setSize] = useState<VodPosterSizeValue>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('vodPosterSize');
       if (saved) {
         const parsed = parseInt(saved, 10);
-        if (POSTER_SIZE_PRESETS.some(p => p.value === parsed)) {
-          return parsed as PosterSizeValue;
+        if (VOD_POSTER_SIZE_PRESETS.some(p => p.value === parsed)) {
+          return parsed as VodPosterSizeValue;
         }
       }
     }
     return 160; // Default size
   });
 
-  const setSizeAndSave = useCallback((newSize: PosterSizeValue) => {
+  const setSizeAndSave = useCallback((newSize: VodPosterSizeValue) => {
     setSize(newSize);
     if (typeof window !== 'undefined') {
       localStorage.setItem('vodPosterSize', String(newSize));
@@ -83,87 +86,6 @@ function useDebouncedValue<T>(value: T, delay: number): T {
 
   return debouncedValue;
 }
-
-// Poster Size Slider Component
-interface PosterSizeSliderProps {
-  value: PosterSizeValue;
-  onChange: (value: PosterSizeValue) => void;
-}
-
-const PosterSizeSlider = memo(function PosterSizeSlider({ value, onChange }: PosterSizeSliderProps) {
-  const currentIndex = POSTER_SIZE_PRESETS.findIndex(p => p.value === value);
-
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const index = parseInt(e.target.value, 10);
-    onChange(POSTER_SIZE_PRESETS[index].value);
-  }, [onChange]);
-
-  // Click handlers for the icons - move slider left/right
-  const handleDecrease = useCallback(() => {
-    if (currentIndex > 0) {
-      onChange(POSTER_SIZE_PRESETS[currentIndex - 1].value);
-    }
-  }, [currentIndex, onChange]);
-
-  const handleIncrease = useCallback(() => {
-    if (currentIndex < POSTER_SIZE_PRESETS.length - 1) {
-      onChange(POSTER_SIZE_PRESETS[currentIndex + 1].value);
-    }
-  }, [currentIndex, onChange]);
-
-  const canDecrease = currentIndex > 0;
-  const canIncrease = currentIndex < POSTER_SIZE_PRESETS.length - 1;
-
-  return (
-    <div className="poster-size-slider">
-      <button
-        className={`poster-size-slider__icon poster-size-slider__icon--small ${!canDecrease ? 'disabled' : ''}`}
-        onClick={handleDecrease}
-        disabled={!canDecrease}
-        aria-label={i18n.t('vod:decreasePoster')}
-        title={i18n.t('vod:smallerPosters')}
-        type="button"
-      >
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <rect x="2" y="2" width="20" height="20" rx="2" />
-        </svg>
-      </button>
-      <div className="poster-size-slider__track">
-        <input
-          type="range"
-          min={0}
-          max={POSTER_SIZE_PRESETS.length - 1}
-          step={1}
-          value={currentIndex}
-          onChange={handleChange}
-          className="poster-size-slider__input"
-          aria-label={i18n.t('vod:posterSize')}
-          title={i18n.t('vod:posterSizeTitle', { label: POSTER_SIZE_PRESETS[currentIndex]?.label || i18n.t('vod:posterSizeDefault') })}
-        />
-        <div className="poster-size-slider__marks">
-          {POSTER_SIZE_PRESETS.map((_, index) => (
-            <div
-              key={index}
-              className={`poster-size-slider__mark ${index === currentIndex ? 'active' : ''}`}
-            />
-          ))}
-        </div>
-      </div>
-      <button
-        className={`poster-size-slider__icon poster-size-slider__icon--large ${!canIncrease ? 'disabled' : ''}`}
-        onClick={handleIncrease}
-        disabled={!canIncrease}
-        aria-label={i18n.t('vod:increasePoster')}
-        title={i18n.t('vod:largerPosters')}
-        type="button"
-      >
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <rect x="2" y="2" width="20" height="20" rx="2" />
-        </svg>
-      </button>
-    </div>
-  );
-});
 
 // Footer component - defined OUTSIDE to prevent remounting on scroll
 // Must be stable reference for Virtuoso
@@ -531,7 +453,7 @@ export function VodBrowse({
               )}
             </button>
           </div>
-          <PosterSizeSlider value={posterSize} onChange={setPosterSize} />
+          <PosterSizeSlider value={posterSize} presets={VOD_POSTER_SIZE_PRESETS} onChange={(v) => setPosterSize(v as VodPosterSizeValue)} />
         </div>
       </div>
 

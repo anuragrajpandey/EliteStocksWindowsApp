@@ -177,13 +177,13 @@
 
 .vertical-sidebar__scrollable::-webkit-scrollbar-thumb,
 .vertical-sidebar__scrollable *::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.1);
+    background: var(--vs-scrollbar-thumb-bg, rgba(255, 255, 255, 0.1));
     border-radius: 3px;
 }
 
 .vertical-sidebar__scrollable:hover::-webkit-scrollbar-thumb,
 .vertical-sidebar__scrollable *::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background: var(--vs-scrollbar-thumb-hover-bg, rgba(255, 255, 255, 0.2));
 }
 
 /* Old nav class - hide it if still referenced */

@@ -387,6 +387,36 @@
   flex-shrink: 0;
 }
 
+/* VOD sidebar active-item icon glows (v2 per-icon accents via --vs-icon-* tokens;
+   v3 inherits; light sheet redefines with light values) */
+.vertical-sidebar__item.active .all-channels-icon {
+  background: var(--vs-icon-glow-bg, rgba(0, 212, 255, 0.16));
+  box-shadow: var(--vs-icon-glow-shadow, 0 0 10px rgba(0, 212, 255, 0.4));
+  color: var(--vs-icon-glow-color, #33e0ff);
+  border-color: var(--vs-icon-glow-border, rgba(0, 212, 255, 0.3));
+}
+
+.vertical-sidebar__item.active .favorites-icon {
+  background: var(--vs-icon-fav-bg, rgba(255, 196, 0, 0.16));
+  box-shadow: var(--vs-icon-fav-shadow, 0 0 10px rgba(255, 196, 0, 0.4));
+  color: var(--vs-icon-fav-color, #ffd033);
+  border-color: var(--vs-icon-fav-border, rgba(255, 196, 0, 0.3));
+}
+
+.vertical-sidebar__item.active .watchlist-icon {
+  background: var(--vs-icon-watch-bg, rgba(99, 102, 241, 0.16));
+  box-shadow: var(--vs-icon-watch-shadow, 0 0 10px rgba(99, 102, 241, 0.4));
+  color: var(--vs-icon-watch-color, #818cf8);
+  border-color: var(--vs-icon-watch-border, rgba(99, 102, 241, 0.3));
+}
+
+.vertical-sidebar__item.active .recent-icon {
+  background: var(--vs-icon-recent-bg, rgba(244, 63, 94, 0.16));
+  box-shadow: var(--vs-icon-recent-shadow, 0 0 10px rgba(244, 63, 94, 0.4));
+  color: var(--vs-icon-recent-color, #fb7185);
+  border-color: var(--vs-icon-recent-border, rgba(244, 63, 94, 0.3));
+}
+
 /* Drag and Drop styles for LiveTV Category Sidebar */
 .category-strip.drag-hotkey-active .category-source-header,
 .category-strip.drag-hotkey-active .category-item,

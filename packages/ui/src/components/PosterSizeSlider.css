@@ -125,3 +125,20 @@
 .poster-size-slider__mark.active {
   background: rgba(255, 255, 255, 0.7);
 }
+
+/* Compact sizing on narrow windows (shared by VOD / Stremio / Nuvio) */
+@media (max-width: 768px) {
+  .poster-size-slider__track {
+    width: 100px;
+  }
+
+  .poster-size-slider__icon svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .poster-size-slider__icon--large svg {
+    width: 14px;
+    height: 14px;
+  }
+}

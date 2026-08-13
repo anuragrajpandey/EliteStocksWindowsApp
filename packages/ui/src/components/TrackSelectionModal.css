@@ -63,24 +63,25 @@
 }
 
 .track-modal-close {
-  background: none;
-  border: none;
-  color: var(--text-secondary, #aaa);
-  font-size: 1.5rem;
+  background: var(--sm-close-bg, none);
+  border: var(--sm-close-border, none);
+  color: var(--sm-close-color, var(--text-secondary, #aaa));
+  font-size: var(--sm-close-font-size, 1.5rem);
   cursor: pointer;
   padding: 0;
-  width: 32px;
-  height: 32px;
+  width: var(--sm-close-size, 32px);
+  height: var(--sm-close-size, 32px);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  transition: all 0.2s;
+  border-radius: var(--sm-close-radius, 6px);
+  transition: var(--sm-close-transition, all 0.2s);
 }
 
 .track-modal-close:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary, #fff);
+  background: var(--sm-close-hover-bg, rgba(255, 255, 255, 0.1));
+  border-color: var(--sm-close-hover-border, transparent);
+  color: var(--sm-close-hover-color, var(--text-primary, #fff));
 }
 
 .track-modal-content {

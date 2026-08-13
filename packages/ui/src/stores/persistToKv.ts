@@ -27,6 +27,12 @@ function ensureCloseHandler(): void {
  *    in localStorage) and apply it to the store.
  * 3. Every subsequent state change is persisted to SQLite (debounced).
  *
+ * `sanitize` is the schema-validation layer: it runs after `parse` on BOTH
+ * hydration paths and either coerces the value to the safe shape or returns
+ * `null` to reject it. A rejected value leaves the store's default state
+ * untouched, so a mismatched persisted shape can never hydrate into a store
+ * (see kvSchemas.ts for the shapes each key has had).
+ *
  * Returns `whenReady` — resolves once the SQLite copy has been loaded/applied,
  * so exporters can await it before reading store state.
  */
@@ -41,27 +47,37 @@ export function bindStoreToKv<T>(
   apply: (value: T | null) => void,
   serialize: (state: T) => string,
   getCurrent: () => T,
-  onChange: (fn: () => void) => () => void
+  onChange: (fn: () => void) => () => void,
+  sanitize?: (value: T) => T | null
 ): KvBinding {
+  // Shared hydration: parse → validate/coerce → apply. A parse failure or a
+  // rejected shape leaves the store's default state untouched.
+  const hydrate = (raw: string): void => {
+    let value: T;
+    try {
+      value = parse(raw);
+    } catch (e) {
+      console.warn(`[persistToKv] Failed to parse stored value for "${key}":`, e);
+      return;
+    }
+    if (sanitize) {
+      const sanitized = sanitize(value);
+      if (sanitized === null) {
+        console.warn(`[persistToKv] Rejected stored value for "${key}": shape does not match the schema`);
+        return;
+      }
+      value = sanitized;
+    }
+    apply(value);
+  };
+
   // 1. Synchronous bootstrap from localStorage (old location) for first paint.
   const bootstrapRaw = readAppKvSync(key);
-  if (bootstrapRaw !== null) {
-    try {
-      apply(parse(bootstrapRaw));
-    } catch (e) {
-      console.warn(`[persistToKv] Failed to parse bootstrap for "${key}":`, e);
-    }
-  }
+  if (bootstrapRaw !== null) hydrate(bootstrapRaw);
 
   // 2. Authoritative load from SQLite.
   const whenReady = loadAppKv(key).then((raw) => {
-    if (raw !== null) {
-      try {
-        apply(parse(raw));
-      } catch (e) {
-        console.warn(`[persistToKv] Failed to parse stored value for "${key}":`, e);
-      }
-    }
+    if (raw !== null) hydrate(raw);
   });
 
   // 3. Debounced persistence of subsequent changes.

@@ -13,7 +13,7 @@
     "dev:clean": "node scripts/kill-dev.js && pnpm dev",
     "kill-port": "node scripts/kill-dev.js",
     "build": "pnpm -r build",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "node scripts/check-globals.mjs && pnpm -r typecheck",
     "tauri": "pnpm --filter @ynotv/app tauri"
   },
   "devDependencies": {

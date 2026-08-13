@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { StremioStream } from '../types/stremio';
 import { bindStoreToKv } from './persistToKv';
+import { sanitizeWatchState, type WatchKvValue } from './kvSchemas';
 
 /** Storage key (kept identical to the old localStorage key for migration). */
 const STORAGE_KEY = 'stremio-watch-history';
@@ -268,9 +269,9 @@ export const useStremioWatchStore = create<StremioWatchStore>()((set, get) => ({
 // Bootstraps synchronously from the old localStorage key for first paint, then
 // the authoritative copy lives in SQLite so it never competes for the WebView2
 // localStorage quota.
-const watchKv = bindStoreToKv<StremioWatchState>(
+const watchKv = bindStoreToKv<WatchKvValue>(
   STORAGE_KEY,
-  (raw) => JSON.parse(raw) as StremioWatchState,
+  (raw) => JSON.parse(raw) as WatchKvValue,
   (value) => {
     if (value) useStremioWatchStore.setState(value);
   },
@@ -279,7 +280,8 @@ const watchKv = bindStoreToKv<StremioWatchState>(
     const s = useStremioWatchStore.getState();
     return { history: s.history, episodeProgress: s.episodeProgress };
   },
-  (fn) => useStremioWatchStore.subscribe(fn)
+  (fn) => useStremioWatchStore.subscribe(fn),
+  sanitizeWatchState
 );
 
 /** Resolves once the SQLite copy of the watch history has been loaded. */

@@ -49,13 +49,41 @@
 .program-block.current {
   background: var(--prog-current-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 8%, transparent));
   border-color: var(--prog-current-border-color, var(--accent-primary, #00d4ff));
+  border-top: var(--prog-current-border-top, none);
+  border-bottom: var(--prog-current-border-bottom, none);
+  border-left: var(--prog-current-border-left, var(--prog-border-left, 2px solid transparent));
+  border-right: var(--prog-current-border-right, none);
   box-shadow: var(--prog-current-shadow, none);
 }
 
 .program-block.current:hover {
   background: var(--prog-current-hover-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent));
   border-color: var(--prog-current-hover-border-color, var(--accent-primary, #00d4ff));
-  box-shadow: var(--prog-current-hover-shadow, none);
+  border-left-color: var(--prog-current-hover-border-left-color, var(--prog-current-hover-border-color, var(--accent-primary, #00d4ff)));
+  box-shadow: var(--prog-current-hover-shadow, var(--prog-current-shadow, none));
+  transform: var(--prog-current-hover-transform, var(--prog-hover-transform, none));
+  z-index: var(--prog-current-hover-z, var(--prog-hover-z, 10));
+}
+
+/* Stronger highlight on the row of the channel you are currently watching
+   (v3 via tokens; falls back to the plain current look in v1/v2). */
+.guide-channel-row.currently-playing .program-block.current {
+  background: var(--prog-current-playing-bg, var(--prog-current-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 8%, transparent)));
+  border-color: var(--prog-current-playing-border-color, var(--prog-current-border-color, var(--accent-primary, #00d4ff)));
+  border-top: var(--prog-current-playing-border-top, var(--prog-current-border-top, none));
+  border-bottom: var(--prog-current-playing-border-bottom, var(--prog-current-border-bottom, none));
+  border-left: var(--prog-current-playing-border-left, var(--prog-current-border-left, var(--prog-border-left, 2px solid transparent)));
+  border-right: var(--prog-current-playing-border-right, var(--prog-current-border-right, none));
+  box-shadow: var(--prog-current-playing-shadow, var(--prog-current-shadow, none));
+}
+
+.guide-channel-row.currently-playing .program-block.current:hover {
+  background: var(--prog-current-playing-hover-bg, var(--prog-current-hover-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent)));
+  border-color: var(--prog-current-playing-hover-border-color, var(--prog-current-hover-border-color, var(--accent-primary, #00d4ff)));
+  border-left-color: var(--prog-current-playing-hover-border-left-color, var(--prog-current-hover-border-left-color, var(--prog-current-hover-border-color, var(--accent-primary, #00d4ff))));
+  box-shadow: var(--prog-current-playing-hover-shadow, var(--prog-current-hover-shadow, var(--prog-current-shadow, none)));
+  transform: var(--prog-current-playing-hover-transform, var(--prog-current-hover-transform, var(--prog-hover-transform, none)));
+  z-index: var(--prog-current-playing-hover-z, var(--prog-current-hover-z, var(--prog-hover-z, 10)));
 }
 
 /* Darker highlight when epg-darken-current is enabled on document */

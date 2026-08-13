@@ -8,6 +8,9 @@
   --bg-hover: rgba(0, 0, 0, 0.05);
   --surface-border: rgba(0, 0, 0, 0.1);
   --accent-primary-transparent: rgba(0, 102, 204, 0.1);
+  /* VOD scrollbars — light solid values replace the v2 accent gradient */
+  --vs-scrollbar-thumb-bg: #cbd5e1;
+  --vs-scrollbar-thumb-hover-bg: #94a3b8;
 }
 
 /* ==================== GLOBAL LAYOUT & TITLE BAR ==================== */
@@ -1438,6 +1441,36 @@ html.modern-ui-v3[data-theme="light"] .program-block.current .program-block-desc
   color: #ffffff !important;
 }
 
+/* Active-item icon glows — light sheet redefines the v2 --vs-icon-* tokens so
+   light mode shows the solid light colors instead of the dark per-icon glows */
+[data-theme="light"] .vertical-sidebar__item.active .all-channels-icon {
+  background: var(--vs-icon-glow-bg, #e0f2fe) !important;
+  box-shadow: none !important;
+  color: var(--vs-icon-glow-color, #0284c7) !important;
+  border-color: var(--vs-icon-glow-border, rgba(2, 132, 199, 0.3)) !important;
+}
+
+[data-theme="light"] .vertical-sidebar__item.active .favorites-icon {
+  background: var(--vs-icon-fav-bg, #fef3c7) !important;
+  box-shadow: none !important;
+  color: var(--vs-icon-fav-color, #d97706) !important;
+  border-color: var(--vs-icon-fav-border, rgba(217, 119, 6, 0.3)) !important;
+}
+
+[data-theme="light"] .vertical-sidebar__item.active .watchlist-icon {
+  background: var(--vs-icon-watch-bg, #e0e7ff) !important;
+  box-shadow: none !important;
+  color: var(--vs-icon-watch-color, #4f46e5) !important;
+  border-color: var(--vs-icon-watch-border, rgba(79, 70, 229, 0.3)) !important;
+}
+
+[data-theme="light"] .vertical-sidebar__item.active .recent-icon {
+  background: var(--vs-icon-recent-bg, #ffe4e6) !important;
+  box-shadow: none !important;
+  color: var(--vs-icon-recent-color, #e11d48) !important;
+  border-color: var(--vs-icon-recent-border, rgba(225, 29, 72, 0.3)) !important;
+}
+
 [data-theme="light"] .vertical-sidebar__separator {
   background-color: #cbd5e1 !important;
 }
@@ -1495,12 +1528,12 @@ html.modern-ui-v3[data-theme="light"] .program-block.current .program-block-desc
 
 [data-theme="light"] .vertical-sidebar__scrollable::-webkit-scrollbar-thumb,
 [data-theme="light"] .vertical-sidebar__scrollable *::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1 !important;
+  background: var(--vs-scrollbar-thumb-bg, #cbd5e1) !important;
 }
 
 [data-theme="light"] .vertical-sidebar__scrollable:hover::-webkit-scrollbar-thumb,
 [data-theme="light"] .vertical-sidebar__scrollable *::-webkit-scrollbar-thumb:hover {
-  background-color: #94a3b8 !important;
+  background: var(--vs-scrollbar-thumb-hover-bg, #94a3b8) !important;
 }
 
 /* ==================== STREMIO SEARCH BAR ==================== */

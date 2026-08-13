@@ -107,13 +107,13 @@
 
 .vod-page__content::-webkit-scrollbar-thumb,
 .vod-page__content *::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--vs-scrollbar-thumb-bg, rgba(255, 255, 255, 0.1));
   border-radius: 3px;
 }
 
 .vod-page__content::-webkit-scrollbar-thumb:hover,
 .vod-page__content *::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--vs-scrollbar-thumb-hover-bg, rgba(255, 255, 255, 0.2));
 }
 
 .vod-page__carousels {

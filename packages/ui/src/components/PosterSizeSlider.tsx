@@ -2,6 +2,11 @@ import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import './PosterSizeSlider.css';
 
+export interface PosterSizePreset {
+  value: number;
+  label: string;
+}
+
 export const POSTER_SIZE_PRESETS = [
   { value: 100, label: 'XS' },
   { value: 120, label: 'S' },
@@ -17,36 +22,40 @@ export type PosterSizeValue = typeof POSTER_SIZE_PRESETS[number]['value'];
 interface PosterSizeSliderProps {
   value: number;
   onChange: (value: number) => void;
+  /** Optional preset list — defaults to the shared list. Pass a component's
+   *  historical presets so its saved/default sizes keep working unchanged. */
+  presets?: readonly PosterSizePreset[];
 }
 
-export const PosterSizeSlider = memo(function PosterSizeSlider({ value, onChange }: PosterSizeSliderProps) {
+export const PosterSizeSlider = memo(function PosterSizeSlider({ value, onChange, presets }: PosterSizeSliderProps) {
   const { t } = useTranslation('vod');
+  const list = presets ?? POSTER_SIZE_PRESETS;
   // Find the closest preset value to the current value
-  const currentIndex = POSTER_SIZE_PRESETS.reduce((bestIndex, current, index) => {
+  const currentIndex = list.reduce((bestIndex, current, index) => {
     const currentDiff = Math.abs(current.value - value);
-    const bestDiff = Math.abs(POSTER_SIZE_PRESETS[bestIndex].value - value);
+    const bestDiff = Math.abs(list[bestIndex].value - value);
     return currentDiff < bestDiff ? index : bestIndex;
   }, 0);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const index = parseInt(e.target.value, 10);
-    onChange(POSTER_SIZE_PRESETS[index].value);
-  }, [onChange]);
+    onChange(list[index].value);
+  }, [list, onChange]);
 
   const handleDecrease = useCallback(() => {
     if (currentIndex > 0) {
-      onChange(POSTER_SIZE_PRESETS[currentIndex - 1].value);
+      onChange(list[currentIndex - 1].value);
     }
-  }, [currentIndex, onChange]);
+  }, [currentIndex, list, onChange]);
 
   const handleIncrease = useCallback(() => {
-    if (currentIndex < POSTER_SIZE_PRESETS.length - 1) {
-      onChange(POSTER_SIZE_PRESETS[currentIndex + 1].value);
+    if (currentIndex < list.length - 1) {
+      onChange(list[currentIndex + 1].value);
     }
-  }, [currentIndex, onChange]);
+  }, [currentIndex, list, onChange]);
 
   const canDecrease = currentIndex > 0;
-  const canIncrease = currentIndex < POSTER_SIZE_PRESETS.length - 1;
+  const canIncrease = currentIndex < list.length - 1;
 
   return (
     <div className="poster-size-slider">
@@ -66,16 +75,16 @@ export const PosterSizeSlider = memo(function PosterSizeSlider({ value, onChange
         <input
           type="range"
           min={0}
-          max={POSTER_SIZE_PRESETS.length - 1}
+          max={list.length - 1}
           step={1}
           value={currentIndex}
           onChange={handleChange}
           className="poster-size-slider__input"
           aria-label={t('posterSize')}
-          title={t('posterSizeTitle', { label: POSTER_SIZE_PRESETS[currentIndex]?.label || t('posterSizeDefault') })}
+          title={t('posterSizeTitle', { label: list[currentIndex]?.label || t('posterSizeDefault') })}
         />
         <div className="poster-size-slider__marks">
-          {POSTER_SIZE_PRESETS.map((_, index) => (
+          {list.map((_, index) => (
             <div
               key={index}
               className={`poster-size-slider__mark ${index === currentIndex ? 'active' : ''}`}
