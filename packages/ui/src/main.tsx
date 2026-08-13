@@ -7,8 +7,13 @@ import i18n from './i18n';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { RecoveryScreen } from './components/RecoveryScreen';
 import { getDbHealth, isDbUnhealthy, RECOVERY_SCREEN_ENABLED, type DbHealth } from './services/recovery';
+import { installSafeStorage } from './services/safeStorage';
 import './App.css';
 import './services/tauri-bridge'; // Initialize Tauri bridge and polyfills
+
+// Must run before any component mounts: a localStorage write that exceeds the
+// WebView2 quota must never crash the (transparent) window.
+installSafeStorage();
 
 /**
  * Checks the database before mounting the main app. If the database is

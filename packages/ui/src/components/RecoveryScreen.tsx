@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { exportAllData, importAllData } from '../utils/exportImport';
 import { clearAllCachedData } from '../db';
 import { formatBytes, type DbHealth } from '../services/recovery';
+import { clearLocalStorage } from '../services/safeStorage';
 
 interface RecoveryScreenProps {
   health: DbHealth;
@@ -74,6 +75,20 @@ export function RecoveryScreen({ health, onContinue }: RecoveryScreenProps) {
       setMessage('Backup imported. Reloading...');
       setTimeout(() => window.location.reload(), 600);
     }, setImporting);
+
+  const handleClearStorage = () =>
+    runAction(async () => {
+      const confirmed = window.confirm(
+        'This clears the app\'s browser storage (expanded-sidebar state, recent channels, search ' +
+          'history, widget layout, cached sports data, etc.). It does NOT touch your sources, ' +
+          'settings, favorites, or the database. Use this if the app keeps crashing with a ' +
+          'storage-quota error.\n\nContinue?'
+      );
+      if (!confirmed) return;
+      clearLocalStorage();
+      setMessage('App storage cleared. Reloading...');
+      setTimeout(() => window.location.reload(), 600);
+    }, setRebuilding);
 
   const dbUnavailable = !health.opens_ok;
 
@@ -200,6 +215,20 @@ export function RecoveryScreen({ health, onContinue }: RecoveryScreenProps) {
 
         {message && <div style={styles.message}>{message}</div>}
         {error && <div style={styles.error}>{error}</div>}
+
+        <div style={styles.action}>
+          <button
+            style={{ ...styles.button, ...styles.buttonSecondary, ...(rebuilding ? styles.disabled : {}) }}
+            onClick={handleClearStorage}
+            disabled={rebuilding}
+          >
+            Clear app storage (fixes storage-quota crashes)
+          </button>
+          <span style={styles.actionHint}>
+            Clears localStorage (sidebar state, recent channels, search history, widget layout).
+            Sources, settings, favorites and the database are untouched.
+          </span>
+        </div>
 
         <button style={{ ...styles.button, ...styles.buttonSecondary }} onClick={onContinue}>
           Continue anyway

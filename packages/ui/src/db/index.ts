@@ -390,6 +390,8 @@ class YnotvDatabase extends SqliteDatabase {
   playlistCategoryLinks: SqliteTable<PlaylistCategoryLink, number>;
   playlistIndividualChannels: SqliteTable<PlaylistIndividualChannel, number>;
   categoryFolders: SqliteTable<CategoryFolder, string>;
+  /** Generic key/value store for UI state (Stremio library/watch-history). */
+  appKv: SqliteTable<{ key: string; value: string }, string>;
 
 
   constructor() {
@@ -424,6 +426,7 @@ class YnotvDatabase extends SqliteDatabase {
     this.playlistCategoryLinks = new SqliteTable('playlist_category_links', 'id', this.dbPromise);
     this.playlistIndividualChannels = new SqliteTable('playlist_individual_channels', 'id', this.dbPromise);
     this.categoryFolders = new SqliteTable('category_folders', 'folder_id', this.dbPromise);
+    this.appKv = new SqliteTable('app_kv', 'key', this.dbPromise);
 
     // Initialize Schema (Async) - Chain to DB promise to ensure tables exist before usage
     const rawPromise = this.dbPromise;
@@ -460,6 +463,7 @@ class YnotvDatabase extends SqliteDatabase {
     this.playlistCategoryLinks.updateDbPromise(this.dbPromise);
     this.playlistIndividualChannels.updateDbPromise(this.dbPromise);
     this.categoryFolders.updateDbPromise(this.dbPromise);
+    this.appKv.updateDbPromise(this.dbPromise);
   }
 
   async initSchema(dbInstance?: Database) {
@@ -962,6 +966,15 @@ class YnotvDatabase extends SqliteDatabase {
 
     // Prefs
     await db.execute(`CREATE TABLE IF NOT EXISTS prefs (
+        key TEXT PRIMARY KEY,
+        value TEXT
+      )`);
+
+    // app_kv - generic key/value store for UI state that used to live in
+    // localStorage (e.g. the Stremio library/watch-history). Keeping it in
+    // SQLite means it never competes for the WebView2 localStorage quota
+    // (~10 MB) that some power users exhaust.
+    await db.execute(`CREATE TABLE IF NOT EXISTS app_kv (
         key TEXT PRIMARY KEY,
         value TEXT
       )`);

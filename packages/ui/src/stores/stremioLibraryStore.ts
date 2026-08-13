@@ -1,6 +1,9 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { StremioMetaPreview, StremioMeta, StremioVideo } from '../types/stremio';
+import { bindStoreToKv } from './persistToKv';
+
+/** Storage key (kept identical to the old localStorage key for migration). */
+const STORAGE_KEY = 'stremio-library';
 
 export interface LibraryItem extends StremioMetaPreview {
   /** Cached videos for series (for new-episode detection and calendar) */
@@ -20,9 +23,7 @@ interface StremioLibraryStore {
   updateLibraryItem: (id: string, updates: Partial<LibraryItem>) => void;
 }
 
-export const useStremioLibraryStore = create<StremioLibraryStore>()(
-  persist(
-    (set, get) => ({
+export const useStremioLibraryStore = create<StremioLibraryStore>()((set, get) => ({
       library: [],
       addToLibrary: (item) => {
         const current = get().library;
@@ -127,9 +128,24 @@ export const useStremioLibraryStore = create<StremioLibraryStore>()(
           ),
         }));
       },
-    }),
-    {
-      name: 'stremio-library',
-    }
-  )
+}));
+
+// ── SQLite-backed persistence (replaces localStorage) ──────────────────────
+// Bootstraps synchronously from the old localStorage key for first paint, then
+// the authoritative copy lives in SQLite so it never competes for the WebView2
+// localStorage quota.
+const libraryKv = bindStoreToKv<{ library: LibraryItem[] }>(
+  STORAGE_KEY,
+  (raw) => JSON.parse(raw) as { library: LibraryItem[] },
+  (value) => {
+    if (value) useStremioLibraryStore.setState({ library: value.library });
+  },
+  (state) => JSON.stringify({ library: state.library }),
+  () => ({ library: useStremioLibraryStore.getState().library }),
+  (fn) => useStremioLibraryStore.subscribe(fn)
 );
+
+/** Resolves once the SQLite copy of the library has been loaded. */
+export const stremioLibraryKvReady: Promise<void> = libraryKv.whenReady;
+
+

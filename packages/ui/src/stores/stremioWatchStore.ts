@@ -1,6 +1,9 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { StremioStream } from '../types/stremio';
+import { bindStoreToKv } from './persistToKv';
+
+/** Storage key (kept identical to the old localStorage key for migration). */
+const STORAGE_KEY = 'stremio-watch-history';
 
 const FINISHED_THRESHOLD = 0.9;
 const MAX_HISTORY = 20;
@@ -34,10 +37,13 @@ export interface StremioEpisodeProgress {
   watchedAt: number;
 }
 
-interface StremioWatchStore {
+interface StremioWatchState {
   history: StremioWatchEntry[];
   /** Keyed by StremioVideo.id */
   episodeProgress: Record<string, StremioEpisodeProgress>;
+}
+
+interface StremioWatchStore extends StremioWatchState {
 
   recordMovieWatch: (metaId: string, name: string, poster?: string, lastSelectedStream?: StremioStream) => void;
   updateMovieProgress: (metaId: string, progressFraction: number) => void;
@@ -74,9 +80,7 @@ interface StremioWatchStore {
   clearHistory: () => void;
 }
 
-export const useStremioWatchStore = create<StremioWatchStore>()(
-  persist(
-    (set, get) => ({
+export const useStremioWatchStore = create<StremioWatchStore>()((set, get) => ({
       history: [],
       episodeProgress: {},
 
@@ -258,9 +262,27 @@ export const useStremioWatchStore = create<StremioWatchStore>()(
       },
 
       clearHistory: () => set({ history: [] }),
-    }),
-    {
-      name: 'stremio-watch-history',
-    }
-  )
+}));
+
+// ── SQLite-backed persistence (replaces localStorage) ──────────────────────
+// Bootstraps synchronously from the old localStorage key for first paint, then
+// the authoritative copy lives in SQLite so it never competes for the WebView2
+// localStorage quota.
+const watchKv = bindStoreToKv<StremioWatchState>(
+  STORAGE_KEY,
+  (raw) => JSON.parse(raw) as StremioWatchState,
+  (value) => {
+    if (value) useStremioWatchStore.setState(value);
+  },
+  (state) => JSON.stringify({ history: state.history, episodeProgress: state.episodeProgress }),
+  () => {
+    const s = useStremioWatchStore.getState();
+    return { history: s.history, episodeProgress: s.episodeProgress };
+  },
+  (fn) => useStremioWatchStore.subscribe(fn)
 );
+
+/** Resolves once the SQLite copy of the watch history has been loaded. */
+export const stremioWatchKvReady: Promise<void> = watchKv.whenReady;
+
+

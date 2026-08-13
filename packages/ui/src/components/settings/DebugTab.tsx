@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
+import {
+  formatBytes,
+  getLocalStorageUsage,
+  type StorageUsageEntry,
+} from '../../services/safeStorage';
 
 interface DebugTabProps {
   debugLoggingEnabled: boolean;
@@ -17,6 +22,10 @@ export function DebugTab({
 }: DebugTabProps) {
   useTranslation();
   const [logPath, setLogPath] = useState<string>('');
+  const [storageUsage, setStorageUsage] = useState<{
+    entries: StorageUsageEntry[];
+    totalBytes: number;
+  } | null>(null);
 
   useEffect(() => {
     // Get log file path on mount
@@ -127,6 +136,69 @@ export function DebugTab({
                 {i18n.t('settings:debug.openFolder')}
               </button>
             </div>
+          </div>
+        )}
+      </div>
+
+      <div className="settings-section" style={{ marginTop: '1.5rem' }}>
+        <div className="section-header">
+          <h3>LocalStorage Usage</h3>
+        </div>
+        <p className="section-description">
+          Reports how much browser storage each key consumes. Useful when the app crashes with a
+          storage-quota error (the error screen shows the same breakdown) or when local state
+          seems to be growing out of control.
+        </p>
+        <button
+          className="sync-btn"
+          onClick={() => {
+            try {
+              setStorageUsage(getLocalStorageUsage());
+            } catch (e) {
+              console.error('[DebugTab] Failed to measure localStorage:', e);
+            }
+          }}
+          style={{ maxWidth: '220px', borderColor: 'var(--surface-border)' }}
+        >
+          Report localStorage usage
+        </button>
+        {storageUsage && (
+          <div
+            style={{
+              marginTop: '12px',
+              maxWidth: '520px',
+              maxHeight: '280px',
+              overflow: 'auto',
+              backgroundColor: 'var(--bg-tertiary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '6px',
+              padding: '10px 12px',
+              fontFamily: 'monospace',
+              fontSize: '0.8rem',
+              lineHeight: 1.7,
+              color: 'var(--text-secondary)',
+            }}
+          >
+            <div style={{ color: 'var(--text-primary)', marginBottom: '6px' }}>
+              Total: <b>{formatBytes(storageUsage.totalBytes)}</b> across{' '}
+              {storageUsage.entries.length} key(s)
+            </div>
+            {storageUsage.entries.map((entry) => (
+              <div
+                key={entry.key}
+                style={{
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+                title={entry.key}
+              >
+                <span style={{ color: '#00d4ff', marginRight: '8px' }}>
+                  {formatBytes(entry.bytes)}
+                </span>
+                {entry.key}
+              </div>
+            ))}
           </div>
         )}
       </div>

@@ -16,6 +16,9 @@ import { normalizeBoolean } from './db-helpers';
 import type { FavoriteItem } from '../stores/vodFavoritesStore';
 import type { Playlist } from '../stores/vodPlaylistStore';
 import type { PlaylistItemProgressSnapshot } from '../stores/vodPlaylistProgressStore';
+import { useStremioWatchStore, stremioWatchKvReady } from '../stores/stremioWatchStore';
+import { useStremioLibraryStore, stremioLibraryKvReady } from '../stores/stremioLibraryStore';
+import { writeAppKv } from '../services/appKv';
 
 export interface ExportData {
     version: number;
@@ -166,6 +169,8 @@ export interface ExportData {
     userPrefs: Array<{ key: string; value: string }>;
     stremioAddons?: any;
     stremioWatchHistory?: any;
+    /** Stremio library (was not exported before; added alongside the SQLite migration). */
+    stremioLibrary?: any;
     // v6 additions (Playlist Editor data)
     customPlaylists?: CustomPlaylist[];
     playlistCategoryLinks?: PlaylistCategoryLink[];
@@ -188,7 +193,7 @@ export interface ExportData {
     }>;
 }
 
-const EXPORT_VERSION = 10;
+const EXPORT_VERSION = 11;
 
 /**
  * Export all application data to a JSON file
@@ -203,6 +208,11 @@ export async function exportAllData(): Promise<{ success: boolean; filePath?: st
 
         if (sourcesResult.error) throw new Error(translateNativeError(sourcesResult.error) || sourcesResult.error);
         if (settingsResult.error) throw new Error(translateNativeError(settingsResult.error) || settingsResult.error);
+
+        // 1b. Wait for the SQLite-backed Stremio stores to finish hydrating so
+        // the export includes their authoritative state (they no longer live in
+        // localStorage).
+        await Promise.all([stremioWatchKvReady, stremioLibraryKvReady]);
 
         // 2. Get Favorites from DB
         const allChannels = await db.channels.toArray();
@@ -440,12 +450,28 @@ export async function exportAllData(): Promise<{ success: boolean; filePath?: st
 
         let stremioWatchHistory = undefined;
         try {
-            const historyRaw = localStorage.getItem('stremio-watch-history');
-            if (historyRaw) {
-                stremioWatchHistory = JSON.parse(historyRaw);
-            }
+            const watchState = useStremioWatchStore.getState();
+            stremioWatchHistory = {
+                state: {
+                    history: watchState.history,
+                    episodeProgress: watchState.episodeProgress,
+                },
+                version: 0,
+            };
         } catch (e) {
-            console.warn('[Export] Failed to parse stremio-watch-history from localStorage:', e);
+            console.warn('[Export] Failed to read stremio-watch-history from store:', e);
+        }
+
+        let stremioLibrary = undefined;
+        try {
+            stremioLibrary = {
+                state: {
+                    library: useStremioLibraryStore.getState().library,
+                },
+                version: 0,
+            };
+        } catch (e) {
+            console.warn('[Export] Failed to read stremio-library from store:', e);
         }
 
         // 13. Get Playlist Editor data
@@ -553,6 +579,7 @@ export async function exportAllData(): Promise<{ success: boolean; filePath?: st
             userPrefs,
             stremioAddons,
             stremioWatchHistory,
+            stremioLibrary,
             customPlaylists,
             playlistCategoryLinks,
             playlistIndividualChannels,
@@ -612,11 +639,34 @@ export async function importAllData(): Promise<{ success: boolean; error?: strin
             localStorage.removeItem('stremio-addons');
         }
 
-        // Restore Stremio watch history
-        if (data.stremioWatchHistory) {
-            localStorage.setItem('stremio-watch-history', JSON.stringify(data.stremioWatchHistory));
-        } else {
-            localStorage.removeItem('stremio-watch-history');
+        // Restore Stremio watch history (persisted via the SQLite KV store)
+        if (data.stremioWatchHistory && data.stremioWatchHistory.state) {
+            const state = data.stremioWatchHistory.state;
+            useStremioWatchStore.setState({
+                history: state.history ?? [],
+                episodeProgress: state.episodeProgress ?? {},
+            });
+            try {
+                await writeAppKv('stremio-watch-history', JSON.stringify({
+                    history: state.history ?? [],
+                    episodeProgress: state.episodeProgress ?? {},
+                }));
+            } catch (e) {
+                console.warn('[Import] Failed to persist stremio-watch-history:', e);
+            }
+        }
+
+        // Restore Stremio library (persisted via the SQLite KV store)
+        if (data.stremioLibrary && data.stremioLibrary.state) {
+            const state = data.stremioLibrary.state;
+            useStremioLibraryStore.setState({ library: state.library ?? [] });
+            try {
+                await writeAppKv('stremio-library', JSON.stringify({
+                    library: state.library ?? [],
+                }));
+            } catch (e) {
+                console.warn('[Import] Failed to persist stremio-library:', e);
+            }
         }
 
         // Restore VOD Favorites
