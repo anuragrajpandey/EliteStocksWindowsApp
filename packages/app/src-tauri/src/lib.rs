@@ -4833,7 +4833,9 @@ pub fn run() {
             get_logo_cache_stats,
             clear_logo_cache,
             prefetch_logos,
-            prune_logo_cache
+            prune_logo_cache,
+            // Database health / recovery
+            db_health
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
@@ -4858,6 +4860,92 @@ fn checkpoint_databases(app: &tauri::AppHandle) {
         if let Err(e) = dvr.db.checkpoint() {
             warn!("[DB] WAL checkpoint on close failed: {}", e);
         }
+    }
+}
+
+// ============================================================================
+// Database Health / Recovery
+// ============================================================================
+
+#[derive(Debug, Serialize)]
+struct DbHealth {
+    /// Size of ynotv.db in bytes (0 if it doesn't exist yet).
+    db_size: u64,
+    /// Size of ynotv.db-wal in bytes (0 if absent).
+    wal_size: u64,
+    /// Whether the database can be opened quickly. False if it fails or times
+    /// out (e.g. it is mid-recovery of a huge WAL).
+    opens_ok: bool,
+    /// Human-readable error when opens_ok is false.
+    error: Option<String>,
+}
+
+/// Report database health so the frontend can show a recovery screen when a
+/// multi-gigabyte (or unopenable) database would otherwise make the app look
+/// broken on startup.
+#[tauri::command]
+async fn db_health(app: AppHandle) -> DbHealth {
+    let data_dir = app.path().app_data_dir().ok();
+    let db_path = data_dir.as_ref().map(|d| d.join("ynotv.db"));
+
+    let file_size = |path: Option<std::path::PathBuf>| -> u64 {
+        path.as_ref()
+            .and_then(|p| std::fs::metadata(p).ok())
+            .map(|m| m.len())
+            .unwrap_or(0)
+    };
+    let db_size = file_size(db_path.clone());
+    let wal_size = file_size(data_dir.as_ref().map(|d| d.join("ynotv.db-wal")));
+
+    // Nothing to recover from if the database file doesn't exist yet (first run).
+    let Some(db_path) = db_path else {
+        return DbHealth {
+            db_size: 0,
+            wal_size: 0,
+            opens_ok: true,
+            error: None,
+        };
+    };
+    if db_size == 0 && !db_path.exists() {
+        return DbHealth {
+            db_size: 0,
+            wal_size: 0,
+            opens_ok: true,
+            error: None,
+        };
+    }
+
+    // Try a quick open on a separate thread with a timeout. Opening triggers
+    // WAL recovery, which is the slow/failing part on a large database.
+    let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
+    std::thread::spawn(move || {
+        let result = (|| -> Result<(), String> {
+            let conn = rusqlite::Connection::open_with_flags(
+                &db_path,
+                rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE,
+            )
+            .map_err(|e| format!("Failed to open database: {}", e))?;
+            conn.busy_timeout(std::time::Duration::from_secs(2))
+                .map_err(|e| e.to_string())?;
+            let _: i64 = conn
+                .query_row("SELECT 1", [], |row| row.get(0))
+                .map_err(|e| e.to_string())?;
+            Ok(())
+        })();
+        let _ = tx.send(result);
+    });
+
+    let (opens_ok, error) = match rx.recv_timeout(std::time::Duration::from_secs(4)) {
+        Ok(Ok(())) => (true, None),
+        Ok(Err(e)) => (false, Some(e)),
+        Err(_) => (false, Some("Timed out opening database (large WAL recovery?)".into())),
+    };
+
+    DbHealth {
+        db_size,
+        wal_size,
+        opens_ok,
+        error,
     }
 }
 

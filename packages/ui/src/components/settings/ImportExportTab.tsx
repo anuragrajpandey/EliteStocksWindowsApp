@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import i18n, { translateNativeError } from '../../i18n';
 import { exportAllData, importAllData } from '../../utils/exportImport';
+import { RecoveryScreen } from '../RecoveryScreen';
+import { getDbHealth, isDbUnhealthy, formatBytes, RECOVERY_SCREEN_ENABLED, type DbHealth } from '../../services/recovery';
 
 export function ImportExportTab() {
     useTranslation();
@@ -10,6 +12,24 @@ export function ImportExportTab() {
     const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [showImportConfirm, setShowImportConfirm] = useState(false);
     const [showRestartConfirm, setShowRestartConfirm] = useState(false);
+    const [recoveryHealth, setRecoveryHealth] = useState<DbHealth | null>(null);
+    const [checkingHealth, setCheckingHealth] = useState(false);
+    const [healthChecked, setHealthChecked] = useState(false);
+
+    const handleCheckHealth = async () => {
+        setCheckingHealth(true);
+        setHealthChecked(false);
+        try {
+            const health = await getDbHealth();
+            setRecoveryHealth(health);
+            setHealthChecked(true);
+        } catch (error) {
+            console.error('[Settings] Failed to check database health:', error);
+            setStatus({ type: 'error', message: String(error) });
+        } finally {
+            setCheckingHealth(false);
+        }
+    };
 
     const handleExport = async () => {
         setIsProcessing(true);
@@ -118,6 +138,61 @@ export function ImportExportTab() {
                     {isProcessing ? i18n.t('settings:exportImport.processing') : i18n.t('settings:exportImport.importBtn')}
                 </button>
             </div>
+
+            {/* Database Health & Recovery */}
+            <div className="settings-section" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
+                <div className="section-header">
+                    <h3>Database Health</h3>
+                </div>
+                <p className="section-description" style={{ marginBottom: '12px' }}>
+                    Check the size and openability of the app database. A large database is normal
+                    with big EPG/VOD caches; this is informational. {RECOVERY_SCREEN_ENABLED ? 'The recovery screen can export your data and rebuild the database to a smaller size.' : ''}
+                </p>
+                <button
+                    className="sync-btn"
+                    onClick={handleCheckHealth}
+                    disabled={checkingHealth}
+                    style={{ maxWidth: '220px', borderColor: 'var(--surface-border)' }}
+                >
+                    {checkingHealth ? 'Checking…' : 'Check database health'}
+                </button>
+                {healthChecked && recoveryHealth && (
+                    <div style={{ marginTop: '12px', fontSize: '0.85rem', lineHeight: 1.6 }}>
+                        <div>
+                            Database:{' '}
+                            <b>{formatBytes(recoveryHealth.db_size)}</b>
+                            {'  ·  '}WAL:{' '}
+                            <b>{formatBytes(recoveryHealth.wal_size)}</b>
+                            {'  ·  '}Opens:{' '}
+                            <b style={{ color: recoveryHealth.opens_ok ? '#4CAF50' : '#ff4444' }}>
+                                {recoveryHealth.opens_ok ? 'yes' : 'no'}
+                            </b>
+                        </div>
+                        {isDbUnhealthy(recoveryHealth) && (
+                            <div style={{ marginTop: '8px', color: '#ff9900' }}>
+                                A large or unopenable database was detected.
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {RECOVERY_SCREEN_ENABLED && recoveryHealth && (
+                <RecoveryScreen
+                    health={recoveryHealth}
+                    onContinue={() => setRecoveryHealth(null)}
+                />
+            )}
+
+            {RECOVERY_SCREEN_ENABLED && healthChecked && recoveryHealth && !isDbUnhealthy(recoveryHealth) && (
+                <button
+                    className="sync-btn"
+                    onClick={() => setRecoveryHealth({ ...recoveryHealth })}
+                    style={{ maxWidth: '220px', marginTop: '12px', borderColor: 'var(--surface-border)' }}
+                >
+                    Open recovery screen
+                </button>
+            )}
 
             {showImportConfirm && createPortal(
                 <div className="source-form-overlay">

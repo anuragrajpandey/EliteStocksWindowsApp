@@ -135,6 +135,11 @@ Build output is located at:
 packages/app/src-tauri/target/release/bundle/
 ```
 
+> **Recovery builds**: if a user's database is too large and the app fails to
+> start, there is a one-off database recovery screen (export → rebuild →
+> import) that ships disabled by default. See [docs/recovery-build.md](docs/recovery-build.md)
+> for how to enable it.
+
 </details>
 
 ---
