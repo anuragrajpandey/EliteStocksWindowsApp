@@ -154,6 +154,31 @@ html.modern-ui-v3 {
   --prog-desc-opacity: 0.55;
   /* Guide solids — in v3 the non-transparent EPG surfaces are glass too */
   --guide-solid-bg: var(--glass-surface-bg);
+  /* Category list — v3 liquid-glass overrides on the v2 tokens above */
+  --cat-item-margin: 4px 8px;
+  --cat-item-radius: 12px;
+  --cat-item-width: calc(100% - 16px);
+  --cat-item-box-sizing: border-box;
+  --cat-item-bg: rgba(255, 255, 255, 0.01);
+  --cat-item-border: 1px solid rgba(255, 255, 255, 0.03);
+  --cat-item-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --cat-item-hover-bg: rgba(255, 255, 255, 0.05);
+  --cat-item-hover-border-color: rgba(255, 255, 255, 0.1);
+  --cat-item-hover-transform: translateX(2px);
+  --cat-item-selected-bg: rgba(255, 255, 255, 0.1);
+  --cat-item-selected-border-color: rgba(255, 255, 255, 0.22);
+  --cat-item-selected-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  --cat-item-bar-selected-shadow: 0 0 10px var(--accent-primary, #00d4ff);
+  --cat-item-selected-count-bg: rgba(255, 255, 255, 0.12);
+  --cat-item-selected-count-color: var(--text-primary, #fff);
+  --cat-count-radius: 12px;
+  --cat-search-radius: 12px;
+  --cat-search-bg: rgba(255, 255, 255, 0.04);
+  --cat-search-hover-bg: rgba(255, 255, 255, 0.04);
+  --cat-search-border: 1px solid rgba(255, 255, 255, 0.08);
+  --cat-search-focused-bg: rgba(255, 255, 255, 0.08);
+  --cat-search-focused-border-color: rgba(255, 255, 255, 0.2);
+  --cat-search-focused-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
   /* Unified titlebar nav pill — dark glass (v3 light falls back to the light base) */
   --titlebar-unified-bg: rgba(0, 0, 0, 0.45);
   --titlebar-unified-blur-filter: blur(12px);
@@ -428,39 +453,7 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 
 /* 6. Rounded Pill Control Buttons (folded into --guide-*-btn tokens) */
 
-/* 7. Illuminated Floating Category Items */
-
-.modern-ui-v3 .category-item {
-  border-radius: 12px !important;
-  margin: 4px 8px !important;
-  width: calc(100% - 16px) !important;
-  box-sizing: border-box !important;
-  border: 1px solid rgba(255, 255, 255, 0.03) !important;
-  background: rgba(255, 255, 255, 0.01) !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.modern-ui-v3 .category-item:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  transform: translateX(2px) !important;
-}
-
-.modern-ui-v3 .category-item.selected {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.08) inset !important;
-}
-
-.modern-ui-v3 .category-item.selected::before {
-  box-shadow: 0 0 10px var(--accent-primary, #00d4ff) !important;
-}
-
-.modern-ui-v3 .category-count {
-  border-radius: 12px !important;
-}
+/* 7. Illuminated Floating Category Items (folded into --cat-* tokens) */
 
 /* 8a. LiveTV Top Categories match VOD sidebar styling in V3 */
 
@@ -935,19 +928,7 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
   color: var(--text-secondary, #888) !important;
 }
 
-/* Sidebar Search wrapper */
-
-.modern-ui-v3 .category-search-input-wrapper {
-  border-radius: 12px !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-}
-
-.modern-ui-v3 .category-search-input-wrapper.focused {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) !important;
-}
+/* Sidebar Search wrapper (folded into --cat-search-* tokens) */
 
 /* Header & Spacer Transparent styling */
 
