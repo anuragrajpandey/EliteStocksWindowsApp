@@ -304,6 +304,10 @@
   --cat-item-nested-radius: 8px;
   --cat-item-nested-margin: 2px 0;
   --cat-item-nested-bg: rgba(255, 255, 255, 0.01);
+  --cat-item-nested-border-top: 1px solid rgba(255, 255, 255, 0.04);
+  --cat-item-nested-border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  --cat-item-nested-border-left: 1px solid rgba(255, 255, 255, 0.04);
+  --cat-item-nested-border-right: 1px solid rgba(255, 255, 255, 0.04);
   --cat-item-selected-bg: linear-gradient(135deg,
     color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent) 0%,
     color-mix(in srgb, var(--accent-primary, #00d4ff) 6%, transparent) 100%);
@@ -350,6 +354,83 @@
     rgba(255, 255, 255, 0.08) 100%);
   --cat-search-focused-border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent);
   --cat-search-focused-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent), 0 3px 12px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
+  /* Source groups/headers — v2 clean groups (v3 overrides below) */
+  --cat-src-group-radius: 8px;
+  --cat-src-group-bg: rgba(255, 255, 255, 0.02);
+  --cat-src-group-border: 1px solid rgba(255, 255, 255, 0.05);
+  --cat-src-content-padding: 8px;
+  --cat-src-content-bg: rgba(0, 0, 0, 0.2);
+  --cat-src-header-bg: rgba(255, 255, 255, 0.03);
+  --cat-src-header-color: rgba(255, 255, 255, 0.8);
+  --cat-src-header-border-top: 1px solid rgba(255, 255, 255, 0.05);
+  --cat-src-header-hover-bg: rgba(255, 255, 255, 0.08);
+  --cat-src-header-hover-color: white;
+  --cat-src-header-hover-border-top-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent);
+  --cat-src-count-font-size: calc(var(--category-font-size, 13px) * 0.85);
+  --cat-src-count-padding: 2px 8px;
+  --cat-src-count-radius: 10px;
+  --cat-src-count-bg: rgba(255, 255, 255, 0.1);
+  --cat-src-count-color: rgba(255, 255, 255, 0.7);
+  --cat-src-count-line-height: 1.2;
+  --cat-src-count-transition: all 0.15s ease;
+  --cat-src-count-hover-bg: rgba(255, 255, 255, 0.15);
+  --cat-src-count-hover-color: rgba(255, 255, 255, 0.9);
+  /* Source name typography — v2 */
+  --cat-src-name-weight: 500;
+  --cat-src-name-font-size: var(--category-font-size, 13px);
+  --cat-src-name-letter-spacing: 0.01em;
+  --cat-src-name-line-height: 1.2;
+  /* Category name typography — v2 */
+  --cat-name-weight: 500;
+  --cat-name-letter-spacing: 0.01em;
+  --cat-list-name-font-size: 12px;
+  --cat-name-media-font-size: var(--category-font-size, 13px);
+  --cat-src-header-media-padding: 10px 12px;
+  /* Category list-bar — v2 gradient pill (v3 clean look overrides in ModernV3.css) */
+  --cat-list-width: 100%;
+  --cat-list-box-sizing: border-box;
+  --cat-list-strip-margin: 3px 0; /* v2 bars inherit .category-item's vertical gap */
+  --cat-list-bg: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.01) 100%);
+  --cat-list-border-top: 1px solid rgba(255, 255, 255, 0.04);
+  --cat-list-border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  --cat-list-border-left: 1px solid rgba(255, 255, 255, 0.04);
+  --cat-list-border-right: 1px solid rgba(255, 255, 255, 0.04);
+  --cat-list-padding: 8px 12px;
+  --cat-list-radius: 8px;
+  --cat-list-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --cat-list-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --cat-list-pos: relative;
+  --cat-list-overflow: hidden;
+  --cat-list-bar-content: '';
+  --cat-list-bar-width: 3px;
+  --cat-list-bar-bg: var(--accent-primary, #00d4ff);
+  --cat-list-bar-radius: 0 2px 2px 0;
+  --cat-list-bar-height: 0;
+  --cat-list-bar-transition: height 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --cat-list-bar-shadow: 0 0 6px var(--accent-primary, #00d4ff);
+  --cat-list-hover-bg: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.02) 100%);
+  --cat-list-hover-border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent);
+  --cat-list-hover-transform: translateX(3px);
+  --cat-list-hover-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  --cat-list-bar-hover-height: 14px;
+  --cat-list-selected-bg: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent) 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 5%, transparent) 100%);
+  --cat-list-selected-border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
+  --cat-list-selected-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 0 1px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent) inset;
+  --cat-list-selected-pos: relative;
+  --cat-list-bar-selected-height: 50%;
+  --cat-list-bar-selected-shadow: 0 0 6px var(--accent-primary, #00d4ff);
+  /* list-bar count typography (v2 values; v3 inherits) */
+  --cat-list-count-font-size: 10px;
+  --cat-list-count-font-weight: 700;
+  --cat-list-count-padding: 2px 6px;
+  --cat-list-count-min-width: 20px;
+  --cat-list-count-radius: 12px;
 }
 
 /* Modern Category Strip Header */
@@ -394,100 +475,6 @@
   box-shadow: 0 0 8px var(--accent-primary, #00d4ff);
 }
 
-.modern-ui .category-name {
-  font-weight: 500;
-  font-size: var(--category-font-size, 13px);
-  letter-spacing: 0.01em;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Scroll text animation on hover - only when text overflows */
-.modern-ui .category-item:hover .category-name.overflowing {
-  overflow: visible;
-  display: inline-block;
-  animation: scroll-text 8s linear infinite;
-  padding-right: 20px;
-}
-
-/* Modern Category List Bar Overrides */
-.modern-ui .category-list-bar {
-  width: 100%;
-  padding: 8px 12px;
-  background: 
-    linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.03) 0%,
-      rgba(255, 255, 255, 0.01) 100%
-    );
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.modern-ui .category-list-bar::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 0;
-  background: var(--accent-primary, #00d4ff);
-  border-radius: 0 2px 2px 0;
-  transition: height 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 0 6px var(--accent-primary, #00d4ff);
-}
-
-.modern-ui .category-list-bar:hover {
-  background: 
-    linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.06) 0%,
-      rgba(255, 255, 255, 0.02) 100%
-    ) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) !important;
-  transform: translateX(3px) !important;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2) !important;
-}
-
-.modern-ui .category-list-bar:hover::before {
-  height: 14px;
-}
-
-.modern-ui .category-list-bar.selected {
-  background: 
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent) 0%,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 5%, transparent) 100%
-    ) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent) !important;
-  box-shadow: 
-    0 3px 10px rgba(0, 0, 0, 0.2),
-    0 0 0 1px color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent) inset !important;
-}
-
-.modern-ui .category-list-bar.selected::before {
-  height: 50%;
-}
-
-.modern-ui .category-list-bar .category-name {
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.modern-ui .category-list-bar .category-count {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 6px;
-  min-width: 20px;
-  border-radius: 12px;
-}
 
 /* Modern Category Icons */
 .modern-ui .category-icon {
@@ -599,76 +586,6 @@
   );
 }
 
-/* Modern Source Groups - Clean styling */
-.modern-ui .category-strip .category-source-group {
-  margin: 4px 0;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  /* Note: removed overflow: hidden as it breaks sticky positioning */
-}
-
-/* Let base CSS handle sticky, only add visual enhancements */
-.modern-ui .category-strip button.category-source-header {
-  padding: 10px 12px !important;
-  background: rgba(255, 255, 255, 0.03) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-}
-
-.modern-ui .category-strip button.category-source-header:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: white !important;
-  border-top-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) !important;
-}
-
-/* Explicit sticky positioning for expanded headers in modern theme */
-.modern-ui .category-strip .category-source-group.is-expanded button.category-source-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 100 !important;
-  background: rgba(20, 20, 25, 0.98) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-}
-
-.modern-ui .category-strip .category-source-group.is-expanded button.category-source-header:hover {
-  background: rgba(35, 35, 45, 0.98) !important;
-}
-
-.modern-ui .category-strip .source-header-left {
-  gap: 8px;
-  position: relative;
-  z-index: 1;
-}
-
-.modern-ui .category-strip .source-name {
-  font-weight: 500;
-  font-size: var(--category-font-size, 13px);
-  letter-spacing: 0.01em;
-  line-height: 1.2;
-}
-
-.modern-ui .category-strip button.category-source-header .source-count {
-  font-size: calc(var(--category-font-size, 13px) * 0.85) !important;
-  font-weight: 600 !important;
-  padding: 2px 8px !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: rgba(255, 255, 255, 0.7) !important;
-  border-radius: 10px !important;
-  line-height: 1.2 !important;
-  transition: all 0.15s ease !important;
-}
-
-.modern-ui .category-strip button.category-source-header:hover .source-count {
-  background: rgba(255, 255, 255, 0.15) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-.modern-ui .category-strip .category-source-content {
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.2);
-}
 
 /* Modern Add Group Button */
 .modern-ui .category-strip-header .add-group-btn {

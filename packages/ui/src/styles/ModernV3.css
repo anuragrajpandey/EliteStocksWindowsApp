@@ -156,21 +156,33 @@ html.modern-ui-v3 {
   --guide-solid-bg: var(--glass-surface-bg);
   /* Category list — v3 liquid-glass overrides on the v2 tokens above */
   --cat-item-margin: 4px 8px;
-  --cat-item-radius: 12px;
+  --cat-item-radius: 10px;
   --cat-item-width: calc(100% - 16px);
   --cat-item-box-sizing: border-box;
-  --cat-item-bg: rgba(255, 255, 255, 0.01);
-  --cat-item-border: 1px solid rgba(255, 255, 255, 0.03);
-  --cat-item-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  --cat-item-hover-bg: rgba(255, 255, 255, 0.05);
-  --cat-item-hover-border-color: rgba(255, 255, 255, 0.1);
-  --cat-item-hover-transform: translateX(2px);
+  --cat-item-bg: rgba(255, 255, 255, 0.02);
+  --cat-item-border: 1px solid rgba(255, 255, 255, 0.04);
+  --cat-item-padding: 12px;
+  --cat-item-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --cat-item-hover-bg: rgba(255, 255, 255, 0.06);
+  --cat-item-hover-border-color: rgba(255, 255, 255, 0.12);
+  --cat-item-hover-transform: translateY(-0.5px);
+  --cat-item-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  /* Channel list items (settings) — same list-item surface as category items */
+  --channel-item-bg: rgba(255, 255, 255, 0.02);
+  --channel-item-border: 1px solid rgba(255, 255, 255, 0.04);
+  --channel-item-radius: 10px;
+  --channel-item-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --channel-item-margin-bottom: 8px;
+  --channel-item-hover-bg: rgba(255, 255, 255, 0.06);
+  --channel-item-hover-border-color: rgba(255, 255, 255, 0.12);
+  --channel-item-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --channel-item-hover-transform: translateY(-0.5px);
   --cat-item-selected-bg: rgba(255, 255, 255, 0.1);
   --cat-item-selected-border-color: rgba(255, 255, 255, 0.22);
   --cat-item-selected-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
   --cat-item-bar-selected-shadow: 0 0 10px var(--accent-primary, #00d4ff);
   --cat-item-selected-count-bg: rgba(255, 255, 255, 0.12);
-  --cat-item-selected-count-color: var(--text-primary, #fff);
+  --cat-item-selected-count-color: rgba(255, 255, 255, 0.45); /* readability: dimmed counts */
   --cat-count-radius: 12px;
   --cat-search-radius: 12px;
   --cat-search-bg: rgba(255, 255, 255, 0.04);
@@ -179,6 +191,159 @@ html.modern-ui-v3 {
   --cat-search-focused-bg: rgba(255, 255, 255, 0.08);
   --cat-search-focused-border-color: rgba(255, 255, 255, 0.2);
   --cat-search-focused-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+  /* Category list-bar — v3 clean look (overrides the v2 pill values above) */
+  --cat-list-radius: 0;
+  --cat-list-strip-margin: 2px 8px;
+  --cat-list-width: calc(100% - 16px);
+  --cat-list-box-sizing: border-box;
+  --cat-list-border-left: none;
+  --cat-list-border-right: none;
+  --cat-list-border-top: 1px solid transparent;
+  --cat-list-border-bottom: 1px solid transparent;
+  --cat-list-bg: transparent;
+  --cat-list-color: var(--text-secondary, #888);
+  --cat-list-padding: 10px 12px;
+  --cat-list-media-padding: 10px 12px; /* v3 keeps fixed padding on small viewports */
+  --cat-list-hover-bg: rgba(255, 255, 255, 0.05);
+  --cat-list-hover-color: var(--text-primary, #fff);
+  --cat-list-hover-transform: none;
+  --cat-list-hover-border-color: transparent;
+  --cat-list-selected-bg: rgba(255, 255, 255, 0.1);
+  --cat-list-selected-border-color: rgba(255, 255, 255, 0.08);
+  --cat-list-selected-color: var(--text-primary, #ffffff);
+  --cat-list-selected-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  --cat-list-selected-pos: relative;
+  --cat-list-selected-padding-left: 16px;
+  --cat-list-bar-selected-shadow: 0 0 8px var(--accent-primary, #e50914);
+  --cat-list-count-selected-bg: rgba(255, 255, 255, 0.12);
+  --cat-list-count-selected-color: var(--text-primary, #fff);
+  /* Category source nested items (8b) — v3 clean look */
+  --cat-item-nested-radius: 0;
+  --cat-item-nested-margin: 2px 0;
+  --cat-item-nested-bg: transparent;
+  --cat-item-nested-padding-left: 16px;
+  --cat-item-nested-font-size: var(--category-font-size, 13px);
+  --cat-item-nested-color: var(--text-secondary, #888);
+  --cat-item-nested-width: 100%;
+  --cat-item-nested-border-top: 1px solid transparent;
+  --cat-item-nested-border-bottom: 1px solid transparent;
+  --cat-item-nested-border-left: none;
+  --cat-item-nested-border-right: none;
+  --cat-item-nested-padding: 10px 16px;
+  /* Pinned nested items — v3 opaque glass */
+  --cat-item-pinned-z: 99;
+  --cat-item-pinned-bg: rgba(12, 14, 24, 0.98);
+  --cat-item-pinned-padding: 10px 16px;
+  --cat-item-pinned-selected-bg: color-mix(in srgb, var(--accent-primary, #e50914) 15%, rgb(12, 14, 24));
+  /* Category folder headers — v3 glass */
+  --cat-folder-pinned-bg: rgba(12, 14, 24, 0.98);
+  --cat-folder-pinned-border-bottom: 1px solid rgba(0, 212, 255, 0.25);
+  --cat-folder-pinned-blur: 12px;
+  --cat-folder-pinned-hover-bg: rgba(25, 27, 44, 0.98);
+  --cat-folder-expanded-bg: rgba(25, 27, 44, 0.98);
+  --cat-folder-expanded-color: #fff;
+  --cat-folder-expanded-pos: sticky;
+  --cat-folder-expanded-top: var(--category-folder-sticky-top, 40px);
+  --cat-folder-expanded-z: 95;
+  /* Source groups/headers — v3 clean look (overrides the v2 group styling) */
+  --cat-src-group-margin-top: 0;
+  --cat-src-group-radius: 0;
+  --cat-src-group-bg: transparent;
+  --cat-src-group-border: none;
+  --cat-src-content-padding: 0;
+  --cat-src-content-bg: transparent;
+  --cat-src-header-padding: 10px 16px;
+  --cat-src-header-bg: transparent;
+  --cat-src-header-color: var(--text-secondary, #888);
+  --cat-src-header-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --cat-src-header-border-top: 1px solid transparent;
+  --cat-src-header-border-bottom: 1px solid transparent;
+  --cat-src-header-hover-bg: rgba(255, 255, 255, 0.05);
+  --cat-src-header-hover-color: var(--text-primary, #fff);
+  --cat-src-header-hover-border-top-color: transparent;
+  --cat-src-expanded-bg: rgba(15, 12, 25, 0.96);
+  --cat-src-expanded-border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  --cat-src-expanded-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --cat-src-expanded-filter: blur(8px);
+  --cat-src-expanded-hover-bg: rgba(28, 22, 45, 0.96);
+  /* Source count badge — v3 (dark readability dims text below) */
+  --cat-src-count-font-size: 11px;
+  --cat-src-count-padding: 2px 8px;
+  --cat-src-count-radius: 12px;
+  --cat-src-count-bg: rgba(255, 255, 255, 0.06);
+  --cat-src-count-color: var(--text-secondary, #888);
+  --cat-src-count-font-weight: 600;
+  --cat-src-count-tabular: tabular-nums;
+  /* Source name typography — v3 */
+  --cat-src-name-weight: 600;
+  --cat-src-name-font-size: var(--source-font-size, 0.76rem);
+  --cat-src-name-letter-spacing: 0.06em;
+  /* Category name typography — v3 */
+  --cat-name-weight: 500;
+  --cat-name-font-size: var(--category-font-size, 0.82rem);
+  --cat-list-name-font-size: var(--category-font-size, 0.82rem);
+  /* Name/count text colors — v3 dark readability (light block overrides below) */
+  --cat-name-color: rgba(255, 255, 255, 0.9);
+  --cat-name-hover-color: rgba(255, 255, 255, 1);
+  --cat-name-selected-color: var(--accent-primary, #00d4ff);
+  --cat-name-media-font-size: var(--category-font-size, 0.82rem);
+  --cat-src-header-media-padding: 10px 16px;
+  --src-name-color: rgba(255, 255, 255, 0.9);
+  --src-name-hover-color: rgba(255, 255, 255, 1);
+  --cat-count-color: rgba(255, 255, 255, 0.45);
+  --cat-count-font-weight: 400;
+  --cat-count-tabular: tabular-nums;
+  /* VOD vertical sidebar — v3 liquid-glass list */
+  --vs-margin: 16px 0 16px 16px;
+  --vs-height: calc(100% - 32px);
+  --vs-align-self: flex-start;
+  --vs-before-display: none;
+  --vs-top-pad: 8px 0;
+  --vs-item-radius: 0;
+  --vs-item-margin: 2px 0;
+  --vs-item-pad: 10px 16px;
+  --vs-item-border-top: 1px solid transparent;
+  --vs-item-border-bottom: 1px solid transparent;
+  --vs-item-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --vs-item-hover-bg: rgba(255, 255, 255, 0.05);
+  --vs-item-active-bg: rgba(255, 255, 255, 0.1);
+  --vs-item-active-border-top: rgba(255, 255, 255, 0.08);
+  --vs-item-active-border-bottom: rgba(255, 255, 255, 0.08);
+  --vs-item-active-color: var(--text-primary, #ffffff);
+  --vs-item-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  --vs-item-active-pos: relative;
+  --vs-item-active-pad-left: 20px;
+  --vs-bar-content: '';
+  --vs-bar-width: 3px;
+  --vs-bar-height: 50%;
+  --vs-bar-bg: var(--accent-primary, #e50914);
+  --vs-bar-radius: 0 2px 2px 0;
+  --vs-bar-shadow: 0 0 8px var(--accent-primary, #e50914);
+  --vs-header-display: none;
+  --vs-search-container-pad: 4px 0;
+  --vs-search-radius: 12px;
+  --vs-search-bg: rgba(255, 255, 255, 0.04);
+  --vs-search-border: 1px solid rgba(255, 255, 255, 0.08);
+  --vs-search-margin: 4px 12px;
+  --vs-search-width: calc(100% - 24px);
+  --vs-search-box-sizing: border-box;
+  --vs-search-pad: 6px 12px;
+  --vs-search-focus-bg: rgba(255, 255, 255, 0.08);
+  --vs-search-focus-border: rgba(255, 255, 255, 0.2);
+  --vs-search-focus-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+  --vs-item-left-gap: 12px;
+  --vs-separator-bg: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 25%, rgba(255, 255, 255, 0.08) 75%, transparent 100%);
+  --vs-separator-margin: 8px 12px;
+  --vs-src-radius: 0;
+  --vs-src-pad: 10px 16px;
+  --vs-src-border-top: 1px solid transparent;
+  --vs-src-border-bottom: 1px solid transparent;
+  --vs-src-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --vs-expanded-bg: rgba(15, 12, 25, 0.96);
+  --vs-expanded-hover-bg: rgba(28, 22, 45, 0.96);
+  --vs-expanded-border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  --vs-expanded-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --vs-expanded-filter: blur(8px);
   /* Unified titlebar nav pill — dark glass (v3 light falls back to the light base) */
   --titlebar-unified-bg: rgba(0, 0, 0, 0.45);
   --titlebar-unified-blur-filter: blur(12px);
@@ -214,6 +379,12 @@ html.modern-ui-v3[data-theme="light"] {
   --glass-stremio-right-filter: blur(30px) saturate(190%);
   --glass-stremio-right-border: var(--glass-surface-border);
   --glass-stremio-right-shadow: var(--glass-surface-shadow);
+  /* VOD vertical sidebar expanded source headers — light liquid glass */
+  --vs-expanded-bg: rgba(240, 240, 245, 0.96);
+  --vs-expanded-hover-bg: rgba(230, 230, 235, 0.96);
+  --vs-expanded-border-bottom: rgba(255, 255, 255, 0.08);
+  --vs-expanded-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --vs-expanded-filter: blur(8px);
   --glass-info-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 2px 8px rgba(0, 0, 0, 0.02);
   --glass-modal-bg: rgba(255, 255, 255, 0.45);
   --glass-modal-filter-strong: blur(30px) saturate(190%);
@@ -226,6 +397,20 @@ html.modern-ui-v3[data-theme="light"] {
   --glass-settings-bg: rgba(255, 255, 255, 0.94);
   --glass-settings-border: 1px solid rgba(0, 0, 0, 0.12);
   --glass-settings-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 20px 50px rgba(0, 0, 0, 0.15), 0 2px 8px color-mix(in srgb, var(--accent-primary, #0066cc) 10%, transparent);
+  /* Sticky expanded source headers — light glass */
+  --cat-src-expanded-bg: rgba(240, 240, 245, 0.96);
+  --cat-src-expanded-hover-bg: rgba(230, 230, 235, 0.96);
+  /* Name/count text colors — light (mirrors the light sheet, which still wins where set) */
+  --cat-name-color: inherit;
+  --cat-name-hover-color: inherit;
+  --cat-name-selected-color: #0f172a;
+  --src-name-color: inherit;
+  --src-name-hover-color: inherit;
+  --cat-count-color: #475569;
+  --cat-count-font-weight: 600;
+  --cat-item-selected-count-color: #0f172a;
+  --src-count-color: var(--text-secondary, #888);
+  --src-count-font-weight: 600;
 }
 /* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled */
 
@@ -453,480 +638,7 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
 
 /* 6. Rounded Pill Control Buttons (folded into --guide-*-btn tokens) */
 
-/* 7. Illuminated Floating Category Items (folded into --cat-* tokens) */
 
-/* 8a. LiveTV Top Categories match VOD sidebar styling in V3 */
-
-.modern-ui-v3 .category-strip-top .category-list-bar:not(.custom-group-item) {
-  border-radius: 0 !important;
-  margin: 2px 8px !important;
-  width: calc(100% - 16px) !important;
-  box-sizing: border-box !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-top: 1px solid transparent !important;
-  border-bottom: 1px solid transparent !important;
-  background: transparent !important;
-  color: var(--text-secondary, #888) !important;
-  padding: 10px 12px !important;
-}
-
-.modern-ui-v3 .category-strip-top .category-list-bar:not(.custom-group-item):hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: var(--text-primary, #fff) !important;
-  transform: none !important;
-  border-color: transparent !important;
-}
-
-.modern-ui-v3 .category-strip-top .category-list-bar:not(.custom-group-item).selected {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-top-color: rgba(255, 255, 255, 0.08) !important;
-  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-primary, #ffffff) !important;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
-  position: relative !important;
-  padding-left: 16px !important;
-}
-
-.modern-ui-v3 .category-strip-top .category-list-bar:not(.custom-group-item).selected::before {
-  content: '' !important;
-  position: absolute !important;
-  left: 0 !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  width: 3px !important;
-  height: 50% !important;
-  background: var(--accent-primary, #e50914) !important;
-  border-radius: 0 2px 2px 0 !important;
-  box-shadow: 0 0 8px var(--accent-primary, #e50914) !important;
-}
-
-.modern-ui-v3 .category-strip-top .category-list-bar:not(.custom-group-item).selected .category-count {
-  background: rgba(255, 255, 255, 0.12) !important;
-  color: var(--text-primary, #fff) !important;
-}
-
-/* 8a2. LiveTV Custom Groups match the Top Categories clean look in V3 */
-
-.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item {
-  border-radius: 0 !important;
-  margin: 2px 8px !important;
-  width: calc(100% - 16px) !important;
-  box-sizing: border-box !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-top: 1px solid transparent !important;
-  border-bottom: 1px solid transparent !important;
-  background: transparent !important;
-  color: var(--text-secondary, #888) !important;
-  padding: 10px 12px !important;
-}
-
-.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: var(--text-primary, #fff) !important;
-  transform: none !important;
-  border-color: transparent !important;
-}
-
-.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item.selected {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-top-color: rgba(255, 255, 255, 0.08) !important;
-  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-primary, #ffffff) !important;
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
-  position: relative !important;
-  padding-left: 16px !important;
-}
-
-.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item.selected::before {
-  content: '' !important;
-  position: absolute !important;
-  left: 0 !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  width: 3px !important;
-  height: 50% !important;
-  background: var(--accent-primary, #e50914) !important;
-  border-radius: 0 2px 2px 0 !important;
-  box-shadow: 0 0 8px var(--accent-primary, #e50914) !important;
-}
-
-.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item.selected .category-count {
-  background: rgba(255, 255, 255, 0.12) !important;
-  color: var(--text-primary, #fff) !important;
-}
-
-/* 8b. LiveTV source category items match VOD sidebar styling in V3 */
-
-.modern-ui-v3 .category-source-content .category-item.nested {
-  border-radius: 0 !important;
-  margin: 2px 0 !important;
-  width: 100% !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-top: 1px solid transparent !important;
-  border-bottom: 1px solid transparent !important;
-  background: transparent !important;
-  color: var(--text-secondary, #888) !important;
-  padding: 10px 16px !important;
-  font-size: var(--category-font-size, 13px) !important;
-}
-
-.modern-ui-v3 .category-source-content .category-item.nested:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: var(--text-primary, #fff) !important;
-  transform: none !important;
-  border-color: transparent !important;
-}
-
-.modern-ui-v3 .category-source-content .category-item.nested.selected {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-top-color: rgba(255, 255, 255, 0.08) !important;
-  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-primary, #ffffff) !important;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
-  position: relative !important;
-  padding-left: 20px !important;
-}
-
-.modern-ui-v3 .category-source-content .category-item.nested.selected::before {
-  content: '' !important;
-  position: absolute !important;
-  left: 0 !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  width: 3px !important;
-  height: 50% !important;
-  background: var(--accent-primary, #e50914) !important;
-  border-radius: 0 2px 2px 0 !important;
-  box-shadow: 0 0 8px var(--accent-primary, #e50914) !important;
-}
-
-.modern-ui-v3 .category-source-content .category-item.nested.selected .category-count {
-  background: rgba(255, 255, 255, 0.12) !important;
-  color: var(--text-primary, #fff) !important;
-}
-
-.modern-ui-v3 .category-source-content .category-item.nested.is-pinned {
-  /* position:sticky is now on the .sortable-sidebar-item wrapper div (inline style).
-     Do not repeat it here or it would sticky the button within its 38px wrapper. */
-  z-index: 99 !important;
-  background: rgba(12, 14, 24, 0.98) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-  margin: 0 !important;
-  height: 38px !important;
-  box-sizing: border-box !important;
-  padding: 10px 16px !important;
-}
-
-.modern-ui-v3 .category-source-content .category-item.nested.is-pinned.selected {
-  background: color-mix(in srgb, var(--accent-primary, #e50914) 15%, rgb(12, 14, 24)) !important;
-}
-
-.modern-ui-v3 .category-folder-header {
-  width: 100% !important;
-  height: 34px !important;
-  box-sizing: border-box !important;
-  background: rgba(255, 255, 255, 0.02) !important;
-  border: none !important;
-  color: rgba(255, 255, 255, 0.75) !important;
-  transition: background 0.15s ease, color 0.15s ease !important;
-}
-
-.modern-ui-v3 .category-folder-header:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
-  color: #fff !important;
-}
-
-.modern-ui-v3 .category-folder-header.is-pinned {
-  position: sticky !important;
-  z-index: 96 !important;
-  background: rgba(12, 14, 24, 0.98) !important;
-  border-bottom: 1px solid rgba(0, 212, 255, 0.25) !important;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
-  backdrop-filter: blur(12px) !important;
-}
-
-.modern-ui-v3 .category-folder-header.is-pinned:hover {
-  background: rgba(25, 27, 44, 0.98) !important;
-  border-radius: 0 !important;
-  margin: 2px 8px !important;
-  width: calc(100% - 16px) !important;
-  box-sizing: border-box !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-top: 1px solid transparent !important;
-  border-bottom: 1px solid transparent !important;
-  background: transparent !important;
-  color: var(--text-secondary, #888) !important;
-  padding: 10px 12px !important;
-}
-
-.modern-ui-v3 .category-strip-top .category-list-bar:not(.custom-group-item):hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: var(--text-primary, #fff) !important;
-  transform: none !important;
-  border-color: transparent !important;
-}
-
-.modern-ui-v3 .category-strip-top .category-list-bar:not(.custom-group-item).selected {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-top-color: rgba(255, 255, 255, 0.08) !important;
-  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-primary, #ffffff) !important;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
-  position: relative !important;
-  padding-left: 16px !important;
-}
-
-.modern-ui-v3 .category-strip-top .category-list-bar:not(.custom-group-item).selected::before {
-  content: '' !important;
-  position: absolute !important;
-  left: 0 !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  width: 3px !important;
-  height: 50% !important;
-  background: var(--accent-primary, #e50914) !important;
-  border-radius: 0 2px 2px 0 !important;
-  box-shadow: 0 0 8px var(--accent-primary, #e50914) !important;
-}
-
-.modern-ui-v3 .category-strip-top .category-list-bar:not(.custom-group-item).selected .category-count {
-  background: rgba(255, 255, 255, 0.12) !important;
-  color: var(--text-primary, #fff) !important;
-}
-
-/* 8a2. LiveTV Custom Groups match the Top Categories clean look in V3 */
-
-.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item {
-  border-radius: 0 !important;
-  margin: 2px 8px !important;
-  width: calc(100% - 16px) !important;
-  box-sizing: border-box !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-top: 1px solid transparent !important;
-  border-bottom: 1px solid transparent !important;
-  background: transparent !important;
-  color: var(--text-secondary, #888) !important;
-  padding: 10px 12px !important;
-}
-
-.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: var(--text-primary, #fff) !important;
-  transform: none !important;
-  border-color: transparent !important;
-}
-
-.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item.selected {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-top-color: rgba(255, 255, 255, 0.08) !important;
-  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-primary, #ffffff) !important;
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
-  position: relative !important;
-  padding-left: 16px !important;
-}
-
-.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item.selected::before {
-  content: '' !important;
-  position: absolute !important;
-  left: 0 !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  width: 3px !important;
-  height: 50% !important;
-  background: var(--accent-primary, #e50914) !important;
-  border-radius: 0 2px 2px 0 !important;
-  box-shadow: 0 0 8px var(--accent-primary, #e50914) !important;
-}
-
-.modern-ui-v3 .custom-groups-section .category-list-bar.custom-group-item.selected .category-count {
-  background: rgba(255, 255, 255, 0.12) !important;
-  color: var(--text-primary, #fff) !important;
-}
-
-/* 8b. LiveTV source category items match VOD sidebar styling in V3 */
-
-.modern-ui-v3 .category-source-content .category-item.nested {
-  border-radius: 0 !important;
-  margin: 2px 0 !important;
-  width: 100% !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-top: 1px solid transparent !important;
-  border-bottom: 1px solid transparent !important;
-  background: transparent !important;
-  color: var(--text-secondary, #888) !important;
-  padding: 10px 16px !important;
-  font-size: var(--category-font-size, 13px) !important;
-}
-
-.modern-ui-v3 .category-source-content .category-item.nested:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: var(--text-primary, #fff) !important;
-  transform: none !important;
-  border-color: transparent !important;
-}
-
-.modern-ui-v3 .category-source-content .category-item.nested.selected {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-top-color: rgba(255, 255, 255, 0.08) !important;
-  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-primary, #ffffff) !important;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
-  position: relative !important;
-  padding-left: 20px !important;
-}
-
-.modern-ui-v3 .category-source-content .category-item.nested.selected::before {
-  content: '' !important;
-  position: absolute !important;
-  left: 0 !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  width: 3px !important;
-  height: 50% !important;
-  background: var(--accent-primary, #e50914) !important;
-  border-radius: 0 2px 2px 0 !important;
-  box-shadow: 0 0 8px var(--accent-primary, #e50914) !important;
-}
-
-.modern-ui-v3 .category-source-content .category-item.nested.selected .category-count {
-  background: rgba(255, 255, 255, 0.12) !important;
-  color: var(--text-primary, #fff) !important;
-}
-
-.modern-ui-v3 .category-source-content .category-item.nested.is-pinned {
-  /* position:sticky is now on the .sortable-sidebar-item wrapper div (inline style).
-     Do not repeat it here or it would sticky the button within its 38px wrapper. */
-  z-index: 99 !important;
-  background: rgba(12, 14, 24, 0.98) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-  margin: 0 !important;
-  height: 38px !important;
-  box-sizing: border-box !important;
-  padding: 10px 16px !important;
-}
-
-.modern-ui-v3 .category-source-content .category-item.nested.is-pinned.selected {
-  background: color-mix(in srgb, var(--accent-primary, #e50914) 15%, rgb(12, 14, 24)) !important;
-}
-
-.modern-ui-v3 .category-folder-header {
-  width: 100% !important;
-  height: 34px !important;
-  box-sizing: border-box !important;
-  background: rgba(255, 255, 255, 0.02) !important;
-  border: none !important;
-  color: rgba(255, 255, 255, 0.75) !important;
-  transition: background 0.15s ease, color 0.15s ease !important;
-}
-
-.modern-ui-v3 .category-folder-header:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
-  color: #fff !important;
-}
-
-.modern-ui-v3 .category-folder-header.is-pinned {
-  position: sticky !important;
-  z-index: 96 !important;
-  background: rgba(12, 14, 24, 0.98) !important;
-  border-bottom: 1px solid rgba(0, 212, 255, 0.25) !important;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
-  backdrop-filter: blur(12px) !important;
-}
-
-.modern-ui-v3 .category-folder-header.is-pinned:hover {
-  background: rgba(25, 27, 44, 0.98) !important;
-  color: #fff !important;
-}
-
-.modern-ui-v3 .category-folder-group.is-expanded .category-folder-header {
-  position: sticky !important;
-  top: var(--category-folder-sticky-top, 40px) !important;
-  z-index: 95 !important;
-  background: rgba(12, 14, 24, 0.98) !important;
-  border-bottom: 1px solid rgba(0, 212, 255, 0.2) !important;
-  background: rgba(25, 27, 44, 0.98) !important;
-  color: #fff !important;
-}
-
-/* 8c. LiveTV source headers match VOD sidebar source header styling in V3 */
-
-.modern-ui-v3 .category-strip .category-source-group {
-  margin: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  border: none !important;
-}
-
-.modern-ui-v3 .category-strip .category-source-content {
-  padding: 0 !important;
-  background: transparent !important;
-}
-
-.modern-ui-v3 .category-strip button.category-source-header {
-  border-radius: 0 !important;
-  margin: 0 !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-  height: 40px !important;
-  background: transparent !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-top: 1px solid transparent !important;
-  border-bottom: 1px solid transparent !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  padding: 10px 16px !important;
-  color: var(--text-secondary, #888) !important;
-}
-
-.modern-ui-v3 .category-strip button.category-source-header:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: var(--text-primary, #fff) !important;
-  border-top-color: transparent !important;
-}
-
-.modern-ui-v3 .category-strip .category-source-group.is-expanded button.category-source-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 100 !important;
-  background: rgba(12, 14, 24, 0.98) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-  border-radius: 0 !important;
-  margin: 0 !important;
-  width: 100% !important;
-}
-
-.modern-ui-v3 .category-strip .category-source-group.is-expanded button.category-source-header:hover {
-  background: rgba(25, 27, 44, 0.98) !important;
-}
-
-.modern-ui-v3 .category-strip button.category-source-header .source-count {
-  font-size: 11px !important;
-  font-weight: 600 !important;
-  padding: 2px 8px !important;
-  border-radius: 12px !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  color: var(--text-secondary, #888) !important;
-}
 
 /* Sidebar Search wrapper (folded into --cat-search-* tokens) */
 
@@ -953,162 +665,6 @@ html.modern-ui-v3 .guide-channel-row.currently-playing .program-block.current:ho
   background: transparent !important;
 }
 
-.modern-ui-v3 .vertical-sidebar {
-  margin: 16px 0 16px 16px;
-  height: calc(100% - 32px);
-  align-self: flex-start;
-}
-
-.modern-ui-v3 .vertical-sidebar::before {
-  display: none !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__top {
-  padding: 8px 0 !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__item {
-  border-radius: 0 !important;
-  margin: 2px 0 !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-top: 1px solid transparent !important;
-  border-bottom: 1px solid transparent !important;
-  background: transparent !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  color: var(--text-secondary, #888) !important;
-  padding: 10px 16px !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__item:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: var(--text-primary, #fff) !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__item.active {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-top-color: rgba(255, 255, 255, 0.08) !important;
-  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-primary, #ffffff) !important;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
-  position: relative !important;
-  padding-left: 20px !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__item.active::before {
-  content: '' !important;
-  position: absolute !important;
-  left: 0 !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  width: 3px !important;
-  height: 50% !important;
-  background: var(--accent-primary, #e50914) !important;
-  border-radius: 0 2px 2px 0 !important;
-  box-shadow: 0 0 8px var(--accent-primary, #e50914) !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__item.nested {
-  padding-left: 16px !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__item.nested.active {
-  padding-left: 20px !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__header {
-  display: none !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__search-container {
-  padding: 4px 0 !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__search {
-  border-radius: 12px !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  margin: 4px 12px !important;
-  width: calc(100% - 24px) !important;
-  box-sizing: border-box !important;
-  padding: 6px 12px !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__search:focus-within {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) !important;
-}
-
-/* Ensure category-item-left is styled properly in VOD sidebar */
-
-.modern-ui-v3 .vertical-sidebar .category-item-left {
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  flex: 1 !important;
-  min-width: 0 !important;
-}
-
-.modern-ui-v3 .vertical-sidebar .category-name {
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  font-size: var(--category-font-size, 14px) !important;
-  font-weight: 500 !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__separator {
-  height: 1px !important;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(255, 255, 255, 0.08) 25%, 
-    rgba(255, 255, 255, 0.08) 75%, 
-    transparent 100%
-  ) !important;
-  border: none !important;
-  margin: 8px 12px !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__source-header {
-  border-radius: 0 !important;
-  margin: 0 !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-  background: transparent !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-top: 1px solid transparent !important;
-  border-bottom: 1px solid transparent !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  padding: 10px 16px !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__source-header:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-}
-
-/* Opaque styling for sticky header when expanded in V3 */
-
-.modern-ui-v3 .vertical-sidebar__source-group.is-expanded .vertical-sidebar__source-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 100 !important;
-  background: rgba(12, 14, 24, 0.98) !important; /* opaque glass matching the sidebar theme */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-  border-radius: 0 !important;
-  margin: 0 !important;
-  width: 100% !important;
-}
-
-.modern-ui-v3 .vertical-sidebar__source-group.is-expanded .vertical-sidebar__source-header:hover {
-  background: rgba(25, 27, 44, 0.98) !important; /* slightly lighter but still opaque on hover */
-}
 
 .modern-ui-v3 .vod-page__content {
   margin: 16px;
@@ -2921,26 +2477,6 @@ html.modern-ui-v3[data-theme] .src-btn--secondary:hover:not(:disabled) {
   color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Neutralize child backgrounds in Category Strip */
-
-html.modern-ui-v3[data-theme] .category-strip .category-source-group.is-expanded button.category-source-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 100 !important;
-  background: rgba(15, 12, 25, 0.96) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
-}
-
-html.modern-ui-v3[data-theme] .category-strip .category-source-group.is-expanded button.category-source-header:hover {
-  background: rgba(28, 22, 45, 0.96) !important;
-}
-
-html.modern-ui-v3[data-theme] .category-strip .category-source-content {
-  background: transparent !important;
-}
 
 /* EPG Rows & Channels glass adjustments */
 
@@ -3033,22 +2569,6 @@ html.modern-ui-v3[data-theme] .guide-header {
   border-right: none !important;
 }
 
-/* VOD Sticky Source Headers - glass theme-matching background */
-
-html.modern-ui-v3[data-theme] .vertical-sidebar__source-group.is-expanded .vertical-sidebar__source-header {
-  background: rgba(15, 12, 25, 0.96) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 0 !important;
-  margin: 0 !important;
-  width: 100% !important;
-}
-
-html.modern-ui-v3[data-theme] .vertical-sidebar__source-group.is-expanded .vertical-sidebar__source-header:hover {
-  background: rgba(28, 22, 45, 0.96) !important;
-}
 
 /* TV Calendar V3 Glassmorphism Layout */
 
@@ -3477,15 +2997,6 @@ html.modern-ui-v3[data-theme="light"] .program-block.current {
     0 2px 10px color-mix(in srgb, var(--accent-primary, #8b5cf6) 8%, rgba(0, 0, 0, 0.04)) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .category-strip .category-source-group.is-expanded button.category-source-header,
-html.modern-ui-v3[data-theme="light"] .vertical-sidebar__source-group.is-expanded .vertical-sidebar__source-header {
-  background: rgba(240, 240, 245, 0.96) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .category-strip .category-source-group.is-expanded button.category-source-header:hover,
-html.modern-ui-v3[data-theme="light"] .vertical-sidebar__source-group.is-expanded .vertical-sidebar__source-header:hover {
-  background: rgba(230, 230, 235, 0.96) !important;
-}
 
 html.modern-ui-v3[data-theme="light"] .settings-sidebar {
   border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -3905,10 +3416,9 @@ html.modern-ui-v3[data-theme*="dark-"] .livetv-liquid-glass-bg::after {
 
    ========================================================================== */
 
-/* 1. Base Text Colors: Sidebar Category Names, Channel Names, and EPG Program Titles */
+/* 1. Base Text Colors: EPG channel names and program titles (category/source names
+   folded into --cat-name-color / --src-name-color tokens) */
 
-html.modern-ui-v3:not([data-theme="light"]) .category-name,
-html.modern-ui-v3:not([data-theme="light"]) .source-name,
 html.modern-ui-v3:not([data-theme="light"]) .guide-channel-name,
 html.modern-ui-v3:not([data-theme="light"]) .program-block-title {
   color: rgba(255, 255, 255, 0.9) !important;
@@ -3920,20 +3430,9 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-row.currently-playing
   color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* 2. Active/Selected Category Item Text (Keep/Use Accent Color) */
+/* 3. Hover States: Brighter Full White, No Accent Color (category/source names folded
+   into --cat-name-hover-color / --src-name-hover-color tokens) */
 
-html.modern-ui-v3:not([data-theme="light"]) .category-item.selected .category-name,
-html.modern-ui-v3:not([data-theme="light"]) .category-list-bar.selected .category-name,
-html.modern-ui-v3:not([data-theme="light"]) .category-item.active .category-name,
-html.modern-ui-v3:not([data-theme="light"]) .category-list-bar.active .category-name {
-  color: var(--accent-primary, #00d4ff) !important;
-}
-
-/* 3. Hover States: Brighter Full White, No Accent Color */
-
-html.modern-ui-v3:not([data-theme="light"]) .category-item:hover:not(.selected) .category-name,
-html.modern-ui-v3:not([data-theme="light"]) .category-list-bar:hover:not(.selected) .category-name,
-html.modern-ui-v3:not([data-theme="light"]) button.category-source-header:hover .source-name,
 html.modern-ui-v3:not([data-theme="light"]) .guide-channel-info:hover .guide-channel-name,
 html.modern-ui-v3:not([data-theme="light"]) .guide-channel-row:hover .guide-channel-name,
 html.modern-ui-v3:not([data-theme="light"]) .program-block:hover .program-block-title {
@@ -3946,35 +3445,17 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-row.currently-playing
   color: rgba(255, 255, 255, 1) !important;
 }
 
-/* 5. Secondary/Subtitle Text: Dimmed White, Never a Tinted Accent Color */
+/* 5. Secondary/Subtitle Text: Dimmed White (counts folded into --cat-count-color /
+   --cat-src-count-color tokens) */
 
-html.modern-ui-v3:not([data-theme="light"]) .category-count,
-html.modern-ui-v3:not([data-theme="light"]) .source-count,
 html.modern-ui-v3:not([data-theme="light"]) .program-block-desc,
 html.modern-ui-v3:not([data-theme="light"]) .guide-channel-number,
 html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
   color: rgba(255, 255, 255, 0.45) !important;
 }
 
-/* 6. Typography & Weight Hierarchy Overrides */
-
-/* Sidebar category names (parent sources) */
-
-.modern-ui-v3 .category-strip button.category-source-header,
-.modern-ui-v3 .category-strip button.category-source-header .source-name {
-  font-weight: 600 !important;
-  font-size: var(--source-font-size, 0.76rem) !important;
-  letter-spacing: 0.06em !important;
-  text-transform: uppercase !important;
-}
-
-/* Sidebar child category names */
-
-.modern-ui-v3 .category-item .category-name,
-.modern-ui-v3 .category-list-bar .category-name {
-  font-weight: 500 !important;
-  font-size: var(--category-font-size, 0.82rem) !important;
-}
+/* 6. Typography & Weight Hierarchy Overrides
+   (source-header/source-name/category-name weights folded into tokens) */
 
 /* Channel names in EPG left column */
 
@@ -3985,12 +3466,11 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
 
 /* EPG program titles/descriptions (folded into the prog title/desc tokens) */
 
-/* Time stamps and counts (tabular-nums to prevent live shifts) */
+/* Time stamps and guide numerals (tabular-nums to prevent live shifts);
+   category-count/source-count tabular folded into count tokens */
 
 .modern-ui-v3 .guide-time-header,
 .modern-ui-v3 .guide-program-meta,
-.modern-ui-v3 .category-count,
-.modern-ui-v3 .source-count,
 .modern-ui-v3 .guide-channel-number,
 .modern-ui-v3 .npb-time-elapsed,
 .modern-ui-v3 .npb-time-remaining,
@@ -4303,25 +3783,8 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
   background: var(--accent-primary, #00d4ff) !important;
 }
 
-/* 7. List Items (Categories & Channels) */
-
-.modern-ui-v3 .category-item,
-.modern-ui-v3 .channel-item {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border: 1px solid rgba(255, 255, 255, 0.04) !important;
-  border-radius: 10px !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  margin-bottom: 8px !important;
-  padding: 12px !important;
-}
-
-.modern-ui-v3 .category-item:hover,
-.modern-ui-v3 .channel-item:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-  transform: translateY(-0.5px) !important;
-}
+/* 7. List Items (Categories & Channels)
+   category-item/channel-item surfaces folded into --cat-item-*/--channel-item-* tokens */
 
 .modern-ui-v3 .category-item.selected-for-move {
   background: color-mix(in srgb, var(--accent-primary, #8b5cf6) 12%, rgba(255, 255, 255, 0.04)) !important;
@@ -4348,7 +3811,7 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
   accent-color: var(--accent-primary, #00d4ff) !important;
 }
 
-.modern-ui-v3 .category-name,
+/* category-name color folded into --cat-name-color; channel-name kept */
 .modern-ui-v3 .channel-name {
   color: rgba(255, 255, 255, 0.9) !important;
 }

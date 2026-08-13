@@ -353,6 +353,7 @@
   background: var(--cat-item-hover-bg, rgba(255, 255, 255, 0.08));
   border-color: var(--cat-item-hover-border-color, transparent);
   transform: var(--cat-item-hover-transform, none);
+  box-shadow: var(--cat-item-hover-shadow, none);
   color: white;
 }
 
@@ -421,16 +422,70 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
-/* Base styles for list bars */
+/* Base styles for list bars (v1 fallbacks; v2 pill / v3 clean look via --cat-list-* tokens) */
 .category-list-bar {
-  width: 100%;
-  box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.02);
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-  border-bottom: none;
-  border-left: none;
-  border-right: none;
-  padding: 8px 12px;
+  width: var(--cat-list-width, 100%);
+  box-sizing: var(--cat-list-box-sizing, border-box);
+  background: var(--cat-list-bg, rgba(255, 255, 255, 0.02));
+  border-top: var(--cat-list-border-top, 1px solid rgba(255, 255, 255, 0.04));
+  border-bottom: var(--cat-list-border-bottom, none);
+  border-left: var(--cat-list-border-left, none);
+  border-right: var(--cat-list-border-right, none);
+  padding: var(--cat-list-padding, 8px 12px);
+  border-radius: var(--cat-list-radius, 0);
+  position: var(--cat-list-pos, static);
+  overflow: var(--cat-list-overflow, visible);
+  transition: var(--cat-list-transition, none);
+  box-shadow: var(--cat-list-shadow, none);
+}
+
+/* Strip-scoped spacing — v2 bars inherit .category-item's 3px 0 gap, v3 uses the
+   clean 2px 8px; VOD sidebar items (pure list-bars) keep .vertical-sidebar__item's. */
+.category-strip-top .category-list-bar:not(.custom-group-item),
+.custom-groups-section .category-list-bar.custom-group-item {
+  margin: var(--cat-list-strip-margin, 0);
+}
+
+/* Resting text color — strip-scoped so VOD sidebar items keep .vertical-sidebar__item's
+   color, and excluded on hover/selected so those states still win below. */
+.category-strip-top .category-list-bar:not(.custom-group-item):not(:hover):not(.selected),
+.custom-groups-section .category-list-bar.custom-group-item:not(:hover):not(.selected) {
+  color: var(--cat-list-color, var(--cat-item-color, rgba(255, 255, 255, 0.8)));
+}
+
+.category-list-bar::before {
+  content: var(--cat-list-bar-content, none);
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--cat-list-bar-width, 3px);
+  height: var(--cat-list-bar-height, 0);
+  background: var(--cat-list-bar-bg, var(--accent-primary, #00d4ff));
+  border-radius: var(--cat-list-bar-radius, 0 2px 2px 0);
+  transition: var(--cat-list-bar-transition, height 0.25s cubic-bezier(0.16, 1, 0.3, 1));
+  box-shadow: var(--cat-list-bar-shadow, none);
+  pointer-events: none;
+}
+
+.category-list-bar:hover {
+  background: var(--cat-list-hover-bg, rgba(255, 255, 255, 0.06));
+  border-color: var(--cat-list-hover-border-color, rgba(255, 255, 255, 0.08));
+  transform: var(--cat-list-hover-transform, none);
+  box-shadow: var(--cat-list-hover-shadow, none);
+  color: var(--cat-list-hover-color, white);
+}
+
+.category-list-bar:hover::before {
+  height: var(--cat-list-bar-hover-height, 0);
+}
+
+.category-list-bar .category-count {
+  font-size: var(--cat-list-count-font-size, var(--cat-count-font-size, 0.7rem));
+  font-weight: var(--cat-list-count-font-weight, var(--cat-count-font-weight, 500));
+  padding: var(--cat-list-count-padding, var(--cat-count-padding, 2px 6px));
+  min-width: var(--cat-list-count-min-width, var(--cat-count-min-width, 0));
+  border-radius: var(--cat-list-count-radius, var(--cat-count-radius, 10px));
 }
 
 .epg-bold-top-categories .category-list-bar .category-name {
@@ -439,16 +494,6 @@
 
 .epg-bold-source-categories .category-item.nested .category-name {
   font-weight: 700 !important;
-}
-
-.category-list-bar:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-.category-list-bar.selected {
-  background: rgba(0, 212, 255, 0.1);
-  border-color: rgba(0, 212, 255, 0.2);
 }
 
 .sidebar-section-header {
@@ -472,12 +517,19 @@
 }
 
 .category-item.nested {
+  padding: var(--cat-item-nested-padding, var(--cat-item-padding, 10px 12px));
   padding-left: var(--cat-item-nested-padding-left, 28px);
   /* Indent nested categories */
   font-size: var(--cat-item-nested-font-size, 0.8rem);
   border-radius: var(--cat-item-nested-radius, 0);
   margin: var(--cat-item-nested-margin, 0);
   background: var(--cat-item-nested-bg, transparent);
+  width: var(--cat-item-nested-width, 100%);
+  border-left: var(--cat-item-nested-border-left, none);
+  border-right: var(--cat-item-nested-border-right, none);
+  border-top: var(--cat-item-nested-border-top, none);
+  border-bottom: var(--cat-item-nested-border-bottom, none);
+  color: var(--cat-item-nested-color, rgba(255, 255, 255, 0.8));
 }
 
 .category-item.selected {
@@ -493,8 +545,38 @@
   box-shadow: var(--cat-item-selected-count-shadow, none);
 }
 
+/* Selected state — after .category-item.selected so dual-class strip bars (which carry
+   both classes) resolve to the list-bar clean look instead of the item pill. */
+.category-list-bar.selected {
+  background: var(--cat-list-selected-bg, rgba(0, 212, 255, 0.1));
+  border-color: var(--cat-list-selected-border-color, rgba(0, 212, 255, 0.2));
+  box-shadow: var(--cat-list-selected-shadow, none);
+  color: var(--cat-list-selected-color, var(--accent-primary, #00d4ff));
+  position: var(--cat-list-selected-pos, static);
+}
+
+/* v3 clean-look selected indent (strip bars only) */
+.category-strip-top .category-list-bar:not(.custom-group-item).selected,
+.custom-groups-section .category-list-bar.custom-group-item.selected {
+  padding-left: var(--cat-list-selected-padding-left, 12px);
+}
+
+.category-list-bar.selected::before {
+  height: var(--cat-list-bar-selected-height, 0);
+  box-shadow: var(--cat-list-bar-selected-shadow, var(--cat-list-bar-shadow, none));
+}
+
+.category-list-bar.selected .category-count {
+  background: var(--cat-list-count-selected-bg, var(--cat-item-selected-count-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent)));
+  color: var(--cat-list-count-selected-color, var(--cat-item-selected-count-color, var(--accent-primary, #00d4ff)));
+  box-shadow: var(--cat-list-count-selected-shadow, var(--cat-item-selected-count-shadow, none));
+}
+
 .category-source-group {
-  margin-top: 4px;
+  margin-top: var(--cat-src-group-margin-top, 4px);
+  border-radius: var(--cat-src-group-radius, 0);
+  background: var(--cat-src-group-bg, transparent);
+  border: var(--cat-src-group-border, none);
   /* Create positioning context for sticky header */
   position: relative;
 }
@@ -504,21 +586,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
+  padding: var(--cat-src-header-padding, 10px 12px);
   border: none;
-  background: rgba(255, 255, 255, 0.03);
-  color: rgba(255, 255, 255, 0.6);
+  border-top: var(--cat-src-header-border-top, 1px solid rgba(255, 255, 255, 0.05));
+  border-bottom: var(--cat-src-header-border-bottom, none);
+  background: var(--cat-src-header-bg, rgba(255, 255, 255, 0.03));
+  color: var(--cat-src-header-color, rgba(255, 255, 255, 0.6));
   cursor: pointer;
   text-align: left;
-  transition: background 0.15s ease, color 0.15s ease;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  transition: var(--cat-src-header-transition, background 0.15s ease, color 0.15s ease);
   /* Ensure sticky works properly */
   position: relative;
 }
 
 .category-source-header:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.9);
+  background: var(--cat-src-header-hover-bg, rgba(255, 255, 255, 0.06));
+  color: var(--cat-src-header-hover-color, rgba(255, 255, 255, 0.9));
+  border-top-color: var(--cat-src-header-hover-border-top-color, rgba(255, 255, 255, 0.05));
 }
 
 /* When source is expanded, make header sticky within scrollable area */
@@ -526,13 +610,15 @@
   position: sticky !important;
   top: 0;
   z-index: 100;
-  background: rgba(20, 20, 25, 0.98);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: var(--cat-src-expanded-bg, rgba(20, 20, 25, 0.98));
+  border-bottom: var(--cat-src-expanded-border-bottom, 1px solid rgba(255, 255, 255, 0.1));
+  box-shadow: var(--cat-src-expanded-shadow, 0 2px 8px rgba(0, 0, 0, 0.3));
+  backdrop-filter: var(--cat-src-expanded-filter, none);
+  -webkit-backdrop-filter: var(--cat-src-expanded-filter, none);
 }
 
 .category-source-group.is-expanded .category-source-header:hover {
-  background: rgba(35, 35, 45, 0.98);
+  background: var(--cat-src-expanded-hover-bg, rgba(35, 35, 45, 0.98));
 }
 
 .source-header-left {
@@ -550,14 +636,20 @@
 }
 
 .source-name {
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: var(--cat-src-name-font-size, 0.75rem);
+  font-weight: var(--cat-src-name-weight, 700);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: var(--cat-src-name-letter-spacing, 0.03em);
+  line-height: var(--cat-src-name-line-height, 1);
+  color: var(--src-name-color, inherit);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
+}
+
+.category-source-header:hover .source-name {
+  color: var(--src-name-hover-color, inherit);
 }
 
 .category-source-header:hover .source-name.overflowing {
@@ -580,26 +672,58 @@
 }
 
 .source-count {
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 1px 5px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.4);
+  font-size: var(--cat-src-count-font-size, 0.65rem);
+  font-weight: var(--cat-src-count-font-weight, 600);
+  padding: var(--cat-src-count-padding, 1px 5px);
+  border-radius: var(--cat-src-count-radius, 8px);
+  background: var(--cat-src-count-bg, rgba(255, 255, 255, 0.05));
+  color: var(--cat-src-count-color, rgba(255, 255, 255, 0.4));
   margin-left: 8px;
+  line-height: var(--cat-src-count-line-height, 1);
+  transition: var(--cat-src-count-transition, none);
+  font-variant-numeric: var(--cat-src-count-tabular, normal);
+}
+
+.category-source-header:hover .source-count {
+  background: var(--cat-src-count-hover-bg, var(--cat-src-count-bg, rgba(255, 255, 255, 0.05)));
+  color: var(--cat-src-count-hover-color, var(--cat-src-count-color, rgba(255, 255, 255, 0.4)));
 }
 
 .category-source-content {
-  background: rgba(0, 0, 0, 0.1);
+  padding: var(--cat-src-content-padding, 0);
+  background: var(--cat-src-content-bg, rgba(0, 0, 0, 0.1));
 }
 
 .category-name {
-  font-size: var(--category-font-size, 13px);
+  font-size: var(--cat-name-font-size, var(--category-font-size, 13px));
+  font-weight: var(--cat-name-weight, 400);
+  letter-spacing: var(--cat-name-letter-spacing, normal);
+  display: var(--cat-name-display, inline);
+  align-items: var(--cat-name-align, normal);
+  gap: var(--cat-name-gap, normal);
+  color: var(--cat-name-color, inherit);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
   margin-right: 8px;
+}
+
+.category-list-bar .category-name {
+  font-size: var(--cat-list-name-font-size, var(--category-font-size, 13px));
+  font-weight: var(--cat-name-weight, 400);
+}
+
+.category-item.selected .category-name,
+.category-list-bar.selected .category-name,
+.category-item.active .category-name,
+.category-list-bar.active .category-name {
+  color: var(--cat-name-selected-color, var(--accent-primary, #00d4ff));
+}
+
+.category-item:hover:not(.selected) .category-name,
+.category-list-bar:hover:not(.selected) .category-name {
+  color: var(--cat-name-hover-color, inherit);
 }
 
 /* Category name scrolling animation - only when overflowing */
@@ -621,6 +745,7 @@
   min-width: var(--cat-count-min-width, 0);
   text-align: var(--cat-count-text-align, left);
   transition: var(--cat-count-transition, none);
+  font-variant-numeric: var(--cat-count-tabular, normal);
 }
 
 .category-item:hover .category-count {
@@ -706,15 +831,20 @@
   .category-item {
     padding: 6px 10px;
   }
+  /* Strip bars compact via the media token on small viewports (v1/v2), while
+     v3 keeps its fixed clean-look padding (--cat-list-media-padding). */
+  .category-list-bar {
+    padding: var(--cat-list-media-padding, 6px 10px);
+  }
   .category-name {
-    font-size: var(--category-font-size, 12px);
+    font-size: var(--cat-name-media-font-size, var(--category-font-size, 12px));
   }
   .category-icon {
     width: 16px !important;
     height: 16px !important;
   }
   .category-source-header {
-    padding: 6px 10px;
+    padding: var(--cat-src-header-media-padding, 6px 10px);
   }
   .sidebar-section-header {
     padding: 8px 10px 4px;
@@ -823,9 +953,13 @@
   /* position:sticky is now applied to the .sortable-sidebar-item wrapper div
      via inline style so it has the full scroll container as its containing block.
      Keeping it here on the inner button would trap sticky within the ~38px wrapper. */
-  z-index: 90;
-  background: rgba(20, 20, 25, 0.98);
+  z-index: var(--cat-item-pinned-z, 90);
+  background: var(--cat-item-pinned-bg, rgba(20, 20, 25, 0.98));
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin: 0; /* pinned rows are flush (v3 overrides nested's 2px 0) */
+  height: 38px;
+  padding: var(--cat-item-pinned-padding, var(--cat-item-nested-padding, var(--cat-item-padding, 10px 12px)));
+  padding-left: var(--cat-item-nested-padding-left, 28px);
 }
 
 .category-item.nested.folder-nested.is-pinned {
@@ -833,7 +967,7 @@
 }
 
 .category-item.nested.is-pinned.selected {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgb(20, 20, 25)) !important;
+  background: var(--cat-item-pinned-selected-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgb(20, 20, 25))) !important;
 }
 
 /* Category Folders in Sidebar */
@@ -864,22 +998,26 @@
 .category-folder-header.is-pinned {
   position: sticky !important;
   z-index: 96;
-  background: rgba(18, 18, 24, 0.98);
-  border-bottom: 1px solid var(--accent-primary-transparent, rgba(0, 212, 255, 0.2));
+  background: var(--cat-folder-pinned-bg, rgba(18, 18, 24, 0.98));
+  border-bottom: var(--cat-folder-pinned-border-bottom, 1px solid var(--accent-primary-transparent, rgba(0, 212, 255, 0.2)));
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(var(--cat-folder-pinned-blur, 10px));
 }
 
 .category-folder-header.is-pinned:hover {
-  background: var(--surface-hover, rgba(28, 28, 38, 0.98));
+  background: var(--cat-folder-pinned-hover-bg, var(--surface-hover, rgba(28, 28, 38, 0.98)));
   color: var(--text-primary, #fff);
 }
 
 .category-folder-group.is-expanded .category-folder-header {
-  background: rgba(18, 18, 24, 0.98);
+  position: var(--cat-folder-expanded-pos, static);
+  top: var(--cat-folder-expanded-top, auto);
+  z-index: var(--cat-folder-expanded-z, auto);
+  background: var(--cat-folder-expanded-bg, rgba(18, 18, 24, 0.98));
   border-bottom: 1px solid rgba(0, 212, 255, 0.2);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(10px);
+  color: var(--cat-folder-expanded-color, rgba(255, 255, 255, 0.75));
 }
 
 .category-folder-group.is-expanded .category-folder-header:hover {

@@ -176,13 +176,19 @@
     display: flex;
     align-items: center;
     padding: 12px;
-    border-radius: 8px;
-    transition: background 0.2s;
+    border-radius: var(--channel-item-radius, 8px);
+    transition: var(--channel-item-transition, background 0.2s);
     font-size: var(--channel-font-size, 14px);
+    background: var(--channel-item-bg, transparent);
+    border: var(--channel-item-border, none);
+    margin-bottom: var(--channel-item-margin-bottom, 0);
 }
 
 .channel-item:hover {
-    background: var(--surface-hover, rgba(255, 255, 255, 0.05));
+    background: var(--channel-item-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.05)));
+    border-color: var(--channel-item-hover-border-color, transparent);
+    box-shadow: var(--channel-item-hover-shadow, none);
+    transform: var(--channel-item-hover-transform, none);
 }
 
 .channel-item.disabled {

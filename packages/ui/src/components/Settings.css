@@ -501,7 +501,7 @@
   flex: 1;
 }
 
-.source-name {
+.source-name-type .source-name {
   font-weight: 600;
   /* Bolder */
   font-size: 1rem;
@@ -510,7 +510,7 @@
   white-space: nowrap;
 }
 
-.source-type {
+.source-name-type .source-type {
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1428,7 +1428,7 @@
   min-width: 0 !important;
 }
 
-.source-name {
+.source-name-type .source-name {
   font-size: 0.95rem !important;
   font-weight: 600 !important;
   color: var(--text-primary, rgba(255, 255, 255, 0.95)) !important;
@@ -1439,7 +1439,7 @@
   flex: 0 1 auto !important;
 }
 
-.source-type {
+.source-name-type .source-type {
   font-size: 0.65rem !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;

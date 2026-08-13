@@ -1462,13 +1462,13 @@ html.modern-ui-v3[data-theme="light"] .program-block.current .program-block-desc
 }
 
 [data-theme="light"] .vertical-sidebar__source-group.is-expanded .vertical-sidebar__source-header {
-  background: #e2e8f0 !important;
-  border-bottom: 1px solid #cbd5e1 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  background: var(--vs-expanded-bg, #e2e8f0) !important;
+  border-bottom: var(--vs-expanded-border-bottom, 1px solid #cbd5e1) !important;
+  box-shadow: var(--vs-expanded-shadow, 0 2px 8px rgba(0, 0, 0, 0.08)) !important;
 }
 
 [data-theme="light"] .vertical-sidebar__source-group.is-expanded .vertical-sidebar__source-header:hover {
-  background: #d1d5db !important;
+  background: var(--vs-expanded-hover-bg, #d1d5db) !important;
 }
 
 [data-theme="light"] .vertical-sidebar__source-group.is-expanded .vertical-sidebar__source-header .source-count {
