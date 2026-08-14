@@ -98,32 +98,37 @@
 .ple-export-btn,
 .ple-close-btn {
     padding: 8px 16px;
-    border-radius: 7px;
+    border-radius: var(--mg-btn-radius, 7px);
     border: none;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     font-family: inherit;
-    transition: all 0.2s;
+    transition: var(--mg-btn-transition, all 0.2s);
 }
 
 .ple-export-btn {
-    background: var(--accent-primary, #00d4ff);
-    color: #000;
+    background: var(--mg-export-bg, var(--accent-primary, #00d4ff));
+    color: var(--mg-export-color, #000);
+    border: var(--mg-export-border, none);
 }
 
 .ple-export-btn:hover {
-    background: #00bada;
+    background: var(--mg-export-hover-bg, #00bada);
+    border-color: var(--mg-export-hover-border, transparent);
+    color: var(--mg-export-hover-color, #000);
 }
 
 .ple-close-btn {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--mg-btn-bg, rgba(255, 255, 255, 0.08));
+    color: var(--mg-btn-color, #fff);
+    border: var(--mg-btn-border, 1px solid rgba(255, 255, 255, 0.05));
 }
 
 .ple-close-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--mg-btn-hover-bg, rgba(255, 255, 255, 0.15));
+    border-color: var(--mg-btn-hover-border, rgba(255, 255, 255, 0.05));
+    color: var(--mg-btn-hover-color, #fff);
 }
 
 /* ── Workspace ── */
@@ -135,23 +140,24 @@
 
 .playlist-editor-left {
     width: 45%;
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: var(--mg-pane-border-right, 1px solid rgba(255, 255, 255, 0.08));
     display: flex;
     flex-direction: column;
-    background: rgba(0, 0, 0, 0.15);
+    background: var(--mg-pane-bg, rgba(0, 0, 0, 0.15));
 }
 
 .playlist-editor-right {
     width: 55%;
     display: flex;
     flex-direction: column;
+    background: var(--mg-pane-right-bg, transparent);
 }
 
 /* ── Panel Header ── */
 .ple-panel-header {
     padding: 16px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    background: rgba(255, 255, 255, 0.01);
+    border-bottom: var(--mg-pane-header-border-bottom, 1px solid rgba(255, 255, 255, 0.05));
+    background: var(--mg-pane-header-bg, rgba(255, 255, 255, 0.01));
     flex-shrink: 0;
 }
 

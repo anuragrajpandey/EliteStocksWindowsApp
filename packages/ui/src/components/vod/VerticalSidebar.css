@@ -352,6 +352,10 @@
 
 .vertical-sidebar__item.active.nested {
     padding-left: var(--vs-item-active-pad-left, 16px);
+    /* .nested re-declares color after .active with equal specificity, so an
+       active nested category would show the dim secondary color; keep the
+       active state's readable foreground. */
+    color: var(--vs-item-active-color, #fff);
 }
 
 .vertical-sidebar .category-item-left {

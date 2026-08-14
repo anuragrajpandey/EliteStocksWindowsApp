@@ -380,13 +380,6 @@
 }
 
 /* Sync Status */
-.sync-status {
-  margin-bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
 .sync-status-item {
   display: flex;
   align-items: center;
@@ -1498,16 +1491,6 @@
   color: var(--text-secondary, rgba(255, 255, 255, 0.8)) !important;
   font-size: 0.75rem !important;
   font-weight: 500 !important;
-}
-
-.stat-item {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 4px !important;
-  font-size: 0.7rem !important;
-  color: #4cd137 !important;
-  font-weight: 600 !important;
-  white-space: nowrap !important;
 }
 
 /* Expiry */

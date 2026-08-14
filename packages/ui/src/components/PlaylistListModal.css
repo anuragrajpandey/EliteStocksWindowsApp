@@ -89,15 +89,15 @@
 
 .pll-create-btn {
     width: 100%;
-    padding: 10px 14px;
-    border-radius: 8px;
+    padding: var(--mg-create-padding, 10px 14px);
+    border-radius: var(--mg-create-radius, 8px);
     border: 1px dashed rgba(255, 255, 255, 0.2);
     background: rgba(255, 255, 255, 0.04);
     color: var(--text-primary, #fff);
-    font-size: 0.9rem;
+    font-size: var(--mg-create-font-size, 0.9rem);
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: var(--mg-create-transition, all 0.2s);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -139,10 +139,10 @@
 
 .pll-create-ok,
 .pll-create-cancel {
-    padding: 8px 14px;
-    border-radius: 7px;
+    padding: var(--mg-create-padding, 8px 14px);
+    border-radius: var(--mg-create-radius, 7px);
     border: none;
-    font-size: 0.85rem;
+    font-size: var(--mg-create-font-size, 0.85rem);
     font-weight: 600;
     cursor: pointer;
     font-family: inherit;
@@ -321,11 +321,11 @@
 
 .playlist-list-footer {
     padding: 16px 24px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: var(--mg-footer-border-top, 1px solid rgba(255, 255, 255, 0.08));
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--mg-footer-bg, rgba(255, 255, 255, 0.02));
     flex-shrink: 0;
 }
 

@@ -161,6 +161,7 @@ html[data-ui-version="v2"] .view-transition-container {
   display: flex;
   align-items: center;
   gap: 5px;
+  flex: 1 0 0%;
   padding: 4px 10px;
   background: transparent;
   border: none;
@@ -173,6 +174,19 @@ html[data-ui-version="v2"] .view-transition-container {
   height: 22px;
   white-space: nowrap;
   flex-shrink: 0;
+  text-align: center;
+}
+
+/* Segmented control shell shared by the modal pill family (LogoEditorModal,
+   LogosTab, EpgEditorModal). The modal files scope their own accent/compact
+   overrides; EpgEditorModal keeps its own .epg-editor-field chrome. */
+.card-segmented-control {
+  display: flex;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 2px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .segmented-btn:hover {
@@ -619,71 +633,6 @@ html[data-ui-version="v2"] .view-transition-container {
 
 .resize-grip svg {
   display: block;
-}
-
-/* Stats Overlay */
-.stats-overlay {
-  position: fixed;
-  top: 80px;
-  right: 40px;
-  z-index: 200;
-  pointer-events: auto;
-  animation: slideIn 0.2s ease-out;
-}
-
-.stats-panel {
-  background: rgba(0, 0, 0, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 20px;
-  min-width: 300px;
-}
-
-.stats-panel h3 {
-  margin: 0 0 16px 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #00d4ff;
-}
-
-.stats-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.stat-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.stat-item:last-child {
-  border-bottom: none;
-}
-
-.stat-label {
-  font-size: 0.85rem;
-  opacity: 0.7;
-  font-weight: 500;
-}
-
-.stat-value {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #ffffff;
-  font-family: 'Courier New', monospace;
-}
-
-.stats-hint {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.75rem;
-  opacity: 0.5;
-  text-align: center;
 }
 
 /* Player Control Buttons */

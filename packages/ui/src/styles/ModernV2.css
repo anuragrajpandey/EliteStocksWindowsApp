@@ -431,6 +431,23 @@
   --cat-list-selected-pos: relative;
   --cat-list-bar-selected-height: 50%;
   --cat-list-bar-selected-shadow: 0 0 6px var(--accent-primary, #00d4ff);
+  /* Custom-groups section — v2 pill values (v3 redefines to the clean look) */
+  --cat-custom-bg: rgba(255, 255, 255, 0.03);
+  --cat-custom-border-top: 1px solid rgba(255, 255, 255, 0.05);
+  --cat-custom-border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  --cat-custom-border-left: 1px solid rgba(255, 255, 255, 0.05);
+  --cat-custom-border-right: 1px solid rgba(255, 255, 255, 0.05);
+  --cat-custom-bar-bg: var(--accent-primary, #00d4ff);
+  --cat-custom-bar-shadow: 0 0 6px var(--accent-primary, #00d4ff);
+  --cat-custom-bar-selected-shadow: 0 0 6px var(--accent-primary, #00d4ff);
+  --cat-custom-selected-bg: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent) 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 6%, transparent) 100%);
+  --cat-custom-selected-border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
+  --cat-custom-selected-count-bg: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent) 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) 100%);
+  --cat-custom-selected-count-color: white;
   /* list-bar count typography (v2 values; v3 inherits) */
   --cat-list-count-font-size: 10px;
   --cat-list-count-font-weight: 700;
@@ -646,39 +663,11 @@
   box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
 }
 
-/* Modern Custom Groups Section — v2 pill look. Scoped to v2 on purpose: these
-   hardcoded v2 values would otherwise beat the token-driven bases in v3 (v3 loads
-   this sheet too), and v3's clean list-bar look comes from --cat-list-* tokens. */
-.modern-ui:not(.modern-ui-v3) .custom-groups-section {
+/* Modern Custom Groups Section — the pill values live in the --cat-custom-*
+   tokens (v3 redefines them to the clean look), consumed by the component base
+   in CategoryStrip.css. */
+.modern-ui .custom-groups-section {
   margin: 0;
-}
-
-.modern-ui:not(.modern-ui-v3) .custom-groups-section .category-item {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.modern-ui:not(.modern-ui-v3) .custom-groups-section .category-item::before {
-  background: var(--accent-primary, #00d4ff);
-  box-shadow: 0 0 6px var(--accent-primary, #00d4ff);
-}
-
-.modern-ui:not(.modern-ui-v3) .custom-groups-section .category-item.selected {
-  background: 
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, transparent) 0%,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 6%, transparent) 100%
-    );
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
-}
-
-.modern-ui:not(.modern-ui-v3) .custom-groups-section .category-item.selected .category-count {
-  background: 
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent) 0%,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) 100%
-    );
-  color: white;
 }
 
 /* Modern Section Divider - matches header border style */

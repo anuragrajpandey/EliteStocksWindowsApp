@@ -428,38 +428,15 @@
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-.card-segmented-control {
-  display: flex;
-  gap: 2px;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 2px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.segmented-btn {
-  flex: 1;
-  padding: 5px 0;
-  font-size: 0.72rem;
-  font-weight: 500;
-  border: none;
-  background: transparent;
-  color: #888;
-  cursor: pointer;
-  border-radius: 4px;
-  text-align: center;
-  transition: background 0.15s, color 0.15s;
-}
-.segmented-btn:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.08);
-}
-.segmented-btn.active {
+/* Segmented control shell + .segmented-btn base live in App.css (shared with
+   LogosTab / EpgEditorModal). Only the modal's own accent overrides stay here,
+   scoped to .logo-editor-modal so the accent can never reach the titlebar. */
+.logo-editor-modal .segmented-btn.active {
   background: var(--accent-primary, #00d4ff);
   color: #000;
   font-weight: 700;
 }
-.card-padding-control .segmented-btn.active {
+.logo-editor-modal .card-padding-control .segmented-btn.active {
   background: #ffc107;
   color: #000;
 }

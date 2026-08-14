@@ -11,6 +11,21 @@
   /* VOD scrollbars — light solid values replace the v2 accent gradient */
   --vs-scrollbar-thumb-bg: #cbd5e1;
   --vs-scrollbar-thumb-hover-bg: #94a3b8;
+  /* VOD sidebar active-item icon glows — light solid pastels replace the v2
+     dark per-icon glows (consumed by the light icon rules below; redefining
+     the tokens here is what makes those rules take effect in v2/v3) */
+  --vs-icon-glow-bg: #e0f2fe;
+  --vs-icon-glow-color: #0284c7;
+  --vs-icon-glow-border: rgba(2, 132, 199, 0.3);
+  --vs-icon-fav-bg: #fef3c7;
+  --vs-icon-fav-color: #d97706;
+  --vs-icon-fav-border: rgba(217, 119, 6, 0.3);
+  --vs-icon-watch-bg: #e0e7ff;
+  --vs-icon-watch-color: #4f46e5;
+  --vs-icon-watch-border: rgba(79, 70, 229, 0.3);
+  --vs-icon-recent-bg: #ffe4e6;
+  --vs-icon-recent-color: #e11d48;
+  --vs-icon-recent-border: rgba(225, 29, 72, 0.3);
 }
 
 /* ==================== GLOBAL LAYOUT & TITLE BAR ==================== */
@@ -1524,6 +1539,16 @@ html.modern-ui-v3[data-theme="light"] .program-block.current .program-block-desc
 
 [data-theme="light"] .vertical-sidebar__item.nested:hover {
   color: #0f172a !important;
+}
+
+/* Active nested category inside a source — the .active rule (blue accent bg)
+   and .nested rule (grey text) are equal specificity, and .nested comes later,
+   so without this tie-breaker the selected item is blue bg + unreadable grey
+   text. Higher specificity (0,4,0) wins and keeps the white-on-accent look. */
+[data-theme="light"] .vertical-sidebar__item.active.nested,
+html[data-theme="light"] .vertical-sidebar__item.active.nested,
+html.modern-ui-v3[data-theme="light"] .vertical-sidebar__item.active.nested {
+  color: #ffffff !important;
 }
 
 [data-theme="light"] .vertical-sidebar__scrollable::-webkit-scrollbar-thumb,

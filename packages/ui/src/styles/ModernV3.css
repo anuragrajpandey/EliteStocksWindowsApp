@@ -217,6 +217,17 @@ html.modern-ui-v3 {
   --cat-list-bar-selected-shadow: 0 0 8px var(--accent-primary, #e50914);
   --cat-list-count-selected-bg: rgba(255, 255, 255, 0.12);
   --cat-list-count-selected-color: var(--text-primary, #fff);
+  /* Custom-groups section — v3 clean list-bar look (bar bg/shadow inherit v2) */
+  --cat-custom-bg: transparent;
+  --cat-custom-border-top: 1px solid transparent;
+  --cat-custom-border-bottom: 1px solid transparent;
+  --cat-custom-border-left: none;
+  --cat-custom-border-right: none;
+  --cat-custom-bar-selected-shadow: 0 0 8px var(--accent-primary, #e50914);
+  --cat-custom-selected-bg: rgba(255, 255, 255, 0.1);
+  --cat-custom-selected-border-color: rgba(255, 255, 255, 0.08);
+  --cat-custom-selected-count-bg: rgba(255, 255, 255, 0.12);
+  --cat-custom-selected-count-color: var(--text-primary, #fff);
   /* Category source nested items (8b) — v3 clean look */
   --cat-item-nested-radius: 0;
   --cat-item-nested-margin: 2px 0;
@@ -375,6 +386,39 @@ html.modern-ui-v3 {
   --modal-input-focus-bg: rgba(255, 255, 255, 0.08);
   --modal-input-focus-border-color: rgba(255, 255, 255, 0.2);
   --modal-input-focus-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+  /* Failover/Playlist/Group manager panes, buttons & items — liquid glass
+     (pll/fgl/ple/cgm modal family; v3 light redefines the live ones below) */
+  --mg-pane-bg: rgba(0, 0, 0, 0.15);
+  --mg-pane-border-right: 1px solid rgba(255, 255, 255, 0.08);
+  --mg-pane-right-bg: transparent;
+  --mg-pane-header-bg: rgba(255, 255, 255, 0.02);
+  --mg-pane-header-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  --mg-item-bg: rgba(255, 255, 255, 0.02);
+  --mg-item-border: 1px solid rgba(255, 255, 255, 0.04);
+  --mg-item-radius: 10px;
+  --mg-item-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --mg-item-hover-bg: rgba(255, 255, 255, 0.06);
+  --mg-item-hover-border: rgba(255, 255, 255, 0.12);
+  --mg-footer-bg: transparent;
+  --mg-footer-border-top: 1px solid rgba(255, 255, 255, 0.08);
+  --mg-btn-bg: rgba(255, 255, 255, 0.04);
+  --mg-btn-border: 1px solid rgba(255, 255, 255, 0.08);
+  --mg-btn-color: rgba(255, 255, 255, 0.8);
+  --mg-btn-radius: 10px;
+  --mg-btn-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --mg-btn-hover-bg: rgba(255, 255, 255, 0.12);
+  --mg-btn-hover-border: rgba(255, 255, 255, 0.2);
+  --mg-btn-hover-color: #fff;
+  --mg-export-bg: rgba(255, 255, 255, 0.08);
+  --mg-export-border: 1px solid rgba(255, 255, 255, 0.12);
+  --mg-export-color: #fff;
+  --mg-export-hover-bg: var(--accent-primary, #00d4ff);
+  --mg-export-hover-border: var(--accent-primary, #00d4ff);
+  --mg-export-hover-color: #000;
+  --mg-create-radius: 8px;
+  --mg-create-padding: 8px 14px;
+  --mg-create-font-size: 0.85rem;
+  --mg-create-transition: all 0.2s ease;
   /* Stremio detail action buttons — dark glass pill (v3 light overrides below) */
   --sd-act-bg: rgba(255, 255, 255, 0.04);
   --sd-act-border: 1px solid rgba(255, 255, 255, 0.08);
@@ -427,7 +471,7 @@ html.modern-ui-v3 {
   --sd-tag-hover-border: rgba(255, 255, 255, 0.2);
   --sd-tag-hover-color: #fff;
   --sd-tag-hover-transform: translateY(-1px);
-  --sd-tag-hover-shadow: none;
+  --sd-tag-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   --sd-nav-bg: rgba(255, 255, 255, 0.04);
   --sd-nav-border: 1px solid rgba(255, 255, 255, 0.08);
   --sd-nav-color: var(--text-secondary, rgba(255, 255, 255, 0.8));
@@ -846,6 +890,18 @@ html.modern-ui-v3[data-theme="light"] {
   --modal-input-focus-bg: rgba(0, 0, 0, 0.05);
   --modal-input-focus-border-color: rgba(0, 0, 0, 0.15);
   --modal-input-focus-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03);
+  /* Failover/Playlist/Group manager — light values for the classes the light
+     sheet does NOT style (ple-export-btn, playlist-list-footer). The pane,
+     close-btn, and item surfaces are covered by the light sheet's own rules,
+     which win with equal specificity + later load, so they stay solid. */
+  --mg-export-bg: rgba(0, 0, 0, 0.05);
+  --mg-export-border: 1px solid rgba(0, 0, 0, 0.1);
+  --mg-export-color: #000;
+  --mg-export-hover-bg: var(--accent-primary, #00d4ff);
+  --mg-export-hover-border: var(--accent-primary, #00d4ff);
+  --mg-export-hover-color: #000;
+  --mg-footer-bg: transparent;
+  --mg-footer-border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 /* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled */
 
@@ -2404,10 +2460,10 @@ html.modern-ui-v3[data-theme="light"] .spm-item-active-tag {
 /* v3-only focus state for the settings type-selector buttons (v1/v2 keep the
    default browser focus ring; active wins over focus like the original layer) */
 .modern-ui-v3 .type-selector button:focus-within:not(.active) {
-  border-color: var(--type-sel-focus-border);
-  background: var(--type-sel-focus-bg);
-  box-shadow: var(--type-sel-focus-shadow);
-  outline: none;
+  border-color: var(--type-sel-focus-border) !important;
+  background: var(--type-sel-focus-bg) !important;
+  box-shadow: var(--type-sel-focus-shadow) !important;
+  outline: none !important;
 }
 
 /* Settings type-selector buttons — v3 glass look via --type-sel-* tokens.
@@ -3993,134 +4049,11 @@ html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Failover Groups and Playlist Editor Inner Layout overrides */
-
-.modern-ui-v3 .group-channels-pane,
-.modern-ui-v3 .playlist-editor-left {
-  background: rgba(0, 0, 0, 0.15) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
-}
-
-.modern-ui-v3 .source-selector-pane,
-.modern-ui-v3 .playlist-editor-right {
-  background: transparent !important;
-}
-
-.modern-ui-v3 .pane-header,
-.modern-ui-v3 .ple-panel-header {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
-
-/* Playlist Editor specific buttons */
-
-.modern-ui-v3 .ple-close-btn {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-  border-radius: 10px !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  cursor: pointer !important;
-}
-
-.modern-ui-v3 .ple-close-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-}
-
-.modern-ui-v3 .ple-export-btn {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  color: #fff !important;
-  border-radius: 10px !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  cursor: pointer !important;
-}
-
-.modern-ui-v3 .ple-export-btn:hover {
-  background: var(--accent-primary, #00d4ff) !important;
-  border-color: var(--accent-primary, #00d4ff) !important;
-  color: #000 !important;
-}
-
-/* Custom & Failover Group Manager list items inside pane */
-
-.modern-ui-v3 .group-channel-item {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border: 1px solid rgba(255, 255, 255, 0.04) !important;
-  border-radius: 10px !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.modern-ui-v3 .group-channel-item:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
-}
-
-/* Footer alignment */
-
-.modern-ui-v3 .failover-group-list-footer,
-.modern-ui-v3 .custom-group-manager-footer,
-.modern-ui-v3 .playlist-list-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: transparent !important;
-}
-
-/* ────────── Light Theme overrides ────────── */
-
-html.modern-ui-v3[data-theme="light"] .group-channels-pane,
-html.modern-ui-v3[data-theme="light"] .playlist-editor-left {
-  background: rgba(0, 0, 0, 0.02) !important;
-  border-right-color: rgba(0, 0, 0, 0.08) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .pane-header,
-html.modern-ui-v3[data-theme="light"] .ple-panel-header {
-  background: rgba(0, 0, 0, 0.01) !important;
-  border-bottom-color: rgba(0, 0, 0, 0.06) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .failover-group-list-footer,
-html.modern-ui-v3[data-theme="light"] .custom-group-manager-footer,
-html.modern-ui-v3[data-theme="light"] .playlist-list-footer {
-  border-top-color: rgba(0, 0, 0, 0.08) !important;
-  background: transparent !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .ple-close-btn {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.7) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .ple-close-btn:hover {
-  background: rgba(0, 0, 0, 0.06) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .ple-export-btn {
-  background: rgba(0, 0, 0, 0.05) !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
-  color: #000 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .ple-export-btn:hover {
-  background: var(--accent-primary, #00d4ff) !important;
-  border-color: var(--accent-primary, #00d4ff) !important;
-  color: #000 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .group-channel-item {
-  background: rgba(0, 0, 0, 0.01) !important;
-  border-color: rgba(0, 0, 0, 0.04) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .group-channel-item:hover {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-}
+/* Failover/Playlist/Group manager panes, buttons & items (pll/fgl/ple/cgm
+   family) are token-driven via the --mg-* tokens in the component bases.
+   The dark look comes from the tokens; the light sheet covers the pane,
+   close-btn, and item surfaces itself, and the live light values for
+   ple-export-btn / playlist-list-footer come from the light token block. */
 
 /* Input Fields inside Failover/Playlist/Group managers */
 
@@ -4145,18 +4078,6 @@ html.modern-ui-v3[data-theme="light"] .search-bar input:focus {
   background: var(--modal-input-focus-bg, rgba(0, 0, 0, 0.05)) !important;
   border-color: var(--modal-input-focus-border-color, rgba(0, 0, 0, 0.15)) !important;
   box-shadow: var(--modal-input-focus-shadow, 0 0 0 2px rgba(0, 0, 0, 0.03)) !important;
-}
-
-.modern-ui-v3 .pll-create-btn,
-.modern-ui-v3 .fgl-create-btn,
-.modern-ui-v3 .fgl-create-ok,
-.modern-ui-v3 .fgl-create-cancel,
-.modern-ui-v3 .pll-create-ok,
-.modern-ui-v3 .pll-create-cancel {
-  border-radius: 8px !important;
-  padding: 8px 14px !important;
-  font-size: 0.85rem !important;
-  transition: all 0.2s ease !important;
 }
 
 /* Glowing Scrollbar Overrides for Failover Groups and Managers */

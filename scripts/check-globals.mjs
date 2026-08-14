@@ -33,15 +33,17 @@ const ALLOW = new Set([
   'app', 'modal-container', 'category-manager-modal', 'channel-manager-modal',
   'custom-group-manager-modal', 'dvr-modal', 'failover-group-list-modal',
   'fav-manager-modal', 'playlist-editor-modal', 'settings-section',
-  'segmented-btn', 'source-item', 'sources-list', 'source-actions',
+  'source-item', 'sources-list', 'source-actions',
   'movie-detail__cast-row', 'playback-header-container',
-  // Known duplicate definitions with the component owner (App.css leftovers) —
-  // cleanup candidates, not cascade regressions from the token migration.
-  'stat-item', 'carousel__scroll-container',
+  // App.css intentionally owns these as GLOBAL groups applied to many
+  // components at once (zoom scaling on every modal, scrollbar hiding on every
+  // carousel). The component files define the element layout; App.css only
+  // adds the shared behavior. Verified intentional — NOT collisions.
+  'carousel__scroll-container', 'playlist-list-modal',
   // Pre-existing cross-file families surfaced by the comment-stripping
   // hardening — settings-chrome duplicates, not token-migration regressions.
   // Cleanup candidates; scoping them to their owners is the eventual fix.
-  'settings-tab-content', 'source-details', 'sync-status', 'playlist-list-modal',
+  'settings-tab-content', 'source-details',
 ]);
 const files = [];
 function walk(dir) {

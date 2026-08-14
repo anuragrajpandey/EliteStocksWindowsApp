@@ -575,6 +575,35 @@
   box-shadow: var(--cat-item-selected-count-shadow, none);
 }
 
+/* Custom-groups section — v2 pill look via --cat-custom-* tokens (v3 redefines
+   them to the clean list-bar look; v1 falls back to the shared list-bar base). */
+.custom-groups-section .category-item {
+  background: var(--cat-custom-bg, rgba(255, 255, 255, 0.02));
+  border-top: var(--cat-custom-border-top, 1px solid rgba(255, 255, 255, 0.04));
+  border-bottom: var(--cat-custom-border-bottom, none);
+  border-left: var(--cat-custom-border-left, none);
+  border-right: var(--cat-custom-border-right, none);
+}
+
+.custom-groups-section .category-item::before {
+  background: var(--cat-custom-bar-bg, var(--accent-primary, #00d4ff));
+  box-shadow: var(--cat-custom-bar-shadow, none);
+}
+
+.custom-groups-section .category-item.selected::before {
+  box-shadow: var(--cat-custom-bar-selected-shadow, var(--cat-custom-bar-shadow, none));
+}
+
+.custom-groups-section .category-item.selected {
+  background: var(--cat-custom-selected-bg, rgba(0, 212, 255, 0.1));
+  border-color: var(--cat-custom-selected-border-color, rgba(0, 212, 255, 0.2));
+}
+
+.custom-groups-section .category-item.selected .category-count {
+  background: var(--cat-custom-selected-count-bg, var(--cat-item-selected-count-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent)));
+  color: var(--cat-custom-selected-count-color, var(--accent-primary, #00d4ff));
+}
+
 /* Selected state — after .category-item.selected so dual-class strip bars (which carry
    both classes) resolve to the list-bar clean look instead of the item pill. */
 .category-list-bar.selected {
