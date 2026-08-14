@@ -40,10 +40,6 @@ const ALLOW = new Set([
   // carousel). The component files define the element layout; App.css only
   // adds the shared behavior. Verified intentional — NOT collisions.
   'carousel__scroll-container', 'playlist-list-modal',
-  // Pre-existing cross-file families surfaced by the comment-stripping
-  // hardening — settings-chrome duplicates, not token-migration regressions.
-  // Cleanup candidates; scoping them to their owners is the eventual fix.
-  'settings-tab-content', 'source-details',
 ]);
 const files = [];
 function walk(dir) {

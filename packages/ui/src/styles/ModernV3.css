@@ -565,6 +565,141 @@ html.modern-ui-v3 {
   --sm-nudge-transition: all 0.2s ease;
   --sm-nudge-hover-bg: rgba(255, 255, 255, 0.12);
   --sm-nudge-hover-border: rgba(255, 255, 255, 0.2);
+  /* Source Picker Modal (spm) — liquid glass header/close/current/filter/items
+     (v3 light redefines the live values below) */
+  --spm-header-bg: transparent;
+  --spm-header-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  --spm-close-bg: rgba(255, 255, 255, 0.04);
+  --spm-close-border: 1px solid rgba(255, 255, 255, 0.08);
+  --spm-close-color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+  --spm-close-radius: 50%;
+  --spm-close-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --spm-close-hover-bg: rgba(255, 255, 255, 0.12);
+  --spm-close-hover-border: rgba(255, 255, 255, 0.2);
+  --spm-close-hover-color: #fff;
+  --spm-current-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, rgba(255, 255, 255, 0.04));
+  --spm-current-border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(255, 255, 255, 0.08));
+  --spm-current-color: var(--accent-primary, #00d4ff);
+  --spm-current-radius: 12px;
+  --spm-fbtn-bg: rgba(255, 255, 255, 0.04);
+  --spm-fbtn-border: 1px solid rgba(255, 255, 255, 0.08);
+  --spm-fbtn-color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+  --spm-fbtn-padding: 6px 14px;
+  --spm-fbtn-weight: 600;
+  --spm-fbtn-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --spm-fbtn-hover-bg: rgba(255, 255, 255, 0.12);
+  --spm-fbtn-hover-border: rgba(255, 255, 255, 0.2);
+  --spm-fbtn-hover-color: #fff;
+  --spm-fbtn-active-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(255, 255, 255, 0.05));
+  --spm-fbtn-active-border: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15));
+  --spm-fbtn-active-color: var(--accent-primary, #00d4ff);
+  --spm-fbtn-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, transparent);
+  --spm-item-bg: rgba(255, 255, 255, 0.03);
+  --spm-item-border: 1px solid rgba(255, 255, 255, 0.06);
+  --spm-item-color: rgba(255, 255, 255, 0.8);
+  --spm-item-radius: 14px;
+  --spm-item-transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --spm-item-hover-bg: rgba(255, 255, 255, 0.08);
+  --spm-item-hover-border: rgba(255, 255, 255, 0.15);
+  --spm-item-hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  --spm-item-hover-transform: translateY(-1px);
+  --spm-item-active-bg: rgba(255, 255, 255, 0.06);
+  --spm-item-active-border: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.12));
+  --spm-active-tag-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(255, 255, 255, 0.04));
+  --spm-active-tag-border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.12));
+  --spm-active-tag-color: var(--accent-primary, #00d4ff);
+  --spm-active-tag-radius: 8px;
+  /* Settings modal chrome — sidebar / nav-item / header / tabs / tab / search
+     (stg family; v3 light redefines the live values below) */
+  --stg-sidebar-bg: transparent;
+  --stg-sidebar-border-right: 1px solid rgba(255, 255, 255, 0.08);
+  --stg-sidebar-before-display: none;
+  --stg-nav-color: rgba(255, 255, 255, 0.6);
+  --stg-nav-border: 1px solid transparent;
+  --stg-nav-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --stg-nav-hover-bg: rgba(255, 255, 255, 0.05);
+  --stg-nav-hover-color: #fff;
+  --stg-nav-active-bg: color-mix(in srgb, var(--accent-primary, #8b5cf6) 18%, rgba(255, 255, 255, 0.08));
+  --stg-nav-active-color: #fff;
+  --stg-nav-active-border: 1px solid color-mix(in srgb, var(--accent-primary, #8b5cf6) 35%, rgba(255, 255, 255, 0.15));
+  --stg-nav-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --stg-nav-active-weight: 600;
+  --stg-header-border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  --stg-header-title-color: var(--text-primary, rgba(255, 255, 255, 0.9));
+  --stg-tabs-border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  --stg-tab-color: rgba(255, 255, 255, 0.55);
+  --stg-tab-transition: all 0.2s ease;
+  --stg-tab-hover-color: rgba(255, 255, 255, 0.85);
+  --stg-tab-hover-bg: rgba(255, 255, 255, 0.04);
+  --stg-tab-active-text-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
+  --stg-search-bg: rgba(255, 255, 255, 0.04);
+  --stg-search-border: 1px solid rgba(255, 255, 255, 0.08);
+  --stg-search-radius: 12px;
+  --stg-search-input-color: var(--text-primary, rgba(255, 255, 255, 0.9));
+  --stg-search-focus-bg: rgba(255, 255, 255, 0.08);
+  --stg-search-focus-border: rgba(255, 255, 255, 0.2);
+  --stg-search-focus-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+  /* Source items & buttons — source card, sync/action buttons, source-type
+     badge, src-btn hierarchy, enabled/disabled borders (src family). The
+     stat chips are dark-only and live in the :not([data-theme="light"])
+     block below, since the light sheet owns their light look. */
+  --src-item-bg: rgba(255, 255, 255, 0.05);
+  --src-item-border: 1px solid rgba(255, 255, 255, 0.1);
+  --src-item-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(255, 255, 255, 0.04), 0 8px 32px rgba(0, 0, 0, 0.25);
+  --src-item-hover-bg: rgba(255, 255, 255, 0.08);
+  --src-item-hover-border: rgba(255, 255, 255, 0.16);
+  --src-item-hover-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 rgba(255, 255, 255, 0.04), 0 12px 40px rgba(0, 0, 0, 0.35), 0 0 24px color-mix(in srgb, var(--accent-primary, #8b5cf6) 6%, transparent);
+  --src-sync-bg: rgba(255, 255, 255, 0.06);
+  --src-sync-border: 1px solid rgba(255, 255, 255, 0.1);
+  --src-sync-color: rgba(255, 255, 255, 0.8);
+  --src-sync-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 8px rgba(0, 0, 0, 0.15);
+  --src-sync-hover-bg: rgba(255, 255, 255, 0.1);
+  --src-sync-hover-border: rgba(255, 255, 255, 0.2);
+  --src-sync-hover-color: rgba(255, 255, 255, 0.95);
+  --src-sync-hover-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 4px 14px rgba(0, 0, 0, 0.3);
+  --src-act-bg: rgba(255, 255, 255, 0.04);
+  --src-act-border: 1px solid rgba(255, 255, 255, 0.1);
+  --src-act-color: rgba(255, 255, 255, 0.65);
+  --src-act-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 6px rgba(0, 0, 0, 0.12);
+  --src-act-hover-bg: rgba(255, 255, 255, 0.1);
+  --src-act-hover-border: rgba(255, 255, 255, 0.2);
+  --src-act-hover-color: rgba(255, 255, 255, 0.95);
+  --src-act-hover-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 4px 12px rgba(0, 0, 0, 0.25);
+  --src-act-del-bg: rgba(255, 59, 48, 0.07);
+  --src-act-del-border: rgba(255, 59, 48, 0.25);
+  --src-act-del-color: rgba(255, 59, 48, 0.8);
+  --src-act-del-hover-bg: rgba(255, 59, 48, 0.14);
+  --src-act-del-hover-border: rgba(255, 59, 48, 0.4);
+  --src-act-del-hover-color: #ff3b30;
+  --src-act-del-hover-shadow: inset 0 1px 0 rgba(255, 59, 48, 0.15), 0 4px 14px rgba(0, 0, 0, 0.25), 0 0 20px rgba(255, 59, 48, 0.1);
+  --src-type-blur: blur(8px) saturate(140%);
+  --src-type-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --src-type-bg: rgba(255, 255, 255, 0.07);
+  --src-type-border: 1px solid rgba(255, 255, 255, 0.13);
+  --src-type-color: rgba(255, 255, 255, 0.58);
+  --src-type-padding: 3px 9px;
+  --src-type-radius: 20px;
+  --src-type-font-size: 0.64rem;
+  --src-type-letter-spacing: 0.08em;
+  --src-enabled-border-left: 3px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 55%, transparent);
+  --src-disabled-opacity: 0.5;
+  --src-disabled-border-left: 3px solid rgba(255, 255, 255, 0.1);
+  --src-btn-blur: blur(8px) saturate(130%);
+  --src-btn-radius: 7px;
+  --src-btn-primary-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(255, 255, 255, 0.04));
+  --src-btn-primary-border: color-mix(in srgb, var(--accent-primary, #00d4ff) 52%, transparent);
+  --src-btn-primary-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, transparent);
+  --src-btn-primary-hover-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 34%, rgba(255, 255, 255, 0.06));
+  --src-btn-primary-hover-border: color-mix(in srgb, var(--accent-primary, #00d4ff) 65%, transparent);
+  --src-btn-primary-hover-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 4px 16px color-mix(in srgb, var(--accent-primary, #00d4ff) 28%, transparent);
+  --src-btn-secondary-bg: rgba(255, 255, 255, 0.05);
+  --src-btn-secondary-border: rgba(255, 255, 255, 0.1);
+  --src-btn-secondary-color: rgba(255, 255, 255, 0.65);
+  --src-btn-secondary-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --src-btn-secondary-hover-bg: rgba(255, 255, 255, 0.09);
+  --src-btn-secondary-hover-border: rgba(255, 255, 255, 0.18);
+  --src-btn-secondary-hover-color: rgba(255, 255, 255, 0.9);
+  --src-details-gap: 6px;
   /* Settings type-selector buttons (base / hover / focus / active) */
   --type-sel-bg: rgba(255, 255, 255, 0.04);
   --type-sel-border: 1px solid rgba(255, 255, 255, 0.08);
@@ -902,6 +1037,114 @@ html.modern-ui-v3[data-theme="light"] {
   --mg-export-hover-color: #000;
   --mg-footer-bg: transparent;
   --mg-footer-border-top: 1px solid rgba(0, 0, 0, 0.08);
+  /* Source Picker Modal — light values (solid dark-on-glass replaces the
+     dark glass surfaces; the base consumes the tokens so no light sheet
+     rules are needed for spm) */
+  --spm-close-bg: rgba(0, 0, 0, 0.04);
+  --spm-close-border: 1px solid rgba(0, 0, 0, 0.08);
+  --spm-close-color: rgba(0, 0, 0, 0.7);
+  --spm-close-hover-bg: rgba(0, 0, 0, 0.08);
+  --spm-close-hover-border: rgba(0, 0, 0, 0.15);
+  --spm-close-hover-color: #000;
+  --spm-current-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(0, 0, 0, 0.04));
+  --spm-current-border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(0, 0, 0, 0.08));
+  --spm-current-color: var(--accent-primary, #00d4ff);
+  --spm-fbtn-bg: rgba(0, 0, 0, 0.04);
+  --spm-fbtn-border: 1px solid rgba(0, 0, 0, 0.08);
+  --spm-fbtn-color: rgba(0, 0, 0, 0.7);
+  --spm-fbtn-hover-bg: rgba(0, 0, 0, 0.08);
+  --spm-fbtn-hover-border: rgba(0, 0, 0, 0.15);
+  --spm-fbtn-hover-color: #000;
+  --spm-fbtn-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --spm-fbtn-active-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(0, 0, 0, 0.04));
+  --spm-fbtn-active-border: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(0, 0, 0, 0.08));
+  --spm-fbtn-active-color: var(--accent-primary, #00d4ff);
+  --spm-item-bg: rgba(0, 0, 0, 0.02);
+  --spm-item-border: 1px solid rgba(0, 0, 0, 0.05);
+  --spm-item-color: rgba(0, 0, 0, 0.8);
+  --spm-item-hover-bg: rgba(0, 0, 0, 0.04);
+  --spm-item-hover-border: var(--accent-primary, rgba(0, 212, 255, 0.3));
+  --spm-item-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --spm-item-active-bg: rgba(0, 212, 255, 0.05);
+  --spm-item-active-border: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(0, 0, 0, 0.1));
+  --spm-active-tag-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(0, 0, 0, 0.04));
+  --spm-active-tag-border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(0, 0, 0, 0.08));
+  --spm-active-tag-color: var(--accent-primary, #00d4ff);
+  /* Settings modal chrome — light values (solid dark-on-glass) */
+  --stg-sidebar-border-right: 1px solid rgba(0, 0, 0, 0.08);
+  --stg-nav-color: #475569;
+  --stg-nav-hover-bg: rgba(0, 0, 0, 0.04);
+  --stg-nav-hover-color: #0f172a;
+  --stg-nav-active-bg: color-mix(in srgb, var(--accent-primary, #0066cc) 12%, rgba(0, 0, 0, 0.03));
+  --stg-nav-active-color: var(--accent-primary, #0066cc);
+  --stg-nav-active-border: 1px solid color-mix(in srgb, var(--accent-primary, #0066cc) 25%, rgba(0, 0, 0, 0.08));
+  --stg-nav-active-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  --stg-header-border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  --stg-header-title-color: #0f172a;
+  --stg-tabs-border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  --stg-tab-color: #475569;
+  --stg-tab-hover-color: #0f172a;
+  --stg-tab-hover-bg: rgba(0, 0, 0, 0.04);
+  --stg-tab-active-text-shadow: none;
+  --stg-search-bg: rgba(0, 0, 0, 0.03);
+  --stg-search-border: 1px solid rgba(0, 0, 0, 0.08);
+  --stg-search-input-color: #0f172a;
+  --stg-search-focus-bg: #ffffff;
+  --stg-search-focus-border: var(--accent-primary, #0066cc);
+  /* Source items & buttons — light values (solid light-glass; the v3 light
+     rules beat the light sheet's stat-chip rules, so these tokens carry the
+     effective light look) */
+  --src-item-bg: rgba(0, 0, 0, 0.02);
+  --src-item-border: 1px solid rgba(0, 0, 0, 0.08);
+  --src-item-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --src-item-hover-bg: rgba(0, 0, 0, 0.04);
+  --src-item-hover-border: rgba(0, 0, 0, 0.12);
+  --src-item-name-color: #0f172a;
+  --src-type-bg: rgba(0, 0, 0, 0.06);
+  --src-type-border: 1px solid rgba(0, 0, 0, 0.12);
+  --src-type-color: #475569;
+  --src-toggle-label-color: #475569;
+  --src-last-sync-color: #64748b;
+  --src-chip-count-bg: rgba(0, 0, 0, 0.05);
+  --src-chip-count-border: rgba(0, 0, 0, 0.1);
+  --src-chip-count-color: #1e293b;
+  --src-chip-count-icon: #475569;
+  --src-chip-divider-bg: rgba(0, 0, 0, 0.18);
+  --src-chip-expiry-bg: rgba(0, 0, 0, 0.04);
+  --src-chip-expiry-border: rgba(0, 0, 0, 0.08);
+  --src-chip-expiry-color: #64748b;
+  --src-chip-warn-bg: rgba(239, 68, 68, 0.1);
+  --src-chip-warn-border: rgba(239, 68, 68, 0.25);
+  --src-chip-warn-color: #dc2626;
+  --src-chip-warn-icon: #dc2626;
+  --src-actions-btn-bg: rgba(0, 0, 0, 0.03);
+  --src-actions-btn-border: 1px solid rgba(0, 0, 0, 0.1);
+  --src-actions-btn-color: #475569;
+  --src-actions-btn-hover-bg: rgba(0, 0, 0, 0.06);
+  --src-actions-btn-hover-color: #0f172a;
+}
+
+/* Stat chips — dark-only look (the light sheet owns the light values, so the
+   tokens below must not leak into light mode; this mirrors the original
+   :not([data-theme="light"]) gating). */
+html.modern-ui-v3:not([data-theme="light"]) {
+  --src-chip-blur: blur(8px) saturate(130%);
+  --src-chip-font-size: 0.71rem;
+  --src-chip-letter-spacing: 0.02em;
+  --src-chip-padding: 3px 10px 3px 8px;
+  --src-chip-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --src-chip-count-bg: rgba(255, 255, 255, 0.08);
+  --src-chip-count-border: rgba(255, 255, 255, 0.13);
+  --src-chip-count-color: rgba(255, 255, 255, 0.88);
+  --src-chip-count-icon: rgba(255, 255, 255, 0.5);
+  --src-chip-divider-bg: rgba(255, 255, 255, 0.2);
+  --src-chip-expiry-bg: rgba(255, 255, 255, 0.04);
+  --src-chip-expiry-border: rgba(255, 255, 255, 0.08);
+  --src-chip-expiry-color: rgba(255, 255, 255, 0.38);
+  --src-chip-warn-bg: rgba(239, 68, 68, 0.12);
+  --src-chip-warn-border: rgba(239, 68, 68, 0.28);
+  --src-chip-warn-color: #f87171;
+  --src-chip-warn-icon: #f87171;
 }
 /* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled */
 
@@ -2208,233 +2451,24 @@ html.modern-ui-v3[data-theme="light"] .stremio-ep-unwatched-badge svg {
 
 /* Modals */
 
-/* Source Picker Modal V3 Glassmorphism overrides */
+/* Source Picker Modal (spm) — token-driven via the --spm-* tokens in the
+   component base (SourcePickerModal.css). Dark look comes from the tokens;
+   the v3 light token block supplies the light values, so no light sheet
+   rules are needed for spm. */
 
-.modern-ui-v3 .spm-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  background: transparent !important;
-}
-
-.modern-ui-v3 .spm-close {
-  border-radius: 50% !important;
-  width: 32px !important;
-  height: 32px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.7)) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.modern-ui-v3 .spm-close:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-}
-
-.modern-ui-v3 .spm-current-source {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, rgba(255, 255, 255, 0.04)) !important;
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(255, 255, 255, 0.08)) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-  border-radius: 12px !important;
-  padding: 3px 10px !important;
-}
-
-.modern-ui-v3 .spm-filters {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
-
-.modern-ui-v3 .spm-filter-btn {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.7)) !important;
-  padding: 6px 14px !important;
-  border-radius: 20px !important;
-  font-size: 0.8rem !important;
-  font-weight: 600 !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.modern-ui-v3 .spm-filter-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-}
-
-.modern-ui-v3 .spm-filter-btn.active {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(255, 255, 255, 0.05)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15)) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, transparent) !important;
-}
-
-.modern-ui-v3 .spm-item {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-radius: 14px !important;
-  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.modern-ui-v3 .spm-item:hover {
-  border-color: rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.03) inset !important;
-  transform: translateY(-1px) !important;
-}
-
-.modern-ui-v3 .spm-item-active {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.12)) !important;
-}
-
-.modern-ui-v3 .spm-badge {
-  border-radius: 4px !important;
-}
-
-.modern-ui-v3 .spm-item-active-tag {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(255, 255, 255, 0.04)) !important;
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.12)) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-  border-radius: 8px !important;
-}
-
-/* Light theme overrides for Source Picker Modal */
-
-html.modern-ui-v3[data-theme="light"] .spm-close {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.7) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .spm-close:hover {
-  background: rgba(0, 0, 0, 0.08) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .spm-current-source {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(0, 0, 0, 0.04)) !important;
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(0, 0, 0, 0.08)) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .spm-filter-btn {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.7) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .spm-filter-btn:hover {
-  background: rgba(0, 0, 0, 0.08) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .spm-filter-btn.active {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(0, 0, 0, 0.04)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(0, 0, 0, 0.08)) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .spm-item {
-  background: rgba(0, 0, 0, 0.02) !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-  color: rgba(0, 0, 0, 0.8) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .spm-item:hover {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: var(--accent-primary, rgba(0, 212, 255, 0.3)) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .spm-item-active {
-  background: rgba(0, 212, 255, 0.05) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(0, 0, 0, 0.1)) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .spm-item-active-tag {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(0, 0, 0, 0.04)) !important;
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(0, 0, 0, 0.08)) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-}
-
-/* Settings Modal Glassmorphism Overrides */
-
+/* Settings modal chrome (settings-sidebar / nav-item / header / tabs / tab /
+   search) — token-driven via the --stg-* tokens in the component bases
+   (SettingsSidebar.css / Settings.css). Only the sidebar keeps a thin rule
+   here: it must beat themes.css's [data-theme*="glass-"] .settings-sidebar,
+   which the base rule can't outrank. Values are pure token refs. */
 .modern-ui-v3 .settings-sidebar {
-  background: transparent !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: var(--stg-sidebar-bg) !important;
+  border-right: var(--stg-sidebar-border-right) !important;
 }
 
-.modern-ui-v3 .settings-sidebar::before {
-  display: none !important;
-}
-
-.modern-ui-v3 .settings-nav-item {
-  color: rgba(255, 255, 255, 0.6) !important;
-  border: 1px solid transparent !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.modern-ui-v3 .settings-nav-item:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: #fff !important;
-}
-
-.modern-ui-v3 .settings-nav-item.active {
-  background: color-mix(in srgb, var(--accent-primary, #8b5cf6) 18%, rgba(255, 255, 255, 0.08)) !important;
-  color: #fff !important;
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #8b5cf6) 35%, rgba(255, 255, 255, 0.15)) !important;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
-  font-weight: 600 !important;
-}
-
-.modern-ui-v3 .settings-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: transparent !important;
-}
-
-.modern-ui-v3 .settings-tabs {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: transparent !important;
-}
-
-.modern-ui-v3 .settings-tab {
-  color: rgba(255, 255, 255, 0.55) !important;
-  border-bottom: 2px solid transparent !important;
-  transition: all 0.2s ease !important;
-}
-
-.modern-ui-v3 .settings-tab:hover {
-  color: rgba(255, 255, 255, 0.85) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-}
-
-.modern-ui-v3 .settings-tab.active {
-  color: var(--accent-primary, #00d4ff) !important;
-  border-bottom-color: var(--accent-primary, #00d4ff) !important;
-  text-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) !important;
-  background: transparent !important;
-}
-
-.modern-ui-v3 .settings-search-input-wrapper {
-  border-radius: 12px !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-}
-
-.modern-ui-v3 .settings-search-input-wrapper:focus-within {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) !important;
+html.modern-ui-v3[data-theme="light"] .settings-sidebar {
+  background: var(--stg-sidebar-bg) !important;
+  border-right: var(--stg-sidebar-border-right) !important;
 }
 
 /* V3 Form Controls */
@@ -2584,216 +2618,11 @@ html.modern-ui-v3[data-theme]:has(.guide-transparent-mode) .category-strip {
   box-shadow: none !important;
 }
 
-/* Source Items & Buttons - Liquid Glass for v3 */
-
-html.modern-ui-v3[data-theme] .source-item {
-  background: rgba(255, 255, 255, 0.05) !important;
-  backdrop-filter: blur(16px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
-    0 8px 32px rgba(0, 0, 0, 0.25) !important;
-}
-
-html.modern-ui-v3[data-theme] .source-item:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.16) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
-    0 12px 40px rgba(0, 0, 0, 0.35),
-    0 0 24px color-mix(in srgb, var(--accent-primary, #8b5cf6) 6%, transparent) !important;
-}
-
-html.modern-ui-v3[data-theme] .sync-source-btn {
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(12px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.15) !important;
-}
-
-html.modern-ui-v3[data-theme] .sync-source-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: rgba(255, 255, 255, 0.95) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 4px 14px rgba(0, 0, 0, 0.3) !important;
-}
-
-html.modern-ui-v3[data-theme] .action-icon-btn {
-  background: rgba(255, 255, 255, 0.04) !important;
-  backdrop-filter: blur(8px) saturate(130%) !important;
-  -webkit-backdrop-filter: blur(8px) saturate(130%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: rgba(255, 255, 255, 0.65) !important;
-  width: 30px !important;
-  height: 30px !important;
-  padding: 0 !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 2px 6px rgba(0, 0, 0, 0.12) !important;
-}
-
-html.modern-ui-v3[data-theme] .action-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: rgba(255, 255, 255, 0.95) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 4px 12px rgba(0, 0, 0, 0.25) !important;
-}
-
-html.modern-ui-v3[data-theme] .action-icon-btn.delete {
-  background: rgba(255, 59, 48, 0.07) !important;
-  border-color: rgba(255, 59, 48, 0.25) !important;
-  color: rgba(255, 59, 48, 0.8) !important;
-}
-
-html.modern-ui-v3[data-theme] .action-icon-btn.delete:hover {
-  background: rgba(255, 59, 48, 0.14) !important;
-  border-color: rgba(255, 59, 48, 0.4) !important;
-  color: #ff3b30 !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 59, 48, 0.15),
-    0 4px 14px rgba(0, 0, 0, 0.25),
-    0 0 20px rgba(255, 59, 48, 0.1) !important;
-}
-
-/* ── Stat chips — v3 unified accent ── */
-
-html.modern-ui-v3[data-theme] .source-details {
-  gap: 6px !important;
-}
-
-html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip {
-  backdrop-filter: blur(8px) saturate(130%) !important;
-  -webkit-backdrop-filter: blur(8px) saturate(130%) !important;
-  font-size: 0.71rem !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.02em !important;
-  padding: 3px 10px 3px 8px !important;
-  border-radius: 20px !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-}
-
-/* All count chips — identical neutral white, no accent tint */
-
-html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--count {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.13) !important;
-  color: rgba(255, 255, 255, 0.88) !important;
-}
-
-html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--count svg {
-  color: rgba(255, 255, 255, 0.5) !important;
-  opacity: 1 !important;
-}
-
-html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip-divider {
-  background: rgba(255, 255, 255, 0.2) !important;
-}
-
-/* Expiry — muted by default */
-
-html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--expiry {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.38) !important;
-}
-
-/* Expiry — red when within 30 days or expired */
-
-html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--expiry.stat-chip--expiry-warn {
-  background: rgba(239, 68, 68, 0.12) !important;
-  border-color: rgba(239, 68, 68, 0.28) !important;
-  color: #f87171 !important;
-}
-
-html.modern-ui-v3[data-theme]:not([data-theme="light"]) .stat-chip--expiry.stat-chip--expiry-warn svg {
-  color: #f87171 !important;
-  opacity: 1 !important;
-}
-
-/* ── Source Type Badge — neutral muted glass pill ── */
-
-html.modern-ui-v3[data-theme] .source-type {
-  display: inline-flex !important;
-  align-items: center !important;
-  padding: 3px 9px !important;
-  border-radius: 20px !important;
-  font-size: 0.64rem !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.08em !important;
-  text-transform: uppercase !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-  backdrop-filter: blur(8px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
-  /* Neutral — no unique color per protocol */
-  background: rgba(255, 255, 255, 0.07) !important;
-  border: 1px solid rgba(255, 255, 255, 0.13) !important;
-  color: rgba(255, 255, 255, 0.58) !important;
-}
-
-/* ── Source card enabled / disabled border accent ── */
-
-html.modern-ui-v3[data-theme] .source-item.source-enabled {
-  border-left: 3px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 55%, transparent) !important;
-}
-
-html.modern-ui-v3[data-theme] .source-item.source-disabled {
-  opacity: 0.5 !important;
-  border-left: 3px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-/* ── Action button hierarchy — v3 glass ── */
-
-html.modern-ui-v3[data-theme] .src-btn {
-  backdrop-filter: blur(8px) saturate(130%) !important;
-  -webkit-backdrop-filter: blur(8px) saturate(130%) !important;
-  font-weight: 500 !important;
-  border-radius: 7px !important;
-}
-
-html.modern-ui-v3[data-theme] .src-btn--primary {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(255,255,255,0.04)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 52%, transparent) !important;
-  color: white !important;
-  font-weight: 600 !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 2px 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, transparent) !important;
-}
-
-html.modern-ui-v3[data-theme] .src-btn--primary:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 34%, rgba(255,255,255,0.06)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 65%, transparent) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 4px 16px color-mix(in srgb, var(--accent-primary, #00d4ff) 28%, transparent) !important;
-}
-
-html.modern-ui-v3[data-theme] .src-btn--secondary {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  color: rgba(255, 255, 255, 0.65) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-}
-
-html.modern-ui-v3[data-theme] .src-btn--secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.09) !important;
-  border-color: rgba(255, 255, 255, 0.18) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
+/* Source items & buttons (source-item / sync-source-btn / action-icon-btn /
+   stat chips / source-type / src-btn) — token-driven via the --src-* tokens
+   in the component bases (Settings.css / SourcesTab.css). The stat-chip
+   tokens are dark-only (light sheet owns the light look); the rest are
+   theme-agnostic like the rules they replace. */
 
 /* EPG Rows & Channels glass adjustments */
 
@@ -2828,6 +2657,29 @@ html.modern-ui-v3[data-theme] .guide-channel-info:hover {
 
 html.modern-ui-v3[data-theme] .guide-channel-row.currently-playing .guide-channel-info {
   background: rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Currently-playing row's current program — must keep its accent glow in light
+   theme too: this scoped rule (higher specificity + !important) beats the light
+   sheet's .program-block.current rule, which would otherwise flatten the playing
+   program to the plain current-program look. Values come from the
+   --prog-current-playing-* tokens (shared dark/light, matching the look before
+   the token migration). */
+html.modern-ui-v3[data-theme] .guide-channel-row.currently-playing .program-block.current {
+  background: var(--prog-current-playing-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 32%, transparent)) !important;
+  border-top: var(--prog-current-playing-border-top, 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 55%, transparent)) !important;
+  border-bottom: var(--prog-current-playing-border-bottom, 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 55%, transparent)) !important;
+  border-left: var(--prog-current-playing-border-left, 3px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 90%, transparent)) !important;
+  border-right: var(--prog-current-playing-border-right, 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 55%, transparent)) !important;
+  box-shadow: var(--prog-current-playing-shadow, 0 0 16px color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent)) !important;
+}
+
+html.modern-ui-v3[data-theme] .guide-channel-row.currently-playing .program-block.current:hover {
+  background: var(--prog-current-playing-hover-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 38%, transparent)) !important;
+  border-color: var(--prog-current-playing-hover-border-color, color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent)) !important;
+  border-left-color: var(--prog-current-playing-hover-border-left-color, color-mix(in srgb, var(--accent-primary, #00d4ff) 100%, transparent)) !important;
+  transform: var(--prog-current-playing-hover-transform, translateY(-1px) scale(1.01)) !important;
+  z-index: var(--prog-current-playing-hover-z, 20) !important;
 }
 
 html.modern-ui-v3[data-theme] .guide-channel-logo {
@@ -3051,34 +2903,6 @@ html.modern-ui-v3[data-theme="light"] .program-block:hover {
     0 4px 12px rgba(0, 0, 0, 0.06) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .settings-sidebar {
-  border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-nav-item {
-  color: rgba(0, 0, 0, 0.65) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-nav-item:hover {
-  background: rgba(0, 0, 0, 0.04) !important;
-  color: #000 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-nav-item.active {
-  background: color-mix(in srgb, var(--accent-primary, #8b5cf6) 15%, rgba(0, 0, 0, 0.05)) !important;
-  color: var(--accent-primary, #8b5cf6) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #8b5cf6) 30%, rgba(0, 0, 0, 0.08)) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-header {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-  background: transparent !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-header h2 {
-  color: #0f172a !important;
-}
-
 html.modern-ui-v3[data-theme="light"] .close-btn {
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   color: #64748b !important;
@@ -3089,55 +2913,8 @@ html.modern-ui-v3[data-theme="light"] .close-btn:hover {
   color: #0f172a !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .settings-sidebar {
-  background: transparent !important;
-  border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-sidebar::before {
-  display: none !important;
-}
-
 html.modern-ui-v3[data-theme="light"] .settings-content {
   background: transparent !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-tabs {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-  background: transparent !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-tab {
-  color: #475569 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-tab:hover {
-  color: #0f172a !important;
-  background: rgba(0, 0, 0, 0.04) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-tab.active {
-  color: var(--accent-primary, #0066cc) !important;
-  border-bottom-color: var(--accent-primary, #0066cc) !important;
-  text-shadow: none !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-nav-item {
-  color: #475569 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-nav-item:hover {
-  background: rgba(0, 0, 0, 0.04) !important;
-  color: #0f172a !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-nav-item.active {
-  background: color-mix(in srgb, var(--accent-primary, #0066cc) 12%, rgba(0, 0, 0, 0.03)) !important;
-  color: var(--accent-primary, #0066cc) !important;
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #0066cc) 25%, rgba(0, 0, 0, 0.08)) !important;
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .section-header h3 {
@@ -3190,81 +2967,19 @@ html.modern-ui-v3[data-theme="light"] .add-btn:hover {
   background: color-mix(in srgb, var(--accent-primary, #0066cc) 85%, black) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .source-item {
-  background: rgba(0, 0, 0, 0.02) !important;
-  backdrop-filter: blur(16px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    0 4px 16px rgba(0, 0, 0, 0.04) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .source-item:hover {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.12) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .source-item .source-name {
-  color: #0f172a !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .source-type {
-  background: rgba(0, 0, 0, 0.06) !important;
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
-  color: #475569 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .source-item .toggle-label {
-  color: #475569 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .last-sync-time {
-  color: #64748b !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stat-chip--count {
-  background: rgba(0, 0, 0, 0.05) !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
-  color: #1e293b !important;
-  box-shadow: none !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stat-chip--count svg {
-  color: #475569 !important;
-  opacity: 1 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stat-chip-divider {
-  background: rgba(0, 0, 0, 0.18) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stat-chip--expiry {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: #64748b !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stat-chip--expiry.stat-chip--expiry-warn {
-  background: rgba(239, 68, 68, 0.1) !important;
-  border-color: rgba(239, 68, 68, 0.25) !important;
-  color: #dc2626 !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stat-chip--expiry.stat-chip--expiry-warn svg {
-  color: #dc2626 !important;
-  opacity: 1 !important;
-}
-
+/* Source items & buttons — light values are token-driven via the --src-*
+   light tokens (item, type, chips, source-name/toggle/last-sync text). The
+   source-actions buttons keep a thin rule here: the base only sets their
+   font, and the light look must beat the base (dark keeps the base look). */
 html.modern-ui-v3[data-theme="light"] .source-actions button {
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  color: #475569 !important;
-  background: rgba(0, 0, 0, 0.03) !important;
+  border: var(--src-actions-btn-border) !important;
+  color: var(--src-actions-btn-color) !important;
+  background: var(--src-actions-btn-bg) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .source-actions button:hover {
-  background: rgba(0, 0, 0, 0.06) !important;
-  color: #0f172a !important;
+  background: var(--src-actions-btn-hover-bg) !important;
+  color: var(--src-actions-btn-hover-color) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-content select {
@@ -3281,20 +2996,6 @@ html.modern-ui-v3[data-theme="light"] .settings-content select:focus {
 html.modern-ui-v3[data-theme="light"] .settings-content select option {
   background: #ffffff !important;
   color: #0f172a !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-search-input-wrapper {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-search-input-wrapper input {
-  color: #0f172a !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .settings-search-input-wrapper:focus-within {
-  background: #ffffff !important;
-  border-color: var(--accent-primary, #0066cc) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-disclaimer,

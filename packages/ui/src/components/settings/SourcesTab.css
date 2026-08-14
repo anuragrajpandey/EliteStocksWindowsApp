@@ -1,15 +1,4 @@
 /* SourcesTab.css */
-/* Minimal overrides to ensure scrolling works within the Settings structure */
-
-.settings-tab-content {
-    /* Ensure it takes full height and flexes */
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    /* CRITICAL for scrolling */
-    overflow: hidden;
-}
 
 .settings-section {
     display: flex;
@@ -387,22 +376,29 @@
 
 /* ─── Source Card — Stats Row ──────────────────────────────────────────────── */
 
+/* Source card stats row. Values folded in from the old Settings.css duplicate
+   (display:flex row wrap, gap 8px 16px, height auto, overflow visible,
+   margin-top 4px) so removing the cross-file bare class keeps the rendered
+   layout identical in v1/v2. v3 tightens the gap to 6px via the token. */
 .source-details {
     display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
-    margin-top: 2px;
+    gap: var(--src-details-gap, 8px 16px);
+    height: auto;
+    overflow: visible;
+    margin-top: 4px;
 }
 
 /* ── Enabled / disabled left-border accent ── */
 .source-item.source-enabled {
-    border-left: 3px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent) !important;
+    border-left: var(--src-enabled-border-left, 3px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent)) !important;
 }
 
 .source-item.source-disabled {
-    opacity: 0.55;
-    border-left: 3px solid var(--surface-border, rgba(255, 255, 255, 0.15)) !important;
+    opacity: var(--src-disabled-opacity, 0.55);
+    border-left: var(--src-disabled-border-left, 3px solid var(--surface-border, rgba(255, 255, 255, 0.15))) !important;
 }
 
 /* ── Base stat chip ── */
@@ -410,14 +406,17 @@
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 3px 9px 3px 7px;
+    padding: var(--src-chip-padding, 3px 9px 3px 7px);
     border-radius: 20px;
-    font-size: 0.72rem;
+    font-size: var(--src-chip-font-size, 0.72rem);
     font-weight: 500;
     line-height: 1;
     white-space: nowrap;
-    letter-spacing: 0.01em;
+    letter-spacing: var(--src-chip-letter-spacing, 0.01em);
     transition: background 0.15s ease;
+    backdrop-filter: var(--src-chip-blur, none);
+    -webkit-backdrop-filter: var(--src-chip-blur, none);
+    box-shadow: var(--src-chip-shadow, none);
 }
 
 .stat-chip svg {
@@ -436,35 +435,35 @@
 
 /* ── Count chips — all identical neutral white ── */
 .stat-chip--count {
-    background: var(--surface-color, rgba(255, 255, 255, 0.08));
-    border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.12));
-    color: var(--text-secondary, rgba(255, 255, 255, 0.85));
+    background: var(--src-chip-count-bg, var(--surface-color, rgba(255, 255, 255, 0.08)));
+    border: 1px solid var(--src-chip-count-border, var(--surface-border, rgba(255, 255, 255, 0.12)));
+    color: var(--src-chip-count-color, var(--text-secondary, rgba(255, 255, 255, 0.85)));
 }
 
 .stat-chip--count svg {
-    color: var(--text-muted, rgba(255, 255, 255, 0.55));
+    color: var(--src-chip-count-icon, var(--text-muted, rgba(255, 255, 255, 0.55)));
     opacity: 1;
 }
 
 .stat-chip-divider {
-    background: var(--surface-border, rgba(255, 255, 255, 0.2));
+    background: var(--src-chip-divider-bg, var(--surface-border, rgba(255, 255, 255, 0.2)));
 }
 
 /* ── Expiry chip — muted by default, red only when warning ── */
 .stat-chip--expiry {
-    background: var(--surface-color, rgba(255, 255, 255, 0.05));
-    border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.09));
-    color: var(--text-muted, rgba(255, 255, 255, 0.42));
+    background: var(--src-chip-expiry-bg, var(--surface-color, rgba(255, 255, 255, 0.05)));
+    border: 1px solid var(--src-chip-expiry-border, var(--surface-border, rgba(255, 255, 255, 0.09)));
+    color: var(--src-chip-expiry-color, var(--text-muted, rgba(255, 255, 255, 0.42)));
 }
 
 .stat-chip--expiry.stat-chip--expiry-warn {
-    background: rgba(239, 68, 68, 0.12);
-    border-color: rgba(239, 68, 68, 0.28);
-    color: #f87171;
+    background: var(--src-chip-warn-bg, rgba(239, 68, 68, 0.12));
+    border-color: var(--src-chip-warn-border, rgba(239, 68, 68, 0.28));
+    color: var(--src-chip-warn-color, #f87171);
 }
 
 .stat-chip--expiry.stat-chip--expiry-warn svg {
-    color: #f87171;
+    color: var(--src-chip-warn-icon, #f87171);
 }
 
 /* ─── Source Action Buttons — hierarchy ────────────────────────────────────── */
@@ -472,7 +471,7 @@
 /* Primary: Sync Channels */
 .src-btn {
     padding: 5px 12px;
-    border-radius: 6px;
+    border-radius: var(--src-btn-radius, 6px);
     font-size: 0.78rem;
     font-weight: 500;
     cursor: pointer;
@@ -482,6 +481,8 @@
     gap: 5px;
     transition: all 0.15s ease;
     border: 1px solid transparent;
+    backdrop-filter: var(--src-btn-blur, none);
+    -webkit-backdrop-filter: var(--src-btn-blur, none);
 }
 
 .src-btn:disabled {
@@ -490,27 +491,30 @@
 }
 
 .src-btn--primary {
-    background: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent);
-    border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
+    background: var(--src-btn-primary-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent));
+    border-color: var(--src-btn-primary-border, color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent));
     color: white;
     font-weight: 600;
+    box-shadow: var(--src-btn-primary-shadow, none);
 }
 
 .src-btn--primary:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--accent-primary, #00d4ff) 26%, transparent);
-    border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
+    background: var(--src-btn-primary-hover-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 26%, transparent));
+    border-color: var(--src-btn-primary-hover-border, color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent));
+    box-shadow: var(--src-btn-primary-hover-shadow, none);
 }
 
 .src-btn--secondary {
-    background: var(--surface-color, rgba(255, 255, 255, 0.06));
-    border-color: var(--surface-border, rgba(255, 255, 255, 0.1));
-    color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+    background: var(--src-btn-secondary-bg, var(--surface-color, rgba(255, 255, 255, 0.06)));
+    border-color: var(--src-btn-secondary-border, var(--surface-border, rgba(255, 255, 255, 0.1)));
+    color: var(--src-btn-secondary-color, var(--text-secondary, rgba(255, 255, 255, 0.7)));
+    box-shadow: var(--src-btn-secondary-shadow, none);
 }
 
 .src-btn--secondary:hover:not(:disabled) {
-    background: var(--surface-hover, rgba(255, 255, 255, 0.1));
-    border-color: var(--surface-hover, rgba(255, 255, 255, 0.18));
-    color: var(--text-primary, white);
+    background: var(--src-btn-secondary-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.1)));
+    border-color: var(--src-btn-secondary-hover-border, var(--surface-hover, rgba(255, 255, 255, 0.18)));
+    color: var(--src-btn-secondary-hover-color, var(--text-primary, white));
 }
 
 .source-actions {

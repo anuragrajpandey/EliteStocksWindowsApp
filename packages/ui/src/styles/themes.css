@@ -1162,8 +1162,7 @@
   border-left: var(--glass-border);
 }
 
-/* Glass cards (stats, info overlays) */
-[data-theme*="glass-"] .stats-panel,
+/* Glass cards (info overlays) */
 [data-theme*="glass-"] .channel-info {
   background: var(--surface-color);
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
@@ -3394,11 +3393,6 @@ html.modern-ui-v3[data-theme="dark-slate"] .category-list-bar.selected .category
 [data-theme="dark-crimson"] .sync-status__spinner,
 [data-theme^="dark-"] .sync-status__spinner {
   border-top-color: var(--accent-primary);
-}
-
-[data-theme="dark-crimson"] .stats-panel h3,
-[data-theme^="dark-"] .stats-panel h3 {
-  color: var(--accent-primary);
 }
 
 [data-theme="dark-crimson"] .channel-info,

@@ -62,7 +62,7 @@
   align-items: center;
   gap: 16px;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--surface-border, rgba(255, 255, 255, 0.08));
+  border-bottom: var(--stg-header-border-bottom, 1px solid var(--surface-border, rgba(255, 255, 255, 0.08)));
   position: relative;
 }
 
@@ -80,7 +80,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-primary, rgba(255, 255, 255, 0.9));
+  color: var(--stg-header-title-color, var(--text-primary, rgba(255, 255, 255, 0.9)));
 }
 
 .settings-language {
@@ -143,16 +143,17 @@
 .settings-search-input-wrapper {
   display: flex;
   align-items: center;
-  background: var(--bg-tertiary, rgba(40, 40, 40, 0.9));
-  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.1));
-  border-radius: 5px;
+  background: var(--stg-search-bg, var(--bg-tertiary, rgba(40, 40, 40, 0.9)));
+  border: var(--stg-search-border, 1px solid var(--surface-border, rgba(255, 255, 255, 0.1)));
+  border-radius: var(--stg-search-radius, 5px);
   padding: 0 8px;
   transition: border-color 0.15s ease;
 }
 
 .settings-search-input-wrapper:focus-within {
-  border-color: var(--accent-primary, #00d4ff);
-  background: var(--surface-glow, rgba(0, 212, 255, 0.08));
+  border-color: var(--stg-search-focus-border, var(--accent-primary, #00d4ff));
+  background: var(--stg-search-focus-bg, var(--surface-glow, rgba(0, 212, 255, 0.08)));
+  box-shadow: var(--stg-search-focus-shadow, none);
 }
 
 .settings-search-icon {
@@ -167,7 +168,7 @@
   background: transparent;
   border: none;
   outline: none;
-  color: var(--text-primary, rgba(255, 255, 255, 0.9));
+  color: var(--stg-search-input-color, var(--text-primary, rgba(255, 255, 255, 0.9)));
   font-size: 0.8rem;
   padding: 4px 6px;
   font-family: inherit;
@@ -858,7 +859,7 @@
   display: flex;
   gap: 2px;
   padding: 0 16px;
-  border-bottom: 1px solid var(--surface-border, rgba(255, 255, 255, 0.08));
+  border-bottom: var(--stg-tabs-border-bottom, 1px solid var(--surface-border, rgba(255, 255, 255, 0.08)));
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -872,22 +873,23 @@
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: var(--text-muted, rgba(255, 255, 255, 0.5));
+  color: var(--stg-tab-color, var(--text-muted, rgba(255, 255, 255, 0.5)));
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--stg-tab-transition, all 0.15s ease);
   white-space: nowrap;
 }
 
 .settings-tab:hover {
-  color: var(--text-primary, rgba(255, 255, 255, 0.8));
-  background: var(--bg-hover, rgba(255, 255, 255, 0.03));
+  color: var(--stg-tab-hover-color, var(--text-primary, rgba(255, 255, 255, 0.8)));
+  background: var(--stg-tab-hover-bg, var(--bg-hover, rgba(255, 255, 255, 0.03)));
 }
 
 .settings-tab.active {
   color: var(--accent-primary, #00d4ff);
   border-bottom-color: var(--accent-primary, #00d4ff);
+  text-shadow: var(--stg-tab-active-text-shadow, none);
 }
 
 /* Tab Panel */
@@ -1332,15 +1334,6 @@
   gap: 10px;
 }
 
-.source-details {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: nowrap;
-  overflow: hidden;
-  height: 24px;
-}
-
 .source-toggle {
   display: flex;
   align-items: center;
@@ -1374,30 +1367,30 @@
   align-items: flex-start !important;
   gap: 16px !important;
   padding: 14px 16px 42px 16px !important;
-  background: var(--surface-color, rgba(40, 40, 40, 0.85)) !important;
+  background: var(--src-item-bg, var(--surface-color, rgba(40, 40, 40, 0.85))) !important;
   backdrop-filter: blur(16px) saturate(160%) !important;
   -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
   border-radius: 12px !important;
-  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.1)) !important;
+  border: var(--src-item-border, 1px solid var(--surface-border, rgba(255, 255, 255, 0.1))) !important;
   margin-bottom: 12px !important;
   min-height: auto !important;
   height: auto !important;
   position: relative !important;
-  box-shadow:
+  box-shadow: var(--src-item-shadow,
     inset 0 1px 0 var(--surface-border, rgba(255, 255, 255, 0.15)),
     inset 0 -1px 0 rgba(255, 255, 255, 0.04),
-    0 8px 32px rgba(0, 0, 0, 0.25) !important;
+    0 8px 32px rgba(0, 0, 0, 0.25)) !important;
   transition: all 0.2s ease !important;
 }
 
 .source-item:hover {
-  background: var(--surface-hover, rgba(60, 60, 60, 0.9)) !important;
-  border-color: var(--surface-hover, rgba(255, 255, 255, 0.16)) !important;
-  box-shadow:
+  background: var(--src-item-hover-bg, var(--surface-hover, rgba(60, 60, 60, 0.9))) !important;
+  border-color: var(--src-item-hover-border, var(--surface-hover, rgba(255, 255, 255, 0.16))) !important;
+  box-shadow: var(--src-item-hover-shadow,
     inset 0 1px 0 var(--surface-border, rgba(255, 255, 255, 0.18)),
     inset 0 -1px 0 rgba(255, 255, 255, 0.04),
     0 8px 32px rgba(0, 0, 0, 0.35),
-    0 0 20px color-mix(in srgb, var(--accent-primary, #8b5cf6) 6%, transparent) !important;
+    0 0 20px color-mix(in srgb, var(--accent-primary, #8b5cf6) 6%, transparent)) !important;
 }
 
 /* CENTER CONTENT - Source Info */
@@ -1429,7 +1422,7 @@
 .source-name-type .source-name {
   font-size: 0.95rem !important;
   font-weight: 600 !important;
-  color: var(--text-primary, rgba(255, 255, 255, 0.95)) !important;
+  color: var(--src-item-name-color, var(--text-primary, rgba(255, 255, 255, 0.95))) !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
@@ -1438,35 +1431,27 @@
 }
 
 .source-name-type .source-type {
-  font-size: 0.65rem !important;
+  font-size: var(--src-type-font-size, 0.65rem) !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
-  padding: 3px 8px !important;
-  border-radius: 3px !important;
-  background: var(--surface-glow, rgba(0, 212, 255, 0.15)) !important;
-  color: var(--accent-primary, #00d4ff) !important;
+  letter-spacing: var(--src-type-letter-spacing, 0.05em) !important;
+  padding: var(--src-type-padding, 3px 8px) !important;
+  border-radius: var(--src-type-radius, 3px) !important;
+  background: var(--src-type-bg, var(--surface-glow, rgba(0, 212, 255, 0.15))) !important;
+  color: var(--src-type-color, var(--accent-primary, #00d4ff)) !important;
+  border: var(--src-type-border, none) !important;
+  backdrop-filter: var(--src-type-blur, none) !important;
+  -webkit-backdrop-filter: var(--src-type-blur, none) !important;
+  box-shadow: var(--src-type-shadow, none) !important;
   white-space: nowrap !important;
   flex-shrink: 0 !important;
 }
 
 .last-sync-time {
   font-size: 0.7rem !important;
-  color: var(--text-muted, rgba(255, 255, 255, 0.4)) !important;
+  color: var(--src-last-sync-color, var(--text-muted, rgba(255, 255, 255, 0.4))) !important;
   font-style: italic !important;
   white-space: nowrap !important;
-}
-
-/* Details - Toggle, Stats, Expiry */
-.source-details {
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: wrap !important;
-  align-items: center !important;
-  gap: 8px 16px !important;
-  height: auto !important;
-  overflow: visible !important;
-  margin-top: 4px !important;
 }
 
 /* Toggle */
@@ -1488,7 +1473,7 @@
 }
 
 .toggle-label {
-  color: var(--text-secondary, rgba(255, 255, 255, 0.8)) !important;
+  color: var(--src-toggle-label-color, var(--text-secondary, rgba(255, 255, 255, 0.8))) !important;
   font-size: 0.75rem !important;
   font-weight: 500 !important;
 }
@@ -1532,12 +1517,12 @@
 }
 
 .action-icon-btn {
-  background: var(--surface-color, rgba(255, 255, 255, 0.04)) !important;
+  background: var(--src-act-bg, var(--surface-color, rgba(255, 255, 255, 0.04))) !important;
   backdrop-filter: blur(8px) saturate(130%) !important;
   -webkit-backdrop-filter: blur(8px) saturate(130%) !important;
-  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.1)) !important;
+  border: var(--src-act-border, 1px solid var(--surface-border, rgba(255, 255, 255, 0.1))) !important;
   border-radius: 8px !important;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.7)) !important;
+  color: var(--src-act-color, var(--text-secondary, rgba(255, 255, 255, 0.7))) !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
   display: inline-flex !important;
@@ -1546,34 +1531,34 @@
   width: 30px !important;
   height: 30px !important;
   padding: 0 !important;
-  box-shadow:
+  box-shadow: var(--src-act-shadow,
     inset 0 1px 0 var(--surface-border, rgba(255, 255, 255, 0.1)),
-    0 2px 6px rgba(0, 0, 0, 0.12) !important;
+    0 2px 6px rgba(0, 0, 0, 0.12)) !important;
 }
 
 .action-icon-btn:hover {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.09)) !important;
-  border-color: var(--surface-hover, rgba(255, 255, 255, 0.2)) !important;
-  color: var(--text-primary, rgba(255, 255, 255, 0.95)) !important;
-  box-shadow:
+  background: var(--src-act-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.09))) !important;
+  border-color: var(--src-act-hover-border, var(--surface-hover, rgba(255, 255, 255, 0.2))) !important;
+  color: var(--src-act-hover-color, var(--text-primary, rgba(255, 255, 255, 0.95))) !important;
+  box-shadow: var(--src-act-hover-shadow,
     inset 0 1px 0 var(--surface-border, rgba(255, 255, 255, 0.15)),
-    0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    0 4px 12px rgba(0, 0, 0, 0.2)) !important;
 }
 
 .action-icon-btn.delete {
-  background: rgba(255, 59, 48, 0.06) !important;
-  border-color: rgba(255, 59, 48, 0.25) !important;
-  color: rgba(255, 59, 48, 0.8) !important;
+  background: var(--src-act-del-bg, rgba(255, 59, 48, 0.06)) !important;
+  border-color: var(--src-act-del-border, rgba(255, 59, 48, 0.25)) !important;
+  color: var(--src-act-del-color, rgba(255, 59, 48, 0.8)) !important;
 }
 
 .action-icon-btn.delete:hover {
-  background: rgba(255, 59, 48, 0.12) !important;
-  border-color: rgba(255, 59, 48, 0.4) !important;
-  color: #ff3b30 !important;
-  box-shadow:
+  background: var(--src-act-del-hover-bg, rgba(255, 59, 48, 0.12)) !important;
+  border-color: var(--src-act-del-hover-border, rgba(255, 59, 48, 0.4)) !important;
+  color: var(--src-act-del-hover-color, #ff3b30) !important;
+  box-shadow: var(--src-act-del-hover-shadow,
     inset 0 1px 0 rgba(255, 59, 48, 0.15),
     0 4px 12px rgba(0, 0, 0, 0.2),
-    0 0 16px rgba(255, 59, 48, 0.08) !important;
+    0 0 16px rgba(255, 59, 48, 0.08)) !important;
 }
 
 .action-row-secondary button.delete:hover {
@@ -1585,11 +1570,11 @@
 
 /* Per-Source Sync Buttons - Liquid Glass */
 .sync-source-btn {
-  background: var(--surface-color, rgba(255, 255, 255, 0.05)) !important;
+  background: var(--src-sync-bg, var(--surface-color, rgba(255, 255, 255, 0.05))) !important;
   backdrop-filter: blur(12px) saturate(140%) !important;
   -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
-  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.1)) !important;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.8)) !important;
+  border: var(--src-sync-border, 1px solid var(--surface-border, rgba(255, 255, 255, 0.1))) !important;
+  color: var(--src-sync-color, var(--text-secondary, rgba(255, 255, 255, 0.8))) !important;
   padding: 5px 12px !important;
   border-radius: 8px;
   cursor: pointer;
@@ -1598,18 +1583,18 @@
   letter-spacing: 0.01em;
   transition: all 0.2s ease;
   white-space: nowrap;
-  box-shadow:
+  box-shadow: var(--src-sync-shadow,
     inset 0 1px 0 var(--surface-border, rgba(255, 255, 255, 0.12)),
-    0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    0 2px 8px rgba(0, 0, 0, 0.15)) !important;
 }
 
 .sync-source-btn:hover:not(:disabled) {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.1)) !important;
-  border-color: var(--surface-hover, rgba(255, 255, 255, 0.2)) !important;
-  color: var(--text-primary, rgba(255, 255, 255, 0.95)) !important;
-  box-shadow:
+  background: var(--src-sync-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.1))) !important;
+  border-color: var(--src-sync-hover-border, var(--surface-hover, rgba(255, 255, 255, 0.2))) !important;
+  color: var(--src-sync-hover-color, var(--text-primary, rgba(255, 255, 255, 0.95))) !important;
+  box-shadow: var(--src-sync-hover-shadow,
     inset 0 1px 0 var(--surface-border, rgba(255, 255, 255, 0.15)),
-    0 4px 12px rgba(0, 0, 0, 0.25) !important;
+    0 4px 12px rgba(0, 0, 0, 0.25)) !important;
 }
 
 .sync-source-btn:disabled {
