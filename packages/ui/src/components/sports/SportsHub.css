@@ -3787,8 +3787,8 @@
 .racing-detail-title-bar {
   padding: 20px 24px 16px;
   text-align: center;
-  border-bottom: 1px solid var(--border-color, #2a2a2a);
-  background: var(--bg-secondary, #1a1a1a);
+  border-bottom: var(--gd-chrome-border-bottom, 1px solid var(--border-color, #2a2a2a));
+  background: var(--gd-section-bg, var(--bg-secondary, #1a1a1a));
 }
 
 .racing-detail-event-title {
@@ -4173,8 +4173,8 @@
 .golf-detail-title-bar {
   padding: 20px 24px 16px;
   text-align: center;
-  border-bottom: 1px solid var(--border-color, #2a2a2a);
-  background: var(--bg-secondary, #1a1a1a);
+  border-bottom: var(--gd-chrome-border-bottom, 1px solid var(--border-color, #2a2a2a));
+  background: var(--gd-section-bg, var(--bg-secondary, #1a1a1a));
 }
 
 .golf-detail-event-title {
@@ -4493,8 +4493,8 @@
 .tennis-detail-title-bar {
   padding: 20px 24px 16px;
   text-align: center;
-  border-bottom: 1px solid var(--border-color, #2a2a2a);
-  background: var(--bg-secondary, #1a1a1a);
+  border-bottom: var(--gd-chrome-border-bottom, 1px solid var(--border-color, #2a2a2a));
+  background: var(--gd-section-bg, var(--bg-secondary, #1a1a1a));
 }
 
 .tennis-detail-event-title {

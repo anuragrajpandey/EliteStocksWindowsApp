@@ -62,14 +62,14 @@
 .hero__overlay-left {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
+  background: var(--vod-hero-left-bg, linear-gradient(
     to right,
     rgba(10, 10, 15, 0.96) 0%,
     rgba(10, 10, 15, 0.9) 25%,
     rgba(10, 10, 15, 0.7) 45%,
     rgba(10, 10, 15, 0.3) 65%,
     transparent 100%
-  );
+  ));
   z-index: 1;
   pointer-events: none;
 }
@@ -80,13 +80,13 @@
   right: 0;
   bottom: -1px;
   height: 180px;
-  background: linear-gradient(
+  background: var(--vod-hero-bottom-bg, linear-gradient(
     to top,
     rgba(10, 10, 15, 1) 0%,
     rgba(10, 10, 15, 0.8) 25%,
     rgba(10, 10, 15, 0.3) 60%,
     transparent 100%
-  );
+  ));
   z-index: 1;
   pointer-events: none;
 }
@@ -94,12 +94,12 @@
 .hero__overlay-vignette {
   position: absolute;
   inset: 0;
-  background: radial-gradient(
+  background: var(--vod-hero-vignette-bg, radial-gradient(
     circle at right,
     transparent 40%,
     rgba(10, 10, 15, 0.15) 80%,
     rgba(10, 10, 15, 0.4) 100%
-  );
+  ));
   z-index: 1;
   pointer-events: none;
 }

@@ -25,23 +25,7 @@
 .series-detail-fixed-backdrop-gradient {
   position: absolute !important;
   inset: 0 !important;
-  background: 
-    linear-gradient(
-      to right,
-      rgba(12, 14, 24, 0.92) 0%,
-      rgba(12, 14, 24, 0.78) 25%,
-      rgba(12, 14, 24, 0.45) 45%,
-      rgba(12, 14, 24, 0.12) 65%,
-      transparent 100%
-    ),
-    linear-gradient(
-      to bottom,
-      rgba(12, 14, 24, 0.1) 0%,
-      rgba(12, 14, 24, 0.35) 30%,
-      rgba(12, 14, 24, 0.75) 60%,
-      rgba(12, 14, 24, 0.95) 85%,
-      #0c0e18 100%
-    ) !important;
+  background: var(--vod-detail-backdrop-bg, linear-gradient(to right, rgba(12, 14, 24, 0.92) 0%, rgba(12, 14, 24, 0.78) 25%, rgba(12, 14, 24, 0.45) 45%, rgba(12, 14, 24, 0.12) 65%, transparent 100%), linear-gradient(to bottom, rgba(12, 14, 24, 0.1) 0%, rgba(12, 14, 24, 0.35) 30%, rgba(12, 14, 24, 0.75) 60%, rgba(12, 14, 24, 0.95) 85%, #0c0e18 100%)) !important;
   pointer-events: none !important;
   z-index: 2 !important;
 }
@@ -365,24 +349,24 @@
   padding: 8px 20px;
   font-size: 0.9rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
+  color: var(--vod-season-color, rgba(255, 255, 255, 0.7));
+  background: var(--vod-season-bg, rgba(255, 255, 255, 0.06));
+  border: var(--vod-season-border, 1px solid rgba(255, 255, 255, 0.1));
+  border-radius: var(--vod-season-radius, 6px);
   cursor: pointer;
   transition: all 150ms ease;
 }
 
 .series-detail__season-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: var(--vod-season-hover-bg, rgba(255, 255, 255, 0.12));
+  border-color: var(--vod-season-hover-border, rgba(255, 255, 255, 0.2));
+  color: var(--vod-season-hover-color, #fff);
 }
 
 .series-detail__season-btn.active {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.35);
-  color: #fff;
+  background: var(--vod-season-active-bg, rgba(255, 255, 255, 0.18));
+  border-color: var(--vod-season-active-border, rgba(255, 255, 255, 0.35));
+  color: var(--vod-season-active-color, #fff);
   font-weight: 600;
 }
 
@@ -401,20 +385,20 @@
 .series-detail__episode-card {
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
+  background: var(--vod-ep-card-bg, rgba(255, 255, 255, 0.04));
+  border: var(--vod-ep-card-border, 1px solid rgba(255, 255, 255, 0.06));
+  border-radius: var(--vod-ep-card-radius, 10px);
   overflow: hidden;
   cursor: pointer;
-  transition: all 200ms ease;
+  transition: var(--vod-ep-card-transition, all 200ms ease);
   position: relative;
 }
 
 .series-detail__episode-card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--vod-ep-card-hover-bg, rgba(255, 255, 255, 0.08));
+  border-color: var(--vod-ep-card-hover-border, rgba(255, 255, 255, 0.15));
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--vod-ep-card-hover-shadow, 0 8px 24px rgba(0, 0, 0, 0.4));
 }
 
 /* Episode image */

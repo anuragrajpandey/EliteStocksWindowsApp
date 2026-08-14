@@ -7,9 +7,15 @@
   flex-direction: column;
   align-items: center;
   padding: 8px 4px;
-  background: rgba(13, 13, 13, 0.85); /* Slightly more opaque background to cover scrollbar */
-  backdrop-filter: blur(4px);
+  background: var(--ar-bg, rgba(13, 13, 13, 0.85)); /* Slightly more opaque background to cover scrollbar */
+  backdrop-filter: var(--ar-filter, blur(4px));
   border-radius: 8px;
+  border-left: var(--ar-border-left, none);
+  border-top-right-radius: var(--ar-radius-tr, 8px);
+  border-bottom-right-radius: var(--ar-radius-br, 8px);
+  margin-top: var(--ar-margin-top, 0);
+  margin-bottom: var(--ar-margin-bottom, 0);
+  height: var(--ar-height, auto);
   z-index: 100;
   user-select: none;
   touch-action: none;

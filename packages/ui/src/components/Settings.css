@@ -568,9 +568,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--bg-overlay, rgba(0, 0, 0, 0.9));
-  backdrop-filter: blur(var(--glass-blur, 4px));
-  -webkit-backdrop-filter: blur(var(--glass-blur, 4px));
+  background: var(--glass-overlay-bg, var(--bg-overlay, rgba(0, 0, 0, 0.9)));
+  backdrop-filter: var(--glass-overlay-filter, blur(var(--glass-blur, 4px)));
+  -webkit-backdrop-filter: var(--glass-overlay-filter, blur(var(--glass-blur, 4px)));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -583,19 +583,20 @@
 }
 
 .source-form {
-  background: var(--surface-color, rgba(20, 20, 20, 0.98));
-  backdrop-filter: blur(var(--glass-blur, 20px));
-  -webkit-backdrop-filter: blur(var(--glass-blur, 20px));
-  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-  box-shadow: var(--glass-shadow, 0 20px 60px rgba(0, 0, 0, 0.5));
+  background: var(--glass-settings-bg, var(--surface-color, rgba(20, 20, 20, 0.98)));
+  backdrop-filter: var(--glass-settings-filter, blur(var(--glass-blur, 20px)));
+  -webkit-backdrop-filter: var(--glass-settings-filter, blur(var(--glass-blur, 20px)));
+  border: var(--glass-settings-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+  box-shadow: var(--glass-settings-shadow, var(--glass-shadow, 0 20px 60px rgba(0, 0, 0, 0.5)));
+  color: var(--glass-modal-color, inherit);
+  border-radius: var(--glass-modal-radius, 12px);
   padding: 24px;
-  border-radius: 12px;
   width: 90%;
   max-width: 400px;
   max-height: 85vh;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--surface-hover, rgba(255, 255, 255, 0.15)) transparent;
+  scrollbar-color: var(--scrollbar-color, var(--surface-hover, rgba(255, 255, 255, 0.15))) transparent;
   scrollbar-gutter: stable;
 }
 
@@ -609,23 +610,26 @@
 }
 
 .source-form::-webkit-scrollbar-thumb {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.15));
-  border-radius: 3px;
+  background: var(--scrollbar-thumb-bg, var(--surface-hover, rgba(255, 255, 255, 0.15)));
+  border-radius: var(--scrollbar-thumb-radius, 3px);
 }
 
 .source-form:hover::-webkit-scrollbar-thumb {
-  background: var(--accent-primary, rgba(0, 212, 255, 0.5));
+  background: var(--scrollbar-thumb-hover-bg, var(--accent-primary, rgba(0, 212, 255, 0.5)));
 }
 
 .source-form::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-primary, rgba(0, 212, 255, 0.5));
+  background: var(--scrollbar-thumb-hover-bg, var(--accent-primary, rgba(0, 212, 255, 0.5)));
 }
 
 .source-form h3 {
-  margin: 0 0 20px 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary, rgba(255, 255, 255, 0.9));
+  margin: var(--sm-h3-margin, 0 0 20px 0);
+  font-size: var(--sm-title-font-size, 1rem);
+  font-weight: var(--sm-title-weight, 600);
+  color: var(--sm-title-color, var(--text-primary, rgba(255, 255, 255, 0.9)));
+  border-bottom: var(--sm-hdr-border-bottom, none);
+  padding: var(--sm-hdr-padding, 0);
+  background: var(--sm-hdr-bg, transparent);
 }
 
 .form-error,
@@ -655,22 +659,22 @@
 
 .form-group input {
   width: 100%;
-  padding: 10px 12px;
-  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-  border-radius: 4px;
-  background: var(--surface-color, rgba(255, 255, 255, 0.03));
-  color: var(--text-primary, white);
+  padding: var(--sm-input-padding, 10px 12px);
+  border: var(--sm-input-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+  border-radius: var(--sm-input-radius, 4px);
+  background: var(--sm-input-bg, var(--surface-color, rgba(255, 255, 255, 0.03)));
+  color: var(--sm-input-color, var(--text-primary, white));
   font-size: 0.9rem;
   box-sizing: border-box;
-  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  transition: var(--sm-input-transition, border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: var(--accent-primary, rgba(0, 212, 255, 0.5));
-  background: var(--surface-glow, rgba(0, 212, 255, 0.03));
-  box-shadow: 0 0 0 1px var(--accent-primary, rgba(0, 212, 255, 0.5)),
-    0 0 10px var(--accent-glow, rgba(0, 212, 255, 0.3));
+  border-color: var(--sm-input-focus-border, var(--accent-primary, rgba(0, 212, 255, 0.5)));
+  background: var(--sm-input-focus-bg, var(--surface-glow, rgba(0, 212, 255, 0.03)));
+  box-shadow: var(--sm-input-focus-shadow, 0 0 0 1px var(--accent-primary, rgba(0, 212, 255, 0.5)),
+    0 0 10px var(--accent-glow, rgba(0, 212, 255, 0.3)));
 }
 
 .form-group input::placeholder {
@@ -727,27 +731,32 @@
 /* Form Actions */
 .form-actions {
   display: flex;
-  gap: 10px;
+  gap: var(--sm-footer-gap, 10px);
   margin-top: 24px;
+  justify-content: var(--sm-footer-justify, flex-start);
+  border-top: var(--sm-footer-border-top, none);
+  background: var(--sm-footer-bg, transparent);
+  padding: var(--sm-footer-padding, 0);
 }
 
 .cancel-btn {
   flex: 1;
   padding: 10px;
-  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-  border-radius: 4px;
-  background: var(--surface-color, transparent);
-  color: var(--text-muted, rgba(255, 255, 255, 0.6));
+  border: var(--sm-btn-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+  border-radius: var(--sm-btn-radius, 4px);
+  background: var(--sm-btn-bg, var(--surface-color, transparent));
+  color: var(--sm-btn-color, var(--text-muted, rgba(255, 255, 255, 0.6)));
   cursor: pointer;
   font-size: 0.85rem;
-  font-weight: 500;
-  transition: all 0.15s ease;
+  font-weight: var(--sm-btn-weight, 500);
+  transition: var(--sm-btn-transition, all 0.15s ease);
 }
 
 .cancel-btn:hover {
-  border-color: var(--accent-primary, rgba(255, 255, 255, 0.2));
-  color: var(--text-primary, rgba(255, 255, 255, 0.8));
-  background: var(--surface-hover, rgba(255, 255, 255, 0.05));
+  border-color: var(--sm-btn-hover-border, var(--accent-primary, rgba(255, 255, 255, 0.2)));
+  color: var(--sm-btn-hover-color, var(--text-primary, rgba(255, 255, 255, 0.8)));
+  background: var(--sm-btn-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.05)));
+  transform: var(--sm-btn-hover-transform, none);
 }
 
 .save-btn {
@@ -1211,27 +1220,30 @@
 /* Details/summary collapsible section (for Xtream Catchup settings) */
 .form-details {
   margin-bottom: 16px;
-  border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-  border-radius: 4px;
-  background: var(--surface-color, rgba(255, 255, 255, 0.02));
+  border: var(--sm-panel-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+  border-radius: var(--sm-details-radius, 4px);
+  background: var(--sm-panel-bg, var(--surface-color, rgba(255, 255, 255, 0.02)));
+  overflow: var(--sm-details-overflow, visible);
 }
 
 .form-details-summary {
-  padding: 10px 12px;
+  padding: var(--sm-details-summary-padding, 10px 12px);
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 500;
-  color: var(--text-primary, white);
+  color: var(--sm-details-summary-color, var(--text-primary, white));
+  background: var(--sm-details-summary-bg, transparent);
+  transition: var(--sm-details-summary-transition, none);
   user-select: none;
 }
 
 .form-details-summary:hover {
-  background: var(--bg-hover, rgba(255, 255, 255, 0.03));
+  background: var(--sm-details-summary-hover-bg, var(--bg-hover, rgba(255, 255, 255, 0.03)));
 }
 
 .form-details-content {
-  padding: 0 12px 12px;
-  border-top: var(--glass-border, 1px solid rgba(255, 255, 255, 0.05));
+  padding: var(--sm-details-content-padding, 0 12px 12px);
+  border-top: var(--sm-details-content-border-top, var(--glass-border, 1px solid rgba(255, 255, 255, 0.05)));
 }
 
 .form-details-content .form-group {
@@ -1744,24 +1756,24 @@
 /* Global Select & Dropdown Styling for Settings */
 .settings-content select {
   padding: 8px 12px;
-  border: 1px solid var(--surface-border, rgba(255, 255, 255, 0.1));
-  border-radius: 4px;
-  background: var(--bg-tertiary, rgba(40, 40, 40, 0.9));
-  color: var(--text-primary, white);
+  border: var(--sel-border, 1px solid var(--surface-border, rgba(255, 255, 255, 0.1)));
+  border-radius: var(--sel-radius, 4px);
+  background: var(--sel-bg, var(--bg-tertiary, rgba(40, 40, 40, 0.9)));
+  color: var(--sel-color, var(--text-primary, white));
   font-size: 0.85rem;
   cursor: pointer;
   outline: none;
-  transition: all 0.15s ease;
+  transition: var(--sel-transition, all 0.15s ease);
 }
 
 .settings-content select:focus {
-  border-color: var(--accent-primary, rgba(0, 212, 255, 0.5));
-  background: var(--bg-tertiary, rgba(40, 40, 40, 0.9));
+  border-color: var(--sel-focus-border, var(--accent-primary, rgba(0, 212, 255, 0.5)));
+  background: var(--sel-focus-bg, var(--bg-tertiary, rgba(40, 40, 40, 0.9)));
 }
 
 .settings-content select option {
-  background: var(--bg-tertiary, #1a1a1a); /* Solid background for Windows/Chrome readability */
-  color: var(--text-primary, white);
+  background: var(--sel-option-bg, var(--bg-tertiary, #1a1a1a)); /* Solid background for Windows/Chrome readability */
+  color: var(--sel-option-color, var(--text-primary, white));
   padding: 8px 12px;
 }
 

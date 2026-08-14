@@ -3,14 +3,21 @@
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: var(--vod-media-radius, 8px);
   overflow: hidden;
-  background: var(--surface-color, #141414);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: var(--vod-media-bg, var(--surface-color, #141414));
+  border: var(--vod-media-border, none);
+  transition: var(--vod-media-transition, transform 0.2s ease, box-shadow 0.2s ease);
   flex-shrink: 0;
 }
 
-.media-card:hover,
+.media-card:hover {
+  transform: var(--vod-media-hover-transform, scale(1.05));
+  box-shadow: var(--vod-media-hover-shadow, 0 8px 24px rgba(0, 0, 0, 0.5));
+  border-color: var(--vod-media-hover-border, transparent);
+  z-index: 10;
+}
+
 .media-card:focus-visible {
   transform: scale(1.05);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);

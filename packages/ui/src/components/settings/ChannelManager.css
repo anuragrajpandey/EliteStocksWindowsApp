@@ -7,9 +7,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: var(--bg-overlay, rgba(0, 0, 0, 0.8));
-    backdrop-filter: blur(var(--glass-blur, 4px));
-    -webkit-backdrop-filter: blur(var(--glass-blur, 4px));
+    background: var(--glass-overlay-bg, var(--bg-overlay, rgba(0, 0, 0, 0.8)));
+    backdrop-filter: var(--glass-overlay-filter, blur(var(--glass-blur, 4px)));
+    -webkit-backdrop-filter: var(--glass-overlay-filter, blur(var(--glass-blur, 4px)));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -17,17 +17,18 @@
 }
 
 .channel-manager-modal {
-    background: var(--surface-color, #1a1a1a);
-    backdrop-filter: blur(var(--glass-blur, 20px));
-    -webkit-backdrop-filter: blur(var(--glass-blur, 20px));
-    border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-    border-radius: 12px;
+    background: var(--glass-settings-bg, var(--surface-color, #1a1a1a));
+    backdrop-filter: var(--glass-settings-filter, blur(var(--glass-blur, 20px)));
+    -webkit-backdrop-filter: var(--glass-settings-filter, blur(var(--glass-blur, 20px)));
+    border: var(--glass-settings-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+    border-radius: var(--glass-modal-radius, 12px);
     width: 90%;
     max-width: 600px;
     max-height: 80vh;
     display: flex;
     flex-direction: column;
-    box-shadow: var(--glass-shadow, 0 20px 60px rgba(0, 0, 0, 0.5));
+    box-shadow: var(--glass-settings-shadow, var(--glass-shadow, 0 20px 60px rgba(0, 0, 0, 0.5)));
+    color: var(--glass-modal-color, inherit);
     /* Ensure CSS variables are inherited properly */
     font-size: var(--channel-font-size, 14px);
 }
@@ -36,72 +37,81 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
-    border-bottom: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
+    padding: var(--sm-hdr-padding, 20px);
+    border-bottom: var(--sm-hdr-border-bottom, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+    background: var(--sm-hdr-bg, transparent);
 }
 
 .channel-manager-header h2 {
     margin: 0;
-    font-size: calc(var(--category-font-size, 13px) * 1.25);
-    color: var(--text-primary, white);
+    font-size: var(--sm-title-font-size, calc(var(--category-font-size, 13px) * 1.25));
+    font-weight: var(--sm-title-weight, 600);
+    color: var(--sm-title-color, var(--text-primary, white));
 }
 
 .close-btn {
-    background: var(--surface-color, transparent);
-    border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-    color: var(--text-muted, rgba(255, 255, 255, 0.6));
+    background: var(--sm-close-bg, var(--surface-color, transparent));
+    border: var(--sm-close-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+    color: var(--sm-close-color, var(--text-muted, rgba(255, 255, 255, 0.6)));
     font-size: 1.5rem;
     cursor: pointer;
     padding: 0;
-    width: 32px;
-    height: 32px;
+    width: var(--sm-close-size, 32px);
+    height: var(--sm-close-size, 32px);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
-    transition: all 0.2s;
+    border-radius: var(--sm-close-radius, 6px);
+    transition: var(--sm-close-transition, all 0.2s);
 }
 
 .close-btn:hover {
-    background: var(--surface-hover, rgba(255, 255, 255, 0.1));
-    color: var(--text-primary, white);
+    background: var(--sm-close-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.1)));
+    border-color: var(--sm-close-hover-border, var(--accent-primary, rgba(255, 255, 255, 0.25)));
+    color: var(--sm-close-hover-color, var(--text-primary, white));
 }
 
 .channel-manager-stats {
-    padding: 10px 20px;
-    background: var(--surface-color, rgba(255, 255, 255, 0.05));
-    color: var(--text-secondary, rgba(255, 255, 255, 0.7));
-    font-size: var(--category-font-size, 13px);
+    padding: var(--sm-stats-padding, 10px 20px);
+    background: var(--sm-stats-bg, var(--surface-color, rgba(255, 255, 255, 0.05)));
+    color: var(--sm-stats-color, var(--text-secondary, rgba(255, 255, 255, 0.7)));
+    border-bottom: var(--sm-stats-border-bottom, none);
+    font-size: var(--sm-stats-font-size, var(--category-font-size, 13px));
 }
 
 .channel-manager-actions {
     display: flex;
     gap: 10px;
-    padding: 15px 20px;
-    border-bottom: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
+    padding: var(--sm-actions-padding, 15px 20px);
+    border-bottom: var(--sm-actions-border-bottom, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
     flex-wrap: wrap;
 }
 
 .channel-manager-actions button {
-    background: var(--surface-color, rgba(255, 255, 255, 0.1));
-    border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.15));
-    color: var(--text-primary, white);
+    background: var(--sm-btn-bg, var(--surface-color, rgba(255, 255, 255, 0.1)));
+    border: var(--sm-btn-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.15)));
+    color: var(--sm-btn-color, var(--text-primary, white));
     padding: 8px 16px;
-    border-radius: 6px;
+    border-radius: var(--sm-btn-radius, 6px);
     cursor: pointer;
     font-size: var(--category-font-size, 13px);
-    transition: all 0.2s;
+    transition: var(--sm-btn-transition, all 0.2s);
+    font-weight: var(--sm-btn-weight, 500);
 }
 
 .channel-manager-actions button:hover {
-    background: var(--surface-hover, rgba(255, 255, 255, 0.2));
-    border-color: var(--accent-primary, rgba(255, 255, 255, 0.3));
+    background: var(--sm-btn-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.2)));
+    border-color: var(--sm-btn-hover-border, var(--accent-primary, rgba(255, 255, 255, 0.3)));
+    color: var(--sm-btn-hover-color, var(--text-primary, white));
+    transform: var(--sm-btn-hover-transform, none);
 }
 
 .channel-manager-actions .active-toggle {
-    background: var(--accent-primary, #00d4ff);
-    color: var(--bg-primary, #000);
-    border-color: var(--accent-primary, #00d4ff);
+    background: var(--sm-toggle-active-bg, var(--accent-primary, #00d4ff));
+    color: var(--sm-toggle-active-color, var(--bg-primary, #000));
+    border: var(--sm-toggle-active-border, 1px solid var(--accent-primary, #00d4ff));
+    box-shadow: var(--sm-toggle-active-shadow, none);
+    font-weight: var(--sm-toggle-active-weight, 600);
 }
 
 .divider-vertical {
@@ -117,20 +127,21 @@
 
 .channel-search input {
     width: 100%;
-    padding: 10px;
-    background: var(--surface-color, rgba(255, 255, 255, 0.05));
-    border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-    border-radius: 6px;
-    color: var(--text-primary, white);
+    padding: var(--sm-input-padding, 10px);
+    background: var(--sm-input-bg, var(--surface-color, rgba(255, 255, 255, 0.05)));
+    border: var(--sm-input-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+    border-radius: var(--sm-input-radius, 6px);
+    color: var(--sm-input-color, var(--text-primary, white));
     font-size: var(--channel-font-size, 14px);
     box-sizing: border-box;
+    transition: var(--sm-input-transition, none);
 }
 
 .channel-search input:focus {
     outline: none;
-    border-color: var(--accent-primary, #00d4ff);
-    box-shadow: 0 0 0 1px var(--accent-primary, #00d4ff),
-        0 0 10px var(--accent-glow, rgba(0, 212, 255, 0.3));
+    border-color: var(--sm-input-focus-border, var(--accent-primary, #00d4ff));
+    background: var(--sm-input-focus-bg, var(--surface-color, rgba(255, 255, 255, 0.05)));
+    box-shadow: var(--sm-input-focus-shadow, 0 0 0 1px var(--accent-primary, #00d4ff), 0 0 10px var(--accent-glow, rgba(0, 212, 255, 0.3)));
 }
 
 .channel-search input::placeholder {
@@ -164,12 +175,12 @@
 }
 
 .channel-list::-webkit-scrollbar-thumb {
-    background: var(--surface-hover, rgba(255, 255, 255, 0.2));
-    border-radius: 3px;
+    background: var(--scrollbar-thumb-bg, var(--surface-hover, rgba(255, 255, 255, 0.2)));
+    border-radius: var(--scrollbar-thumb-radius, 3px);
 }
 
 .channel-list::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-primary, rgba(0, 212, 255, 0.5));
+    background: var(--scrollbar-thumb-hover-bg, var(--accent-primary, rgba(0, 212, 255, 0.5)));
 }
 
 .channel-item {
@@ -192,7 +203,7 @@
 }
 
 .channel-item.disabled {
-    opacity: 0.5;
+    opacity: var(--sm-disabled-opacity, 0.5);
 }
 
 .channel-item.disabled .channel-name {
@@ -200,16 +211,20 @@
 }
 
 .channel-item.dragging {
-    opacity: 0.4;
+    opacity: var(--sm-item-drag-opacity, 0.4);
+    background: var(--sm-item-drag-bg, transparent);
+    border-color: var(--sm-item-drag-border, transparent);
+    box-shadow: var(--sm-item-drag-shadow, none);
 }
 
 .channel-item.drag-over {
-    border-top: 2px solid var(--accent-primary, #00d4ff);
+    border-top: var(--sm-item-dragover-border-top, 2px solid var(--accent-primary, #00d4ff));
+    background: var(--sm-item-dragover-bg, none);
 }
 
 /* Drag handle in ChannelManager (same design as CategoryManager) */
 .channel-item .drag-handle {
-    color: var(--text-muted, rgba(255, 255, 255, 0.2));
+    color: var(--sm-drag-handle-color, var(--text-muted, rgba(255, 255, 255, 0.2)));
     cursor: grab;
     font-size: 1rem;
     letter-spacing: -2px;
@@ -219,7 +234,7 @@
 }
 
 .channel-item:hover .drag-handle {
-    color: var(--text-muted, rgba(255, 255, 255, 0.5));
+    color: var(--sm-drag-handle-hover-color, var(--text-muted, rgba(255, 255, 255, 0.5)));
 }
 
 
@@ -240,7 +255,7 @@
 }
 
 .channel-name {
-    color: var(--text-primary, white);
+    color: var(--sm-channel-name-color, var(--text-primary, white));
     font-size: var(--channel-font-size, 14px);
     flex: 1;
 }
@@ -262,10 +277,10 @@
 .channel-manager-footer {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    padding: 20px;
-    border-top: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-    background: var(--surface-color, transparent);
+    gap: var(--sm-footer-gap, 10px);
+    padding: var(--sm-footer-padding, 20px);
+    border-top: var(--sm-footer-border-top, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+    background: var(--sm-footer-bg, var(--surface-color, transparent));
 }
 
 .channel-manager-footer button {
@@ -278,13 +293,18 @@
 }
 
 .cancel-btn {
-    background: var(--surface-color, rgba(255, 255, 255, 0.1));
-    color: var(--text-primary, white);
+    background: var(--sm-btn-bg, var(--surface-color, rgba(255, 255, 255, 0.1)));
+    border: var(--sm-btn-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+    color: var(--sm-btn-color, var(--text-primary, white));
+    border-radius: var(--sm-btn-radius, 8px);
+    transition: var(--sm-btn-transition, all 0.2s);
 }
 
 .cancel-btn:hover {
-    background: var(--surface-hover, rgba(255, 255, 255, 0.2));
-    border-color: var(--accent-primary, rgba(255, 255, 255, 0.3));
+    background: var(--sm-btn-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.2)));
+    border-color: var(--sm-btn-hover-border, var(--accent-primary, rgba(255, 255, 255, 0.3)));
+    color: var(--sm-btn-hover-color, var(--text-primary, white));
+    transform: var(--sm-btn-hover-transform, none);
 }
 
 .save-btn {
@@ -306,10 +326,10 @@
 
 /* Filter Words Panel */
 .filter-words-panel {
-    padding: 15px 20px;
-    background: var(--surface-glow, rgba(0, 212, 255, 0.05));
-    border-top: 1px solid var(--accent-primary, rgba(0, 212, 255, 0.2));
-    border-bottom: 1px solid var(--accent-primary, rgba(0, 212, 255, 0.2));
+    padding: var(--sm-panel-padding, 15px 20px);
+    background: var(--sm-panel-bg, var(--surface-glow, rgba(0, 212, 255, 0.05)));
+    border-top: var(--sm-panel-border, 1px solid var(--accent-primary, rgba(0, 212, 255, 0.2)));
+    border-bottom: var(--sm-panel-border, 1px solid var(--accent-primary, rgba(0, 212, 255, 0.2)));
 }
 
 .filter-words-header {
@@ -338,34 +358,39 @@
 
 .filter-words-input-row input {
     flex: 1;
-    padding: 8px 12px;
-    background: var(--surface-color, rgba(255, 255, 255, 0.05));
-    border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
-    border-radius: 6px;
-    color: var(--text-primary, white);
+    padding: var(--sm-input-padding, 8px 12px);
+    background: var(--sm-input-bg, var(--surface-color, rgba(255, 255, 255, 0.05)));
+    border: var(--sm-input-border, var(--glass-border, 1px solid rgba(255, 255, 255, 0.1)));
+    border-radius: var(--sm-input-radius, 6px);
+    color: var(--sm-input-color, var(--text-primary, white));
     font-size: var(--channel-font-size, 14px);
+    transition: var(--sm-input-transition, none);
 }
 
 .filter-words-input-row input:focus {
     outline: none;
-    border-color: var(--accent-primary, #00d4ff);
-    box-shadow: 0 0 0 1px var(--accent-primary, #00d4ff),
-        0 0 10px var(--accent-glow, rgba(0, 212, 255, 0.3));
+    border-color: var(--sm-input-focus-border, var(--accent-primary, #00d4ff));
+    background: var(--sm-input-focus-bg, var(--surface-color, rgba(255, 255, 255, 0.05)));
+    box-shadow: var(--sm-input-focus-shadow, 0 0 0 1px var(--accent-primary, #00d4ff), 0 0 10px var(--accent-glow, rgba(0, 212, 255, 0.3)));
 }
 
 .filter-add-btn {
     padding: 8px 16px;
-    background: var(--surface-glow, rgba(0, 212, 255, 0.2));
-    border: 1px solid var(--accent-primary, rgba(0, 212, 255, 0.4));
-    border-radius: 6px;
-    color: var(--accent-primary, #00d4ff);
+    background: var(--sm-btn-bg, var(--surface-glow, rgba(0, 212, 255, 0.2)));
+    border: var(--sm-btn-border, 1px solid var(--accent-primary, rgba(0, 212, 255, 0.4)));
+    border-radius: var(--sm-btn-radius, 6px);
+    color: var(--sm-btn-color, var(--accent-primary, #00d4ff));
     cursor: pointer;
     font-size: var(--category-font-size, 13px);
-    transition: all 0.2s;
+    transition: var(--sm-btn-transition, all 0.2s);
+    font-weight: var(--sm-btn-weight, 500);
 }
 
 .filter-add-btn:hover {
-    background: var(--surface-hover, rgba(0, 212, 255, 0.3));
+    background: var(--sm-btn-hover-bg, var(--surface-hover, rgba(0, 212, 255, 0.3)));
+    border-color: var(--sm-btn-hover-border, var(--accent-primary, rgba(0, 212, 255, 0.4)));
+    color: var(--sm-btn-hover-color, var(--accent-primary, #00d4ff));
+    transform: var(--sm-btn-hover-transform, none);
 }
 
 .filter-words-list {
@@ -385,10 +410,10 @@
     align-items: center;
     gap: 6px;
     padding: 4px 10px;
-    background: var(--surface-glow, rgba(0, 212, 255, 0.15));
-    border: 1px solid var(--accent-primary, rgba(0, 212, 255, 0.3));
-    border-radius: 4px;
-    color: var(--accent-primary, #00d4ff);
+    background: var(--sm-tag-bg, var(--surface-glow, rgba(0, 212, 255, 0.15)));
+    border: var(--sm-tag-border, 1px solid var(--accent-primary, rgba(0, 212, 255, 0.3)));
+    border-radius: var(--sm-tag-radius, 4px);
+    color: var(--sm-tag-color, var(--accent-primary, #00d4ff));
     font-size: calc(var(--channel-font-size, 14px) * 0.9);
 }
 

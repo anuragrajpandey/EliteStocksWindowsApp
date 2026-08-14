@@ -3,8 +3,8 @@
 .game-detail-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(4px);
+  background: var(--gd-overlay-bg, rgba(0, 0, 0, 0.8));
+  backdrop-filter: var(--gd-overlay-filter, blur(4px));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -67,7 +67,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  border-bottom: 1px solid var(--border-color, #2a2a2a);
+  border-bottom: var(--gd-hdr-border-bottom, 1px solid var(--border-color, #2a2a2a));
+  background: var(--gd-section-bg, transparent);
 }
 
 .game-detail-header-info {
@@ -115,6 +116,7 @@
   align-items: center;
   gap: 24px;
   padding: 32px 24px;
+  border-bottom: var(--gd-scoreboard-border-bottom, none);
 }
 
 .game-detail-team {
@@ -224,22 +226,25 @@
   padding: 14px 20px;
   border: none;
   background: transparent;
-  color: var(--text-secondary, #888);
+  color: var(--gd-tab-color, var(--text-secondary, #888));
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--gd-tab-transition, all 0.15s ease);
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
 }
 
 .game-detail-tab:hover {
-  color: var(--text-primary, #fff);
+  color: var(--gd-tab-hover-color, var(--text-primary, #fff));
+  background: var(--gd-tab-hover-bg, transparent);
 }
 
 .game-detail-tab.active {
-  color: var(--accent-color, #3b82f6);
-  border-bottom-color: var(--accent-color, #3b82f6);
+  color: var(--gd-tab-active-color, var(--accent-color, #3b82f6));
+  border-bottom-color: var(--gd-tab-active-color, var(--accent-color, #3b82f6));
+  text-shadow: var(--gd-tab-active-shadow, none);
+  background: var(--gd-tab-active-bg, transparent);
 }
 
 /* Scrollbar Theming for GameDetail modal content areas */
@@ -327,17 +332,17 @@
   text-align: center;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-secondary, #888);
+  color: var(--gd-th-color, var(--text-secondary, #888));
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid var(--border-color, #2a2a2a);
+  border-bottom: var(--gd-th-border-bottom, 1px solid var(--border-color, #2a2a2a));
 }
 
 .game-detail-stats-table td {
   padding: 12px 16px;
   text-align: center;
   font-size: 14px;
-  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.05));
+  border-bottom: var(--gd-td-border-bottom, 1px solid var(--border-color, rgba(255, 255, 255, 0.05)));
 }
 
 .game-detail-stat-label {
@@ -404,13 +409,18 @@
   padding: 8px 12px;
   text-align: left;
   font-weight: 600;
-  color: var(--text-secondary, #888);
-  border-bottom: 1px solid var(--border-color, #2a2a2a);
+  color: var(--gd-th-color, var(--text-secondary, #888));
+  border-bottom: var(--gd-th-border-bottom, 1px solid var(--border-color, #2a2a2a));
 }
 
 .game-detail-players-table td {
   padding: 10px 12px;
-  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.05));
+  border-bottom: var(--gd-td-border-bottom, 1px solid var(--border-color, rgba(255, 255, 255, 0.05)));
+}
+
+.game-detail-stats-table tbody tr:hover,
+.game-detail-players-table tbody tr:hover {
+  background: var(--gd-row-hover-bg, transparent);
 }
 
 .game-detail-player-name {
@@ -440,7 +450,7 @@
 }
 
 .game-detail-scoring-play {
-  background: var(--surface-color, rgba(255, 255, 255, 0.05));
+  background: var(--gd-scoring-bg, var(--surface-color, rgba(255, 255, 255, 0.05)));
   border-radius: 8px;
   padding: 16px;
   border-left: 3px solid var(--border-color, #2a2a2a);
@@ -521,7 +531,8 @@
 .ufc-detail-title-bar {
   padding: 20px 24px 16px;
   text-align: center;
-  border-bottom: 1px solid var(--border-color, #2a2a2a);
+  border-bottom: var(--gd-chrome-border-bottom, 1px solid var(--border-color, #2a2a2a));
+  background: var(--gd-section-bg, transparent);
 }
 
 .ufc-detail-event-title {
@@ -579,6 +590,8 @@
   align-items: center;
   gap: 24px;
   padding: 28px 24px;
+  border-bottom: var(--gd-chrome-border-bottom, none);
+  background: var(--gd-section-bg, transparent);
 }
 
 .ufc-detail-fighter {
@@ -601,8 +614,8 @@
   height: 72px;
   border-radius: 50%;
   object-fit: cover;
-  background: rgba(255, 255, 255, 0.06);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: var(--gd-fighter-bg, rgba(255, 255, 255, 0.06));
+  border: var(--gd-fighter-border, 2px solid rgba(255, 255, 255, 0.1));
 }
 
 .ufc-detail-fighter-name {
@@ -852,20 +865,22 @@
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.2));
-  background: transparent;
-  color: var(--text-secondary, #888);
-  border-radius: 6px;
+  border: var(--gd-channel-border, 1px solid var(--border-color, rgba(255, 255, 255, 0.2)));
+  background: var(--gd-channel-bg, transparent);
+  color: var(--gd-channel-color, var(--text-secondary, #888));
+  border-radius: var(--gd-channel-radius, 6px);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--gd-channel-transition, all 0.15s ease);
 }
 
 .game-detail-channel-btn:hover {
-  background: var(--accent-color, #3b82f6);
-  border-color: var(--accent-color, #3b82f6);
-  color: white;
+  background: var(--gd-channel-hover-bg, var(--accent-color, #3b82f6));
+  border-color: var(--gd-channel-hover-border, var(--accent-color, #3b82f6));
+  color: var(--gd-channel-hover-color, white);
+  transform: var(--gd-channel-hover-transform, none);
+  box-shadow: var(--gd-channel-hover-shadow, none);
 }
 
 .game-detail-channel-country {

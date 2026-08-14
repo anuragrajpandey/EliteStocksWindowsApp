@@ -1,5 +1,9 @@
 // Audit: every var(--x) usage in the CSS corpus must be defined somewhere,
 // and v3-only tokens must be consumed with a fallback (2-arg var()) in base rules.
+// Also flags the invalid-at-computed-value bug class: a longhand color property
+// (border-color, background-color, outline-color, ...) consuming a token whose
+// value is a full shorthand ('1px solid rgba(...)', shadows, padding, ...) —
+// the substitution is invalid and the declaration silently becomes unset.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -77,9 +81,156 @@ for (const u of used) {
 }
 if (risky2 === 0) console.log('(none)');
 
+// ── Shorthand-in-longhand check ────────────────────────────────────────────
+// A var() whose substituted value is a full shorthand is invalid at
+// computed-value time in a color-only longhand (border-color -> currentcolor,
+// background-color -> transparent, ...). We classify every token value as
+// "single color" vs "not a color" (composite / function / length / keyword)
+// and flag color-longhand consumers of non-color tokens.
+
+const COLOR_PROPS = new Set([
+  'color',
+  'background-color',
+  'border-color', 'border-top-color', 'border-right-color', 'border-bottom-color', 'border-left-color',
+  'outline-color',
+  'text-decoration-color', 'text-emphasis-color', 'column-rule-color', 'caret-color',
+  'scrollbar-color',
+  'fill', 'stroke',
+  '-webkit-text-fill-color', '-webkit-text-stroke-color',
+  '-webkit-border-top-color', '-webkit-border-right-color', '-webkit-border-bottom-color', '-webkit-border-left-color',
+]);
+
+const NAMED_COLORS = new Set((
+  'aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood ' +
+  'cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray ' +
+  'darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen ' +
+  'darkslateblue darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue ' +
+  'firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew ' +
+  'hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan ' +
+  'lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray ' +
+  'lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue ' +
+  'mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred ' +
+  'midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid ' +
+  'palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple ' +
+  'rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue ' +
+  'slateblue slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white ' +
+  'whitesmoke yellow yellowgreen'
+).split(/\s+/));
+
+const COLOR_FN = /^(rgb|rgba|hsl|hsla|hwb|lab|lch|oklab|oklch|color|color-mix|light-dark)\(/;
+const CSS_WIDE = new Set(['transparent', 'currentcolor', 'inherit', 'initial', 'unset', 'revert', 'revert-layer']);
+
+const tokenValues = new Map(); // token -> raw value (first definition wins)
+for (const f of files) {
+  const css = fs.readFileSync(f, 'utf8')
+    // preserve newlines so line numbers stay accurate
+    .replace(/\/\*[\s\S]*?\*\//g, m => m.replace(/[^\n]/g, ' '));
+  // capture the FULL token name (with the -- prefix) so keys match var(--x) refs
+  const defRe = /(--[\w-]+)\s*:\s*([^;{}]+);/g;
+  let m;
+  while ((m = defRe.exec(css))) {
+    if (!tokenValues.has(m[1])) tokenValues.set(m[1], m[2].trim());
+  }
+}
+
+const colorSafeMemo = new Map();
+function isColorSafe(token, seen = new Set()) {
+  if (colorSafeMemo.has(token)) return colorSafeMemo.get(token);
+  if (seen.has(token)) return true; // cycle — can't be a shorthand chain, assume safe
+  const nextSeen = new Set(seen).add(token);
+  const raw = tokenValues.get(token);
+  if (raw === undefined) return true; // runtime-injected / undefined -> assume color
+  const v = raw.trim();
+  let safe;
+  if (v.startsWith('var(')) {
+    const inner = /^var\(\s*(--[\w-]+)/.exec(v);
+    safe = inner ? isColorSafe(inner[1], nextSeen) : true;
+  } else if (/^#[0-9a-fA-F]{3,8}$/.test(v)) {
+    safe = true;
+  } else if (CSS_WIDE.has(v.toLowerCase())) {
+    safe = true;
+  } else if (NAMED_COLORS.has(v.toLowerCase())) {
+    safe = true;
+  } else if (COLOR_FN.test(v)) {
+    safe = true;
+  } else {
+    // single component with no color marker (lengths, blur(), keywords) or a
+    // multi-component composite ('1px solid rgba(...)', shadows, paddings, ...)
+    safe = !hasTopLevelSep(v);
+  }
+  colorSafeMemo.set(token, safe);
+  return safe;
+}
+
+// true when the value contains whitespace/comma at paren-depth 0 (a composite)
+function hasTopLevelSep(v) {
+  let depth = 0;
+  for (let i = 0; i < v.length; i++) {
+    const c = v[i];
+    if (c === '(') depth++;
+    else if (c === ')') depth--;
+    else if (depth === 0 && (c === ' ' || c === '\t' || c === '\n' || c === ',')) return true;
+  }
+  return false;
+}
+
+const colorBugs = []; // {prop, token, detail, file, line}
+for (const f of files) {
+  const css = fs.readFileSync(f, 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, m => m.replace(/[^\n]/g, ' '));
+  const declRe = /([a-zA-Z-]+)\s*:\s*([^;{}]*)/g;
+  let dm;
+  while ((dm = declRe.exec(css))) {
+    const prop = dm[1].toLowerCase();
+    if (prop.startsWith('--') || !COLOR_PROPS.has(prop)) continue;
+    const value = dm[2];
+    const varRe = /var\(\s*(--[\w-]+)(\s*,\s*([^)]*))?\)/g;
+    let vm;
+    while ((vm = varRe.exec(value))) {
+      const token = vm[1];
+      const fallback = vm[3] ? vm[3].trim() : null;
+      const line = css.slice(0, dm.index).split('\n').length;
+      if (!isColorSafe(token)) {
+        colorBugs.push({ prop, token, fallback: null, file: f, line });
+      } else if (!tokenValues.has(token) && fallback !== null) {
+        // token is runtime-injected: only the fallback applies — it must be a color too
+        const fbToken = /^var\(\s*(--[\w-]+)/.exec(fallback.trim());
+        const fallbackIsColor = fbToken ? isColorSafe(fbToken[1]) : isRawColorSafe(fallback);
+        if (!fallbackIsColor) {
+          colorBugs.push({ prop, token, fallback, file: f, line });
+        }
+      }
+    }
+  }
+}
+
+// classify a raw literal (not a token ref) as a single color
+function isRawColorSafe(v) {
+  const t = v.trim();
+  if (/^#[0-9a-fA-F]{3,8}$/.test(t)) return true;
+  if (CSS_WIDE.has(t.toLowerCase()) || NAMED_COLORS.has(t.toLowerCase())) return true;
+  if (COLOR_FN.test(t)) return true;
+  if (t.startsWith('var(')) {
+    const inner = /^var\(\s*(--[\w-]+)/.exec(t);
+    return inner ? isColorSafe(inner[1]) : true;
+  }
+  return !hasTopLevelSep(t);
+}
+
+console.log('\n=== LONGHAND COLOR PROPS consuming full-shorthand token values ===');
+let risky3 = 0;
+for (const b of colorBugs) {
+  risky3++;
+  const detail = b.fallback
+    ? `var(${b.token}, ${b.fallback}) — token is runtime-injected, fallback must be a single color`
+    : `var(${b.token}) — token value is not a single color`;
+  console.log(`${b.prop}: ${detail}  ${b.file.split('/').pop()}:${b.line}`);
+}
+if (risky3 === 0) console.log('(none)');
+
 // Fail the build when a v2/v3-only token is consumed without a fallback in a
 // base/component rule — that is the cascade-collision bug class the migration
 // exists to prevent. (The undefined-token section above stays informational:
 // several tokens are injected at runtime via setProperty and are intentionally
-// not defined in CSS.)
-process.exit(risky > 0 || risky2 > 0 ? 1 : 0);
+// not defined in CSS.) Same for the shorthand-in-longhand class above.
+process.exit(risky > 0 || risky2 > 0 || risky3 > 0 ? 1 : 0);

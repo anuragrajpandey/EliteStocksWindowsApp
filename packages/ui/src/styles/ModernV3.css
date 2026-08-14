@@ -677,6 +677,128 @@ html.modern-ui-v3 {
   --mg-create-padding: 8px 14px;
   --mg-create-font-size: 0.85rem;
   --mg-create-transition: all 0.2s ease;
+  /* Settings modals (cm/chm/sf) — category/channel manager + source form chrome
+     & controls, consumed in the CategoryManager / ChannelManager / SourcesTab
+     bases. Light flows from ModernThemeBase + light-theme-overrides rules. */
+  --sm-hdr-bg: transparent;
+  --sm-hdr-border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-hdr-padding: 20px 24px;
+  --sm-title-color: #fff;
+  --sm-title-font-size: 1.15rem;
+  --sm-title-weight: 600;
+  --sm-h3-margin: -24px -24px 20px -24px;
+  --sm-close-radius: 50%;
+  --sm-close-size: 32px;
+  --sm-close-bg: rgba(255, 255, 255, 0.04);
+  --sm-close-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-close-color: rgba(255, 255, 255, 0.6);
+  --sm-close-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --sm-close-hover-bg: rgba(255, 255, 255, 0.12);
+  --sm-close-hover-border: rgba(255, 255, 255, 0.2);
+  --sm-close-hover-color: #fff;
+  --sm-stats-padding: 12px 24px;
+  --sm-stats-color: rgba(255, 255, 255, 0.5);
+  --sm-stats-font-size: 0.85rem;
+  --sm-stats-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  --sm-stats-bg: rgba(255, 255, 255, 0.02);
+  --sm-input-radius: 10px;
+  --sm-input-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-input-bg: rgba(255, 255, 255, 0.04);
+  --sm-input-color: #fff;
+  --sm-input-padding: 10px 14px;
+  --sm-input-transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  --sm-input-focus-border: rgba(255, 255, 255, 0.2);
+  --sm-input-focus-bg: rgba(255, 255, 255, 0.08);
+  --sm-input-focus-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+  --sm-btn-bg: rgba(255, 255, 255, 0.04);
+  --sm-btn-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-btn-color: rgba(255, 255, 255, 0.8);
+  --sm-btn-radius: 8px;
+  --sm-btn-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --sm-btn-weight: 500;
+  --sm-btn-hover-bg: rgba(255, 255, 255, 0.12);
+  --sm-btn-hover-border: rgba(255, 255, 255, 0.2);
+  --sm-btn-hover-color: #fff;
+  --sm-btn-hover-transform: translateY(-1px);
+  --sm-btn-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --sm-save-bg: var(--accent-primary, #00d4ff);
+  --sm-save-color: #121424;
+  --sm-save-border: 1px solid transparent;
+  --sm-save-radius: 10px;
+  --sm-save-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --sm-save-shadow: 0 4px 12px rgba(0, 212, 255, 0.25);
+  --sm-save-hover-bg: #33e0ff;
+  --sm-save-hover-shadow: 0 6px 16px rgba(0, 212, 255, 0.4);
+  --sm-save-hover-transform: translateY(-1px);
+  --sm-footer-border-top: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-footer-bg: transparent;
+  --sm-footer-padding: 20px 24px;
+  --sm-footer-gap: 12px;
+  --sm-footer-justify: flex-end;
+  --sm-actions-border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-actions-padding: 16px 24px;
+  --sm-save-disabled-opacity: 0.5;
+  --sm-cancel-radius: 10px;
+  --sm-details-radius: 10px;
+  --sm-details-overflow: hidden;
+  --sm-details-summary-padding: 12px 16px;
+  --sm-details-summary-color: rgba(255, 255, 255, 0.85);
+  --sm-details-summary-transition: all 0.2s ease;
+  --sm-details-content-padding: 16px;
+  --sm-details-content-border-top: 1px solid rgba(255, 255, 255, 0.06);
+  /* Glowing scrollbars (failover/manager lists, source-form, audio/subtitle &
+     advanced-search modals) — consumed in the component bases */
+  --scrollbar-thumb-bg: rgba(255, 255, 255, 0.08);
+  --scrollbar-thumb-radius: 3px;
+  --scrollbar-thumb-radius-round: 4px;
+  --scrollbar-thumb-hover-bg: var(--accent-primary, #00d4ff);
+  --scrollbar-thumb-container-hover-bg: var(--surface-hover, rgba(255, 255, 255, 0.25));
+  --scrollbar-track-bg: transparent;
+  --scrollbar-width: 6px;
+  --scrollbar-color: rgba(255, 255, 255, 0.08);
+  --scrollbar-color-hover: var(--accent-primary, rgba(0, 212, 255, 0.5));
+  --sm-item-move-bg: color-mix(in srgb, var(--accent-primary, #8b5cf6) 12%, rgba(255, 255, 255, 0.04));
+  --sm-item-move-border: var(--accent-primary, #8b5cf6);
+  --sm-item-move-shadow: 0 0 12px color-mix(in srgb, var(--accent-primary, #8b5cf6) 20%, transparent);
+  --sm-item-drag-bg: rgba(255, 255, 255, 0.12);
+  --sm-item-drag-border: var(--accent-primary, #00d4ff);
+  --sm-item-drag-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  --sm-item-drag-opacity: 0.8;
+  --sm-item-dragover-border-top: 2px solid var(--accent-primary, #00d4ff);
+  --sm-item-dragover-bg: rgba(255, 255, 255, 0.06);
+  --sm-channel-name-color: rgba(255, 255, 255, 0.9);
+  --sm-disabled-opacity: 0.4;
+  --sm-drag-handle-color: rgba(255, 255, 255, 0.25);
+  --sm-drag-handle-hover-color: rgba(255, 255, 255, 0.6);
+  --sm-toggle-active-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, rgba(255, 255, 255, 0.08));
+  --sm-toggle-active-border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15));
+  --sm-toggle-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --sm-toggle-active-color: #fff;
+  --sm-toggle-active-weight: 600;
+  --sm-manage-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent);
+  --sm-manage-border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
+  --sm-manage-color: var(--accent-primary, #00d4ff);
+  --sm-manage-padding: 6px 12px;
+  --sm-manage-radius: 8px;
+  --sm-manage-transition: all 0.2s ease;
+  --sm-manage-weight: 600;
+  --sm-manage-hover-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent);
+  --sm-manage-hover-border: var(--accent-primary, #00d4ff);
+  --sm-manage-hover-transform: translateY(-0.5px);
+  --sm-panel-bg: rgba(255, 255, 255, 0.02);
+  --sm-panel-border: 1px solid rgba(255, 255, 255, 0.06);
+  --sm-panel-padding: 16px 20px;
+  --sm-tag-bg: rgba(255, 255, 255, 0.06);
+  --sm-tag-border: 1px solid rgba(255, 255, 255, 0.12);
+  --sm-tag-color: rgba(255, 255, 255, 0.85);
+  --sm-tag-radius: 6px;
+  --sm-details-summary-bg: rgba(255, 255, 255, 0.03);
+  --sm-details-summary-hover-bg: rgba(255, 255, 255, 0.06);
+  --sm-cancel-select-border: 1px solid rgba(255, 255, 255, 0.1);
+  --sm-cancel-select-bg: rgba(255, 255, 255, 0.02);
+  --sm-cancel-select-color: rgba(255, 255, 255, 0.6);
+  --sm-cancel-select-hover-bg: rgba(255, 255, 255, 0.08);
+  --sm-cancel-select-hover-border: rgba(255, 255, 255, 0.2);
   /* Stremio detail action buttons — dark glass pill (v3 light overrides below) */
   --sd-act-bg: rgba(255, 255, 255, 0.04);
   --sd-act-border: 1px solid rgba(255, 255, 255, 0.08);
@@ -814,6 +936,7 @@ html.modern-ui-v3 {
   --sm-ep-filter-hover-color: #fff;
   --sm-ep-filter-active-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, rgba(255, 255, 255, 0.06));
   --sm-ep-filter-active-border: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15));
+  --sm-ep-filter-active-border-full: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15));
   --sm-ep-filter-active-color: #fff;
   --sm-ep-filter-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   --sm-nudge-bg: rgba(255, 255, 255, 0.04);
@@ -823,6 +946,194 @@ html.modern-ui-v3 {
   --sm-nudge-transition: all 0.2s ease;
   --sm-nudge-hover-bg: rgba(255, 255, 255, 0.12);
   --sm-nudge-hover-border: rgba(255, 255, 255, 0.2);
+  /* Audio/subtitle selector modal chrome — header/footer/col separators,
+     titles, toggle, action buttons (items + selected reuse --sm-result-* and
+     --sm-ep-filter-active-*, which carry the identical values) */
+  --sm-a-hdr-bg: transparent;
+  --sm-a-hdr-border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-a-hdr-padding: 16px 20px;
+  --sm-a-hdr-title-color: #fff;
+  --sm-a-footer-border-top: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-a-footer-bg: transparent;
+  --sm-a-footer-padding: 16px 20px;
+  --sm-a-col-border-right: 1px solid rgba(255, 255, 255, 0.06);
+  --sm-a-col-title-color: rgba(255, 255, 255, 0.45);
+  --sm-a-sec-title-color: rgba(255, 255, 255, 0.45);
+  --sm-a-sec-title-border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  --sm-a-variant-title-color: #fff;
+  --sm-a-toggle-bg: rgba(255, 255, 255, 0.12);
+  --sm-a-btn-bg: rgba(255, 255, 255, 0.04);
+  --sm-a-btn-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-a-btn-color: rgba(255, 255, 255, 0.8);
+  --sm-a-btn-radius: 8px;
+  --sm-a-btn-pad: 8px 16px;
+  --sm-a-btn-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --sm-a-btn-hover-bg: rgba(255, 255, 255, 0.12);
+  --sm-a-btn-hover-border: rgba(255, 255, 255, 0.2);
+  --sm-a-btn-hover-color: #fff;
+  --sm-a-btn-hover-transform: translateY(-1px);
+  /* VOD pages — hero overlays, carousel buttons/fades, stremio row buttons,
+     media cards, detail backdrops, season buttons, episode cards (v3 liquid
+     glass; the component bases consume these with their own fallbacks) */
+  --vod-page-bg: transparent;
+  --vod-browse-bg: transparent;
+  --vod-detail-bg: transparent;
+  --vod-hero-left-bg: linear-gradient(to right, rgba(10, 5, 20, 0.6) 0%, rgba(10, 5, 20, 0.4) 30%, rgba(10, 5, 20, 0.1) 60%, transparent 100%);
+  --vod-hero-bottom-bg: linear-gradient(to top, rgba(10, 5, 20, 0.6) 0%, rgba(10, 5, 20, 0.3) 50%, transparent 100%);
+  --vod-hero-vignette-bg: radial-gradient(circle at right, transparent 40%, rgba(12, 14, 24, 0.2) 80%, rgba(12, 14, 24, 0.4) 100%);
+  --vod-car-nav-radius: 50%;
+  --vod-car-nav-bg: rgba(255, 255, 255, 0.04);
+  --vod-car-nav-border: 1px solid rgba(255, 255, 255, 0.1);
+  --vod-car-nav-color: var(--text-primary, #fff);
+  --vod-car-nav-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --vod-car-nav-hover-bg: rgba(255, 255, 255, 0.12);
+  --vod-car-nav-hover-border: rgba(255, 255, 255, 0.2);
+  --vod-car-nav-hover-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  --vod-car-fade-left: linear-gradient(to right, rgba(12, 14, 24, 0.4) 0%, transparent 100%);
+  --vod-car-fade-right: linear-gradient(to left, rgba(12, 14, 24, 0.4) 0%, transparent 100%);
+  --vod-row-nav-radius: 50%;
+  --vod-row-nav-bg: rgba(255, 255, 255, 0.04);
+  --vod-row-nav-border: 1px solid rgba(255, 255, 255, 0.1);
+  --vod-row-nav-color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+  --vod-row-nav-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --vod-row-nav-hover-bg: rgba(255, 255, 255, 0.12);
+  --vod-row-nav-hover-border: rgba(255, 255, 255, 0.2);
+  --vod-row-nav-hover-color: #fff;
+  --vod-row-nav-hover-shadow: 0 0 12px rgba(255, 255, 255, 0.08);
+  --vod-see-all-radius: 20px;
+  --vod-see-all-bg: rgba(255, 255, 255, 0.04);
+  --vod-see-all-border: 1px solid rgba(255, 255, 255, 0.08);
+  --vod-see-all-color: var(--text-secondary, rgba(255, 255, 255, 0.8));
+  --vod-see-all-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --vod-see-all-hover-bg: rgba(255, 255, 255, 0.12);
+  --vod-see-all-hover-border: rgba(255, 255, 255, 0.2);
+  --vod-see-all-hover-color: #fff;
+  --vod-see-all-hover-transform: translateY(-1px);
+  --vod-see-all-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --vod-media-radius: 12px;
+  --vod-media-border: 1px solid rgba(255, 255, 255, 0.06);
+  --vod-media-bg: rgba(255, 255, 255, 0.03);
+  --vod-media-transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+  --vod-media-hover-border: rgba(255, 255, 255, 0.18);
+  --vod-media-hover-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  --vod-media-hover-transform: translateY(-2px) scale(1.02);
+  --vod-detail-backdrop-bg: linear-gradient(to right, rgba(12, 14, 24, 0.92) 0%, rgba(12, 14, 24, 0.78) 25%, rgba(12, 14, 24, 0.45) 45%, rgba(12, 14, 24, 0.12) 65%, transparent 100%), linear-gradient(to bottom, rgba(12, 14, 24, 0.1) 0%, rgba(12, 14, 24, 0.35) 30%, rgba(12, 14, 24, 0.75) 60%, rgba(12, 14, 24, 0.95) 85%, #0c0e18 100%);
+  --vod-season-bg: rgba(255, 255, 255, 0.04);
+  --vod-season-border: 1px solid rgba(255, 255, 255, 0.1);
+  --vod-season-color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+  --vod-season-radius: 20px;
+  --vod-season-transition: all 0.2s ease;
+  --vod-season-hover-bg: rgba(255, 255, 255, 0.12);
+  --vod-season-hover-border: rgba(255, 255, 255, 0.2);
+  --vod-season-hover-color: #fff;
+  --vod-season-active-bg: rgba(255, 255, 255, 0.18);
+  --vod-season-active-border: rgba(255, 255, 255, 0.35);
+  --vod-season-active-color: #fff;
+  --vod-ep-card-bg: rgba(255, 255, 255, 0.03);
+  --vod-ep-card-border: 1px solid rgba(255, 255, 255, 0.06);
+  --vod-ep-card-radius: 14px;
+  --vod-ep-card-transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --vod-ep-card-hover-bg: rgba(255, 255, 255, 0.08);
+  --vod-ep-card-hover-border: rgba(255, 255, 255, 0.15);
+  --vod-ep-card-hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  /* Advanced search modal — chrome, inputs, scope/filters, footer buttons.
+     Overlay reuses --glass-overlay-*; close/input/header/footer reuse
+     --sm-close-* / --sm-search-input-* / --sm-a-*; active states reuse
+     --sm-ep-filter-active-*; primary button reuses --sm-save-*; scrollbars
+     reuse --scrollbar-* */
+  --sm-as-hdr-padding: 20px 24px 16px;
+  --sm-as-footer-padding: 16px 24px 20px;
+  --sm-as-divider-color: rgba(255, 255, 255, 0.15);
+  --sm-as-input-placeholder: rgba(255, 255, 255, 0.3);
+  --sm-as-clear-bg: rgba(255, 255, 255, 0.08);
+  --sm-as-clear-color: rgba(255, 255, 255, 0.6);
+  --sm-as-clear-radius: 6px;
+  --sm-as-clear-hover-bg: rgba(255, 255, 255, 0.15);
+  --sm-as-clear-hover-color: #fff;
+  --sm-as-scope-bg: rgba(255, 255, 255, 0.04);
+  --sm-as-scope-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-as-scope-color: rgba(255, 255, 255, 0.7);
+  --sm-as-scope-radius: 8px;
+  --sm-as-scope-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --sm-as-scope-hover-bg: rgba(255, 255, 255, 0.12);
+  --sm-as-scope-hover-border: rgba(255, 255, 255, 0.2);
+  --sm-as-scope-hover-color: #fff;
+  --sm-as-filters-bg: rgba(0, 0, 0, 0.15);
+  --sm-as-filters-border: 1px solid rgba(255, 255, 255, 0.06);
+  --sm-as-filters-radius: 10px;
+  --sm-as-filter-hover-bg: rgba(255, 255, 255, 0.05);
+  --sm-as-src-name-color: rgba(255, 255, 255, 0.85);
+  --sm-as-cat-name-color: rgba(255, 255, 255, 0.6);
+  --sm-as-cat-name-sel-color: #fff;
+  --sm-as-checkbox-border: rgba(255, 255, 255, 0.3);
+  --sm-as-checkbox-radius: 5px;
+  --sm-as-loading-color: rgba(255, 255, 255, 0.5);
+  --sm-as-empty-color: rgba(255, 255, 255, 0.4);
+  --sm-as-spinner-border: rgba(255, 255, 255, 0.15);
+  --sm-as-toggle-bg: rgba(255, 255, 255, 0.15);
+  --sm-as-toggle-label-color: rgba(255, 255, 255, 0.75);
+  --sm-as-secondary-bg: rgba(255, 255, 255, 0.04);
+  --sm-as-secondary-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sm-as-secondary-color: rgba(255, 255, 255, 0.8);
+  --sm-as-secondary-hover-bg: rgba(255, 255, 255, 0.12);
+  --sm-as-secondary-hover-border: rgba(255, 255, 255, 0.2);
+  --sm-as-secondary-hover-color: #fff;
+  /* Sports game-detail modal (gd) — overlay, chrome separators, tabs, tables,
+     channel buttons, scoring plays, UFC fighter imgs; the light block
+     redefines the surfaces below */
+  --gd-overlay-bg: rgba(8, 8, 12, 0.4);
+  --gd-overlay-filter: blur(10px);
+  --gd-section-bg: transparent;
+  --gd-hdr-border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  --gd-scoreboard-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  --gd-chrome-border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  --gd-tab-color: rgba(255, 255, 255, 0.6);
+  --gd-tab-transition: all 0.2s ease;
+  --gd-tab-hover-color: #fff;
+  --gd-tab-hover-bg: rgba(255, 255, 255, 0.04);
+  --gd-tab-active-color: var(--accent-primary, #00d4ff);
+  --gd-tab-active-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
+  --gd-tab-active-bg: transparent;
+  --gd-th-border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  --gd-th-color: rgba(255, 255, 255, 0.9);
+  --gd-td-border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  --gd-td-color: rgba(255, 255, 255, 0.8);
+  --gd-row-hover-bg: rgba(255, 255, 255, 0.04);
+  --gd-channel-bg: rgba(255, 255, 255, 0.04);
+  --gd-channel-border: 1px solid rgba(255, 255, 255, 0.08);
+  --gd-channel-color: rgba(255, 255, 255, 0.8);
+  --gd-channel-radius: 10px;
+  --gd-channel-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --gd-channel-hover-bg: rgba(255, 255, 255, 0.12);
+  --gd-channel-hover-border: rgba(255, 255, 255, 0.2);
+  --gd-channel-hover-color: #fff;
+  --gd-channel-hover-transform: translateY(-1px);
+  --gd-channel-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --gd-scoring-bg: rgba(255, 255, 255, 0.03);
+  --gd-scoring-border: 1px solid rgba(255, 255, 255, 0.04);
+  --gd-fighter-bg: rgba(255, 255, 255, 0.04);
+  --gd-fighter-border: 2px solid rgba(255, 255, 255, 0.1);
+  /* Settings selects (sel) — v3 glass form controls; light redefines below */
+  --sel-radius: 10px;
+  --sel-border: 1px solid rgba(255, 255, 255, 0.08);
+  --sel-bg: rgba(255, 255, 255, 0.04);
+  --sel-color: #fff;
+  --sel-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --sel-transition: all 0.2s ease;
+  --sel-focus-border: rgba(255, 255, 255, 0.2);
+  --sel-focus-bg: rgba(255, 255, 255, 0.08);
+  --sel-focus-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+  --sel-option-bg: #141624;
+  --sel-option-color: #fff;
+  /* Alphabet rail (ar) — v3 glass shelf (dark-only; no light override exists) */
+  --ar-bg: rgba(12, 14, 24, 0.3);
+  --ar-filter: blur(10px);
+  --ar-border-left: 1px solid rgba(255, 255, 255, 0.08);
+  --ar-radius-tr: 24px;
+  --ar-radius-br: 24px;
+  --ar-margin-top: 16px;
+  --ar-margin-bottom: 16px;
+  --ar-height: calc(100% - 32px);
   /* Source Picker Modal (spm) — liquid glass header/close/current/filter/items
      (v3 light redefines the live values below) */
   --spm-header-bg: transparent;
@@ -1248,6 +1559,89 @@ html.modern-ui-v3[data-theme="light"] {
   --sm-nudge-color: #000;
   --sm-nudge-hover-bg: rgba(0, 0, 0, 0.06);
   --sm-nudge-hover-border: rgba(0, 0, 0, 0.15);
+  /* Audio/subtitle selector modal chrome — light */
+  --sm-a-hdr-border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  --sm-a-hdr-title-color: #000;
+  --sm-a-footer-border-top: 1px solid rgba(0, 0, 0, 0.08);
+  --sm-a-col-border-right: 1px solid rgba(0, 0, 0, 0.06);
+  --sm-a-col-title-color: rgba(0, 0, 0, 0.45);
+  --sm-a-sec-title-color: rgba(0, 0, 0, 0.45);
+  --sm-a-sec-title-border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  --sm-a-variant-title-color: #000;
+  --sm-a-toggle-bg: rgba(0, 0, 0, 0.08);
+  --sm-a-btn-bg: rgba(0, 0, 0, 0.03);
+  --sm-a-btn-border: 1px solid rgba(0, 0, 0, 0.08);
+  --sm-a-btn-color: rgba(0, 0, 0, 0.7);
+  --sm-a-btn-hover-bg: rgba(0, 0, 0, 0.06);
+  --sm-a-btn-hover-border: rgba(0, 0, 0, 0.15);
+  --sm-a-btn-hover-color: #000;
+  /* Advanced search modal — light */
+  --sm-as-modal-bg: rgba(255, 255, 255, 0.45);
+  --sm-as-modal-border: 1px solid rgba(0, 0, 0, 0.08);
+  --sm-as-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.02);
+  --sm-as-modal-color: #000;
+  --sm-as-divider-color: rgba(0, 0, 0, 0.15);
+  --sm-as-input-placeholder: rgba(0, 0, 0, 0.3);
+  --sm-as-clear-bg: rgba(0, 0, 0, 0.05);
+  --sm-as-clear-color: rgba(0, 0, 0, 0.6);
+  --sm-as-clear-hover-bg: rgba(0, 0, 0, 0.1);
+  --sm-as-clear-hover-color: #000;
+  --sm-as-scope-bg: rgba(0, 0, 0, 0.03);
+  --sm-as-scope-border: 1px solid rgba(0, 0, 0, 0.08);
+  --sm-as-scope-color: rgba(0, 0, 0, 0.7);
+  --sm-as-scope-hover-bg: rgba(0, 0, 0, 0.06);
+  --sm-as-scope-hover-border: rgba(0, 0, 0, 0.15);
+  --sm-as-scope-hover-color: #000;
+  --sm-as-filters-bg: rgba(0, 0, 0, 0.03);
+  --sm-as-filters-border: 1px solid rgba(0, 0, 0, 0.06);
+  --sm-as-filter-hover-bg: rgba(0, 0, 0, 0.04);
+  --sm-as-src-name-color: rgba(0, 0, 0, 0.85);
+  --sm-as-cat-name-color: rgba(0, 0, 0, 0.6);
+  --sm-as-cat-name-sel-color: #000;
+  --sm-as-checkbox-border: rgba(0, 0, 0, 0.25);
+  --sm-as-loading-color: rgba(0, 0, 0, 0.5);
+  --sm-as-empty-color: rgba(0, 0, 0, 0.4);
+  --sm-as-toggle-bg: rgba(0, 0, 0, 0.08);
+  --sm-as-toggle-label-color: rgba(0, 0, 0, 0.7);
+  --sm-as-secondary-bg: rgba(0, 0, 0, 0.03);
+  --sm-as-secondary-border: 1px solid rgba(0, 0, 0, 0.08);
+  --sm-as-secondary-color: rgba(0, 0, 0, 0.7);
+  --sm-as-secondary-hover-bg: rgba(0, 0, 0, 0.06);
+  --sm-as-secondary-hover-border: rgba(0, 0, 0, 0.15);
+  --sm-as-secondary-hover-color: #000;
+  --sm-as-count-color: rgba(0, 0, 0, 0.35);
+  /* Sports game-detail modal — light */
+  --gd-hdr-border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  --gd-scoreboard-border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  --gd-chrome-border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  --gd-tab-color: rgba(0, 0, 0, 0.6);
+  --gd-tab-hover-color: #000;
+  --gd-tab-hover-bg: rgba(0, 0, 0, 0.04);
+  --gd-tab-active-shadow: none;
+  --gd-th-border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  --gd-th-color: rgba(0, 0, 0, 0.9);
+  --gd-td-border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  --gd-td-color: rgba(0, 0, 0, 0.8);
+  --gd-row-hover-bg: rgba(0, 0, 0, 0.03);
+  --gd-channel-bg: rgba(0, 0, 0, 0.04);
+  --gd-channel-border: 1px solid rgba(0, 0, 0, 0.08);
+  --gd-channel-color: rgba(0, 0, 0, 0.8);
+  --gd-channel-hover-bg: rgba(0, 0, 0, 0.08);
+  --gd-channel-hover-border: rgba(0, 0, 0, 0.15);
+  --gd-channel-hover-color: #000;
+  --gd-channel-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --gd-scoring-bg: rgba(0, 0, 0, 0.02);
+  --gd-scoring-border: 1px solid rgba(0, 0, 0, 0.04);
+  --gd-fighter-bg: rgba(0, 0, 0, 0.04);
+  --gd-fighter-border: 2px solid rgba(0, 0, 0, 0.1);
+  /* Settings selects — light */
+  --sel-border: 1px solid rgba(0, 0, 0, 0.12);
+  --sel-bg: #ffffff;
+  --sel-color: #0f172a;
+  --sel-focus-border: var(--accent-primary, #0066cc);
+  --sel-focus-bg: #ffffff;
+  --sel-option-bg: #ffffff;
+  --sel-option-color: #0f172a;
   /* Settings type-selector buttons — light */
   --type-sel-bg: rgba(0, 0, 0, 0.03);
   --type-sel-border: 1px solid rgba(0, 0, 0, 0.1);
@@ -1688,12 +2082,14 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
    ChannelPanel.css base. The spacer/info rules that lived here were fully
    overridden by the higher-specificity EPG block below (now a token bridge). */
 
-/* 8. VOD Pages (Movies and Series) Liquid Glass Styling */
+/* 8. VOD Pages (Movies and Series) Liquid Glass Styling — surfaces are
+   token-driven via --vod-* / --hero-*; the component bases consume the same
+   tokens with their own fallbacks, and these thin consumers keep the look for
+   the no-base / theme-glass-reset surfaces. */
 
 .modern-ui-v3 .vod-page {
-  background: transparent !important;
+  background: var(--vod-page-bg, transparent) !important;
 }
-
 
 .modern-ui-v3 .vod-page__content {
   margin: 16px;
@@ -1705,121 +2101,103 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
 
 .modern-ui-v3 .vod-browse,
 .modern-ui-v3 .streaming-service-view {
-  background: transparent !important;
+  background: var(--vod-browse-bg, transparent) !important;
 }
 
 .modern-ui-v3 .hero__overlay-left {
-  background: linear-gradient(
-    to right,
-    rgba(10, 5, 20, 0.6) 0%,
-    rgba(10, 5, 20, 0.4) 30%,
-    rgba(10, 5, 20, 0.1) 60%,
-    transparent 100%
-  ) !important;
+  background: var(--vod-hero-left-bg, linear-gradient(to right, rgba(10, 5, 20, 0.6) 0%, rgba(10, 5, 20, 0.4) 30%, rgba(10, 5, 20, 0.1) 60%, transparent 100%)) !important;
 }
 
 .modern-ui-v3 .hero__overlay-bottom {
-  background: linear-gradient(
-    to top,
-    rgba(10, 5, 20, 0.6) 0%,
-    rgba(10, 5, 20, 0.3) 50%,
-    transparent 100%
-  ) !important;
+  background: var(--vod-hero-bottom-bg, linear-gradient(to top, rgba(10, 5, 20, 0.6) 0%, rgba(10, 5, 20, 0.3) 50%, transparent 100%)) !important;
 }
 
 .modern-ui-v3 .hero__overlay-vignette {
-  background: radial-gradient(
-    circle at right,
-    transparent 40%,
-    rgba(12, 14, 24, 0.2) 80%,
-    rgba(12, 14, 24, 0.4) 100%
-  ) !important;
+  background: var(--vod-hero-vignette-bg, radial-gradient(circle at right, transparent 40%, rgba(12, 14, 24, 0.2) 80%, rgba(12, 14, 24, 0.4) 100%)) !important;
 }
 
 .modern-ui-v3 .carousel__nav-btn {
-  border-radius: 50% !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: var(--text-primary, #fff) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  border-radius: var(--vod-car-nav-radius, 50%) !important;
+  background: var(--vod-car-nav-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--vod-car-nav-border, 1px solid rgba(255, 255, 255, 0.1)) !important;
+  color: var(--vod-car-nav-color, var(--text-primary, #fff)) !important;
+  transition: var(--vod-car-nav-transition, all 0.2s cubic-bezier(0.16, 1, 0.3, 1)) !important;
 }
 
 .modern-ui-v3 .carousel__nav-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1) !important;
+  background: var(--vod-car-nav-hover-bg, rgba(255, 255, 255, 0.12)) !important;
+  border-color: var(--vod-car-nav-hover-border, rgba(255, 255, 255, 0.2)) !important;
+  box-shadow: var(--vod-car-nav-hover-shadow, 0 0 10px rgba(255, 255, 255, 0.1)) !important;
 }
 
 .modern-ui-v3 .carousel__fade--left {
-  background: linear-gradient(to right, rgba(12, 14, 24, 0.4) 0%, transparent 100%) !important;
+  background: var(--vod-car-fade-left, linear-gradient(to right, rgba(12, 14, 24, 0.4) 0%, transparent 100%)) !important;
 }
 
 .modern-ui-v3 .carousel__fade--right {
-  background: linear-gradient(to left, rgba(12, 14, 24, 0.4) 0%, transparent 100%) !important;
+  background: var(--vod-car-fade-right, linear-gradient(to left, rgba(12, 14, 24, 0.4) 0%, transparent 100%)) !important;
 }
 
 .modern-ui-v3 .stremio-row-nav-btn {
-  border-radius: 50% !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.7)) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  border-radius: var(--vod-row-nav-radius, 50%) !important;
+  background: var(--vod-row-nav-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--vod-row-nav-border, 1px solid rgba(255, 255, 255, 0.1)) !important;
+  color: var(--vod-row-nav-color, var(--text-secondary, rgba(255, 255, 255, 0.7))) !important;
+  transition: var(--vod-row-nav-transition, all 0.2s cubic-bezier(0.16, 1, 0.3, 1)) !important;
 }
 
 .modern-ui-v3 .stremio-row-nav-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.08) !important;
+  background: var(--vod-row-nav-hover-bg, rgba(255, 255, 255, 0.12)) !important;
+  border-color: var(--vod-row-nav-hover-border, rgba(255, 255, 255, 0.2)) !important;
+  color: var(--vod-row-nav-hover-color, #fff) !important;
+  box-shadow: var(--vod-row-nav-hover-shadow, 0 0 12px rgba(255, 255, 255, 0.08)) !important;
 }
 
 .modern-ui-v3 .stremio-row-see-all-btn {
-  border-radius: 20px !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.8)) !important;
+  border-radius: var(--vod-see-all-radius, 20px) !important;
+  background: var(--vod-see-all-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--vod-see-all-border, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  color: var(--vod-see-all-color, var(--text-secondary, rgba(255, 255, 255, 0.8))) !important;
   padding: 0 14px !important;
   height: 32px !important;
   font-size: 0.75rem !important;
   font-weight: 600 !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: var(--vod-see-all-transition, all 0.2s cubic-bezier(0.16, 1, 0.3, 1)) !important;
 }
 
 .modern-ui-v3 .stremio-row-see-all-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  background: var(--vod-see-all-hover-bg, rgba(255, 255, 255, 0.12)) !important;
+  border-color: var(--vod-see-all-hover-border, rgba(255, 255, 255, 0.2)) !important;
+  color: var(--vod-see-all-hover-color, #fff) !important;
+  transform: var(--vod-see-all-hover-transform, translateY(-1px)) !important;
+  box-shadow: var(--vod-see-all-hover-shadow, 0 4px 12px rgba(0, 0, 0, 0.15)) !important;
 }
 
 .modern-ui-v3 .stremio-row-fade-left {
-  background: linear-gradient(to right, rgba(12, 14, 24, 0.4) 0%, transparent 100%) !important;
+  background: var(--vod-car-fade-left, linear-gradient(to right, rgba(12, 14, 24, 0.4) 0%, transparent 100%)) !important;
 }
 
 .modern-ui-v3 .stremio-row-fade-right {
-  background: linear-gradient(to left, rgba(12, 14, 24, 0.4) 0%, transparent 100%) !important;
+  background: var(--vod-car-fade-right, linear-gradient(to left, rgba(12, 14, 24, 0.4) 0%, transparent 100%)) !important;
 }
 
 .modern-ui-v3 .media-card {
-  border-radius: 12px !important;
+  border-radius: var(--vod-media-radius, 12px) !important;
   overflow: hidden !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  background: rgba(255, 255, 255, 0.03) !important;
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease !important;
+  border: var(--vod-media-border, 1px solid rgba(255, 255, 255, 0.06)) !important;
+  background: var(--vod-media-bg, rgba(255, 255, 255, 0.03)) !important;
+  transition: var(--vod-media-transition, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease) !important;
 }
 
 .modern-ui-v3 .media-card:hover {
-  border-color: rgba(255, 255, 255, 0.18) !important;
-  box-shadow: 
-    0 10px 30px rgba(0, 0, 0, 0.35),
-    0 0 0 1px rgba(255, 255, 255, 0.05) inset !important;
-  transform: translateY(-2px) scale(1.02) !important;
+  border-color: var(--vod-media-hover-border, rgba(255, 255, 255, 0.18)) !important;
+  box-shadow: var(--vod-media-hover-shadow, 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.05) inset) !important;
+  transform: var(--vod-media-hover-transform, translateY(-2px) scale(1.02)) !important;
 }
 
 .modern-ui-v3 .movie-detail,
 .modern-ui-v3 .series-detail {
-  background: transparent !important;
+  background: var(--vod-detail-bg, transparent) !important;
 }
 
 /* NOTE: Use explicit color values (#0c0e18 or rgba) for color stops inside linear-gradient.
@@ -1839,59 +2217,43 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
-  background: 
-    linear-gradient(
-      to right,
-      rgba(12, 14, 24, 0.92) 0%,
-      rgba(12, 14, 24, 0.78) 25%,
-      rgba(12, 14, 24, 0.45) 45%,
-      rgba(12, 14, 24, 0.12) 65%,
-      transparent 100%
-    ),
-    linear-gradient(
-      to bottom,
-      rgba(12, 14, 24, 0.1) 0%,
-      rgba(12, 14, 24, 0.35) 30%,
-      rgba(12, 14, 24, 0.75) 60%,
-      rgba(12, 14, 24, 0.95) 85%,
-      #0c0e18 100%
-    ) !important;
+  background: var(--vod-detail-backdrop-bg, linear-gradient(to right, rgba(12, 14, 24, 0.92) 0%, rgba(12, 14, 24, 0.78) 25%, rgba(12, 14, 24, 0.45) 45%, rgba(12, 14, 24, 0.12) 65%, transparent 100%), linear-gradient(to bottom, rgba(12, 14, 24, 0.1) 0%, rgba(12, 14, 24, 0.35) 30%, rgba(12, 14, 24, 0.75) 60%, rgba(12, 14, 24, 0.95) 85%, #0c0e18 100%)) !important;
   pointer-events: none !important;
   z-index: 0 !important;
 }
 
 .modern-ui-v3 .series-detail__season-btn {
-  border-radius: 20px !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.7)) !important;
-  transition: all 0.2s ease !important;
+  border-radius: var(--vod-season-radius, 20px) !important;
+  background: var(--vod-season-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--vod-season-border, 1px solid rgba(255, 255, 255, 0.1)) !important;
+  color: var(--vod-season-color, var(--text-secondary, rgba(255, 255, 255, 0.7))) !important;
+  transition: var(--vod-season-transition, all 0.2s ease) !important;
 }
 
 .modern-ui-v3 .series-detail__season-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
+  background: var(--vod-season-hover-bg, rgba(255, 255, 255, 0.12)) !important;
+  border-color: var(--vod-season-hover-border, rgba(255, 255, 255, 0.2)) !important;
+  color: var(--vod-season-hover-color, #fff) !important;
 }
 
 .modern-ui-v3 .series-detail__season-btn.active {
-  background: rgba(255, 255, 255, 0.18) !important;
-  border-color: rgba(255, 255, 255, 0.35) !important;
-  color: #fff !important;
+  background: var(--vod-season-active-bg, rgba(255, 255, 255, 0.18)) !important;
+  border-color: var(--vod-season-active-border, rgba(255, 255, 255, 0.35)) !important;
+  color: var(--vod-season-active-color, #fff) !important;
 }
 
 .modern-ui-v3 .series-detail__episode-card {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-radius: 14px !important;
-  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background: var(--vod-ep-card-bg, rgba(255, 255, 255, 0.03)) !important;
+  border: var(--vod-ep-card-border, 1px solid rgba(255, 255, 255, 0.06)) !important;
+  border-radius: var(--vod-ep-card-radius, 14px) !important;
+  transition: var(--vod-ep-card-transition, all 0.28s cubic-bezier(0.16, 1, 0.3, 1)) !important;
 }
 
 .modern-ui-v3 .series-detail__episode-card:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.15) !important;
+  background: var(--vod-ep-card-hover-bg, rgba(255, 255, 255, 0.08)) !important;
+  border-color: var(--vod-ep-card-hover-border, rgba(255, 255, 255, 0.15)) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: var(--vod-ep-card-hover-shadow, 0 8px 24px rgba(0, 0, 0, 0.4)) !important;
 }
 
 /* 9. DVR Pages Liquid Glass Styling */
@@ -1930,12 +2292,15 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
   margin: 12px;
 }
 
-/* Sports Match Detail Modals Liquid Glass Styling */
+/* Sports Match Detail Modals Liquid Glass Styling — token-driven via the
+   --gd-* family in the token blocks above; the GameDetail.css / SportsHub.css
+   bases consume the same tokens with v1/v2 fallbacks, and these thin rules
+   re-assert the v3 values over the base + glass-variant cascades. */
 
 .modern-ui-v3 .game-detail-overlay {
-  background: rgba(8, 8, 12, 0.4) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
+  background: var(--gd-overlay-bg, rgba(8, 8, 12, 0.4)) !important;
+  backdrop-filter: var(--gd-overlay-filter, blur(10px)) !important;
+  -webkit-backdrop-filter: var(--gd-overlay-filter, blur(10px)) !important;
 }
 
 /* Inner Sections Transparency */
@@ -1947,15 +2312,15 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
 .modern-ui-v3 .racing-detail-title-bar,
 .modern-ui-v3 .golf-detail-title-bar,
 .modern-ui-v3 .tennis-detail-title-bar {
-  background: transparent !important;
+  background: var(--gd-section-bg, transparent) !important;
 }
 
 .modern-ui-v3 .game-detail-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-bottom: var(--gd-hdr-border-bottom, 1px solid rgba(255, 255, 255, 0.08)) !important;
 }
 
 .modern-ui-v3 .game-detail-scoreboard {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-bottom: var(--gd-scoreboard-border-bottom, 1px solid rgba(255, 255, 255, 0.06)) !important;
 }
 
 .modern-ui-v3 .ufc-detail-title-bar,
@@ -1963,154 +2328,160 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
 .modern-ui-v3 .racing-detail-title-bar,
 .modern-ui-v3 .golf-detail-title-bar,
 .modern-ui-v3 .tennis-detail-title-bar {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-bottom: var(--gd-chrome-border-bottom, 1px solid rgba(255, 255, 255, 0.08)) !important;
 }
 
 /* Tabs */
 
 .modern-ui-v3 .game-detail-tab {
-  color: rgba(255, 255, 255, 0.6) !important;
-  transition: all 0.2s ease !important;
+  color: var(--gd-tab-color, rgba(255, 255, 255, 0.6)) !important;
+  transition: var(--gd-tab-transition, all 0.2s ease) !important;
 }
 
 .modern-ui-v3 .game-detail-tab:hover {
-  color: #fff !important;
-  background: rgba(255, 255, 255, 0.04) !important;
+  color: var(--gd-tab-hover-color, #fff) !important;
+  background: var(--gd-tab-hover-bg, rgba(255, 255, 255, 0.04)) !important;
 }
 
 .modern-ui-v3 .game-detail-tab.active {
-  color: var(--accent-primary, #00d4ff) !important;
-  border-bottom-color: var(--accent-primary, #00d4ff) !important;
-  text-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) !important;
-  background: transparent !important;
+  color: var(--gd-tab-active-color, var(--accent-primary, #00d4ff)) !important;
+  border-bottom-color: var(--gd-tab-active-color, var(--accent-primary, #00d4ff)) !important;
+  text-shadow: var(--gd-tab-active-shadow, 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent)) !important;
+  background: var(--gd-tab-active-bg, transparent) !important;
 }
 
 /* Tables and Lists */
 
 .modern-ui-v3 .game-detail-stats-table th,
 .modern-ui-v3 .game-detail-players-table th {
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
+  border-bottom: var(--gd-th-border-bottom, 2px solid rgba(255, 255, 255, 0.1)) !important;
+  color: var(--gd-th-color, rgba(255, 255, 255, 0.9)) !important;
 }
 
 .modern-ui-v3 .game-detail-stats-table td,
 .modern-ui-v3 .game-detail-players-table td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-  color: rgba(255, 255, 255, 0.8) !important;
+  border-bottom: var(--gd-td-border-bottom, 1px solid rgba(255, 255, 255, 0.05)) !important;
+  color: var(--gd-td-color, rgba(255, 255, 255, 0.8)) !important;
 }
 
 .modern-ui-v3 .game-detail-stats-table tbody tr:hover,
 .modern-ui-v3 .game-detail-players-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.04) !important;
+  background: var(--gd-row-hover-bg, rgba(255, 255, 255, 0.04)) !important;
 }
 
 /* Channel buttons & scoring plays */
 
 .modern-ui-v3 .game-detail-channel-btn {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-  border-radius: 10px !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background: var(--gd-channel-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--gd-channel-border, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  color: var(--gd-channel-color, rgba(255, 255, 255, 0.8)) !important;
+  border-radius: var(--gd-channel-radius, 10px) !important;
+  transition: var(--gd-channel-transition, all 0.2s cubic-bezier(0.16, 1, 0.3, 1)) !important;
 }
 
 .modern-ui-v3 .game-detail-channel-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  background: var(--gd-channel-hover-bg, rgba(255, 255, 255, 0.12)) !important;
+  border-color: var(--gd-channel-hover-border, rgba(255, 255, 255, 0.2)) !important;
+  color: var(--gd-channel-hover-color, #fff) !important;
+  transform: var(--gd-channel-hover-transform, translateY(-1px)) !important;
+  box-shadow: var(--gd-channel-hover-shadow, 0 4px 12px rgba(0, 0, 0, 0.15)) !important;
 }
 
 .modern-ui-v3 .game-detail-scoring-play {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+  background: var(--gd-scoring-bg, rgba(255, 255, 255, 0.03)) !important;
+  border: var(--gd-scoring-border, 1px solid rgba(255, 255, 255, 0.04)) !important;
 }
 
 .modern-ui-v3 .ufc-detail-fighter-img {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 2px solid rgba(255, 255, 255, 0.1) !important;
+  background: var(--gd-fighter-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--gd-fighter-border, 2px solid rgba(255, 255, 255, 0.1)) !important;
 }
 
 /* Light theme overrides */
 
-html.modern-ui-v3[data-theme="light"] .game-detail-header,
-html.modern-ui-v3[data-theme="light"] .game-detail-scoreboard,
+html.modern-ui-v3[data-theme="light"] .game-detail-header {
+  border-bottom: var(--gd-hdr-border-bottom, 1px solid rgba(0, 0, 0, 0.06)) !important;
+}
+
+html.modern-ui-v3[data-theme="light"] .game-detail-scoreboard {
+  border-bottom: var(--gd-scoreboard-border-bottom, 1px solid rgba(0, 0, 0, 0.06)) !important;
+}
+
 html.modern-ui-v3[data-theme="light"] .ufc-detail-title-bar,
 html.modern-ui-v3[data-theme="light"] .ufc-detail-main-event,
 html.modern-ui-v3[data-theme="light"] .racing-detail-title-bar,
 html.modern-ui-v3[data-theme="light"] .golf-detail-title-bar,
 html.modern-ui-v3[data-theme="light"] .tennis-detail-title-bar {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-bottom: var(--gd-chrome-border-bottom, 1px solid rgba(0, 0, 0, 0.06)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .game-detail-tab {
-  color: rgba(0, 0, 0, 0.6) !important;
+  color: var(--gd-tab-color, rgba(0, 0, 0, 0.6)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .game-detail-tab:hover {
-  color: #000 !important;
-  background: rgba(0, 0, 0, 0.04) !important;
+  color: var(--gd-tab-hover-color, #000) !important;
+  background: var(--gd-tab-hover-bg, rgba(0, 0, 0, 0.04)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .game-detail-tab.active {
-  color: var(--accent-primary, #00d4ff) !important;
-  border-bottom-color: var(--accent-primary, #00d4ff) !important;
-  text-shadow: none !important;
+  color: var(--gd-tab-active-color, var(--accent-primary, #00d4ff)) !important;
+  border-bottom-color: var(--gd-tab-active-color, var(--accent-primary, #00d4ff)) !important;
+  text-shadow: var(--gd-tab-active-shadow, none) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .game-detail-stats-table th,
 html.modern-ui-v3[data-theme="light"] .game-detail-players-table th {
-  border-bottom: 2px solid rgba(0, 0, 0, 0.1) !important;
-  color: rgba(0, 0, 0, 0.9) !important;
+  border-bottom: var(--gd-th-border-bottom, 2px solid rgba(0, 0, 0, 0.1)) !important;
+  color: var(--gd-th-color, rgba(0, 0, 0, 0.9)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .game-detail-stats-table td,
 html.modern-ui-v3[data-theme="light"] .game-detail-players-table td {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
-  color: rgba(0, 0, 0, 0.8) !important;
+  border-bottom: var(--gd-td-border-bottom, 1px solid rgba(0, 0, 0, 0.05)) !important;
+  color: var(--gd-td-color, rgba(0, 0, 0, 0.8)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .game-detail-stats-table tbody tr:hover,
 html.modern-ui-v3[data-theme="light"] .game-detail-players-table tbody tr:hover {
-  background: rgba(0, 0, 0, 0.03) !important;
+  background: var(--gd-row-hover-bg, rgba(0, 0, 0, 0.03)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .game-detail-channel-btn {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.8) !important;
+  background: var(--gd-channel-bg, rgba(0, 0, 0, 0.04)) !important;
+  border: var(--gd-channel-border, 1px solid rgba(0, 0, 0, 0.08)) !important;
+  color: var(--gd-channel-color, rgba(0, 0, 0, 0.8)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .game-detail-channel-btn:hover {
-  background: rgba(0, 0, 0, 0.08) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  background: var(--gd-channel-hover-bg, rgba(0, 0, 0, 0.08)) !important;
+  border-color: var(--gd-channel-hover-border, rgba(0, 0, 0, 0.15)) !important;
+  color: var(--gd-channel-hover-color, #000) !important;
+  box-shadow: var(--gd-channel-hover-shadow, 0 4px 12px rgba(0, 0, 0, 0.08)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .game-detail-scoring-play {
-  background: rgba(0, 0, 0, 0.02) !important;
-  border: 1px solid rgba(0, 0, 0, 0.04) !important;
+  background: var(--gd-scoring-bg, rgba(0, 0, 0, 0.02)) !important;
+  border: var(--gd-scoring-border, 1px solid rgba(0, 0, 0, 0.04)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border: 2px solid rgba(0, 0, 0, 0.1) !important;
+  background: var(--gd-fighter-bg, rgba(0, 0, 0, 0.04)) !important;
+  border: var(--gd-fighter-border, 2px solid rgba(0, 0, 0, 0.1)) !important;
 }
 
 /* 11. Alphabet Rail Glass Styling */
 
 .modern-ui-v3 .alphabet-rail {
-  background: rgba(12, 14, 24, 0.3) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-top-right-radius: 24px !important;
-  border-bottom-right-radius: 24px !important;
-  margin-top: 16px !important;
-  margin-bottom: 16px !important;
-  height: calc(100% - 32px) !important;
+  background: var(--ar-bg, rgba(12, 14, 24, 0.3)) !important;
+  backdrop-filter: var(--ar-filter, blur(10px)) !important;
+  -webkit-backdrop-filter: var(--ar-filter, blur(10px)) !important;
+  border-left: var(--ar-border-left, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  border-top-right-radius: var(--ar-radius-tr, 24px) !important;
+  border-bottom-right-radius: var(--ar-radius-br, 24px) !important;
+  margin-top: var(--ar-margin-top, 16px) !important;
+  margin-bottom: var(--ar-margin-bottom, 16px) !important;
+  height: var(--ar-height, calc(100% - 32px)) !important;
 }
 
 /* 12. Stremio & Nuvio Liquid Glass — token-driven. The component bases
@@ -2280,8 +2651,7 @@ html.modern-ui-v3[data-theme="light"] .settings-sidebar {
 
 /* V3 Form Controls */
 
-.modern-ui-v3 .form-group input,
-.modern-ui-v3 .settings-content select {
+.modern-ui-v3 .form-group input {
   border-radius: 10px !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   background: rgba(255, 255, 255, 0.04) !important;
@@ -2290,11 +2660,28 @@ html.modern-ui-v3[data-theme="light"] .settings-sidebar {
   transition: all 0.2s ease !important;
 }
 
-.modern-ui-v3 .form-group input:focus,
-.modern-ui-v3 .settings-content select:focus {
+/* Settings selects — v3 glass look via the --sel-* tokens; the Settings.css
+   base consumes the same tokens with v1/v2 fallbacks. */
+.modern-ui-v3 .settings-content select {
+  border-radius: var(--sel-radius, 10px) !important;
+  border: var(--sel-border, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  background: var(--sel-bg, rgba(255, 255, 255, 0.04)) !important;
+  color: var(--sel-color, #fff) !important;
+  box-shadow: var(--sel-shadow, 0 1px 2px rgba(0, 0, 0, 0.05)) !important;
+  transition: var(--sel-transition, all 0.2s ease) !important;
+}
+
+.modern-ui-v3 .form-group input:focus {
   border-color: rgba(255, 255, 255, 0.2) !important;
   background: rgba(255, 255, 255, 0.08) !important;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) !important;
+  outline: none !important;
+}
+
+.modern-ui-v3 .settings-content select:focus {
+  border-color: var(--sel-focus-border, rgba(255, 255, 255, 0.2)) !important;
+  background: var(--sel-focus-bg, rgba(255, 255, 255, 0.08)) !important;
+  box-shadow: var(--sel-focus-shadow, 0 0 0 2px rgba(255, 255, 255, 0.05)) !important;
   outline: none !important;
 }
 
@@ -2338,8 +2725,8 @@ html.modern-ui-v3[data-theme="light"] .type-selector button.active {
 }
 
 .modern-ui-v3 .settings-content select option {
-  background: #141624 !important;
-  color: white !important;
+  background: var(--sel-option-bg, #141624) !important;
+  color: var(--sel-option-color, white) !important;
 }
 
 /* Buttons in Settings modal */
@@ -2818,19 +3205,19 @@ html.modern-ui-v3[data-theme="light"] .source-actions button:hover {
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-content select {
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
-  background: #ffffff !important;
-  color: #0f172a !important;
+  border: var(--sel-border, 1px solid rgba(0, 0, 0, 0.12)) !important;
+  background: var(--sel-bg, #ffffff) !important;
+  color: var(--sel-color, #0f172a) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-content select:focus {
-  border-color: var(--accent-primary, #0066cc) !important;
-  background: #ffffff !important;
+  border-color: var(--sel-focus-border, var(--accent-primary, #0066cc)) !important;
+  background: var(--sel-focus-bg, #ffffff) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-content select option {
-  background: #ffffff !important;
-  color: #0f172a !important;
+  background: var(--sel-option-bg, #ffffff) !important;
+  color: var(--sel-option-color, #0f172a) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .settings-disclaimer,
@@ -3145,78 +3532,34 @@ html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg::after {
 
    ========================================================================== */
 
-/* 1. Backdrop Overlays — pll/fgl/ple/cgm overlays are token-driven via
-   --glass-overlay-* in the component bases; these stay for cm/chm/sf. */
+/* 1. Backdrop Overlays — cm/chm/sf overlays are token-driven via
+   --glass-overlay-* in the component bases. */
 
-.modern-ui-v3 .category-manager-overlay,
-.modern-ui-v3 .channel-manager-overlay,
-.modern-ui-v3 .source-form-overlay {
-  background: rgba(8, 8, 12, 0.4) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-}
+/* 2. Modal Card Containers — cm/chm/sf containers are token-driven via
+   --glass-settings-* / --glass-modal-* in the component bases. */
 
-/* 2. Modal Card Containers — pll/fgl/ple/cgm containers are token-driven via
-   --glass-settings-* / --glass-modal-* in the component bases; cm/chm/sf stay. */
+/* 3. Headers & Titles — cm/chm/sf headers + titles are token-driven via
+   --sm-hdr-* / --sm-title-* in the component bases. */
 
-.modern-ui-v3 .category-manager-modal,
-.modern-ui-v3 .channel-manager-modal,
-.modern-ui-v3 .source-form {
-  background: rgba(16, 12, 26, 0.82) !important;
-  backdrop-filter: blur(35px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(35px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 20px 50px rgba(0, 0, 0, 0.6),
-    0 2px 8px color-mix(in srgb, var(--accent-primary, #8b5cf6) 10%, transparent) !important;
-  border-radius: 20px !important;
-  color: #fff !important;
-}
-
-/* 3. Headers — pll/fgl/ple/cgm headers are token-driven via --mg-hdr-* in the
-   component bases; cm/chm/sf stay. */
-
-.modern-ui-v3 .category-manager-header,
-.modern-ui-v3 .channel-manager-header,
-.modern-ui-v3 .source-form h3 {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: transparent !important;
-  padding: 20px 24px !important;
-}
-
-.modern-ui-v3 .source-form h3 {
-  margin: -24px -24px 20px -24px !important;
-  font-size: 1.15rem !important;
-  font-weight: 600 !important;
-  color: #fff !important;
-}
-
-.modern-ui-v3 .category-manager-header h2,
-.modern-ui-v3 .channel-manager-header h2 {
-  font-size: 1.15rem !important;
-  font-weight: 600 !important;
-  color: #fff !important;
-}
-
-/* 4. Close Buttons & Stats */
+/* 4. Close Buttons — the five manager headers share the round liquid-glass
+   close button; cm/chm bases consume the same --sm-close-* tokens (light
+   close values live in ModernThemeBase for all five). */
 
 .modern-ui-v3 .category-manager-header .close-btn,
 .modern-ui-v3 .channel-manager-header .close-btn,
 .modern-ui-v3 .failover-group-list-header .close-btn,
 .modern-ui-v3 .custom-group-manager-header .close-btn,
 .modern-ui-v3 .playlist-list-header .close-btn {
-  border-radius: 50% !important;
-  width: 32px !important;
-  height: 32px !important;
+  border-radius: var(--sm-close-radius, 50%) !important;
+  width: var(--sm-close-size, 32px) !important;
+  height: var(--sm-close-size, 32px) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.6) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background: var(--sm-close-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--sm-close-border, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  color: var(--sm-close-color, rgba(255, 255, 255, 0.6)) !important;
+  transition: var(--sm-close-transition, all 0.2s cubic-bezier(0.16, 1, 0.3, 1)) !important;
 }
 
 .modern-ui-v3 .category-manager-header .close-btn:hover,
@@ -3224,300 +3567,139 @@ html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg::after {
 .modern-ui-v3 .failover-group-list-header .close-btn:hover,
 .modern-ui-v3 .custom-group-manager-header .close-btn:hover,
 .modern-ui-v3 .playlist-list-header .close-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
+  background: var(--sm-close-hover-bg, rgba(255, 255, 255, 0.12)) !important;
+  border-color: var(--sm-close-hover-border, rgba(255, 255, 255, 0.2)) !important;
+  color: var(--sm-close-hover-color, #fff) !important;
 }
 
-.modern-ui-v3 .category-manager-stats,
-.modern-ui-v3 .channel-manager-stats {
-  padding: 12px 24px !important;
-  color: rgba(255, 255, 255, 0.5) !important;
-  font-size: 0.85rem !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  background: rgba(255, 255, 255, 0.02) !important;
-}
-
-/* Inline stats buttons customize order/reset alphabetical overrides */
+/* 5. Stats row (cm/chm) — the row itself is token-driven via --sm-stats-*
+   in the bases; the inline order/reset buttons keep the shared --sm-btn-* look. */
 
 .modern-ui-v3 .category-manager-stats button {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 8px !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background: var(--sm-btn-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--sm-btn-border, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  border-radius: var(--sm-btn-radius, 8px) !important;
+  color: var(--sm-btn-color, rgba(255, 255, 255, 0.8)) !important;
+  transition: var(--sm-btn-transition, all 0.2s cubic-bezier(0.16, 1, 0.3, 1)) !important;
 }
 
 .modern-ui-v3 .category-manager-stats button:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
+  background: var(--sm-btn-hover-bg, rgba(255, 255, 255, 0.12)) !important;
+  border-color: var(--sm-btn-hover-border, rgba(255, 255, 255, 0.2)) !important;
+  color: var(--sm-btn-hover-color, #fff) !important;
 }
 
-/* 5. Inputs & Search Fields */
+/* 6. Search Inputs — category/channel search + filter-words inputs are
+   token-driven via --sm-input-* in the cm/chm bases; the source form's extra
+   inputs (backup fields, password wrapper, etc.) are not individually
+   tokenized, so a thin consumer keeps them on the unified glass input look. */
 
-.modern-ui-v3 .category-search input,
-.modern-ui-v3 .channel-search input,
-.modern-ui-v3 .source-form input,
-.modern-ui-v3 .filter-words-input-row input {
-  border-radius: 10px !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  color: #fff !important;
-  padding: 10px 14px !important;
-  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease !important;
+.modern-ui-v3 .source-form input {
+  border-radius: var(--sm-input-radius, 10px) !important;
+  border: var(--sm-input-border, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  background: var(--sm-input-bg, rgba(255, 255, 255, 0.04)) !important;
+  color: var(--sm-input-color, #fff) !important;
+  padding: var(--sm-input-padding, 10px 14px) !important;
+  transition: var(--sm-input-transition, border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease) !important;
 }
 
-.modern-ui-v3 .category-search input:focus,
-.modern-ui-v3 .channel-search input:focus,
-.modern-ui-v3 .source-form input:focus,
-.modern-ui-v3 .filter-words-input-row input:focus {
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) !important;
+.modern-ui-v3 .source-form input:focus {
+  border-color: var(--sm-input-focus-border, rgba(255, 255, 255, 0.2)) !important;
+  background: var(--sm-input-focus-bg, rgba(255, 255, 255, 0.08)) !important;
+  box-shadow: var(--sm-input-focus-shadow, 0 0 0 2px rgba(255, 255, 255, 0.05)) !important;
   outline: none !important;
 }
 
-/* 6. List Scrollbar Styling */
+/* 7. List Items — category-item/channel-item surfaces are token-driven via
+   --sm-item-* / --cat-item-* / --channel-item-* in the cm/chm bases. */
 
-.modern-ui-v3 .category-list,
-.modern-ui-v3 .channel-list {
-  background: transparent !important;
-}
+/* 8. Action Buttons & Toggles — cm/chm + filter-add buttons are token-driven
+   via --sm-btn-* / --sm-toggle-active-* in the bases; the cross-file shared
+   classes (import/change-file/add-backup/confirm/swap/order) keep a thin
+   consumer for the same look. */
 
-.modern-ui-v3 .category-list::-webkit-scrollbar-thumb,
-.modern-ui-v3 .channel-list::-webkit-scrollbar-thumb,
-.modern-ui-v3 .source-form::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-radius: 3px !important;
-}
-
-.modern-ui-v3 .category-list::-webkit-scrollbar-thumb:hover,
-.modern-ui-v3 .channel-list::-webkit-scrollbar-thumb:hover,
-.modern-ui-v3 .source-form::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-primary, #00d4ff) !important;
-}
-
-/* 7. List Items (Categories & Channels)
-   category-item/channel-item surfaces folded into --cat-item-* / --channel-item-* tokens */
-
-.modern-ui-v3 .category-item.selected-for-move {
-  background: color-mix(in srgb, var(--accent-primary, #8b5cf6) 12%, rgba(255, 255, 255, 0.04)) !important;
-  border-color: var(--accent-primary, #8b5cf6) !important;
-  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-primary, #8b5cf6) 20%, transparent) !important;
-}
-
-.modern-ui-v3 .category-item.dragging,
-.modern-ui-v3 .channel-item.dragging {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: var(--accent-primary, #00d4ff) !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
-  opacity: 0.8 !important;
-}
-
-.modern-ui-v3 .category-item.drag-over,
-.modern-ui-v3 .channel-item.drag-over {
-  border-top: 2px solid var(--accent-primary, #00d4ff) !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-}
-
-.modern-ui-v3 .category-checkbox input[type="checkbox"],
-.modern-ui-v3 .channel-checkbox input[type="checkbox"] {
-  accent-color: var(--accent-primary, #00d4ff) !important;
-}
-
-/* category-name color folded into --cat-name-color; channel-name kept */
-.modern-ui-v3 .channel-name {
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-.modern-ui-v3 .channel-item.disabled {
-  opacity: 0.4 !important;
-}
-
-.modern-ui-v3 .drag-handle {
-  color: rgba(255, 255, 255, 0.25) !important;
-}
-
-.modern-ui-v3 .category-item:hover .drag-handle,
-.modern-ui-v3 .channel-item:hover .drag-handle {
-  color: rgba(255, 255, 255, 0.6) !important;
-}
-
-/* 8. Action Buttons & Toggles */
-
-.modern-ui-v3 .category-manager-actions,
-.modern-ui-v3 .channel-manager-actions {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: transparent !important;
-  padding: 16px 24px !important;
-}
-
-.modern-ui-v3 .category-manager-actions button,
-.modern-ui-v3 .channel-manager-actions button,
 .modern-ui-v3 .import-btn,
 .modern-ui-v3 .change-file-btn,
 .modern-ui-v3 .add-backup-btn,
 .modern-ui-v3 .confirm-btn,
 .modern-ui-v3 .swap-btn,
-.modern-ui-v3 .order-btn,
-.modern-ui-v3 .filter-add-btn {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-  border-radius: 8px !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  font-weight: 500 !important;
+.modern-ui-v3 .order-btn {
+  background: var(--sm-btn-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--sm-btn-border, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  color: var(--sm-btn-color, rgba(255, 255, 255, 0.8)) !important;
+  border-radius: var(--sm-btn-radius, 8px) !important;
+  transition: var(--sm-btn-transition, all 0.2s cubic-bezier(0.16, 1, 0.3, 1)) !important;
+  font-weight: var(--sm-btn-weight, 500) !important;
 }
 
-.modern-ui-v3 .category-manager-actions button:hover,
-.modern-ui-v3 .channel-manager-actions button:hover,
 .modern-ui-v3 .import-btn:hover,
 .modern-ui-v3 .change-file-btn:hover,
 .modern-ui-v3 .add-backup-btn:hover,
 .modern-ui-v3 .confirm-btn:hover,
 .modern-ui-v3 .swap-btn:hover,
-.modern-ui-v3 .order-btn:hover:not(:disabled),
-.modern-ui-v3 .filter-add-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  transform: translateY(-1px) !important;
+.modern-ui-v3 .order-btn:hover:not(:disabled) {
+  background: var(--sm-btn-hover-bg, rgba(255, 255, 255, 0.12)) !important;
+  border-color: var(--sm-btn-hover-border, rgba(255, 255, 255, 0.2)) !important;
+  color: var(--sm-btn-hover-color, #fff) !important;
+  transform: var(--sm-btn-hover-transform, translateY(-1px)) !important;
 }
 
 .modern-ui-v3 .category-manager-actions button.active-toggle,
 .modern-ui-v3 .channel-manager-actions button.active-toggle {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, rgba(255, 255, 255, 0.08)) !important;
-  color: #fff !important;
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15)) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-  font-weight: 600 !important;
+  background: var(--sm-toggle-active-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, rgba(255, 255, 255, 0.08))) !important;
+  color: var(--sm-toggle-active-color, #fff) !important;
+  border: var(--sm-toggle-active-border, 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15))) !important;
+  box-shadow: var(--sm-toggle-active-shadow, 0 4px 12px rgba(0, 0, 0, 0.15)) !important;
+  font-weight: var(--sm-toggle-active-weight, 600) !important;
 }
 
-.modern-ui-v3 .cancel-select-btn {
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  background: rgba(255, 255, 255, 0.02) !important;
-  color: rgba(255, 255, 255, 0.6) !important;
-}
+/* 9. Filter-words panel/tags + form-details + footers — token-driven via
+   --sm-panel-* / --sm-tag-* / --sm-details-* / --sm-footer-* in the chm,
+   Settings, and cm/chm bases. */
 
-.modern-ui-v3 .cancel-select-btn:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-}
-
-.modern-ui-v3 .manage-channels-btn {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent) !important;
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-  border-radius: 8px !important;
-  font-weight: 600 !important;
-  transition: all 0.2s ease !important;
-  padding: 6px 12px !important;
-}
-
-.modern-ui-v3 .manage-channels-btn:hover {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) !important;
-  border-color: var(--accent-primary, #00d4ff) !important;
-  transform: translateY(-0.5px) !important;
-}
-
-/* 9. Filter Words Panel specific styles */
-
-.modern-ui-v3 .filter-words-panel {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  padding: 16px 20px !important;
-}
-
-.modern-ui-v3 .filter-word-tag {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  color: rgba(255, 255, 255, 0.85) !important;
-  border-radius: 6px !important;
-}
-
-/* 10. Form Details / Catchup */
-
-.modern-ui-v3 .form-details {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-radius: 10px !important;
-  margin-bottom: 16px !important;
-  overflow: hidden !important;
-}
-
-.modern-ui-v3 .form-details-summary {
-  padding: 12px 16px !important;
-  background: rgba(255, 255, 255, 0.03) !important;
-  color: rgba(255, 255, 255, 0.85) !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-}
-
-.modern-ui-v3 .form-details-summary:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
-}
-
-.modern-ui-v3 .form-details-content {
-  padding: 16px !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
-
-/* 11. Footers & Action buttons (Save/Cancel) */
-
-.modern-ui-v3 .category-manager-footer,
-.modern-ui-v3 .channel-manager-footer,
-.modern-ui-v3 .form-actions {
-  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: transparent !important;
-  padding: 20px 24px !important;
-  display: flex !important;
-  justify-content: flex-end !important;
-  gap: 12px !important;
-}
+/* Save/Cancel — the global "Buttons in Settings modal" rules above carry the
+   same surface values; these stay token-ref'd to also keep cursor + disabled
+   handling (the light look comes from the global light rules at 2857-2915). */
 
 .modern-ui-v3 .save-btn {
-  background: var(--accent-primary, #00d4ff) !important;
-  color: #121424 !important;
+  background: var(--sm-save-bg, var(--accent-primary, #00d4ff)) !important;
+  color: var(--sm-save-color, #121424) !important;
   font-weight: 600 !important;
-  border: 1px solid transparent !important;
-  border-radius: 10px !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.25) !important;
+  border: var(--sm-save-border, 1px solid transparent) !important;
+  border-radius: var(--sm-save-radius, 10px) !important;
+  transition: var(--sm-save-transition, all 0.2s cubic-bezier(0.16, 1, 0.3, 1)) !important;
+  box-shadow: var(--sm-save-shadow, 0 4px 12px rgba(0, 212, 255, 0.25)) !important;
   cursor: pointer !important;
 }
 
 .modern-ui-v3 .save-btn:hover:not(:disabled) {
-  background: #33e0ff !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 6px 16px rgba(0, 212, 255, 0.4) !important;
+  background: var(--sm-save-hover-bg, #33e0ff) !important;
+  transform: var(--sm-save-hover-transform, translateY(-1px)) !important;
+  box-shadow: var(--sm-save-hover-shadow, 0 6px 16px rgba(0, 212, 255, 0.4)) !important;
 }
 
 .modern-ui-v3 .save-btn:disabled {
-  opacity: 0.5 !important;
+  opacity: var(--sm-save-disabled-opacity, 0.5) !important;
   cursor: not-allowed !important;
   box-shadow: none !important;
   transform: none !important;
 }
 
 .modern-ui-v3 .cancel-btn {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-  border-radius: 10px !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background: var(--sm-btn-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--sm-btn-border, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  color: var(--sm-btn-color, rgba(255, 255, 255, 0.8)) !important;
+  border-radius: var(--sm-cancel-radius, 10px) !important;
+  transition: var(--sm-btn-transition, all 0.2s cubic-bezier(0.16, 1, 0.3, 1)) !important;
   cursor: pointer !important;
 }
 
 .modern-ui-v3 .cancel-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  background: var(--sm-btn-hover-bg, rgba(255, 255, 255, 0.12)) !important;
+  border-color: var(--sm-btn-hover-border, rgba(255, 255, 255, 0.2)) !important;
+  color: var(--sm-btn-hover-color, #fff) !important;
+  transform: var(--sm-btn-hover-transform, translateY(-1px)) !important;
+  box-shadow: var(--sm-btn-hover-shadow, 0 4px 12px rgba(0, 0, 0, 0.15)) !important;
 }
 
 /* Failover/Playlist/Group manager panes, buttons & items (pll/fgl/ple/cgm
@@ -3551,53 +3733,56 @@ html.modern-ui-v3[data-theme="light"] .search-bar input:focus {
   box-shadow: var(--modal-input-focus-shadow, 0 0 0 2px rgba(0, 0, 0, 0.03)) !important;
 }
 
-/* Glowing Scrollbar Overrides for Failover Groups and Managers */
+/* Glowing Scrollbar Overrides for Failover Groups and Managers — dark values
+   token-driven via --scrollbar-* (the light variants below stay literal: they
+   are theme-gated and the shared tokens must keep their dark values for the
+   base consumers). */
 
 .modern-ui-v3 .failover-group-list-content,
 .modern-ui-v3 .channel-list-container,
 .modern-ui-v3 .selector-content {
   scrollbar-width: thin !important;
-  scrollbar-color: rgba(255, 255, 255, 0.08) transparent !important;
+  scrollbar-color: var(--scrollbar-color, rgba(255, 255, 255, 0.08)) transparent !important;
   transition: scrollbar-color 0.2s ease !important;
 }
 
 .modern-ui-v3 .failover-group-list-content:hover,
 .modern-ui-v3 .channel-list-container:hover,
 .modern-ui-v3 .selector-content:hover {
-  scrollbar-color: var(--accent-primary, rgba(0, 212, 255, 0.5)) transparent !important;
+  scrollbar-color: var(--scrollbar-color-hover, var(--accent-primary, rgba(0, 212, 255, 0.5))) transparent !important;
 }
 
 .modern-ui-v3 .failover-group-list-content::-webkit-scrollbar,
 .modern-ui-v3 .channel-list-container::-webkit-scrollbar,
 .modern-ui-v3 .selector-content::-webkit-scrollbar {
-  width: 6px !important;
-  height: 6px !important;
+  width: var(--scrollbar-width, 6px) !important;
+  height: var(--scrollbar-width, 6px) !important;
 }
 
 .modern-ui-v3 .failover-group-list-content::-webkit-scrollbar-track,
 .modern-ui-v3 .channel-list-container::-webkit-scrollbar-track,
 .modern-ui-v3 .selector-content::-webkit-scrollbar-track {
-  background: transparent !important;
+  background: var(--scrollbar-track-bg, transparent) !important;
 }
 
 .modern-ui-v3 .failover-group-list-content::-webkit-scrollbar-thumb,
 .modern-ui-v3 .channel-list-container::-webkit-scrollbar-thumb,
 .modern-ui-v3 .selector-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-radius: 4px !important;
+  background: var(--scrollbar-thumb-bg, rgba(255, 255, 255, 0.08)) !important;
+  border-radius: var(--scrollbar-thumb-radius-round, 4px) !important;
   transition: background 0.2s ease !important;
 }
 
 .modern-ui-v3 .failover-group-list-content:hover::-webkit-scrollbar-thumb,
 .modern-ui-v3 .channel-list-container:hover::-webkit-scrollbar-thumb,
 .modern-ui-v3 .selector-content:hover::-webkit-scrollbar-thumb {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.25)) !important;
+  background: var(--scrollbar-thumb-container-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.25))) !important;
 }
 
 .modern-ui-v3 .failover-group-list-content::-webkit-scrollbar-thumb:hover,
 .modern-ui-v3 .channel-list-container::-webkit-scrollbar-thumb:hover,
 .modern-ui-v3 .selector-content::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-primary, #00d4ff) !important;
+  background: var(--scrollbar-thumb-hover-bg, var(--accent-primary, #00d4ff)) !important;
 }
 
 /* Light Theme Scrollbar Glow Overrides */
@@ -3642,61 +3827,65 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 
 /* 3. Headers & Footers */
 
+/* 3. Headers, Footers & Titles — chrome token-driven via --sm-a-*; the
+   header/footer/col separators, titles, and toggle/button surfaces all carry
+   per-version values (dark block + light block). */
+
 .modern-ui-v3 .track-modal-header,
 .modern-ui-v3 .subtitle-modal-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: transparent !important;
-  padding: 16px 20px !important;
+  border-bottom: var(--sm-a-hdr-border-bottom, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  background: var(--sm-a-hdr-bg, transparent) !important;
+  padding: var(--sm-a-hdr-padding, 16px 20px) !important;
 }
 
 .modern-ui-v3 .track-modal-header h3,
 .modern-ui-v3 .subtitle-modal-header h3 {
   font-size: 1.15rem !important;
   font-weight: 600 !important;
-  color: #fff !important;
+  color: var(--sm-a-hdr-title-color, #fff) !important;
   margin: 0 !important;
 }
 
 .modern-ui-v3 .track-modal-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: transparent !important;
-  padding: 16px 20px !important;
+  border-top: var(--sm-a-footer-border-top, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  background: var(--sm-a-footer-bg, transparent) !important;
+  padding: var(--sm-a-footer-padding, 16px 20px) !important;
 }
-
-/* 4. Close Buttons */
 
 /* 6. List Separator Borders & Titles */
 
 .modern-ui-v3 .subtitle-col {
-  border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-right: var(--sm-a-col-border-right, 1px solid rgba(255, 255, 255, 0.06)) !important;
 }
 
 .modern-ui-v3 .subtitle-col-title {
-  color: rgba(255, 255, 255, 0.45) !important;
+  color: var(--sm-a-col-title-color, rgba(255, 255, 255, 0.45)) !important;
   font-size: 0.7rem !important;
   font-weight: 700 !important;
   letter-spacing: 0.06em !important;
 }
 
 .modern-ui-v3 .track-section-title {
-  color: rgba(255, 255, 255, 0.45) !important;
+  color: var(--sm-a-sec-title-color, rgba(255, 255, 255, 0.45)) !important;
   font-size: 0.72rem !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-bottom: var(--sm-a-sec-title-border-bottom, 1px solid rgba(255, 255, 255, 0.05)) !important;
 }
 
-/* 7. Modal Items & List Buttons */
+/* 7. Modal Items & List Buttons — item surfaces share the --sm-result-* family
+   (the subtitle-result-btn base consumes the same tokens) and the selected
+   state reuses --sm-ep-filter-active-*; values are value-identical per theme. */
 
 .modern-ui-v3 .track-item,
 .modern-ui-v3 .subtitle-lang-btn,
 .modern-ui-v3 .subtitle-track-btn,
 .modern-ui-v3 .subtitle-movie-btn {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border: 1px solid rgba(255, 255, 255, 0.04) !important;
-  border-radius: 8px !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  margin: 4px 8px !important;
-  padding: 10px 12px !important;
-  color: rgba(255, 255, 255, 0.8) !important;
+  background: var(--sm-result-bg, rgba(255, 255, 255, 0.02)) !important;
+  border: var(--sm-result-border, 1px solid rgba(255, 255, 255, 0.04)) !important;
+  border-radius: var(--sm-result-radius, 8px) !important;
+  transition: var(--sm-result-transition, all 0.2s cubic-bezier(0.16, 1, 0.3, 1)) !important;
+  margin: var(--sm-result-margin, 4px 8px) !important;
+  padding: var(--sm-result-pad, 10px 12px) !important;
+  color: var(--sm-result-color, rgba(255, 255, 255, 0.8)) !important;
   text-align: left !important;
   display: flex !important;
   justify-content: space-between !important;
@@ -3712,19 +3901,19 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 .modern-ui-v3 .subtitle-lang-btn:hover,
 .modern-ui-v3 .subtitle-track-btn:hover,
 .modern-ui-v3 .subtitle-movie-btn:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
-  color: #fff !important;
-  transform: translateY(-0.5px) !important;
+  background: var(--sm-result-hover-bg, rgba(255, 255, 255, 0.06)) !important;
+  border-color: var(--sm-result-hover-border, rgba(255, 255, 255, 0.12)) !important;
+  color: var(--sm-result-hover-color, #fff) !important;
+  transform: var(--sm-result-hover-transform, translateY(-0.5px)) !important;
 }
 
 .modern-ui-v3 .track-item.selected,
 .modern-ui-v3 .subtitle-lang-btn.active,
 .modern-ui-v3 .subtitle-track-btn.active {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, rgba(255, 255, 255, 0.06)) !important;
-  color: #fff !important;
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15)) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  background: var(--sm-ep-filter-active-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, rgba(255, 255, 255, 0.06))) !important;
+  color: var(--sm-ep-filter-active-color, #fff) !important;
+  border: var(--sm-ep-filter-active-border-full, 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15))) !important;
+  box-shadow: var(--sm-ep-filter-active-shadow, 0 4px 12px rgba(0, 0, 0, 0.1)) !important;
   font-weight: 600 !important;
 }
 
@@ -3737,7 +3926,7 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 }
 
 .modern-ui-v3 .subtitle-track-variant-title {
-  color: #fff !important;
+  color: var(--sm-a-variant-title-color, #fff) !important;
 }
 
 /* 8. Subtitle Settings Controls (Delay, Size, Offset) */
@@ -3747,7 +3936,7 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 }
 
 .modern-ui-v3 .subtitle-toggle-slider {
-  background: rgba(255, 255, 255, 0.12) !important;
+  background: var(--sm-a-toggle-bg, rgba(255, 255, 255, 0.12)) !important;
 }
 
 .modern-ui-v3 .subtitle-toggle-switch input:checked + .subtitle-toggle-slider {
@@ -3757,19 +3946,19 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 /* 9. Action Buttons */
 
 .modern-ui-v3 .track-modal-btn {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-  border-radius: 8px !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  padding: 8px 16px !important;
+  background: var(--sm-a-btn-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--sm-a-btn-border, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  color: var(--sm-a-btn-color, rgba(255, 255, 255, 0.8)) !important;
+  border-radius: var(--sm-a-btn-radius, 8px) !important;
+  transition: var(--sm-a-btn-transition, all 0.2s cubic-bezier(0.16, 1, 0.3, 1)) !important;
+  padding: var(--sm-a-btn-pad, 8px 16px) !important;
 }
 
 .modern-ui-v3 .track-modal-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  transform: translateY(-1px) !important;
+  background: var(--sm-a-btn-hover-bg, rgba(255, 255, 255, 0.12)) !important;
+  border-color: var(--sm-a-btn-hover-border, rgba(255, 255, 255, 0.2)) !important;
+  color: var(--sm-a-btn-hover-color, #fff) !important;
+  transform: var(--sm-a-btn-hover-transform, translateY(-1px)) !important;
 }
 
 .modern-ui-v3 .subtitle-result-action {
@@ -3784,19 +3973,19 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
   border-color: var(--accent-primary, #00d4ff) !important;
 }
 
-/* 10. Scrollbar customization */
+/* 10. Scrollbar customization — shared --scrollbar-* family */
 
 .modern-ui-v3 .track-modal-content::-webkit-scrollbar-thumb,
 .modern-ui-v3 .subtitle-col::-webkit-scrollbar-thumb,
 .modern-ui-v3 .subtitle-search-results::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-radius: 3px !important;
+  background: var(--scrollbar-thumb-bg, rgba(255, 255, 255, 0.08)) !important;
+  border-radius: var(--scrollbar-thumb-radius, 3px) !important;
 }
 
 .modern-ui-v3 .track-modal-content::-webkit-scrollbar-thumb:hover,
 .modern-ui-v3 .subtitle-col::-webkit-scrollbar-thumb:hover,
 .modern-ui-v3 .subtitle-search-results::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-primary, #00d4ff) !important;
+  background: var(--scrollbar-thumb-hover-bg, var(--accent-primary, #00d4ff)) !important;
 }
 
 /* ==========================================================================
@@ -3807,75 +3996,75 @@ html.modern-ui-v3[data-theme="light"] .selector-content::-webkit-scrollbar-thumb
 
 html.modern-ui-v3[data-theme="light"] .track-modal-header,
 html.modern-ui-v3[data-theme="light"] .subtitle-modal-header {
-  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+  border-bottom: var(--sm-a-hdr-border-bottom, 1px solid rgba(0, 0, 0, 0.08)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .track-modal-header h3,
 html.modern-ui-v3[data-theme="light"] .subtitle-modal-header h3 {
-  color: #000 !important;
+  color: var(--sm-a-hdr-title-color, #000) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .track-modal-footer {
-  border-top-color: rgba(0, 0, 0, 0.08) !important;
+  border-top: var(--sm-a-footer-border-top, 1px solid rgba(0, 0, 0, 0.08)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .subtitle-col {
-  border-right-color: rgba(0, 0, 0, 0.06) !important;
+  border-right: var(--sm-a-col-border-right, 1px solid rgba(0, 0, 0, 0.06)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .subtitle-col-title,
 html.modern-ui-v3[data-theme="light"] .track-section-title {
-  color: rgba(0, 0, 0, 0.45) !important;
+  color: var(--sm-a-col-title-color, rgba(0, 0, 0, 0.45)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .track-section-title {
-  border-bottom-color: rgba(0, 0, 0, 0.05) !important;
+  border-bottom: var(--sm-a-sec-title-border-bottom, 1px solid rgba(0, 0, 0, 0.05)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .track-item,
 html.modern-ui-v3[data-theme="light"] .subtitle-lang-btn,
 html.modern-ui-v3[data-theme="light"] .subtitle-track-btn,
 html.modern-ui-v3[data-theme="light"] .subtitle-movie-btn {
-  background: rgba(0, 0, 0, 0.01) !important;
-  border-color: rgba(0, 0, 0, 0.04) !important;
-  color: rgba(0, 0, 0, 0.8) !important;
+  background: var(--sm-result-bg, rgba(0, 0, 0, 0.01)) !important;
+  border: var(--sm-result-border, 1px solid rgba(0, 0, 0, 0.04)) !important;
+  color: var(--sm-result-color, rgba(0, 0, 0, 0.8)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .track-item:hover,
 html.modern-ui-v3[data-theme="light"] .subtitle-lang-btn:hover,
 html.modern-ui-v3[data-theme="light"] .subtitle-track-btn:hover,
 html.modern-ui-v3[data-theme="light"] .subtitle-movie-btn:hover {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: #000 !important;
+  background: var(--sm-result-hover-bg, rgba(0, 0, 0, 0.04)) !important;
+  border-color: var(--sm-result-hover-border, rgba(0, 0, 0, 0.08)) !important;
+  color: var(--sm-result-hover-color, #000) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .track-item.selected,
 html.modern-ui-v3[data-theme="light"] .subtitle-lang-btn.active,
 html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, rgba(0, 0, 0, 0.03)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(0, 0, 0, 0.08)) !important;
-  color: #000 !important;
+  background: var(--sm-ep-filter-active-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, rgba(0, 0, 0, 0.03))) !important;
+  border-color: var(--sm-ep-filter-active-border, color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(0, 0, 0, 0.08))) !important;
+  color: var(--sm-ep-filter-active-color, #000) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .subtitle-toggle-slider {
-  background: rgba(0, 0, 0, 0.08) !important;
+  background: var(--sm-a-toggle-bg, rgba(0, 0, 0, 0.08)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .track-modal-btn {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.7) !important;
+  background: var(--sm-a-btn-bg, rgba(0, 0, 0, 0.03)) !important;
+  border: var(--sm-a-btn-border, 1px solid rgba(0, 0, 0, 0.08)) !important;
+  color: var(--sm-a-btn-color, rgba(0, 0, 0, 0.7)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .track-modal-btn:hover {
-  background: rgba(0, 0, 0, 0.06) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
+  background: var(--sm-a-btn-hover-bg, rgba(0, 0, 0, 0.06)) !important;
+  border-color: var(--sm-a-btn-hover-border, rgba(0, 0, 0, 0.15)) !important;
+  color: var(--sm-a-btn-hover-color, #000) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .subtitle-track-variant-title {
-  color: #000 !important;
+  color: var(--sm-a-variant-title-color, #000) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track-variant-title {
@@ -3888,26 +4077,27 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 
    ========================================================================== */
 
-/* 1. Backdrop Overlays */
+/* 1. Backdrop Overlays — shared --glass-overlay-* family */
 
 .modern-ui-v3 .advanced-search-overlay {
-  background: rgba(8, 8, 12, 0.4) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
+  background: var(--glass-overlay-bg, rgba(8, 8, 12, 0.4)) !important;
+  backdrop-filter: var(--glass-overlay-filter, blur(10px)) !important;
+  -webkit-backdrop-filter: var(--glass-overlay-filter, blur(10px)) !important;
 }
 
-/* 3. Headers & Footers */
+/* 3. Headers & Footers — chrome reuses the --sm-a-hdr-* and --sm-a-footer-*
+   families with the dedicated --sm-as-* paddings */
 
 .modern-ui-v3 .advanced-search-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: transparent !important;
-  padding: 20px 24px 16px !important;
+  border-bottom: var(--sm-a-hdr-border-bottom, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  background: var(--sm-a-hdr-bg, transparent) !important;
+  padding: var(--sm-as-hdr-padding, 20px 24px 16px) !important;
 }
 
 .modern-ui-v3 .advanced-search-title h2 {
   font-size: 1.15rem !important;
   font-weight: 600 !important;
-  color: #fff !important;
+  color: var(--sm-a-hdr-title-color, #fff) !important;
   margin: 0 !important;
 }
 
@@ -3916,36 +4106,37 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 }
 
 .modern-ui-v3 .advanced-search-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: transparent !important;
-  padding: 16px 24px 20px !important;
+  border-top: var(--sm-a-footer-border-top, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  background: var(--sm-a-footer-bg, transparent) !important;
+  padding: var(--sm-as-footer-padding, 16px 24px 20px) !important;
 }
 
-/* 4. Close Buttons */
+/* 4. Close Buttons — shared --sm-close-* family (same values as the other
+   glass modals, dark + light) */
 
 .modern-ui-v3 .advanced-search-close-btn {
-  border-radius: 50% !important;
-  width: 32px !important;
-  height: 32px !important;
+  border-radius: var(--sm-close-radius, 50%) !important;
+  width: var(--sm-close-size, 32px) !important;
+  height: var(--sm-close-size, 32px) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.6) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background: var(--sm-close-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--sm-close-border, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  color: var(--sm-close-color, rgba(255, 255, 255, 0.6)) !important;
+  transition: var(--sm-close-transition, all 0.2s cubic-bezier(0.16, 1, 0.3, 1)) !important;
 }
 
 .modern-ui-v3 .advanced-search-close-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
+  background: var(--sm-close-hover-bg, rgba(255, 255, 255, 0.12)) !important;
+  border-color: var(--sm-close-hover-border, rgba(255, 255, 255, 0.2)) !important;
+  color: var(--sm-close-hover-color, #fff) !important;
 }
 
 /* 5. Labels & Links */
 
 .modern-ui-v3 .advanced-search-label {
-  color: rgba(255, 255, 255, 0.45) !important;
+  color: var(--sm-a-col-title-color, rgba(255, 255, 255, 0.45)) !important;
   font-size: 0.7rem !important;
   font-weight: 700 !important;
   letter-spacing: 0.06em !important;
@@ -3961,76 +4152,79 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 }
 
 .modern-ui-v3 .action-divider {
-  color: rgba(255, 255, 255, 0.15) !important;
+  color: var(--sm-as-divider-color, rgba(255, 255, 255, 0.15)) !important;
 }
 
-/* 6. Search Input Controls */
+/* 6. Search Input Controls — reuses the --sm-search-input-* family (the
+   subtitle modal's search input carries the identical values) plus the
+   --sm-as-* extras (placeholder, clear button) */
 
 .modern-ui-v3 .advanced-search-input-wrap {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 10px !important;
+  background: var(--sm-search-input-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--sm-search-input-border, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  border-radius: var(--sm-search-input-radius, 10px) !important;
   padding: 0 14px !important;
   height: 44px !important;
-  transition: all 0.2s ease !important;
+  transition: var(--sm-search-input-transition, all 0.2s ease) !important;
 }
 
 .modern-ui-v3 .advanced-search-input-wrap:focus-within {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) !important;
+  background: var(--sm-search-input-focus-bg, rgba(255, 255, 255, 0.08)) !important;
+  border-color: var(--sm-search-input-focus-border, rgba(255, 255, 255, 0.2)) !important;
+  box-shadow: var(--sm-search-input-focus-shadow, 0 0 0 2px rgba(255, 255, 255, 0.05)) !important;
 }
 
 .modern-ui-v3 .advanced-search-input {
-  color: #fff !important;
+  color: var(--sm-search-input-color, #fff) !important;
   font-size: 14px !important;
 }
 
 .modern-ui-v3 .advanced-search-input::placeholder {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: var(--sm-as-input-placeholder, rgba(255, 255, 255, 0.3)) !important;
 }
 
 .modern-ui-v3 .advanced-search-input-clear {
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.6) !important;
-  border-radius: 6px !important;
+  background: var(--sm-as-clear-bg, rgba(255, 255, 255, 0.08)) !important;
+  color: var(--sm-as-clear-color, rgba(255, 255, 255, 0.6)) !important;
+  border-radius: var(--sm-as-clear-radius, 6px) !important;
   transition: all 0.2s ease !important;
 }
 
 .modern-ui-v3 .advanced-search-input-clear:hover {
-  background: rgba(255, 255, 255, 0.15) !important;
-  color: #fff !important;
+  background: var(--sm-as-clear-hover-bg, rgba(255, 255, 255, 0.15)) !important;
+  color: var(--sm-as-clear-hover-color, #fff) !important;
 }
 
-/* 7. Scope Buttons */
+/* 7. Scope Buttons — --sm-as-scope-*; the active state reuses
+   --sm-ep-filter-active-* (value-identical in both themes) */
 
 .modern-ui-v3 .scope-btn {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.7) !important;
-  border-radius: 8px !important;
+  background: var(--sm-as-scope-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--sm-as-scope-border, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  color: var(--sm-as-scope-color, rgba(255, 255, 255, 0.7)) !important;
+  border-radius: var(--sm-as-scope-radius, 8px) !important;
   font-weight: 600 !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: var(--sm-as-scope-transition, all 0.2s cubic-bezier(0.16, 1, 0.3, 1)) !important;
 }
 
 .modern-ui-v3 .scope-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
+  background: var(--sm-as-scope-hover-bg, rgba(255, 255, 255, 0.12)) !important;
+  border-color: var(--sm-as-scope-hover-border, rgba(255, 255, 255, 0.2)) !important;
+  color: var(--sm-as-scope-hover-color, #fff) !important;
 }
 
 .modern-ui-v3 .scope-btn.active {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, rgba(255, 255, 255, 0.06)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15)) !important;
-  color: #fff !important;
+  background: var(--sm-ep-filter-active-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 18%, rgba(255, 255, 255, 0.06))) !important;
+  border-color: var(--sm-ep-filter-active-border, color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15))) !important;
+  color: var(--sm-ep-filter-active-color, #fff) !important;
 }
 
 /* 8. Filters & Checkboxes */
 
 .modern-ui-v3 .advanced-search-filters {
-  background: rgba(0, 0, 0, 0.15) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-radius: 10px !important;
+  background: var(--sm-as-filters-bg, rgba(0, 0, 0, 0.15)) !important;
+  border: var(--sm-as-filters-border, 1px solid rgba(255, 255, 255, 0.06)) !important;
+  border-radius: var(--sm-as-filters-radius, 10px) !important;
 }
 
 .modern-ui-v3 .filter-source-header,
@@ -4040,25 +4234,25 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 
 .modern-ui-v3 .filter-source-header:hover,
 .modern-ui-v3 .filter-category-item:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
+  background: var(--sm-as-filter-hover-bg, rgba(255, 255, 255, 0.05)) !important;
 }
 
 .modern-ui-v3 .filter-source-name {
-  color: rgba(255, 255, 255, 0.85) !important;
+  color: var(--sm-as-src-name-color, rgba(255, 255, 255, 0.85)) !important;
 }
 
 .modern-ui-v3 .filter-category-name {
-  color: rgba(255, 255, 255, 0.6) !important;
+  color: var(--sm-as-cat-name-color, rgba(255, 255, 255, 0.6)) !important;
   transition: color 0.15s ease !important;
 }
 
 .modern-ui-v3 .filter-category-item.selected .filter-category-name {
-  color: #fff !important;
+  color: var(--sm-as-cat-name-sel-color, #fff) !important;
 }
 
 .modern-ui-v3 .filter-checkbox {
-  border-color: rgba(255, 255, 255, 0.3) !important;
-  border-radius: 5px !important;
+  border-color: var(--sm-as-checkbox-border, rgba(255, 255, 255, 0.3)) !important;
+  border-radius: var(--sm-as-checkbox-radius, 5px) !important;
   background: transparent !important;
 }
 
@@ -4075,22 +4269,22 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 /* 9. Loading & Empty States */
 
 .modern-ui-v3 .advanced-search-loading {
-  color: rgba(255, 255, 255, 0.5) !important;
+  color: var(--sm-as-loading-color, rgba(255, 255, 255, 0.5)) !important;
 }
 
 .modern-ui-v3 .spinner-small {
-  border-color: rgba(255, 255, 255, 0.15) !important;
+  border-color: var(--sm-as-spinner-border, rgba(255, 255, 255, 0.15)) !important;
   border-top-color: var(--accent-primary, #00d4ff) !important;
 }
 
 .modern-ui-v3 .advanced-search-empty {
-  color: rgba(255, 255, 255, 0.4) !important;
+  color: var(--sm-as-empty-color, rgba(255, 255, 255, 0.4)) !important;
 }
 
 /* 10. Toggles & Switches */
 
 .modern-ui-v3 .advanced-search-modal .toggle-switch {
-  background: rgba(255, 255, 255, 0.15) !important;
+  background: var(--sm-as-toggle-bg, rgba(255, 255, 255, 0.15)) !important;
 }
 
 .modern-ui-v3 .advanced-search-modal .toggle-switch.on {
@@ -4098,47 +4292,48 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
 }
 
 .modern-ui-v3 .advanced-search-modal .toggle-label {
-  color: rgba(255, 255, 255, 0.75) !important;
+  color: var(--sm-as-toggle-label-color, rgba(255, 255, 255, 0.75)) !important;
 }
 
-/* 11. Footer buttons */
+/* 11. Footer buttons — primary reuses --sm-save-* (the settings save-btn
+   carries the identical values), secondary uses --sm-as-secondary-* */
 
 .modern-ui-v3 .advanced-search-btn.primary {
-  background: var(--accent-primary, #00d4ff) !important;
-  color: #121424 !important;
+  background: var(--sm-save-bg, var(--accent-primary, #00d4ff)) !important;
+  color: var(--sm-save-color, #121424) !important;
   font-weight: 600 !important;
-  border: 1px solid transparent !important;
-  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.25) !important;
+  border: var(--sm-save-border, 1px solid transparent) !important;
+  box-shadow: var(--sm-save-shadow, 0 4px 12px rgba(0, 212, 255, 0.25)) !important;
 }
 
 .modern-ui-v3 .advanced-search-btn.primary:hover:not(.disabled) {
-  background: #33e0ff !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 6px 16px rgba(0, 212, 255, 0.4) !important;
+  background: var(--sm-save-hover-bg, #33e0ff) !important;
+  transform: var(--sm-save-hover-transform, translateY(-1px)) !important;
+  box-shadow: var(--sm-save-hover-shadow, 0 6px 16px rgba(0, 212, 255, 0.4)) !important;
 }
 
 .modern-ui-v3 .advanced-search-btn.secondary {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: rgba(255, 255, 255, 0.8) !important;
+  background: var(--sm-as-secondary-bg, rgba(255, 255, 255, 0.04)) !important;
+  border: var(--sm-as-secondary-border, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  color: var(--sm-as-secondary-color, rgba(255, 255, 255, 0.8)) !important;
 }
 
 .modern-ui-v3 .advanced-search-btn.secondary:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
+  background: var(--sm-as-secondary-hover-bg, rgba(255, 255, 255, 0.12)) !important;
+  border-color: var(--sm-as-secondary-hover-border, rgba(255, 255, 255, 0.2)) !important;
+  color: var(--sm-as-secondary-hover-color, #fff) !important;
 }
 
-/* 12. Scrollbar customization */
+/* 12. Scrollbar customization — shared --scrollbar-* family */
 
 .modern-ui-v3 .advanced-search-filters::-webkit-scrollbar-thumb,
 .modern-ui-v3 .advanced-search-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08) !important;
+  background: var(--scrollbar-thumb-bg, rgba(255, 255, 255, 0.08)) !important;
 }
 
 .modern-ui-v3 .advanced-search-filters::-webkit-scrollbar-thumb:hover,
 .modern-ui-v3 .advanced-search-body::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-primary, #00d4ff) !important;
+  background: var(--scrollbar-thumb-hover-bg, var(--accent-primary, #00d4ff)) !important;
 }
 
 /* ==========================================================================
@@ -4148,21 +4343,18 @@ html.modern-ui-v3[data-theme="light"] .subtitle-track-btn.active .subtitle-track
    ========================================================================== */
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-modal {
-  background: rgba(255, 255, 255, 0.45) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 8px 32px rgba(0, 0, 0, 0.08),
-    0 2px 8px rgba(0, 0, 0, 0.02) !important;
-  color: #000 !important;
+  background: var(--sm-as-modal-bg, rgba(255, 255, 255, 0.45)) !important;
+  border: var(--sm-as-modal-border, 1px solid rgba(0, 0, 0, 0.08)) !important;
+  box-shadow: var(--sm-as-modal-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.02)) !important;
+  color: var(--sm-as-modal-color, #000) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-header {
-  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+  border-bottom: var(--sm-a-hdr-border-bottom, 1px solid rgba(0, 0, 0, 0.08)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-title h2 {
-  color: #000 !important;
+  color: var(--sm-a-hdr-title-color, #000) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-title svg {
@@ -4170,117 +4362,117 @@ html.modern-ui-v3[data-theme="light"] .advanced-search-title svg {
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-footer {
-  border-top-color: rgba(0, 0, 0, 0.08) !important;
+  border-top: var(--sm-a-footer-border-top, 1px solid rgba(0, 0, 0, 0.08)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-close-btn {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.6) !important;
+  background: var(--sm-close-bg, rgba(0, 0, 0, 0.04)) !important;
+  border: var(--sm-close-border, 1px solid rgba(0, 0, 0, 0.08)) !important;
+  color: var(--sm-close-color, rgba(0, 0, 0, 0.6)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-close-btn:hover {
-  background: rgba(0, 0, 0, 0.08) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
+  background: var(--sm-close-hover-bg, rgba(0, 0, 0, 0.08)) !important;
+  border-color: var(--sm-close-hover-border, rgba(0, 0, 0, 0.15)) !important;
+  color: var(--sm-close-hover-color, #000) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-label {
-  color: rgba(0, 0, 0, 0.45) !important;
+  color: var(--sm-a-col-title-color, rgba(0, 0, 0, 0.45)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .action-divider {
-  color: rgba(0, 0, 0, 0.15) !important;
+  color: var(--sm-as-divider-color, rgba(0, 0, 0, 0.15)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-input-wrap {
-  background: rgba(0, 0, 0, 0.02) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
+  background: var(--sm-search-input-bg, rgba(0, 0, 0, 0.02)) !important;
+  border: var(--sm-search-input-border, 1px solid rgba(0, 0, 0, 0.08)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-input-wrap:focus-within {
-  background: rgba(0, 0, 0, 0.05) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.03) !important;
+  background: var(--sm-search-input-focus-bg, rgba(0, 0, 0, 0.05)) !important;
+  border-color: var(--sm-search-input-focus-border, rgba(0, 0, 0, 0.15)) !important;
+  box-shadow: var(--sm-search-input-focus-shadow, 0 0 0 2px rgba(0, 0, 0, 0.03)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-input {
-  color: #000 !important;
+  color: var(--sm-search-input-color, #000) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-input::placeholder {
-  color: rgba(0, 0, 0, 0.3) !important;
+  color: var(--sm-as-input-placeholder, rgba(0, 0, 0, 0.3)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-input-clear {
-  background: rgba(0, 0, 0, 0.05) !important;
-  color: rgba(0, 0, 0, 0.6) !important;
+  background: var(--sm-as-clear-bg, rgba(0, 0, 0, 0.05)) !important;
+  color: var(--sm-as-clear-color, rgba(0, 0, 0, 0.6)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-input-clear:hover {
-  background: rgba(0, 0, 0, 0.1) !important;
-  color: #000 !important;
+  background: var(--sm-as-clear-hover-bg, rgba(0, 0, 0, 0.1)) !important;
+  color: var(--sm-as-clear-hover-color, #000) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .scope-btn {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.7) !important;
+  background: var(--sm-as-scope-bg, rgba(0, 0, 0, 0.03)) !important;
+  border: var(--sm-as-scope-border, 1px solid rgba(0, 0, 0, 0.08)) !important;
+  color: var(--sm-as-scope-color, rgba(0, 0, 0, 0.7)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .scope-btn:hover {
-  background: rgba(0, 0, 0, 0.06) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
+  background: var(--sm-as-scope-hover-bg, rgba(0, 0, 0, 0.06)) !important;
+  border-color: var(--sm-as-scope-hover-border, rgba(0, 0, 0, 0.15)) !important;
+  color: var(--sm-as-scope-hover-color, #000) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .scope-btn.active {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, rgba(0, 0, 0, 0.03)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(0, 0, 0, 0.08)) !important;
-  color: #000 !important;
+  background: var(--sm-ep-filter-active-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 12%, rgba(0, 0, 0, 0.03))) !important;
+  border-color: var(--sm-ep-filter-active-border, color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, rgba(0, 0, 0, 0.08))) !important;
+  color: var(--sm-ep-filter-active-color, #000) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-filters {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border-color: rgba(0, 0, 0, 0.06) !important;
+  background: var(--sm-as-filters-bg, rgba(0, 0, 0, 0.03)) !important;
+  border: var(--sm-as-filters-border, 1px solid rgba(0, 0, 0, 0.06)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .filter-source-header:hover,
 html.modern-ui-v3[data-theme="light"] .filter-category-item:hover {
-  background: rgba(0, 0, 0, 0.04) !important;
+  background: var(--sm-as-filter-hover-bg, rgba(0, 0, 0, 0.04)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .filter-source-name {
-  color: rgba(0, 0, 0, 0.85) !important;
+  color: var(--sm-as-src-name-color, rgba(0, 0, 0, 0.85)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .filter-category-name {
-  color: rgba(0, 0, 0, 0.6) !important;
+  color: var(--sm-as-cat-name-color, rgba(0, 0, 0, 0.6)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .filter-category-item.selected .filter-category-name {
-  color: #000 !important;
+  color: var(--sm-as-cat-name-sel-color, #000) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .filter-checkbox {
-  border-color: rgba(0, 0, 0, 0.25) !important;
+  border-color: var(--sm-as-checkbox-border, rgba(0, 0, 0, 0.25)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .filter-source-count,
 html.modern-ui-v3[data-theme="light"] .filter-category-count {
-  color: rgba(0, 0, 0, 0.35) !important;
+  color: var(--sm-as-count-color, rgba(0, 0, 0, 0.35)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-loading {
-  color: rgba(0, 0, 0, 0.5) !important;
+  color: var(--sm-as-loading-color, rgba(0, 0, 0, 0.5)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-empty {
-  color: rgba(0, 0, 0, 0.4) !important;
+  color: var(--sm-as-empty-color, rgba(0, 0, 0, 0.4)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-modal .toggle-switch {
-  background: rgba(0, 0, 0, 0.08) !important;
+  background: var(--sm-as-toggle-bg, rgba(0, 0, 0, 0.08)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-modal .toggle-switch.on {
@@ -4288,19 +4480,19 @@ html.modern-ui-v3[data-theme="light"] .advanced-search-modal .toggle-switch.on {
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-modal .toggle-label {
-  color: rgba(0, 0, 0, 0.7) !important;
+  color: var(--sm-as-toggle-label-color, rgba(0, 0, 0, 0.7)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-btn.secondary {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.7) !important;
+  background: var(--sm-as-secondary-bg, rgba(0, 0, 0, 0.03)) !important;
+  border: var(--sm-as-secondary-border, 1px solid rgba(0, 0, 0, 0.08)) !important;
+  color: var(--sm-as-secondary-color, rgba(0, 0, 0, 0.7)) !important;
 }
 
 html.modern-ui-v3[data-theme="light"] .advanced-search-btn.secondary:hover {
-  background: rgba(0, 0, 0, 0.06) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
+  background: var(--sm-as-secondary-hover-bg, rgba(0, 0, 0, 0.06)) !important;
+  border-color: var(--sm-as-secondary-hover-border, rgba(0, 0, 0, 0.15)) !important;
+  color: var(--sm-as-secondary-hover-color, #000) !important;
 }
 
 /* ============================================
