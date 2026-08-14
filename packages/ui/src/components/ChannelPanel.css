@@ -711,7 +711,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 24px;
-  border-bottom: var(--glass-border, 1px solid rgba(255, 255, 255, 0.08));
+  border-bottom: var(--guide-header-border-bottom, var(--glass-border, 1px solid rgba(255, 255, 255, 0.08)));
   background: var(--guide-header-bg, var(--surface-color, rgba(20, 20, 20, 0.85)));
   backdrop-filter: var(--guide-header-filter, blur(var(--glass-blur, 10px)));
   -webkit-backdrop-filter: var(--guide-header-filter, blur(var(--glass-blur, 10px)));
@@ -1029,16 +1029,17 @@
   display: flex;
   align-items: center;
   height: 32px;
-  border-bottom: var(--glass-border, 1px solid rgba(255, 255, 255, 0.06));
+  border-bottom: var(--guide-time-header-border-bottom, var(--glass-border, 1px solid rgba(255, 255, 255, 0.06)));
   flex-shrink: 0;
-  background: var(--surface-color, rgba(0, 0, 0, 0.3));
+  background: var(--guide-time-header-bg, var(--surface-color, rgba(0, 0, 0, 0.3)));
   backdrop-filter: blur(var(--glass-blur, 10px));
   -webkit-backdrop-filter: blur(var(--glass-blur, 10px));
 }
 
 .guide-time-header-spacer {
   flex-shrink: 0;
-  border-right: var(--glass-border, 1px solid rgba(255, 255, 255, 0.06));
+  background: var(--guide-time-spacer-bg, transparent);
+  border-right: var(--guide-time-spacer-border-right, var(--glass-border, 1px solid rgba(255, 255, 255, 0.06)));
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -1112,6 +1113,7 @@
   display: flex;
   align-items: stretch;
   min-height: var(--guide-row-min-height, 56px);
+  background: var(--guide-row-bg, transparent);
   border-bottom: var(--guide-row-border-bottom, 1px solid var(--surface-border, rgba(255, 255, 255, 0.04)));
   position: relative;
   transition: var(--guide-row-transition, none);
@@ -1139,7 +1141,7 @@
 
 .guide-channel-row:hover,
 .guide-channel-row.hovered {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.03));
+  background: var(--guide-row-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.03)));
 }
 
 /* Currently playing channel highlight (v2/v3 accent tint + glow bar via tokens) */
@@ -1155,6 +1157,11 @@
   color: var(--guide-row-current-name-color, var(--text-secondary, rgba(255, 255, 255, 0.9)));
   text-shadow: var(--guide-row-current-name-shadow, none);
 }
+
+.guide-channel-row.currently-playing:hover .guide-channel-name {
+  color: var(--guide-row-current-name-hover-color, inherit);
+}
+
 
 /* Left accent glow bar on the currently playing channel (v2/v3 via tokens) */
 .guide-channel-row.currently-playing::before {
@@ -1172,7 +1179,7 @@
 }
 
 .guide-channel-row.currently-playing .guide-channel-info {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.05));
+  background: var(--guide-info-current-bg, var(--surface-hover, rgba(255, 255, 255, 0.05)));
 }
 
 /* Highlight border around currently playing channel when epg-highlight-border-current is enabled on document */
@@ -1198,7 +1205,8 @@ html.epg-highlight-border-current .guide-channel-row.currently-playing::after {
   align-items: center;
   gap: var(--guide-info-gap, 12px);
   padding: var(--guide-info-padding, 8px 16px);
-  border-right: var(--glass-border, 1px solid rgba(255, 255, 255, 0.06));
+  background: var(--guide-info-bg, transparent);
+  border-right: var(--guide-info-border-right, var(--glass-border, 1px solid rgba(255, 255, 255, 0.06)));
   cursor: pointer;
   transition: var(--guide-info-transition, background 0.15s ease);
   flex-shrink: 0;
@@ -1208,7 +1216,7 @@ html.epg-highlight-border-current .guide-channel-row.currently-playing::after {
 }
 
 .guide-channel-info:hover {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.05));
+  background: var(--guide-info-hover-bg, var(--surface-hover, rgba(255, 255, 255, 0.05)));
 }
 
 .guide-channel-info:active {
@@ -1266,10 +1274,11 @@ html.epg-highlight-border-current .guide-channel-row.currently-playing::after {
 
 .guide-channel-number {
   font-size: 0.75rem;
-  color: var(--text-muted, rgba(255, 255, 255, 0.35));
+  color: var(--guide-num-color, var(--text-muted, rgba(255, 255, 255, 0.35)));
   min-width: 14px;
   text-align: center;
   font-variant-numeric: tabular-nums;
+  text-shadow: var(--guide-text-shadow, none);
 }
 
 .guide-channel-logo {
@@ -1395,7 +1404,9 @@ html.epg-rectangle-logos .logo-placeholder {
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: var(--channel-font-size, 14px);
-  color: var(--text-secondary, rgba(255, 255, 255, 0.9));
+  font-weight: var(--guide-name-weight, inherit);
+  color: var(--guide-name-color, var(--text-secondary, rgba(255, 255, 255, 0.9)));
+  text-shadow: var(--guide-text-shadow, none);
 }
 
 .epg-bold-channel-names .guide-channel-name {
@@ -1409,6 +1420,13 @@ html.epg-rectangle-logos .logo-placeholder {
   animation: scroll-text 8s linear infinite;
   padding-right: 20px;
 }
+
+/* Hovered channel names brighten to full white (v3 dark via --guide-* tokens) */
+.guide-channel-info:hover .guide-channel-name,
+.guide-channel-row:hover .guide-channel-name {
+  color: var(--guide-name-hover-color, inherit);
+}
+
 
 @keyframes scroll-text {
   0% {
@@ -1430,10 +1448,11 @@ html.epg-rectangle-logos .logo-placeholder {
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 12px;
-  color: var(--text-muted, rgba(255, 255, 255, 0.45));
+  color: var(--guide-playlist-color, var(--text-muted, rgba(255, 255, 255, 0.45)));
   line-height: 1.4;
   margin-top: 2px;
   padding-right: 12px; /* Cleared large padding since badge is now vertically separated */
+  text-shadow: var(--guide-text-shadow, none);
 }
 
 .guide-manage-channels-btn.active-toggle {

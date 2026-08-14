@@ -154,6 +154,87 @@ html.modern-ui-v3 {
   --prog-desc-opacity: 0.55;
   /* Guide solids — in v3 the non-transparent EPG surfaces are glass too */
   --guide-solid-bg: var(--glass-surface-bg);
+  /* EPG rows & channels — row/info/logo surfaces, header/spacer & text shadows
+     (consumed in the ChannelPanel.css / ProgramBlock.css bases; the thin bridges
+     in this file keep the v3 specificity vs the transparent-mode rules and the
+     light sheet) */
+  --guide-row-bg: rgba(255, 255, 255, 0.04);
+  --guide-row-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  --guide-row-hover-bg: rgba(255, 255, 255, 0.09);
+  --guide-row-current-bg: color-mix(in srgb, var(--accent-primary, #8b5cf6) 6%, rgba(255, 255, 255, 0.06));
+  --guide-info-bg: rgba(0, 0, 0, 0.25);
+  --guide-info-border-right: 1px solid rgba(255, 255, 255, 0.08);
+  --guide-info-hover-bg: rgba(255, 255, 255, 0.06);
+  --guide-info-current-bg: rgba(0, 0, 0, 0.25);
+  --guide-logo-bg: rgba(255, 255, 255, 0.04);
+  --guide-time-spacer-bg: rgba(0, 0, 0, 0.15);
+  --guide-time-spacer-border-right: none;
+  --guide-text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --guide-row-current-name-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --guide-time-header-bg: rgba(255, 255, 255, 0.005);
+  --guide-time-header-border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  --guide-header-bg: rgba(255, 255, 255, 0.015);
+  --guide-header-border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  --guide-header-filter: none;
+  --guide-name-weight: 600;
+  --channel-font-size: 0.78rem;
+  /* DVR pages — topbar, cards, progress & content surfaces (consumed in the
+     DvrDashboard.css base; ungated like the rules they replace, so light uses
+     the same glass values) */
+  --dvr-topbar-bg: rgba(255, 255, 255, 0.015);
+  --dvr-topbar-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  --dvr-topbar-item-transition: all 0.2s ease;
+  --dvr-topbar-item-hover-bg: rgba(255, 255, 255, 0.04);
+  --dvr-topbar-item-active-glow: 0 0 8px var(--accent-primary, #00d4ff);
+  --dvr-card-bg: rgba(255, 255, 255, 0.03);
+  --dvr-card-border: 1px solid rgba(255, 255, 255, 0.06);
+  --dvr-card-radius: 14px;
+  --dvr-card-transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --dvr-card-hover-border-color: rgba(255, 255, 255, 0.15);
+  --dvr-card-hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  --dvr-card-hover-transform: translateY(-2px);
+  --dvr-card-progress-border-top: 1px solid rgba(255, 255, 255, 0.06);
+  --dvr-progress-bg: rgba(255, 255, 255, 0.04);
+  --dvr-surface-bg: transparent;
+  /* Sports Hub — topbar, main surfaces, preview panes & game cards (consumed in
+     the SportsHub.css / GameCard.css bases; ungated like the rules they replace,
+     except the with-preview light overrides below) */
+  --sports-topbar-bg: rgba(255, 255, 255, 0.015);
+  --sports-topbar-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  --sports-topbar-item-transition: all 0.2s ease;
+  --sports-topbar-item-hover-bg: rgba(255, 255, 255, 0.04);
+  --sports-topbar-item-active-glow: 0 0 8px var(--accent-primary, #00d4ff);
+  --sports-main-bg: transparent;
+  --sports-main-header-bg: transparent;
+  --sports-main-header-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  --sports-preview-pane-bg: rgba(255, 255, 255, 0.06);
+  --sports-preview-pane-border: 1px solid rgba(255, 255, 255, 0.12);
+  --sports-preview-pane-radius: 20px;
+  --sports-preview-pane-filter: blur(24px) saturate(180%);
+  --sports-preview-pane-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.25);
+  --sports-preview-filler-bg: transparent;
+  /* with-preview modes — the topbar/content glass when MPV video is shown */
+  --sports-hub-preview-bg: transparent;
+  --sports-hub-preview-filter: none;
+  --sports-topbar-preview-bg: rgba(255, 255, 255, 0.07);
+  --sports-topbar-preview-filter: blur(30px) saturate(200%);
+  --sports-topbar-preview-radius: 24px 24px 0 0;
+  --sports-topbar-preview-border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  --sports-pane-preview-bg: transparent;
+  --sports-pane-preview-filter: none;
+  --sports-pane-preview-shadow: none;
+  --sports-pane-preview-border: none;
+  --sports-content-preview-bg: rgba(255, 255, 255, 0.06);
+  --sports-content-preview-filter: blur(24px) saturate(180%);
+  --sports-content-preview-radius: 0 0 24px 24px;
+  /* game cards */
+  --sports-card-bg: rgba(255, 255, 255, 0.03);
+  --sports-card-border: 1px solid rgba(255, 255, 255, 0.06);
+  --sports-card-radius: 14px;
+  --sports-card-transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --sports-card-hover-border-color: rgba(255, 255, 255, 0.15);
+  --sports-card-hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  --sports-card-hover-transform: translateY(-2px);
   /* Category list — v3 liquid-glass overrides on the v2 tokens above */
   --cat-item-margin: 4px 8px;
   --cat-item-radius: 10px;
@@ -1016,6 +1097,18 @@ html.modern-ui-v3[data-theme="light"] {
   --prog-current-hover-border-left-color: color-mix(in srgb, var(--accent-primary, #8b5cf6) 30%, rgba(0, 0, 0, 0.1));
   --prog-current-hover-transform: translateY(-1px) scale(1.01);
   --prog-current-hover-z: 20;
+  /* EPG text shadows — light keeps none for clean readability (mirrors the old
+     light rule); the currently-playing name also drops the v3 dark shadow */
+  --guide-text-shadow: none;
+  --guide-row-current-name-shadow: none;
+  /* Sports with-preview — light keeps bright frosted surfaces over the video
+     (mirrors the old light with-preview rules; the dark values above still
+     drive radius, which the light rules never set) */
+  --sports-topbar-preview-bg: rgba(255, 255, 255, 0.5);
+  --sports-topbar-preview-filter: blur(35px) saturate(200%);
+  --sports-topbar-preview-border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  --sports-content-preview-bg: rgba(255, 255, 255, 0.45);
+  --sports-content-preview-filter: blur(30px) saturate(190%);
   /* Titlebar nav filter — v3 light keeps no drop-shadow (dark-only look) */
   --titlebar-nav-filter: none;
   /* Modal/editor text inputs — light */
@@ -1145,6 +1238,20 @@ html.modern-ui-v3:not([data-theme="light"]) {
   --src-chip-warn-border: rgba(239, 68, 68, 0.28);
   --src-chip-warn-color: #f87171;
   --src-chip-warn-icon: #f87171;
+  /* EPG name/text readability — dark-only (the light sheet owns the light
+     colors: channel-name #0f172a, number #64748b, prog title #0f172a,
+     prog desc #475569; playlist-name has no light rule so it keeps the light
+     --text-muted). The --guide-* values override the theme --text-* / v2
+     --prog-* tokens that the bases consume. */
+  --guide-name-color: rgba(255, 255, 255, 0.9);
+  --guide-name-hover-color: rgba(255, 255, 255, 1);
+  --guide-num-color: rgba(255, 255, 255, 0.45);
+  --guide-playlist-color: rgba(255, 255, 255, 0.45);
+  --guide-row-current-name-color: rgba(255, 255, 255, 0.9);
+  --guide-row-current-name-hover-color: rgba(255, 255, 255, 1);
+  --prog-title-color: rgba(255, 255, 255, 0.9);
+  --prog-title-hover-color: rgba(255, 255, 255, 1);
+  --prog-desc-color: rgba(255, 255, 255, 0.45);
 }
 /* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled */
 
@@ -1339,22 +1446,10 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
 
 /* Sidebar Search wrapper (folded into --cat-search-* tokens) */
 
-/* Header & Spacer Transparent styling */
-
-.modern-ui-v3 .guide-time-header {
-  background: rgba(255, 255, 255, 0.005) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
-}
-
-.modern-ui-v3 .guide-time-header-spacer {
-  background: transparent !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
-
-.modern-ui-v3 .guide-channel-info {
-  border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
-  background: rgba(255, 255, 255, 0.005) !important;
-}
+/* Header & time-header surfaces (guide-header / guide-time-header /
+   guide-time-header-spacer) are token-driven via the --guide-* tokens in the
+   ChannelPanel.css base. The spacer/info rules that lived here were fully
+   overridden by the higher-specificity EPG block below (now a token bridge). */
 
 /* 8. VOD Pages (Movies and Series) Liquid Glass Styling */
 
@@ -1573,65 +1668,9 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
   box-sizing: border-box;
 }
 
-.modern-ui-v3 .dvr-topbar {
-  background: rgba(255, 255, 255, 0.015) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  height: 56px !important;
-}
-
-.modern-ui-v3 .dvr-main,
-.modern-ui-v3 .dvr-content {
-  background: transparent !important;
-}
-
-.modern-ui-v3 .dvr-topbar-item {
-  color: var(--text-secondary, rgba(255, 255, 255, 0.6)) !important;
-  transition: all 0.2s ease !important;
-}
-
-.modern-ui-v3 .dvr-topbar-item:hover {
-  color: #fff !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-}
-
-.modern-ui-v3 .dvr-topbar-item.active {
-  color: #fff !important;
-}
-
-.modern-ui-v3 .dvr-topbar-item.active::after {
-  background: var(--accent-primary, #00d4ff) !important;
-  box-shadow: 0 0 8px var(--accent-primary, #00d4ff) !important;
-  height: 3px !important;
-  bottom: 0 !important;
-}
-
-.modern-ui-v3 .dvr-card,
-.modern-ui-v3 .dvr-media-card,
-.modern-ui-v3 .dvr-download-card {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-radius: 14px !important;
-  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.modern-ui-v3 .dvr-card:hover,
-.modern-ui-v3 .dvr-media-card:hover,
-.modern-ui-v3 .dvr-download-card:hover {
-  border-color: rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.03) inset !important;
-  transform: translateY(-2px) !important;
-}
-
-.modern-ui-v3 .dvr-card-progress {
-  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
-
-.modern-ui-v3 .dvr-progress-bar,
-.modern-ui-v3 .dvr-card-padding {
-  background: rgba(255, 255, 255, 0.04) !important;
-}
+/* DVR pages — token-driven via the --dvr-* tokens in the DvrDashboard.css
+   base. The topbar item color/active colors were redundant (base + light rule
+   already produce them); height/::after geometry are no-ops on the base. */
 
 /* 10. Sports Hub Liquid Glass Styling */
 
@@ -1644,123 +1683,14 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
   box-sizing: border-box;
 }
 
-.modern-ui-v3 .sports-topbar {
-  background: rgba(255, 255, 255, 0.015) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  height: 56px !important;
-}
-
-.modern-ui-v3 .sports-main,
-.modern-ui-v3 .sports-content-wrapper,
-.modern-ui-v3 .sports-content {
-  background: transparent !important;
-}
-
-.modern-ui-v3 .sports-main-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  background: transparent !important;
-}
-
-.modern-ui-v3 .sports-topbar-item {
-  color: var(--text-secondary, rgba(255, 255, 255, 0.6)) !important;
-  transition: all 0.2s ease !important;
-}
-
-.modern-ui-v3 .sports-topbar-item:hover {
-  color: #fff !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-}
-
-.modern-ui-v3 .sports-topbar-item.active {
-  color: #fff !important;
-}
-
-.modern-ui-v3 .sports-topbar-item.active::after {
-  background: var(--accent-primary, #00d4ff) !important;
-  box-shadow: 0 0 8px var(--accent-primary, #00d4ff) !important;
-  height: 3px !important;
-  bottom: 0 !important;
-}
-
-.modern-ui-v3 .sports-preview-pane {
-  border-radius: 20px !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.25) !important;
-  overflow: hidden !important;
-}
-
-.modern-ui-v3 .sports-hub.with-preview,
-html.modern-ui-v3[data-theme] .sports-hub.with-preview {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .sports-hub.with-preview .sports-topbar {
-  background: rgba(255, 255, 255, 0.5) !important;
-  backdrop-filter: blur(35px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(35px) saturate(200%) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .sports-hub.with-preview .sports-content {
-  background: rgba(255, 255, 255, 0.45) !important;
-  backdrop-filter: blur(30px) saturate(190%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(190%) !important;
-}
-
-.modern-ui-v3 .sports-hub.with-preview .sports-topbar {
-  background: rgba(255, 255, 255, 0.07) !important;
-  backdrop-filter: blur(30px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
-  border-top-left-radius: 24px !important;
-  border-top-right-radius: 24px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.modern-ui-v3 .sports-hub.with-preview .sports-preview-pane {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
-  border: none !important;
-}
-
-.modern-ui-v3 .sports-preview-filler {
-  background: transparent !important;
-}
-
-.modern-ui-v3 .sports-hub.with-preview .sports-content {
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border-bottom-left-radius: 24px !important;
-  border-bottom-right-radius: 24px !important;
-}
+/* Sports Hub — token-driven via the --sports-* tokens in the SportsHub.css /
+   GameCard.css bases. Topbar item color/active colors were redundant (base
+   already produces them); topbar height and ::after geometry are no-ops on the
+   base. Light keeps its own topbar-item colors via the shared light rule, and
+   the light sheet still owns sports-main / sports-main-header / filler. */
 
 .modern-ui-v3 .sports-preview-minibar {
   margin: 12px;
-}
-
-.modern-ui-v3 .game-card {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-radius: 14px !important;
-  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.modern-ui-v3 .game-card:hover {
-  border-color: rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.03) inset !important;
-  transform: translateY(-2px) !important;
 }
 
 /* Sports Match Detail Modals Liquid Glass Styling */
@@ -2624,39 +2554,41 @@ html.modern-ui-v3[data-theme]:has(.guide-transparent-mode) .category-strip {
    tokens are dark-only (light sheet owns the light look); the rest are
    theme-agnostic like the rules they replace. */
 
-/* EPG Rows & Channels glass adjustments */
-
-/* Force ALL rows to identical background — no zebra striping in glass UI */
+/* EPG rows & channels — token-driven bridge: the component bases can't beat the
+   transparent-mode rules ([data-theme] .guide-panel.guide-transparent-mode ...)
+   or the light sheet on equal footing, so these thin consumers keep the v3
+   specificity + !important. Values are pure --guide-* token refs (v3 light flows
+   from the tokens where the light sheet doesn't own the surface). */
 
 html.modern-ui-v3[data-theme] .guide-channel-row,
 html.modern-ui-v3[data-theme] .guide-channel-row:nth-child(odd),
 html.modern-ui-v3[data-theme] .guide-channel-row:nth-child(even),
 html.modern-ui-v3[data-theme] .guide-channel-row:nth-child(2n),
 html.modern-ui-v3[data-theme] .guide-channel-row:nth-child(2n+1) {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: var(--guide-row-bg, rgba(255, 255, 255, 0.04)) !important;
+  border-bottom: var(--guide-row-border-bottom, 1px solid rgba(255, 255, 255, 0.06)) !important;
 }
 
 html.modern-ui-v3[data-theme] .guide-channel-row:hover,
 html.modern-ui-v3[data-theme] .guide-channel-row.hovered {
-  background: rgba(255, 255, 255, 0.09) !important;
+  background: var(--guide-row-hover-bg, rgba(255, 255, 255, 0.09)) !important;
 }
 
 html.modern-ui-v3[data-theme] .guide-channel-row.currently-playing {
-  background: color-mix(in srgb, var(--accent-primary, #8b5cf6) 6%, rgba(255, 255, 255, 0.06)) !important;
+  background: var(--guide-row-current-bg, color-mix(in srgb, var(--accent-primary, #8b5cf6) 6%, rgba(255, 255, 255, 0.06))) !important;
 }
 
 html.modern-ui-v3[data-theme] .guide-channel-info {
-  background: rgba(0, 0, 0, 0.25) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: var(--guide-info-bg, rgba(0, 0, 0, 0.25)) !important;
+  border-right: var(--guide-info-border-right, 1px solid rgba(255, 255, 255, 0.08)) !important;
 }
 
 html.modern-ui-v3[data-theme] .guide-channel-info:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
+  background: var(--guide-info-hover-bg, rgba(255, 255, 255, 0.06)) !important;
 }
 
 html.modern-ui-v3[data-theme] .guide-channel-row.currently-playing .guide-channel-info {
-  background: rgba(0, 0, 0, 0.25) !important;
+  background: var(--guide-info-current-bg, rgba(0, 0, 0, 0.25)) !important;
 }
 
 /* Currently-playing row's current program — must keep its accent glow in light
@@ -2683,27 +2615,24 @@ html.modern-ui-v3[data-theme] .guide-channel-row.currently-playing .program-bloc
 }
 
 html.modern-ui-v3[data-theme] .guide-channel-logo {
-  background: rgba(255, 255, 255, 0.04) !important;
+  background: var(--guide-logo-bg, rgba(255, 255, 255, 0.04)) !important;
 }
 
+/* On-light logos keep the near-white backing (v2 token, base consumes it) —
+   must stay at bridge specificity so the row bridge above doesn't flatten it */
 html.modern-ui-v3[data-theme] .guide-channel-logo.logo-on-light {
-  background: rgba(255, 255, 255, 0.92) !important;
+  background: var(--guide-logo-onlight-bg, rgba(255, 255, 255, 0.92)) !important;
 }
 
 html.modern-ui-v3[data-theme] .guide-time-header-spacer {
-  background: rgba(0, 0, 0, 0.15) !important;
-  border-right: none !important;
+  background: var(--guide-time-spacer-bg, rgba(0, 0, 0, 0.15)) !important;
+  border-right: var(--guide-time-spacer-border-right, none) !important;
 }
 
-/* EPG Text readability on glass */
-
-html.modern-ui-v3[data-theme] .program-block-title,
-html.modern-ui-v3[data-theme] .program-block-desc,
-html.modern-ui-v3[data-theme] .guide-channel-name,
-html.modern-ui-v3[data-theme] .guide-channel-number,
-html.modern-ui-v3[data-theme] .guide-channel-playlist-name {
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
-}
+/* EPG text readability on glass — the text-shadow now flows from the
+   --guide-text-shadow token into the ProgramBlock/ChannelPanel bases (the
+   currently-playing name uses --guide-row-current-name-shadow; both are `none`
+   in the v3 light token block, mirroring the old light rule). */
 
 /* Title Bar V3 Glassmorphism Override - frosted glass with a bottom border separator */
 
@@ -2722,15 +2651,14 @@ html.modern-ui-v3[data-theme] .title-bar.video-active {
 }
 /* Specific inner components reset */
 
+/* Guide header — token-driven bridge: must keep the v3 specificity to beat the
+   light sheet's [data-theme="light"] .guide-header (white surface). Radius /
+   shadow / border resets are no-ops (nothing sets those on .guide-header). */
 html.modern-ui-v3[data-theme] .guide-header {
-  background: rgba(255, 255, 255, 0.015) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  backdrop-filter: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  border-top: none !important;
-  border-left: none !important;
-  border-right: none !important;
+  background: var(--guide-header-bg, rgba(255, 255, 255, 0.015)) !important;
+  border-bottom: var(--guide-header-border-bottom, 1px solid rgba(255, 255, 255, 0.08)) !important;
+  backdrop-filter: var(--guide-header-filter, none) !important;
+  -webkit-backdrop-filter: var(--guide-header-filter, none) !important;
 }
 
 
@@ -3012,15 +2940,8 @@ html.modern-ui-v3[data-theme="light"] .settings-tab-content::-webkit-scrollbar-t
   background: rgba(0, 0, 0, 0.25) !important;
 }
 
-/* Disable glow text-shadows in light theme EPG for clean readability */
-
-html.modern-ui-v3[data-theme="light"] .program-block-title,
-html.modern-ui-v3[data-theme="light"] .program-block-desc,
-html.modern-ui-v3[data-theme="light"] .guide-channel-name,
-html.modern-ui-v3[data-theme="light"] .guide-channel-number,
-html.modern-ui-v3[data-theme="light"] .guide-channel-playlist-name {
-  text-shadow: none !important;
-}
+/* EPG text shadows in light theme come from the --guide-text-shadow /
+   --guide-row-current-name-shadow light tokens (both none). */
 
 /* DVR, Sports, Stremio, Nuvio topbar active/hover tabs in light theme */
 
@@ -3161,55 +3082,10 @@ html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg::after {
 
    ========================================================================== */
 
-/* 1. Base Text Colors: EPG channel names and program titles (category/source names
-   folded into --cat-name-color / --src-name-color tokens) */
-
-html.modern-ui-v3:not([data-theme="light"]) .guide-channel-name,
-html.modern-ui-v3:not([data-theme="light"]) .program-block-title {
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-/* Ensure currently playing channel name is not tinted with accent color */
-
-html.modern-ui-v3:not([data-theme="light"]) .guide-channel-row.currently-playing .guide-channel-name {
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-/* 3. Hover States: Brighter Full White, No Accent Color (category/source names folded
-   into --cat-name-hover-color / --src-name-hover-color tokens) */
-
-html.modern-ui-v3:not([data-theme="light"]) .guide-channel-info:hover .guide-channel-name,
-html.modern-ui-v3:not([data-theme="light"]) .guide-channel-row:hover .guide-channel-name,
-html.modern-ui-v3:not([data-theme="light"]) .program-block:hover .program-block-title {
-  color: rgba(255, 255, 255, 1) !important;
-}
-
-/* Ensure currently playing channel name is full white on hover (no accent) */
-
-html.modern-ui-v3:not([data-theme="light"]) .guide-channel-row.currently-playing:hover .guide-channel-name {
-  color: rgba(255, 255, 255, 1) !important;
-}
-
-/* 5. Secondary/Subtitle Text: Dimmed White (counts folded into --cat-count-color /
-   --cat-src-count-color tokens) */
-
-html.modern-ui-v3:not([data-theme="light"]) .program-block-desc,
-html.modern-ui-v3:not([data-theme="light"]) .guide-channel-number,
-html.modern-ui-v3:not([data-theme="light"]) .guide-channel-playlist-name {
-  color: rgba(255, 255, 255, 0.45) !important;
-}
-
-/* 6. Typography & Weight Hierarchy Overrides
-   (source-header/source-name/category-name weights folded into tokens) */
-
-/* Channel names in EPG left column */
-
-.modern-ui-v3 .guide-channel-name {
-  font-weight: 600 !important;
-  font-size: var(--channel-font-size, 0.78rem) !important;
-}
-
-/* EPG program titles/descriptions (folded into the prog title/desc tokens) */
+/* 1-6. EPG name/text colors & typography — token-driven via the dark-only
+   --guide-name-* / --prog-* readability tokens (consumed in the
+   ChannelPanel.css / ProgramBlock.css bases). The light sheet owns the light
+   colors; --guide-name-weight / --channel-font-size are shared by both modes. */
 
 /* Time stamps and guide numerals (tabular-nums to prevent live shifts);
    category-count/source-count tabular folded into count tokens */

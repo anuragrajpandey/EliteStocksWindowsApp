@@ -120,11 +120,16 @@
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: var(--prog-title-line-height, 1.3);
+  text-shadow: var(--guide-text-shadow, none);
 }
 
 .program-block.current .program-block-title {
   color: var(--prog-current-title-color, rgba(255, 255, 255, 0.95));
   font-weight: var(--prog-current-title-font-weight, inherit);
+}
+
+.program-block:hover .program-block-title {
+  color: var(--prog-title-hover-color, inherit);
 }
 
 /* Program description (shown when block is wide enough) */
@@ -138,6 +143,7 @@
   margin-top: var(--prog-desc-margin-top, 2px);
   line-height: var(--prog-desc-line-height, 1.2);
   opacity: var(--prog-desc-opacity, 1);
+  text-shadow: var(--guide-text-shadow, none);
 }
 
 .program-block.current .program-block-desc {

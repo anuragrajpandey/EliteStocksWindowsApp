@@ -1386,6 +1386,746 @@ html.modern-ui-v3[data-theme="light"] .program-block.current .program-block-desc
   color: #a1a1aa !important;
 }
 
+/* ============ SPORTS LEAGUES, TEAMS, GAMES & STANDINGS ============ */
+/* The hero-league/game/team/roster redesigns hardcode white text on
+   near-white glass, which is unreadable in light. These overrides map
+   them onto the light palette (#0f172a text on white/#f8fafc cards). */
+
+[data-theme="light"] .sports-sport-rail-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .sports-sport-rail-btn.active {
+  background: #e0f2fe !important;
+  border-color: var(--accent-primary, #0066cc) !important;
+  color: var(--accent-primary, #0066cc) !important;
+  box-shadow: 0 4px 14px rgba(0, 102, 204, 0.15) !important;
+}
+
+[data-theme="light"] .sports-sport-rail-badge {
+  background: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .sports-sport-rail-btn.active .sports-sport-rail-badge {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .sports-league-card-hero {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .sports-league-card-hero:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-theme="light"] .sports-league-card-hero-name {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .sports-league-card-hero-country {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .sports-team-card-name {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .league-game-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .league-game-card:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .league-game-card.live {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.07) 0%, #ffffff 100%) !important;
+}
+
+[data-theme="light"] .game-card-team-name,
+[data-theme="light"] .game-card-score {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .game-card-logo-placeholder {
+  background: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .sports-standings-row.leader-row .sports-standings-team {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .team-roster-filter-btn:hover {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .team-roster-filter-btn.active {
+  background: #e0f2fe !important;
+  border-color: var(--accent-primary, #0066cc) !important;
+  color: var(--accent-primary, #0066cc) !important;
+}
+
+/* League Teams views (stacked list / division columns / grid) */
+[data-theme="light"] .sports-team-row-stacked {
+  background: #ffffff !important;
+  /* keep the inline team-color left accent; only neutralize the other edges */
+  border-top-color: #cbd5e1 !important;
+  border-right-color: #cbd5e1 !important;
+  border-bottom-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .sports-team-row-stacked:hover {
+  background: #f8fafc !important;
+  border-top-color: #94a3b8 !important;
+  border-right-color: #94a3b8 !important;
+  border-bottom-color: #94a3b8 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .sports-team-row-name {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .sports-team-row-summary {
+  background: #eef2f7 !important;
+}
+
+[data-theme="light"] .league-division-column-panel {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] .league-division-column-header {
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .league-division-column-header h4 {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .sports-team-column-card {
+  background: #f8fafc !important;
+  /* keep the inline team-color left accent; only neutralize the other edges */
+  border-top-color: #e2e8f0 !important;
+  border-right-color: #e2e8f0 !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .sports-team-column-card:hover {
+  background: #f1f5f9 !important;
+  border-top-color: #94a3b8 !important;
+  border-right-color: #94a3b8 !important;
+  border-bottom-color: #94a3b8 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .team-column-rank {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .league-division-title {
+  color: #0f172a !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .sports-team-card-v2 {
+  background: #ffffff !important;
+  /* keep the inline team-color left accent; only neutralize the other edges */
+  border-top-color: #cbd5e1 !important;
+  border-right-color: #cbd5e1 !important;
+  border-bottom-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .sports-team-card-v2:hover {
+  background: #f8fafc !important;
+  border-top-color: #94a3b8 !important;
+  border-right-color: #94a3b8 !important;
+  border-bottom-color: #94a3b8 !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* League teams search (base now uses --text-primary; only the hover-clear and
+   layout toggles still hardcode white) */
+[data-theme="light"] .league-teams-search-clear:hover {
+  color: #0f172a !important;
+  background: #eef2f7 !important;
+}
+
+[data-theme="light"] .league-teams-layout-toggles {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .league-teams-layout-btn:hover {
+  color: #0f172a !important;
+  background: #eef2f7 !important;
+}
+
+[data-theme="light"] .league-teams-layout-btn.active {
+  background: #e0f2fe !important;
+  color: var(--accent-primary, #0066cc) !important;
+}
+
+/* Individual game card (time + network badge) */
+[data-theme="light"] .game-card-time {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .game-card-network-badge-btn {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .game-card-network-badge-btn:hover {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+/* Favorite star (inactive was white-on-light) */
+[data-theme="light"] .sports-team-card-star {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .sports-team-card-v2:hover .sports-team-card-star {
+  color: #64748b !important;
+}
+
+/* Sports topbar preview toggle */
+[data-theme="light"] .sports-topbar-preview-toggle {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .sports-topbar-preview-toggle:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .sports-topbar-preview-toggle.active {
+  color: var(--accent-primary, #0066cc) !important;
+  background: rgba(0, 102, 204, 0.08) !important;
+}
+
+/* ============ SPORTS TEAM SCHEDULE & SERIES ============ */
+[data-theme="light"] .team-schedule-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .team-schedule-card:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+[data-theme="light"] .team-schedule-card.win {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, #ffffff 100%) !important;
+  border-left-color: #22c55e !important;
+}
+
+[data-theme="light"] .team-schedule-card.loss {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, #ffffff 100%) !important;
+  border-left-color: #ef4444 !important;
+}
+
+[data-theme="light"] .team-schedule-card.draw {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.08) 0%, #ffffff 100%) !important;
+  border-left-color: #eab308 !important;
+}
+
+[data-theme="light"] .team-schedule-toggle-group {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .team-schedule-toggle-btn {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .team-schedule-toggle-btn:hover {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .team-schedule-toggle-btn.active {
+  background: #e0f2fe !important;
+  color: var(--accent-primary, #0066cc) !important;
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.12) !important;
+}
+
+[data-theme="light"] .team-schedule-month-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .team-schedule-month-title::after {
+  background: #e2e8f0 !important;
+}
+
+[data-theme="light"] .team-schedule-expand-btn {
+  color: var(--accent-primary, #0066cc) !important;
+}
+
+[data-theme="light"] .team-schedule-expand-btn:hover {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .team-series-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .team-series-card.win {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.06) 0%, #ffffff 100%) !important;
+}
+
+[data-theme="light"] .team-series-card.loss {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.06) 0%, #ffffff 100%) !important;
+}
+
+[data-theme="light"] .series-opponent-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .series-date-range {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .series-record-pill {
+  background: #eef2f7 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .series-record-pill.win {
+  background: rgba(34, 197, 94, 0.15) !important;
+  color: #16a34a !important;
+}
+
+[data-theme="light"] .series-record-pill.loss {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #dc2626 !important;
+}
+
+[data-theme="light"] .series-expand-btn {
+  background: #eef2f7 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .series-games-list {
+  border-top-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .series-game-row {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .series-game-row:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+[data-theme="light"] .series-game-date {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .series-game-time {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .series-game-score {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .series-game-vs {
+  color: #94a3b8 !important;
+}
+
+/* ============ SPORTS ATHLETE MODAL ============ */
+[data-theme="light"] .athlete-header-banner {
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%) !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .athlete-modal-close {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .athlete-modal-close:hover {
+  background: #e2e8f0 !important;
+}
+
+[data-theme="light"] .athlete-headshot-placeholder {
+  background: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .athlete-bullet {
+  color: #cbd5e1 !important;
+}
+
+/* ============ SPORTS FAVORITES & YOUR TEAMS TODAY ============ */
+[data-theme="light"] .favorite-scoreboard-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+  backdrop-filter: none !important;
+}
+
+[data-theme="light"] .favorite-scoreboard-card::before {
+  opacity: 0.05 !important;
+}
+
+[data-theme="light"] .favorite-scoreboard-card:hover::before {
+  opacity: 0.1 !important;
+}
+
+[data-theme="light"] .favorite-scoreboard-card:hover {
+  border-color: var(--team-color, #3b82f6) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14) !important;
+}
+
+[data-theme="light"] .favorite-scoreboard-card.is-live {
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.14) !important;
+}
+
+[data-theme="light"] .favorite-card-pin-btn,
+[data-theme="light"] .favorite-card-remove-btn,
+[data-theme="light"] .favorite-card-move-btn {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .favorite-card-move-btn:hover:not(:disabled) {
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+  background: #e2e8f0 !important;
+}
+
+[data-theme="light"] .favorite-card-match-box {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .favorite-card-match-box:hover {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .favorite-card-live-score-row {
+  background: #ffffff !important;
+}
+
+[data-theme="light"] .favorite-card-score-team {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .favorite-card-score-vs {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .favorite-live-period {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .favorite-card-next-time {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .favorite-card-next-matchup {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .favorite-card-next-vs {
+  color: #64748b !important;
+  background: #eef2f7 !important;
+}
+
+[data-theme="light"] .favorite-card-no-game-box {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .favorite-news-headline {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .favorite-card-inline-streams {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .favorite-stream-pill-vertical {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .favorite-no-streams-text {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .favorite-action-text-btn:hover {
+  background: #eef2f7 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .your-teams-today-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .your-teams-today-card.is-live {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, #ffffff 100%) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.12) !important;
+}
+
+[data-theme="light"] .your-teams-today-card:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+[data-theme="light"] .your-teams-today-team-name {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .your-teams-today-score {
+  color: #0f172a !important;
+  background: #eef2f7 !important;
+}
+
+[data-theme="light"] .your-teams-today-vs {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .sports-add-team-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .sports-add-team-card:hover {
+  background: #f8fafc !important;
+  border-color: var(--accent-primary, #0066cc) !important;
+  color: #0f172a !important;
+  box-shadow: 0 8px 24px rgba(0, 102, 204, 0.12) !important;
+}
+
+[data-theme="light"] .sports-add-team-icon {
+  background: #eef2f7 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .sports-add-team-card:hover .sports-add-team-icon {
+  background: var(--accent-primary, #0066cc) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .sports-add-team-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .sports-add-team-desc {
+  color: #64748b !important;
+}
+
+/* ============ SPORTS WORLD CUP ============ */
+/* The World Cup tab hardcodes white text on translucent glass everywhere;
+   map its surfaces onto the light palette. The navy banner stays dark. */
+[data-theme="light"] .wc-subtabs-nav {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .wc-subtab-btn {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .wc-subtab-btn:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .wc-subtab-btn.active {
+  background: #e0f2fe !important;
+  color: var(--accent-primary, #0066cc) !important;
+}
+
+[data-theme="light"] .wc-match-row-item {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .wc-match-row-item:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+[data-theme="light"] .wc-match-row-item .time,
+[data-theme="light"] .wc-match-row-item .stage-lbl {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .wc-match-row-item .vs {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .wc-match-row-item .scores {
+  background: #eef2f7 !important;
+}
+
+[data-theme="light"] .wc-match-row-item .scores .sep {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .wc-match-row-item .channel-pill {
+  color: #0284c7 !important;
+  background: rgba(2, 132, 199, 0.1) !important;
+  border-color: rgba(2, 132, 199, 0.25) !important;
+}
+
+[data-theme="light"] .wc-match-row-item .final-lbl {
+  color: #d97706 !important;
+  background: rgba(217, 119, 6, 0.1) !important;
+  border-color: rgba(217, 119, 6, 0.25) !important;
+}
+
+[data-theme="light"] .wc-standings-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .wc-group-title {
+  color: var(--accent-primary, #0066cc) !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .wc-group-table th {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .wc-group-table td.pts-cell {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .wc-group-table tr {
+  border-bottom-color: #f1f5f9 !important;
+}
+
+[data-theme="light"] .wc-group-table td.team-cell:hover .team-name {
+  color: var(--accent-primary, #0066cc) !important;
+}
+
+[data-theme="light"] .rank-num {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .rank-num.advancing {
+  background: rgba(2, 132, 199, 0.12) !important;
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .gd-stat {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .wc-bracket-col-title {
+  color: #64748b !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .wc-bracket-node {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] .wc-bracket-node:hover {
+  background: #f8fafc !important;
+  border-color: var(--accent-primary, #0066cc) !important;
+  box-shadow: 0 6px 16px rgba(0, 102, 204, 0.1) !important;
+}
+
+[data-theme="light"] .wc-bracket-node .node-stage {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .wc-bracket-node-team.winner,
+[data-theme="light"] .wc-bracket-node-team.winner .node-name {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .wc-bracket-node-team .node-name {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .wc-filters-bar {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .wc-filter-group label {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .wc-select {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .wc-select:focus {
+  border-color: var(--accent-primary, #0066cc) !important;
+}
+
+[data-theme="light"] .wc-team-button {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .wc-team-button:hover {
+  background: #f8fafc !important;
+  border-color: var(--accent-primary, #0066cc) !important;
+}
+
+[data-theme="light"] .wc-team-name {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .wc-team-abbrev {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .wc-teams-group-header {
+  color: var(--accent-primary, #0066cc) !important;
+  border-bottom-color: rgba(0, 102, 204, 0.15) !important;
+}
+
+[data-theme="light"] .wc-empty-box {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #64748b !important;
+}
+
+[data-theme="light"] .wc-empty-state {
+  color: #94a3b8 !important;
+}
+
 /* ==================== VOD VERTICAL SIDEBAR ==================== */
 [data-theme="light"] .vertical-sidebar {
   background: var(--glass-surface-bg, #edf2f7);
