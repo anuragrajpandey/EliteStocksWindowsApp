@@ -4,8 +4,8 @@
   justify-content: space-between;
   height: 56px;
   width: 100%;
-  background: var(--bg-secondary, #13131a);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--stremio-topbar-bg, var(--bg-secondary, #13131a));
+  border-bottom: var(--stremio-topbar-border-bottom, 1px solid rgba(255, 255, 255, 0.08));
   padding: 0 24px;
   box-sizing: border-box;
   flex-shrink: 0;
@@ -57,24 +57,24 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: transparent;
+  background: var(--stremio-topbar-item-bg, transparent);
   border: none;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.6));
+  color: var(--stremio-topbar-item-color, var(--text-secondary, rgba(255, 255, 255, 0.6)));
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   padding: 0 16px;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: var(--stremio-topbar-item-transition, color 0.15s ease, background 0.15s ease);
   box-sizing: border-box;
 }
 
 .stremio-topbar-item:hover {
-  color: var(--text-primary, #ffffff);
-  background: rgba(255, 255, 255, 0.03);
+  color: var(--stremio-topbar-item-hover-color, var(--text-primary, #ffffff));
+  background: var(--stremio-topbar-item-hover-bg, rgba(255, 255, 255, 0.03));
 }
 
 .stremio-topbar-item.active {
-  color: var(--text-primary, #ffffff);
+  color: var(--stremio-topbar-item-active-color, var(--text-primary, #ffffff));
 }
 
 /* Bottom Highlight Line */
@@ -85,7 +85,7 @@
   left: 12px;
   right: 12px;
   height: 3px;
-  background: var(--accent-primary, #7b61ff);
+  background: var(--stremio-topbar-item-underline-bg, var(--accent-primary, #7b61ff));
   border-radius: 3px 3px 0 0;
 }
 
@@ -113,17 +113,17 @@
 .stremio-topbar-search-input-wrap {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20px; /* highly rounded capsule style */
+  background: var(--stremio-search-bg, rgba(255, 255, 255, 0.05));
+  border-radius: var(--stremio-search-radius, 20px); /* highly rounded capsule style */
   padding: 6px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: var(--stremio-search-border, 1px solid rgba(255, 255, 255, 0.1));
   transition: all 0.2s ease;
 }
 
 .stremio-topbar-search-input-wrap:focus-within {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--accent-primary, #7b61ff);
-  box-shadow: 0 0 10px var(--accent-glow, rgba(123, 97, 255, 0.15));
+  background: var(--stremio-search-focus-bg, rgba(255, 255, 255, 0.08));
+  border-color: var(--stremio-search-focus-border-color, var(--accent-primary, #7b61ff));
+  box-shadow: var(--stremio-search-focus-shadow, 0 0 10px var(--accent-glow, rgba(123, 97, 255, 0.15)));
 }
 
 .stremio-topbar-search-icon {

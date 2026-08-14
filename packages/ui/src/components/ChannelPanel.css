@@ -1032,8 +1032,8 @@
   border-bottom: var(--guide-time-header-border-bottom, var(--glass-border, 1px solid rgba(255, 255, 255, 0.06)));
   flex-shrink: 0;
   background: var(--guide-time-header-bg, var(--surface-color, rgba(0, 0, 0, 0.3)));
-  backdrop-filter: blur(var(--glass-blur, 10px));
-  -webkit-backdrop-filter: blur(var(--glass-blur, 10px));
+  backdrop-filter: var(--guide-time-header-filter, blur(var(--glass-blur, 10px)));
+  -webkit-backdrop-filter: var(--guide-time-header-filter-webkit, var(--guide-time-header-filter, blur(var(--glass-blur, 10px))));
 }
 
 .guide-time-header-spacer {

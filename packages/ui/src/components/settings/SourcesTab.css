@@ -464,6 +464,7 @@
 
 .stat-chip--expiry.stat-chip--expiry-warn svg {
     color: var(--src-chip-warn-icon, #f87171);
+    opacity: 1;
 }
 
 /* ─── Source Action Buttons — hierarchy ────────────────────────────────────── */

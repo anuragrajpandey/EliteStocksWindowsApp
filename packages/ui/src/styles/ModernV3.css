@@ -235,6 +235,175 @@ html.modern-ui-v3 {
   --sports-card-hover-border-color: rgba(255, 255, 255, 0.15);
   --sports-card-hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
   --sports-card-hover-transform: translateY(-2px);
+  /* Stremio & Nuvio — topbar, search, catalog filter, cards, detail views,
+     back buttons, cast photos, addon filters and episode cards (consumed in the
+     StremioTopbar / StremioHome / StremioDetail / NuvioPage / StreamPickerModal
+     bases; ungated like the rules they replace). */
+  --stremio-topbar-bg: rgba(255, 255, 255, 0.015);
+  --stremio-topbar-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  --stremio-topbar-item-bg: transparent;
+  --stremio-topbar-item-color: var(--text-secondary, rgba(255, 255, 255, 0.6));
+  --stremio-topbar-item-transition: all 0.2s ease;
+  --stremio-topbar-item-hover-bg: rgba(255, 255, 255, 0.04);
+  --stremio-topbar-item-hover-color: #fff;
+  --stremio-topbar-item-active-bg: rgba(255, 255, 255, 0.06);
+  --stremio-topbar-item-active-color: #fff;
+  --stremio-topbar-item-underline-bg: var(--accent-primary, #00d4ff);
+  --stremio-topbar-item-underline-shadow: 0 0 8px var(--accent-primary, #00d4ff);
+  --stremio-topbar-item-underline-height: 3px;
+  --stremio-search-bg: rgba(255, 255, 255, 0.03);
+  --stremio-search-border: 1px solid rgba(255, 255, 255, 0.08);
+  --stremio-search-radius: 20px;
+  --stremio-search-focus-bg: rgba(255, 255, 255, 0.08);
+  --stremio-search-focus-border-color: var(--accent-primary, #00d4ff);
+  --stremio-search-focus-shadow: 0 0 10px var(--accent-glow, rgba(0, 212, 255, 0.15));
+  --stremio-catalog-filter-bg: rgba(255, 255, 255, 0.015);
+  --stremio-catalog-filter-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  --stremio-catalog-filter-filter: blur(20px) saturate(180%);
+  /* cards & posters */
+  --stremio-card-bg: rgba(255, 255, 255, 0.03);
+  --stremio-card-border: 1px solid rgba(255, 255, 255, 0.06);
+  --stremio-card-radius: 14px;
+  --stremio-card-transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --stremio-card-hover-border-color: rgba(255, 255, 255, 0.15);
+  --stremio-card-hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  --stremio-card-hover-transform: translateY(-2px);
+  /* detail views & overlays */
+  --stremio-detail-bg: transparent;
+  --stremio-backdrop-gradient: linear-gradient(to right, rgba(12, 14, 24, 0.9) 0%, rgba(12, 14, 24, 0.75) 30%, rgba(12, 14, 24, 0.45) 65%, rgba(12, 14, 24, 0.15) 100%), linear-gradient(to bottom, transparent 40%, rgba(12, 14, 24, 0.85) 100%);
+  --nuvio-backdrop-fade: linear-gradient(to bottom, transparent 30%, rgba(12, 14, 24, 0.85) 75%);
+  --nuvio-detail-overlay-bg: rgba(8, 8, 12, 0.4);
+  --nuvio-detail-overlay-filter: blur(10px);
+  /* back buttons (pill variant + dark .btn-back variant) */
+  --stremio-back-btn-bg: rgba(255, 255, 255, 0.04);
+  --stremio-back-btn-border: 1px solid rgba(255, 255, 255, 0.08);
+  --stremio-back-btn-align: center;
+  --stremio-back-btn-gap: 8px;
+  --stremio-back-btn-radius: 20px;
+  --stremio-back-btn-color: var(--text-secondary, rgba(255, 255, 255, 0.8));
+  --stremio-back-btn-padding: 7px 16px;
+  --stremio-back-btn-font-size: 0.8rem;
+  --stremio-back-btn-font-weight: 600;
+  --stremio-back-btn-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --stremio-back-btn-filter: blur(12px);
+  --stremio-back-btn-hover-bg: rgba(255, 255, 255, 0.12);
+  --stremio-back-btn-hover-border-color: rgba(255, 255, 255, 0.2);
+  --stremio-back-btn-hover-color: #fff;
+  --stremio-back-btn-hover-transform: translateX(-2px);
+  --stremio-back-btn-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --stremio-back-btn-dark-bg: rgba(0, 0, 0, 0.4);
+  --stremio-back-btn-dark-border: 1px solid rgba(255, 255, 255, 0.12);
+  --stremio-back-btn-dark-radius: 8px;
+  --stremio-back-btn-dark-padding: 6px 14px;
+  --stremio-back-btn-dark-color: rgba(255, 255, 255, 0.85);
+  --stremio-back-btn-dark-hover-bg: rgba(0, 0, 0, 0.6);
+  --stremio-back-btn-dark-hover-border-color: rgba(255, 255, 255, 0.25);
+  --stremio-back-btn-dark-hover-color: #fff;
+  /* back-button-overlay pill */
+  --stremio-overlay-btn-bg: rgba(255, 255, 255, 0.04);
+  --stremio-overlay-btn-border: 1px solid rgba(255, 255, 255, 0.08);
+  --stremio-overlay-btn-radius: 20px;
+  --stremio-overlay-btn-filter: blur(12px);
+  --stremio-overlay-btn-color: rgba(255, 255, 255, 0.85);
+  --stremio-overlay-btn-padding: 8px 18px;
+  --stremio-overlay-btn-font-size: 13px;
+  --stremio-overlay-btn-font-weight: 600;
+  --stremio-overlay-btn-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --stremio-overlay-btn-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 16px rgba(0, 0, 0, 0.3);
+  --stremio-overlay-btn-hover-bg: rgba(255, 255, 255, 0.12);
+  --stremio-overlay-btn-hover-border-color: rgba(255, 255, 255, 0.2);
+  --stremio-overlay-btn-hover-color: #fff;
+  --stremio-overlay-btn-hover-transform: translateX(-2px);
+  --stremio-overlay-btn-hover-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 6px 24px rgba(0, 0, 0, 0.35);
+  --stremio-overlay-btn-active-transform: translateX(-2px) scale(0.97);
+  --stremio-overlay-icon-color: rgba(200, 180, 255, 0.9);
+  /* cast photos */
+  --stremio-cast-padding: 2px;
+  --stremio-cast-bg: linear-gradient(135deg, var(--accent-primary, #00d4ff) 0%, color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, #8b5cf6) 50%, #8b5cf6 100%);
+  --stremio-cast-radius: 50%;
+  --stremio-cast-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
+  --stremio-cast-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --stremio-cast-placeholder-bg: rgba(255, 255, 255, 0.04);
+  --stremio-cast-placeholder-color: var(--text-secondary, rgba(255, 255, 255, 0.8));
+  --stremio-cast-hover-transform: scale(1.08);
+  --stremio-cast-hover-shadow: 0 6px 16px rgba(0, 0, 0, 0.3), 0 0 16px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
+  /* addon filter buttons */
+  --stremio-addon-btn-bg: rgba(255, 255, 255, 0.04);
+  --stremio-addon-btn-border: 1px solid rgba(255, 255, 255, 0.08);
+  --stremio-addon-btn-color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+  --stremio-addon-btn-padding: 6px 14px;
+  --stremio-addon-btn-radius: 20px;
+  --stremio-addon-btn-font-size: 0.8rem;
+  --stremio-addon-btn-font-weight: 600;
+  --stremio-addon-btn-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --stremio-addon-btn-filter: blur(8px);
+  --stremio-addon-btn-hover-bg: rgba(255, 255, 255, 0.12);
+  --stremio-addon-btn-hover-border-color: rgba(255, 255, 255, 0.2);
+  --stremio-addon-btn-hover-color: #fff;
+  --stremio-addon-btn-hover-transform: translateY(-1px);
+  --stremio-addon-btn-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --stremio-addon-btn-active-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(255, 255, 255, 0.05));
+  --stremio-addon-btn-active-border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15));
+  --stremio-addon-btn-active-color: var(--accent-primary, #00d4ff);
+  --stremio-addon-btn-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, transparent);
+  /* loading mini */
+  --stremio-loading-bg: rgba(255, 255, 255, 0.03);
+  --stremio-loading-border: 1px solid rgba(255, 255, 255, 0.06);
+  --stremio-loading-radius: 10px;
+  /* recommendations divider */
+  --stremio-recs-padding-top: 24px;
+  --stremio-recs-margin-top: 32px;
+  --stremio-recs-divider-bg: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent) 20%, color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent) 80%, transparent 100%);
+  /* episode / video cards */
+  --stremio-video-card-bg: rgba(255, 255, 255, 0.02);
+  --stremio-video-card-border: 1px solid rgba(255, 255, 255, 0.03);
+  --stremio-video-card-color: inherit;
+  --stremio-ep-unwatched-svg-stroke: inherit;
+  --stremio-video-card-hover-bg: rgba(255, 255, 255, 0.07);
+  --stremio-video-card-hover-border-color: rgba(255, 255, 255, 0.1);
+  --stremio-video-card-hover-shadow: none;
+  --stremio-video-card-hover-transform: translateX(2px);
+  --stremio-video-card-current-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent);
+  --stremio-video-card-current-border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
+  --stremio-video-card-current-border-left: 3px solid var(--accent-primary, #00d4ff);
+  --stremio-video-card-watched-border: rgba(34, 197, 94, 0.22);
+  --stremio-video-card-watched-bg: rgba(34, 197, 94, 0.06);
+  --stremio-ep-thumb-border: 1px solid rgba(255, 255, 255, 0.08);
+  --stremio-ep-thumb-bg: rgba(0, 0, 0, 0.2);
+  --stremio-ep-track-height: 4px;
+  --stremio-ep-track-bg: rgba(255, 255, 255, 0.08);
+  --stremio-ep-track-radius: 0 0 8px 8px;
+  --stremio-ep-fill-bg: var(--accent-primary, #00d4ff);
+  --stremio-ep-fill-shadow: 0 0 6px var(--accent-primary, #00d4ff);
+  /* recently-watched progress fill + spinner (glass themes gate these; v3
+     keeps the plain accent fill / no glow) */
+  --stremio-rw-fill-bg: var(--accent-primary, #00d4ff);
+  --stremio-rw-fill-shadow: none;
+  --stremio-spinner-shadow: none;
+  --stremio-ep-watched-badge-bg: #22c55e;
+  --stremio-ep-watched-badge-border: 1px solid rgba(255, 255, 255, 0.2);
+  --stremio-ep-watched-badge-shadow: 0 4px 10px rgba(34, 197, 94, 0.4);
+  --stremio-ep-unwatched-bg: rgba(255, 255, 255, 0.08);
+  --stremio-ep-unwatched-border: 1px solid rgba(255, 255, 255, 0.12);
+  --stremio-ep-unwatched-filter: blur(4px);
+  --stremio-ep-unwatched-hover-bg: rgba(255, 255, 255, 0.18);
+  --stremio-ep-unwatched-hover-border-color: rgba(255, 255, 255, 0.3);
+  --stremio-main-bg: transparent;
+  --stremio-back-btn-width: fit-content;
+  --stremio-back-btn-display: inline-flex;
+  --stremio-back-btn-margin-bottom: 32px;
+  --stremio-cast-border: none;
+  --stremio-cast-position: relative;
+  --stremio-video-card-radius: 8px;
+  --stremio-video-card-padding: 10px;
+  --stremio-video-card-transition: all 0.15s ease;
+  --stremio-ep-thumb-width: 120px;
+  --stremio-ep-thumb-height: 68px;
+  --stremio-ep-thumb-radius: 6px;
+  --stremio-ep-track-overflow: hidden;
+  --stremio-recs-border-top: none;
+  --stremio-recs-position: relative;
+  --stremio-recs-divider-content: '';
   /* Category list — v3 liquid-glass overrides on the v2 tokens above */
   --cat-item-margin: 4px 8px;
   --cat-item-radius: 10px;
@@ -482,6 +651,14 @@ html.modern-ui-v3 {
   --mg-item-hover-border: rgba(255, 255, 255, 0.12);
   --mg-footer-bg: transparent;
   --mg-footer-border-top: 1px solid rgba(255, 255, 255, 0.08);
+  /* pll/fgl/ple/cgm modal chrome — overlay + container reuse the shared
+     --glass-overlay-* / --glass-settings-* tokens; header + title keep their own */
+  --mg-hdr-bg: transparent;
+  --mg-hdr-border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  --mg-hdr-padding: 20px 24px;
+  --mg-hdr-title-font-size: 1.15rem;
+  --mg-hdr-title-weight: 600;
+  --mg-hdr-title-color: #fff;
   --mg-btn-bg: rgba(255, 255, 255, 0.04);
   --mg-btn-border: 1px solid rgba(255, 255, 255, 0.08);
   --mg-btn-color: rgba(255, 255, 255, 0.8);
@@ -1130,6 +1307,12 @@ html.modern-ui-v3[data-theme="light"] {
   --mg-export-hover-color: #000;
   --mg-footer-bg: transparent;
   --mg-footer-border-top: 1px solid rgba(0, 0, 0, 0.08);
+  --mg-hdr-bg: transparent;
+  --mg-hdr-border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  --mg-hdr-padding: 20px 24px;
+  --mg-hdr-title-font-size: 1.15rem;
+  --mg-hdr-title-weight: 600;
+  --mg-hdr-title-color: #000;
   /* Source Picker Modal — light values (solid dark-on-glass replaces the
      dark glass surfaces; the base consumes the tokens so no light sheet
      rules are needed for spm) */
@@ -1215,6 +1398,60 @@ html.modern-ui-v3[data-theme="light"] {
   --src-actions-btn-color: #475569;
   --src-actions-btn-hover-bg: rgba(0, 0, 0, 0.06);
   --src-actions-btn-hover-color: #0f172a;
+  /* Stremio & Nuvio — light values for the classes the light sheet does NOT
+     style (the search wrap + catalog filter are covered by the light sheet's
+     own rules, which win with equal specificity + later load). The bases
+     consume the tokens, so no per-surface light rules are needed. */
+  --stremio-back-btn-bg: rgba(0, 0, 0, 0.04);
+  --stremio-back-btn-border: 1px solid rgba(0, 0, 0, 0.08);
+  --stremio-back-btn-color: rgba(0, 0, 0, 0.8);
+  --stremio-back-btn-hover-bg: rgba(0, 0, 0, 0.08);
+  --stremio-back-btn-hover-border-color: rgba(0, 0, 0, 0.15);
+  --stremio-back-btn-hover-color: #000;
+  --stremio-back-btn-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --stremio-overlay-btn-bg: rgba(0, 0, 0, 0.04);
+  --stremio-overlay-btn-border: 1px solid rgba(0, 0, 0, 0.08);
+  --stremio-overlay-btn-color: rgba(0, 0, 0, 0.8);
+  --stremio-overlay-btn-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 4px 16px rgba(0, 0, 0, 0.1);
+  --stremio-overlay-btn-hover-bg: rgba(0, 0, 0, 0.08);
+  --stremio-overlay-btn-hover-border-color: rgba(0, 0, 0, 0.15);
+  --stremio-overlay-btn-hover-color: #000;
+  --stremio-overlay-btn-hover-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 6px 24px rgba(0, 0, 0, 0.12);
+  --stremio-overlay-icon-color: rgba(139, 92, 246, 0.8);
+  --stremio-cast-placeholder-bg: rgba(0, 0, 0, 0.04);
+  --stremio-cast-placeholder-color: rgba(0, 0, 0, 0.6);
+  --stremio-recs-divider-bg: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.08) 20%, rgba(0, 0, 0, 0.08) 80%, transparent 100%);
+  --stremio-addon-btn-bg: rgba(0, 0, 0, 0.04);
+  --stremio-addon-btn-border: 1px solid rgba(0, 0, 0, 0.08);
+  --stremio-addon-btn-color: rgba(0, 0, 0, 0.7);
+  --stremio-addon-btn-hover-bg: rgba(0, 0, 0, 0.08);
+  --stremio-addon-btn-hover-border-color: rgba(0, 0, 0, 0.15);
+  --stremio-addon-btn-hover-color: #000;
+  --stremio-addon-btn-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --stremio-addon-btn-active-bg: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(0, 0, 0, 0.04));
+  --stremio-addon-btn-active-border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(0, 0, 0, 0.08));
+  --stremio-addon-btn-active-color: var(--accent-primary, #00d4ff);
+  --stremio-loading-bg: rgba(0, 0, 0, 0.03);
+  --stremio-loading-border: 1px solid rgba(0, 0, 0, 0.06);
+  --stremio-video-card-bg: rgba(0, 0, 0, 0.02);
+  --stremio-video-card-border: 1px solid rgba(0, 0, 0, 0.05);
+  --stremio-video-card-color: rgba(0, 0, 0, 0.8);
+  --stremio-video-card-hover-bg: rgba(0, 0, 0, 0.04);
+  --stremio-video-card-hover-border-color: rgba(0, 0, 0, 0.12);
+  --stremio-video-card-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --stremio-video-card-watched-border: rgba(34, 197, 94, 0.25);
+  --stremio-video-card-watched-bg: rgba(34, 197, 94, 0.06);
+  --stremio-back-btn-dark-bg: rgba(0, 0, 0, 0.04);
+  --stremio-back-btn-dark-border: 1px solid rgba(0, 0, 0, 0.08);
+  --stremio-back-btn-dark-color: rgba(0, 0, 0, 0.8);
+  --stremio-back-btn-dark-hover-bg: rgba(0, 0, 0, 0.08);
+  --stremio-back-btn-dark-hover-border-color: rgba(0, 0, 0, 0.15);
+  --stremio-back-btn-dark-hover-color: #000;
+  --stremio-ep-unwatched-bg: rgba(0, 0, 0, 0.05);
+  --stremio-ep-unwatched-border: 1px solid rgba(0, 0, 0, 0.08);
+  --stremio-ep-unwatched-hover-bg: rgba(0, 0, 0, 0.1);
+  --stremio-ep-unwatched-hover-border-color: rgba(0, 0, 0, 0.15);
+  --stremio-ep-unwatched-svg-stroke: rgba(0, 0, 0, 0.6);
 }
 
 /* Stat chips — dark-only look (the light sheet owns the light values, so the
@@ -1876,8 +2113,18 @@ html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
   height: calc(100% - 32px) !important;
 }
 
-/* 12. Stremio & Nuvio Liquid Glass Styling */
+/* 12. Stremio & Nuvio Liquid Glass — token-driven. The component bases
+   (StremioTopbar / StremioHome / StremioDetail / NuvioPage / StreamPickerModal /
+   BackButtonOverlay / person-detail sheets) consume the --stremio-* /
+   --nuvio-* tokens with their original values as fallbacks, so v1/v2 keep
+   their look and v3 picks up the glass values from the token block above.
+   The thin rules below are pure token refs that only exist to win the
+   cascade over themes.css's [data-theme*="glass-"] rules (same properties,
+   higher specificity than a plain base), exactly like the settings-sidebar
+   bridge. The light theme needs no per-surface rules here — the v3 light
+   token block supplies the light values. */
 
+/* Page geometry — layout only (no glass values), kept for the v3 chrome. */
 .modern-ui-v3 .stremio-page,
 .modern-ui-v3 .nuvio-page {
   top: 16px;
@@ -1890,495 +2137,125 @@ html.modern-ui-v3[data-theme="light"] .ufc-detail-fighter-img {
   overflow: hidden;
 }
 
-.modern-ui-v3 .stremio-main,
-.modern-ui-v3 .nuvio-main {
-  background: transparent !important;
-}
-
+/* Topbar surface + active tab / underline (themes.css glass-gates these) */
 .modern-ui-v3 .stremio-topbar,
 .modern-ui-v3 .nuvio-topbar {
-  background: rgba(255, 255, 255, 0.015) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  height: 56px !important;
-}
-
-.modern-ui-v3 .stremio-topbar-item,
-.modern-ui-v3 .nuvio-topbar-item {
-  color: var(--text-secondary, rgba(255, 255, 255, 0.6)) !important;
-  transition: all 0.2s ease !important;
-  background: transparent !important;
-}
-
-.modern-ui-v3 .stremio-topbar-item:hover,
-.modern-ui-v3 .nuvio-topbar-item:hover {
-  color: #fff !important;
-  background: rgba(255, 255, 255, 0.04) !important;
+  background: var(--stremio-topbar-bg) !important;
+  border-bottom: var(--stremio-topbar-border-bottom) !important;
 }
 
 .modern-ui-v3 .stremio-topbar-item.active,
 .modern-ui-v3 .nuvio-topbar-item.active {
-  color: #fff !important;
-  background: rgba(255, 255, 255, 0.06) !important;
+  background: var(--stremio-topbar-item-active-bg) !important;
 }
 
 .modern-ui-v3 .stremio-topbar-item.active::after,
 .modern-ui-v3 .nuvio-topbar-item.active::after {
-  background: var(--accent-primary, #00d4ff) !important;
-  box-shadow: 0 0 8px var(--accent-primary, #00d4ff) !important;
-  height: 3px !important;
-  bottom: 0 !important;
+  background: var(--stremio-topbar-item-underline-bg) !important;
+  box-shadow: var(--stremio-topbar-item-underline-shadow) !important;
 }
 
-.modern-ui-v3 .stremio-topbar-search-input-wrap,
-.modern-ui-v3 .nuvio-topbar-search {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 20px !important;
-}
-
-.modern-ui-v3 .stremio-topbar-search-input-wrap:focus-within,
-.modern-ui-v3 .nuvio-topbar-search:focus-within {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: var(--accent-primary, #00d4ff) !important;
-  box-shadow: 0 0 10px var(--accent-glow, rgba(0, 212, 255, 0.15)) !important;
-}
-
-.modern-ui-v3 .stremio-catalog-filter {
-  background: rgba(255, 255, 255, 0.015) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-}
-
-/* Cards & Posters */
-
+/* Cards & posters — only the classes themes.css glass-gates need bridges;
+   the rest (rec/person/nuvio/picker cards) are fully base-tokenized. */
 .modern-ui-v3 .stremio-meta-card,
 .modern-ui-v3 .stremio-row-card,
-.modern-ui-v3 .stremio-detail-stream-card,
-.modern-ui-v3 .stremio-detail-rec-card,
-.modern-ui-v3 .person-film-card,
-.modern-ui-v3 .nuvio-card,
-.modern-ui-v3 .nuvio-cw-card,
-.modern-ui-v3 .nuvio-cw-wide-card,
-.modern-ui-v3 .nuvio-cw-poster-card,
-.modern-ui-v3 .nuvio-folder-card,
-.modern-ui-v3 .nuvio-folder-detail-item,
-.modern-ui-v3 .stremio-picker-item,
-.modern-ui-v3 .stremio-picker-item-download {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-radius: 14px !important;
-  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+.modern-ui-v3 .stremio-detail-stream-card {
+  background: var(--stremio-card-bg) !important;
+  border: var(--stremio-card-border) !important;
 }
 
 .modern-ui-v3 .stremio-meta-card:hover,
 .modern-ui-v3 .stremio-row-card:hover,
-.modern-ui-v3 .stremio-detail-stream-card:hover,
-.modern-ui-v3 .stremio-detail-rec-card:hover,
-.modern-ui-v3 .person-film-card:hover,
-.modern-ui-v3 .nuvio-card:hover,
-.modern-ui-v3 .nuvio-cw-card:hover,
-.modern-ui-v3 .nuvio-cw-wide-card:hover,
-.modern-ui-v3 .nuvio-cw-poster-card:hover,
-.modern-ui-v3 .nuvio-folder-card:hover,
-.modern-ui-v3 .nuvio-folder-detail-item:hover,
-.modern-ui-v3 .stremio-picker-item:hover,
-.modern-ui-v3 .stremio-picker-item-download:hover {
-  border-color: rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.03) inset !important;
-  transform: translateY(-2px) !important;
+.modern-ui-v3 .stremio-detail-stream-card:hover {
+  box-shadow: var(--stremio-card-hover-shadow) !important;
 }
 
-/* Detail Views & Overlays */
-
-.modern-ui-v3 .stremio-detail,
-.modern-ui-v3 .nuvio-folder-detail-page-container {
-  background: transparent !important;
-}
-
+/* Detail views & overlays */
 .modern-ui-v3 .stremio-detail-backdrop-overlay {
-  background: linear-gradient(to right, rgba(12, 14, 24, 0.9) 0%, rgba(12, 14, 24, 0.75) 30%, rgba(12, 14, 24, 0.45) 65%, rgba(12, 14, 24, 0.15) 100%),
-              linear-gradient(to bottom, transparent 40%, rgba(12, 14, 24, 0.85) 100%) !important;
+  background: var(--stremio-backdrop-gradient) !important;
 }
 
-.modern-ui-v3 .nuvio-detail-backdrop-fade {
-  background: linear-gradient(to bottom, transparent 30%, rgba(12, 14, 24, 0.85) 75%) !important;
-}
-
-.modern-ui-v3 .nuvio-detail-overlay {
-  background: rgba(8, 8, 12, 0.4) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-}
-
-/* Stremio & Nuvio Detail Views Elements (Liquid Glass Styles) */
-
-.modern-ui-v3 .stremio-detail-back-btn,
-.modern-ui-v3 .nuvio-folder-detail-back-btn,
-.modern-ui-v3 .nuvio-person-back-btn {
-  border-radius: 20px !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.8)) !important;
-  padding: 7px 16px !important;
-  font-size: 0.8rem !important;
-  font-weight: 600 !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  width: fit-content !important;
-  margin-bottom: 32px !important;
-}
-
-.modern-ui-v3 .stremio-detail-back-btn:hover,
-.modern-ui-v3 .nuvio-folder-detail-back-btn:hover,
-.modern-ui-v3 .nuvio-person-back-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  transform: translateX(-2px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}
-
-.modern-ui-v3 .stremio-detail-back-btn.btn-back {
-  background: rgba(0, 0, 0, 0.4) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 8px !important;
-  padding: 6px 14px !important;
-  color: rgba(255, 255, 255, 0.85) !important;
-}
-
-.modern-ui-v3 .stremio-detail-back-btn.btn-back:hover {
-  background: rgba(0, 0, 0, 0.6) !important;
-  border-color: rgba(255, 255, 255, 0.25) !important;
-  color: #fff !important;
-  transform: translateX(-2px) !important;
-}
-
-.modern-ui-v3 .back-button-overlay__btn {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 20px !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  color: rgba(255, 255, 255, 0.85) !important;
-  padding: 8px 18px !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 4px 16px rgba(0, 0, 0, 0.3) !important;
-}
-
-.modern-ui-v3 .back-button-overlay__btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  transform: translateX(-2px) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 6px 24px rgba(0, 0, 0, 0.35) !important;
-}
-
-.modern-ui-v3 .back-button-overlay__btn:active {
-  transform: translateX(-2px) scale(0.97) !important;
-}
-
-.modern-ui-v3 .back-button-overlay__icon {
-  color: rgba(200, 180, 255, 0.9) !important;
-}
-
-
-
-
-
-
-
-
-
-
-/* Cast Photos Liquid Glass Border */
-
-.modern-ui-v3 .stremio-detail-cast-photo {
-  border: none !important;
-  position: relative !important;
-  padding: 2px !important;
-  background: linear-gradient(135deg, 
-    var(--accent-primary, #00d4ff) 0%, 
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, #8b5cf6) 50%, 
-    #8b5cf6 100%
-  ) !important;
-  border-radius: 50% !important;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.25),
-    0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent) !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.modern-ui-v3 .stremio-detail-cast-photo img,
-.modern-ui-v3 .stremio-detail-cast-photo-placeholder {
-  border-radius: 50% !important;
-}
-
-.modern-ui-v3 .stremio-detail-cast-photo-placeholder {
-  background: rgba(255, 255, 255, 0.04) !important;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.8)) !important;
-}
-
-.modern-ui-v3 .stremio-detail-cast-member:hover .stremio-detail-cast-photo {
-  transform: scale(1.08) !important;
-  box-shadow: 
-    0 6px 16px rgba(0, 0, 0, 0.3),
-    0 0 16px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) !important;
-}
-
-/* Addon filters & loadings */
-
-.modern-ui-v3 .stremio-addon-filter-btn {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.7)) !important;
-  padding: 6px 14px !important;
-  border-radius: 20px !important;
-  font-size: 0.8rem !important;
-  font-weight: 600 !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
-.modern-ui-v3 .stremio-addon-filter-btn:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}
-
-.modern-ui-v3 .stremio-addon-filter-btn.active {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(255, 255, 255, 0.05)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(255, 255, 255, 0.15)) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 10%, transparent) !important;
-}
-
-.modern-ui-v3 .stremio-detail-streams-loading-mini {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-radius: 10px !important;
-}
-
-/* Divider before Recommendations */
-
-.modern-ui-v3 .stremio-detail-section.stremio-detail-recs-section {
-  border-top: none !important;
-  position: relative !important;
-  padding-top: 24px !important;
-  margin-top: 32px !important;
-}
-
-.modern-ui-v3 .stremio-detail-section.stremio-detail-recs-section::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 1px !important;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent) 20%, 
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent) 80%, 
-    transparent 100%
-  ) !important;
-}
-
-/* Episode cards (Series detail view) */
-
+/* Episode cards (themes.css glass-gates base + hover) */
 .modern-ui-v3 .stremio-detail-video-card {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border: 1px solid rgba(255, 255, 255, 0.03) !important;
-  border-radius: 8px !important;
-  padding: 10px !important;
-  transition: all 0.15s ease !important;
+  background: var(--stremio-video-card-bg) !important;
+  border: var(--stremio-video-card-border) !important;
 }
 
 .modern-ui-v3 .stremio-detail-video-card:hover {
-  background: rgba(255, 255, 255, 0.07) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  box-shadow: none !important;
-  transform: translateX(2px) !important;
+  background: var(--stremio-video-card-hover-bg) !important;
 }
 
 .modern-ui-v3 .stremio-detail-video-card.current {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, transparent) !important;
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent) !important;
-  border-left: 3px solid var(--accent-primary, #00d4ff) !important;
+  background: var(--stremio-video-card-current-bg) !important;
+  border: var(--stremio-video-card-current-border) !important;
+  border-left: var(--stremio-video-card-current-border-left) !important;
 }
 
 .modern-ui-v3 .stremio-detail-video-card.stremio-ep-watched {
-  border-color: rgba(34, 197, 94, 0.22) !important;
-  background: rgba(34, 197, 94, 0.06) !important;
+  border-color: var(--stremio-video-card-watched-border) !important;
+  background: var(--stremio-video-card-watched-bg) !important;
 }
 
-.modern-ui-v3 .stremio-ep-thumb-wrap {
-  width: 120px !important;
-  height: 68px !important;
-  border-radius: 6px !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: rgba(0, 0, 0, 0.2) !important;
-  position: relative !important;
-}
-
-.modern-ui-v3 .stremio-ep-progress-track {
-  height: 4px !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-radius: 0 0 8px 8px !important;
-  overflow: hidden !important;
-}
-
+/* Episode progress fill (themes.css glass-gates bg + shadow) */
 .modern-ui-v3 .stremio-ep-progress-fill {
-  background: var(--accent-primary, #00d4ff) !important;
-  box-shadow: 0 0 6px var(--accent-primary, #00d4ff) !important;
+  background: var(--stremio-ep-fill-bg) !important;
+  box-shadow: var(--stremio-ep-fill-shadow) !important;
 }
 
-.modern-ui-v3 .stremio-ep-watched-badge {
-  background: #22c55e !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  box-shadow: 0 4px 10px rgba(34, 197, 94, 0.4) !important;
+/* Detail action buttons / tags / cast / rw-card / rw-progress / spinner —
+   themes.css glass-gates these too; the bases consume the tokens, so these
+   thin consumers re-assert the v3 values over the glass theme rules. */
+html.modern-ui-v3[data-theme] .stremio-detail-action-btn {
+  background: var(--sd-act-bg) !important;
+  border: var(--sd-act-border) !important;
 }
 
-.modern-ui-v3 .stremio-ep-unwatched-badge {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  backdrop-filter: blur(4px) !important;
-  -webkit-backdrop-filter: blur(4px) !important;
+html.modern-ui-v3[data-theme] .stremio-detail-action-btn:hover {
+  background: var(--sd-act-hover-bg) !important;
+  border-color: var(--sd-act-hover-border) !important;
+  box-shadow: var(--sd-act-hover-shadow) !important;
 }
 
-.modern-ui-v3 .stremio-ep-unwatched-badge:hover {
-  background: rgba(255, 255, 255, 0.18) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
+html.modern-ui-v3[data-theme] .stremio-detail-action-btn.in-library {
+  background: var(--sd-act-inlib-bg) !important;
+  border-color: var(--sd-act-inlib-border) !important;
+  color: var(--sd-act-inlib-color) !important;
+  box-shadow: var(--sd-act-inlib-shadow) !important;
 }
 
-/* Light Theme overrides for Stremio/Nuvio detail views */
-
-html.modern-ui-v3[data-theme="light"] .stremio-detail-back-btn,
-html.modern-ui-v3[data-theme="light"] .nuvio-folder-detail-back-btn,
-html.modern-ui-v3[data-theme="light"] .nuvio-person-back-btn {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.8) !important;
+html.modern-ui-v3[data-theme] .stremio-detail-tag {
+  background: var(--sd-tag-bg) !important;
+  border: var(--sd-tag-border) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .stremio-detail-back-btn:hover,
-html.modern-ui-v3[data-theme="light"] .nuvio-folder-detail-back-btn:hover,
-html.modern-ui-v3[data-theme="light"] .nuvio-person-back-btn:hover {
-  background: rgba(0, 0, 0, 0.08) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+html.modern-ui-v3[data-theme] .stremio-detail-tag:hover {
+  background: var(--sd-tag-hover-bg) !important;
+  border-color: var(--sd-tag-hover-border) !important;
+  box-shadow: var(--sd-tag-hover-shadow) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .back-button-overlay__btn {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.8) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    0 4px 16px rgba(0, 0, 0, 0.1) !important;
+html.modern-ui-v3[data-theme] .stremio-detail-cast-member:hover .stremio-detail-cast-photo {
+  border-color: var(--accent-primary, #00d4ff) !important;
+  box-shadow: var(--stremio-cast-hover-shadow) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .back-button-overlay__btn:hover {
-  background: rgba(0, 0, 0, 0.08) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    0 6px 24px rgba(0, 0, 0, 0.12) !important;
+html.modern-ui-v3[data-theme] .stremio-rw-card {
+  background: var(--stremio-card-bg) !important;
+  border: var(--stremio-card-border) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .back-button-overlay__icon {
-  color: rgba(139, 92, 246, 0.8) !important;
+html.modern-ui-v3[data-theme] .stremio-rw-card:hover {
+  box-shadow: var(--stremio-card-hover-shadow) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .stremio-detail-cast-photo-placeholder {
-  background: rgba(0, 0, 0, 0.04) !important;
-  color: rgba(0, 0, 0, 0.6) !important;
+html.modern-ui-v3[data-theme] .stremio-rw-progress-fill {
+  background: var(--stremio-rw-fill-bg) !important;
+  box-shadow: var(--stremio-rw-fill-shadow) !important;
 }
 
-html.modern-ui-v3[data-theme="light"] .stremio-detail-section.stremio-detail-recs-section::before {
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(0, 0, 0, 0.08) 20%, 
-    rgba(0, 0, 0, 0.08) 80%, 
-    transparent 100%
-  ) !important;
+html.modern-ui-v3[data-theme] .stremio-spinner {
+  box-shadow: var(--stremio-spinner-shadow) !important;
 }
-
-html.modern-ui-v3[data-theme="light"] .stremio-addon-filter-btn {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  color: rgba(0, 0, 0, 0.7) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stremio-addon-filter-btn:hover {
-  background: rgba(0, 0, 0, 0.08) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stremio-addon-filter-btn.active {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 15%, rgba(0, 0, 0, 0.04)) !important;
-  border-color: color-mix(in srgb, var(--accent-primary, #00d4ff) 35%, rgba(0, 0, 0, 0.08)) !important;
-  color: var(--accent-primary, #00d4ff) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stremio-detail-streams-loading-mini {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border: 1px solid rgba(0, 0, 0, 0.06) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stremio-detail-video-card {
-  background: rgba(0, 0, 0, 0.02) !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-  color: rgba(0, 0, 0, 0.8) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stremio-detail-video-card:hover {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.12) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stremio-detail-video-card.stremio-ep-watched {
-  border-color: rgba(34, 197, 94, 0.25) !important;
-  background: rgba(34, 197, 94, 0.06) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stremio-ep-unwatched-badge {
-  background: rgba(0, 0, 0, 0.05) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stremio-ep-unwatched-badge:hover {
-  background: rgba(0, 0, 0, 0.1) !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-}
-
-html.modern-ui-v3[data-theme="light"] .stremio-ep-unwatched-badge svg {
-  stroke: rgba(0, 0, 0, 0.6) !important;
-}
-
 /* Modals */
 
 /* Source Picker Modal (spm) — token-driven via the --spm-* tokens in the
@@ -2553,6 +2430,36 @@ html.modern-ui-v3[data-theme]:has(.guide-transparent-mode) .category-strip {
    in the component bases (Settings.css / SourcesTab.css). The stat-chip
    tokens are dark-only (light sheet owns the light look); the rest are
    theme-agnostic like the rules they replace. */
+
+/* Source-type chip — the base (Settings.css) covers .source-name-type .source-type
+   only; v3 also styled the bare chip as an inline-flex pill and the EPG source
+   list renders it under .checkbox-label. Restore both v3-only details: the
+   flex centering (dropped in the token fold) and full chip look for the
+   checkbox usage. Light flows from the --src-type-* light tokens. */
+
+html.modern-ui-v3[data-theme] .source-name-type .source-type {
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+html.modern-ui-v3[data-theme] .checkbox-label .source-type {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: var(--src-type-padding, 3px 9px) !important;
+  border-radius: var(--src-type-radius, 20px) !important;
+  font-size: var(--src-type-font-size, 0.64rem) !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--src-type-letter-spacing, 0.08em) !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  backdrop-filter: var(--src-type-blur, blur(8px) saturate(140%)) !important;
+  -webkit-backdrop-filter: var(--src-type-blur, blur(8px) saturate(140%)) !important;
+  box-shadow: var(--src-type-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.12)) !important;
+  background: var(--src-type-bg, rgba(255, 255, 255, 0.07)) !important;
+  border: var(--src-type-border, 1px solid rgba(255, 255, 255, 0.13)) !important;
+  color: var(--src-type-color, rgba(255, 255, 255, 0.58)) !important;
+}
 
 /* EPG rows & channels — token-driven bridge: the component bases can't beat the
    transparent-mode rules ([data-theme] .guide-panel.guide-transparent-mode ...)
@@ -3238,29 +3145,23 @@ html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg::after {
 
    ========================================================================== */
 
-/* 1. Backdrop Overlays */
+/* 1. Backdrop Overlays — pll/fgl/ple/cgm overlays are token-driven via
+   --glass-overlay-* in the component bases; these stay for cm/chm/sf. */
 
 .modern-ui-v3 .category-manager-overlay,
 .modern-ui-v3 .channel-manager-overlay,
-.modern-ui-v3 .source-form-overlay,
-.modern-ui-v3 .failover-group-list-overlay,
-.modern-ui-v3 .custom-group-manager-overlay,
-.modern-ui-v3 .playlist-list-overlay,
-.modern-ui-v3 .playlist-editor-backdrop {
+.modern-ui-v3 .source-form-overlay {
   background: rgba(8, 8, 12, 0.4) !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
 }
 
-/* 2. Modal Card Containers */
+/* 2. Modal Card Containers — pll/fgl/ple/cgm containers are token-driven via
+   --glass-settings-* / --glass-modal-* in the component bases; cm/chm/sf stay. */
 
 .modern-ui-v3 .category-manager-modal,
 .modern-ui-v3 .channel-manager-modal,
-.modern-ui-v3 .source-form,
-.modern-ui-v3 .failover-group-list-modal,
-.modern-ui-v3 .custom-group-manager-modal,
-.modern-ui-v3 .playlist-list-modal,
-.modern-ui-v3 .playlist-editor-modal {
+.modern-ui-v3 .source-form {
   background: rgba(16, 12, 26, 0.82) !important;
   backdrop-filter: blur(35px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(35px) saturate(180%) !important;
@@ -3274,15 +3175,12 @@ html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg::after {
   color: #fff !important;
 }
 
-/* 3. Headers */
+/* 3. Headers — pll/fgl/ple/cgm headers are token-driven via --mg-hdr-* in the
+   component bases; cm/chm/sf stay. */
 
 .modern-ui-v3 .category-manager-header,
 .modern-ui-v3 .channel-manager-header,
-.modern-ui-v3 .source-form h3,
-.modern-ui-v3 .failover-group-list-header,
-.modern-ui-v3 .custom-group-manager-header,
-.modern-ui-v3 .playlist-list-header,
-.modern-ui-v3 .playlist-editor-header {
+.modern-ui-v3 .source-form h3 {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
   background: transparent !important;
   padding: 20px 24px !important;
@@ -3296,11 +3194,7 @@ html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg::after {
 }
 
 .modern-ui-v3 .category-manager-header h2,
-.modern-ui-v3 .channel-manager-header h2,
-.modern-ui-v3 .failover-group-list-header h2,
-.modern-ui-v3 .playlist-list-header h2,
-.modern-ui-v3 .playlist-editor-header h2,
-.modern-ui-v3 .custom-group-manager-header h2 {
+.modern-ui-v3 .channel-manager-header h2 {
   font-size: 1.15rem !important;
   font-weight: 600 !important;
   color: #fff !important;
@@ -3405,7 +3299,7 @@ html.modern-ui-v3[data-theme="dark-slate"] .livetv-liquid-glass-bg::after {
 }
 
 /* 7. List Items (Categories & Channels)
-   category-item/channel-item surfaces folded into --cat-item-*/--channel-item-* tokens */
+   category-item/channel-item surfaces folded into --cat-item-* / --channel-item-* tokens */
 
 .modern-ui-v3 .category-item.selected-for-move {
   background: color-mix(in srgb, var(--accent-primary, #8b5cf6) 12%, rgba(255, 255, 255, 0.04)) !important;

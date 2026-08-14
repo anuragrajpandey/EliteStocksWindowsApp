@@ -31,6 +31,15 @@
     color-mix(in srgb, var(--surface-color, rgba(20, 20, 20, 0.85)), white 3%) 0%,
     var(--surface-color, rgba(20, 20, 20, 0.85)) 100%);
   --guide-header-filter: blur(var(--glass-blur, 16px)) saturate(140%);
+  /* Time header — v2 gradient surface (v3 redefines to the subtle clean values) */
+  --guide-time-header-bg: linear-gradient(180deg,
+    color-mix(in srgb, var(--surface-color, rgba(0,0,0,0.3)), white 2%) 0%,
+    color-mix(in srgb, var(--surface-color, rgba(0,0,0,0.3)), white 1%) 100%);
+  --guide-time-header-border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  --guide-time-header-filter: blur(var(--glass-blur, 16px)) saturate(140%);
+  /* legacy WebKit alias — the old stacked rule 1 only set -webkit with blur(12px) */
+  --guide-time-header-filter-webkit: blur(var(--glass-blur, 12px));
+  --guide-time-spacer-border-right: 1px solid rgba(255, 255, 255, 0.05);
   --glass-info-border-left: var(--glass-surface-border, 1px solid rgba(255, 255, 255, 0.04));
   --glass-info-padding: 24px 28px;
   --guide-preview-radius: 0 0 20px 0;
@@ -733,16 +742,8 @@
   box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
 }
 
-/* Modern Time Header */
-.modern-ui .guide-time-header {
-  background: 
-    linear-gradient(180deg,
-      color-mix(in srgb, var(--surface-color, rgba(0,0,0,0.3)), white 2%) 0%,
-      var(--surface-color, rgba(0,0,0,0.3)) 100%
-    );
-  backdrop-filter: blur(var(--glass-blur, 12px));
-  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
-}
+/* Modern Time Header — surface values folded into the --guide-time-header-*
+   tokens above, consumed by the ChannelPanel.css base (v3 redefines them). */
 
 /* Modern Scrollbar */
 .modern-ui .guide-channels::-webkit-scrollbar {
@@ -874,20 +875,10 @@
    -------------------------------------------------- */
 
 /* --------------------------------------------------
-   4. TIME HEADER - "Minimal Timeline"
+   4. TIME HEADER - "Minimal Timeline" (surface values folded into the
+   --guide-time-header-* / --guide-time-spacer-* tokens, consumed by the
+   ChannelPanel.css base; v3 redefines them to the clean look)
    -------------------------------------------------- */
-.modern-ui .guide-time-header {
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--surface-color, rgba(0,0,0,0.3)), white 2%) 0%,
-    color-mix(in srgb, var(--surface-color, rgba(0,0,0,0.3)), white 1%) 100%
-  );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(var(--glass-blur, 16px)) saturate(140%);
-}
-
-.modern-ui .guide-time-header-spacer {
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
-}
 
 /* --------------------------------------------------
    5. PREVIEW PANE - "Cinematic View"

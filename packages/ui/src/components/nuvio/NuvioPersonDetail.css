@@ -60,27 +60,30 @@
 }
 
 .nuvio-person-back-btn {
-  display: flex;
+  display: var(--stremio-back-btn-display, flex);
   align-items: center;
   gap: 8px;
-  width: fit-content;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 8px 16px;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.875rem;
-  font-weight: 500;
+  width: var(--stremio-back-btn-width, fit-content);
+  background: var(--stremio-back-btn-bg, rgba(255, 255, 255, 0.04));
+  border: var(--stremio-back-btn-border, 1px solid rgba(255, 255, 255, 0.08));
+  border-radius: var(--stremio-back-btn-radius, 8px);
+  padding: var(--stremio-back-btn-padding, 8px 16px);
+  color: var(--stremio-back-btn-color, rgba(255, 255, 255, 0.7));
+  font-size: var(--stremio-back-btn-font-size, 0.875rem);
+  font-weight: var(--stremio-back-btn-font-weight, 500);
   cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
+  transition: var(--stremio-back-btn-transition, all 0.2s ease);
+  backdrop-filter: var(--stremio-back-btn-filter, blur(10px));
+  -webkit-backdrop-filter: var(--stremio-back-btn-filter, blur(10px));
+  margin-bottom: var(--stremio-back-btn-margin-bottom, 32px);
 }
 
 .nuvio-person-back-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  transform: translateX(-2px);
+  background: var(--stremio-back-btn-hover-bg, rgba(255, 255, 255, 0.08));
+  border-color: var(--stremio-back-btn-hover-border-color, rgba(255, 255, 255, 0.15));
+  color: var(--stremio-back-btn-hover-color, #ffffff);
+  transform: var(--stremio-back-btn-hover-transform, translateX(-2px));
+  box-shadow: var(--stremio-back-btn-hover-shadow, none);
 }
 
 .nuvio-person-header {
@@ -356,11 +359,19 @@
   max-width: 140px;
   min-width: 0;
   flex-shrink: 0;
-  background: none;
-  border: none;
+  background: var(--stremio-card-bg, none);
+  border: var(--stremio-card-border, none);
+  border-radius: var(--stremio-card-radius, 0);
+  transition: var(--stremio-card-transition, none);
   padding: 0;
   text-align: left;
   cursor: pointer;
+}
+
+.person-film-card:hover {
+  border-color: var(--stremio-card-hover-border-color, transparent);
+  box-shadow: var(--stremio-card-hover-shadow, none);
+  transform: var(--stremio-card-hover-transform, none);
 }
 
 @media (min-width: 768px) {

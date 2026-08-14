@@ -15,10 +15,10 @@
   width: calc(100% + 48px);
   margin: -32px -24px 16px;
   padding: 12px 24px;
-  background: rgba(15, 12, 25, 0.55);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--stremio-catalog-filter-bg, rgba(15, 12, 25, 0.55));
+  backdrop-filter: var(--stremio-catalog-filter-filter, blur(14px));
+  -webkit-backdrop-filter: var(--stremio-catalog-filter-filter, blur(14px));
+  border-bottom: var(--stremio-catalog-filter-border-bottom, 1px solid rgba(255, 255, 255, 0.06));
   box-sizing: border-box;
 }
 
@@ -81,16 +81,18 @@
 }
 
 .stremio-meta-card {
-  background: var(--surface-color, rgba(255, 255, 255, 0.04));
-  border-radius: 10px;
+  background: var(--stremio-card-bg, var(--surface-color, rgba(255, 255, 255, 0.04)));
+  border: var(--stremio-card-border, none);
+  border-radius: var(--stremio-card-radius, 10px);
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: var(--stremio-card-transition, transform 0.2s, box-shadow 0.2s);
 }
 
 .stremio-meta-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px var(--accent-glow, rgba(0, 212, 255, 0.05));
+  transform: var(--stremio-card-hover-transform, translateY(-4px));
+  border-color: var(--stremio-card-hover-border-color, transparent);
+  box-shadow: var(--stremio-card-hover-shadow, 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px var(--accent-glow, rgba(0, 212, 255, 0.05)));
 }
 
 .stremio-meta-poster {
@@ -248,17 +250,19 @@
 .stremio-row-card {
   flex-shrink: 0;
   width: var(--strem-poster-width, var(--nuvio-poster-width, 150px));
-  background: var(--surface-color, rgba(255, 255, 255, 0.04));
-  border-radius: 10px;
+  background: var(--stremio-card-bg, var(--surface-color, rgba(255, 255, 255, 0.04)));
+  border: var(--stremio-card-border, none);
+  border-radius: var(--stremio-card-radius, 10px);
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: var(--stremio-card-transition, transform 0.2s, box-shadow 0.2s);
   contain: content;
 }
 
 .stremio-row-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 15px var(--accent-glow, rgba(0, 212, 255, 0.05));
+  transform: var(--stremio-card-hover-transform, translateY(-4px));
+  border-color: var(--stremio-card-hover-border-color, transparent);
+  box-shadow: var(--stremio-card-hover-shadow, 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 15px var(--accent-glow, rgba(0, 212, 255, 0.05)));
 }
 
 .stremio-row-poster {
@@ -444,16 +448,18 @@
   position: relative;
   flex-shrink: 0;
   width: var(--strem-poster-width, var(--nuvio-poster-width, 150px));
-  background: var(--surface-color, rgba(255, 255, 255, 0.04));
-  border-radius: 10px;
+  background: var(--stremio-card-bg, var(--surface-color, rgba(255, 255, 255, 0.04)));
+  border: var(--stremio-card-border, none);
+  border-radius: var(--stremio-card-radius, 10px);
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: var(--stremio-card-transition, transform 0.2s, box-shadow 0.2s);
 }
 
 .stremio-rw-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 15px var(--accent-glow, rgba(0, 212, 255, 0.05));
+  transform: var(--stremio-card-hover-transform, translateY(-4px));
+  border-color: var(--stremio-card-hover-border-color, transparent);
+  box-shadow: var(--stremio-card-hover-shadow, 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 15px var(--accent-glow, rgba(0, 212, 255, 0.05)));
 }
 
 .stremio-rw-card--loading {
@@ -502,7 +508,8 @@
 
 .stremio-rw-progress-fill {
   height: 100%;
-  background: var(--accent-primary, #00d4ff);
+  background: var(--stremio-rw-fill-bg, var(--accent-primary, #00d4ff));
+  box-shadow: var(--stremio-rw-fill-shadow, none);
   border-radius: 0 2px 2px 0;
   transition: width 0.3s ease;
 }

@@ -24,6 +24,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0;
+  background: var(--stremio-main-bg, transparent);
   position: relative;
   scrollbar-width: thin;
   scrollbar-color: var(--surface-hover, rgba(255, 255, 255, 0.15)) transparent;

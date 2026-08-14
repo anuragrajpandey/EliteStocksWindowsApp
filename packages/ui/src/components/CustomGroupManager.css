@@ -4,44 +4,47 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.75);
+    background: var(--glass-overlay-bg, rgba(0, 0, 0, 0.75));
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    backdrop-filter: blur(8px);
+    backdrop-filter: var(--glass-overlay-filter, blur(8px));
+    -webkit-backdrop-filter: var(--glass-overlay-filter, blur(8px));
 }
 
 .custom-group-manager-modal {
     width: 90vw;
     max-width: 1100px;
     height: 85vh;
-    background: var(--bg-secondary, #1a1a2e);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-    border-radius: 14px;
+    background: var(--glass-settings-bg, var(--bg-secondary, #1a1a2e));
+    border: var(--glass-settings-border, 1px solid rgba(255, 255, 255, 0.1));
+    box-shadow: var(--glass-settings-shadow, 0 20px 60px rgba(0, 0, 0, 0.6));
+    border-radius: var(--glass-modal-radius, 14px);
+    backdrop-filter: var(--glass-settings-filter, none);
+    -webkit-backdrop-filter: var(--glass-settings-filter, none);
     display: flex;
     flex-direction: column;
-    color: var(--text-primary, #fff);
+    color: var(--glass-modal-color, var(--text-primary, #fff));
     overflow: hidden;
 }
 
 /* ── Header ── */
 .custom-group-manager-header {
-    padding: 16px 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: var(--mg-hdr-padding, 16px 24px);
+    border-bottom: var(--mg-hdr-border-bottom, 1px solid rgba(255, 255, 255, 0.08));
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--mg-hdr-bg, rgba(255, 255, 255, 0.03));
     flex-shrink: 0;
 }
 
 .custom-group-manager-header h2 {
     margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary, #fff);
+    font-size: var(--mg-hdr-title-font-size, 1.1rem);
+    font-weight: var(--mg-hdr-title-weight, 600);
+    color: var(--mg-hdr-title-color, var(--text-primary, #fff));
 }
 
 /* Rename UI */

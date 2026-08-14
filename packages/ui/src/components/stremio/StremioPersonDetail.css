@@ -354,11 +354,19 @@
   max-width: 140px;
   min-width: 0;
   flex-shrink: 0;
-  background: none;
-  border: none;
+  background: var(--stremio-card-bg, none);
+  border: var(--stremio-card-border, none);
+  border-radius: var(--stremio-card-radius, 0);
+  transition: var(--stremio-card-transition, none);
   padding: 0;
   text-align: left;
   cursor: pointer;
+}
+
+.person-film-card:hover {
+  border-color: var(--stremio-card-hover-border-color, transparent);
+  box-shadow: var(--stremio-card-hover-shadow, none);
+  transform: var(--stremio-card-hover-transform, none);
 }
 
 @media (min-width: 768px) {
