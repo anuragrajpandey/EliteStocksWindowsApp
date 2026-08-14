@@ -91,28 +91,38 @@
 }
 
 .category-strip-title {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--cat-title-font-size, 0.75rem);
+  font-weight: var(--cat-title-font-weight, 600);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: var(--cat-title-letter-spacing, 0.05em);
+  color: var(--cat-title-color, rgba(255, 255, 255, 0.5));
+  display: var(--cat-title-display, block);
+  align-items: var(--cat-title-align, normal);
+  gap: var(--cat-title-gap, normal);
 }
 
-/* Add Group Button - Base styles */
+/* Add Group Button - Base styles (v2 chrome via --cat-add-* tokens) */
 .add-group-btn {
-  background: none;
-  border: none;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.5));
+  background: var(--cat-add-bg, none);
+  border: var(--cat-add-border, none);
+  color: var(--cat-add-color, var(--text-secondary, rgba(255, 255, 255, 0.5)));
   cursor: pointer;
   font-size: 1.2rem;
   padding: 0 4px;
   line-height: 1;
-  transition: all 0.2s ease;
+  transition: var(--cat-add-transition, all 0.2s ease);
+  width: var(--cat-add-size, auto);
+  height: var(--cat-add-size, auto);
+  border-radius: var(--cat-add-radius, 0);
+  display: var(--cat-add-display, inline-block);
+  align-items: var(--cat-add-align, normal);
+  justify-content: var(--cat-add-justify, normal);
 }
 
 .add-group-btn:hover {
   color: var(--accent-primary, #00d4ff);
   transform: scale(1.1) rotate(90deg);
+  box-shadow: var(--cat-add-hover-shadow, none);
 }
 
 /* Category Strip Actions Container */
@@ -606,12 +616,12 @@
 }
 
 .sidebar-section-header {
-  font-size: 0.62rem;
+  font-size: var(--cat-hdr-font-size, 0.62rem);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.3);
-  padding: 12px 12px 6px;
+  letter-spacing: var(--cat-hdr-letter-spacing, 0.08em);
+  color: var(--cat-hdr-color, rgba(255, 255, 255, 0.3));
+  padding: var(--cat-hdr-padding, 12px 12px 6px);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -938,16 +948,17 @@
   height: 48px;
 }
 
-/* Section divider between top section and scrollable sources */
+/* Section divider between top section and scrollable sources (v2 accent via
+   --cat-divider-* tokens) */
 .section-divider {
   height: 1px;
-  background: linear-gradient(90deg, 
+  background: var(--cat-divider-bg, linear-gradient(90deg, 
     transparent 0%,
     rgba(255, 255, 255, 0.1) 50%,
     transparent 100%
-  );
+  ));
   margin: 4px auto 8px;
-  width: calc(100% - 24px);
+  width: var(--cat-divider-width, calc(100% - 24px));
 }
 
 /* ==========================================================================

@@ -501,6 +501,45 @@
   --cat-icn-custom-hover-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
   --cat-icn-custom-hover-color: #34d399;
   --cat-icn-custom-hover-border: rgba(16, 185, 129, 0.3);
+  /* Category strip title — v2 accent color + chrome (v3 inherits; light
+     sheet overrides the color) */
+  --cat-title-color: var(--accent-primary, #00d4ff);
+  --cat-title-font-size: 0.7rem;
+  --cat-title-font-weight: 700;
+  --cat-title-letter-spacing: 0.12em;
+  --cat-title-display: flex;
+  --cat-title-align: center;
+  --cat-title-gap: 8px;
+  --cat-title-dot-shadow: 0 0 8px var(--accent-primary, #00d4ff);
+  /* Sidebar section headers — v2 header chrome (v3 inherits) */
+  --cat-hdr-font-size: 0.65rem;
+  --cat-hdr-color: rgba(255, 255, 255, 0.35);
+  --cat-hdr-padding: 16px 16px 8px;
+  --cat-hdr-letter-spacing: 0.1em;
+  /* Section-header ::after divider — v2 gradient (v3 redefines the same
+     token in ModernV3.css; light sheet owns light) */
+  --ssha-divider-bg: linear-gradient(90deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.02) 100%);
+  /* Add-group button — v2 chrome (v3 inherits) */
+  --cat-add-bg: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, rgba(255,255,255,0.1)) 0%,
+    rgba(255, 255, 255, 0.05) 100%);
+  --cat-add-border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
+  --cat-add-color: var(--accent-primary, #00d4ff);
+  --cat-add-size: 28px;
+  --cat-add-radius: 8px;
+  --cat-add-display: flex;
+  --cat-add-align: center;
+  --cat-add-justify: center;
+  --cat-add-transition: all 0.25s ease;
+  --cat-add-hover-shadow: 0 4px 12px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
+  /* Section divider — v2 accent gradient + width (v3 inherits) */
+  --cat-divider-bg: linear-gradient(90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent) 50%,
+    transparent 100%);
+  --cat-divider-width: calc(100% - 40px);
   /* list-bar count typography (v2 values; v3 inherits) */
   --cat-list-count-font-size: 10px;
   --cat-list-count-font-weight: 700;
@@ -591,64 +630,18 @@
   );
 }
 
-.modern-ui .category-strip-title {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--accent-primary, #00d4ff);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
+/* Modern Category Strip Title / Section Headers / Add Group / Section Divider —
+   surface + typography values folded into the --cat-title-*/--cat-hdr-*/
+   --cat-add-*/--cat-divider-* tokens above, consumed by the CategoryStrip.css
+   base (v3 inherits). The title::before dot has no v1 base (modern-UI
+   construct), so it stays a thin consumer here. */
 .modern-ui .category-strip-title::before {
   content: '';
   width: 6px;
   height: 6px;
   background: var(--accent-primary, #00d4ff);
   border-radius: 50%;
-  box-shadow: 0 0 8px var(--accent-primary, #00d4ff);
-}
-
-
-/* Modern Section Headers */
-.modern-ui .sidebar-section-header {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.35);
-  padding: 16px 16px 8px;
-  letter-spacing: 0.1em;
-}
-
-.modern-ui .sidebar-section-header::after {
-  background: linear-gradient(90deg, 
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-}
-
-
-/* Modern Add Group Button */
-.modern-ui .category-strip-header .add-group-btn {
-  background: 
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, rgba(255,255,255,0.1)) 0%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
-  border: 1px solid color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent);
-  color: var(--accent-primary, #00d4ff);
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.25s ease;
-}
-
-.modern-ui .add-group-btn:hover {
-  transform: scale(1.1) rotate(90deg);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-primary, #00d4ff) 20%, transparent);
+  box-shadow: var(--cat-title-dot-shadow, 0 0 8px var(--accent-primary, #00d4ff));
 }
 
 /* Modern Custom Groups Section — the pill values live in the --cat-custom-*
@@ -656,18 +649,6 @@
    in CategoryStrip.css. */
 .modern-ui .custom-groups-section {
   margin: 0;
-}
-
-/* Modern Section Divider - matches header border style */
-.modern-ui .section-divider {
-  height: 1px;
-  background: linear-gradient(90deg, 
-    transparent 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 30%, transparent) 50%,
-    transparent 100%
-  );
-  margin: 4px auto 8px;
-  width: calc(100% - 40px);
 }
 
 /* Hide the old list scrollbar when modern UI is enabled */

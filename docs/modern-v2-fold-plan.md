@@ -1,6 +1,6 @@
 # ModernV2.css — Remaining Shared-Look Scoped Rules: Follow-Up Folding Plan
 
-Status: **group A applied** (category icon accents → `--cat-icn-*`); remaining groups follow this plan.
+Status: **groups A, B, C, D, E, H applied**; remaining: F, G, I.
 Audited against `041caf96` + the current working tree (Aug 2026).
 
 ## Context
@@ -40,39 +40,44 @@ none→`1px solid`, transition, and 11px svg all became tokens with the v1
 values as fallbacks — the audit's deleted-rule coverage check caught that
 `display: flex` needed its own token.
 
-### B. Sidebar header + add-group button — `--cat-hdr-*` / `--cat-add-*` (lines ~636-677)
+### B. Sidebar header + add-group button — `--cat-hdr-*` / `--cat-add-*` (lines ~636-677) — ✅ APPLIED
 
-Rules: `.sidebar-section-header` (+ `::after`), `.category-strip-title`
-(+ `::before`), `.category-strip-header .add-group-btn`, `.add-group-btn:hover`.
+Done: title, section-header, add-group-btn, and divider surface + typography
+values folded into `--cat-title-*` / `--cat-hdr-*` / `--cat-add-*` /
+`--cat-divider-*` tokens (v2 values), consumed by the CategoryStrip.css bases
+with v1 fallbacks. The `.sidebar-section-header::after` per-version exception
+resolved exactly as predicted: v3's override wins, so the v2 gradient moved
+into a **v2 definition of the existing `--ssha-divider-bg` token** (v3
+redefines it in ModernV3.css; light sheet owns light). The `.category-strip-title::before`
+dot has no v1 base (modern-UI construct) so it stays a thin consumer in
+ModernV2.css with the shadow tokenized. Identical geometry (`transform`,
+`height: 1px`, `margin`) stays literal in the bases. The audit's deleted-rule
+coverage check was extended to accept base-rule literals + var() fallbacks
+(a token v3 redefines would otherwise hide the v2 value behind first-wins).
 
-- `sidebar-section-header::after` is the one class in this family that
-  **v3 does override** (ModernV3.css has a rule for it) — check whether the v3
-  override beats the v2 value before folding; if so this sub-rule becomes a
-  real per-version pair (`--cat-hdr-after-*` in both sheets).
-- Surfaces: title color, divider `::after`/`::before` gradient, add-btn
-  bg/border/color/hover.
-- Base consumers: `CategoryStrip.css`.
+### C. Section divider — `--cat-divider-*` (line ~683) — ✅ APPLIED
 
-### C. Section divider — `--cat-divider-*` (line ~683)
+Done: `.section-divider` bg + width folded into `--cat-divider-bg` /
+`--cat-divider-width` (v2 values: accent 30% gradient, `calc(100% - 40px)`),
+consumed by the CategoryStrip.css base with the v1 gradient /
+`calc(100% - 24px)` fallbacks. `height: 1px` and `margin` were identical to
+the base and stay literal.
 
-Single rule `.section-divider` (gradient line). Fold into the CategoryStrip
-base; keep the `::before`-style geometry literal.
+### D. Guide current-time indicator — `--gcti-*` (lines ~717-731) — ✅ APPLIED
 
-### D. Guide current-time indicator — `--gcti-*` (lines ~717-731)
+Done: indicator gradient + glow + `::before` drop-shadow folded into
+`--gcti-bg` / `--gcti-shadow` / `--gcti-before-filter`, consumed by all three
+ChannelPanel.css indicator variants (the v2 rule tied the base variants on
+specificity and won by load order, so **all** instances got the glow — all
+three got the `box-shadow` consumer with `none` fallback).
 
-Rules: `.guide-current-time-indicator`, `.guide-time-header .guide-current-time-indicator::before`.
-The v2 `::before` (dot) and the indicator bar are v2 looks v3 keeps. Base:
-`ChannelPanel.css`. Surfaces: indicator bg/box-shadow, `::before` bg/size.
+### E. Guide scrollbars — `--guide-scroll-*` (lines ~695-706, 749-762) — ✅ APPLIED
 
-### E. Guide scrollbars — `--guide-scroll-*` (lines ~695-706, 749-762)
-
-Rules: `.category-strip-scrollable::-webkit-scrollbar(+thumb)` and
-`.guide-channels::-webkit-scrollbar(+thumb)`. Note: ModernV3.css has its own
-**separate** scrollbar blocks (failover/managers, audio/subtitle) that do not
-target these two classes — so this is a clean shared look. Base: ChannelPanel /
-CategoryStrip. Consider sharing the `--scrollbar-*` family introduced in the
-ModernV3.css blocks instead of a new `--guide-scroll-*` family, since the
-values are the same (thin, 0.08 thumb, accent hover).
+Done: gradient thumbs folded into `--guide-scroll-strip-*` /
+`--guide-scroll-ch-*`, consumed by the CategoryStrip/ChannelPanel bases with
+the flat base thumbs as fallbacks. **Deviation from the plan**: the v2 thumbs
+are **gradients**, not the flat `--scrollbar-*` values, so a shared family
+would have changed the values — dedicated tokens were used instead.
 
 ### F. Alternate-view NowPlayingBar — `--npb-alt-*` (lines ~764-800)
 
@@ -93,13 +98,13 @@ backgrounds/glow shadows are surfaces (`--resizer-dot-bg`, `--resizer-dot-glow`,
 hover/active variants). Base: `ChannelPanel.css`. Fold the dot surfaces;
 **keep all geometry literal** (it is not themable).
 
-### H. Guide program progress — `--guide-prog-*` (lines ~886-904)
+### H. Guide program progress — `--guide-prog-*` (lines ~886-904) — ✅ APPLIED
 
-Rules: `.guide-program-progress-bar`, `.guide-program-progress-fill`
-(duplicated at ~733-748 and ~886-904 — **dedupe first**, one pair is dead).
-Surfaces: bar bg/radius, fill gradient + glow shadow. Base: `ChannelPanel.css`
-or `ProgramBlock.css` (whichever owns the rendered elements). Values use
-`--accent-primary` mixes — keep those as token values.
+Done: the two duplicated pairs were deduped (single render location; pair 2
+wins shared props, pair 1's inset shadow survives) into `--guide-prog-*`
+tokens (bar bg, inset shadow, margin-top, fill gradient + 10px glow, radius),
+consumed by the ChannelPanel.css base with v1 fallbacks. `--accent-primary`
+mixes kept as token values.
 
 ### I. Program context menu — `--ctx-menu-*` (lines ~906-942)
 
@@ -110,13 +115,16 @@ component file. Layout (padding, font-size, radius of items) literal.
 
 ## Suggested order
 
-1. **H** (dedupe + smallest surface set)
-2. **A** (largest visible win; CategoryStrip already token-aware)
+1. **H** ✅ (dedupe + smallest surface set)
+2. **A** ✅ (largest visible win; CategoryStrip already token-aware)
 3. **I** (self-contained component)
-4. **B** (careful: the `::after` per-version exception)
-5. **D + E** (ChannelPanel, shares the new `--scrollbar-*` family)
-6. **C, G** (small)
+4. **B** ✅ (careful: the `::after` per-version exception)
+5. **D + E** ✅ (ChannelPanel; dedicated `--guide-scroll-*` family instead of the shared `--scrollbar-*`)
+6. **C, G** — C ✅ done; G (resizer dot surfaces) remaining
 7. **F** (defer / mostly literal layout)
+
+Remaining: **I** (program context menu → `--ctx-menu-*`), **G** (resizer dots),
+**F** (alternate-view NPB — mostly literal layout, low priority).
 
 ## Acceptance gates (same as the rest of the refactor)
 

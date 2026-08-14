@@ -228,10 +228,29 @@ console.log(mismatches === 0 ? 'OK — all v3 dark/light values preserved.' : `$
 
 console.log('\n=== C. V1/V2 BASE PRESERVATION (base rules now tokenized) ===');
 let baseIssues = 0;
-// tokens defined in the working tree (used to verify folded-away v2 rules)
-const wtTokens = new Map();
+// tokens defined in the working tree (used to verify folded-away v2 rules):
+// every definition value (a token can be defined per-version, so first-wins
+// would hide the v2 value of a token v3 redefines) plus base-rule literals
+// and var() fallbacks, so geometry kept literal in the bases also counts.
+const wtSurfaces = new Set();
 for (const rel of changed) {
-  collectTokens(fs.readFileSync(path.join(uiDir, rel), 'utf8'), wtTokens, rel);
+  const css = fs.readFileSync(path.join(uiDir, rel), 'utf8');
+  const re = /(--[\w-]+)\s*:\s*([^;{}]+);/g;
+  let m;
+  while ((m = re.exec(css))) wtSurfaces.add(norm(m[2]));
+  for (const r of parseRules(css)) {
+    if (r.isV3 || r.selector.includes('.modern-ui') || r.selector.includes('[data-theme="light"]')) continue;
+    for (const d of r.decls) {
+      if (d.prop.startsWith('--')) continue;
+      wtSurfaces.add(norm(d.value));
+      for (const v of findVars(d.value)) {
+        const inner = v.raw.slice(4, -1);
+        const comma = topLevelComma(inner);
+        const fb = comma === -1 ? undefined : inner.slice(comma + 1).trim();
+        if (fb !== undefined) wtSurfaces.add(norm(fb));
+      }
+    }
+  }
 }
 for (const rel of changed) {
   if (rel === v3File) continue;
@@ -253,15 +272,16 @@ for (const rel of changed) {
       const oldDecls = oldList[i];
       const newDecls = newList[i];
       if (!newDecls) {
-        // A deleted rule is OK when every old surface value survives as a
-        // token definition in the working tree (the v2 shared-look fold).
+        // A deleted rule is OK when every old surface value survives in the
+        // working tree as a token definition, a base-rule literal, or a var()
+        // fallback (the v2 shared-look fold: surfaces -> tokens, identical
+        // geometry stays literal in the bases).
         const oldVals = [...oldDecls.values()];
-        const tokenVals = new Set([...wtTokens.values()].map(v => norm(v)));
-        const allCovered = oldVals.every(v => tokenVals.has(norm(v)));
+        const allCovered = oldVals.every(v => wtSurfaces.has(norm(v)));
         if (!allCovered) {
-          const uncovered = oldVals.filter(v => !tokenVals.has(norm(v)));
+          const uncovered = oldVals.filter(v => !wtSurfaces.has(norm(v)));
           baseIssues++;
-          console.log(`${rel} ${sel} — DELETED, values not covered by any token: ${uncovered.join(', ')}`);
+          console.log(`${rel} ${sel} — DELETED, values not covered by any token/base: ${uncovered.join(', ')}`);
         }
         continue;
       }
