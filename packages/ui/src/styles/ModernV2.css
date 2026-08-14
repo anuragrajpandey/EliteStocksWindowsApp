@@ -457,6 +457,50 @@
     color-mix(in srgb, var(--accent-primary, #00d4ff) 40%, transparent) 0%,
     color-mix(in srgb, var(--accent-primary, #00d4ff) 25%, transparent) 100%);
   --cat-custom-selected-count-color: white;
+  /* Category strip icons — v2 icon chrome + per-accent colors (v3 inherits;
+     light sheet redefines the light values) */
+  --cat-icn-radius: 6px;
+  --cat-icn-display: flex;
+  --cat-icn-bg: rgba(255, 255, 255, 0.04);
+  --cat-icn-color: rgba(255, 255, 255, 0.6);
+  --cat-icn-border: 1px solid rgba(255, 255, 255, 0.05);
+  --cat-icn-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --cat-icn-svg-size: 11px;
+  --cat-icn-all-bg: rgba(0, 212, 255, 0.08);
+  --cat-icn-all-color: #00d4ff;
+  --cat-icn-all-border: rgba(0, 212, 255, 0.15);
+  --cat-icn-all-hover-bg: rgba(0, 212, 255, 0.16);
+  --cat-icn-all-hover-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+  --cat-icn-all-hover-color: #33e0ff;
+  --cat-icn-all-hover-border: rgba(0, 212, 255, 0.3);
+  --cat-icn-fav-bg: rgba(255, 196, 0, 0.08);
+  --cat-icn-fav-color: #ffc400;
+  --cat-icn-fav-border: rgba(255, 196, 0, 0.15);
+  --cat-icn-fav-hover-bg: rgba(255, 196, 0, 0.16);
+  --cat-icn-fav-hover-shadow: 0 0 10px rgba(255, 196, 0, 0.4);
+  --cat-icn-fav-hover-color: #ffd033;
+  --cat-icn-fav-hover-border: rgba(255, 196, 0, 0.3);
+  --cat-icn-watch-bg: rgba(99, 102, 241, 0.08);
+  --cat-icn-watch-color: #6366f1;
+  --cat-icn-watch-border: rgba(99, 102, 241, 0.15);
+  --cat-icn-watch-hover-bg: rgba(99, 102, 241, 0.16);
+  --cat-icn-watch-hover-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+  --cat-icn-watch-hover-color: #818cf8;
+  --cat-icn-watch-hover-border: rgba(99, 102, 241, 0.3);
+  --cat-icn-recent-bg: rgba(244, 63, 94, 0.08);
+  --cat-icn-recent-color: #f43f5e;
+  --cat-icn-recent-border: rgba(244, 63, 94, 0.15);
+  --cat-icn-recent-hover-bg: rgba(244, 63, 94, 0.16);
+  --cat-icn-recent-hover-shadow: 0 0 10px rgba(244, 63, 94, 0.4);
+  --cat-icn-recent-hover-color: #fb7185;
+  --cat-icn-recent-hover-border: rgba(244, 63, 94, 0.3);
+  --cat-icn-custom-bg: rgba(16, 185, 129, 0.08);
+  --cat-icn-custom-color: #10b981;
+  --cat-icn-custom-border: rgba(16, 185, 129, 0.15);
+  --cat-icn-custom-hover-bg: rgba(16, 185, 129, 0.16);
+  --cat-icn-custom-hover-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+  --cat-icn-custom-hover-color: #34d399;
+  --cat-icn-custom-hover-border: rgba(16, 185, 129, 0.3);
   /* list-bar count typography (v2 values; v3 inherits) */
   --cat-list-count-font-size: 10px;
   --cat-list-count-font-weight: 700;
@@ -492,6 +536,35 @@
     transparent 0%,
     color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent) 20%,
     color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent) 80%,
+    transparent 100%);
+  /* Guide program progress — v2 bar/fill values (v3 inherits) */
+  --guide-prog-bar-bg: rgba(255, 255, 255, 0.08);
+  --guide-prog-bar-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) inset;
+  --guide-prog-bar-margin-top: 8px;
+  --guide-prog-fill-bg: linear-gradient(90deg,
+    var(--accent-primary, #00d4ff) 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, white) 100%);
+  --guide-prog-fill-shadow: 0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent);
+  --guide-prog-fill-radius: 2px;
+  /* Guide current-time indicator — v2 fading gradient + glow (v3 inherits) */
+  --gcti-bg: linear-gradient(to bottom,
+    var(--accent-primary, #00d4ff) 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent) 50%,
+    transparent 100%);
+  --gcti-shadow: 0 0 10px var(--accent-primary, #00d4ff),
+    0 0 20px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
+  --gcti-before-filter: drop-shadow(0 0 6px var(--accent-primary, #00d4ff));
+  /* Guide scrollbars — v2 accent gradient thumbs (v3 inherits) */
+  --guide-scroll-strip-width: 6px;
+  --guide-scroll-strip-thumb-bg: linear-gradient(180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent) 20%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent) 80%,
+    transparent 100%);
+  --guide-scroll-ch-thumb-bg: linear-gradient(180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 20%,
+    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 80%,
     transparent 100%);
 }
 
@@ -537,100 +610,6 @@
   box-shadow: 0 0 8px var(--accent-primary, #00d4ff);
 }
 
-
-/* Modern Category Icons */
-.modern-ui .category-icon {
-  width: 20px;
-  height: 20px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.modern-ui .category-icon svg {
-  width: 11px;
-  height: 11px;
-}
-
-/* All Channels Icon Accent */
-.modern-ui .all-channels-icon {
-  background: rgba(0, 212, 255, 0.08);
-  color: #00d4ff;
-  border-color: rgba(0, 212, 255, 0.15);
-}
-
-.modern-ui .category-list-bar:hover .all-channels-icon,
-.modern-ui .category-list-bar.selected .all-channels-icon {
-  background: rgba(0, 212, 255, 0.16);
-  box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
-  color: #33e0ff;
-  border-color: rgba(0, 212, 255, 0.3);
-}
-
-/* Favorites Icon Accent */
-.modern-ui .favorites-icon {
-  background: rgba(255, 196, 0, 0.08);
-  color: #ffc400;
-  border-color: rgba(255, 196, 0, 0.15);
-}
-
-.modern-ui .category-list-bar:hover .favorites-icon,
-.modern-ui .category-list-bar.selected .favorites-icon {
-  background: rgba(255, 196, 0, 0.16);
-  box-shadow: 0 0 10px rgba(255, 196, 0, 0.4);
-  color: #ffd033;
-  border-color: rgba(255, 196, 0, 0.3);
-}
-
-/* Watchlist Icon Accent */
-.modern-ui .watchlist-icon {
-  background: rgba(99, 102, 241, 0.08);
-  color: #6366f1;
-  border-color: rgba(99, 102, 241, 0.15);
-}
-
-.modern-ui .category-list-bar:hover .watchlist-icon,
-.modern-ui .category-list-bar.selected .watchlist-icon {
-  background: rgba(99, 102, 241, 0.16);
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
-  color: #818cf8;
-  border-color: rgba(99, 102, 241, 0.3);
-}
-
-/* Recently Viewed Icon Accent */
-.modern-ui .recent-icon {
-  background: rgba(244, 63, 94, 0.08);
-  color: #f43f5e;
-  border-color: rgba(244, 63, 94, 0.15);
-}
-
-.modern-ui .category-list-bar:hover .recent-icon,
-.modern-ui .category-list-bar.selected .recent-icon {
-  background: rgba(244, 63, 94, 0.16);
-  box-shadow: 0 0 10px rgba(244, 63, 94, 0.4);
-  color: #fb7185;
-  border-color: rgba(244, 63, 94, 0.3);
-}
-
-/* Custom Groups Folder Icon Accent */
-.modern-ui .custom-group-icon {
-  background: rgba(16, 185, 129, 0.08);
-  color: #10b981;
-  border-color: rgba(16, 185, 129, 0.15);
-}
-
-.modern-ui .category-list-bar:hover .custom-group-icon,
-.modern-ui .category-list-bar.selected .custom-group-icon {
-  background: rgba(16, 185, 129, 0.16);
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
-  color: #34d399;
-  border-color: rgba(16, 185, 129, 0.3);
-}
 
 /* Modern Section Headers */
 .modern-ui .sidebar-section-header {
@@ -691,20 +670,6 @@
   width: calc(100% - 40px);
 }
 
-/* Modern Scrollbar */
-.modern-ui .category-strip-scrollable::-webkit-scrollbar {
-  width: 6px;
-}
-
-.modern-ui .category-strip-scrollable::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg,
-    transparent 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent) 20%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent) 80%,
-    transparent 100%
-  );
-}
-
 /* Hide the old list scrollbar when modern UI is enabled */
 .modern-ui .category-strip-list {
   display: none;
@@ -713,51 +678,10 @@
 /* ============================================
    MODERN EPG / CHANNEL PANEL
    ============================================ */
-/* Modern Current Time Indicator */
-.modern-ui .guide-current-time-indicator {
-  background: linear-gradient(to bottom, 
-    var(--accent-primary, #00d4ff) 0%, 
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, transparent) 50%,
-    transparent 100%
-  );
-  box-shadow: 
-    0 0 10px var(--accent-primary, #00d4ff),
-    0 0 20px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
-}
+/* Modern Current Time Indicator + Program Progress — surface values folded
+   into the --gcti-* / --guide-prog-* tokens above, consumed by the
+   ChannelPanel.css base (v3 inherits). */
 
-.modern-ui .guide-time-header .guide-current-time-indicator::before {
-  filter: drop-shadow(0 0 6px var(--accent-primary, #00d4ff));
-}
-
-/* Modern Program Progress (typography folded into ChannelPanel.css tokens) */
-.modern-ui .guide-program-progress-bar {
-  box-shadow: 0 1px 2px rgba(0,0,0,0.2) inset;
-}
-
-.modern-ui .guide-program-progress-fill {
-  background: linear-gradient(90deg,
-    var(--accent-primary, #00d4ff) 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, white) 100%
-  );
-  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent);
-}
-
-/* Modern Time Header — surface values folded into the --guide-time-header-*
-   tokens above, consumed by the ChannelPanel.css base (v3 redefines them). */
-
-/* Modern Scrollbar */
-.modern-ui .guide-channels::-webkit-scrollbar {
-  width: 6px;
-}
-
-.modern-ui .guide-channels::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg,
-    transparent 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 20%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 50%, transparent) 80%,
-    transparent 100%
-  );
-}
 
 /* Alternate view NowPlayingBar: compact layout (modern UI only — no v1 base
    equivalent, kept as additive layout, not an override) */
@@ -883,22 +807,6 @@
 /* --------------------------------------------------
    5. PREVIEW PANE - "Cinematic View"
    -------------------------------------------------- */
-.modern-ui .guide-program-progress-bar {
-  height: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-top: 8px;
-}
-
-.modern-ui .guide-program-progress-fill {
-  background: linear-gradient(90deg,
-    var(--accent-primary, #00d4ff) 0%,
-    color-mix(in srgb, var(--accent-primary, #00d4ff) 70%, white) 100%
-  );
-  box-shadow: 0 0 10px color-mix(in srgb, var(--accent-primary, #00d4ff) 60%, transparent);
-  border-radius: 2px;
-}
 
 /* --------------------------------------------------
    6. CONTEXT MENUS

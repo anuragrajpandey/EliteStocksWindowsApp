@@ -44,7 +44,8 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background: linear-gradient(to bottom, var(--accent-primary, #00d4ff) 0%, var(--accent-primary, #00d4ff) 100%);
+  background: var(--gcti-bg, linear-gradient(to bottom, var(--accent-primary, #00d4ff) 0%, var(--accent-primary, #00d4ff) 100%));
+  box-shadow: var(--gcti-shadow, none);
   z-index: 100;
   pointer-events: none;
 }
@@ -62,7 +63,8 @@
   left: 0;
   height: 8px;
   width: 2px;
-  background: transparent;
+  background: var(--gcti-bg, transparent);
+  box-shadow: var(--gcti-shadow, none);
   z-index: 100;
 }
 
@@ -77,6 +79,7 @@
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
   border-top: 8px solid var(--accent-primary, #00d4ff);
+  filter: var(--gcti-before-filter, none);
   pointer-events: none;
   z-index: 101;
 }
@@ -88,7 +91,8 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background: linear-gradient(to bottom, var(--accent-primary, rgba(0, 212, 255, 0.6)) 0%, rgba(0, 212, 255, 0.3) 100%);
+  background: var(--gcti-bg, linear-gradient(to bottom, var(--accent-primary, rgba(0, 212, 255, 0.6)) 0%, rgba(0, 212, 255, 0.3) 100%));
+  box-shadow: var(--gcti-shadow, none);
   z-index: 200; /* Above EPG program blocks */
   pointer-events: none;
 }
@@ -189,15 +193,15 @@
   gap: 8px;
   z-index: 20;
   padding: 24px 16px 12px 16px;
-  background: linear-gradient(
+  background: var(--gpm-bg, linear-gradient(
     to top,
     rgba(0, 0, 0, 0.88) 0%,
     rgba(0, 0, 0, 0.58) 55%,
     rgba(0, 0, 0, 0.18) 85%,
     transparent 100%
-  );
-  backdrop-filter: blur(12px) saturate(140%);
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  ));
+  backdrop-filter: var(--gpm-filter, blur(12px) saturate(140%));
+  -webkit-backdrop-filter: var(--gpm-filter, blur(12px) saturate(140%));
   border-radius: 0 0 12px 12px;
 }
 
@@ -610,15 +614,19 @@
 
 .guide-program-progress-bar {
   height: 4px;
-  background: var(--surface-border, rgba(255, 255, 255, 0.2));
+  background: var(--guide-prog-bar-bg, var(--surface-border, rgba(255, 255, 255, 0.2)));
   border-radius: 2px;
   width: 200px;
   overflow: hidden;
+  box-shadow: var(--guide-prog-bar-shadow, none);
+  margin-top: var(--guide-prog-bar-margin-top, 0);
 }
 
 .guide-program-progress-fill {
   height: 100%;
-  background: var(--accent-primary, #00d4ff);
+  background: var(--guide-prog-fill-bg, var(--accent-primary, #00d4ff));
+  box-shadow: var(--guide-prog-fill-shadow, none);
+  border-radius: var(--guide-prog-fill-radius, 0);
 }
 
 .guide-program-description {
@@ -1058,6 +1066,7 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+  background: var(--gtm-bg, none);
   font-size: var(--guide-marker-font-size, 0.8rem);
   font-weight: var(--guide-marker-font-weight, inherit);
   color: var(--guide-marker-color, var(--text-muted, rgba(255, 255, 255, 0.5)));
@@ -1100,7 +1109,7 @@
 }
 
 .guide-channels::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 80%, transparent);
+  background: var(--guide-scroll-ch-thumb-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 80%, transparent));
   border-radius: 3px;
 }
 

@@ -174,7 +174,84 @@ function hasTopLevelSep(v) {
   return false;
 }
 
-const colorBugs = []; // {prop, token, detail, file, line}
+// Properties whose grammar is exactly one non-list value — substituting a
+// multi-component token (a shorthand like '1px solid rgba(...)' or a comma
+// list) is invalid at computed-value time and silently unsets the property.
+const ATOMIC_PROPS = new Set([
+  'opacity', 'z-index', 'font-size', 'font-weight', 'line-height', 'letter-spacing', 'word-spacing',
+  'text-transform', 'white-space', 'text-align', 'vertical-align', 'direction', 'visibility',
+  'pointer-events', 'user-select', 'object-fit', 'flex-grow', 'flex-shrink', 'order',
+  'overflow-x', 'overflow-y', 'mix-blend-mode', 'isolation', 'float', 'clear', 'display',
+  'resize', 'box-sizing', 'perspective', 'transform-style', 'backface-visibility',
+  'text-overflow', 'text-decoration-style', 'outline-style', 'outline-width',
+  'border-collapse', 'table-layout', 'caption-side', 'empty-cells', 'list-style-type',
+  'list-style-position', 'scroll-behavior', 'fill-opacity', 'stroke-opacity', 'stroke-width',
+  'flex-basis', 'tab-size', 'text-indent', 'word-break', 'overflow-wrap', 'hyphens',
+  'writing-mode', 'orphans', 'widows', 'font-stretch', 'font-kerning', 'font-optical-sizing',
+  'text-justify', 'text-rendering', 'text-underline-offset', 'text-size-adjust', 'text-orientation',
+]);
+
+// List-accepting properties — a bare color is never a valid item in their
+// grammar (transition/animation/transform/filter want durations, functions,
+// shadows, names, ...). Comma-separated lists ARE valid here (var() substitutes
+// the token stream, so e.g. 'transition: var(--x)' with a multi-property list
+// is legal) — only a single color value is always wrong.
+const LIST_PROPS = new Set([
+  'transition', 'animation', 'box-shadow', 'text-shadow', 'filter', 'backdrop-filter',
+  'transform', 'font-family', 'background-image', 'will-change',
+  'transition-property', 'transition-duration', 'transition-timing-function', 'transition-delay',
+  'animation-name', 'animation-duration', 'animation-timing-function', 'animation-delay',
+  'animation-iteration-count', 'animation-direction', 'animation-fill-mode', 'animation-play-state',
+  'transform-origin', 'perspective-origin', 'border-image', 'border-image-slice',
+  'grid-template-columns', 'grid-template-rows', 'grid-template-areas', 'grid-column',
+  'grid-row', 'grid-area', 'grid-auto-columns', 'grid-auto-rows', 'grid-auto-flow', 'grid-template', 'grid',
+  'mask', 'clip-path', 'offset-path', 'font-variation-settings', 'counter-increment',
+  'counter-reset', 'quotes',
+]);
+
+// token's value has >1 top-level component (space- or comma-separated)
+function isMultiComponentToken(token, seen = new Set()) {
+  if (seen.has(token)) return false;
+  const raw = tokenValues.get(token);
+  if (raw === undefined) return false; // runtime-injected — can't judge
+  const v = raw.trim();
+  const next = new Set(seen).add(token);
+  if (v.startsWith('var(')) {
+    const inner = /^var\(\s*(--[\w-]+)/.exec(v);
+    return inner ? isMultiComponentToken(inner[1], next) : false;
+  }
+  return hasTopLevelSep(v);
+}
+function fallbackIsMultiComponent(fb) {
+  const t = fb.trim();
+  const m = /^var\(\s*(--[\w-]+)/.exec(t);
+  if (m) return isMultiComponentToken(m[1]);
+  return hasTopLevelSep(t);
+}
+
+// token resolves to a bare color (hex / color function / color-mix). Named
+// colors are deliberately NOT treated as bare (an identifier could be a legit
+// value in some of these grammars, e.g. font-family).
+function isDefinitelyBareColor(token, seen = new Set()) {
+  if (seen.has(token)) return false;
+  const raw = tokenValues.get(token);
+  if (raw === undefined) return false;
+  const v = raw.trim();
+  const next = new Set(seen).add(token);
+  if (v.startsWith('var(')) {
+    const inner = /^var\(\s*(--[\w-]+)/.exec(v);
+    return inner ? isDefinitelyBareColor(inner[1], next) : false;
+  }
+  return /^#[0-9a-fA-F]{3,8}$/.test(v) || COLOR_FN.test(v);
+}
+function fallbackIsBareColor(fb) {
+  const t = fb.trim();
+  const m = /^var\(\s*(--[\w-]+)/.exec(t);
+  if (m) return isDefinitelyBareColor(m[1]);
+  return /^#[0-9a-fA-F]{3,8}$/.test(t) || COLOR_FN.test(t);
+}
+
+const typeBugs = []; // {kind: 'color'|'atomic'|'list', prop, token, fallback, file, line}
 for (const f of files) {
   const css = fs.readFileSync(f, 'utf8')
     .replace(/\/\*[\s\S]*?\*\//g, m => m.replace(/[^\n]/g, ' '));
@@ -182,22 +259,48 @@ for (const f of files) {
   let dm;
   while ((dm = declRe.exec(css))) {
     const prop = dm[1].toLowerCase();
-    if (prop.startsWith('--') || !COLOR_PROPS.has(prop)) continue;
+    if (prop.startsWith('--')) continue;
+    const inColor = COLOR_PROPS.has(prop);
+    const inAtomic = ATOMIC_PROPS.has(prop);
+    const inList = LIST_PROPS.has(prop);
+    if (!inColor && !inAtomic && !inList) continue;
     const value = dm[2];
-    const varRe = /var\(\s*(--[\w-]+)(\s*,\s*([^)]*))?\)/g;
-    let vm;
-    while ((vm = varRe.exec(value))) {
-      const token = vm[1];
-      const fallback = vm[3] ? vm[3].trim() : null;
-      const line = css.slice(0, dm.index).split('\n').length;
-      if (!isColorSafe(token)) {
-        colorBugs.push({ prop, token, fallback: null, file: f, line });
-      } else if (!tokenValues.has(token) && fallback !== null) {
-        // token is runtime-injected: only the fallback applies — it must be a color too
-        const fbToken = /^var\(\s*(--[\w-]+)/.exec(fallback.trim());
-        const fallbackIsColor = fbToken ? isColorSafe(fbToken[1]) : isRawColorSafe(fallback);
-        if (!fallbackIsColor) {
-          colorBugs.push({ prop, token, fallback, file: f, line });
+    const line = css.slice(0, dm.index).split('\n').length;
+    if (inColor) {
+      // color longhands are all-color, so EVERY var() matters
+      const varRe = /var\(\s*(--[\w-]+)(\s*,\s*([^)]*))?\)/g;
+      let vm;
+      while ((vm = varRe.exec(value))) {
+        const token = vm[1];
+        const fallback = vm[3] ? vm[3].trim() : null;
+        if (!isColorSafe(token)) {
+          typeBugs.push({ kind: 'color', prop, token, fallback: null, file: f, line });
+        } else if (!tokenValues.has(token) && fallback !== null) {
+          // token is runtime-injected: only the fallback applies — it must be a color too
+          const fbToken = /^var\(\s*(--[\w-]+)/.exec(fallback);
+          const fallbackIsColor = fbToken ? isColorSafe(fbToken[1]) : isRawColorSafe(fallback);
+          if (!fallbackIsColor) typeBugs.push({ kind: 'color', prop, token, fallback, file: f, line });
+        }
+      }
+    } else if (inAtomic || inList) {
+      // for these, a var() is only interesting when it is the ENTIRE value —
+      // as one component of a larger value it's fine (e.g. '0 0 15px var(--accent-glow)')
+      const raw = value.trim().replace(/!important\s*$/, '').trim();
+      const sole = /^var\(\s*(--[\w-]+)(\s*,\s*([^)]*))?\)$/.exec(raw);
+      if (!sole) continue;
+      const token = sole[1];
+      const fallback = sole[3] ? sole[3].trim() : null;
+      if (inAtomic) {
+        if (isMultiComponentToken(token)) {
+          typeBugs.push({ kind: 'atomic', prop, token, fallback: null, file: f, line });
+        } else if (!tokenValues.has(token) && fallback !== null && fallbackIsMultiComponent(fallback)) {
+          typeBugs.push({ kind: 'atomic', prop, token, fallback, file: f, line });
+        }
+      } else {
+        if (isDefinitelyBareColor(token)) {
+          typeBugs.push({ kind: 'list', prop, token, fallback: null, file: f, line });
+        } else if (!tokenValues.has(token) && fallback !== null && fallbackIsBareColor(fallback)) {
+          typeBugs.push({ kind: 'list', prop, token, fallback, file: f, line });
         }
       }
     }
@@ -219,14 +322,34 @@ function isRawColorSafe(v) {
 
 console.log('\n=== LONGHAND COLOR PROPS consuming full-shorthand token values ===');
 let risky3 = 0;
-for (const b of colorBugs) {
+for (const b of typeBugs.filter(b => b.kind === 'color')) {
   risky3++;
   const detail = b.fallback
     ? `var(${b.token}, ${b.fallback}) — token is runtime-injected, fallback must be a single color`
     : `var(${b.token}) — token value is not a single color`;
   console.log(`${b.prop}: ${detail}  ${b.file.split('/').pop()}:${b.line}`);
 }
-if (risky3 === 0) console.log('(none)');
+if (typeBugs.filter(b => b.kind === 'color').length === 0) console.log('(none)');
+
+console.log('\n=== SINGLE-VALUE LONGHANDS consuming multi-component tokens ===');
+for (const b of typeBugs.filter(b => b.kind === 'atomic')) {
+  risky3++;
+  const detail = b.fallback
+    ? `var(${b.token}, ${b.fallback}) — token is runtime-injected, fallback is a multi-component value`
+    : `var(${b.token}) — token value is multi-component (shorthand/list), invalid here`;
+  console.log(`${b.prop}: ${detail}  ${b.file.split('/').pop()}:${b.line}`);
+}
+if (typeBugs.filter(b => b.kind === 'atomic').length === 0) console.log('(none)');
+
+console.log('\n=== LIST PROPERTIES consuming bare-color tokens ===');
+for (const b of typeBugs.filter(b => b.kind === 'list')) {
+  risky3++;
+  const detail = b.fallback
+    ? `var(${b.token}, ${b.fallback}) — token is runtime-injected, fallback is a bare color`
+    : `var(${b.token}) — token value is a bare color, not a valid item for ${b.prop}`;
+  console.log(`${b.prop}: ${detail}  ${b.file.split('/').pop()}:${b.line}`);
+}
+if (typeBugs.filter(b => b.kind === 'list').length === 0) console.log('(none)');
 
 // Fail the build when a v2/v3-only token is consumed without a fallback in a
 // base/component rule — that is the cascade-collision bug class the migration

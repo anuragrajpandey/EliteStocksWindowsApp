@@ -50,7 +50,7 @@
 
 /* Hide scrollbar but keep functionality */
 .category-strip-scrollable::-webkit-scrollbar {
-  width: 4px;
+  width: var(--guide-scroll-strip-width, 4px);
 }
 
 .category-strip-scrollable::-webkit-scrollbar-track {
@@ -58,7 +58,7 @@
 }
 
 .category-strip-scrollable::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--accent-primary, #00d4ff) 80%, transparent);
+  background: var(--guide-scroll-strip-thumb-bg, color-mix(in srgb, var(--accent-primary, #00d4ff) 80%, transparent));
   border-radius: 2px;
 }
 
@@ -375,16 +375,95 @@
 }
 
 .category-icon {
-  display: inline-flex;
+  display: var(--cat-icn-display, inline-flex);
   align-items: center;
   justify-content: center;
   width: 20px;
   height: 20px;
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.5);
-  transition: all 0.2s ease;
+  border-radius: var(--cat-icn-radius, 5px);
+  border: var(--cat-icn-border, none);
+  background: var(--cat-icn-bg, rgba(255, 255, 255, 0.04));
+  color: var(--cat-icn-color, rgba(255, 255, 255, 0.5));
+  transition: var(--cat-icn-transition, all 0.2s ease);
   flex-shrink: 0;
+}
+
+.category-icon svg {
+  width: var(--cat-icn-svg-size, auto);
+  height: var(--cat-icn-svg-size, auto);
+}
+
+/* Strip category icon accents (v2 per-accent colors via --cat-icn-* tokens;
+   v3 inherits; light sheet redefines the light values). Placed before the VOD
+   active-icon rules so same-specificity ties resolve exactly as before. */
+.category-icon.all-channels-icon {
+  background: var(--cat-icn-all-bg, rgba(255, 255, 255, 0.04));
+  color: var(--cat-icn-all-color, rgba(255, 255, 255, 0.5));
+  border-color: var(--cat-icn-all-border, transparent);
+}
+
+.category-list-bar:hover .all-channels-icon,
+.category-list-bar.selected .all-channels-icon {
+  background: var(--cat-icn-all-hover-bg, rgba(255, 255, 255, 0.04));
+  box-shadow: var(--cat-icn-all-hover-shadow, none);
+  color: var(--cat-icn-all-hover-color, rgba(255, 255, 255, 0.5));
+  border-color: var(--cat-icn-all-hover-border, transparent);
+}
+
+.category-icon.favorites-icon {
+  background: var(--cat-icn-fav-bg, rgba(255, 255, 255, 0.04));
+  color: var(--cat-icn-fav-color, rgba(255, 255, 255, 0.5));
+  border-color: var(--cat-icn-fav-border, transparent);
+}
+
+.category-list-bar:hover .favorites-icon,
+.category-list-bar.selected .favorites-icon {
+  background: var(--cat-icn-fav-hover-bg, rgba(255, 255, 255, 0.04));
+  box-shadow: var(--cat-icn-fav-hover-shadow, none);
+  color: var(--cat-icn-fav-hover-color, rgba(255, 255, 255, 0.5));
+  border-color: var(--cat-icn-fav-hover-border, transparent);
+}
+
+.category-icon.watchlist-icon {
+  background: var(--cat-icn-watch-bg, rgba(255, 255, 255, 0.04));
+  color: var(--cat-icn-watch-color, rgba(255, 255, 255, 0.5));
+  border-color: var(--cat-icn-watch-border, transparent);
+}
+
+.category-list-bar:hover .watchlist-icon,
+.category-list-bar.selected .watchlist-icon {
+  background: var(--cat-icn-watch-hover-bg, rgba(255, 255, 255, 0.04));
+  box-shadow: var(--cat-icn-watch-hover-shadow, none);
+  color: var(--cat-icn-watch-hover-color, rgba(255, 255, 255, 0.5));
+  border-color: var(--cat-icn-watch-hover-border, transparent);
+}
+
+.category-icon.recent-icon {
+  background: var(--cat-icn-recent-bg, rgba(255, 255, 255, 0.04));
+  color: var(--cat-icn-recent-color, rgba(255, 255, 255, 0.5));
+  border-color: var(--cat-icn-recent-border, transparent);
+}
+
+.category-list-bar:hover .recent-icon,
+.category-list-bar.selected .recent-icon {
+  background: var(--cat-icn-recent-hover-bg, rgba(255, 255, 255, 0.04));
+  box-shadow: var(--cat-icn-recent-hover-shadow, none);
+  color: var(--cat-icn-recent-hover-color, rgba(255, 255, 255, 0.5));
+  border-color: var(--cat-icn-recent-hover-border, transparent);
+}
+
+.category-icon.custom-group-icon {
+  background: var(--cat-icn-custom-bg, rgba(255, 255, 255, 0.04));
+  color: var(--cat-icn-custom-color, rgba(255, 255, 255, 0.5));
+  border-color: var(--cat-icn-custom-border, transparent);
+}
+
+.category-list-bar:hover .custom-group-icon,
+.category-list-bar.selected .custom-group-icon {
+  background: var(--cat-icn-custom-hover-bg, rgba(255, 255, 255, 0.04));
+  box-shadow: var(--cat-icn-custom-hover-shadow, none);
+  color: var(--cat-icn-custom-hover-color, rgba(255, 255, 255, 0.5));
+  border-color: var(--cat-icn-custom-hover-border, transparent);
 }
 
 /* VOD sidebar active-item icon glows (v2 per-icon accents via --vs-icon-* tokens;
@@ -543,7 +622,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--ssha-divider-bg, rgba(255, 255, 255, 0.06));
 }
 
 .category-item.nested {

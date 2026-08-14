@@ -1,6 +1,6 @@
 # ModernV2.css — Remaining Shared-Look Scoped Rules: Follow-Up Folding Plan
 
-Status: follow-up plan only — nothing here is applied yet.
+Status: **group A applied** (category icon accents → `--cat-icn-*`); remaining groups follow this plan.
 Audited against `041caf96` + the current working tree (Aug 2026).
 
 ## Context
@@ -27,21 +27,18 @@ That means the fold is *not* per-version. The recipe is:
 
 ## Remaining groups (in file order)
 
-### A. Category sidebar icons — `--cat-icn-*` (lines ~542-633)
+### A. Category sidebar icons — `--cat-icn-*` — ✅ APPLIED
 
-Rules: `.category-icon`, `.category-icon svg`, and the five accent families
-(all-channels / favorites / watchlist / recent / custom-group), each with a
-base state and a `:hover`/`.selected` state.
-
-- Surfaces: icon bg / border / color / hover-glow shadow, per accent color.
-- Base consumers: `CategoryStrip.css` (`.category-icon` + the five
-  `.all-channels-icon` etc. classes — check the current base; several already
-  use `--cat-*` tokens from the custom-groups fold).
-- Token sketch: `--cat-icn-bg`, `--cat-icn-border`, `--cat-icn-color`,
-  `--cat-icn-glow`, then `--cat-icn-all-bg/-border/-color/-glow`,
-  `--cat-icn-fav-*`, `--cat-icn-watch-*`, `--cat-icn-recent-*`,
-  `--cat-icn-custom-*` (values = current v2 literals; v3 inherits).
-- Layout kept literal: 20x20 size, 6px radius, 11px svg, transitions.
+Done: `.category-icon`, `.category-icon svg`, and the five accent families
+(all-channels / favorites / watchlist / recent / custom-group) with base +
+`:hover`/`.selected` states folded into a 40-token `--cat-icn-*` family in
+ModernV2.css, consumed by CategoryStrip.css (`.category-icon` + the five
+accent classes, placed before the VOD active-icon rules so tie-breaking is
+unchanged). The 12 `.modern-ui` scoped rules were deleted. Value-preserving
+vs the base: radius 5→6, color 0.5→0.6, display inline-flex→flex, border
+none→`1px solid`, transition, and 11px svg all became tokens with the v1
+values as fallbacks — the audit's deleted-rule coverage check caught that
+`display: flex` needed its own token.
 
 ### B. Sidebar header + add-group button — `--cat-hdr-*` / `--cat-add-*` (lines ~636-677)
 

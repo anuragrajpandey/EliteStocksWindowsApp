@@ -1883,6 +1883,19 @@ html.modern-ui-v3:not([data-theme="light"]) {
   --prog-title-color: rgba(255, 255, 255, 0.9);
   --prog-title-hover-color: rgba(255, 255, 255, 1);
   --prog-desc-color: rgba(255, 255, 255, 0.45);
+  /* Guide chrome — video glass border, preview minibar, time-marker & strip
+     header dividers. Dark-only: the light sheet already owns the light values
+     for the strip headers + logo-on-light, and the minibar/time-marker/vgb
+     have no light override. */
+  --vgb-border: 1px solid rgba(255, 255, 255, 0.12);
+  --vgb-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  --gpm-bg: linear-gradient(to top, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.58) 55%, rgba(0, 0, 0, 0.18) 85%, transparent 100%);
+  --gpm-filter: blur(12px) saturate(140%);
+  --gpm-border: none;
+  --gpm-shadow: none;
+  --gtm-bg: linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 50%, rgba(255, 255, 255, 0.01) 100%);
+  --csh-divider-bg: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.12) 50%, transparent 100%);
+  --ssha-divider-bg: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.06) 50%, transparent 100%);
 }
 /* Rectangle (horizontal) channel logos when epg-rectangle-logos is enabled */
 
@@ -1895,7 +1908,7 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-rectangle {
 }
 
 html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-rectangle.logo-on-light {
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--guide-logo-onlight-bg, rgba(255, 255, 255, 0.92));
 }
 
 /* Per-source square override when the global setting is rectangle - must beat the same specificity above */
@@ -1909,7 +1922,7 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-square {
 }
 
 html.modern-ui-v3[data-theme] .guide-channel-logo.logo-shape-square.logo-on-light {
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--guide-logo-onlight-bg, rgba(255, 255, 255, 0.92));
 }
 
 /* No-padding overrides for modern UI and rectangle channel logos */
@@ -2005,12 +2018,10 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
   right: 0;
   bottom: 0;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border: var(--vgb-border, 1px solid rgba(255, 255, 255, 0.12)) !important;
   pointer-events: none;
   z-index: 11;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: var(--vgb-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05));
 }
 
 .modern-ui-v3 .guide-info-pane {
@@ -2020,17 +2031,17 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
 }
 
 .modern-ui-v3 .guide-preview-minibar {
-  border: none !important;
-  background: linear-gradient(
+  border: var(--gpm-border, none) !important;
+  background: var(--gpm-bg, linear-gradient(
     to top,
     rgba(0, 0, 0, 0.88) 0%,
     rgba(0, 0, 0, 0.58) 55%,
     rgba(0, 0, 0, 0.18) 85%,
     transparent 100%
-  ) !important;
-  backdrop-filter: blur(12px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
-  box-shadow: none !important;
+  )) !important;
+  backdrop-filter: var(--gpm-filter, blur(12px) saturate(140%)) !important;
+  -webkit-backdrop-filter: var(--gpm-filter, blur(12px) saturate(140%)) !important;
+  box-shadow: var(--gpm-shadow, none) !important;
   padding: 20px 14px 12px 14px !important;
   margin: 0 !important;
   border-radius: 0 0 12px 12px !important;
@@ -2039,27 +2050,27 @@ html.modern-ui-v3[data-theme] .guide-channel-logo.logo-smart-trim img {
 /* 4. Soft Gradient Dividers (channel-row divider moved into base tokens) */
 
 .modern-ui-v3 .guide-time-marker {
-  background: linear-gradient(to bottom, 
-    rgba(255, 255, 255, 0.12) 0%, 
-    rgba(255, 255, 255, 0.04) 50%, 
+  background: var(--gtm-bg, linear-gradient(to bottom,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 50%,
     rgba(255, 255, 255, 0.01) 100%
-  ) !important;
+  )) !important;
 }
 
 .modern-ui-v3 .category-strip-header::after {
-  background: linear-gradient(90deg, 
+  background: var(--csh-divider-bg, linear-gradient(90deg,
     transparent 0%,
     rgba(255, 255, 255, 0.12) 50%,
     transparent 100%
-  ) !important;
+  )) !important;
 }
 
 .modern-ui-v3 .sidebar-section-header::after {
-  background: linear-gradient(90deg, 
+  background: var(--ssha-divider-bg, linear-gradient(90deg,
     transparent 0%,
     rgba(255, 255, 255, 0.06) 50%,
     transparent 100%
-  ) !important;
+  )) !important;
 }
 
 /* Allow program block hover effects to overflow the grid into the channel column */
