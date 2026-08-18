@@ -43,9 +43,8 @@ const ALPHABET_LETTERS = ['#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
 function getChannelFirstLetter(name: string): string {
   if (!name) return '#';
   const normalized = name.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const match = normalized.match(/[a-zA-Z0-9]/);
-  if (!match) return '#';
-  const char = match[0].toUpperCase();
+  if (!normalized) return '#';
+  const char = normalized.charAt(0).toUpperCase();
   if (/^[A-Z]$/.test(char)) return char;
   return '#';
 }
