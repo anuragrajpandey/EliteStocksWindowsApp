@@ -11,6 +11,7 @@ import { installSafeStorage } from './services/safeStorage';
 import './App.css';
 import './services/tauri-bridge'; // Initialize Tauri bridge and polyfills
 import { ensureSettingsHydration } from './stores/settingsStoreHydration';
+import { ensureLocalLibraryLoaded } from './services/local-library/local-library';
 // Side-effect import AFTER the settings store: self-initializes the single
 // DOM applier (subscribes to the store at module load) so the first paint is
 // already correct from the localStorage-seeded store state. Imported here —
@@ -33,6 +34,13 @@ installSafeStorage();
 // from localStorage for first paint; this reconciles the authoritative values
 // from the Tauri store in the background — exactly once per run).
 ensureSettingsHydration();
+
+// Load the Local VOD library from SQLite at boot (migrating the legacy
+// localStorage copy). The library is stored in the SQLite app_kv table — not
+// localStorage — so large libraries (tens of thousands of entries) never hit
+// the WebView2 localStorage quota (~10 MB), which previously made big folder
+// scans silently fail to persist.
+ensureLocalLibraryLoaded().catch(() => {});
 
 // Boot-time sports settings load. The sports settings store (live leagues,
 // autoSwapDeadStreams, …) previously hydrated only when a Sports-view

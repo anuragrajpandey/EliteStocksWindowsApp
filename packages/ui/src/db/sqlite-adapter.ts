@@ -75,6 +75,7 @@ const BOOLEAN_FIELDS: Record<string, string[]> = {
     'categories': ['enabled'],
     'vodCategories': ['enabled'],
     'watchlist': ['reminder_enabled', 'autoswitch_enabled', 'reminder_shown', 'autoswitch_triggered'],
+    'local_entries': ['needsReview'],
 };
 
 // JSON fields that are stored as serialized strings but should be parsed objects
@@ -83,6 +84,7 @@ const JSON_FIELDS: Record<string, string[]> = {
     'channels': ['category_ids'],
     'vodMovies': ['category_ids'],
     'vodSeries': ['category_ids'],
+    'local_entries': ['localArt'],
 };
 // ─────────────────────────────────────────────────────────────────────────────
 

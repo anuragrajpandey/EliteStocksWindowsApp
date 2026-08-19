@@ -3,6 +3,8 @@ import { convertFileSrc } from '@tauri-apps/api/core';
 import type { LocalEntry, LocalGroup, LocalSortKey, ParsedFilename, SortDir } from './types';
 import type { VodPlayInfo } from '../../types/media';
 import type { StoredMovie, StoredSeries, StoredEpisode } from '../../db';
+import { db, type LocalEntryRow } from '../../db';
+import { readAppKvSync, loadAppKv, writeAppKv } from '../appKv';
 
 function toAssetUrl(urlOrPath: string | null | undefined): string | undefined {
   if (!urlOrPath) return undefined;
@@ -21,78 +23,231 @@ function toAssetUrl(urlOrPath: string | null | undefined): string | undefined {
   }
 }
 
-const KEY = 'ynotv.library.local.v1';
+const KEY = 'ynotv.library.local.v1'; // legacy app_kv/localStorage blob (migration source only)
 const FOLDERS_KEY = 'ynotv.library.local.folders.v1';
 const subs = new Set<() => void>();
 
-function read(): LocalEntry[] {
+// Storage history: the library originally lived in localStorage as one JSON
+// blob. Large libraries (tens of thousands of entries) exceeded the WebView2
+// localStorage quota (~10 MB); the old write() swallowed the QuotaExceededError,
+// so a big scan reported "added X items" while persisting nothing. It then
+// moved to the SQLite app_kv blob, and now to a dedicated `local_entries` table
+// (one row per media file) so mutations are incremental instead of rewriting a
+// 10–20 MB JSON blob. Entries are served synchronously from an in-memory cache;
+// writes go to SQLite in the background (errors logged, never swallowed). The
+// local_entries table is user data — it survives "Clear All Cached Data". The
+// app_kv blob and legacy localStorage copy remain only as migration sources.
+
+function parseEntries(raw: string | null): LocalEntry[] | null {
+  if (!raw) return null;
   try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return [];
     const arr = JSON.parse(raw);
-    return Array.isArray(arr) ? (arr as LocalEntry[]) : [];
+    return Array.isArray(arr) ? (arr as LocalEntry[]) : null;
+  } catch {
+    return null;
+  }
+}
+
+function entryToRow(e: LocalEntry): LocalEntryRow {
+  return {
+    id: e.id,
+    path: e.path,
+    filename: e.filename,
+    title: e.title,
+    year: e.year ?? null,
+    type: e.type,
+    resolution: e.resolution ?? null,
+    rating: e.rating ?? null,
+    runtime: e.runtime ?? null,
+    poster: e.poster ?? null,
+    backdrop: e.backdrop ?? null,
+    logo: e.logo ?? null,
+    overview: e.overview ?? null,
+    tmdbId: e.tmdbId ?? null,
+    imdbId: e.imdbId ?? null,
+    season: e.season ?? null,
+    episode: e.episode ?? null,
+    addedAt: e.addedAt,
+    needsReview: e.needsReview ?? null,
+    source: e.source ?? null,
+    localArt: e.localArt ?? null,
+  };
+}
+
+function rowToEntry(r: LocalEntryRow): LocalEntry {
+  return {
+    id: r.id,
+    path: r.path,
+    filename: r.filename,
+    title: r.title,
+    year: r.year ?? null,
+    type: r.type,
+    resolution: r.resolution ?? null,
+    rating: r.rating ?? null,
+    runtime: r.runtime ?? null,
+    poster: r.poster ?? null,
+    backdrop: r.backdrop ?? null,
+    logo: r.logo ?? null,
+    overview: r.overview ?? null,
+    tmdbId: r.tmdbId ?? null,
+    imdbId: r.imdbId ?? null,
+    season: r.season ?? null,
+    episode: r.episode ?? null,
+    addedAt: r.addedAt,
+    needsReview: r.needsReview === true ? true : undefined,
+    source: (r.source as 'tmdb' | 'nfo') ?? undefined,
+    localArt: r.localArt ?? undefined,
+  };
+}
+
+// Authoritative in-memory cache (sorted newest-first like the original blob).
+let entriesCache: LocalEntry[] = [];
+
+function sortEntries(arr: LocalEntry[]): LocalEntry[] {
+  return arr.slice().sort((a, b) => b.addedAt - a.addedAt);
+}
+
+function readEntries(): LocalEntry[] {
+  return entriesCache;
+}
+
+function readFolders(): string[] {
+  const raw = readAppKvSync(FOLDERS_KEY);
+  if (!raw) return [];
+  try {
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? (arr as string[]) : [];
   } catch {
     return [];
   }
 }
 
-function write(entries: LocalEntry[]): void {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(entries));
-  } catch {
-    /* noop */
+/** Persist folders to the SQLite app_kv store (async, errors logged). */
+function persistToKv(key: string, json: string): void {
+  writeAppKv(key, json);
+  if (!loaded) {
+    void ensureLocalLibraryLoaded().then(() => writeAppKv(key, json));
   }
+}
+
+function writeFolders(folders: string[]): void {
+  persistToKv(FOLDERS_KEY, JSON.stringify(folders));
   for (const s of subs) s();
+}
+
+/** Write rows to the local_entries table (INSERT OR REPLACE, incremental). */
+function persistRows(rows: LocalEntryRow[]): void {
+  if (rows.length === 0) return;
+  void db.localEntries.bulkPut(rows).catch((e) => {
+    console.warn('[LocalLibrary] Failed to persist entries:', e);
+  });
+}
+
+/** Delete rows by id (incremental). */
+function persistRemove(ids: string[]): void {
+  if (ids.length === 0) return;
+  void db.localEntries.bulkDelete(ids).catch((e) => {
+    console.warn('[LocalLibrary] Failed to remove entries:', e);
+  });
+}
+
+let loadedPromise: Promise<void> | null = null;
+let loaded = false;
+
+/**
+ * Load the authoritative library from the local_entries table (falling back to
+ * the legacy app_kv blob / localStorage JSON, migrating them into the table on
+ * first load). Folders load through the SQLite app_kv store. Idempotent; safe
+ * to call from boot, hooks, and async scan entry points. Subscribers are
+ * notified once loaded so hooks re-render with the persisted data.
+ */
+export function ensureLocalLibraryLoaded(): Promise<void> {
+  if (!loadedPromise) {
+    loadedPromise = (async () => {
+      await loadAppKv(FOLDERS_KEY).catch(() => null);
+
+      let loadedEntries: LocalEntry[] = [];
+      try {
+        const rows = await db.localEntries.toArray();
+        if (rows.length > 0) {
+          loadedEntries = rows.map(rowToEntry);
+        }
+      } catch (e) {
+        console.warn('[LocalLibrary] Failed to read local_entries table:', e);
+      }
+
+      if (loadedEntries.length === 0) {
+        // First run after upgrade: migrate the legacy JSON blob(s) into the table.
+        const raw = await loadAppKv(KEY).catch(() => null);
+        const legacy = parseEntries(raw) ?? parseEntries(readAppKvSync(KEY)) ?? [];
+        if (legacy.length > 0) {
+          loadedEntries = legacy;
+          persistRows(legacy.map(entryToRow));
+          void db.appKv.delete(KEY).catch(() => {});
+        }
+      }
+
+      // Merge with anything a mutation already wrote this session (mutations
+      // win on conflict; persisted rows we haven't seen yet are preserved).
+      if (entriesCache.length === 0) {
+        entriesCache = sortEntries(loadedEntries);
+      } else {
+        const byId = new Map(entriesCache.map((e) => [e.id, e]));
+        for (const e of loadedEntries) {
+          if (!byId.has(e.id)) byId.set(e.id, e);
+        }
+        entriesCache = sortEntries(Array.from(byId.values()));
+      }
+    })().then(
+      () => {
+        loaded = true;
+        for (const s of subs) s();
+      },
+      () => {
+        loadedPromise = null; // allow retry on failure
+      },
+    );
+  }
+  return loadedPromise;
 }
 
 export function readScannedFolders(): string[] {
-  try {
-    const raw = localStorage.getItem(FOLDERS_KEY);
-    const saved: string[] = raw ? JSON.parse(raw) : [];
-    return Array.isArray(saved) ? saved : [];
-  } catch {
-    return [];
-  }
+  return readFolders();
 }
 
 export function saveScannedFolders(folders: string[]): void {
-  try {
-    localStorage.setItem(FOLDERS_KEY, JSON.stringify(folders));
-  } catch {
-    /* noop */
-  }
-  for (const s of subs) s();
+  writeFolders(folders);
 }
 
 export function addScannedFolder(folder: string): void {
   const norm = folder.trim();
   if (!norm) return;
-  const existing = readScannedFolders();
+  const existing = readFolders();
   if (!existing.some((f) => f.toLowerCase() === norm.toLowerCase())) {
-    saveScannedFolders([...existing, norm]);
+    writeFolders([...existing, norm]);
   }
 }
 
 export function removeScannedFolder(folder: string): void {
   const norm = folder.replace(/\\/g, '/').toLowerCase();
-  const existingFolders = readScannedFolders();
-  const nextFolders = existingFolders.filter((f) => f.replace(/\\/g, '/').toLowerCase() !== norm);
-  saveScannedFolders(nextFolders);
+  const nextFolders = readFolders().filter((f) => f.replace(/\\/g, '/').toLowerCase() !== norm);
+  writeFolders(nextFolders);
 
-  // Remove all entries residing under this folder
-  const currentEntries = read();
-  const remaining = currentEntries.filter((e) => {
+  // Remove all entries residing under this folder (incremental row deletes).
+  const prefix = norm.endsWith('/') ? norm : `${norm}/`;
+  const removedIds: string[] = [];
+  for (const e of entriesCache) {
     const p = e.path.replace(/\\/g, '/').toLowerCase();
-    const prefix = norm.endsWith('/') ? norm : `${norm}/`;
-    return !p.startsWith(prefix) && p !== norm;
-  });
-  write(remaining);
+    if (p.startsWith(prefix) || p === norm) removedIds.push(e.id);
+  }
+  removeLocalEntries(removedIds);
 }
 
 export function useScannedFolders(): string[] {
-  const [folders, setFolders] = useState<string[]>(() => readScannedFolders());
+  const [folders, setFolders] = useState<string[]>(() => readFolders());
   useEffect(() => {
-    const tick = () => setFolders(readScannedFolders());
+    ensureLocalLibraryLoaded().catch(() => {});
+    const tick = () => setFolders(readFolders());
     subs.add(tick);
     return () => {
       subs.delete(tick);
@@ -102,25 +257,37 @@ export function useScannedFolders(): string[] {
 }
 
 export function readLocalLibrary(): LocalEntry[] {
-  return read();
+  return readEntries();
 }
 
 export function addLocalEntries(entries: LocalEntry[]): void {
   if (entries.length === 0) return;
-  const existing = read();
-  const byPath = new Map(existing.map((e) => [e.path, e]));
-  for (const e of entries) byPath.set(e.path, e);
-  write(Array.from(byPath.values()).sort((a, b) => b.addedAt - a.addedAt));
+  const byPath = new Map(entriesCache.map((e) => [e.path, e]));
+  const changed: LocalEntry[] = [];
+  for (const e of entries) {
+    const prev = byPath.get(e.path);
+    byPath.set(e.path, e);
+    if (!prev || prev.id !== e.id || prev.addedAt !== e.addedAt || prev.title !== e.title) {
+      changed.push(e);
+    }
+  }
+  entriesCache = sortEntries(Array.from(byPath.values()));
+  persistRows(changed.map(entryToRow));
+  for (const s of subs) s();
 }
 
 export function removeLocalEntry(id: string): void {
-  write(read().filter((e) => e.id !== id));
+  removeLocalEntries([id]);
 }
 
 export function removeLocalEntries(ids: string[]): void {
   if (ids.length === 0) return;
   const idSet = new Set(ids);
-  write(read().filter((e) => !idSet.has(e.id)));
+  const next = entriesCache.filter((e) => !idSet.has(e.id));
+  if (next.length === entriesCache.length) return;
+  entriesCache = next;
+  persistRemove(Array.from(idSet));
+  for (const s of subs) s();
 }
 
 export function updateLocalEntries(
@@ -129,21 +296,25 @@ export function updateLocalEntries(
 ): void {
   if (ids.length === 0) return;
   const idSet = new Set(ids);
-  let changed = false;
-  const next = read().map((e) => {
+  const changed: LocalEntry[] = [];
+  const next = entriesCache.map((e) => {
     if (!idSet.has(e.id)) return e;
-    changed = true;
     const p = typeof patch === 'function' ? patch(e) : patch;
-    return { ...e, ...p };
+    const updated = { ...e, ...p };
+    changed.push(updated);
+    return updated;
   });
-  if (changed) write(next);
+  if (changed.length === 0) return;
+  entriesCache = next;
+  persistRows(changed.map(entryToRow));
+  for (const s of subs) s();
 }
 
-
 export function useLocalLibrary(): LocalEntry[] {
-  const [items, setItems] = useState<LocalEntry[]>(() => read());
+  const [items, setItems] = useState<LocalEntry[]>(() => readEntries());
   useEffect(() => {
-    const tick = () => setItems(read());
+    ensureLocalLibraryLoaded().catch(() => {});
+    const tick = () => setItems(readEntries());
     subs.add(tick);
     return () => {
       subs.delete(tick);

@@ -1,3 +1,5 @@
+import { rateLimitedFetch } from '../../services/tmdbRateLimit';
+
 /**
  * Metadata Cache for Local Library
  *
@@ -71,7 +73,7 @@ export async function getCachedCast(
       ? `https://api.themoviedb.org/3/${mediaType}/${tmdbId}/credits`
       : `https://api.themoviedb.org/3/${mediaType}/${tmdbId}/credits?api_key=${tmdbToken}`;
 
-    const res = await fetch(url, { headers });
+    const res = await rateLimitedFetch(url, { headers });
     if (!res.ok) return [];
     const data = await res.json();
     if (!Array.isArray(data?.cast)) return [];
@@ -141,7 +143,7 @@ export async function getCachedSeasonEpisodes(
       ? `https://api.themoviedb.org/3/tv/${tmdbId}/season/${seasonNumber}?language=en-US`
       : `https://api.themoviedb.org/3/tv/${tmdbId}/season/${seasonNumber}?api_key=${tmdbToken}&language=en-US`;
 
-    const res = await fetch(url, { headers });
+    const res = await rateLimitedFetch(url, { headers });
     if (!res.ok) return [];
     const data = await res.json();
     if (!Array.isArray(data?.episodes)) return [];

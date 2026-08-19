@@ -16,9 +16,11 @@ import { db } from '../db';
 const memoryCache = new Map<string, string>();
 let migrationPromise: Promise<void> | null = null;
 
+// globalThis.localStorage is window.localStorage in the app (and the stub the
+// vitest setup installs in node), so this works in both environments.
 function readLocalStorage(key: string): string | null {
   try {
-    return window.localStorage.getItem(key);
+    return (globalThis as any).localStorage?.getItem(key) ?? null;
   } catch (e) {
     console.warn(`[appKv] Failed to read localStorage key "${key}":`, e);
     return null;
@@ -27,7 +29,7 @@ function readLocalStorage(key: string): string | null {
 
 function removeLocalStorage(key: string): void {
   try {
-    window.localStorage.removeItem(key);
+    (globalThis as any).localStorage?.removeItem(key);
   } catch (e) {
     console.warn(`[appKv] Failed to remove localStorage key "${key}":`, e);
   }

@@ -6,6 +6,7 @@ import {
   readLocalLibrary,
   addLocalEntries,
   removeLocalEntries,
+  ensureLocalLibraryLoaded,
   parseFilename,
 } from './local-library';
 import { buildTmdbEntry } from './scan';
@@ -26,6 +27,10 @@ export async function syncLocalFolders(
   if (!force && Date.now() - lastSync < SYNC_THROTTLE_MS) {
     return { added: 0, removed: 0 };
   }
+
+  // Ensure the authoritative library/folders are loaded from SQLite before
+  // diffing against them, so a boot-time scan never races the migration.
+  await ensureLocalLibraryLoaded();
 
   const folders = readScannedFolders();
   if (folders.length === 0) return { added: 0, removed: 0 };

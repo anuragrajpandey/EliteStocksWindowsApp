@@ -6,6 +6,7 @@ import {
   findShowNfo,
   readNfo,
 } from './sidecars';
+import { rateLimitedFetch } from '../../services/tmdbRateLimit';
 
 export type TmdbLookup = {
   tmdbId?: number;
@@ -193,7 +194,7 @@ export async function tmdbLookup(
   if (year && type === 'movie') params.set('year', String(year));
   if (year && type === 'show') params.set('first_air_date_year', String(year));
 
-  const r = await fetch(`https://api.themoviedb.org/3/search/${path}?${params}`, { headers });
+  const r = await rateLimitedFetch(`https://api.themoviedb.org/3/search/${path}?${params}`, { headers });
   if (!r.ok) return {};
   const json = await r.json();
   const top = json.results?.[0];
@@ -211,7 +212,7 @@ export async function tmdbLookup(
   try {
     const dparams = new URLSearchParams({ append_to_response: 'external_ids' });
     if (queryParam) dparams.set(queryParam.key, queryParam.value);
-    const dr = await fetch(`https://api.themoviedb.org/3/${path}/${top.id}?${dparams}`, { headers });
+    const dr = await rateLimitedFetch(`https://api.themoviedb.org/3/${path}/${top.id}?${dparams}`, { headers });
     if (dr.ok) {
       const dj = await dr.json();
       const imdb = dj.imdb_id ?? dj.external_ids?.imdb_id;

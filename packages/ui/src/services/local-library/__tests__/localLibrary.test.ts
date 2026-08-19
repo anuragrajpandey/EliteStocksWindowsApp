@@ -209,7 +209,10 @@ describe('Local Library - Metadata Cache', () => {
 describe('Local Library - Auto Sync', () => {
   it('skips sync when no folders are configured', async () => {
     const { syncLocalFolders } = await import('../auto-sync');
-    localStorage.removeItem('ynotv.library.local.folders.v1');
+    const { removeScannedFolder } = await import('../local-library');
+    // The folder-management test above added a folder to the shared in-memory
+    // store — clear it so this test exercises the "no folders" path.
+    removeScannedFolder('C:/Media/Movies');
     const res = await syncLocalFolders(null, true);
     expect(res).toEqual({ added: 0, removed: 0 });
   });

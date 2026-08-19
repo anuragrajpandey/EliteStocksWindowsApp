@@ -13,6 +13,7 @@ import {
   useLocalLibrary,
   localEntryToVodPlayInfo,
   addScannedFolder,
+  ensureLocalLibraryLoaded,
 } from '../../services/local-library/local-library';
 import { countNfoFor, clearSidecarCache } from '../../services/local-library/sidecars';
 import { buildNfoEntry, buildTmdbEntry } from '../../services/local-library/scan';
@@ -196,6 +197,7 @@ export function LocalTab({
 
       setScanning(true);
       clearSidecarCache();
+      await ensureLocalLibraryLoaded();
       const files = await invoke<ScannedFile[]>('scan_local_folder', { folder: selected });
 
       if (!files || files.length === 0) {
@@ -226,6 +228,7 @@ export function LocalTab({
   const handleRescanSpecificFolder = useCallback(async (folderPath: string) => {
     try {
       clearSidecarCache();
+      await ensureLocalLibraryLoaded();
       const files = await invoke<ScannedFile[]>('scan_local_folder', { folder: folderPath });
       if (!files || files.length === 0) {
         showToast(t('noVideoFilesFound'));
@@ -239,44 +242,113 @@ export function LocalTab({
     }
   }, [showToast, t]);
 
+  // TMDB lookups are global rate-limited (~40 req/s, services/tmdbRateLimit.ts),
+  // so scanning with a small worker pool saturates the limit without tripping
+  // 429s — far faster than the old one-at-a-time loop.
+  const SCAN_CONCURRENCY = 12;
+
   const executeScan = async (files: ScannedFile[], mode: ScanMode) => {
     setScanning(true);
+    await ensureLocalLibraryLoaded();
     setScanProgress({ current: 0, total: files.length });
     const parsed = files.map((f) => ({ file: f, info: parseFilename(f.filename) }));
 
-    const built: LocalEntry[] = [];
-    let cur = 0;
-    for (const { file, info } of parsed) {
-      cur += 1;
-      setScanProgress({ current: cur, total: files.length });
-      try {
-        const entry =
-          mode === 'nfo'
-            ? await buildNfoEntry(file, info, tmdbToken)
-            : await buildTmdbEntry(file, info, tmdbToken);
-        built.push(entry);
-      } catch {
-        built.push({
-          id: file.path,
-          path: file.path,
-          filename: file.filename,
-          title: info.title,
-          year: info.year,
-          type: info.type,
-          resolution: info.resolution,
-          addedAt: Date.now(),
-          needsReview: true,
-        });
-      }
-    }
+    const built: LocalEntry[] = new Array(parsed.length);
+    let done = 0;
+    let next = 0;
+    const workers = Array.from(
+      { length: Math.min(SCAN_CONCURRENCY, parsed.length) },
+      async () => {
+        for (;;) {
+          const idx = next++;
+          if (idx >= parsed.length) return;
+          const { file, info } = parsed[idx];
+          try {
+            const entry =
+              mode === 'nfo'
+                ? await buildNfoEntry(file, info, tmdbToken)
+                : await buildTmdbEntry(file, info, tmdbToken);
+            built[idx] = entry;
+          } catch {
+            built[idx] = {
+              id: file.path,
+              path: file.path,
+              filename: file.filename,
+              title: info.title,
+              year: info.year,
+              type: info.type,
+              resolution: info.resolution,
+              addedAt: Date.now(),
+              needsReview: true,
+            };
+          }
+          done += 1;
+          setScanProgress({ current: done, total: files.length });
+        }
+      },
+    );
+    await Promise.all(workers);
 
-    addLocalEntries(built);
+    addLocalEntries(built.filter((e): e is LocalEntry => !!e));
     setScanning(false);
     setScanProgress(null);
     setPendingScanFiles(null);
     setPendingFolderPath(null);
     showToast(t('addedItemsToLibrary', { count: built.length }));
   };
+
+  const [rescanningMissing, setRescanningMissing] = useState(false);
+
+  // Re-run TMDB matching only for entries that are still ambiguous/unmatched,
+  // without re-scanning the disk or re-touching already-matched titles.
+  const handleRescanMissing = useCallback(async () => {
+    const missing = items.filter((e) => e.needsReview || (!e.tmdbId && !e.imdbId));
+    if (missing.length === 0) {
+      showToast(t('noMissingMetadata', 'All titles already have metadata.'));
+      return;
+    }
+    if (!tmdbToken) {
+      showToast(
+        t('rescanNeedsTmdb', 'Rescanning missing metadata requires a TMDB API key (Settings → TMDB).'),
+      );
+      return;
+    }
+    setRescanningMissing(true);
+    setScanProgress({ current: 0, total: missing.length });
+
+    const freshById = new Map<string, LocalEntry>();
+    let done = 0;
+    let next = 0;
+    const workers = Array.from(
+      { length: Math.min(SCAN_CONCURRENCY, missing.length) },
+      async () => {
+        for (;;) {
+          const idx = next++;
+          if (idx >= missing.length) return;
+          const e = missing[idx];
+          const info = parseFilename(e.filename);
+          try {
+            const fresh = await buildTmdbEntry(
+              { path: e.path, filename: e.filename, size: 0 },
+              info,
+              tmdbToken,
+            );
+            freshById.set(e.id, { ...e, ...fresh, id: e.id, path: e.path, addedAt: e.addedAt });
+          } catch {
+            freshById.set(e.id, e);
+          }
+          done += 1;
+          setScanProgress({ current: done, total: missing.length });
+        }
+      },
+    );
+    await Promise.all(workers);
+
+    updateLocalEntries(Array.from(freshById.keys()), (entry) => freshById.get(entry.id) ?? {});
+    setRescanningMissing(false);
+    setScanProgress(null);
+    showToast(t('rescannedMetadata', 'Rescanned metadata for {{count}} titles.', { count: freshById.size }));
+  }, [items, tmdbToken, showToast, t]);
 
   const handleScanModePick = (mode: ScanMode) => {
     setScanModalOpen(false);
@@ -488,6 +560,23 @@ export function LocalTab({
             </button>
           )}
 
+          {/* Rescan Missing Metadata Button */}
+          {items.length > 0 && (
+            <button
+              type="button"
+              className="local-btn local-btn--secondary"
+              onClick={() => void handleRescanMissing()}
+              disabled={rescanningMissing || scanning}
+              title={t('rescanMissingTitle', 'Re-run TMDB matching for titles with missing or ambiguous metadata')}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+                <polyline points="21 3 21 9 15 9" />
+              </svg>
+              {rescanningMissing ? t('scanning', 'Scanning...') : t('rescanMissing', 'Rescan Missing')}
+            </button>
+          )}
+
           {/* Add Folder Button */}
           <button
             type="button"
@@ -631,12 +720,12 @@ export function LocalTab({
         </div>
       )}
 
-      {/* Scan Progress Alert */}
-      {scanning && scanProgress && (
+      {/* Scan Progress Alert (folder scan or rescan-missing) */}
+      {(scanning || rescanningMissing) && scanProgress && (
         <div style={{ background: 'var(--surface-color, rgba(40,40,40,0.8))', padding: '14px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '14px', border: '1px solid var(--surface-border)' }}>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '6px' }}>
-              <span>{t('scanningMediaFiles', 'Scanning media files...')}</span>
+              <span>{rescanningMissing ? t('rescanningMetadataFiles', 'Refreshing metadata...') : t('scanningMediaFiles', 'Scanning media files...')}</span>
               <span>{scanProgress.current} / {scanProgress.total}</span>
             </div>
             <div style={{ height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>

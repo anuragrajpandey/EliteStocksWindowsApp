@@ -396,6 +396,35 @@ export interface EpisodeWatchHistory {
 }
 
 
+// Persisted shape of a Local VOD library entry (one row per media file).
+// Column names intentionally match LocalEntry's camelCase keys so the
+// SqliteTable wrapper can write/read them directly. Stored in its own table —
+// not the app_kv JSON blob — so 10k+ entry libraries update incrementally and
+// never compete for localStorage or app_kv size.
+export interface LocalEntryRow {
+  id: string;
+  path: string;
+  filename: string;
+  title: string;
+  year: number | null;
+  type: 'movie' | 'show';
+  resolution: string | null;
+  rating: number | null;
+  runtime: number | null;
+  poster: string | null;
+  backdrop: string | null;
+  logo: string | null;
+  overview: string | null;
+  tmdbId: number | null;
+  imdbId: string | null;
+  season: number | null;
+  episode: number | null;
+  addedAt: number;
+  needsReview: boolean | null;
+  source: 'tmdb' | 'nfo' | null;
+  localArt: { poster?: string; logo?: string; backdrop?: string } | null;
+}
+
 class YnotvDatabase extends SqliteDatabase {
   channels: SqliteTable<StoredChannel, string>;
   categories: SqliteTable<StoredCategory, string>;
@@ -429,6 +458,8 @@ class YnotvDatabase extends SqliteDatabase {
   appKv: SqliteTable<{ key: string; value: string }, string>;
   /** Sports team → channel links (one-tap playback from match cards). */
   teamChannelLinks: SqliteTable<TeamChannelLink, string>;
+  /** Local VOD library entries (one row per scanned media file). */
+  localEntries: SqliteTable<LocalEntryRow, string>;
 
 
   constructor() {
@@ -466,6 +497,7 @@ class YnotvDatabase extends SqliteDatabase {
     this.categoryFolders = new SqliteTable('category_folders', 'folder_id', this.dbPromise);
     this.appKv = new SqliteTable('app_kv', 'key', this.dbPromise);
     this.teamChannelLinks = new SqliteTable('team_channel_links', 'id', this.dbPromise);
+    this.localEntries = new SqliteTable('local_entries', 'id', this.dbPromise);
 
     // Initialize Schema (Async) - Chain to DB promise to ensure tables exist before usage
     const rawPromise = this.dbPromise;
@@ -505,6 +537,7 @@ class YnotvDatabase extends SqliteDatabase {
     this.categoryFolders.updateDbPromise(this.dbPromise);
     this.appKv.updateDbPromise(this.dbPromise);
     this.teamChannelLinks.updateDbPromise(this.dbPromise);
+    this.localEntries.updateDbPromise(this.dbPromise);
   }
 
   async initSchema(dbInstance?: Database) {
@@ -1053,6 +1086,34 @@ class YnotvDatabase extends SqliteDatabase {
         confidence REAL,
         updated_at INTEGER
       )`);
+
+    // Local VOD library entries — one row per scanned media file (see
+    // LocalEntryRow). User data: never touched by sync or cache clears.
+    await db.execute(`CREATE TABLE IF NOT EXISTS local_entries (
+        id TEXT PRIMARY KEY,
+        path TEXT NOT NULL,
+        filename TEXT NOT NULL,
+        title TEXT NOT NULL,
+        year INTEGER,
+        type TEXT NOT NULL,
+        resolution TEXT,
+        rating REAL,
+        runtime INTEGER,
+        poster TEXT,
+        backdrop TEXT,
+        logo TEXT,
+        overview TEXT,
+        tmdbId INTEGER,
+        imdbId TEXT,
+        season INTEGER,
+        episode INTEGER,
+        addedAt INTEGER NOT NULL,
+        needsReview INTEGER,
+        source TEXT,
+        localArt TEXT
+      )`);
+    await db.execute(`CREATE INDEX IF NOT EXISTS idx_local_entries_path ON local_entries(path)`);
+    await db.execute(`CREATE INDEX IF NOT EXISTS idx_local_entries_title ON local_entries(title COLLATE NOCASE)`);
     await db.execute(`CREATE INDEX IF NOT EXISTS idx_team_channel_links_league ON team_channel_links(league_id)`);
     await db.execute(`CREATE INDEX IF NOT EXISTS idx_team_channel_links_stream ON team_channel_links(stream_id)`);
 
@@ -1656,6 +1717,7 @@ export async function clearVodData(sourceId: string): Promise<void> {
 // Helper to clear ALL cached data (channels, EPG, VOD, metadata)
 // Also clears dvr_schedules/recordings since they reference channels (stale after source clear).
 // Keeps: prefs, Tauri Store settings, source configs, dvr_settings, custom_groups, watchlist,
+// app_kv + local_entries (Local VOD library, Stremio library/watch history),
 // and localStorage user data (VOD favorites, VOD playlists, UI layout) — never clear those here.
 export async function clearAllCachedData(): Promise<void> {
   // Use the adapter's .clear() rather than raw SQL transactions — Tauri's connection pool

@@ -19,6 +19,15 @@ import type { PlaylistItemProgressSnapshot } from '../stores/vodPlaylistProgress
 import { useStremioWatchStore, stremioWatchKvReady } from '../stores/stremioWatchStore';
 import { useStremioLibraryStore, stremioLibraryKvReady } from '../stores/stremioLibraryStore';
 import { writeAppKv } from '../services/appKv';
+import {
+    ensureLocalLibraryLoaded,
+    readLocalLibrary,
+    readScannedFolders,
+    addLocalEntries,
+    removeLocalEntries,
+    saveScannedFolders
+} from '../services/local-library/local-library';
+import type { LocalEntry } from '../services/local-library/types';
 
 export interface ExportData {
     version: number;
@@ -184,6 +193,8 @@ export interface ExportData {
     stremioWatchHistory?: any;
     /** Stremio library (was not exported before; added alongside the SQLite migration). */
     stremioLibrary?: any;
+    /** Local VOD library: scanned entries + configured folders. */
+    localLibrary?: { entries: LocalEntry[]; folders: string[] };
     // v6 additions (Playlist Editor data)
     customPlaylists?: CustomPlaylist[];
     playlistCategoryLinks?: PlaylistCategoryLink[];
@@ -508,6 +519,17 @@ async function buildExportData(): Promise<ExportData> {
             console.warn('[Export] Failed to read stremio-library from store:', e);
         }
 
+        let localLibrary = undefined;
+        try {
+            await ensureLocalLibraryLoaded();
+            localLibrary = {
+                entries: readLocalLibrary(),
+                folders: readScannedFolders(),
+            };
+        } catch (e) {
+            console.warn('[Export] Failed to read local library:', e);
+        }
+
         // 13. Get Playlist Editor data
         const customPlaylists = await db.customPlaylists.toArray();
         const playlistCategoryLinks = await db.playlistCategoryLinks.toArray();
@@ -615,6 +637,7 @@ async function buildExportData(): Promise<ExportData> {
             stremioAddons,
             stremioWatchHistory,
             stremioLibrary,
+            localLibrary,
             customPlaylists,
             playlistCategoryLinks,
             playlistIndividualChannels,
@@ -731,6 +754,20 @@ export async function importAllData(): Promise<{ success: boolean; error?: strin
                 }));
             } catch (e) {
                 console.warn('[Import] Failed to persist stremio-library:', e);
+            }
+        }
+
+        // Restore Local VOD library (entries + folders). Replaces the current
+        // library with the backup's contents.
+        if (data.localLibrary) {
+            try {
+                const { entries = [], folders = [] } = data.localLibrary;
+                await ensureLocalLibraryLoaded();
+                removeLocalEntries(readLocalLibrary().map((e) => e.id));
+                addLocalEntries(entries);
+                saveScannedFolders(folders);
+            } catch (e) {
+                console.warn('[Import] Failed to restore local library:', e);
             }
         }
 
