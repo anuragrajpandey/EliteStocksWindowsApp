@@ -27,6 +27,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Download MPV and dependencies
+        shell: bash
+        run: bash scripts/download-mpv-tauri.sh
+
       - name: Build Windows app
         run: pnpm tauri build
 
