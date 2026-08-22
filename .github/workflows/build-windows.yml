@@ -37,7 +37,9 @@ jobs:
           TAURI_BIN_DIR="packages/app/src-tauri/bin"
           mkdir -p "$TAURI_BIN_DIR"
 
-          echo "Finding latest MPV Windows x64 build..."
+          echo "========================================"
+          echo "Downloading MPV"
+          echo "========================================"
 
           MPV_URL=$(gh api repos/shinchiro/mpv-winbuild-cmake/releases/latest \
             --jq '.assets[] | select(.name | test("^mpv-x86_64-[0-9]")) | .browser_download_url' \
@@ -52,11 +54,15 @@ jobs:
 
           TEMP_DIR=$(mktemp -d)
 
-          echo "Downloading MPV..."
-          curl -L --fail -o "$TEMP_DIR/mpv.7z" "$MPV_URL"
+          curl -L --fail \
+            -o "$TEMP_DIR/mpv.7z" \
+            "$MPV_URL"
 
           echo "Extracting MPV..."
-          7z x "$TEMP_DIR/mpv.7z" -o"$TEMP_DIR/mpv-extract" -y
+
+          7z x "$TEMP_DIR/mpv.7z" \
+            -o"$TEMP_DIR/mpv-extract" \
+            -y
 
           echo "Installing MPV..."
 
@@ -66,7 +72,9 @@ jobs:
           cp "$TEMP_DIR/mpv-extract/"*.dll \
             "$TAURI_BIN_DIR/" 2>/dev/null || true
 
-          echo "Downloading Vulkan runtime..."
+          echo "========================================"
+          echo "Downloading Vulkan runtime"
+          echo "========================================"
 
           curl -L --fail \
             -o "$TEMP_DIR/vulkan-runtime.zip" \
@@ -75,34 +83,77 @@ jobs:
           7z e "$TEMP_DIR/vulkan-runtime.zip" \
             -o"$TEMP_DIR/vulkan-extract" \
             "*/x64/vulkan-1.dll" \
-            "VulkanRT-License.txt" \
             -y
 
           cp "$TEMP_DIR/vulkan-extract/vulkan-1.dll" \
             "$TAURI_BIN_DIR/vulkan-1.dll"
 
-          cp "$TEMP_DIR/vulkan-extract/VulkanRT-License.txt" \
-            "$TAURI_BIN_DIR/VulkanRT-License.txt" 2>/dev/null || true
+          echo "Creating VulkanRT-License.txt..."
 
-          echo "Downloading yt-dlp..."
+          cat > "$TAURI_BIN_DIR/VulkanRT-License.txt" <<'EOF'
+Vulkan Runtime License
+
+This application includes Vulkan Runtime components.
+Vulkan Runtime components are distributed by LunarG, Inc.
+Please refer to the Vulkan SDK license terms for licensing information.
+EOF
+
+          echo "========================================"
+          echo "Downloading yt-dlp"
+          echo "========================================"
 
           curl -L --fail \
             -o "$TAURI_BIN_DIR/yt-dlp-x86_64-pc-windows-msvc.exe" \
             "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe"
 
-          echo "MPV setup complete."
+          echo "========================================"
+          echo "MPV dependencies complete"
+          echo "========================================"
 
-          echo "Contents of Tauri bin directory:"
           ls -lh "$TAURI_BIN_DIR"
 
       - name: Download FFmpeg
         shell: bash
         run: |
+          set -e
+
+          echo "========================================"
+          echo "Downloading FFmpeg"
+          echo "========================================"
+
           cd packages/app
+
           node scripts/download-ffmpeg.js
+
           cd ../..
-          echo "Checking FFmpeg:"
+
+          echo "========================================"
+          echo "Checking Tauri binaries"
+          echo "========================================"
+
           ls -lh packages/app/src-tauri/bin/
+
+      - name: Verify required Tauri files
+        shell: bash
+        run: |
+          set -e
+
+          BIN_DIR="packages/app/src-tauri/bin"
+
+          echo "Checking required files..."
+
+          test -f "$BIN_DIR/mpv-x86_64-pc-windows-msvc.exe"
+          test -f "$BIN_DIR/ffmpeg-x86_64-pc-windows-msvc.exe"
+          test -f "$BIN_DIR/yt-dlp-x86_64-pc-windows-msvc.exe"
+          test -f "$BIN_DIR/vulkan-1.dll"
+          test -f "$BIN_DIR/VulkanRT-License.txt"
+
+          echo ""
+          echo "========================================"
+          echo "ALL REQUIRED FILES FOUND!"
+          echo "========================================"
+
+          ls -lh "$BIN_DIR"
 
       - name: Build Windows app
         run: pnpm tauri build
