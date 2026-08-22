@@ -62,7 +62,7 @@ export function useNavigation(options: UseNavigationOptions): NavigationState {
   const { playing, multiviewLayout, multiviewExitTabMode, setCategoryId, overlayAutohideTimer, overlayOnClickOnly } = options;
 
   // View state
-  const [activeView, setActiveView] = useState<View>('guide');
+  const [activeView, setActiveView] = useState<View>('movies');
   const [settingsTab, setSettingsTab] = useState<SettingsTabId>('sources');
   const [editSourceId, setEditSourceId] = useState<string | null>(null);
   const [showSettingsPopup, setShowSettingsPopup] = useState(false);
