@@ -95,6 +95,15 @@ jobs:
           echo "Contents of Tauri bin directory:"
           ls -lh "$TAURI_BIN_DIR"
 
+      - name: Download FFmpeg
+        shell: bash
+        run: |
+          cd packages/app
+          node scripts/download-ffmpeg.js
+          cd ../..
+          echo "Checking FFmpeg:"
+          ls -lh packages/app/src-tauri/bin/
+
       - name: Build Windows app
         run: pnpm tauri build
 
