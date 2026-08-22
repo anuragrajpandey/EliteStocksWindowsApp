@@ -43,7 +43,13 @@ jobs:
         run: pnpm install
 
       # --------------------------------------------------
-      # 6. Download FFmpeg
+      # 6. Generate EliteStocks TV app icons
+      # --------------------------------------------------
+      - name: Generate Tauri icons
+        run: pnpm --filter @ynotv/app tauri icon src-tauri/EliteStocksIcon.png
+
+      # --------------------------------------------------
+      # 7. Download FFmpeg
       # --------------------------------------------------
       - name: Download FFmpeg
         shell: bash
@@ -60,7 +66,7 @@ jobs:
           ls -lh packages/app/src-tauri/bin/
 
       # --------------------------------------------------
-      # 7. Download MPV
+      # 8. Download MPV
       # --------------------------------------------------
       - name: Download MPV
         shell: bash
@@ -128,7 +134,7 @@ jobs:
           echo "MPV installed."
 
       # --------------------------------------------------
-      # 8. Download Vulkan runtime
+      # 9. Download Vulkan runtime
       # --------------------------------------------------
       - name: Download Vulkan runtime
         shell: bash
@@ -193,7 +199,7 @@ jobs:
           echo "Vulkan files installed."
 
       # --------------------------------------------------
-      # 9. Download yt-dlp
+      # 10. Download yt-dlp
       # --------------------------------------------------
       - name: Download yt-dlp
         shell: bash
@@ -213,7 +219,7 @@ jobs:
           echo "yt-dlp installed."
 
       # --------------------------------------------------
-      # 10. Verify Tauri binaries
+      # 11. Verify Tauri binaries
       # --------------------------------------------------
       - name: Verify Tauri binaries
         shell: bash
@@ -253,13 +259,13 @@ jobs:
           echo "All required binaries are present."
 
       # --------------------------------------------------
-      # 11. Build Windows application
+      # 12. Build Windows application
       # --------------------------------------------------
       - name: Build Windows app
         run: pnpm tauri build
 
       # --------------------------------------------------
-      # 12. Upload installer
+      # 13. Upload installer
       # --------------------------------------------------
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4
