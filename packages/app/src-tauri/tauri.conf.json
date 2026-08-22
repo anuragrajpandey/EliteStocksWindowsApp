@@ -3,15 +3,18 @@
   "productName": "ynoTV",
   "version": "2.4.0",
   "identifier": "com.ynotv.app",
+
   "build": {
     "beforeDevCommand": "pnpm --filter @ynotv/ui dev",
     "devUrl": "http://localhost:5173",
     "beforeBuildCommand": "pnpm --filter @ynotv/ui build",
     "frontendDist": "../../ui/dist"
   },
+
   "app": {
     "withGlobalTauri": true,
     "macOSPrivateApi": true,
+
     "windows": [
       {
         "title": "ynoTV",
@@ -25,23 +28,26 @@
         "dragDropEnabled": false
       }
     ],
+
     "security": {
       "csp": null
     }
   },
+
   "plugins": {
     "updater": {
-      "active": true,
+      "active": false,
       "dialog": false,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDZGRERENzgyRkQ3MkE3REMKUldUY3AzTDlndGZkYjZhdVB0QmpTellTMUU3VGdTcXFORWlXbzduMWMrd2V2dk4rR2xKWW95T0kK",
-      "endpoints": [
-        "https://github.com/tbeezy/ynotv/releases/latest/download/latest.json"
-      ]
+      "pubkey": "",
+      "endpoints": []
     }
   },
+
   "bundle": {
     "active": true,
-    "createUpdaterArtifacts": true,
+
+    "createUpdaterArtifacts": false,
+
     "targets": [
       "nsis",
       "deb",
@@ -49,18 +55,23 @@
       "appimage",
       "dmg"
     ],
+
     "licenseFile": "../../../LICENSE",
+
     "externalBin": [
       "bin/mpv",
       "bin/ffmpeg",
       "bin/yt-dlp"
     ],
+
     "resources": {},
+
     "windows": {
       "nsis": {
         "installMode": "currentUser"
       }
     },
+
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
