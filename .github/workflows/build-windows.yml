@@ -29,7 +29,71 @@ jobs:
 
       - name: Download MPV and dependencies
         shell: bash
-        run: bash scripts/download-mpv-tauri.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+
+          TAURI_BIN_DIR="packages/app/src-tauri/bin"
+          mkdir -p "$TAURI_BIN_DIR"
+
+          echo "Finding latest MPV Windows x64 build..."
+
+          MPV_URL=$(gh api repos/shinchiro/mpv-winbuild-cmake/releases/latest \
+            --jq '.assets[] | select(.name | test("^mpv-x86_64-[0-9]")) | .browser_download_url' \
+            | head -n 1)
+
+          if [ -z "$MPV_URL" ]; then
+            echo "ERROR: Could not find MPV x86_64 download."
+            exit 1
+          fi
+
+          echo "MPV URL: $MPV_URL"
+
+          TEMP_DIR=$(mktemp -d)
+
+          echo "Downloading MPV..."
+          curl -L --fail -o "$TEMP_DIR/mpv.7z" "$MPV_URL"
+
+          echo "Extracting MPV..."
+          7z x "$TEMP_DIR/mpv.7z" -o"$TEMP_DIR/mpv-extract" -y
+
+          echo "Installing MPV..."
+
+          cp "$TEMP_DIR/mpv-extract/mpv.exe" \
+            "$TAURI_BIN_DIR/mpv-x86_64-pc-windows-msvc.exe"
+
+          cp "$TEMP_DIR/mpv-extract/"*.dll \
+            "$TAURI_BIN_DIR/" 2>/dev/null || true
+
+          echo "Downloading Vulkan runtime..."
+
+          curl -L --fail \
+            -o "$TEMP_DIR/vulkan-runtime.zip" \
+            "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-runtime-components.zip"
+
+          7z e "$TEMP_DIR/vulkan-runtime.zip" \
+            -o"$TEMP_DIR/vulkan-extract" \
+            "*/x64/vulkan-1.dll" \
+            "VulkanRT-License.txt" \
+            -y
+
+          cp "$TEMP_DIR/vulkan-extract/vulkan-1.dll" \
+            "$TAURI_BIN_DIR/vulkan-1.dll"
+
+          cp "$TEMP_DIR/vulkan-extract/VulkanRT-License.txt" \
+            "$TAURI_BIN_DIR/VulkanRT-License.txt" 2>/dev/null || true
+
+          echo "Downloading yt-dlp..."
+
+          curl -L --fail \
+            -o "$TAURI_BIN_DIR/yt-dlp-x86_64-pc-windows-msvc.exe" \
+            "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe"
+
+          echo "MPV setup complete."
+
+          echo "Contents of Tauri bin directory:"
+          ls -lh "$TAURI_BIN_DIR"
 
       - name: Build Windows app
         run: pnpm tauri build
