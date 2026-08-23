@@ -1,13 +1,65 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 80">
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 900 260"
+  width="900"
+  height="260"
+  role="img"
+  aria-labelledby="title desc"
+>
+  <title id="title">EliteStocks TV</title>
+  <desc id="desc">EliteStocks TV logo</desc>
+
+  <!-- TV Frame -->
+  <rect
+    x="25"
+    y="25"
+    width="850"
+    height="175"
+    rx="18"
+    fill="none"
+    stroke="#A0A0A0"
+    stroke-width="8"
+  />
+
+  <!-- Screen -->
+  <rect
+    x="55"
+    y="55"
+    width="790"
+    height="115"
+    rx="8"
+    fill="#A0A0A0"
+    opacity="0.08"
+  />
+
+  <!-- EliteStocks TV -->
   <text
-    x="0"
-    y="58"
+    x="450"
+    y="135"
+    text-anchor="middle"
     font-family="Arial, Helvetica, sans-serif"
-    font-size="54"
+    font-size="68"
     font-weight="700"
-    letter-spacing="-1"
-    fill="currentColor"
+    letter-spacing="2"
+    fill="#A0A0A0"
   >
     EliteStocks TV
   </text>
+
+  <!-- TV Stand -->
+  <path
+    d="M360 200 L540 200 L505 230 L395 230 Z"
+    fill="#A0A0A0"
+  />
+
+  <!-- Bottom line -->
+  <rect
+    x="300"
+    y="238"
+    width="300"
+    height="6"
+    rx="3"
+    fill="#A0A0A0"
+    opacity="0.7"
+  />
 </svg>
