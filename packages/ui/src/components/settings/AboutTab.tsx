@@ -47,7 +47,7 @@ export function AboutTab() {
           <div className="about-links" style={{ marginBottom: '24px', display: 'flex', gap: '16px' }}>
             <button
               className="sync-btn"
-              onClick={() => openLink('https://elitestocks.in')}
+              onClick={() => openLink('https://www.elitestocks.in')}
               style={{ maxWidth: '140px' }}
             >
               EliteStocks
