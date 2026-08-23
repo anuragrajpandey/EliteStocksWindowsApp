@@ -245,7 +245,7 @@ const SETTINGS_SEARCH_INDEX: SettingsSearchResult[] = [
   { id: 'discord-show', label: 'Show on Discord', description: 'Enable Discord Rich Presence status updates.', tabId: 'discord', tabLabel: 'Discord Rich Presence', section: 'Discord Rich Presence' },
   { id: 'discord-hide-title', label: 'Hide Title', description: 'Show Watching Something instead of movie or show title.', tabId: 'discord', tabLabel: 'Discord Rich Presence', section: 'Discord Rich Presence' },
   { id: 'discord-show-paused', label: 'Show while paused', description: 'Keep presence visible when playback is paused.', tabId: 'discord', tabLabel: 'Discord Rich Presence', section: 'Discord Rich Presence' },
-  { id: 'discord-show-browsing', label: 'Show while browsing', description: 'Display Browsing ynotv when nothing is playing.', tabId: 'discord', tabLabel: 'Discord Rich Presence', section: 'Discord Rich Presence' },
+  { id: 'discord-show-browsing', label: 'Show while browsing', description: 'Display Browsing EliteStocks TV when nothing is playing.', tabId: 'discord', tabLabel: 'Discord Rich Presence', section: 'Discord Rich Presence' },
   { id: 'discord-show-poster', label: 'Show poster', description: 'Display movie or show poster artwork on Discord profile.', tabId: 'discord', tabLabel: 'Discord Rich Presence', section: 'Discord Rich Presence' },
   { id: 'discord-show-timestamp', label: 'Show elapsed time', description: 'Display live progress bar showing elapsed playback time.', tabId: 'discord', tabLabel: 'Discord Rich Presence', section: 'Discord Rich Presence' },
 
@@ -296,9 +296,9 @@ const SETTINGS_SEARCH_INDEX: SettingsSearchResult[] = [
   { id: 'import-config', label: 'Import Configuration', description: 'Restore configuration from a previously exported file.', tabId: 'export-import', tabLabel: 'Export / Import', section: 'Import Configuration' },
 
   // --- About ---
-  { id: 'about-tab', label: 'About ynoTV', tabId: 'about', tabLabel: 'About', section: 'About' },
-  { id: 'about-version', label: 'Version', tabId: 'about', tabLabel: 'About', section: 'About ynoTV' },
-  { id: 'about-updates', label: 'Updates', description: 'Check for new versions of ynoTV.', tabId: 'about', tabLabel: 'About', section: 'Updates' },
+  { id: 'about-tab', label: 'About EliteStocks TV', tabId: 'about', tabLabel: 'About', section: 'About' },
+  { id: 'about-version', label: 'Version', tabId: 'about', tabLabel: 'About', section: 'About EliteStocks TV' },
+  { id: 'about-updates', label: 'Updates', description: 'Check for new versions of EliteStocks TV.', tabId: 'about', tabLabel: 'About', section: 'Updates' },
   { id: 'about-changelog', label: 'Changelog', tabId: 'about', tabLabel: 'About', section: 'Changelog' },
 ];
 

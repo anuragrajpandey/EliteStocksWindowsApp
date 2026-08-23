@@ -118,7 +118,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         }}
       >
         <div style={{ fontSize: '22px', fontWeight: 600, letterSpacing: '1px', color: '#00d4ff' }}>
-          ynoTV
+          EliteStocks TV
         </div>
         <div style={{ fontSize: '15px', fontWeight: 600 }}>
           Something went wrong{quota ? ' — storage is full' : ''}

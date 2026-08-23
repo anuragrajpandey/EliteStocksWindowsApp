@@ -749,7 +749,7 @@ export function LocalTab({
             {t('emptyLocalTitle', 'Add files from your computer')}
           </h3>
           <p className="local-empty-state__desc">
-            {t('emptyLocalDesc', 'Point ynoTV at a folder. We scan it for movies and shows, parse titles from filenames, and enrich them with TMDB so they look the same as everything else here. We just remember the path; nothing is copied or moved.')}
+            {t('emptyLocalDesc', 'Point EliteStocks TV at a folder. We scan it for movies and shows, parse titles from filenames, and enrich them with TMDB so they look the same as everything else here. We just remember the path; nothing is copied or moved.')}
           </p>
           <button
             type="button"

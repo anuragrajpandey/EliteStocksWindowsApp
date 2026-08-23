@@ -2050,7 +2050,7 @@ function NuvioPageContent({
             </div>
 
             <p className="nuvio-login-disclaimer">
-              Disclaimer: ynoTV is an independent open source desktop client and is not affiliated with or endorsed by Nuvio. Your login credentials are only used to connect to Nuvio's servers directly to sync &mdash; ynoTV never stores or transmits them.
+              Disclaimer: EliteStocks TV is an independent open source desktop client and is not affiliated with or endorsed by Nuvio. Your login credentials are only used to connect to Nuvio's servers directly to sync &mdash; EliteStocks TV never stores or transmits them.
             </p>
 
             <div style={{ textAlign: 'center', marginTop: '4px' }}>

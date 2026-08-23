@@ -147,7 +147,7 @@ export function RecoveryScreen({ health, onContinue }: RecoveryScreenProps) {
   return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
-        <div style={{ fontSize: '22px', fontWeight: 600, letterSpacing: '1px', color: '#00d4ff' }}>ynoTV</div>
+        <div style={{ fontSize: '22px', fontWeight: 600, letterSpacing: '1px', color: '#00d4ff' }}>EliteStocks TV</div>
         <div style={styles.title}>Database recovery</div>
         <div style={styles.subtitle}>
           The app detected a problem with its database that can prevent it from starting normally.
